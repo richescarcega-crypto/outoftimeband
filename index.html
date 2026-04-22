@@ -48,7 +48,7 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 .cnav button{background:none;border:none;color:#f5c518;font-size:28px;padding:0 8px;font-weight:700;touch-action:manipulation;}
 .mlbl{font-family:"Russo One",sans-serif;font-size:16px;letter-spacing:2px;color:#f5c518;}
 .cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;background:#1565c0;border:1px solid #1565c0;border-radius:10px;padding:7px 4px;margin-bottom:12px;}
-.dhdr{text-align:center;font-size:11px;font-weight:700;color:#1565c0;font-family:"Russo One",sans-serif;padding-bottom:5px;border-bottom:2px solid #1565c0;}
+.dhdr{text-align:center;font-size:11px;font-weight:700;color:#fff;font-family:"Russo One",sans-serif;padding-bottom:5px;border-bottom:2px solid rgba(255,255,255,.4);}
 .dc{min-height:38px;background:#f5c518;border-radius:2px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;cursor:pointer;transition:background .15s;border:1px solid rgba(21,101,192,.3);}
 .dc:hover{background:#ffd84d;outline:1px solid #060e1c;}
 .dc:active{background:#e6b800;}
@@ -57,7 +57,7 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 .dn{font-size:11px;color:#060e1c;font-weight:700;}
 .dc.td .dn{color:#fff;font-weight:700;}
 .pips{display:flex;gap:2px;margin-top:2px;}
-.pip{width:4px;height:4px;border-radius:50%;}
+.pip{width:9px;height:9px;border-radius:50%;cursor:pointer;}
 .er{background:var(--n4);border-radius:8px;padding:9px 11px;margin-bottom:6px;display:flex;gap:8px;align-items:flex-start;}
 .ebdg{font-size:10px;padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0;font-family:"Russo One",sans-serif;}
 .slc{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;touch-action:manipulation;}
@@ -576,7 +576,7 @@ function rCal() {
   for(var d=1;d<=dim;d++){
     var ds=fD(CY,CM,d), de=events.filter(function(e){return e.date===ds;});
     var td=CY===2026&&CM===3&&d===21;
-    var pp=['gig','rehearsal','blackout'].filter(function(t){return de.some(function(e){return e.type===t;});}).map(function(t){return '<div class="pip" style="background:'+EC[t]+'"></div>';}).join('');
+    var pp=['gig','rehearsal','blackout'].filter(function(t){return de.some(function(e){return e.type===t;});}).map(function(t){return '<div class="pip" style="background:'+EC[t]+';cursor:pointer;" onclick="event.stopPropagation();oDy('+d+')"></div>';}).join('');;
     h+='<div class="dc'+(td?' td':'')+'" onclick="oDy('+d+')"><span class="dn">'+d+'</span><div class="pips">'+pp+'</div></div>';
   }
   document.getElementById('cgrid').innerHTML = h;
