@@ -600,12 +600,21 @@ function rEvL() {
 function oDy(day) {
   sDay=day;
   document.querySelectorAll('.dc').forEach(function(d){d.classList.remove('sel');});
-  document.querySelectorAll('.dc').forEach(function(d){if(d.querySelector('.dn')&&d.querySelector('.dn').textContent==day)d.classList.add('sel');});
+  document.querySelectorAll('.dc').forEach(function(d){
+    if(d.querySelector('.dn')&&d.querySelector('.dn').textContent==day) d.classList.add('sel');
+  });
   document.getElementById('emtit').textContent = MO[CM] + ' ' + day;
-  var ds=fD(CY,CM,day), de=events.filter(function(e){return e.date===ds;});
-  document.getElementById('eex').innerHTML = de.map(function(e){
-    return '<div style="padding:9px;background:#060e1c;border-radius:8px;margin-bottom:8px;border-left:3px solid '+EC[e.type]+'"><div style="font-size:13px;font-weight:600;color:#fff">'+e.title+'</div><div style="font-size:11px;color:#aaa;margin-top:2px">'+e.note+'</div><button class="cb" style="margin-top:8px;font-size:11px;padding:4px 10px" onclick="dEv(''+e.id+'');clM('evm');oDy('+day+')">Remove</button></div>';
-  }).join('');
+  var ds=fD(CY,CM,day);
+  var de=events.filter(function(e){return e.date===ds;});
+  var exHtml = '';
+  de.forEach(function(e){
+    exHtml += '<div style="padding:9px;background:#060e1c;border-radius:8px;margin-bottom:8px;border-left:3px solid ' + EC[e.type] + '">';
+    exHtml += '<div style="font-size:13px;font-weight:600;color:#fff">' + e.title + '</div>';
+    exHtml += '<div style="font-size:11px;color:#aaa;margin-top:2px">' + e.note + '</div>';
+    exHtml += '<button class="cb" style="margin-top:8px;font-size:11px;padding:4px 10px" onclick="dEv(\''+e.id+'\');clM(\'evm\');oDy('+day+')">Remove</button>';
+    exHtml += '</div>';
+  });
+  document.getElementById('eex').innerHTML = exHtml;
   sET('gig');
   document.getElementById('etit').value = '';
   document.getElementById('enot').value = '';
@@ -633,15 +642,25 @@ function dEv(id){db.collection('events').doc(String(id)).delete();}
 function rAvailability() {
   var el=document.getElementById('avail-list');
   if(!el)return;
-  el.innerHTML = availability.length ? availability.map(function(a){
+  if(!availability.length){
+    el.innerHTML='<div style="color:#aaa;font-style:italic;padding:8px;font-size:13px;">No unavailability marked.</div>';
+    return;
+  }
+  var html2='';
+  availability.forEach(function(a){
     var m=gM(a.who);
-    return '<div style="background:#101e34;border-radius:8px;padding:8px 11px;margin-bottom:6px;display:flex;align-items:center;gap:8px;">' +
-      '<div style="width:24px;height:24px;border-radius:50%;background:'+m.color+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;flex-shrink:0;">'+m.av+'</div>' +
-      '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#e8f0ff;">'+a.name+'</div><div style="font-size:11px;color:#ff4757;">'+a.date+(a.note?' - '+a.note:'')+'</div></div>' +
-      (a.who===ME ? '<button onclick="db.collection('availability').doc(''+a.id+'').delete()" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;">&#10005;</button>' : '') +
-      '</div>';
-  }).join('') : '<div style="color:#aaa;font-style:italic;padding:8px;font-size:13px;">No unavailability marked.</div>';
+    html2 += '<div style="background:#101e34;border-radius:8px;padding:8px 11px;margin-bottom:6px;display:flex;align-items:center;gap:8px;">';
+    html2 += '<div style="width:24px;height:24px;border-radius:50%;background:'+m.color+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;flex-shrink:0;">'+m.av+'</div>';
+    html2 += '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#e8f0ff;">'+a.name+'</div>';
+    html2 += '<div style="font-size:11px;color:#ff4757;">'+a.date+(a.note?' - '+a.note:'')+'</div></div>';
+    if(a.who===ME){
+      html2 += '<button onclick="delAvail(\''+a.id+'\')" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;">&#10005;</button>';
+    }
+    html2 += '</div>';
+  });
+  el.innerHTML=html2;
 }
+function delAvail(id){ db.collection('availability').doc(String(id)).delete(); }
 function addMyAvail() {
   var date=prompt('Enter date you are NOT available (YYYY-MM-DD):', new Date().toISOString().slice(0,10));
   if(!date)return;
@@ -656,19 +675,53 @@ function showGigDetail(evId) {
   if(!ev)return;
   document.getElementById('gd-title').textContent = ev.title;
   var det=gigDetails[evId]||{};
-  var body = '<div style="display:flex;flex-direction:column;gap:8px;">';
-  body += '<div><div style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;margin-bottom:3px;">DATE</div><div style="font-size:14px;color:#e8f0ff;">'+ev.date+'</div></div>';
-  body += '<div><label style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;">VENUE / ADDRESS</label><input class="mi" id="gd-venue" value="'+(det.venue||'')+'" placeholder="Venue name and address"></div>';
-  body += '<div style="display:flex;gap:8px;">';
-  body += '<div style="flex:1"><label style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;">LOAD-IN</label><input class="mi" id="gd-loadin" value="'+(det.loadin||'')+'" placeholder="e.g. 5:30 PM"></div>';
-  body += '<div style="flex:1"><label style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;">SOUND CHECK</label><input class="mi" id="gd-sc" value="'+(det.sc||'')+'" placeholder="e.g. 6:30 PM"></div>';
-  body += '</div><div style="display:flex;gap:8px;">';
-  body += '<div style="flex:1"><label style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;">SET TIME</label><input class="mi" id="gd-settime" value="'+(det.settime||'')+'" placeholder="e.g. 8:00 PM"></div>';
-  body += '<div style="flex:1"><label style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;">CONTACT</label><input class="mi" id="gd-contact" value="'+(det.contact||'')+'" placeholder="Venue contact"></div>';
-  body += '</div><div><label style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;">NOTES</label>';
-  body += '<textarea class="mi" id="gd-notes" rows="3" style="resize:none;" placeholder="Parking, dress code, special instructions...">'+(det.notes||'')+'</textarea></div>';
-  body += '<button class="sb" onclick="saveGigDetail('' + evId + '')" style="width:100%">Save Details</button></div>';
-  document.getElementById('gd-body').innerHTML = body;
+  var b = document.getElementById('gd-body');
+  b.innerHTML = '';
+  
+  var dateDiv = document.createElement('div');
+  dateDiv.innerHTML = '<div style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;margin-bottom:3px;">DATE</div><div style="font-size:14px;color:#e8f0ff;">'+ev.date+'</div>';
+  b.appendChild(dateDiv);
+  
+  function makeField(labelText, inputId, val, placeholder, type) {
+    var d = document.createElement('div');
+    d.style.marginBottom = '8px';
+    var lbl = document.createElement('label');
+    lbl.style.cssText = 'font-size:10px;color:#aaa;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;';
+    lbl.textContent = labelText;
+    var inp = document.createElement(type==='textarea'?'textarea':'input');
+    inp.className = 'mi';
+    inp.id = inputId;
+    inp.value = val || '';
+    inp.placeholder = placeholder;
+    if(type==='textarea'){inp.rows=3;inp.style.resize='none';}
+    d.appendChild(lbl);
+    d.appendChild(inp);
+    return d;
+  }
+  
+  b.appendChild(makeField('VENUE / ADDRESS','gd-venue',det.venue,'Venue name and address','text'));
+  
+  var row1 = document.createElement('div');
+  row1.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;';
+  row1.appendChild(makeField('LOAD-IN','gd-loadin',det.loadin,'e.g. 5:30 PM','text'));
+  row1.appendChild(makeField('SOUND CHECK','gd-sc',det.sc,'e.g. 6:30 PM','text'));
+  b.appendChild(row1);
+  
+  var row2 = document.createElement('div');
+  row2.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;';
+  row2.appendChild(makeField('SET TIME','gd-settime',det.settime,'e.g. 8:00 PM','text'));
+  row2.appendChild(makeField('CONTACT','gd-contact',det.contact,'Venue contact','text'));
+  b.appendChild(row2);
+  
+  b.appendChild(makeField('NOTES','gd-notes',det.notes,'Parking, dress code, special instructions...','textarea'));
+  
+  var btn = document.createElement('button');
+  btn.className = 'sb';
+  btn.style.width = '100%';
+  btn.textContent = 'Save Details';
+  btn.onclick = function(){ saveGigDetail(evId); };
+  b.appendChild(btn);
+  
   opM('gig-detail-modal');
 }
 function saveGigDetail(evId) {
@@ -682,9 +735,17 @@ function saveGigDetail(evId) {
 function rSets() {
   document.getElementById('si').style.display='block';
   document.getElementById('se').style.display='none';
-  document.getElementById('sll').innerHTML = sets.length ? sets.map(function(s){
-    return '<div class="slc" onclick="opSL(''+s.id+'')"><div style="flex:1"><div class="sln">'+s.name+'</div><div class="slm">'+s.songs.length+' songs - '+tD(s.songs)+'</div></div><div style="color:#f5c518;font-size:16px;">&#9660;</div></div>';
-  }).join('') : '<div style="color:#aaa;font-style:italic;padding:8px">No setlists yet.</div>';
+  var el = document.getElementById('sll');
+  if(!sets.length){ el.innerHTML='<div style="color:#aaa;font-style:italic;padding:8px">No setlists yet.</div>'; return; }
+  el.innerHTML = '';
+  sets.forEach(function(s){
+    var div = document.createElement('div');
+    div.className = 'slc';
+    div.innerHTML = '<div style="flex:1"><div class="sln">'+s.name+'</div><div class="slm">'+s.songs.length+' songs - '+tD(s.songs)+'</div></div><div style="color:#f5c518;font-size:16px;">&#9660;</div>';
+    div.setAttribute('data-id', s.id);
+    div.onclick = function(){ opSL(this.getAttribute('data-id')); };
+    el.appendChild(div);
+  });
 }
 function nwSL() {
   var name=prompt('Setlist name:', 'New Setlist');
@@ -703,12 +764,25 @@ function rEd() {
   var s=sets.find(function(x){return x.id==aSL;});
   if(!s)return;
   document.getElementById('eh').innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;"><span style="font-family:Russo One,sans-serif;font-size:16px;color:#fff;">'+s.name+'</span><button onclick="renSL()" style="background:none;border:none;color:#4a9eff;font-size:12px;cursor:pointer;">&#9998; Rename</button></div><div style="font-size:11px;color:#aaa;margin-bottom:10px;">'+s.songs.length+' songs - '+tD(s.songs)+'</div>';
-  document.getElementById('ssl').innerHTML = s.songs.map(function(sg,i){
+  var container = document.getElementById('ssl');
+  container.innerHTML = '';
+  s.songs.forEach(function(sg, i){
+    var div = document.createElement('div');
+    div.className = 'sr';
     if(eSID===sg.id){
-      return '<div class="sr"><div class="sn">'+(i+1)+'</div><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;"><input class="fi2" id="et-'+sg.id+'" value="'+sg.t+'"><div style="display:flex;gap:6px;"><input class="fi2" id="ed-'+sg.id+'" value="'+sg.d+'" style="width:70px;flex:none"><input class="fi2" id="ek-'+sg.id+'" value="'+sg.k+'" style="width:52px;flex:none"></div><input class="fi2" id="en-'+sg.id+'" value="'+sg.n+'" placeholder="Notes"><button class="sb" onclick="svEd(''+sg.id+'')" style="align-self:flex-start;padding:6px 12px;margin-top:2px">Done</button></div></div>';
+      div.innerHTML = '<div class="sn">'+(i+1)+'</div><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;"><input class="fi2" id="et-'+sg.id+'" value="'+sg.t+'"><div style="display:flex;gap:6px;"><input class="fi2" id="ed-'+sg.id+'" value="'+sg.d+'" style="width:70px;flex:none"><input class="fi2" id="ek-'+sg.id+'" value="'+sg.k+'" style="width:52px;flex:none"></div><input class="fi2" id="en-'+sg.id+'" value="'+sg.n+'" placeholder="Notes"><button class="sb" style="align-self:flex-start;padding:6px 12px;margin-top:2px">Done</button></div>';
+      div.querySelector('.sb').setAttribute('data-id', sg.id);
+      div.querySelector('.sb').onclick = function(){ svEd(this.getAttribute('data-id')); };
+    } else {
+      div.innerHTML = '<div class="sn">'+(i+1)+'</div><div style="flex:1;min-width:0"><div class="st">'+sg.t+'</div><div class="sd">'+sg.d+(sg.k?' - Key of '+sg.k:'')+(sg.n?' - '+sg.n:'')+'</div></div><div class="sa"><button class="ib" title="up">&#8593;</button><button class="ib" title="dn">&#8595;</button><button class="ib" title="ed">&#9998;</button><button class="ib" title="rm">&#128465;</button></div>';
+      var btns = div.querySelectorAll('.ib');
+      btns[0].onclick = function(){ mvS(sg.id,-1); };
+      btns[1].onclick = function(){ mvS(sg.id,1); };
+      btns[2].onclick = function(){ edS(sg.id); };
+      btns[3].onclick = function(){ rmS(sg.id); };
     }
-    return '<div class="sr"><div class="sn">'+(i+1)+'</div><div style="flex:1;min-width:0"><div class="st">'+sg.t+'</div><div class="sd">'+sg.d+(sg.k?' - Key of '+sg.k:'')+(sg.n?' - '+sg.n:'')+'</div></div><div class="sa"><button class="ib" onclick="mvS(''+sg.id+'',-1)">&#8593;</button><button class="ib" onclick="mvS(''+sg.id+'',1)">&#8595;</button><button class="ib" onclick="edS(''+sg.id+'')">&#9998;</button><button class="ib" onclick="rmS(''+sg.id+'')">&#128465;</button></div></div>';
-  }).join('');
+    container.appendChild(div);
+  });
 }
 function edS(id){eSID=(eSID===id?null:id);rEd();}
 function svEd(id){
@@ -772,16 +846,27 @@ function addPickedSongs(){
 }
 
 // CHAT
-function rChatTo(){
+function rChatTo() {
   var el=document.getElementById('chat-to-row');if(!el)return;
-  var opts=[{id:'band',name:'The Band',color:'#f5c518',av:'ALL',isBand:true}].concat(members.map(function(m){return{id:m.id,name:m.name,color:m.color,av:m.av,isBand:false};}));
-  el.innerHTML = opts.map(function(o){
-    var active=chatTo==o.id;
-    if(o.isBand){
-      return '<button onclick="setChatTo('band')" style="display:flex;align-items:center;gap:5px;background:'+(active?'rgba(245,197,24,.2)':'#101e34')+';border:2px solid '+(active?'#f5c518':'#1a3a8a')+';border-radius:20px;padding:4px 10px;cursor:pointer;touch-action:manipulation;"><div style="width:22px;height:22px;border-radius:50%;background:#f5c518;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#000;flex-shrink:0;">ALL</div><span style="font-size:11px;color:'+(active?'#f5c518':'#e8f0ff')+';">The Band</span></button>';
-    }
-    return '<button onclick="setChatTo('+o.id+')" style="background:none;border:none;cursor:pointer;touch-action:manipulation;padding:2px;"><div style="width:36px;height:36px;border-radius:50%;background:'+o.color+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#000;border:3px solid '+(active?'#fff':'transparent')+';box-sizing:border-box;" title="'+o.name+'">'+o.av+'</div></button>';
-  }).join('');
+  el.innerHTML='';
+  // The Band button
+  var bandBtn = document.createElement('button');
+  var active = chatTo==='band';
+  bandBtn.style.cssText = 'display:flex;align-items:center;gap:5px;background:'+(active?'rgba(245,197,24,.2)':'#101e34')+';border:2px solid '+(active?'#f5c518':'#1a3a8a')+';border-radius:20px;padding:4px 10px;cursor:pointer;touch-action:manipulation;';
+  bandBtn.innerHTML = '<div style="width:22px;height:22px;border-radius:50%;background:#f5c518;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#000;flex-shrink:0;">ALL</div><span style="font-size:11px;color:'+(active?'#f5c518':'#e8f0ff')+';">The Band</span>';
+  bandBtn.onclick = function(){ setChatTo('band'); };
+  el.appendChild(bandBtn);
+  // Member buttons
+  members.forEach(function(m){
+    var btn = document.createElement('button');
+    var isActive = chatTo==m.id;
+    btn.style.cssText = 'background:none;border:none;cursor:pointer;touch-action:manipulation;padding:2px;';
+    btn.title = m.name;
+    btn.innerHTML = '<div style="width:36px;height:36px;border-radius:50%;background:'+m.color+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#000;border:3px solid '+(isActive?'#fff':'transparent')+';box-sizing:border-box;">'+m.av+'</div>';
+    btn.setAttribute('data-mid', m.id);
+    btn.onclick = function(){ setChatTo(parseInt(this.getAttribute('data-mid'))); };
+    el.appendChild(btn);
+  });
 }
 function setChatTo(id){chatTo=id;rChatTo();rChat();}
 function rChat(){
@@ -806,17 +891,46 @@ function sMsg(){
 }
 
 // BAND
-function rBand(){
-  var inp='background:#060e1c;border:1px solid #1a3a8a;border-radius:4px;padding:4px 7px;font-size:11px;color:#e8f0ff;outline:none;width:100%;font-family:Exo 2,sans-serif;box-sizing:border-box;';
-  var lbl='font-size:9px;color:#fff;letter-spacing:1px;font-family:Russo One,sans-serif;width:22px;flex-shrink:0;';
-  document.getElementById('ml').innerHTML = members.map(function(m){
-    return '<div class="mc">' +
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><div class="avmd" style="background:'+m.color+'">'+m.av+'</div><div><div style="font-size:14px;font-weight:600;color:#e8f0ff;">'+m.name+'</div><div style="font-size:11px;color:#4a9eff;font-family:Russo One,sans-serif;">'+m.inst+'</div></div></div>' +
-      '<div style="display:flex;align-items:center;margin-bottom:4px;gap:4px;"><span style="'+lbl+'">PH</span><input style="'+inp+'" type="tel" value="'+m.ph+'" placeholder="(555) 555-5555" oninput="fmtPhone(this);uM('+m.id+','ph',this.value)"></div>' +
-      '<div style="display:flex;align-items:center;margin-bottom:4px;gap:4px;"><span style="'+lbl+'">EM</span><input style="'+inp+'" type="email" value="'+m.em+'" placeholder="email@example.com" oninput="uM('+m.id+','em',this.value)"></div>' +
-      '<div style="display:flex;align-items:center;gap:4px;"><span style="'+lbl+'">AD</span><input style="'+inp+'" type="text" value="'+m.addr+'" placeholder="City, State" oninput="uM('+m.id+','addr',this.value)"></div>' +
+function rBand() {
+  var el = document.getElementById('ml');
+  el.innerHTML = '';
+  members.forEach(function(m){
+    var card = document.createElement('div');
+    card.className = 'mc';
+    card.innerHTML =
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
+        '<div class="avmd" style="background:'+m.color+'">'+m.av+'</div>' +
+        '<div><div style="font-size:14px;font-weight:600;color:#e8f0ff;">'+m.name+'</div>' +
+        '<div style="font-size:11px;color:#4a9eff;font-family:Russo One,sans-serif;">'+m.inst+'</div></div>' +
       '</div>';
-  }).join('');
+    var inp_style = 'background:#060e1c;border:1px solid #1a3a8a;border-radius:4px;padding:4px 7px;font-size:11px;color:#e8f0ff;outline:none;width:100%;font-family:Exo 2,sans-serif;box-sizing:border-box;';
+    var lbl_style = 'font-size:9px;color:#fff;letter-spacing:1px;font-family:Russo One,sans-serif;width:22px;flex-shrink:0;';
+    function makeRow(label, type, val, placeholder, field){
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;margin-bottom:4px;gap:4px;';
+      var lbl = document.createElement('span');
+      lbl.style.cssText = lbl_style;
+      lbl.textContent = label;
+      var inp = document.createElement('input');
+      inp.type = type;
+      inp.value = val||'';
+      inp.placeholder = placeholder;
+      inp.style.cssText = inp_style;
+      inp.setAttribute('data-mid', m.id);
+      inp.setAttribute('data-field', field);
+      inp.oninput = function(){
+        if(field==='ph') fmtPhone(this);
+        uM(parseInt(this.getAttribute('data-mid')), this.getAttribute('data-field'), this.value);
+      };
+      row.appendChild(lbl);
+      row.appendChild(inp);
+      return row;
+    }
+    card.appendChild(makeRow('PH','tel',m.ph,'(555) 555-5555','ph'));
+    card.appendChild(makeRow('EM','email',m.em,'email@example.com','em'));
+    card.appendChild(makeRow('AD','text',m.addr,'City, State','addr'));
+    el.appendChild(card);
+  });
 }
 function uM(id,f,v){var m=members.find(function(x){return x.id===id;});if(m){m[f]=v;var data={};data[f]=v;saveMember(m.name,data);}}
 function fmtPhone(inp){var v=inp.value.replace(/\D/g,'').slice(0,10);if(v.length>=6)v='('+v.slice(0,3)+') '+v.slice(3,6)+'-'+v.slice(6);else if(v.length>=3)v='('+v.slice(0,3)+') '+v.slice(3);inp.value=v;}
@@ -831,19 +945,32 @@ function adMem(){
 }
 
 // CONTACTS
-function rContacts(){
+function rContacts() {
   var el=document.getElementById('contacts-list');if(!el)return;
-  el.innerHTML = contacts.length ? contacts.map(function(c){
-    return '<div class="mc" style="padding:10px 12px;margin-bottom:8px;">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">' +
-      '<div><div style="font-size:14px;font-weight:600;color:#e8f0ff;">'+c.name+'</div><div style="font-size:11px;color:#f5c518;font-family:Russo One,sans-serif;">'+c.role+'</div></div>' +
-      '<button onclick="db.collection('contacts').doc(''+c.id+'').delete()" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;">&#10005;</button>' +
-      '</div>' +
-      (c.ph?'<div style="font-size:12px;color:#e8f0ff;margin-bottom:3px;">&#128222; '+c.ph+'</div>':'') +
-      (c.em?'<div style="font-size:12px;color:#e8f0ff;margin-bottom:3px;">&#9993; '+c.em+'</div>':'') +
-      (c.note?'<div style="font-size:11px;color:#aaa;">'+c.note+'</div>':'') +
-      '</div>';
-  }).join('') : '<div style="color:#aaa;font-style:italic;padding:8px;font-size:13px;">No contacts yet.</div>';
+  el.innerHTML='';
+  if(!contacts.length){
+    el.innerHTML='<div style="color:#aaa;font-style:italic;padding:8px;font-size:13px;">No contacts yet.</div>';
+    return;
+  }
+  contacts.forEach(function(c){
+    var card = document.createElement('div');
+    card.className = 'mc';
+    card.style.cssText = 'padding:10px 12px;margin-bottom:8px;';
+    var header = document.createElement('div');
+    header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;';
+    header.innerHTML = '<div><div style="font-size:14px;font-weight:600;color:#e8f0ff;">'+c.name+'</div><div style="font-size:11px;color:#f5c518;font-family:Russo One,sans-serif;">'+c.role+'</div></div>';
+    var delBtn = document.createElement('button');
+    delBtn.style.cssText = 'background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;';
+    delBtn.innerHTML = '&#10005;';
+    delBtn.setAttribute('data-cid', c.id);
+    delBtn.onclick = function(){ db.collection('contacts').doc(String(this.getAttribute('data-cid'))).delete(); };
+    header.appendChild(delBtn);
+    card.appendChild(header);
+    if(c.ph) { var p=document.createElement('div'); p.style.cssText='font-size:12px;color:#e8f0ff;margin-bottom:3px;'; p.textContent='📞 '+c.ph; card.appendChild(p); }
+    if(c.em) { var e=document.createElement('div'); e.style.cssText='font-size:12px;color:#e8f0ff;margin-bottom:3px;'; e.textContent='✉️ '+c.em; card.appendChild(e); }
+    if(c.note) { var n=document.createElement('div'); n.style.cssText='font-size:11px;color:#aaa;'; n.textContent=c.note; card.appendChild(n); }
+    el.appendChild(card);
+  });
 }
 function addContact(){
   var n=document.getElementById('ct-name').value.trim();if(!n)return;
@@ -854,27 +981,35 @@ function addContact(){
 }
 
 // ANNOUNCEMENTS
-function rAnnouncements(){
+function rAnnouncements() {
   var card=document.getElementById('announce-card');
   var list=document.getElementById('announce-list');
   if(!card||!list)return;
-  if(announcements.length){
-    card.style.display='block';
-    list.innerHTML = announcements.map(function(a){
-      var m=gM(a.who);
-      return '<div style="padding:8px;background:#060e1c;border-radius:8px;margin-bottom:6px;border-left:3px solid #f5c518;">' +
-        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">' +
-        '<div style="width:20px;height:20px;border-radius:50%;background:'+m.color+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;">'+m.av+'</div>' +
-        '<span style="font-size:11px;color:#4a9eff;font-weight:600;">'+a.name+'</span>' +
-        '<span style="font-size:10px;color:#4a6a9a;margin-left:auto;">'+a.time+'</span>' +
-        (a.who===ME ? '<button onclick="db.collection('announcements').doc(''+a.id+'').delete()" style="background:none;border:none;color:#4a6a9a;font-size:11px;cursor:pointer;">&#10005;</button>' : '') +
-        '</div>' +
-        '<div style="font-size:13px;color:#e8f0ff;">'+a.txt+'</div>' +
-        '</div>';
-    }).join('');
-  } else {
-    card.style.display='none';
-  }
+  if(!announcements.length){ card.style.display='none'; return; }
+  card.style.display='block';
+  list.innerHTML='';
+  announcements.forEach(function(a){
+    var m=gM(a.who);
+    var div=document.createElement('div');
+    div.style.cssText='padding:8px;background:#060e1c;border-radius:8px;margin-bottom:6px;border-left:3px solid #f5c518;';
+    var header=document.createElement('div');
+    header.style.cssText='display:flex;align-items:center;gap:6px;margin-bottom:4px;';
+    header.innerHTML='<div style="width:20px;height:20px;border-radius:50%;background:'+m.color+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;">'+m.av+'</div><span style="font-size:11px;color:#4a9eff;font-weight:600;">'+a.name+'</span><span style="font-size:10px;color:#4a6a9a;margin-left:auto;">'+a.time+'</span>';
+    if(a.who===ME){
+      var delBtn=document.createElement('button');
+      delBtn.style.cssText='background:none;border:none;color:#4a6a9a;font-size:11px;cursor:pointer;';
+      delBtn.innerHTML='&#10005;';
+      delBtn.setAttribute('data-aid',a.id);
+      delBtn.onclick=function(){ db.collection('announcements').doc(this.getAttribute('data-aid')).delete(); };
+      header.appendChild(delBtn);
+    }
+    div.appendChild(header);
+    var txt=document.createElement('div');
+    txt.style.cssText='font-size:13px;color:#e8f0ff;';
+    txt.textContent=a.txt;
+    div.appendChild(txt);
+    list.appendChild(div);
+  });
 }
 function postAnnounce(){
   var txt=document.getElementById('ann-txt').value.trim();if(!txt)return;
@@ -971,24 +1106,40 @@ var library=[
 {id:83,title:"And Then He Kissed Me",artist:"The Crystals",key:""}
 ];
 
-function rLib(){
+function rLib() {
   var q=(document.getElementById('song-search')||{value:''}).value.toLowerCase();
   var songs=library.filter(function(s){return !q||s.title.toLowerCase().includes(q)||(s.artist||'').toLowerCase().includes(q);});
   songs.sort(function(a,b){return a.title.localeCompare(b.title);});
   var el=document.getElementById('library-list');if(!el)return;
-  el.innerHTML = songs.length ?
-    '<div style="font-size:11px;color:#fff;margin-bottom:6px;">'+songs.length+' songs</div>' +
-    songs.map(function(s){
-      return '<div style="display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid #0d1f3a;">' +
-        '<div style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;" onclick="playYT('' + s.title.replace(/'/g,'') + ' ' + (s.artist||'').replace(/'/g,'') + '')">' +
-        '<span style="font-size:13px;font-weight:600;color:#4a9eff;">'+s.title+'</span>' +
-        (s.artist?'<span style="font-size:11px;color:#f5c518;"> - '+s.artist+'</span>':'') +
-        ' <span style="font-size:10px;color:#1a3a8a;">&#9654;</span></div>' +
-        '<button onclick="showSongInfo('+s.id+')" style="background:none;border:none;color:#4a6a9a;font-size:13px;cursor:pointer;padding:2px 4px;flex-shrink:0;">&#8505;</button>' +
-        '<button onclick="cnfDel('+s.id+')" style="background:none;border:none;color:#555;font-size:12px;cursor:pointer;padding:2px 4px;flex-shrink:0;">&#10005;</button>' +
-        '</div>';
-    }).join('')
-  : '<div style="color:#aaa;font-style:italic;padding:8px;">No songs.</div>';
+  el.innerHTML='';
+  if(!songs.length){
+    el.innerHTML='<div style="color:#aaa;font-style:italic;padding:8px;">No songs.</div>';
+    return;
+  }
+  var countDiv=document.createElement('div');
+  countDiv.style.cssText='font-size:11px;color:#fff;margin-bottom:6px;';
+  countDiv.textContent=songs.length+' songs';
+  el.appendChild(countDiv);
+  songs.forEach(function(s){
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid #0d1f3a;';
+    var titleDiv=document.createElement('div');
+    titleDiv.style.cssText='flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;';
+    titleDiv.innerHTML='<span style="font-size:13px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+(s.artist?'<span style="font-size:11px;color:#f5c518;"> - '+s.artist+'</span>':'')+' <span style="font-size:10px;color:#1a3a8a;">&#9654;</span>';
+    titleDiv.onclick=(function(song){ return function(){ playYT(song.title+' '+(song.artist||'')); }; })(s);
+    var infoBtn=document.createElement('button');
+    infoBtn.style.cssText='background:none;border:none;color:#4a6a9a;font-size:13px;cursor:pointer;padding:2px 4px;flex-shrink:0;';
+    infoBtn.innerHTML='&#8505;';
+    infoBtn.onclick=(function(song){ return function(){ showSongInfo(song.id); }; })(s);
+    var delBtn=document.createElement('button');
+    delBtn.style.cssText='background:none;border:none;color:#555;font-size:12px;cursor:pointer;padding:2px 4px;flex-shrink:0;';
+    delBtn.innerHTML='&#10005;';
+    delBtn.onclick=(function(song){ return function(){ cnfDel(song.id); }; })(s);
+    row.appendChild(titleDiv);
+    row.appendChild(infoBtn);
+    row.appendChild(delBtn);
+    el.appendChild(row);
+  });
 }
 function clearSearch(){document.getElementById('song-search').value='';rLib();}
 function playYT(query){window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(query),'_blank');}
@@ -1000,19 +1151,28 @@ function adLibSong(){
   document.getElementById('lib-title').value='';document.getElementById('lib-artist').value='';document.getElementById('lib-key').value='';
   document.getElementById('add-song-form').style.display='none';rLib();
 }
-function showSongInfo(id){
+function showSongInfo(id) {
   var s=library.find(function(x){return x.id===id;});if(!s)return;
   document.getElementById('si-title').textContent=s.title;
+  var b=document.getElementById('si-body');
+  b.innerHTML='';
   var rows=[];
   if(s.artist)rows.push({l:'Artist',v:s.artist});
   if(s.key)rows.push({l:'Key',v:s.key});
-  var body=rows.map(function(r){return '<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #0d1f3a;"><span style="color:#aaa;font-size:13px;">'+r.l+'</span><span style="color:#e8f0ff;font-size:13px;font-weight:600;">'+r.v+'</span></div>';}).join('');
+  rows.forEach(function(r){
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #0d1f3a;';
+    row.innerHTML='<span style="color:#aaa;font-size:13px;">'+r.l+'</span><span style="color:#e8f0ff;font-size:13px;font-weight:600;">'+r.v+'</span>';
+    b.appendChild(row);
+  });
+  var ytBtn=document.createElement('button');
+  ytBtn.style.cssText='width:100%;margin-top:14px;background:#ff0000;border:none;border-radius:8px;padding:12px;color:#fff;font-family:Russo One,sans-serif;font-size:13px;cursor:pointer;';
+  ytBtn.innerHTML='&#9654; Play on YouTube';
   var ytQuery=s.title+' '+(s.artist||'');
-  body+='<button onclick="window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(ytQuery)+'','_blank')" style="width:100%;margin-top:14px;background:#ff0000;border:none;border-radius:8px;padding:12px;color:#fff;font-family:Russo One,sans-serif;font-size:13px;cursor:pointer;">&#9654; Play on YouTube</button>';
-  document.getElementById('si-body').innerHTML=body;
+  ytBtn.onclick=function(){ window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(ytQuery),'_blank'); };
+  b.appendChild(ytBtn);
   opM('song-info-modal');
 }
-
 // PAY
 function rPay(){
   var tot=pay.reduce(function(s,g){return s+(g.gross||0)-(g.exp||0);},0);
