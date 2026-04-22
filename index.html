@@ -513,7 +513,7 @@ function rCal(){
 }
 function pMo(){CM--;if(CM<0){CM=11;CY--;}rCal();}
 function nMo(){CM++;if(CM>11){CM=0;CY++;}rCal();}
-function rEvL(){document.getElementById('evl').innerHTML=events.length?events.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(e){return '<div class="er"><div class="ebdg" style="background:'+EC[e.type]+'22;color:'+EC[e.type]+'">'+e.type+'</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:#fff">'+e.title+'</div><div style="font-size:11px;color:#aaa;margin-top:2px">'+e.date+' - '+e.note+'</div></div><button style="background:none;border:none;color:#aaa;font-size:14px;" onclick="dEv('+e.id+')">&#10005;</button></div>';}).join(''):'<div style="color:#fff;font-style:italic;padding:8px">No events. Tap a day to add.</div>';}
+function rEvL(){document.getElementById('evl').innerHTML=events.length?events.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(e){return '<div class="er"><div class="ebdg" style="background:'+EC[e.type]+'22;color:'+EC[e.type]+'">'+e.type+'</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:#fff">'+e.title+'</div><div style="font-size:11px;color:#aaa;margin-top:2px">'+e.date+' - '+e.note+'</div></div><button style="background:none;border:none;color:#aaa;font-size:14px;" onclick="dEv('+e.id+')">&#10005;</button>'+(e.type==='gig'?'<button style="background:none;border:none;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;border:1px solid #1a3a8a;border-radius:4px;padding:1px 5px;margin-left:4px;" onclick="showGigDetail('+e.id+')">INFO</button>':'')+'</div>';}).join(''):'<div style="color:#fff;font-style:italic;padding:8px">No events. Tap a day to add.</div>';}
 function oDy(day){
   sDay=day;
   document.querySelectorAll('.dc').forEach(function(d){d.classList.remove('sel');});
@@ -574,7 +574,6 @@ function rBand(){
     '<div style="display:flex;align-items:center;margin-bottom:4px;gap:4px;"><span style="'+lbl+'">EM</span><input style="'+inp+'" type="email" value="'+m.em+'" placeholder="email@example.com" oninput="uM('+m.id+',\'em\',this.value)"></div>'+
     '<div style="display:flex;align-items:center;gap:4px;"><span style="'+lbl+'">AD</span><input style="'+inp+'" type="text" value="'+m.addr+'" placeholder="City, State" oninput="uM('+m.id+',\'addr\',this.value)"></div></div>';
   }).join('');
-  rContacts();
 }
 function uM(id,f,v){var m=members.find(function(x){return x.id===id;});if(m){m[f]=v;var data={};data[f]=v;saveMember(m.name,data);}}
 function adMem(){var n=document.getElementById('mnam').value.trim();if(!n)return;var r=document.getElementById('mrol').value.trim()||'Member';var cl=['#f5c518','#4a9eff','#06d6a0','#ff6b6b','#c084fc','#fb923c'];var av=n.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);members.push({id:Date.now(),name:n,inst:r,av:av,color:cl[members.length%cl.length],ph:'',em:'',addr:''});document.getElementById('mnam').value='';document.getElementById('mrol').value='';clM('mm');rBand();rHome();}
