@@ -47,7 +47,7 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 .mrav{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;flex-shrink:0;}
 .mr input{flex:1;background:transparent;border:none;padding:1px 4px;font-size:12px;font-weight:600;color:#e8f0ff;}
 .mr select{background:var(--n3);border:1px solid #1a3a5a;border-radius:4px;padding:2px 4px;font-size:10px;color:#ffffff;max-width:105px;}
-.cnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;background:linear-gradient(135deg,#0d2050,#1a3a8a);border-radius:10px;padding:8px 10px;}
+.cnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;background:#f5c518;border-radius:10px;padding:8px 10px;}
 .cnav button{background:none;border:none;color:#f5c518;font-size:28px;padding:0 8px;touch-action:manipulation;}
 .mlbl{font-family:"Russo One",sans-serif;font-size:16px;letter-spacing:2px;color:#f5c518;}
 .cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;background:rgba(26,58,138,.15);border:1px solid rgba(74,158,255,.2);border-radius:10px;padding:7px 4px;margin-bottom:12px;}
@@ -383,7 +383,22 @@ function sMsg(){
   msgs.push({id:Date.now(),who:ME,to:chatTo,txt:txt,time:t,day:'Today'});
   inp.value='';rChat();
 }
-function rBand(){document.getElementById('ml').innerHTML=members.map(function(m){return '<div class="mc"><div class="mct"><div class="avmd" style="background:'+m.color+'">'+m.av+'</div><div style="flex:1"><div style="font-size:15px;font-weight:600">'+m.name+'</div><div style="font-size:12px;color:#4a9eff;margin-top:2px;font-family:Russo One,sans-serif">'+m.inst+'</div></div></div><div style="display:flex;flex-direction:column;gap:7px"><div><label style="display:block;font-size:10px;color:#4a6a9a;letter-spacing:1px;font-family:Russo One,sans-serif;margin-bottom:3px">PHONE</label><input style="background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;padding:7px 10px;font-size:12px;color:#e8f0ff;width:100%;outline:none;" type="tel" value="'+m.ph+'" placeholder="(555) 555-5555" oninput="uM('+m.id+',\'ph\',this.value)"></div><div><label style="display:block;font-size:10px;color:#4a6a9a;letter-spacing:1px;font-family:Russo One,sans-serif;margin-bottom:3px">EMAIL</label><input style="background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;padding:7px 10px;font-size:12px;color:#e8f0ff;width:100%;outline:none;" type="email" value="'+m.em+'" placeholder="email@example.com" oninput="uM('+m.id+',\'em\',this.value)"></div><div><label style="display:block;font-size:10px;color:#4a6a9a;letter-spacing:1px;font-family:Russo One,sans-serif;margin-bottom:3px">ADDRESS</label><input style="background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;padding:7px 10px;font-size:12px;color:#e8f0ff;width:100%;outline:none;" type="text" value="'+m.addr+'" placeholder="City, State" oninput="uM('+m.id+',\'addr\',this.value)"></div></div></div>';}).join('');}
+function rBand(){
+  var inp='background:#060e1c;border:1px solid #1a3a8a;border-radius:4px;padding:4px 7px;font-size:11px;color:#e8f0ff;outline:none;font-family:Exo 2,sans-serif;width:100%;';
+  var lbl='font-size:9px;color:#ffffff;letter-spacing:1px;font-family:Russo One,sans-serif;width:22px;flex-shrink:0;';
+  document.getElementById('ml').innerHTML=members.map(function(m){
+    return '<div class="mc" style="padding:10px 12px;margin-bottom:8px;">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'+
+        '<div class="avmd" style="background:'+m.color+';width:36px;height:36px;font-size:12px;">'+m.av+'</div>'+
+        '<div><div style="font-size:14px;font-weight:600;color:#e8f0ff;">'+m.name+'</div>'+
+        '<div style="font-size:11px;color:#4a9eff;font-family:Russo One,sans-serif;">'+m.inst+'</div></div>'+
+      '</div>'+
+      '<div style="display:flex;align-items:center;margin-bottom:4px;gap:4px;"><span style="'+lbl+'">PH</span><input style="'+inp+'" type="tel" value="'+m.ph+'" placeholder="(555) 555-5555" oninput="uM('+m.id+','ph',this.value)"></div>'+
+      '<div style="display:flex;align-items:center;margin-bottom:4px;gap:4px;"><span style="'+lbl+'">EM</span><input style="'+inp+'" type="email" value="'+m.em+'" placeholder="email@example.com" oninput="uM('+m.id+','em',this.value)"></div>'+
+      '<div style="display:flex;align-items:center;gap:4px;"><span style="'+lbl+'">AD</span><input style="'+inp+'" type="text" value="'+m.addr+'" placeholder="City, State" oninput="uM('+m.id+','addr',this.value)"></div>'+
+    '</div>';
+  }).join('');
+}
 function uM(id,f,v){var m=members.find(function(x){return x.id===id;});if(m)m[f]=v;}
 function adMem(){var n=document.getElementById('mnam').value.trim();if(!n)return;var r=document.getElementById('mrol').value.trim()||'Member';var cl=['#f5c518','#4a9eff','#06d6a0','#ff6b6b','#c084fc','#fb923c'];var av=n.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);members.push({id:Date.now(),name:n,inst:r,av:av,color:cl[members.length%cl.length],ph:'',em:'',addr:''});document.getElementById('mnam').value='';document.getElementById('mrol').value='';clM('mm');rBand();// Song Library
 var library=[
@@ -479,15 +494,17 @@ function rLibrary(){
   var el=document.getElementById('library-list');
   if(!el)return;
   el.innerHTML=songs.length?
-    '<div style="font-size:11px;color:#4a6a9a;margin-bottom:6px">'+songs.length+' songs</div>'+
+    '<div style="font-size:11px;color:#ffffff;margin-bottom:6px;">'+songs.length+' songs</div>'+
     songs.map(function(s){
-      var label=s.title+(s.artist?' - '+s.artist:'');
       return '<div style="display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid #0d1f3a;">'+
-        '<div style="flex:1;font-size:12px;color:#e8f0ff;">'+label+'</div>'+
+        '<div style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+
+          '<span style="font-size:13px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+
+          (s.artist?'<span style="font-size:11px;color:#f5c518;"> - '+s.artist+'</span>':'')+
+        '</div>'+
         '<button style="background:none;border:none;color:#2a4a6a;font-size:12px;cursor:pointer;padding:2px 4px;flex-shrink:0;touch-action:manipulation;" onclick="delLibSong('+s.id+')">&#10005;</button>'+
       '</div>';
     }).join('')
-  :'<div style="color:#2a4a6a;font-style:italic;padding:8px;font-size:13px">No songs yet.</div>';
+  :'<div style="color:#ffffff;font-style:italic;padding:8px;font-size:13px">No songs yet.</div>';
 }
 
 function filterSongs(){rLibrary();}
