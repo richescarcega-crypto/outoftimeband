@@ -584,10 +584,18 @@ function rCal() {
 function pMo(){CM--;if(CM<0){CM=11;CY--;}rCal();}
 function nMo(){CM++;if(CM>11){CM=0;CY++;}rCal();}
 function rEvL() {
-  document.getElementById('evl').innerHTML = events.length ? events.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(e){
-    var infoBtn = e.type==='gig' ? '<button onclick="showGigDetail('' + e.id + '')" style="background:none;border:1px solid #1a3a8a;border-radius:4px;padding:1px 5px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;margin-right:4px;">INFO</button>' : '';
-    return '<div class="er"><div class="ebdg" style="background:'+EC[e.type]+'22;color:'+EC[e.type]+'">'+e.type+'</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:#fff">'+e.title+'</div><div style="font-size:11px;color:#aaa;margin-top:2px">'+e.date+' - '+e.note+'</div></div>'+infoBtn+'<button style="background:none;border:none;color:#aaa;font-size:14px;cursor:pointer;" onclick="dEv(''+e.id+'')">&#10005;</button></div>';
-  }).join('') : '<div style="color:#aaa;font-style:italic;padding:8px">No events. Tap a day to add.</div>';
+  var el = document.getElementById('evl');
+  if(!events.length){ el.innerHTML='<div style="color:#aaa;font-style:italic;padding:8px">No events. Tap a day to add.</div>'; return; }
+  var sorted = events.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
+  el.innerHTML = sorted.map(function(e){
+    var del = '<button style="background:none;border:none;color:#aaa;font-size:14px;cursor:pointer;" onclick="dEv(\'' + e.id + '\')">&#10005;</button>';
+    var info = e.type==='gig' ? '<button style="background:none;border:1px solid #1a3a8a;border-radius:4px;padding:1px 5px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;margin-right:4px;" onclick="showGigDetail(\'' + e.id + '\')">INFO</button>' : '';
+    return '<div class="er">' +
+      '<div class="ebdg" style="background:' + EC[e.type] + '22;color:' + EC[e.type] + '">' + e.type + '</div>' +
+      '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:#fff">' + e.title + '</div>' +
+      '<div style="font-size:11px;color:#aaa;margin-top:2px">' + e.date + ' - ' + e.note + '</div></div>' +
+      info + del + '</div>';
+  }).join('');
 }
 function oDy(day) {
   sDay=day;
