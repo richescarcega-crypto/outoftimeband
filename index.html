@@ -935,7 +935,7 @@ function showSongInfo(id){
   if(s.zach)rows.push({l:'Keys',v:'Yes'});
   document.getElementById('si-body').innerHTML=
     rows.map(function(r){return '<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #0d1f3a;"><span style="color:#4a6a9a;font-size:13px;">'+r.l+'</span><span style="color:#e8f0ff;font-size:13px;font-weight:600;">'+r.v+'</span></div>';}).join('')+
-    '<button onclick="playYT(''+s.title+' '+(s.artist||'')+'')" style="width:100%;margin-top:14px;background:#ff0000;border:none;border-radius:8px;padding:12px;color:#fff;font-family:Russo One,sans-serif;font-size:13px;cursor:pointer;">&#9654; Play on YouTube</button>';
+    '<button onclick="playYT('+s.title+' '+(s.artist||'')+')" style="width:100%;margin-top:14px;background:#ff0000;border:none;border-radius:8px;padding:12px;color:#fff;font-family:Russo One,sans-serif;font-size:13px;cursor:pointer;">&#9654; Play on YouTube</button>';
   opM('song-info-modal');
 }
 
