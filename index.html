@@ -25,7 +25,7 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 #cnt{flex:1;position:relative;overflow:hidden;}
 .sc{position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;visibility:hidden;background:#060e1c;}
 .sc.on{visibility:visible;}
-#sc-chat{display:flex;flex-direction:column;padding:12px;}
+#sc-chat{flex-direction:column;padding:12px;}
 #sc-chat.on{display:flex;}
 :root{--g:#f5c518;--b:#4a9eff;--n2:#0a1628;--n3:#0d1f3a;--n4:#101e34;}
 .sh{font-family:"Russo One",sans-serif;font-size:10px;letter-spacing:3px;color:#ffffff;margin:12px 0 7px;padding-bottom:5px;border-bottom:1px solid var(--n3);}
@@ -123,13 +123,13 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
   <div id="oavs"></div>
 </div>
 <div id="tabs">
-  <button class="tb on" onclick="go('home')"><span class="i">&#127968;</span>Home</button>
-  <button class="tb" onclick="go('cal')"><span class="i">&#128197;</span>Calendar</button>
-  <button class="tb" onclick="go('sets')"><span class="i">&#127925;</span>Setlists</button>
-  <button class="tb" onclick="go('chat')"><span class="i">&#128172;</span>Chat</button>
-  <button class="tb" onclick="go('band')"><span class="i">&#128101;</span>Band</button>
+  <button class="tb on" onclick="go('home',this)"><span class="i">&#127968;</span>Home</button>
+  <button class="tb" onclick="go('cal',this)"><span class="i">&#128197;</span>Calendar</button>
+  <button class="tb" onclick="go('sets',this)"><span class="i">&#127925;</span>Setlists</button>
+  <button class="tb" onclick="go('chat',this)"><span class="i">&#128172;</span>Chat</button>
+  <button class="tb" onclick="go('band',this)"><span class="i">&#128101;</span>Band</button>
   <button class="tb" onclick="go('songs')"><span class="i">&#127908;</span>Songs</button>
-  <button class="tb" onclick="go('pay')"><span class="i">&#128176;</span>Pay</button>
+  <button class="tb" onclick="go('pay',this)"><span class="i">&#128176;</span>Pay</button>
 </div>
 <div id="cnt">
 
@@ -272,11 +272,11 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 
 <script>
 "use strict";
-function go(id){
+function go(id,btn){
   document.querySelectorAll('.sc').forEach(function(s){s.classList.remove('on');});
   document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('on');});
   document.getElementById('sc-'+id).classList.add('on');
-  event.currentTarget.classList.add('on');
+  if(btn)btn.classList.add('on');
   if(id==='home')rHome();
   else if(id==='cal')rCal();
   else if(id==='sets')rSets();
