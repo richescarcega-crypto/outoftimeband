@@ -881,7 +881,7 @@ function rContacts(){
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">'+
         '<div><div style="font-size:14px;font-weight:600;color:#e8f0ff;">'+c.name+'</div>'+
         '<div style="font-size:11px;color:#f5c518;font-family:Russo One,sans-serif;">'+c.role+'</div></div>'+
-        '<button onclick="delContact(''+c.id+'')" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;">&#10005;</button>'+
+        '<button onclick="delContact('+c.id+')" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;">&#10005;</button>'+
       '</div>'+
       (c.ph?'<div style="font-size:12px;color:#e8f0ff;margin-bottom:3px;">📞 '+c.ph+'</div>':'')+
       (c.em?'<div style="font-size:12px;color:#e8f0ff;margin-bottom:3px;">✉️ '+c.em+'</div>':'')+
@@ -916,7 +916,7 @@ function rAvailability(){
       '<div style="width:24px;height:24px;border-radius:50%;background:'+m.color+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;flex-shrink:0;">'+m.av+'</div>'+
       '<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:#e8f0ff;">'+a.name+'</div>'+
       '<div style="font-size:11px;color:#ff4757;">'+a.date+(a.note?' - '+a.note:'')+'</div></div>'+
-      (a.who===ME?'<button onclick="delAvail(''+a.id+'')" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;">&#10005;</button>':'')+
+      (a.who===ME?'<button onclick="delAvail('+a.id+')" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;">&#10005;</button>':'')+
     '</div>';
   }).join(''):'<div style="color:#aaa;font-style:italic;padding:8px;font-size:13px;">No unavailability marked.</div>';
 }
@@ -958,7 +958,7 @@ function showGigDetail(evId){
       '<div style="flex:1"><label style="font-size:10px;color:#4a6a9a;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;">CONTACT</label><input class="mi" id="gd-contact" value="'+(det.contact||'')+'" placeholder="Venue contact"></div>'+
     '</div>'+
     '<div><label style="font-size:10px;color:#4a6a9a;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;">NOTES</label><textarea class="mi" id="gd-notes" rows="3" style="resize:none;font-family:Exo 2,sans-serif;" placeholder="Parking, dress code, special instructions...">'+(det.notes||'')+'</textarea></div>'+
-    '<button class="sb" onclick="saveGigDetail(''+evId+'')" style="width:100%">Save Details</button>'+
+    '<button class="sb" onclick="saveGigDetail('+evId+')" style="width:100%">Save Details</button>'+
     '</div>';
   opM('gig-detail-modal');
 }
