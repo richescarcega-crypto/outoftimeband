@@ -1229,7 +1229,7 @@ function rLib() {
     titleDiv.innerHTML='<span style="font-size:13px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+(s.artist?'<span style="font-size:11px;color:#f5c518;"> - '+s.artist+'</span>':'')+' <span style="font-size:10px;color:#1a3a8a;">&#9654;</span>';
     titleDiv.onclick=(function(song){ return function(){ playYT(song.title+' '+(song.artist||'')); }; })(s);
     var infoBtn=document.createElement('button');
-    infoBtn.style.cssText='background:#4a9eff;border:none;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:#000;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;margin-right:8px;';
+    infoBtn.style.cssText='background:#4a9eff;border:none;border-radius:50%;width:15px;height:15px;display:flex;align-items:center;justify-content:center;color:#000;font-size:8px;font-weight:700;cursor:pointer;flex-shrink:0;margin-right:8px;';
     infoBtn.innerHTML='i';
     infoBtn.title='Song info';
     infoBtn.onclick=(function(song){ return function(){ showSongInfo(song.id); }; })(s);
