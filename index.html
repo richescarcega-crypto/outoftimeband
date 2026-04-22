@@ -135,8 +135,24 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
     <div class="hero-r"><img src="band.jpg" alt="Band"></div>
   </div>
   <div id="who-am-i" style="font-size:11px;color:#4a9eff;text-align:right;margin-bottom:8px;"></div>
-  <div class="card gc"><div class="card-lbl">UPCOMING GIGS</div><div id="hg"></div></div>
-  <div class="card"><div class="card-lbl">UPCOMING REHEARSALS</div><div id="hr"></div></div>
+  <div class="card gc">
+    <div class="card-lbl" onclick="toggleCard('hg','gig-arrow')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+      <span>UPCOMING GIGS</span><span id="gig-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span>
+    </div>
+    <div id="hg"></div>
+  </div>
+  <div class="card">
+    <div class="card-lbl" onclick="toggleCard('hr','reh-arrow')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+      <span>UPCOMING REHEARSALS</span><span id="reh-arrow" style="color:#fff;font-size:14px;">&#8964;</span>
+    </div>
+    <div id="hr"></div>
+  </div>
+  <div class="card">
+    <div class="card-lbl" onclick="toggleCard('hbo','bo-arrow')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+      <span>BLACKOUT DATES</span><span id="bo-arrow" style="color:#ff4757;font-size:14px;">&#8964;</span>
+    </div>
+    <div id="hbo"></div>
+  </div>
   <div class="sh" style="display:flex;justify-content:space-between;align-items:center;">
   <span>MEMBERS</span>
   <button onclick="switchUser()" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:3px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;">SWITCH USER</button>
@@ -407,6 +423,9 @@ function rHome(){
   document.getElementById('hg').innerHTML=gg.length?gg.map(function(e){var d=dU(e.date);return '<div class="gi"><div class="git">'+e.title+'</div><div class="gim">'+e.date+' - '+e.note+'</div><div class="gid">'+(d===0?'TONIGHT':d===1?'TOMORROW':d+' DAYS AWAY')+'</div></div>';}).join(''):'<div class="none">NONE</div>';
   var rr=events.filter(function(e){return e.type==='rehearsal'&&dU(e.date)>=0;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,3);
   document.getElementById('hr').innerHTML=rr.length?rr.map(function(e){var d=dU(e.date);return '<div class="ri"><div class="git">'+e.title+'</div><div class="gim" style="color:#aaa">'+e.date+' - '+e.note+'</div></div>';}).join(''):'<div class="none">NONE</div>';
+  var bo=events.filter(function(e){return e.type==='blackout'&&dU(e.date)>=-30;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,5);
+  var boEl=document.getElementById('hbo');
+  if(boEl)boEl.innerHTML=bo.length?bo.map(function(e){return '<div class="ri" style="border-left-color:#ff4757"><div class="git">'+e.title+'</div><div class="gim" style="color:#ff4757">'+e.date+(e.note?' - '+e.note:'')+'</div></div>';}).join(''):'<div class="none">NONE</div>';
   document.getElementById('hm').innerHTML=
     '<div id="mem-toggle" onclick="toggleMems()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:6px;">'+
       '<div style="display:flex;gap:5px;">'+
@@ -581,7 +600,7 @@ function rLib(){
   var el=document.getElementById('library-list');if(!el)return;
   el.innerHTML=songs.length?
     '<div style="font-size:11px;color:#fff;margin-bottom:6px;">'+songs.length+' songs</div>'+
-    songs.map(function(s){return '<div style="display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid #0d1f3a;"><div style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><span style="font-size:13px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+(s.artist?'<span style="font-size:11px;color:#f5c518;"> - '+s.artist+'</span>':'')+' </div><button style="background:none;border:none;color:#555;font-size:12px;cursor:pointer;padding:2px 4px;flex-shrink:0;" onclick="cnfDel('+s.id+')">&#10005;</button></div>';}).join('')
+    songs.map(function(s){return '<div style="display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid #0d1f3a;"><div style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;" onclick="playYT(\''+s.title.replace(/'/g,'')+' '+( s.artist?s.artist.replace(/'/g,''):'')+'\')"><span style="font-size:13px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+(s.artist?'<span style="font-size:11px;color:#f5c518;"> - '+s.artist+'</span>':'')+' <span style="font-size:10px;color:#1a3a8a;">&#9654;</span></div><button style="background:none;border:none;color:#555;font-size:12px;cursor:pointer;padding:2px 4px;flex-shrink:0;" onclick="cnfDel('+s.id+')">&#10005;</button></div>';}).join('')
   :'<div style="color:#aaa;font-style:italic;padding:8px;">No songs yet.</div>';
 }
 function adLibSong(){var t=document.getElementById('lib-title').value.trim();if(!t)return;library.push({id:Date.now(),title:t,artist:document.getElementById('lib-artist').value.trim(),key:document.getElementById('lib-key').value.trim()});document.getElementById('lib-title').value='';document.getElementById('lib-artist').value='';document.getElementById('lib-key').value='';document.getElementById('add-song-form').style.display='none';rLib();}
@@ -598,6 +617,11 @@ function fmtPhone(inp){
   inp.value=v;
 }
 
+
+function playYT(query){
+  var url='https://www.youtube.com/results?search_query='+encodeURIComponent(query);
+  window.open(url,'_blank');
+}
 function cnfDel(id){
   if(confirm('Remove this song from the library?')){dlLib(id);}
 }
@@ -607,6 +631,16 @@ function switchUser(){
   localStorage.removeItem('oot_me');
   localStorage.removeItem('oot_me_id');
   showNamePicker();
+}
+
+var cardStates={};
+function toggleCard(contentId, arrowId){
+  var el=document.getElementById(contentId);
+  var ar=document.getElementById(arrowId);
+  if(!el)return;
+  cardStates[contentId]=!cardStates[contentId];
+  el.style.display=cardStates[contentId]?'none':'block';
+  if(ar)ar.innerHTML=cardStates[contentId]?'&#8963;':'&#8964;';
 }
 var memsOpen=false;
 function toggleMems(){
