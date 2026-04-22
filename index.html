@@ -847,7 +847,7 @@ function rAnnouncements(){
           '<div style="width:20px;height:20px;border-radius:50%;background:'+m.color+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;">'+m.av+'</div>'+
           '<span style="font-size:11px;color:#4a9eff;font-weight:600;">'+a.name+'</span>'+
           '<span style="font-size:10px;color:#4a6a9a;margin-left:auto;">'+a.time+'</span>'+
-          (a.who===ME?'<button onclick="delAnnounce(''+a.id+'')" style="background:none;border:none;color:#4a6a9a;font-size:11px;cursor:pointer;">&#10005;</button>':'')+
+          (a.who===ME?'<button onclick="delAnnounce('+a.id+')" style="background:none;border:none;color:#4a6a9a;font-size:11px;cursor:pointer;">&#10005;</button>':'')+
         '</div>'+
         '<div style="font-size:13px;color:#e8f0ff;">'+a.txt+'</div>'+
       '</div>';
