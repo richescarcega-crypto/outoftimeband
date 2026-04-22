@@ -16,8 +16,8 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 #app{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;max-width:480px;margin:0 auto;}
 #hdr{flex-shrink:0;height:56px;background:linear-gradient(#0c1830,#060e1c);display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #0d1f3a;}
 #hdr img{height:42px;object-fit:contain;}
-#oavs{display:flex;gap:4px;}
-.avxs{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;}
+#oavs{display:flex;gap:3px;}
+.avxs{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;}
 #tabs{flex-shrink:0;display:flex;background:#080f1e;border-bottom:2px solid #1a3a8a;}
 .tb{flex:1;padding:9px 2px 7px;background:none;border:none;color:#3a5a7a;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:"Russo One",sans-serif;font-size:8px;letter-spacing:.3px;-webkit-tap-highlight-color:rgba(245,197,24,.3);touch-action:manipulation;}
 .tb .i{font-size:16px;pointer-events:none;}
@@ -278,7 +278,7 @@ function gM(id){return members.find(function(m){return m.id==id;})||{name:"?",av
 function fD(y,m,d){return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");}
 function tD(ss){var x=ss.reduce(function(a,s){var p=(s.d||"0:00").split(":");return a+parseInt(p[0])*60+(parseInt(p[1])||0);},0);return Math.floor(x/60)+"m "+x%60+"s";}
 
-function rAv(){document.getElementById('oavs').innerHTML=members.slice(0,5).map(function(m){return '<div class="avxs" style="background:'+m.color+'">'+m.av+'</div>';}).join('');}
+function rAv(){document.getElementById('oavs').innerHTML=members.map(function(m){return '<div class="avxs" style="background:'+m.color+'">'+m.av+'</div>';}).join('');}
 
 function rHome(){
   var gg=events.filter(function(e){return e.type==='gig'&&dU(e.date)>=0;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,3);
