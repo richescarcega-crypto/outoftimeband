@@ -278,6 +278,43 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
   <div class="mo">
     <div class="moh"><span class="mot" id="si-title">Song Info</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('song-info-modal')">&#10005;</button></div>
     <div id="si-body"></div>
+    <div class="mdi"></div>
+    <div style="font-family:Russo One,sans-serif;font-size:9px;letter-spacing:2px;color:#4a6a9a;margin-bottom:10px;">EDIT DETAILS</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #0d1f3a;">
+      <span style="color:#aaa;font-size:13px;">Keyboards / Keys</span>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <span style="font-size:12px;color:#4a6a9a;" id="si-keys-lbl">No</span>
+        <div id="si-keys-toggle" onclick="toggleSongKeys()" style="width:36px;height:20px;border-radius:10px;background:#1a3a8a;position:relative;cursor:pointer;transition:background .2s;">
+          <div id="si-keys-knob" style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;"></div>
+        </div>
+      </label>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #0d1f3a;">
+      <span style="color:#aaa;font-size:13px;">Key</span>
+      <input id="si-key" class="mi" style="width:80px;margin:0;padding:6px 8px;text-align:center;" placeholder="e.g. Am">
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #0d1f3a;">
+      <span style="color:#aaa;font-size:13px;">BPM</span>
+      <input id="si-bpm" class="mi" style="width:80px;margin:0;padding:6px 8px;text-align:center;" placeholder="e.g. 120" type="number">
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #0d1f3a;">
+      <span style="color:#aaa;font-size:13px;">Lead Vocal</span>
+      <select id="si-vocal" style="background:#060e1c;border:1px solid #1a3a8a;border-radius:6px;padding:6px 8px;color:#e8f0ff;font-family:Exo 2,sans-serif;font-size:12px;">
+        <option value="">-- Select --</option>
+        <option value="Rachel">Rachel</option>
+        <option value="Jim">Jim</option>
+        <option value="Amy">Amy</option>
+        <option value="Rich">Rich</option>
+        <option value="Ed">Ed</option>
+        <option value="Zach">Zach</option>
+        <option value="All">All</option>
+      </select>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #0d1f3a;">
+      <span style="color:#aaa;font-size:13px;">Duration</span>
+      <input id="si-dur" class="mi" style="width:80px;margin:0;padding:6px 8px;text-align:center;" placeholder="3:30">
+    </div>
+    <button class="sb" onclick="saveSongInfo()" style="width:100%;margin-top:14px;">Save</button>
   </div>
 </div>
 
@@ -385,6 +422,7 @@ function initApp() {
   listenContacts();
   listenAvailability();
   listenGigDetails();
+  listenSongDetails();
 }
 
 // TAB NAVIGATION
@@ -741,9 +779,11 @@ function rSets() {
   if(!sets.length){ el.innerHTML='<div style="color:#aaa;font-style:italic;padding:8px">No setlists yet.</div>'; return; }
   el.innerHTML = '';
   sets.forEach(function(s){
+    var totalSecs = getSetDuration(s.songs);
+    var durStr = totalSecs > 0 ? ' · ' + formatDuration(totalSecs) : '';
     var div = document.createElement('div');
     div.className = 'slc';
-    div.innerHTML = '<div style="flex:1"><div class="sln">'+s.name+'</div><div class="slm">'+s.songs.length+' songs - '+tD(s.songs)+'</div></div><div style="color:#f5c518;font-size:16px;">&#9660;</div>';
+    div.innerHTML = '<div style="flex:1"><div class="sln">'+s.name+'</div><div class="slm">'+s.songs.length+' songs'+durStr+'</div></div><div style="color:#f5c518;font-size:16px;">&#9660;</div>';
     div.setAttribute('data-id', s.id);
     div.onclick = function(){ opSL(this.getAttribute('data-id')); };
     el.appendChild(div);
@@ -765,7 +805,7 @@ function clEd(){document.getElementById('si').style.display='block';document.get
 function rEd() {
   var s=sets.find(function(x){return x.id==aSL;});
   if(!s)return;
-  document.getElementById('eh').innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;"><span style="font-family:Russo One,sans-serif;font-size:16px;color:#fff;">'+s.name+'</span><button onclick="renSL()" style="background:none;border:none;color:#4a9eff;font-size:12px;cursor:pointer;">&#9998; Rename</button></div><div style="font-size:11px;color:#aaa;margin-bottom:10px;">'+s.songs.length+' songs - '+tD(s.songs)+'</div>';
+  document.getElementById('eh').innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;"><span style="font-family:Russo One,sans-serif;font-size:16px;color:#fff;">'+s.name+'</span><button onclick="renSL()" style="background:none;border:none;color:#4a9eff;font-size:12px;cursor:pointer;">&#9998; Rename</button></div>' + (function(){ var t=getSetDuration(s.songs); return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:11px;color:#aaa;">'+s.songs.length+' songs</span>'+(t>0?'<span style="font-family:Russo One,sans-serif;font-size:13px;color:#f5c518;">&#9201; '+formatDuration(t)+'</span>':'')+'</div>'; })();
   var container = document.getElementById('ssl');
   container.innerHTML = '';
   s.songs.forEach(function(sg, i){
@@ -1253,26 +1293,137 @@ function adLibSong(){
   document.getElementById('lib-title').value='';document.getElementById('lib-artist').value='';document.getElementById('lib-key').value='';
   document.getElementById('add-song-form').style.display='none';rLib();
 }
+
+// Song extra details stored in Firebase
+var songDetails = {};
+var editingSongId = null;
+var editingSongKeys = false;
+
+function listenSongDetails(){
+  db.collection('songdetails').onSnapshot(function(snap){
+    snap.forEach(function(doc){ songDetails[doc.id] = doc.data(); });
+  });
+}
+
+function toggleSongKeys(){
+  editingSongKeys = !editingSongKeys;
+  var toggle = document.getElementById('si-keys-toggle');
+  var knob = document.getElementById('si-keys-knob');
+  var lbl = document.getElementById('si-keys-lbl');
+  if(editingSongKeys){
+    toggle.style.background = '#4a9eff';
+    knob.style.left = '18px';
+    lbl.textContent = 'Yes';
+    lbl.style.color = '#4a9eff';
+  } else {
+    toggle.style.background = '#1a3a8a';
+    knob.style.left = '2px';
+    lbl.textContent = 'No';
+    lbl.style.color = '#4a6a9a';
+  }
+}
+
+function saveSongInfo(){
+  if(!editingSongId) return;
+  var det = {
+    keys: editingSongKeys,
+    key: document.getElementById('si-key').value.trim(),
+    bpm: parseInt(document.getElementById('si-bpm').value)||0,
+    vocal: document.getElementById('si-vocal').value,
+    dur: document.getElementById('si-dur').value.trim()
+  };
+  // Also update library item
+  var s = library.find(function(x){return x.id===editingSongId;});
+  if(s){
+    s.key = det.key;
+    s.bpm = det.bpm;
+    s.vocal = det.vocal;
+    s.dur = det.dur;
+    s.keys = det.keys;
+  }
+  db.collection('songdetails').doc(String(editingSongId)).set(det);
+  songDetails[String(editingSongId)] = det;
+  clM('song-info-modal');
+  rLib();
+}
+
+function getSongDuration(s){
+  // Check songDetails first, then library
+  var det = songDetails[String(s.id)];
+  if(det && det.dur) return det.dur;
+  if(s.dur) return s.dur;
+  return '';
+}
+
+function parseDuration(dur){
+  if(!dur) return 0;
+  var parts = dur.split(':');
+  if(parts.length===2) return parseInt(parts[0])*60 + (parseInt(parts[1])||0);
+  return parseInt(dur)||0;
+}
+
+function formatDuration(secs){
+  var m = Math.floor(secs/60);
+  var s = secs % 60;
+  return m + ':' + String(s).padStart(2,'0');
+}
+
+function getSetDuration(songs){
+  var total = songs.reduce(function(acc, sg){
+    // Try to match to library song
+    var libS = library.find(function(l){ return l.title===sg.t || l.id===sg.libId; });
+    var dur = sg.d || (libS ? getSongDuration(libS) : '');
+    return acc + parseDuration(dur);
+  }, 0);
+  return total;
+}
+
 function showSongInfo(id) {
   var s=library.find(function(x){return x.id===id;});if(!s)return;
+  editingSongId = id;
+  var det = songDetails[String(id)] || {};
   document.getElementById('si-title').textContent=s.title;
   var b=document.getElementById('si-body');
   b.innerHTML='';
   var rows=[];
   if(s.artist)rows.push({l:'Artist',v:s.artist});
-  if(s.key)rows.push({l:'Key',v:s.key});
+  var key = det.key||s.key||'';
+  var bpm = det.bpm||s.bpm||0;
+  var vocal = det.vocal||s.vocal||'';
+  var dur = det.dur||s.dur||'';
+  var keys = det.keys||s.keys||false;
+  if(key)rows.push({l:'Key',v:key});
+  if(bpm)rows.push({l:'BPM',v:bpm});
+  if(vocal)rows.push({l:'Lead Vocal',v:vocal});
+  if(dur)rows.push({l:'Duration',v:dur});
+  if(keys)rows.push({l:'Keyboards',v:'Yes'});
   rows.forEach(function(r){
     var row=document.createElement('div');
-    row.style.cssText='display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #0d1f3a;';
+    row.style.cssText='display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #0d1f3a;';
     row.innerHTML='<span style="color:#aaa;font-size:13px;">'+r.l+'</span><span style="color:#e8f0ff;font-size:13px;font-weight:600;">'+r.v+'</span>';
     b.appendChild(row);
   });
   var ytBtn=document.createElement('button');
-  ytBtn.style.cssText='width:100%;margin-top:14px;background:#ff0000;border:none;border-radius:8px;padding:12px;color:#fff;font-family:Russo One,sans-serif;font-size:13px;cursor:pointer;';
+  ytBtn.style.cssText='width:100%;margin-top:10px;background:#ff0000;border:none;border-radius:8px;padding:10px;color:#fff;font-family:Russo One,sans-serif;font-size:12px;cursor:pointer;';
   ytBtn.innerHTML='&#9654; Play on YouTube';
   var ytQuery=s.title+' '+(s.artist||'');
   ytBtn.onclick=function(){ window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(ytQuery),'_blank'); };
   b.appendChild(ytBtn);
+  // Populate edit fields
+  editingSongKeys = keys;
+  var toggle = document.getElementById('si-keys-toggle');
+  var knob = document.getElementById('si-keys-knob');
+  var lbl = document.getElementById('si-keys-lbl');
+  if(toggle){
+    toggle.style.background = keys ? '#4a9eff' : '#1a3a8a';
+    knob.style.left = keys ? '18px' : '2px';
+    lbl.textContent = keys ? 'Yes' : 'No';
+    lbl.style.color = keys ? '#4a9eff' : '#4a6a9a';
+  }
+  document.getElementById('si-key').value = key;
+  document.getElementById('si-bpm').value = bpm||'';
+  document.getElementById('si-vocal').value = vocal||'';
+  document.getElementById('si-dur').value = dur||'';
   opM('song-info-modal');
 }
 // PAY
