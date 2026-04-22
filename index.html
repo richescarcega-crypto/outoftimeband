@@ -128,7 +128,7 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
   <button class="tb" onclick="go('sets',this)"><span class="i">&#127925;</span>Setlists</button>
   <button class="tb" onclick="go('chat',this)"><span class="i">&#128172;</span>Chat</button>
   <button class="tb" onclick="go('band',this)"><span class="i">&#128101;</span>Band</button>
-  <button class="tb" onclick="go('songs')"><span class="i">&#127908;</span>Songs</button>
+  <button class="tb" onclick="go('songs',this)"><span class="i">&#127908;</span>Songs</button>
   <button class="tb" onclick="go('pay',this)"><span class="i">&#128176;</span>Pay</button>
 </div>
 <div id="cnt">
@@ -275,7 +275,8 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 function go(id,btn){
   document.querySelectorAll('.sc').forEach(function(s){s.classList.remove('on');});
   document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('on');});
-  document.getElementById('sc-'+id).classList.add('on');
+  var sc=document.getElementById('sc-'+id);
+  if(sc)sc.classList.add('on');
   if(btn)btn.classList.add('on');
   if(id==='home')rHome();
   else if(id==='cal')rCal();
