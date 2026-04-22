@@ -416,8 +416,8 @@ var library=[
   {id:11,title:"China Grove",artist:"Doobies",key:"E",tempo:"145",vocal:"Ed",lead:"Jim",zach:"Keys"},
   {id:12,title:"Crazy Little Thing ",artist:"Queen",key:"D",tempo:"154",vocal:"Rachel",lead:"Jim",zach:""},
   {id:13,title:"Day Tripper",artist:"The Beatles",key:"",tempo:"137",vocal:"Rich",lead:"?",zach:""},
-  {id:14,title:"Exes & Ohs",artist:"Ellie King",key:"",tempo:"",vocal:"Rachel",lead:"Jim",zach:""},
-  {id:15,title:"Get Down Tonight",artist:"KC & The Sunshine band",key:"",tempo:"",vocal:"Ed",lead:"Jim",zach:"Keys"},
+  {id:14,title:"Exes and Ohs",artist:"Ellie King",key:"",tempo:"",vocal:"Rachel",lead:"Jim",zach:""},
+  {id:15,title:"Get Down Tonight",artist:"KC and The Sunshine band",key:"",tempo:"",vocal:"Ed",lead:"Jim",zach:"Keys"},
   {id:16,title:"Get Ready",artist:"Rare Earth",key:"",tempo:"",vocal:"Ed",lead:"Ed",zach:""},
   {id:17,title:"Gimme Three Steps",artist:"Lynnrd Skynard",key:"",tempo:"141",vocal:"Ed",lead:"Jim",zach:"Keys"},
   {id:18,title:"Gimme Some Lovin",artist:"Spencer Davis Group",key:"",tempo:"147",vocal:"Rachel/Rich",lead:"?",zach:"Keys"},
@@ -427,8 +427,8 @@ var library=[
   {id:22,title:"Hit Me With Your Best Shot",artist:"Pat Benetar",key:"E",tempo:"127",vocal:"Rachel",lead:"Ed",zach:"Keys"},
   {id:23,title:"Honky Tonk Woman",artist:"The Rolling Stones",key:"",tempo:"",vocal:"Jim",lead:"Jim",zach:""},
   {id:24,title:"Hurts So Good",artist:"John Mellencamp",key:"A",tempo:"120",vocal:"Rachel",lead:"Jim",zach:""},
-  {id:25,title:"I Hate Myself For Lovin You",artist:"Joan Jett & the Blackhearts",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:26,title:"I Love Rock and Roll",artist:"Joan Jett & the Blackhearts",key:"",tempo:"94",vocal:"Rachel",lead:"Ed",zach:""},
+  {id:25,title:"I Hate Myself For Lovin You",artist:"Joan Jett and the Blackhearts",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
+  {id:26,title:"I Love Rock and Roll",artist:"Joan Jett and the Blackhearts",key:"",tempo:"94",vocal:"Rachel",lead:"Ed",zach:""},
   {id:27,title:"I Melt With You",artist:"Modern English",key:"",tempo:"155",vocal:"Ed",lead:"Jim",zach:"Keys"},
   {id:28,title:"I Ran",artist:"Flock of Seagulls",key:"",tempo:"",vocal:"Ed",lead:"Jim",zach:""},
   {id:29,title:"I Saw Her Standing There",artist:"Beatles",key:"",tempo:"155",vocal:"Ed",lead:"Jim",zach:""},
@@ -448,7 +448,7 @@ var library=[
   {id:43,title:"Now",artist:"Plimsouls",key:"D",tempo:"146",vocal:"Rich",lead:"Ed",zach:""},
   {id:44,title:"One Way or Another",artist:"Blondie",key:"",tempo:"162",vocal:"Rachel",lead:"Jim",zach:"Keys"},
   {id:45,title:"Panama",artist:"Van Halen",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:46,title:"Rock & Roll",artist:"Led Zeppelin",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
+  {id:46,title:"Rock and Roll",artist:"Led Zeppelin",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
   {id:47,title:"Runnin Down A Dream",artist:"Tom Petty",key:"",tempo:"",vocal:"Ed",lead:"Jim",zach:""},
   {id:48,title:"Sharp Dressed Man",artist:"ZZ Top",key:"",tempo:"",vocal:"Jim",lead:"Ed",zach:""},
   {id:49,title:"She Sells Sanctuary",artist:"The Cult",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
@@ -462,7 +462,7 @@ var library=[
   {id:57,title:"Tush",artist:"ZZ Top",key:"",tempo:"146",vocal:"Rachel",lead:"Ed",zach:""},
   {id:58,title:"Twist and Shout",artist:"The Beatles",key:"",tempo:"126",vocal:"Rich",lead:"Jim",zach:""},
   {id:59,title:"Two Tickets To Paradise",artist:"Eddie Money",key:"",tempo:"",vocal:"Ed",lead:"Jim",zach:""},
-  {id:60,title:"Walking on Sunshine",artist:"Katrina & Waves",key:"Bb",tempo:"110",vocal:"Rachel",lead:"Jim",zach:"Keys"},
+  {id:60,title:"Walking on Sunshine",artist:"Katrina and Waves",key:"Bb",tempo:"110",vocal:"Rachel",lead:"Jim",zach:"Keys"},
   {id:61,title:"We Got The Beat",artist:"Go-Gos",key:"A",tempo:"151",vocal:"Rachel",lead:"Jim",zach:""},
   {id:62,title:"What I like about you",artist:"The Romantics",key:"A",tempo:"160",vocal:"Rich",lead:"Jim",zach:""},
   {id:63,title:"White Wedding",artist:"Billy Idol",key:"Bm",tempo:"145",vocal:"Rich",lead:"Ed",zach:""},
@@ -534,7 +534,7 @@ function delLibSong(id){library=library.filter(function(s){return s.id!==id;});r
 
 function rSongs(){rLibrary();}
 
-rAv();rHome();rChatTo();}
+rAv();rHome();}
 function rPay(){var tot=pay.reduce(function(s,g){return s+g.gross-g.exp;},0);document.getElementById('bt').textContent='$'+tot.toLocaleString();document.getElementById('mc2').textContent='$'+(tot/members.length).toFixed(0);document.getElementById('cs').textContent='/ '+members.length+' members';document.getElementById('pl').innerHTML=pay.map(function(g){var net=g.gross-g.exp;return '<div class="fr"><div style="width:30px;height:30px;border-radius:7px;background:rgba(245,197,24,.1);color:#f5c518;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">$</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600">'+g.venue+'</div><div style="font-size:11px;color:#4a6a9a;margin-top:2px">'+g.date+(g.exp?' - exp: $'+g.exp:'')+' </div></div><div style="text-align:right;flex-shrink:0"><div style="font-family:Russo One,sans-serif;font-size:15px;color:#f5c518">$'+net.toLocaleString()+'</div><div style="font-size:10px;color:#4a9eff">You: $'+(net/members.length).toFixed(2)+'</div></div></div>';}).join('');}
 function adPay(){var v=document.getElementById('pv').value.trim(),g=parseFloat(document.getElementById('pg').value)||0,e=parseFloat(document.getElementById('pe').value)||0;if(!v||!g)return;pay.unshift({id:Date.now(),date:new Date().toISOString().slice(0,10),venue:v,gross:g,exp:e});document.getElementById('pf').style.display='none';document.getElementById('pv').value='';document.getElementById('pg').value='';document.getElementById('pe').value='';rPay();}
 function opM(id){document.getElementById(id).classList.add('on');}
@@ -555,7 +555,7 @@ var library=[
   {id:11,title:"China Grove",artist:"Doobies",key:"E",tempo:"145",vocal:"Ed",lead:"Jim",zach:"Keys"},
   {id:12,title:"Crazy Little Thing ",artist:"Queen",key:"D",tempo:"154",vocal:"Rachel",lead:"Jim",zach:""},
   {id:13,title:"Day Tripper",artist:"The Beatles",key:"",tempo:"137",vocal:"Rich",lead:"?",zach:""},
-  {id:14,title:"Exes & Ohs",artist:"Ellie King",key:"",tempo:"",vocal:"Rachel",lead:"Jim",zach:""},
+  {id:14,title:"Exes and Ohs",artist:"Ellie King",key:"",tempo:"",vocal:"Rachel",lead:"Jim",zach:""},
   {id:15,title:"Get Down Tonight",artist:"KC & The Sunshine band",key:"",tempo:"",vocal:"Ed",lead:"Jim",zach:"Keys"},
   {id:16,title:"Get Ready",artist:"Rare Earth",key:"",tempo:"",vocal:"Ed",lead:"Ed",zach:""},
   {id:17,title:"Gimme Three Steps",artist:"Lynnrd Skynard",key:"",tempo:"141",vocal:"Ed",lead:"Jim",zach:"Keys"},
@@ -587,7 +587,7 @@ var library=[
   {id:43,title:"Now",artist:"Plimsouls",key:"D",tempo:"146",vocal:"Rich",lead:"Ed",zach:""},
   {id:44,title:"One Way or Another",artist:"Blondie",key:"",tempo:"162",vocal:"Rachel",lead:"Jim",zach:"Keys"},
   {id:45,title:"Panama",artist:"Van Halen",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:46,title:"Rock & Roll",artist:"Led Zeppelin",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
+  {id:46,title:"Rock and Roll",artist:"Led Zeppelin",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
   {id:47,title:"Runnin Down A Dream",artist:"Tom Petty",key:"",tempo:"",vocal:"Ed",lead:"Jim",zach:""},
   {id:48,title:"Sharp Dressed Man",artist:"ZZ Top",key:"",tempo:"",vocal:"Jim",lead:"Ed",zach:""},
   {id:49,title:"She Sells Sanctuary",artist:"The Cult",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
@@ -671,7 +671,7 @@ function delLibSong(id){library=library.filter(function(s){return s.id!==id;});r
 
 function rSongs(){rLibrary();}
 
-rAv();rHome();rChatTo();
+rAv();rHome();
 </script>
 </body>
 </html>
