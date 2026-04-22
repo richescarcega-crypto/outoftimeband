@@ -270,7 +270,7 @@ var CY=2026,CM=3,sDay=null,cET="gig",aSL=null,eSID=null;
 var MO=["January","February","March","April","May","June","July","August","September","October","November","December"];
 var DW=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 var EC={gig:"#f5c518",blackout:"#ff4757",rehearsal:"#4a9eff"};
-var ME=1;
+var ME=3;
 var chatTo="band";
 
 function dU(d){return Math.ceil((new Date(d+"T00:00:00")-new Date())/86400000);}
@@ -319,7 +319,7 @@ function adSong(){var t=document.getElementById('nt').value.trim();if(!t)return;
 var chatTo='band';
 function rChatTo(){
   var el=document.getElementById('chat-to-row');if(!el)return;
-  var opts=[{id:'band',name:'The Band',color:'#f5c518',av:'ALL',isBand:true}].concat(members.filter(function(m){return m.id!==ME;}).map(function(m){return{id:m.id,name:m.name,color:m.color,av:m.av,isBand:false};}));
+  var opts=[{id:'band',name:'The Band',color:'#f5c518',av:'ALL',isBand:true}].concat(members.map(function(m){return{id:m.id,name:m.name,color:m.color,av:m.av,isBand:false};}));
   el.innerHTML=opts.map(function(o){
     var active=chatTo==o.id;
     if(o.isBand){return '<button onclick="setChatTo(\'band\')" style="display:flex;align-items:center;gap:5px;background:'+(active?'rgba(245,197,24,.2)':'#101e34')+';border:2px solid '+(active?'#f5c518':'#1a3a8a')+';border-radius:20px;padding:4px 10px;cursor:pointer;touch-action:manipulation;"><div style="width:22px;height:22px;border-radius:50%;background:#f5c518;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#000;flex-shrink:0;">ALL</div><span style="font-size:11px;color:'+(active?'#f5c518':'#e8f0ff')+';">The Band</span></button>';}
