@@ -11,7 +11,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;background:#060e1c;color:#e8f0ff;font-family:"Exo 2",sans-serif;}
-input,select,textarea{font-family:"Exo 2",sans-serif;outline:none;}
+input,select,textarea{font-family:"Exo 2",sans-serif;outline:none;border:none;background:transparent;color:#e8f0ff;}
 button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 #app{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;max-width:480px;margin:0 auto;}
 #hdr{flex-shrink:0;height:56px;background:linear-gradient(#0c1830,#060e1c);display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #0d1f3a;}
@@ -20,18 +20,17 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 .avxs{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;}
 #tabs{flex-shrink:0;display:flex;background:#080f1e;border-bottom:2px solid #1a3a8a;}
 .tb{flex:1;padding:9px 2px 7px;background:none;border:none;color:#3a5a7a;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:"Russo One",sans-serif;font-size:8px;letter-spacing:.3px;-webkit-tap-highlight-color:rgba(245,197,24,.3);touch-action:manipulation;}
-.tb .i{font-size:16px;}
+.tb .i{font-size:16px;pointer-events:none;}
+.tb span{pointer-events:none;}
 .tb.on{color:#f5c518;border-bottom:3px solid #f5c518;}
 #cnt{flex:1;position:relative;overflow:hidden;}
 .sc{position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;visibility:hidden;background:#060e1c;}
 .sc.on{visibility:visible;}
-#sc-chat{flex-direction:column;padding:12px;}
-#sc-chat.on{display:flex;}
 :root{--g:#f5c518;--b:#4a9eff;--n2:#0a1628;--n3:#0d1f3a;--n4:#101e34;}
-.sh{font-family:"Russo One",sans-serif;font-size:10px;letter-spacing:3px;color:#ffffff;margin:12px 0 7px;padding-bottom:5px;border-bottom:1px solid var(--n3);}
+.sh{font-family:"Russo One",sans-serif;font-size:10px;letter-spacing:3px;color:#fff;margin:12px 0 7px;padding-bottom:5px;border-bottom:1px solid var(--n3);}
 .card{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:12px;margin-bottom:10px;}
-.card-lbl{font-family:"Russo One",sans-serif;font-size:9px;letter-spacing:3px;color:#ffffff;margin-bottom:8px;}
-.none{font-size:13px;color:#ffffff;font-style:italic;}
+.card-lbl{font-family:"Russo One",sans-serif;font-size:9px;letter-spacing:3px;color:#fff;margin-bottom:8px;}
+.none{font-size:13px;color:#fff;font-style:italic;}
 .hero{display:grid;grid-template-columns:1fr 1fr;height:185px;border-radius:12px;overflow:hidden;border:1px solid rgba(245,197,24,.2);margin-bottom:12px;}
 .hero-l{background:linear-gradient(135deg,#0d2050,#0a1628);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;}
 .hero-l img{width:90%;object-fit:contain;filter:drop-shadow(0 0 10px rgba(245,197,24,.4));}
@@ -45,71 +44,67 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 .ri{padding:8px 10px;background:var(--n2);border-radius:8px;margin-bottom:6px;border-left:3px solid var(--b);}
 .mr{display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--n2);border-radius:6px;margin-bottom:3px;}
 .mrav{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;flex-shrink:0;}
-.mr input{flex:1;background:transparent;border:none;padding:1px 4px;font-size:12px;font-weight:600;color:#e8f0ff;}
-.mr select{background:var(--n3);border:1px solid #1a3a5a;border-radius:4px;padding:2px 4px;font-size:10px;color:#ffffff;max-width:105px;}
-.cnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;background:#f5c518;border-radius:10px;padding:8px 10px;}
-.cnav button{background:none;border:none;color:#f5c518;font-size:28px;padding:0 8px;touch-action:manipulation;}
-.mlbl{font-family:"Russo One",sans-serif;font-size:16px;letter-spacing:2px;color:#f5c518;}
+.cnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;background:#f5c518;border-radius:10px;padding:8px 6px;}
+.cnav button{background:none;border:none;color:#1a3a8a;font-size:28px;padding:0 8px;font-weight:700;}
+.mlbl{font-family:"Russo One",sans-serif;font-size:16px;letter-spacing:2px;color:#1a3a8a;}
+.legend{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;font-size:11px;color:#fff;}
 .cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;background:rgba(26,58,138,.15);border:1px solid rgba(74,158,255,.2);border-radius:10px;padding:7px 4px;margin-bottom:12px;}
-.dhdr{text-align:center;font-size:11px;font-weight:700;color:#ffffff;font-family:"Russo One",sans-serif;padding-bottom:3px;}
+.dhdr{text-align:center;font-size:11px;font-weight:700;color:#fff;font-family:"Russo One",sans-serif;padding-bottom:3px;}
 .dc{min-height:38px;background:rgba(10,22,40,.9);border-radius:5px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;}
 .dc:active{background:rgba(245,197,24,.2);}
 .dc.td{background:rgba(26,58,138,.5);outline:1px solid rgba(245,197,24,.5);}
-.dn{font-size:11px;color:#ffffff;}
+.dn{font-size:11px;color:#fff;font-weight:500;}
 .dc.td .dn{color:var(--g);font-weight:700;}
 .pips{display:flex;gap:2px;margin-top:2px;}
 .pip{width:4px;height:4px;border-radius:50%;}
 .er{background:var(--n4);border-radius:8px;padding:9px 11px;margin-bottom:6px;display:flex;gap:8px;}
 .ebdg{font-size:10px;padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0;font-family:"Russo One",sans-serif;}
 .slc{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;touch-action:manipulation;}
-.sln{font-family:"Russo One",sans-serif;font-size:16px;}
-.slm{font-size:11px;color:#ffffff;margin-top:2px;}
+.sln{font-family:"Russo One",sans-serif;font-size:16px;color:#fff;}
+.slm{font-size:11px;color:#fff;margin-top:2px;}
 .sr{background:var(--n4);border-radius:8px;padding:9px 11px;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
 .sn{font-family:"Russo One",sans-serif;font-size:15px;color:var(--g);width:20px;text-align:center;flex-shrink:0;}
-.st{font-size:13px;font-weight:600;}
-.sd{font-size:11px;color:#ffffff;margin-top:2px;}
+.st{font-size:13px;font-weight:600;color:#fff;}
+.sd{font-size:11px;color:#fff;margin-top:2px;}
 .sa{display:flex;gap:2px;flex-shrink:0;}
 .ib{background:none;border:none;font-size:13px;padding:4px;color:#aaa;touch-action:manipulation;}
-.ct-btn{background:#101e34;border:1px solid #1a3a8a;border-radius:16px;padding:5px 12px;font-size:11px;color:#4a9eff;font-family:"Russo One",sans-serif;letter-spacing:.3px;touch-action:manipulation;cursor:pointer;}
-.ct-btn.ct-on{background:#1a3a8a;color:#f5c518;border-color:#f5c518;}
+#sc-chat{padding:12px;}
 #cmsgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-bottom:8px;}
-.dsep{text-align:center;font-size:10px;color:#1a3a6a;padding:6px 0;font-family:"Russo One",sans-serif;}
+.dsep{text-align:center;font-size:10px;color:#fff;padding:6px 0;font-family:"Russo One",sans-serif;}
 .mrow{display:flex;align-items:flex-end;gap:6px;}
 .mrow.me{flex-direction:row-reverse;}
 .mb{max-width:72%;padding:8px 12px;}
 .mb.me{border-radius:16px 16px 4px 16px;background:#1a3a8a;}
 .mb.them{border-radius:16px 16px 16px 4px;background:var(--n3);}
 .ms{font-size:10px;font-weight:700;margin-bottom:2px;}
-.mt{font-size:13px;line-height:1.4;}
-.mti{font-size:10px;color:rgba(255,255,255,.25);margin-top:3px;text-align:right;}
-#cir{flex-shrink:0;display:flex;gap:8px;padding:0 0 6px;border-bottom:1px solid var(--n3);}
+.mt{font-size:13px;line-height:1.4;color:#fff;}
+.mti{font-size:10px;color:rgba(255,255,255,.3);margin-top:3px;text-align:right;}
+#cir{flex-shrink:0;display:flex;gap:8px;padding:8px 0 10px;border-top:1px solid var(--n3);}
 #cin{flex:1;background:var(--n2);border:1px solid var(--b);border-radius:20px;padding:9px 14px;color:#e8f0ff;font-size:13px;}
 #csb{background:#1a3a8a;border:none;border-radius:50%;width:40px;height:40px;color:var(--g);font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.mc{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:12px;margin-bottom:10px;}
-.mct{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.avmd{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#000;position:relative;flex-shrink:0;}
+.mc{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.avmd{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;position:relative;flex-shrink:0;}
 .fs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
 .fc{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:12px;}
-.fcl{font-family:"Russo One",sans-serif;font-size:10px;color:#2a4a6a;letter-spacing:2px;margin-bottom:4px;}
+.fcl{font-family:"Russo One",sans-serif;font-size:10px;color:#fff;letter-spacing:2px;margin-bottom:4px;}
 .fca{font-family:"Russo One",sans-serif;font-size:24px;color:var(--g);}
-.fcs{font-size:11px;color:#1a3a6a;margin-top:2px;}
-.fr{background:var(--n4);border-radius:8px;padding:9px 11px;margin-bottom:6px;display:flex;align-items:center;gap:10px;}
+.fcs{font-size:11px;color:#fff;margin-top:2px;}
+.fr2{display:flex;gap:8px;}
 .ab{background:var(--n4);border:1px dashed #1a3a8a;border-radius:8px;padding:11px;color:var(--b);font-family:"Russo One",sans-serif;font-size:11px;width:100%;margin-top:6px;display:block;text-align:center;touch-action:manipulation;}
 .sb{background:var(--g);border:none;border-radius:8px;padding:10px 16px;color:#060e1c;font-weight:700;font-family:"Russo One",sans-serif;font-size:12px;}
-.cb{background:var(--n2);border:none;border-radius:8px;padding:10px 14px;color:#4a6a9a;font-weight:600;}
+.cb{background:var(--n2);border:none;border-radius:8px;padding:10px 14px;color:#aaa;font-weight:600;}
 .fb{background:var(--n4);border-radius:10px;padding:12px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px;}
 .fi2{background:#060e1c;border:1px solid var(--b);border-radius:6px;padding:8px 10px;color:#e8f0ff;font-size:12px;width:100%;}
-.r2{display:flex;gap:8px;}
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:none;align-items:flex-end;justify-content:center;}
 .ov.on{display:flex;}
 .mo{background:var(--n2);border-radius:18px 18px 0 0;padding:18px 14px 40px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;border:1px solid var(--b);}
 .moh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-.mot{font-family:"Russo One",sans-serif;font-size:17px;letter-spacing:1px;}
+.mot{font-family:"Russo One",sans-serif;font-size:17px;letter-spacing:1px;color:#fff;}
 .mi{background:#060e1c;border:1px solid var(--b);border-radius:8px;padding:9px 12px;color:#e8f0ff;font-size:13px;width:100%;margin-bottom:8px;}
 .mdi{height:1px;background:var(--n3);margin:10px 0;}
-.ms2{font-size:10px;color:#335577;letter-spacing:2px;font-family:"Russo One",sans-serif;margin-bottom:8px;}
+.ms2{font-size:10px;color:#fff;letter-spacing:2px;font-family:"Russo One",sans-serif;margin-bottom:8px;}
 .etr{display:flex;gap:6px;margin-bottom:10px;}
-.etb{flex:1;background:transparent;border:1px solid var(--n3);border-radius:8px;padding:8px 4px;color:#4a6a9a;font-size:11px;font-family:"Russo One",sans-serif;touch-action:manipulation;}
+.etb{flex:1;background:transparent;border:1px solid var(--n3);border-radius:8px;padding:8px 4px;color:#aaa;font-size:11px;font-family:"Russo One",sans-serif;touch-action:manipulation;}
 @keyframes glow{0%,100%{box-shadow:0 0 10px rgba(245,197,24,.1)}50%{box-shadow:0 0 22px rgba(245,197,24,.3)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
 .gc{animation:glow 3s infinite;}
@@ -123,22 +118,19 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
   <div id="oavs"></div>
 </div>
 <div id="tabs">
-  <button class="tb on" onclick="go('home',this)"><span class="i">&#127968;</span>Home</button>
-  <button class="tb" onclick="go('cal',this)"><span class="i">&#128197;</span>Calendar</button>
-  <button class="tb" onclick="go('sets',this)"><span class="i">&#127925;</span>Setlists</button>
-  <button class="tb" onclick="go('chat',this)"><span class="i">&#128172;</span>Chat</button>
-  <button class="tb" onclick="go('band',this)"><span class="i">&#128101;</span>Band</button>
-  <button class="tb" onclick="go('songs',this)"><span class="i">&#127908;</span>Songs</button>
-  <button class="tb" onclick="go('pay',this)"><span class="i">&#128176;</span>Pay</button>
+  <button class="tb on" onclick="go('home',this)"><span class="i">&#127968;</span><span>Home</span></button>
+  <button class="tb" onclick="go('cal',this)"><span class="i">&#128197;</span><span>Calendar</span></button>
+  <button class="tb" onclick="go('sets',this)"><span class="i">&#127925;</span><span>Setlists</span></button>
+  <button class="tb" onclick="go('chat',this)"><span class="i">&#128172;</span><span>Chat</span></button>
+  <button class="tb" onclick="go('band',this)"><span class="i">&#128101;</span><span>Band</span></button>
+  <button class="tb" onclick="go('songs',this)"><span class="i">&#127908;</span><span>Songs</span></button>
+  <button class="tb" onclick="go('pay',this)"><span class="i">&#128176;</span><span>Pay</span></button>
 </div>
 <div id="cnt">
 
 <div id="sc-home" class="sc on">
   <div class="hero">
-    <div class="hero-l">
-      <img src="logo.jpg" alt="OOT">
-      <div class="htag">Danceable Classic Rock<br>Pure Energy</div>
-    </div>
+    <div class="hero-l"><img src="logo.jpg" alt="OOT"><div class="htag">Danceable Classic Rock<br>Pure Energy</div></div>
     <div class="hero-r"><img src="band.jpg" alt="Band"></div>
   </div>
   <div class="card gc"><div class="card-lbl">UPCOMING GIGS</div><div id="hg"></div></div>
@@ -147,12 +139,8 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 </div>
 
 <div id="sc-cal" class="sc">
-  <div class="cnav">
-    <button onclick="pMo()">&#8249;</button>
-    <span class="mlbl" id="mlbl"></span>
-    <button onclick="nMo()">&#8250;</button>
-  </div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:#4a6a9a;margin-bottom:10px;">
+  <div class="cnav"><button onclick="pMo()">&#8249;</button><span class="mlbl" id="mlbl"></span><button onclick="nMo()">&#8250;</button></div>
+  <div class="legend">
     <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#f5c518;margin-right:4px;vertical-align:middle;"></span>Gig</span>
     <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#4a9eff;margin-right:4px;vertical-align:middle;"></span>Rehearsal</span>
     <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#ff4757;margin-right:4px;vertical-align:middle;"></span>Blackout</span>
@@ -169,26 +157,20 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
     <div id="eh"></div><div id="ssl"></div>
     <div id="nsf" style="display:none" class="fb">
       <input class="fi2" id="nt" placeholder="Song title *">
-      <div class="r2">
-        <input class="fi2" id="nd" placeholder="3:45" style="width:72px;flex:none">
-        <input class="fi2" id="nk" placeholder="Key" style="width:55px;flex:none">
-        <input class="fi2" id="nn" placeholder="Notes">
-      </div>
-      <div class="r2">
-        <button class="sb" onclick="adSong()">Add Song</button>
-        <button class="cb" onclick="document.getElementById('nsf').style.display='none'">Cancel</button>
-      </div>
+      <div class="fr2"><input class="fi2" id="nd" placeholder="3:45" style="width:72px;flex:none"><input class="fi2" id="nk" placeholder="Key" style="width:55px;flex:none"><input class="fi2" id="nn" placeholder="Notes"></div>
+      <div class="fr2"><button class="sb" onclick="adSong()">Add Song</button><button class="cb" onclick="document.getElementById('nsf').style.display='none'">Cancel</button></div>
     </div>
     <button class="ab" onclick="document.getElementById('nsf').style.display='flex';document.getElementById('nsf').style.flexDirection='column'">+ Add Song</button>
   </div>
 </div>
 
 <div id="sc-chat" class="sc">
-  <div id="chat-to-bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #0d1f3a;">
-    <button id="ct-0" class="ct-btn ct-on" onclick="setChatTo(0)">&#128101; Band</button>
+  <div style="margin-bottom:8px;">
+    <div style="font-family:'Russo One',sans-serif;font-size:9px;letter-spacing:2px;color:#fff;margin-bottom:6px;">MESSAGE TO:</div>
+    <div id="chat-to-row" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
   </div>
-  <div id="cir" style="margin-bottom:8px;">
-    <input id="cin" placeholder="Message the band..." onkeydown="if(event.key==='Enter')sMsg()">
+  <div id="cir" style="margin-bottom:8px;display:flex;gap:8px;padding:0 0 8px;border-bottom:1px solid #0d1f3a;">
+    <input id="cin" placeholder="Message..." onkeydown="if(event.key==='Enter')sMsg()">
     <button id="csb" onclick="sMsg()">&#10148;</button>
   </div>
   <div id="cmsgs"></div>
@@ -202,27 +184,14 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 
 <div id="sc-songs" class="sc">
   <div class="sh">SONG LIBRARY</div>
-  <p style="font-size:12px;color:#4a6a9a;margin-bottom:10px">All songs Out of Time plays. Add songs here then build setlists from them.</p>
-  <div id="song-search-wrap" style="margin-bottom:10px">
-    <input id="song-search" class="fi2" placeholder="Search songs..." oninput="filterSongs()" style="width:100%">
-  </div>
+  <input id="song-search" class="fi2" placeholder="Search songs..." oninput="rLib()" style="width:100%;margin-bottom:10px;">
   <div id="library-list"></div>
   <div id="add-song-form" style="display:none" class="fb">
     <input class="fi2" id="lib-title" placeholder="Song title *">
-    <div class="r2">
-      <input class="fi2" id="lib-artist" placeholder="Original artist" style="flex:2">
-      <input class="fi2" id="lib-key" placeholder="Key" style="width:60px;flex:none">
-    </div>
-    <div class="r2">
-      <input class="fi2" id="lib-dur" placeholder="Tempo BPM" style="width:90px;flex:none">
-      <input class="fi2" id="lib-notes" placeholder="Notes...">
-    </div>
-    <div class="r2">
-      <button class="sb" onclick="adLibSong()">Add Song</button>
-      <button class="cb" onclick="document.getElementById('add-song-form').style.display='none'">Cancel</button>
-    </div>
+    <div class="fr2"><input class="fi2" id="lib-artist" placeholder="Artist" style="flex:2"><input class="fi2" id="lib-key" placeholder="Key" style="width:60px;flex:none"></div>
+    <div class="fr2"><button class="sb" onclick="adLibSong()">Add Song</button><button class="cb" onclick="document.getElementById('add-song-form').style.display='none'">Cancel</button></div>
   </div>
-  <button class="ab" onclick="document.getElementById('add-song-form').style.display='flex';document.getElementById('add-song-form').style.flexDirection='column';document.getElementById('lib-title').focus()">+ Add Song to Library</button>
+  <button class="ab" onclick="document.getElementById('add-song-form').style.display='flex';document.getElementById('add-song-form').style.flexDirection='column'">+ Add Song to Library</button>
 </div>
 
 <div id="sc-pay" class="sc">
@@ -235,10 +204,7 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
     <input class="fi2" id="pv" placeholder="Venue *">
     <input class="fi2" id="pg" placeholder="Gross pay ($) *" type="number">
     <input class="fi2" id="pe" placeholder="Expenses ($)" type="number">
-    <div class="r2">
-      <button class="sb" onclick="adPay()">Add</button>
-      <button class="cb" onclick="document.getElementById('pf').style.display='none'">Cancel</button>
-    </div>
+    <div class="fr2"><button class="sb" onclick="adPay()">Add</button><button class="cb" onclick="document.getElementById('pf').style.display='none'">Cancel</button></div>
   </div>
   <button class="ab" onclick="document.getElementById('pf').style.display='flex';document.getElementById('pf').style.flexDirection='column'">+ Log Gig Pay</button>
 </div>
@@ -247,7 +213,7 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 
 <div class="ov" id="evm">
   <div class="mo">
-    <div class="moh"><span class="mot" id="emtit">Add Event</span><button style="background:none;border:none;color:#4a6a9a;font-size:15px;cursor:pointer;" onclick="clM('evm')">&#10005;</button></div>
+    <div class="moh"><span class="mot" id="emtit">Add Event</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('evm')">&#10005;</button></div>
     <div id="eex"></div><div class="mdi"></div>
     <div class="ms2">ADD NEW EVENT</div>
     <div class="etr">
@@ -263,7 +229,7 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 
 <div class="ov" id="mm">
   <div class="mo">
-    <div class="moh"><span class="mot">Add Member</span><button style="background:none;border:none;color:#4a6a9a;font-size:15px;cursor:pointer;" onclick="clM('mm')">&#10005;</button></div>
+    <div class="moh"><span class="mot">Add Member</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('mm')">&#10005;</button></div>
     <input class="mi" id="mnam" placeholder="Name *">
     <input class="mi" id="mrol" placeholder="Role (Guitar, Keys, Manager)">
     <button class="sb" onclick="adMem()" style="width:100%">Add to Band</button>
@@ -281,19 +247,20 @@ function go(id,btn){
   if(id==='home')rHome();
   else if(id==='cal')rCal();
   else if(id==='sets')rSets();
-  else if(id==='chat')rChat();
+  else if(id==='chat'){rChatTo();rChat();}
   else if(id==='band')rBand();
-  else if(id==='songs')rSongs();
+  else if(id==='songs')rLib();
   else if(id==='pay')rPay();
 }
+
 var INST=["Vocals","Lead Guitar","Rhythm Guitar","Bass Guitar","Drums","Keyboards","Keys / Vocals","Acoustic Guitar","Percussion","Trumpet","Saxophone","Manager","Other"];
 var members=[
-  {id:1,name:"Jim",    inst:"Lead Guitar",  av:"JM",color:"#4a9eff",ph:"",em:"",addr:""},
-  {id:2,name:"Amy",    inst:"Bass Guitar",  av:"AM",color:"#06d6a0",ph:"",em:"",addr:""},
-  {id:3,name:"Rich",   inst:"Drums",        av:"RI",color:"#ff6b6b",ph:"",em:"",addr:""},
-  {id:4,name:"Ed",     inst:"Lead Guitar",  av:"ED",color:"#f5c518",ph:"",em:"",addr:""},
-  {id:5,name:"Rachel", inst:"Vocals",       av:"RC",color:"#ff9ef5",ph:"",em:"",addr:""},
-  {id:6,name:"Zach",   inst:"Keyboards",    av:"ZK",color:"#c084fc",ph:"",em:"",addr:""},
+  {id:1,name:"Jim",   inst:"Lead Guitar", av:"JM",color:"#4a9eff",ph:"",em:"",addr:""},
+  {id:2,name:"Amy",   inst:"Bass Guitar", av:"AM",color:"#06d6a0",ph:"",em:"",addr:""},
+  {id:3,name:"Rich",  inst:"Drums",       av:"RI",color:"#ff6b6b",ph:"",em:"",addr:""},
+  {id:4,name:"Ed",    inst:"Lead Guitar", av:"ED",color:"#f5c518",ph:"",em:"",addr:""},
+  {id:5,name:"Rachel",inst:"Vocals",      av:"RC",color:"#ff9ef5",ph:"",em:"",addr:""},
+  {id:6,name:"Zach",  inst:"Keyboards",   av:"ZK",color:"#c084fc",ph:"",em:"",addr:""},
 ];
 var events=[];
 var msgs=[];
@@ -304,374 +271,191 @@ var MO=["January","February","March","April","May","June","July","August","Septe
 var DW=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 var EC={gig:"#f5c518",blackout:"#ff4757",rehearsal:"#4a9eff"};
 var ME=1;
+var chatTo="band";
+
 function dU(d){return Math.ceil((new Date(d+"T00:00:00")-new Date())/86400000);}
 function gM(id){return members.find(function(m){return m.id==id;})||{name:"?",av:"?",color:"#555"};}
 function fD(y,m,d){return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");}
 function tD(ss){var x=ss.reduce(function(a,s){var p=(s.d||"0:00").split(":");return a+parseInt(p[0])*60+(parseInt(p[1])||0);},0);return Math.floor(x/60)+"m "+x%60+"s";}
+
 function rAv(){document.getElementById('oavs').innerHTML=members.slice(0,5).map(function(m){return '<div class="avxs" style="background:'+m.color+'">'+m.av+'</div>';}).join('');}
+
 function rHome(){
   var gg=events.filter(function(e){return e.type==='gig'&&dU(e.date)>=0;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,3);
   document.getElementById('hg').innerHTML=gg.length?gg.map(function(e){var d=dU(e.date);return '<div class="gi"><div class="git">'+e.title+'</div><div class="gim">'+e.date+' - '+e.note+'</div><div class="gid">'+(d===0?'TONIGHT':d===1?'TOMORROW':d+' DAYS AWAY')+'</div></div>';}).join(''):'<div class="none">NONE</div>';
   var rr=events.filter(function(e){return e.type==='rehearsal'&&dU(e.date)>=0;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,3);
-  document.getElementById('hr').innerHTML=rr.length?rr.map(function(e){var d=dU(e.date);return '<div class="ri"><div class="git">'+e.title+'</div><div class="gim" style="color:#4a6a9a">'+e.date+' - '+e.note+(d<=7?' <b style="color:#4a9eff">'+(d===0?'TODAY':d===1?'TOMORROW':d+'d')+'</b>':'')+' </div></div>';}).join(''):'<div class="none">NONE</div>';
+  document.getElementById('hr').innerHTML=rr.length?rr.map(function(e){var d=dU(e.date);return '<div class="ri"><div class="git">'+e.title+'</div><div class="gim" style="color:#aaa">'+e.date+' - '+e.note+'</div></div>';}).join(''):'<div class="none">NONE</div>';
   document.getElementById('hm').innerHTML=members.map(function(m){return '<div class="mr"><div class="mrav" style="background:'+m.color+'">'+m.av+'</div><span style="flex:1;font-size:12px;font-weight:600;color:#e8f0ff;">'+m.name+'</span><span style="font-size:11px;color:#4a9eff;">'+m.inst+'</span></div>';}).join('');
 }
-function uName(id,v){var m=members.find(function(x){return x.id===id;});if(m){m.name=v;m.av=v.split(' ').map(function(w){return w[0]||'';}).join('').toUpperCase().slice(0,2)||'??';rAv();}}
-function uInst(id,v){var m=members.find(function(x){return x.id===id;});if(m)m.inst=v;}
+
 function rCal(){
   document.getElementById('mlbl').textContent=MO[CM].toUpperCase()+' '+CY;
   var fd=new Date(CY,CM,1).getDay(),dim=new Date(CY,CM+1,0).getDate();
   var h=DW.map(function(d){return '<div class="dhdr">'+d+'</div>';}).join('');
   for(var i=0;i<fd;i++)h+='<div></div>';
   for(var d=1;d<=dim;d++){var ds=fD(CY,CM,d),de=events.filter(function(e){return e.date===ds;});var td=CY===2026&&CM===3&&d===21;var pp=['gig','rehearsal','blackout'].filter(function(t){return de.some(function(e){return e.type===t;});}).map(function(t){return '<div class="pip" style="background:'+EC[t]+'"></div>';}).join('');h+='<div class="dc'+(td?' td':'')+'" onclick="oDy('+d+')"><span class="dn">'+d+'</span><div class="pips">'+pp+'</div></div>';}
-  document.getElementById('cgrid').innerHTML=h;rEvL();
+  document.getElementById('cgrid').innerHTML=h;
+  rEvL();
 }
 function pMo(){CM--;if(CM<0){CM=11;CY--;}rCal();}
 function nMo(){CM++;if(CM>11){CM=0;CY++;}rCal();}
-function rEvL(){var s=events.slice().sort(function(a,b){return a.date.localeCompare(b.date);});document.getElementById('evl').innerHTML=s.length?s.map(function(e){return '<div class="er"><div class="ebdg" style="background:'+EC[e.type]+'22;color:'+EC[e.type]+'">'+e.type+'</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600">'+e.title+'</div><div style="font-size:11px;color:#4a6a9a;margin-top:2px">'+e.date+' - '+e.note+'</div></div><button style="background:none;border:none;color:#4a6a9a;font-size:14px;" onclick="dEv('+e.id+')">&#10005;</button></div>';}).join(''):'<div style="color:#2a4a6a;padding:8px;font-style:italic">No events. Tap a day to add.</div>';}
-function oDy(day){sDay=day;document.getElementById('emtit').textContent=MO[CM]+' '+day;var ds=fD(CY,CM,day),de=events.filter(function(e){return e.date===ds;});document.getElementById('eex').innerHTML=de.map(function(e){return '<div style="padding:9px;background:#060e1c;border-radius:8px;margin-bottom:8px;border-left:3px solid '+EC[e.type]+'"><div style="font-size:13px;font-weight:600">'+e.title+'</div><div style="font-size:11px;color:#4a6a9a;margin-top:2px">'+e.note+'</div><button class="cb" style="margin-top:8px;font-size:11px;padding:4px 10px" onclick="dEv('+e.id+');clM(\'evm\');oDy('+day+')">Remove</button></div>';}).join('');sET('gig');document.getElementById('etit').value='';document.getElementById('enot').value='';opM('evm');}
-function sET(t){cET=t;['gig','rehearsal','blackout'].forEach(function(k){var b=document.getElementById('et-'+k);b.style.background=k===t?EC[k]+'33':'transparent';b.style.color=k===t?EC[k]:'#4a6a9a';b.style.borderColor=k===t?EC[k]:'#0d1f3a';});}
+function rEvL(){document.getElementById('evl').innerHTML=events.length?events.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(e){return '<div class="er"><div class="ebdg" style="background:'+EC[e.type]+'22;color:'+EC[e.type]+'">'+e.type+'</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:#fff">'+e.title+'</div><div style="font-size:11px;color:#aaa;margin-top:2px">'+e.date+' - '+e.note+'</div></div><button style="background:none;border:none;color:#aaa;font-size:14px;" onclick="dEv('+e.id+')">&#10005;</button></div>';}).join(''):'<div style="color:#fff;font-style:italic;padding:8px">No events. Tap a day to add.</div>';}
+function oDy(day){sDay=day;document.getElementById('emtit').textContent=MO[CM]+' '+day;var ds=fD(CY,CM,day),de=events.filter(function(e){return e.date===ds;});document.getElementById('eex').innerHTML=de.map(function(e){return '<div style="padding:9px;background:#060e1c;border-radius:8px;margin-bottom:8px;border-left:3px solid '+EC[e.type]+'"><div style="font-size:13px;font-weight:600;color:#fff">'+e.title+'</div><div style="font-size:11px;color:#aaa;margin-top:2px">'+e.note+'</div><button class="cb" style="margin-top:8px;font-size:11px;padding:4px 10px" onclick="dEv('+e.id+');clM(\'evm\');oDy('+day+')">Remove</button></div>';}).join('');sET('gig');document.getElementById('etit').value='';document.getElementById('enot').value='';opM('evm');}
+function sET(t){cET=t;['gig','rehearsal','blackout'].forEach(function(k){var b=document.getElementById('et-'+k);b.style.background=k===t?EC[k]+'33':'transparent';b.style.color=k===t?EC[k]:'#aaa';b.style.borderColor=k===t?EC[k]:'#0d1f3a';});}
 function adEv(){var t=document.getElementById('etit').value.trim();if(!t)return;events.push({id:Date.now(),date:fD(CY,CM,sDay),type:cET,title:t,note:document.getElementById('enot').value.trim()});clM('evm');rCal();rHome();}
 function dEv(id){events=events.filter(function(e){return e.id!==id;});rCal();rHome();}
-function rSets(){document.getElementById('si').style.display='block';document.getElementById('se').style.display='none';document.getElementById('sll').innerHTML=sets.map(function(s){return '<div class="slc" onclick="opSL('+s.id+')"><div style="flex:1"><div class="sln">'+s.name+'</div><div class="slm">'+s.songs.length+' songs - '+tD(s.songs)+(s.gd?' - '+s.gd:'')+'</div></div><div style="color:#f5c518;font-size:20px">&#8250;</div></div>';}).join('');}
+
+function rSets(){document.getElementById('si').style.display='block';document.getElementById('se').style.display='none';document.getElementById('sll').innerHTML=sets.length?sets.map(function(s){return '<div class="slc" onclick="opSL('+s.id+')"><div style="flex:1"><div class="sln">'+s.name+'</div><div class="slm">'+s.songs.length+' songs - '+tD(s.songs)+'</div></div><div style="color:#f5c518;font-size:20px">&#8250;</div></div>';}).join(''):'<div style="color:#fff;font-style:italic;padding:8px">No setlists yet.</div>';}
 function nwSL(){var n={id:Date.now(),name:"New Setlist",gd:"",songs:[]};sets.push(n);opSL(n.id);}
 function opSL(id){aSL=id;document.getElementById('si').style.display='none';document.getElementById('se').style.display='block';rEd();}
 function clEd(){document.getElementById('si').style.display='block';document.getElementById('se').style.display='none';eSID=null;rSets();}
-function rEd(){var s=sets.find(function(x){return x.id===aSL;});if(!s)return;document.getElementById('eh').innerHTML='<div style="font-family:Russo One,sans-serif;font-size:16px;margin-bottom:3px">'+s.name+'</div><div style="font-size:11px;color:#4a6a9a;margin-bottom:10px">'+s.songs.length+' songs - '+tD(s.songs)+'</div>';document.getElementById('ssl').innerHTML=s.songs.map(function(sg,i){var info=eSID===sg.id?'<div style="display:flex;flex-direction:column;gap:6px"><input class="fi2" id="et-'+sg.id+'" value="'+sg.t+'"><div style="display:flex;gap:6px"><input class="fi2" id="ed-'+sg.id+'" value="'+sg.d+'" style="width:70px;flex:none"><input class="fi2" id="ek-'+sg.id+'" value="'+sg.k+'" style="width:52px;flex:none"></div><input class="fi2" id="en-'+sg.id+'" value="'+sg.n+'" placeholder="Notes"><button class="sb" onclick="svEd('+sg.id+')" style="align-self:flex-start;padding:6px 12px;margin-top:2px">Done</button></div>':'<div class="st">'+sg.t+'</div><div class="sd">'+sg.d+(sg.k?' - Key of '+sg.k:'')+(sg.n?' - '+sg.n:'')+'</div>';return '<div class="sr"><div class="sn">'+(i+1)+'</div><div style="flex:1;min-width:0">'+info+'</div><div class="sa"><button class="ib" onclick="mvS('+sg.id+',-1)">&#8593;</button><button class="ib" onclick="mvS('+sg.id+',1)">&#8595;</button><button class="ib" onclick="edS('+sg.id+')">&#9998;</button><button class="ib" onclick="rmS('+sg.id+')">&#128465;</button></div></div>';}).join('');document.getElementById('nsf').style.display='none';}
+function rEd(){var s=sets.find(function(x){return x.id===aSL;});if(!s)return;document.getElementById('eh').innerHTML='<div style="font-family:Russo One,sans-serif;font-size:16px;color:#fff;margin-bottom:3px">'+s.name+'</div><div style="font-size:11px;color:#aaa;margin-bottom:10px">'+s.songs.length+' songs - '+tD(s.songs)+'</div>';document.getElementById('ssl').innerHTML=s.songs.map(function(sg,i){var info=eSID===sg.id?'<div style="display:flex;flex-direction:column;gap:6px"><input class="fi2" id="et-'+sg.id+'" value="'+sg.t+'"><div style="display:flex;gap:6px"><input class="fi2" id="ed-'+sg.id+'" value="'+sg.d+'" style="width:70px;flex:none"><input class="fi2" id="ek-'+sg.id+'" value="'+sg.k+'" style="width:52px;flex:none"></div><input class="fi2" id="en-'+sg.id+'" value="'+sg.n+'" placeholder="Notes"><button class="sb" onclick="svEd('+sg.id+')" style="align-self:flex-start;padding:6px 12px;margin-top:2px">Done</button></div>':'<div class="st">'+sg.t+'</div><div class="sd">'+sg.d+(sg.k?' - Key of '+sg.k:'')+(sg.n?' - '+sg.n:'')+'</div>';return '<div class="sr"><div class="sn">'+(i+1)+'</div><div style="flex:1;min-width:0">'+info+'</div><div class="sa"><button class="ib" onclick="mvS('+sg.id+',-1)">&#8593;</button><button class="ib" onclick="mvS('+sg.id+',1)">&#8595;</button><button class="ib" onclick="edS('+sg.id+')">&#9998;</button><button class="ib" onclick="rmS('+sg.id+')">&#128465;</button></div></div>';}).join('');document.getElementById('nsf').style.display='none';}
 function edS(id){eSID=(eSID===id?null:id);rEd();}
 function svEd(id){var s=sets.find(function(x){return x.id===aSL;});var sg=s.songs.find(function(x){return x.id===id;});sg.t=document.getElementById('et-'+id).value;sg.d=document.getElementById('ed-'+id).value;sg.k=document.getElementById('ek-'+id).value;sg.n=document.getElementById('en-'+id).value;eSID=null;rEd();}
 function mvS(id,dir){var s=sets.find(function(x){return x.id===aSL;});var i=s.songs.findIndex(function(x){return x.id===id;}),ni=i+dir;if(ni<0||ni>=s.songs.length)return;var tmp=s.songs[i];s.songs[i]=s.songs[ni];s.songs[ni]=tmp;rEd();}
 function rmS(id){var s=sets.find(function(x){return x.id===aSL;});s.songs=s.songs.filter(function(x){return x.id!==id;});rEd();}
 function adSong(){var t=document.getElementById('nt').value.trim();if(!t)return;var s=sets.find(function(x){return x.id===aSL;});s.songs.push({id:Date.now(),t:t,d:document.getElementById('nd').value,k:document.getElementById('nk').value,n:document.getElementById('nn').value});rEd();}
-var chatTo=0; // 0=band, memberId=individual
-function setChatTo(id){
-  chatTo=id;
-  document.querySelectorAll('.ct-btn').forEach(function(b){b.classList.remove('ct-on');});
-  document.getElementById('ct-'+id).classList.add('ct-on');
-  var ph=id===0?'Message the band...':'Message '+gM(id).name+'...';
-  document.getElementById('cin').placeholder=ph;
-  rChat();
+
+var chatTo='band';
+function rChatTo(){
+  var el=document.getElementById('chat-to-row');if(!el)return;
+  var opts=[{id:'band',name:'The Band',color:'#f5c518',av:'ALL',isBand:true}].concat(members.filter(function(m){return m.id!==ME;}).map(function(m){return{id:m.id,name:m.name,color:m.color,av:m.av,isBand:false};}));
+  el.innerHTML=opts.map(function(o){
+    var active=chatTo==o.id;
+    if(o.isBand){return '<button onclick="setChatTo(\'band\')" style="display:flex;align-items:center;gap:5px;background:'+(active?'rgba(245,197,24,.2)':'#101e34')+';border:2px solid '+(active?'#f5c518':'#1a3a8a')+';border-radius:20px;padding:4px 10px;cursor:pointer;touch-action:manipulation;"><div style="width:22px;height:22px;border-radius:50%;background:#f5c518;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#000;flex-shrink:0;">ALL</div><span style="font-size:11px;color:'+(active?'#f5c518':'#e8f0ff')+';">The Band</span></button>';}
+    else{return '<button onclick="setChatTo('+o.id+')" style="background:none;border:none;cursor:pointer;touch-action:manipulation;padding:2px;"><div style="width:36px;height:36px;border-radius:50%;background:'+o.color+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#000;border:3px solid '+(active?'#ffffff':'transparent')+';box-sizing:border-box;" title="'+o.name+'">'+o.av+'</div></button>';}
+  }).join('');
 }
-function buildChatBtns(){
-  var bar=document.getElementById('chat-to-bar');
-  bar.innerHTML='<button id="ct-0" class="ct-btn'+(chatTo===0?' ct-on':'')+'" onclick="setChatTo(0)">&#128101; Band</button>';
-  members.forEach(function(m){
-    if(m.id===ME)return;
-    bar.innerHTML+='<button id="ct-'+m.id+'" class="ct-btn'+(chatTo===m.id?' ct-on':'')+'" onclick="setChatTo('+m.id+')">'+m.av+' '+m.name+'</button>';
-  });
-}
+function setChatTo(id){chatTo=id;rChatTo();rChat();}
 function rChat(){
-  buildChatBtns();
-  var filtered=msgs.filter(function(m){
-    if(chatTo===0)return !m.to||m.to===0;
-    return (m.who===ME&&m.to===chatTo)||(m.who===chatTo&&m.to===ME);
-  });
   var el=document.getElementById('cmsgs');
-  el.innerHTML=filtered.length?filtered.map(function(m,i){
-    var s=gM(m.who),me=m.who===ME,nd=i===0||filtered[i-1].day!==m.day;
-    return (nd?'<div class="dsep">'+m.day+'</div>':'')+
-      '<div class="mrow'+(me?' me':'')+'">'+
-      (!me?'<div style="width:28px;height:28px;border-radius:50%;background:'+s.color+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#000;flex-shrink:0">'+s.av+'</div>':'')+
-      '<div class="mb '+(me?'me':'them')+'">'+
-      (!me?'<div class="ms" style="color:'+s.color+'">'+s.name+'</div>':'')+
-      '<div class="mt">'+m.txt+'</div><div class="mti">'+m.time+'</div></div></div>';
-  }).join(''):'<div style="color:#2a4a6a;font-style:italic;padding:16px 0;text-align:center;font-size:13px">No messages yet</div>';
+  var filtered=msgs.filter(function(m){if(chatTo==='band')return !m.to||m.to==='band';return(m.who===ME&&m.to==chatTo)||(m.who==chatTo&&m.to===ME);});
+  el.innerHTML=filtered.length?filtered.map(function(m,i){var s=gM(m.who),me=m.who===ME,nd=i===0||filtered[i-1].day!==m.day;return(nd?'<div class="dsep">'+m.day+'</div>':'')+'<div class="mrow'+(me?' me':'')+'">'+(!me?'<div style="width:26px;height:26px;border-radius:50%;background:'+s.color+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;flex-shrink:0">'+s.av+'</div>':'')+'<div class="mb '+(me?'me':'them')+'">'+(!me?'<div class="ms" style="color:'+s.color+'">'+s.name+'</div>':'')+'<div class="mt">'+m.txt+'</div><div class="mti">'+m.time+'</div></div></div>';}).join(''):'<div style="color:#aaa;font-style:italic;padding:12px;text-align:center;font-size:13px;">No messages yet</div>';
   el.scrollTop=el.scrollHeight;
 }
-function sMsg(){
-  var inp=document.getElementById('cin'),txt=inp.value.trim();if(!txt)return;
-  var t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  msgs.push({id:Date.now(),who:ME,to:chatTo,txt:txt,time:t,day:'Today'});
-  inp.value='';rChat();
-}
+function sMsg(){var inp=document.getElementById('cin'),txt=inp.value.trim();if(!txt)return;var t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});msgs.push({id:Date.now(),who:ME,to:chatTo,txt:txt,time:t,day:'Today'});inp.value='';rChat();}
+
 function rBand(){
-  var inp='background:#060e1c;border:1px solid #1a3a8a;border-radius:4px;padding:4px 7px;font-size:11px;color:#e8f0ff;outline:none;font-family:Exo 2,sans-serif;width:100%;';
-  var lbl='font-size:9px;color:#ffffff;letter-spacing:1px;font-family:Russo One,sans-serif;width:22px;flex-shrink:0;';
+  var inp='background:#060e1c;border:1px solid #1a3a8a;border-radius:4px;padding:4px 7px;font-size:11px;color:#e8f0ff;outline:none;width:100%;';
+  var lbl='font-size:9px;color:#fff;letter-spacing:1px;font-family:Russo One,sans-serif;width:22px;flex-shrink:0;';
   document.getElementById('ml').innerHTML=members.map(function(m){
-    return '<div class="mc" style="padding:10px 12px;margin-bottom:8px;">'+
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'+
-        '<div class="avmd" style="background:'+m.color+';width:36px;height:36px;font-size:12px;">'+m.av+'</div>'+
-        '<div><div style="font-size:14px;font-weight:600;color:#e8f0ff;">'+m.name+'</div>'+
-        '<div style="font-size:11px;color:#4a9eff;font-family:Russo One,sans-serif;">'+m.inst+'</div></div>'+
-      '</div>'+
-      '<div style="display:flex;align-items:center;margin-bottom:4px;gap:4px;"><span style="'+lbl+'">PH</span><input style="'+inp+'" type="tel" value="'+m.ph+'" placeholder="(555) 555-5555" oninput="uM('+m.id+','ph',this.value)"></div>'+
-      '<div style="display:flex;align-items:center;margin-bottom:4px;gap:4px;"><span style="'+lbl+'">EM</span><input style="'+inp+'" type="email" value="'+m.em+'" placeholder="email@example.com" oninput="uM('+m.id+','em',this.value)"></div>'+
-      '<div style="display:flex;align-items:center;gap:4px;"><span style="'+lbl+'">AD</span><input style="'+inp+'" type="text" value="'+m.addr+'" placeholder="City, State" oninput="uM('+m.id+','addr',this.value)"></div>'+
-    '</div>';
+    return '<div class="mc"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><div class="avmd" style="background:'+m.color+'">'+m.av+'</div><div><div style="font-size:14px;font-weight:600;color:#e8f0ff;">'+m.name+'</div><div style="font-size:11px;color:#4a9eff;font-family:Russo One,sans-serif;">'+m.inst+'</div></div></div>'+
+    '<div style="display:flex;align-items:center;margin-bottom:4px;gap:4px;"><span style="'+lbl+'">PH</span><input style="'+inp+'" type="tel" value="'+m.ph+'" placeholder="(555) 555-5555" oninput="uM('+m.id+',\'ph\',this.value)"></div>'+
+    '<div style="display:flex;align-items:center;margin-bottom:4px;gap:4px;"><span style="'+lbl+'">EM</span><input style="'+inp+'" type="email" value="'+m.em+'" placeholder="email@example.com" oninput="uM('+m.id+',\'em\',this.value)"></div>'+
+    '<div style="display:flex;align-items:center;gap:4px;"><span style="'+lbl+'">AD</span><input style="'+inp+'" type="text" value="'+m.addr+'" placeholder="City, State" oninput="uM('+m.id+',\'addr\',this.value)"></div></div>';
   }).join('');
 }
 function uM(id,f,v){var m=members.find(function(x){return x.id===id;});if(m)m[f]=v;}
-function adMem(){var n=document.getElementById('mnam').value.trim();if(!n)return;var r=document.getElementById('mrol').value.trim()||'Member';var cl=['#f5c518','#4a9eff','#06d6a0','#ff6b6b','#c084fc','#fb923c'];var av=n.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);members.push({id:Date.now(),name:n,inst:r,av:av,color:cl[members.length%cl.length],ph:'',em:'',addr:''});document.getElementById('mnam').value='';document.getElementById('mrol').value='';clM('mm');rBand();// Song Library
+function adMem(){var n=document.getElementById('mnam').value.trim();if(!n)return;var r=document.getElementById('mrol').value.trim()||'Member';var cl=['#f5c518','#4a9eff','#06d6a0','#ff6b6b','#c084fc','#fb923c'];var av=n.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);members.push({id:Date.now(),name:n,inst:r,av:av,color:cl[members.length%cl.length],ph:'',em:'',addr:''});document.getElementById('mnam').value='';document.getElementById('mrol').value='';clM('mm');rBand();rAv();rHome();}
+
 var library=[
-  {id:1,title:"A Million Miles Away",artist:"Plimsouls",key:"Em",tempo:"155",vocal:"Rich",lead:"Ed",zach:""},
-  {id:2,title:"Aint Talkin bout Love",artist:"Van Halen",key:"",tempo:"139",vocal:"Rich",lead:"Ed",zach:""},
-  {id:3,title:"American Girl",artist:"Tom Petty",key:"D",tempo:"114",vocal:"Ed",lead:"Jim",zach:"Keys"},
-  {id:4,title:"Any way you want it",artist:"Journey",key:"",tempo:"138",vocal:"Rachel",lead:"Ed",zach:"Keys"},
-  {id:5,title:"Back on the Chain Gang",artist:"Pretenders",key:"",tempo:"153",vocal:"Rachel",lead:"TBD",zach:""},
-  {id:6,title:"Bad Case of Lovin You",artist:"Robert Palmer",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:7,title:"Born on the Bayou ",artist:"Foo Fighters",key:"",tempo:"122",vocal:"Rich",lead:"Ed",zach:""},
-  {id:8,title:"Born To Be Wild",artist:"Steppenwolf ",key:"",tempo:"146",vocal:"Rich",lead:"Jim",zach:"Keys"},
-  {id:9,title:"Boys of Summer",artist:"Ataris",key:"",tempo:"177",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:10,title:"Brown Eyed Girl",artist:"Van Morrison",key:"",tempo:"149",vocal:"Ed",lead:"Jim",zach:"Keys"},
-  {id:11,title:"China Grove",artist:"Doobies",key:"E",tempo:"145",vocal:"Ed",lead:"Jim",zach:"Keys"},
-  {id:12,title:"Crazy Little Thing ",artist:"Queen",key:"D",tempo:"154",vocal:"Rachel",lead:"Jim",zach:""},
-  {id:13,title:"Day Tripper",artist:"The Beatles",key:"",tempo:"137",vocal:"Rich",lead:"?",zach:""},
-  {id:14,title:"Exes and Ohs",artist:"Ellie King",key:"",tempo:"",vocal:"Rachel",lead:"Jim",zach:""},
-  {id:15,title:"Get Down Tonight",artist:"KC and The Sunshine band",key:"",tempo:"",vocal:"Ed",lead:"Jim",zach:"Keys"},
-  {id:16,title:"Get Ready",artist:"Rare Earth",key:"",tempo:"",vocal:"Ed",lead:"Ed",zach:""},
-  {id:17,title:"Gimme Three Steps",artist:"Lynnrd Skynard",key:"",tempo:"141",vocal:"Ed",lead:"Jim",zach:"Keys"},
-  {id:18,title:"Gimme Some Lovin",artist:"Spencer Davis Group",key:"",tempo:"147",vocal:"Rachel/Rich",lead:"?",zach:"Keys"},
-  {id:19,title:"Goodbye To You",artist:"Scandal",key:"",tempo:"159",vocal:"Rachel",lead:"Ed",zach:"Keys"},
-  {id:20,title:"Hard To Handle",artist:"Black Crowes",key:"",tempo:"",vocal:"Jim",lead:"Ed",zach:""},
-  {id:21,title:"Heartbreaker",artist:"Pat Benatar",key:"",tempo:"156",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:22,title:"Hit Me With Your Best Shot",artist:"Pat Benetar",key:"E",tempo:"127",vocal:"Rachel",lead:"Ed",zach:"Keys"},
-  {id:23,title:"Honky Tonk Woman",artist:"The Rolling Stones",key:"",tempo:"",vocal:"Jim",lead:"Jim",zach:""},
-  {id:24,title:"Hurts So Good",artist:"John Mellencamp",key:"A",tempo:"120",vocal:"Rachel",lead:"Jim",zach:""},
-  {id:25,title:"I Hate Myself For Lovin You",artist:"Joan Jett and the Blackhearts",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:26,title:"I Love Rock and Roll",artist:"Joan Jett and the Blackhearts",key:"",tempo:"94",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:27,title:"I Melt With You",artist:"Modern English",key:"",tempo:"155",vocal:"Ed",lead:"Jim",zach:"Keys"},
-  {id:28,title:"I Ran",artist:"Flock of Seagulls",key:"",tempo:"",vocal:"Ed",lead:"Jim",zach:""},
-  {id:29,title:"I Saw Her Standing There",artist:"Beatles",key:"",tempo:"155",vocal:"Ed",lead:"Jim",zach:""},
-  {id:30,title:"Jenny/867-5309",artist:"Tommy Tutone",key:"F#m",tempo:"138",vocal:"Rich",lead:"Jim",zach:"Keys"},
-  {id:31,title:"Johnny B. Goode",artist:"Chuck Berry",key:"",tempo:"168",vocal:"Ed",lead:"Jim",zach:"Keys"},
-  {id:32,title:"Just Like Heaven",artist:"The Cure",key:"A",tempo:"153",vocal:"Ed",lead:"Ed",zach:"Keys"},
-  {id:33,title:"Keep Your Hands To Yourself",artist:"Georgia Satellites",key:"",tempo:"",vocal:"Jim",lead:"Ed",zach:""},
-  {id:34,title:"Listen to her Heart",artist:"Tom Petty",key:"A",tempo:"127",vocal:"Rich",lead:"Jim",zach:"Keys"},
-  {id:35,title:"Listen to the Music",artist:"Doobies",key:"",tempo:"",vocal:"Rachel",lead:"Jim",zach:""},
-  {id:36,title:"Little Sister",artist:"Dwight Yoakam",key:"",tempo:"",vocal:"Jim",lead:"Ed",zach:""},
-  {id:37,title:"Long Train Runnin",artist:"Doobie Brothers",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:38,title:"Love Shack",artist:"B-52s",key:"",tempo:"",vocal:"Jim / Rachel",lead:"Ed",zach:""},
-  {id:39,title:"Man, I Feel Like a Woman",artist:"Shania Twain",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:40,title:"My Own Worst Enemy",artist:"Lit",key:"",tempo:"104",vocal:"Rich",lead:"Ed",zach:""},
-  {id:41,title:"My Sharona",artist:"The Knack",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:42,title:"No Matter What",artist:"Badfinger",key:"A",tempo:"116",vocal:"Ed",lead:"Jim",zach:""},
-  {id:43,title:"Now",artist:"Plimsouls",key:"D",tempo:"146",vocal:"Rich",lead:"Ed",zach:""},
-  {id:44,title:"One Way or Another",artist:"Blondie",key:"",tempo:"162",vocal:"Rachel",lead:"Jim",zach:"Keys"},
-  {id:45,title:"Panama",artist:"Van Halen",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:46,title:"Rock and Roll",artist:"Led Zeppelin",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:47,title:"Runnin Down A Dream",artist:"Tom Petty",key:"",tempo:"",vocal:"Ed",lead:"Jim",zach:""},
-  {id:48,title:"Sharp Dressed Man",artist:"ZZ Top",key:"",tempo:"",vocal:"Jim",lead:"Ed",zach:""},
-  {id:49,title:"She Sells Sanctuary",artist:"The Cult",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:50,title:"Surrender",artist:"Cheap Trick",key:"",tempo:"",vocal:"Rich",lead:"",zach:"Keys"},
-  {id:51,title:"Sweet Child O Mine",artist:"Guns n Roses",key:"",tempo:"123",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:52,title:"Take It Easy",artist:"Eagles",key:"E",tempo:"139",vocal:"Ed",lead:"Jim",zach:""},
-  {id:53,title:"The Authority Song",artist:"John Mellencamp",key:"",tempo:"",vocal:"Rachel",lead:"?",zach:""},
-  {id:54,title:"The Breakup Song",artist:"The Greg Kihn Band",key:"",tempo:"142",vocal:"Ed",lead:"Jim",zach:"Keys"},
-  {id:55,title:"The Middle",artist:"Jimmy Eat World",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:56,title:"The One I Love",artist:"REM",key:"",tempo:"128",vocal:"Ed",lead:"Ed",zach:""},
-  {id:57,title:"Tush",artist:"ZZ Top",key:"",tempo:"146",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:58,title:"Twist and Shout",artist:"The Beatles",key:"",tempo:"126",vocal:"Rich",lead:"Jim",zach:""},
-  {id:59,title:"Two Tickets To Paradise",artist:"Eddie Money",key:"",tempo:"",vocal:"Ed",lead:"Jim",zach:""},
-  {id:60,title:"Walking on Sunshine",artist:"Katrina and Waves",key:"Bb",tempo:"110",vocal:"Rachel",lead:"Jim",zach:"Keys"},
-  {id:61,title:"We Got The Beat",artist:"Go-Gos",key:"A",tempo:"151",vocal:"Rachel",lead:"Jim",zach:""},
-  {id:62,title:"What I like about you",artist:"The Romantics",key:"A",tempo:"160",vocal:"Rich",lead:"Jim",zach:""},
-  {id:63,title:"White Wedding",artist:"Billy Idol",key:"Bm",tempo:"145",vocal:"Rich",lead:"Ed",zach:""},
-  {id:64,title:"You Wrecked Me",artist:"Tom Petty",key:"",tempo:"",vocal:"Jim",lead:"Jim",zach:""},
-  {id:65,title:"Jumping Jack Flash",artist:"Rolling Stones",key:"",tempo:"",vocal:"",lead:"Ed",zach:""},
-  {id:66,title:"Since Youve Been Gone",artist:"Kelly Clarkson",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:67,title:"Barracuda",artist:"Heart",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:68,title:"Stone in Love",artist:"Journey",key:"",tempo:"",vocal:"Rich",lead:"?",zach:""},
-  {id:69,title:"Jet Airliner",artist:"Steve Miller",key:"",tempo:"",vocal:"Ed?",lead:"Dan",zach:""},
-  {id:70,title:"Private Idaho",artist:"B-52s",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:71,title:"52 Girls",artist:"B-52s",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:72,title:"Lava",artist:"B-52s",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:73,title:"Quiche Lorraine",artist:"B-52s",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:74,title:"Strobe Light",artist:"B-52s",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:75,title:"Nip it in the Bud",artist:"B-52s",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:76,title:"Already Gone",artist:"The Eagles",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:77,title:"Rock Around the Clock",artist:"Bill Hailey and the Comets",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:78,title:"La Bamba",artist:"Los Lobos",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:79,title:"Johnny B Goode",artist:"Chuck Berry",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:80,title:"Sweet Caroline",artist:"Neil Diamond",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:81,title:"Brown eyed Girl",artist:"Van Morrison",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:82,title:"Surfin USA",artist:"The Beach Boys",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:83,title:"And Then He Kissed Me",artist:"The Crystals",key:"",tempo:"",vocal:"",lead:"",zach:""},
+{id:1,title:"A Million Miles Away",artist:"Plimsouls",key:"Em"},
+{id:2,title:"Aint Talkin bout Love",artist:"Van Halen",key:""},
+{id:3,title:"American Girl",artist:"Tom Petty",key:"D"},
+{id:4,title:"Any way you want it",artist:"Journey",key:""},
+{id:5,title:"Back on the Chain Gang",artist:"Pretenders",key:""},
+{id:6,title:"Bad Case of Lovin You",artist:"Robert Palmer",key:""},
+{id:7,title:"Born on the Bayou ",artist:"Foo Fighters",key:""},
+{id:8,title:"Born To Be Wild",artist:"Steppenwolf ",key:""},
+{id:9,title:"Boys of Summer",artist:"Ataris",key:""},
+{id:10,title:"Brown Eyed Girl",artist:"Van Morrison",key:""},
+{id:11,title:"China Grove",artist:"Doobies",key:"E"},
+{id:12,title:"Crazy Little Thing ",artist:"Queen",key:"D"},
+{id:13,title:"Day Tripper",artist:"The Beatles",key:""},
+{id:14,title:"Exes and Ohs",artist:"Ellie King",key:""},
+{id:15,title:"Get Down Tonight",artist:"KC and The Sunshine band",key:""},
+{id:16,title:"Get Ready",artist:"Rare Earth",key:""},
+{id:17,title:"Gimme Three Steps",artist:"Lynnrd Skynard",key:""},
+{id:18,title:"Gimme Some Lovin",artist:"Spencer Davis Group",key:""},
+{id:19,title:"Goodbye To You",artist:"Scandal",key:""},
+{id:20,title:"Hard To Handle",artist:"Black Crowes",key:""},
+{id:21,title:"Heartbreaker",artist:"Pat Benatar",key:""},
+{id:22,title:"Hit Me With Your Best Shot",artist:"Pat Benetar",key:"E"},
+{id:23,title:"Honky Tonk Woman",artist:"The Rolling Stones",key:""},
+{id:24,title:"Hurts So Good",artist:"John Mellencamp",key:"A"},
+{id:25,title:"I Hate Myself For Lovin You",artist:"Joan Jett and the Blackhearts",key:""},
+{id:26,title:"I Love Rock and Roll",artist:"Joan Jett and the Blackhearts",key:""},
+{id:27,title:"I Melt With You",artist:"Modern English",key:""},
+{id:28,title:"I Ran",artist:"Flock of Seagulls",key:""},
+{id:29,title:"I Saw Her Standing There",artist:"Beatles",key:""},
+{id:30,title:"Jenny/867-5309",artist:"Tommy Tutone",key:"F#m"},
+{id:31,title:"Johnny B. Goode",artist:"Chuck Berry",key:""},
+{id:32,title:"Just Like Heaven",artist:"The Cure",key:"A"},
+{id:33,title:"Keep Your Hands To Yourself",artist:"Georgia Satellites",key:""},
+{id:34,title:"Listen to her Heart",artist:"Tom Petty",key:"A"},
+{id:35,title:"Listen to the Music",artist:"Doobies",key:""},
+{id:36,title:"Little Sister",artist:"Dwight Yoakam",key:""},
+{id:37,title:"Long Train Runnin",artist:"Doobie Brothers",key:""},
+{id:38,title:"Love Shack",artist:"B-52s",key:""},
+{id:39,title:"Man, I Feel Like a Woman",artist:"Shania Twain",key:""},
+{id:40,title:"My Own Worst Enemy",artist:"Lit",key:""},
+{id:41,title:"My Sharona",artist:"The Knack",key:""},
+{id:42,title:"No Matter What",artist:"Badfinger",key:"A"},
+{id:43,title:"Now",artist:"Plimsouls",key:"D"},
+{id:44,title:"One Way or Another",artist:"Blondie",key:""},
+{id:45,title:"Panama",artist:"Van Halen",key:""},
+{id:46,title:"Rock and Roll",artist:"Led Zeppelin",key:""},
+{id:47,title:"Runnin Down A Dream",artist:"Tom Petty",key:""},
+{id:48,title:"Sharp Dressed Man",artist:"ZZ Top",key:""},
+{id:49,title:"She Sells Sanctuary",artist:"The Cult",key:""},
+{id:50,title:"Surrender",artist:"Cheap Trick",key:""},
+{id:51,title:"Sweet Child O Mine",artist:"Guns n Roses",key:""},
+{id:52,title:"Take It Easy",artist:"Eagles",key:"E"},
+{id:53,title:"The Authority Song",artist:"John Mellencamp",key:""},
+{id:54,title:"The Breakup Song",artist:"The Greg Kihn Band",key:""},
+{id:55,title:"The Middle",artist:"Jimmy Eat World",key:""},
+{id:56,title:"The One I Love",artist:"REM",key:""},
+{id:57,title:"Tush",artist:"ZZ Top",key:""},
+{id:58,title:"Twist and Shout",artist:"The Beatles",key:""},
+{id:59,title:"Two Tickets To Paradise",artist:"Eddie Money",key:""},
+{id:60,title:"Walking on Sunshine",artist:"Katrina and Waves",key:"Bb"},
+{id:61,title:"We Got The Beat",artist:"Go-Gos",key:"A"},
+{id:62,title:"What I like about you",artist:"The Romantics",key:"A"},
+{id:63,title:"White Wedding",artist:"Billy Idol",key:"Bm"},
+{id:64,title:"You Wrecked Me",artist:"Tom Petty",key:""},
+{id:65,title:"Jumping Jack Flash",artist:"Rolling Stones",key:""},
+{id:66,title:"Since Youve Been Gone",artist:"Kelly Clarkson",key:""},
+{id:67,title:"Barracuda",artist:"Heart",key:""},
+{id:68,title:"Stone in Love",artist:"Journey",key:""},
+{id:69,title:"Jet Airliner",artist:"Steve Miller",key:""},
+{id:70,title:"Private Idaho",artist:"B-52s",key:""},
+{id:71,title:"52 Girls",artist:"B-52s",key:""},
+{id:72,title:"Lava",artist:"B-52s",key:""},
+{id:73,title:"Quiche Lorraine",artist:"B-52s",key:""},
+{id:74,title:"Strobe Light",artist:"B-52s",key:""},
+{id:75,title:"Nip it in the Bud",artist:"B-52s",key:""},
+{id:76,title:"Already Gone",artist:"The Eagles",key:""},
+{id:77,title:"Rock Around the Clock",artist:"Bill Hailey and the Comets",key:""},
+{id:78,title:"La Bamba",artist:"Los Lobos",key:""},
+{id:79,title:"Johnny B Goode",artist:"Chuck Berry",key:""},
+{id:80,title:"Sweet Caroline",artist:"Neil Diamond",key:""},
+{id:81,title:"Brown eyed Girl",artist:"Van Morrison",key:""},
+{id:82,title:"Surfin USA",artist:"The Beach Boys",key:""},
+{id:83,title:"And Then He Kissed Me",artist:"The Crystals",key:""}
 ];
 
-function rLibrary(){
+function rLib(){
   var q=(document.getElementById('song-search')||{value:''}).value.toLowerCase();
   var songs=library.filter(function(s){return !q||s.title.toLowerCase().includes(q)||(s.artist||'').toLowerCase().includes(q);});
   songs.sort(function(a,b){return a.title.localeCompare(b.title);});
-  var el=document.getElementById('library-list');
-  if(!el)return;
+  var el=document.getElementById('library-list');if(!el)return;
   el.innerHTML=songs.length?
-    '<div style="font-size:11px;color:#ffffff;margin-bottom:6px;">'+songs.length+' songs</div>'+
-    songs.map(function(s){
-      return '<div style="display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid #0d1f3a;">'+
-        '<div style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+
-          '<span style="font-size:13px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+
-          (s.artist?'<span style="font-size:11px;color:#f5c518;"> - '+s.artist+'</span>':'')+
-        '</div>'+
-        '<button style="background:none;border:none;color:#2a4a6a;font-size:12px;cursor:pointer;padding:2px 4px;flex-shrink:0;touch-action:manipulation;" onclick="delLibSong('+s.id+')">&#10005;</button>'+
-      '</div>';
-    }).join('')
-  :'<div style="color:#ffffff;font-style:italic;padding:8px;font-size:13px">No songs yet.</div>';
+    '<div style="font-size:11px;color:#fff;margin-bottom:6px;">'+songs.length+' songs</div>'+
+    songs.map(function(s){return '<div style="display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid #0d1f3a;"><div style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><span style="font-size:13px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+(s.artist?'<span style="font-size:11px;color:#f5c518;"> - '+s.artist+'</span>':'')+' </div><button style="background:none;border:none;color:#555;font-size:12px;cursor:pointer;padding:2px 4px;flex-shrink:0;" onclick="dlLib('+s.id+')">&#10005;</button></div>';}).join('')
+  :'<div style="color:#aaa;font-style:italic;padding:8px;">No songs yet.</div>';
 }
+function adLibSong(){var t=document.getElementById('lib-title').value.trim();if(!t)return;library.push({id:Date.now(),title:t,artist:document.getElementById('lib-artist').value.trim(),key:document.getElementById('lib-key').value.trim()});document.getElementById('lib-title').value='';document.getElementById('lib-artist').value='';document.getElementById('lib-key').value='';document.getElementById('add-song-form').style.display='none';rLib();}
+function dlLib(id){library=library.filter(function(s){return s.id!==id;});rLib();}
 
-function filterSongs(){rLibrary();}
-
-function adLibSong(){
-  var t=document.getElementById('lib-title').value.trim();
-  if(!t)return;
-  library.push({
-    id:Date.now(),
-    title:t,
-    artist:document.getElementById('lib-artist').value.trim(),
-    key:document.getElementById('lib-key').value.trim(),
-    tempo:document.getElementById('lib-dur').value.trim(),
-    vocal:'',lead:'',zach:''
-  });
-  document.getElementById('lib-title').value='';
-  document.getElementById('lib-artist').value='';
-  document.getElementById('lib-key').value='';
-  document.getElementById('lib-dur').value='';
-  document.getElementById('lib-notes').value='';
-  document.getElementById('add-song-form').style.display='none';
-  rLibrary();
-}
-
-function delLibSong(id){library=library.filter(function(s){return s.id!==id;});rLibrary();}
-
-function rSongs(){rLibrary();}
-
-rAv();rHome();}
-function rPay(){var tot=pay.reduce(function(s,g){return s+g.gross-g.exp;},0);document.getElementById('bt').textContent='$'+tot.toLocaleString();document.getElementById('mc2').textContent='$'+(tot/members.length).toFixed(0);document.getElementById('cs').textContent='/ '+members.length+' members';document.getElementById('pl').innerHTML=pay.map(function(g){var net=g.gross-g.exp;return '<div class="fr"><div style="width:30px;height:30px;border-radius:7px;background:rgba(245,197,24,.1);color:#f5c518;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">$</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600">'+g.venue+'</div><div style="font-size:11px;color:#4a6a9a;margin-top:2px">'+g.date+(g.exp?' - exp: $'+g.exp:'')+' </div></div><div style="text-align:right;flex-shrink:0"><div style="font-family:Russo One,sans-serif;font-size:15px;color:#f5c518">$'+net.toLocaleString()+'</div><div style="font-size:10px;color:#4a9eff">You: $'+(net/members.length).toFixed(2)+'</div></div></div>';}).join('');}
+function rPay(){var tot=pay.reduce(function(s,g){return s+g.gross-g.exp;},0);document.getElementById('bt').textContent='$'+tot.toLocaleString();document.getElementById('mc2').textContent='$'+(tot/members.length).toFixed(0);document.getElementById('cs').textContent='/ '+members.length+' members';document.getElementById('pl').innerHTML=pay.length?pay.map(function(g){var net=g.gross-g.exp;return '<div style="background:#101e34;border-radius:8px;padding:9px 11px;margin-bottom:6px;display:flex;align-items:center;gap:10px;"><div style="width:30px;height:30px;border-radius:7px;background:rgba(245,197,24,.1);color:#f5c518;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">$</div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:#fff;">'+g.venue+'</div><div style="font-size:11px;color:#aaa;margin-top:2px;">'+g.date+'</div></div><div style="text-align:right;flex-shrink:0;"><div style="font-family:Russo One,sans-serif;font-size:15px;color:#f5c518;">$'+net.toLocaleString()+'</div><div style="font-size:10px;color:#4a9eff;">You: $'+(net/members.length).toFixed(2)+'</div></div></div>';}).join(''):'<div style="color:#aaa;font-style:italic;padding:8px;">No gigs logged yet.</div>';}
 function adPay(){var v=document.getElementById('pv').value.trim(),g=parseFloat(document.getElementById('pg').value)||0,e=parseFloat(document.getElementById('pe').value)||0;if(!v||!g)return;pay.unshift({id:Date.now(),date:new Date().toISOString().slice(0,10),venue:v,gross:g,exp:e});document.getElementById('pf').style.display='none';document.getElementById('pv').value='';document.getElementById('pg').value='';document.getElementById('pe').value='';rPay();}
+
 function opM(id){document.getElementById(id).classList.add('on');}
 function clM(id){document.getElementById(id).classList.remove('on');}
 document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});});
-// Song Library
-var library=[
-  {id:1,title:"A Million Miles Away",artist:"Plimsouls",key:"Em",tempo:"155",vocal:"Rich",lead:"Ed",zach:""},
-  {id:2,title:"Aint Talkin bout Love",artist:"Van Halen",key:"",tempo:"139",vocal:"Rich",lead:"Ed",zach:""},
-  {id:3,title:"American Girl",artist:"Tom Petty",key:"D",tempo:"114",vocal:"Ed",lead:"Jim",zach:"Keys"},
-  {id:4,title:"Any way you want it",artist:"Journey",key:"",tempo:"138",vocal:"Rachel",lead:"Ed",zach:"Keys"},
-  {id:5,title:"Back on the Chain Gang",artist:"Pretenders",key:"",tempo:"153",vocal:"Rachel",lead:"TBD",zach:""},
-  {id:6,title:"Bad Case of Lovin You",artist:"Robert Palmer",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:7,title:"Born on the Bayou ",artist:"Foo Fighters",key:"",tempo:"122",vocal:"Rich",lead:"Ed",zach:""},
-  {id:8,title:"Born To Be Wild",artist:"Steppenwolf ",key:"",tempo:"146",vocal:"Rich",lead:"Jim",zach:"Keys"},
-  {id:9,title:"Boys of Summer",artist:"Ataris",key:"",tempo:"177",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:10,title:"Brown Eyed Girl",artist:"Van Morrison",key:"",tempo:"149",vocal:"Ed",lead:"Jim",zach:"Keys"},
-  {id:11,title:"China Grove",artist:"Doobies",key:"E",tempo:"145",vocal:"Ed",lead:"Jim",zach:"Keys"},
-  {id:12,title:"Crazy Little Thing ",artist:"Queen",key:"D",tempo:"154",vocal:"Rachel",lead:"Jim",zach:""},
-  {id:13,title:"Day Tripper",artist:"The Beatles",key:"",tempo:"137",vocal:"Rich",lead:"?",zach:""},
-  {id:14,title:"Exes and Ohs",artist:"Ellie King",key:"",tempo:"",vocal:"Rachel",lead:"Jim",zach:""},
-  {id:15,title:"Get Down Tonight",artist:"KC & The Sunshine band",key:"",tempo:"",vocal:"Ed",lead:"Jim",zach:"Keys"},
-  {id:16,title:"Get Ready",artist:"Rare Earth",key:"",tempo:"",vocal:"Ed",lead:"Ed",zach:""},
-  {id:17,title:"Gimme Three Steps",artist:"Lynnrd Skynard",key:"",tempo:"141",vocal:"Ed",lead:"Jim",zach:"Keys"},
-  {id:18,title:"Gimme Some Lovin",artist:"Spencer Davis Group",key:"",tempo:"147",vocal:"Rachel/Rich",lead:"?",zach:"Keys"},
-  {id:19,title:"Goodbye To You",artist:"Scandal",key:"",tempo:"159",vocal:"Rachel",lead:"Ed",zach:"Keys"},
-  {id:20,title:"Hard To Handle",artist:"Black Crowes",key:"",tempo:"",vocal:"Jim",lead:"Ed",zach:""},
-  {id:21,title:"Heartbreaker",artist:"Pat Benatar",key:"",tempo:"156",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:22,title:"Hit Me With Your Best Shot",artist:"Pat Benetar",key:"E",tempo:"127",vocal:"Rachel",lead:"Ed",zach:"Keys"},
-  {id:23,title:"Honky Tonk Woman",artist:"The Rolling Stones",key:"",tempo:"",vocal:"Jim",lead:"Jim",zach:""},
-  {id:24,title:"Hurts So Good",artist:"John Mellencamp",key:"A",tempo:"120",vocal:"Rachel",lead:"Jim",zach:""},
-  {id:25,title:"I Hate Myself For Lovin You",artist:"Joan Jett & the Blackhearts",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:26,title:"I Love Rock and Roll",artist:"Joan Jett & the Blackhearts",key:"",tempo:"94",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:27,title:"I Melt With You",artist:"Modern English",key:"",tempo:"155",vocal:"Ed",lead:"Jim",zach:"Keys"},
-  {id:28,title:"I Ran",artist:"Flock of Seagulls",key:"",tempo:"",vocal:"Ed",lead:"Jim",zach:""},
-  {id:29,title:"I Saw Her Standing There",artist:"Beatles",key:"",tempo:"155",vocal:"Ed",lead:"Jim",zach:""},
-  {id:30,title:"Jenny/867-5309",artist:"Tommy Tutone",key:"F#m",tempo:"138",vocal:"Rich",lead:"Jim",zach:"Keys"},
-  {id:31,title:"Johnny B. Goode",artist:"Chuck Berry",key:"",tempo:"168",vocal:"Ed",lead:"Jim",zach:"Keys"},
-  {id:32,title:"Just Like Heaven",artist:"The Cure",key:"A",tempo:"153",vocal:"Ed",lead:"Ed",zach:"Keys"},
-  {id:33,title:"Keep Your Hands To Yourself",artist:"Georgia Satellites",key:"",tempo:"",vocal:"Jim",lead:"Ed",zach:""},
-  {id:34,title:"Listen to her Heart",artist:"Tom Petty",key:"A",tempo:"127",vocal:"Rich",lead:"Jim",zach:"Keys"},
-  {id:35,title:"Listen to the Music",artist:"Doobies",key:"",tempo:"",vocal:"Rachel",lead:"Jim",zach:""},
-  {id:36,title:"Little Sister",artist:"Dwight Yoakam",key:"",tempo:"",vocal:"Jim",lead:"Ed",zach:""},
-  {id:37,title:"Long Train Runnin",artist:"Doobie Brothers",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:38,title:"Love Shack",artist:"B-52s",key:"",tempo:"",vocal:"Jim / Rachel",lead:"Ed",zach:""},
-  {id:39,title:"Man, I Feel Like a Woman",artist:"Shania Twain",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:40,title:"My Own Worst Enemy",artist:"Lit",key:"",tempo:"104",vocal:"Rich",lead:"Ed",zach:""},
-  {id:41,title:"My Sharona",artist:"The Knack",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:42,title:"No Matter What",artist:"Badfinger",key:"A",tempo:"116",vocal:"Ed",lead:"Jim",zach:""},
-  {id:43,title:"Now",artist:"Plimsouls",key:"D",tempo:"146",vocal:"Rich",lead:"Ed",zach:""},
-  {id:44,title:"One Way or Another",artist:"Blondie",key:"",tempo:"162",vocal:"Rachel",lead:"Jim",zach:"Keys"},
-  {id:45,title:"Panama",artist:"Van Halen",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:46,title:"Rock and Roll",artist:"Led Zeppelin",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:47,title:"Runnin Down A Dream",artist:"Tom Petty",key:"",tempo:"",vocal:"Ed",lead:"Jim",zach:""},
-  {id:48,title:"Sharp Dressed Man",artist:"ZZ Top",key:"",tempo:"",vocal:"Jim",lead:"Ed",zach:""},
-  {id:49,title:"She Sells Sanctuary",artist:"The Cult",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:50,title:"Surrender",artist:"Cheap Trick",key:"",tempo:"",vocal:"Rich",lead:"",zach:"Keys"},
-  {id:51,title:"Sweet Child O Mine",artist:"Guns n Roses",key:"",tempo:"123",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:52,title:"Take It Easy",artist:"Eagles",key:"E",tempo:"139",vocal:"Ed",lead:"Jim",zach:""},
-  {id:53,title:"The Authority Song",artist:"John Mellencamp",key:"",tempo:"",vocal:"Rachel",lead:"?",zach:""},
-  {id:54,title:"The Breakup Song",artist:"The Greg Kihn Band",key:"",tempo:"142",vocal:"Ed",lead:"Jim",zach:"Keys"},
-  {id:55,title:"The Middle",artist:"Jimmy Eat World",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:56,title:"The One I Love",artist:"REM",key:"",tempo:"128",vocal:"Ed",lead:"Ed",zach:""},
-  {id:57,title:"Tush",artist:"ZZ Top",key:"",tempo:"146",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:58,title:"Twist and Shout",artist:"The Beatles",key:"",tempo:"126",vocal:"Rich",lead:"Jim",zach:""},
-  {id:59,title:"Two Tickets To Paradise",artist:"Eddie Money",key:"",tempo:"",vocal:"Ed",lead:"Jim",zach:""},
-  {id:60,title:"Walking on Sunshine",artist:"Katrina & Waves",key:"Bb",tempo:"110",vocal:"Rachel",lead:"Jim",zach:"Keys"},
-  {id:61,title:"We Got The Beat",artist:"Go-Gos",key:"A",tempo:"151",vocal:"Rachel",lead:"Jim",zach:""},
-  {id:62,title:"What I like about you",artist:"The Romantics",key:"A",tempo:"160",vocal:"Rich",lead:"Jim",zach:""},
-  {id:63,title:"White Wedding",artist:"Billy Idol",key:"Bm",tempo:"145",vocal:"Rich",lead:"Ed",zach:""},
-  {id:64,title:"You Wrecked Me",artist:"Tom Petty",key:"",tempo:"",vocal:"Jim",lead:"Jim",zach:""},
-  {id:65,title:"Jumping Jack Flash",artist:"Rolling Stones",key:"",tempo:"",vocal:"",lead:"Ed",zach:""},
-  {id:66,title:"Since Youve Been Gone",artist:"Kelly Clarkson",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:67,title:"Barracuda",artist:"Heart",key:"",tempo:"",vocal:"Rachel",lead:"Ed",zach:""},
-  {id:68,title:"Stone in Love",artist:"Journey",key:"",tempo:"",vocal:"Rich",lead:"?",zach:""},
-  {id:69,title:"Jet Airliner",artist:"Steve Miller",key:"",tempo:"",vocal:"Ed?",lead:"Dan",zach:""},
-  {id:70,title:"Private Idaho",artist:"B-52s",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:71,title:"52 Girls",artist:"B-52s",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:72,title:"Lava",artist:"B-52s",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:73,title:"Quiche Lorraine",artist:"B-52s",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:74,title:"Strobe Light",artist:"B-52s",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:75,title:"Nip it in the Bud",artist:"B-52s",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:76,title:"Already Gone",artist:"The Eagles",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:77,title:"Rock Around the Clock",artist:"Bill Hailey and the Comets",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:78,title:"La Bamba",artist:"Los Lobos",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:79,title:"Johnny B Goode",artist:"Chuck Berry",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:80,title:"Sweet Caroline",artist:"Neil Diamond",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:81,title:"Brown eyed Girl",artist:"Van Morrison",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:82,title:"Surfin USA",artist:"The Beach Boys",key:"",tempo:"",vocal:"",lead:"",zach:""},
-  {id:83,title:"And Then He Kissed Me",artist:"The Crystals",key:"",tempo:"",vocal:"",lead:"",zach:""},
-];
 
-function rLibrary(){
-  var q=(document.getElementById('song-search')||{value:''}).value.toLowerCase();
-  var songs=library.filter(function(s){return !q||s.title.toLowerCase().includes(q)||(s.artist||'').toLowerCase().includes(q);});
-  songs.sort(function(a,b){return a.title.localeCompare(b.title);});
-  var el=document.getElementById('library-list');
-  if(!el)return;
-  el.innerHTML=songs.length?
-    '<div style="font-size:11px;color:#4a6a9a;margin-bottom:6px">'+songs.length+' songs</div>'+
-    songs.map(function(s){
-      var label=s.title+(s.artist?' - '+s.artist:'');
-      return '<div style="display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid #0d1f3a;">'+
-        '<div style="flex:1;font-size:12px;color:#e8f0ff;">'+label+'</div>'+
-        '<button style="background:none;border:none;color:#2a4a6a;font-size:12px;cursor:pointer;padding:2px 4px;flex-shrink:0;touch-action:manipulation;" onclick="delLibSong('+s.id+')">&#10005;</button>'+
-      '</div>';
-    }).join('')
-  :'<div style="color:#2a4a6a;font-style:italic;padding:8px;font-size:13px">No songs yet.</div>';
-}
-
-function filterSongs(){rLibrary();}
-
-function adLibSong(){
-  var t=document.getElementById('lib-title').value.trim();
-  if(!t)return;
-  library.push({
-    id:Date.now(),
-    title:t,
-    artist:document.getElementById('lib-artist').value.trim(),
-    key:document.getElementById('lib-key').value.trim(),
-    tempo:document.getElementById('lib-dur').value.trim(),
-    vocal:'',lead:'',zach:''
-  });
-  document.getElementById('lib-title').value='';
-  document.getElementById('lib-artist').value='';
-  document.getElementById('lib-key').value='';
-  document.getElementById('lib-dur').value='';
-  document.getElementById('lib-notes').value='';
-  document.getElementById('add-song-form').style.display='none';
-  rLibrary();
-}
-
-function delLibSong(id){library=library.filter(function(s){return s.id!==id;});rLibrary();}
-
-function rSongs(){rLibrary();}
-
-rAv();rHome();
+rAv();
+rHome();
 </script>
 </body>
 </html>
