@@ -54,9 +54,11 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 .legend{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;font-size:11px;color:#fff;}
 .cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;background:rgba(26,58,138,.15);border:1px solid rgba(74,158,255,.2);border-radius:10px;padding:7px 4px;margin-bottom:12px;}
 .dhdr{text-align:center;font-size:11px;font-weight:700;color:#4a9eff;font-family:"Russo One",sans-serif;padding-bottom:3px;}
-.dc{min-height:38px;background:rgba(10,22,40,.9);border-radius:5px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;}
-.dc:active{background:rgba(245,197,24,.2);}
-.dc.td{background:rgba(26,58,138,.5);outline:1px solid rgba(245,197,24,.5);}
+.dc{min-height:38px;background:rgba(10,22,40,.9);border-radius:5px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;cursor:pointer;transition:background .15s,outline .15s;}
+.dc:hover{background:rgba(74,158,255,.2);outline:1px solid rgba(74,158,255,.5);}
+.dc:active{background:rgba(245,197,24,.25);outline:1px solid rgba(245,197,24,.8);}
+.dc.td{background:rgba(26,58,138,.5);outline:2px solid rgba(245,197,24,.6);}
+.dc.sel{background:rgba(245,197,24,.2);outline:2px solid #f5c518;}
 .dn{font-size:11px;color:#fff;font-weight:500;}
 .dc.td .dn{color:var(--g);font-weight:700;}
 .pips{display:flex;gap:2px;margin-top:2px;}
@@ -134,6 +136,13 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
     <div class="hero-l"><img src="logo.jpg" alt="OOT"><div class="htag">Danceable Classic Rock<br>Pure Energy</div></div>
     <div class="hero-r"><img src="band.jpg" alt="Band"></div>
   </div>
+  <div id="announce-card" style="background:#0a1628;border:1px solid rgba(245,197,24,.4);border-radius:10px;padding:10px 14px;margin-bottom:10px;display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span style="font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:2px;color:#f5c518;">📣 ANNOUNCEMENTS</span>
+      <button onclick="showAnnounce()" style="background:none;border:1px solid #f5c518;border-radius:5px;padding:2px 8px;color:#f5c518;font-size:10px;cursor:pointer;">+ POST</button>
+    </div>
+    <div id="announce-list"></div>
+  </div>
   <div id="who-am-i" style="font-size:11px;color:#4a9eff;text-align:right;margin-bottom:8px;"></div>
   <div class="card gc">
     <div class="card-lbl" onclick="toggleCard('hg','gig-arrow')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
@@ -170,6 +179,10 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
   <div class="cgrid" id="cgrid"></div>
   <div class="sh">ALL EVENTS</div>
   <div id="evl"></div>
+  <div class="sh" style="margin-top:16px;">AVAILABILITY</div>
+  <p style="font-size:11px;color:#4a6a9a;margin-bottom:8px;">Mark dates you are NOT available</p>
+  <div id="avail-list"></div>
+  <button class="ab" onclick="addMyAvail()">+ Mark Me Unavailable</button>
 </div>
 
 <div id="sc-sets" class="sc">
@@ -211,11 +224,18 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
   <div class="sh">OUT OF TIME - BAND ROSTER</div>
   <div id="ml"></div>
   <button class="ab" onclick="opM('mm')">+ Add Member</button>
+  <div class="sh" style="margin-top:16px;">CONTACTS</div>
+  <p style="font-size:11px;color:#4a6a9a;margin-bottom:8px;">Venues, sound engineers, promoters</p>
+  <div id="contacts-list"></div>
+  <button class="ab" onclick="opM('contact-modal')">+ Add Contact</button>
 </div>
 
 <div id="sc-songs" class="sc">
   <div class="sh">SONG LIBRARY</div>
-  <input id="song-search" class="fi2" placeholder="Search songs..." oninput="rLib()" style="width:100%;margin-bottom:10px;">
+  <div style="display:flex;gap:8px;margin-bottom:10px;">
+  <input id="song-search" class="fi2" placeholder="Search songs..." oninput="rLib()" style="flex:1;">
+  <button onclick="clearSearch()" style="background:#101e34;border:1px solid #1a3a8a;border-radius:6px;padding:6px 10px;color:#4a9eff;font-size:11px;font-family:'Russo One',sans-serif;cursor:pointer;flex-shrink:0;touch-action:manipulation;">CLEAR</button>
+</div>
   <div id="library-list"></div>
   <div id="add-song-form" style="display:none" class="fb">
     <input class="fi2" id="lib-title" placeholder="Song title *">
@@ -255,6 +275,41 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
     <input class="mi" id="etit" placeholder="Title *">
     <input class="mi" id="enot" placeholder="Notes (time, address)">
     <button class="sb" onclick="adEv()" style="width:100%">Add to Calendar</button>
+  </div>
+</div>
+
+
+<div class="ov" id="announce-modal">
+  <div class="mo">
+    <div class="moh"><span class="mot">Post Announcement</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('announce-modal')">&#10005;</button></div>
+    <textarea class="mi" id="ann-txt" placeholder="Type your announcement..." rows="4" style="resize:none;font-family:'Exo 2',sans-serif;"></textarea>
+    <button class="sb" onclick="postAnnounce()" style="width:100%">Post to Band</button>
+  </div>
+</div>
+
+<div class="ov" id="contact-modal">
+  <div class="mo">
+    <div class="moh"><span class="mot">Add Contact</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('contact-modal')">&#10005;</button></div>
+    <input class="mi" id="ct-name" placeholder="Name *">
+    <input class="mi" id="ct-role" placeholder="Role (Venue, Sound Engineer, Promoter)">
+    <input class="mi" id="ct-ph" placeholder="Phone">
+    <input class="mi" id="ct-em" placeholder="Email">
+    <input class="mi" id="ct-note" placeholder="Notes">
+    <button class="sb" onclick="addContact()" style="width:100%">Add Contact</button>
+  </div>
+</div>
+
+<div class="ov" id="song-info-modal">
+  <div class="mo">
+    <div class="moh"><span class="mot" id="si-title">Song Info</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('song-info-modal')">&#10005;</button></div>
+    <div id="si-body"></div>
+  </div>
+</div>
+
+<div class="ov" id="gig-detail-modal">
+  <div class="mo">
+    <div class="moh"><span class="mot" id="gd-title">Gig Details</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('gig-detail-modal')">&#10005;</button></div>
+    <div id="gd-body"></div>
   </div>
 </div>
 
@@ -307,6 +362,10 @@ function initApp(){
   listenSets();
   listenPay();
   listenMembers();
+  listenAnnouncements();
+  listenContacts();
+  listenAvailability();
+  listenGigDetails();
 }
 
 // ── FIRESTORE LISTENERS ────────────────────────────────────────────────────
@@ -346,7 +405,11 @@ function listenMembers(){
       var m=members.find(function(x){return x.name===doc.id;});
       if(m){ m.ph=d.ph||''; m.em=d.em||''; m.addr=d.addr||''; }
     });
-    if(document.getElementById('sc-band').classList.contains('on')) rBand();
+    // Don't re-render band tab while user is typing in it
+    var active=document.activeElement;
+    var bandActive=document.getElementById('sc-band').classList.contains('on');
+    if(bandActive && active && active.tagName==='INPUT') return;
+    if(bandActive) rBand();
   });
 }
 
@@ -450,12 +513,19 @@ function rCal(){
 function pMo(){CM--;if(CM<0){CM=11;CY--;}rCal();}
 function nMo(){CM++;if(CM>11){CM=0;CY++;}rCal();}
 function rEvL(){document.getElementById('evl').innerHTML=events.length?events.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(e){return '<div class="er"><div class="ebdg" style="background:'+EC[e.type]+'22;color:'+EC[e.type]+'">'+e.type+'</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:#fff">'+e.title+'</div><div style="font-size:11px;color:#aaa;margin-top:2px">'+e.date+' - '+e.note+'</div></div><button style="background:none;border:none;color:#aaa;font-size:14px;" onclick="dEv('+e.id+')">&#10005;</button></div>';}).join(''):'<div style="color:#fff;font-style:italic;padding:8px">No events. Tap a day to add.</div>';}
-function oDy(day){sDay=day;document.getElementById('emtit').textContent=MO[CM]+' '+day;var ds=fD(CY,CM,day),de=events.filter(function(e){return e.date===ds;});document.getElementById('eex').innerHTML=de.map(function(e){return '<div style="padding:9px;background:#060e1c;border-radius:8px;margin-bottom:8px;border-left:3px solid '+EC[e.type]+'"><div style="font-size:13px;font-weight:600;color:#fff">'+e.title+'</div><div style="font-size:11px;color:#aaa;margin-top:2px">'+e.note+'</div><button class="cb" style="margin-top:8px;font-size:11px;padding:4px 10px" onclick="dEv('+e.id+');clM(\'evm\');oDy('+day+')">Remove</button></div>';}).join('');sET('gig');document.getElementById('etit').value='';document.getElementById('enot').value='';opM('evm');}
+function oDy(day){
+  sDay=day;
+  document.querySelectorAll('.dc').forEach(function(d){d.classList.remove('sel');});
+  var allDays=document.querySelectorAll('.dc');
+  // Find the clicked day cell by its number
+  allDays.forEach(function(d){
+    if(d.querySelector('.dn') && d.querySelector('.dn').textContent==day) d.classList.add('sel');
+  });document.getElementById('emtit').textContent=MO[CM]+' '+day;var ds=fD(CY,CM,day),de=events.filter(function(e){return e.date===ds;});document.getElementById('eex').innerHTML=de.map(function(e){return '<div style="padding:9px;background:#060e1c;border-radius:8px;margin-bottom:8px;border-left:3px solid '+EC[e.type]+'"><div style="font-size:13px;font-weight:600;color:#fff">'+e.title+'</div><div style="font-size:11px;color:#aaa;margin-top:2px">'+e.note+'</div><button class="cb" style="margin-top:8px;font-size:11px;padding:4px 10px" onclick="dEv('+e.id+');clM(\'evm\');oDy('+day+')">Remove</button></div>';}).join('');sET('gig');document.getElementById('etit').value='';document.getElementById('enot').value='';opM('evm');}
 function sET(t){cET=t;['gig','rehearsal','blackout'].forEach(function(k){var b=document.getElementById('et-'+k);b.style.background=k===t?EC[k]+'33':'transparent';b.style.color=k===t?EC[k]:'#aaa';b.style.borderColor=k===t?EC[k]:'#0d1f3a';});}
 function adEv(){var t=document.getElementById('etit').value.trim();if(!t)return;var ev={id:Date.now(),date:fD(CY,CM,sDay),type:cET,title:t,note:document.getElementById('enot').value.trim()};saveEvent(ev);clM('evm');}
 function dEv(id){deleteEvent(id);}
 
-function rSets(){document.getElementById('si').style.display='block';document.getElementById('se').style.display='none';document.getElementById('sll').innerHTML=sets.length?sets.map(function(s){return '<div class="slc" onclick="opSL('+s.id+')"><div style="flex:1"><div class="sln">'+s.name+'</div><div class="slm">'+s.songs.length+' songs - '+tD(s.songs)+'</div></div><div style="color:#f5c518;font-size:20px">&#8250;</div></div>';}).join(''):'<div style="color:#fff;font-style:italic;padding:8px">No setlists yet.</div>';}
+function rSets(){document.getElementById('si').style.display='block';document.getElementById('se').style.display='none';document.getElementById('sll').innerHTML=sets.length?sets.map(function(s){return '<div class="slc" onclick="opSL('+s.id+')"><div style="flex:1"><div class="sln">'+s.name+'</div><div class="slm">'+s.songs.length+' songs - '+tD(s.songs)+'</div></div><div style="color:#f5c518;font-size:16px;">&#9660;</div></div>';}).join(''):'<div style="color:#fff;font-style:italic;padding:8px">No setlists yet.</div>';}
 function nwSL(){
   var name=prompt('Setlist name (e.g. The Trip Gig, Tiki Bar):','New Setlist');
   if(!name)return;
@@ -495,7 +565,7 @@ function rChat(){
 function sMsg(){var inp=document.getElementById('cin'),txt=inp.value.trim();if(!txt)return;var t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});var msg={who:ME,to:chatTo,txt:txt,time:t,day:'Today'};saveMsg(msg);inp.value='';}
 
 function rBand(){
-  var inp='background:#060e1c;border:1px solid #1a3a8a;border-radius:4px;padding:4px 7px;font-size:11px;color:#e8f0ff;outline:none;width:100%;';
+  var inp='background:#060e1c;border:1px solid #1a3a8a;border-radius:4px;padding:4px 7px;font-size:11px;color:#e8f0ff;outline:none;width:100%;font-family:Exo 2,sans-serif;box-sizing:border-box;';
   var lbl='font-size:9px;color:#fff;letter-spacing:1px;font-family:Russo One,sans-serif;width:22px;flex-shrink:0;';
   document.getElementById('ml').innerHTML=members.map(function(m){
     return '<div class="mc"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><div class="avmd" style="background:'+m.color+'">'+m.av+'</div><div><div style="font-size:14px;font-weight:600;color:#e8f0ff;">'+m.name+'</div><div style="font-size:11px;color:#4a9eff;font-family:Russo One,sans-serif;">'+m.inst+'</div></div></div>'+
@@ -503,6 +573,7 @@ function rBand(){
     '<div style="display:flex;align-items:center;margin-bottom:4px;gap:4px;"><span style="'+lbl+'">EM</span><input style="'+inp+'" type="email" value="'+m.em+'" placeholder="email@example.com" oninput="uM('+m.id+',\'em\',this.value)"></div>'+
     '<div style="display:flex;align-items:center;gap:4px;"><span style="'+lbl+'">AD</span><input style="'+inp+'" type="text" value="'+m.addr+'" placeholder="City, State" oninput="uM('+m.id+',\'addr\',this.value)"></div></div>';
   }).join('');
+  rContacts();
 }
 function uM(id,f,v){var m=members.find(function(x){return x.id===id;});if(m){m[f]=v;var data={};data[f]=v;saveMember(m.name,data);}}
 function adMem(){var n=document.getElementById('mnam').value.trim();if(!n)return;var r=document.getElementById('mrol').value.trim()||'Member';var cl=['#f5c518','#4a9eff','#06d6a0','#ff6b6b','#c084fc','#fb923c'];var av=n.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);members.push({id:Date.now(),name:n,inst:r,av:av,color:cl[members.length%cl.length],ph:'',em:'',addr:''});document.getElementById('mnam').value='';document.getElementById('mrol').value='';clM('mm');rBand();rHome();}
@@ -600,7 +671,7 @@ function rLib(){
   var el=document.getElementById('library-list');if(!el)return;
   el.innerHTML=songs.length?
     '<div style="font-size:11px;color:#fff;margin-bottom:6px;">'+songs.length+' songs</div>'+
-    songs.map(function(s){return '<div style="display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid #0d1f3a;"><div style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;" onclick="playYT(\''+s.title.replace(/'/g,'')+' '+( s.artist?s.artist.replace(/'/g,''):'')+'\')"><span style="font-size:13px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+(s.artist?'<span style="font-size:11px;color:#f5c518;"> - '+s.artist+'</span>':'')+' <span style="font-size:10px;color:#1a3a8a;">&#9654;</span></div><button style="background:none;border:none;color:#555;font-size:12px;cursor:pointer;padding:2px 4px;flex-shrink:0;" onclick="cnfDel('+s.id+')">&#10005;</button></div>';}).join('')
+    songs.map(function(s){return '<div style="display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid #0d1f3a;"><div style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;" onclick="playYT(\''+s.title.replace(/'/g,'')+' '+( s.artist?s.artist.replace(/'/g,''):'')+'\')"><span style="font-size:13px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+(s.artist?'<span style="font-size:11px;color:#f5c518;"> - '+s.artist+'</span>':'')+' <span style="font-size:10px;color:#1a3a8a;">&#9654;</span></div><button style="background:none;border:none;color:#4a6a9a;font-size:13px;cursor:pointer;padding:2px 4px;flex-shrink:0;" onclick="showSongInfo(\'+s.id+\')">&#8505;</button><button style="background:none;border:none;color:#555;font-size:12px;cursor:pointer;padding:2px 4px;flex-shrink:0;" onclick="cnfDel('+s.id+')">&#10005;</button></div>';}).join('')
   :'<div style="color:#aaa;font-style:italic;padding:8px;">No songs yet.</div>';
 }
 function adLibSong(){var t=document.getElementById('lib-title').value.trim();if(!t)return;library.push({id:Date.now(),title:t,artist:document.getElementById('lib-artist').value.trim(),key:document.getElementById('lib-key').value.trim()});document.getElementById('lib-title').value='';document.getElementById('lib-artist').value='';document.getElementById('lib-key').value='';document.getElementById('add-song-form').style.display='none';rLib();}
@@ -618,6 +689,11 @@ function fmtPhone(inp){
 }
 
 
+
+function clearSearch(){
+  document.getElementById('song-search').value='';
+  rLib();
+}
 function playYT(query){
   var url='https://www.youtube.com/results?search_query='+encodeURIComponent(query);
   window.open(url,'_blank');
@@ -741,6 +817,164 @@ function renSL(){
   rEd();
 }
 
+
+// ── ANNOUNCEMENTS ─────────────────────────────────────────────────────────
+var announcements = [];
+function showAnnounce(){opM('announce-modal');}
+function postAnnounce(){
+  var txt=document.getElementById('ann-txt').value.trim();
+  if(!txt)return;
+  var ann={id:Date.now(),who:ME,name:myName,txt:txt,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),date:new Date().toLocaleDateString()};
+  db.collection('announcements').add(ann);
+  document.getElementById('ann-txt').value='';
+  clM('announce-modal');
+}
+function listenAnnouncements(){
+  db.collection('announcements').orderBy('id','desc').limit(5).onSnapshot(function(snap){
+    announcements=[];
+    snap.forEach(function(doc){announcements.push(Object.assign({id:doc.id},doc.data()));});
+    rAnnouncements();
+  });
+}
+function rAnnouncements(){
+  var card=document.getElementById('announce-card');
+  var list=document.getElementById('announce-list');
+  if(!card||!list)return;
+  if(announcements.length){
+    card.style.display='block';
+    list.innerHTML=announcements.map(function(a){
+      var m=gM(a.who);
+      return '<div style="padding:8px;background:#060e1c;border-radius:8px;margin-bottom:6px;border-left:3px solid #f5c518;">'+
+        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">'+
+          '<div style="width:20px;height:20px;border-radius:50%;background:'+m.color+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;">'+m.av+'</div>'+
+          '<span style="font-size:11px;color:#4a9eff;font-weight:600;">'+a.name+'</span>'+
+          '<span style="font-size:10px;color:#4a6a9a;margin-left:auto;">'+a.time+'</span>'+
+          (a.who===ME?'<button onclick="delAnnounce(''+a.id+'')" style="background:none;border:none;color:#4a6a9a;font-size:11px;cursor:pointer;">&#10005;</button>':'')+
+        '</div>'+
+        '<div style="font-size:13px;color:#e8f0ff;">'+a.txt+'</div>'+
+      '</div>';
+    }).join('');
+  } else {
+    card.style.display='none';
+  }
+}
+function delAnnounce(id){db.collection('announcements').doc(id).delete();}
+
+// ── CONTACTS ──────────────────────────────────────────────────────────────
+var contacts=[];
+function addContact(){
+  var n=document.getElementById('ct-name').value.trim();if(!n)return;
+  var c={id:Date.now(),name:n,role:document.getElementById('ct-role').value.trim(),ph:document.getElementById('ct-ph').value.trim(),em:document.getElementById('ct-em').value.trim(),note:document.getElementById('ct-note').value.trim()};
+  db.collection('contacts').doc(String(c.id)).set(c);
+  ['ct-name','ct-role','ct-ph','ct-em','ct-note'].forEach(function(id){document.getElementById(id).value='';});
+  clM('contact-modal');
+}
+function listenContacts(){
+  db.collection('contacts').onSnapshot(function(snap){
+    contacts=[];
+    snap.forEach(function(doc){contacts.push(Object.assign({id:doc.id},doc.data()));});
+    if(document.getElementById('sc-band').classList.contains('on'))rContacts();
+  });
+}
+function rContacts(){
+  var el=document.getElementById('contacts-list');if(!el)return;
+  el.innerHTML=contacts.length?contacts.map(function(c){
+    return '<div class="mc" style="padding:10px 12px;margin-bottom:8px;">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">'+
+        '<div><div style="font-size:14px;font-weight:600;color:#e8f0ff;">'+c.name+'</div>'+
+        '<div style="font-size:11px;color:#f5c518;font-family:Russo One,sans-serif;">'+c.role+'</div></div>'+
+        '<button onclick="delContact(''+c.id+'')" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;">&#10005;</button>'+
+      '</div>'+
+      (c.ph?'<div style="font-size:12px;color:#e8f0ff;margin-bottom:3px;">📞 '+c.ph+'</div>':'')+
+      (c.em?'<div style="font-size:12px;color:#e8f0ff;margin-bottom:3px;">✉️ '+c.em+'</div>':'')+
+      (c.note?'<div style="font-size:11px;color:#4a6a9a;">'+c.note+'</div>':'')+
+    '</div>';
+  }).join(''):'<div style="color:#aaa;font-style:italic;padding:8px;font-size:13px;">No contacts yet.</div>';
+}
+function delContact(id){db.collection('contacts').doc(String(id)).delete();}
+
+// ── AVAILABILITY ──────────────────────────────────────────────────────────
+var availability=[];
+function addMyAvail(){
+  var date=prompt('Enter date (YYYY-MM-DD) you are NOT available:',new Date().toISOString().slice(0,10));
+  if(!date)return;
+  var note=prompt('Optional note (e.g. vacation, work):','');
+  var av={id:Date.now(),who:ME,name:myName,date:date,note:note||''};
+  db.collection('availability').doc(String(av.id)).set(av);
+}
+function listenAvailability(){
+  db.collection('availability').orderBy('date').onSnapshot(function(snap){
+    availability=[];
+    snap.forEach(function(doc){availability.push(Object.assign({id:doc.id},doc.data()));});
+    rAvailability();
+    if(document.getElementById('sc-home').classList.contains('on'))rHome();
+  });
+}
+function rAvailability(){
+  var el=document.getElementById('avail-list');if(!el)return;
+  el.innerHTML=availability.length?availability.map(function(a){
+    var m=gM(a.who);
+    return '<div style="background:#101e34;border-radius:8px;padding:8px 11px;margin-bottom:6px;display:flex;align-items:center;gap:8px;">'+
+      '<div style="width:24px;height:24px;border-radius:50%;background:'+m.color+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;flex-shrink:0;">'+m.av+'</div>'+
+      '<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:#e8f0ff;">'+a.name+'</div>'+
+      '<div style="font-size:11px;color:#ff4757;">'+a.date+(a.note?' - '+a.note:'')+'</div></div>'+
+      (a.who===ME?'<button onclick="delAvail(''+a.id+'')" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;">&#10005;</button>':'')+
+    '</div>';
+  }).join(''):'<div style="color:#aaa;font-style:italic;padding:8px;font-size:13px;">No unavailability marked.</div>';
+}
+function delAvail(id){db.collection('availability').doc(String(id)).delete();}
+
+// ── SONG INFO MODAL ────────────────────────────────────────────────────────
+function showSongInfo(id){
+  var s=library.find(function(x){return x.id===id;});if(!s)return;
+  document.getElementById('si-title').textContent=s.title;
+  var rows=[];
+  if(s.artist)rows.push({l:'Artist',v:s.artist});
+  if(s.key)rows.push({l:'Key',v:s.key});
+  if(s.tempo)rows.push({l:'Tempo',v:s.tempo+' BPM'});
+  if(s.vocal)rows.push({l:'Lead Vocal',v:s.vocal});
+  if(s.lead)rows.push({l:'Lead Guitar',v:s.lead});
+  if(s.zach)rows.push({l:'Keys',v:'Yes'});
+  document.getElementById('si-body').innerHTML=
+    rows.map(function(r){return '<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #0d1f3a;"><span style="color:#4a6a9a;font-size:13px;">'+r.l+'</span><span style="color:#e8f0ff;font-size:13px;font-weight:600;">'+r.v+'</span></div>';}).join('')+
+    '<button onclick="playYT(''+s.title+' '+(s.artist||'')+'')" style="width:100%;margin-top:14px;background:#ff0000;border:none;border-radius:8px;padding:12px;color:#fff;font-family:Russo One,sans-serif;font-size:13px;cursor:pointer;">&#9654; Play on YouTube</button>';
+  opM('song-info-modal');
+}
+
+// ── GIG DETAIL MODAL ───────────────────────────────────────────────────────
+var gigDetails={};
+function showGigDetail(evId){
+  var ev=events.find(function(e){return e.id==evId;});if(!ev)return;
+  document.getElementById('gd-title').textContent=ev.title;
+  var det=gigDetails[evId]||{};
+  document.getElementById('gd-body').innerHTML=
+    '<div style="display:flex;flex-direction:column;gap:8px;">'+
+    '<div><div style="font-size:10px;color:#4a6a9a;font-family:Russo One,sans-serif;margin-bottom:3px;">DATE</div><div style="font-size:14px;color:#e8f0ff;">'+ev.date+'</div></div>'+
+    '<div><label style="font-size:10px;color:#4a6a9a;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;">VENUE / ADDRESS</label><input class="mi" id="gd-venue" value="'+(det.venue||'')+'" placeholder="Venue name and address"></div>'+
+    '<div class="fr2" style="gap:8px;display:flex;">'+
+      '<div style="flex:1"><label style="font-size:10px;color:#4a6a9a;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;">LOAD-IN</label><input class="mi" id="gd-loadin" value="'+(det.loadin||'')+'" placeholder="e.g. 5:30 PM"></div>'+
+      '<div style="flex:1"><label style="font-size:10px;color:#4a6a9a;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;">SOUND CHECK</label><input class="mi" id="gd-sc" value="'+(det.sc||'')+'" placeholder="e.g. 6:30 PM"></div>'+
+    '</div>'+
+    '<div class="fr2" style="gap:8px;display:flex;">'+
+      '<div style="flex:1"><label style="font-size:10px;color:#4a6a9a;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;">SET TIME</label><input class="mi" id="gd-settime" value="'+(det.settime||'')+'" placeholder="e.g. 8:00 PM"></div>'+
+      '<div style="flex:1"><label style="font-size:10px;color:#4a6a9a;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;">CONTACT</label><input class="mi" id="gd-contact" value="'+(det.contact||'')+'" placeholder="Venue contact"></div>'+
+    '</div>'+
+    '<div><label style="font-size:10px;color:#4a6a9a;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;">NOTES</label><textarea class="mi" id="gd-notes" rows="3" style="resize:none;font-family:Exo 2,sans-serif;" placeholder="Parking, dress code, special instructions...">'+(det.notes||'')+'</textarea></div>'+
+    '<button class="sb" onclick="saveGigDetail(''+evId+'')" style="width:100%">Save Details</button>'+
+    '</div>';
+  opM('gig-detail-modal');
+}
+function saveGigDetail(evId){
+  var det={venue:document.getElementById('gd-venue').value,loadin:document.getElementById('gd-loadin').value,sc:document.getElementById('gd-sc').value,settime:document.getElementById('gd-settime').value,contact:document.getElementById('gd-contact').value,notes:document.getElementById('gd-notes').value};
+  gigDetails[evId]=det;
+  db.collection('gigdetails').doc(String(evId)).set(det);
+  clM('gig-detail-modal');
+}
+function listenGigDetails(){
+  db.collection('gigdetails').onSnapshot(function(snap){
+    snap.forEach(function(doc){gigDetails[doc.id]=doc.data();});
+  });
+}
 function opM(id){document.getElementById(id).classList.add('on');}
 function clM(id){document.getElementById(id).classList.remove('on');}
 document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});});
