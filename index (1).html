@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#060e1c">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="shortcut icon" href="icon.png">
+<title>Out of Time</title>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;background:#060e1c;color:#e8f0ff;font-family:"Exo 2",sans-serif;}
+input,select,textarea{font-family:"Exo 2",sans-serif;outline:none;border:none;background:transparent;color:#e8f0ff;}
+button{cursor:pointer;font-family:"Exo 2",sans-serif;}
+#app{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;max-width:480px;margin:0 auto;}
+
+
+
+
+#tabs{flex-shrink:0;display:flex;background:#080f1e;border-bottom:2px solid #1a3a8a;}
+.tb{flex:1;padding:9px 2px 7px;background:none;border:none;color:#3a5a7a;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:"Russo One",sans-serif;font-size:8px;letter-spacing:.3px;-webkit-tap-highlight-color:rgba(245,197,24,.3);touch-action:manipulation;}
+.tb .i{font-size:16px;pointer-events:none;}
+.tb span{pointer-events:none;}
+.tb.on{color:#f5c518;border-bottom:3px solid #f5c518;}
+#cnt{flex:1;position:relative;overflow:hidden;}
+.sc{position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;visibility:hidden;background:#060e1c;}
+.sc.on{visibility:visible;}
+:root{--g:#f5c518;--b:#4a9eff;--n2:#0a1628;--n3:#0d1f3a;--n4:#101e34;}
+.sh{font-family:"Russo One",sans-serif;font-size:10px;letter-spacing:3px;color:#fff;margin:12px 0 7px;padding-bottom:5px;border-bottom:1px solid var(--n3);}
+.card{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:12px;margin-bottom:10px;}
+.card-lbl{font-family:"Russo One",sans-serif;font-size:9px;letter-spacing:3px;color:#fff;margin-bottom:8px;}
+.none{font-size:13px;color:#fff;font-style:italic;}
+.hero{display:grid;grid-template-columns:1fr 1fr;height:185px;border-radius:12px;overflow:hidden;border:1px solid rgba(245,197,24,.2);margin-bottom:12px;}
+.hero-l{background:linear-gradient(135deg,#0d2050,#0a1628);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;}
+.hero-l img{width:90%;object-fit:contain;filter:drop-shadow(0 0 10px rgba(245,197,24,.4));}
+.htag{font-family:"Russo One",sans-serif;font-size:7px;color:var(--g);letter-spacing:1.5px;text-align:center;margin-top:7px;line-height:1.8;}
+.hero-r{overflow:hidden;}
+.hero-r img{width:100%;height:185px;object-fit:cover;object-position:top;}
+.gi{padding:8px 10px;background:var(--n2);border-radius:8px;margin-bottom:6px;border-left:3px solid var(--g);}
+.git{font-size:14px;font-weight:600;}
+.gim{font-size:11px;color:var(--b);margin-top:2px;}
+.gid{font-family:"Russo One",sans-serif;font-size:11px;color:var(--g);margin-top:3px;}
+.ri{padding:8px 10px;background:var(--n2);border-radius:8px;margin-bottom:6px;border-left:3px solid var(--b);}
+.mr{display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--n2);border-radius:6px;margin-bottom:3px;}
+.mrav{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;flex-shrink:0;}
+.cnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;background:#f5c518;border-radius:10px;padding:8px 6px;}
+.cnav button{background:none;border:none;color:#1a3a8a;font-size:28px;padding:0 8px;font-weight:700;}
+.mlbl{font-family:"Russo One",sans-serif;font-size:16px;letter-spacing:2px;color:#1a3a8a;}
+.legend{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;font-size:11px;color:#fff;}
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;background:rgba(26,58,138,.15);border:1px solid rgba(74,158,255,.2);border-radius:10px;padding:7px 4px;margin-bottom:12px;}
+.dhdr{text-align:center;font-size:11px;font-weight:700;color:#4a9eff;font-family:"Russo One",sans-serif;padding-bottom:3px;}
+.dc{min-height:38px;background:rgba(10,22,40,.9);border-radius:5px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;}
+.dc:active{background:rgba(245,197,24,.2);}
+.dc.td{background:rgba(26,58,138,.5);outline:1px solid rgba(245,197,24,.5);}
+.dn{font-size:11px;color:#fff;font-weight:500;}
+.dc.td .dn{color:var(--g);font-weight:700;}
+.pips{display:flex;gap:2px;margin-top:2px;}
+.pip{width:4px;height:4px;border-radius:50%;}
+.er{background:var(--n4);border-radius:8px;padding:9px 11px;margin-bottom:6px;display:flex;gap:8px;}
+.ebdg{font-size:10px;padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0;font-family:"Russo One",sans-serif;}
+.slc{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;touch-action:manipulation;}
+.sln{font-family:"Russo One",sans-serif;font-size:16px;color:#fff;}
+.slm{font-size:11px;color:#fff;margin-top:2px;}
+.sr{background:var(--n4);border-radius:8px;padding:9px 11px;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.sn{font-family:"Russo One",sans-serif;font-size:15px;color:var(--g);width:20px;text-align:center;flex-shrink:0;}
+.st{font-size:13px;font-weight:600;color:#fff;}
+.sd{font-size:11px;color:#fff;margin-top:2px;}
+.sa{display:flex;gap:2px;flex-shrink:0;}
+.ib{background:none;border:none;font-size:13px;padding:4px;color:#aaa;touch-action:manipulation;}
+#sc-chat{padding:12px;}
+#cmsgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-bottom:8px;}
+.dsep{text-align:center;font-size:10px;color:#fff;padding:6px 0;font-family:"Russo One",sans-serif;}
+.mrow{display:flex;align-items:flex-end;gap:6px;}
+.mrow.me{flex-direction:row-reverse;}
+.mb{max-width:72%;padding:8px 12px;}
+.mb.me{border-radius:16px 16px 4px 16px;background:#1a3a8a;}
+.mb.them{border-radius:16px 16px 16px 4px;background:var(--n3);}
+.ms{font-size:10px;font-weight:700;margin-bottom:2px;}
+.mt{font-size:13px;line-height:1.4;color:#fff;}
+.mti{font-size:10px;color:rgba(255,255,255,.3);margin-top:3px;text-align:right;}
+#cir{flex-shrink:0;display:flex;gap:8px;padding:8px 0 10px;border-top:1px solid var(--n3);}
+#cin{flex:1;background:var(--n2);border:1px solid var(--b);border-radius:20px;padding:9px 14px;color:#e8f0ff;font-size:13px;}
+#csb{background:#1a3a8a;border:none;border-radius:50%;width:40px;height:40px;color:var(--g);font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.mc{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.avmd{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;position:relative;flex-shrink:0;}
+.fs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.fc{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:12px;}
+.fcl{font-family:"Russo One",sans-serif;font-size:10px;color:#fff;letter-spacing:2px;margin-bottom:4px;}
+.fca{font-family:"Russo One",sans-serif;font-size:24px;color:var(--g);}
+.fcs{font-size:11px;color:#fff;margin-top:2px;}
+.fr2{display:flex;gap:8px;}
+.ab{background:var(--n4);border:1px dashed #1a3a8a;border-radius:8px;padding:11px;color:var(--b);font-family:"Russo One",sans-serif;font-size:11px;width:100%;margin-top:6px;display:block;text-align:center;touch-action:manipulation;}
+.sb{background:var(--g);border:none;border-radius:8px;padding:10px 16px;color:#060e1c;font-weight:700;font-family:"Russo One",sans-serif;font-size:12px;}
+.cb{background:var(--n2);border:none;border-radius:8px;padding:10px 14px;color:#aaa;font-weight:600;}
+.fb{background:var(--n4);border-radius:10px;padding:12px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px;}
+.fi2{background:#060e1c;border:1px solid var(--b);border-radius:6px;padding:8px 10px;color:#e8f0ff;font-size:12px;width:100%;}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:none;align-items:flex-end;justify-content:center;}
+.ov.on{display:flex;}
+.mo{background:var(--n2);border-radius:18px 18px 0 0;padding:18px 14px 40px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;border:1px solid var(--b);}
+.moh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.mot{font-family:"Russo One",sans-serif;font-size:17px;letter-spacing:1px;color:#fff;}
+.mi{background:#060e1c;border:1px solid var(--b);border-radius:8px;padding:9px 12px;color:#e8f0ff;font-size:13px;width:100%;margin-bottom:8px;}
+.mdi{height:1px;background:var(--n3);margin:10px 0;}
+.ms2{font-size:10px;color:#fff;letter-spacing:2px;font-family:"Russo One",sans-serif;margin-bottom:8px;}
+.etr{display:flex;gap:6px;margin-bottom:10px;}
+.etb{flex:1;background:transparent;border:1px solid var(--n3);border-radius:8px;padding:8px 4px;color:#aaa;font-size:11px;font-family:"Russo One",sans-serif;touch-action:manipulation;}
+@keyframes glow{0%,100%{box-shadow:0 0 10px rgba(245,197,24,.1)}50%{box-shadow:0 0 22px rgba(245,197,24,.3)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+.gc{animation:glow 3s infinite;}
+.pu{animation:pulse 2s infinite;}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="tabs">
+  <button class="tb on" onclick="go('home',this)"><span class="i">&#127968;</span><span>Home</span></button>
+  <button class="tb" onclick="go('cal',this)"><span class="i">&#128197;</span><span>Calendar</span></button>
+  <button class="tb" onclick="go('sets',this)"><span class="i">&#127925;</span><span>Setlists</span></button>
+  <button class="tb" onclick="go('chat',this)"><span class="i">&#128172;</span><span>Chat</span></button>
+  <button class="tb" onclick="go('band',this)"><span class="i">&#128101;</span><span>Band</span></button>
+  <button class="tb" onclick="go('songs',this)"><span class="i">&#127908;</span><span>Songs</span></button>
+  <button class="tb" onclick="go('pay',this)"><span class="i">&#128176;</span><span>Pay</span></button>
+</div>
+<div id="cnt">
+
+<div id="sc-home" class="sc on">
+  <div class="hero">
+    <div class="hero-l"><img src="logo.jpg" alt="OOT"><div class="htag">Danceable Classic Rock<br>Pure Energy</div></div>
+    <div class="hero-r"><img src="band.jpg" alt="Band"></div>
+  </div>
+  <div class="card gc"><div class="card-lbl">UPCOMING GIGS</div><div id="hg"></div></div>
+  <div class="card"><div class="card-lbl">UPCOMING REHEARSALS</div><div id="hr"></div></div>
+  <div class="sh">MEMBERS</div><div id="hm"></div>
+</div>
+
+<div id="sc-cal" class="sc">
+  <div class="cnav"><button onclick="pMo()">&#8249;</button><span class="mlbl" id="mlbl"></span><button onclick="nMo()">&#8250;</button></div>
+  <div class="legend">
+    <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#f5c518;margin-right:4px;vertical-align:middle;"></span>Gig</span>
+    <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#4a9eff;margin-right:4px;vertical-align:middle;"></span>Rehearsal</span>
+    <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#ff4757;margin-right:4px;vertical-align:middle;"></span>Blackout</span>
+  </div>
+  <div class="cgrid" id="cgrid"></div>
+  <div class="sh">ALL EVENTS</div>
+  <div id="evl"></div>
+</div>
+
+<div id="sc-sets" class="sc">
+  <div id="si">
+    <div class="sh">SETLISTS</div>
+    <div id="sll"></div>
+    <button class="ab" onclick="nwSL()">+ New Setlist</button>
+  </div>
+  <div id="se" style="display:none">
+    <button style="background:none;border:none;color:#4a9eff;font-size:13px;margin-bottom:8px;cursor:pointer;" onclick="clEd()">&#8592; Back to Setlists</button>
+    <div id="eh"></div>
+    <div id="ssl"></div>
+    <button class="ab" onclick="showPicker()">+ Add Songs from Library</button>
+  </div>
+  <div id="song-picker" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:600;display:none;flex-direction:column;padding:16px;max-width:480px;margin:0 auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span style="font-family:'Russo One',sans-serif;font-size:16px;color:#f5c518;">Pick Songs</span>
+      <button style="background:none;border:none;color:#aaa;font-size:18px;cursor:pointer;" onclick="hidePicker()">&#10005;</button>
+    </div>
+    <input id="picker-search" class="fi2" placeholder="Search songs..." oninput="rPicker()" style="margin-bottom:10px;">
+    <div id="picker-list" style="flex:1;overflow-y:auto;"></div>
+    <button class="sb" onclick="addPickedSongs()" style="margin-top:12px;width:100%;">Add Selected Songs</button>
+  </div>
+</div>
+
+<div id="sc-chat" class="sc">
+  <div style="margin-bottom:8px;">
+    <div style="font-family:'Russo One',sans-serif;font-size:9px;letter-spacing:2px;color:#fff;margin-bottom:6px;">MESSAGE TO:</div>
+    <div id="chat-to-row" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+  </div>
+  <div id="cir" style="margin-bottom:8px;display:flex;gap:8px;padding:0 0 8px;border-bottom:1px solid #0d1f3a;">
+    <input id="cin" placeholder="Message..." onkeydown="if(event.key==='Enter')sMsg()">
+    <button id="csb" onclick="sMsg()">&#10148;</button>
+  </div>
+  <div id="cmsgs"></div>
+</div>
+
+<div id="sc-band" class="sc">
+  <div class="sh">OUT OF TIME - BAND ROSTER</div>
+  <div id="ml"></div>
+  <button class="ab" onclick="opM('mm')">+ Add Member</button>
+</div>
+
+<div id="sc-songs" class="sc">
+  <div class="sh">SONG LIBRARY</div>
+  <input id="song-search" class="fi2" placeholder="Search songs..." oninput="rLib()" style="width:100%;margin-bottom:10px;">
+  <div id="library-list"></div>
+  <div id="add-song-form" style="display:none" class="fb">
+    <input class="fi2" id="lib-title" placeholder="Song title *">
+    <div class="fr2"><input class="fi2" id="lib-artist" placeholder="Artist" style="flex:2"><input class="fi2" id="lib-key" placeholder="Key" style="width:60px;flex:none"></div>
+    <div class="fr2"><button class="sb" onclick="adLibSong()">Add Song</button><button class="cb" onclick="document.getElementById('add-song-form').style.display='none'">Cancel</button></div>
+  </div>
+  <button class="ab" onclick="document.getElementById('add-song-form').style.display='flex';document.getElementById('add-song-form').style.flexDirection='column'">+ Add Song to Library</button>
+</div>
+
+<div id="sc-pay" class="sc">
+  <div class="fs">
+    <div class="fc"><div class="fcl">BAND TOTAL</div><div class="fca" id="bt">$0</div><div class="fcs">all gigs</div></div>
+    <div class="fc"><div class="fcl">YOUR CUT</div><div class="fca" id="mc2">$0</div><div class="fcs" id="cs"></div></div>
+  </div>
+  <div class="sh">GIG PAYOUTS</div><div id="pl"></div>
+  <div id="pf" style="display:none" class="fb">
+    <input class="fi2" id="pv" placeholder="Venue *">
+    <input class="fi2" id="pg" placeholder="Gross pay ($) *" type="number">
+    <input class="fi2" id="pe" placeholder="Expenses ($)" type="number">
+    <div class="fr2"><button class="sb" onclick="adPay()">Add</button><button class="cb" onclick="document.getElementById('pf').style.display='none'">Cancel</button></div>
+  </div>
+  <button class="ab" onclick="document.getElementById('pf').style.display='flex';document.getElementById('pf').style.flexDirection='column'">+ Log Gig Pay</button>
+</div>
+
+</div></div>
+
+<div class="ov" id="evm">
+  <div class="mo">
+    <div class="moh"><span class="mot" id="emtit">Add Event</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('evm')">&#10005;</button></div>
+    <div id="eex"></div><div class="mdi"></div>
+    <div class="ms2">ADD NEW EVENT</div>
+    <div class="etr">
+      <button class="etb" id="et-gig" onclick="sET('gig')">Gig</button>
+      <button class="etb" id="et-rehearsal" onclick="sET('rehearsal')">Rehearsal</button>
+      <button class="etb" id="et-blackout" onclick="sET('blackout')">Blackout</button>
+    </div>
+    <input class="mi" id="etit" placeholder="Title *">
+    <input class="mi" id="enot" placeholder="Notes (time, address)">
+    <button class="sb" onclick="adEv()" style="width:100%">Add to Calendar</button>
+  </div>
+</div>
+
+<div class="ov" id="mm">
+  <div class="mo">
+    <div class="moh"><span class="mot">Add Member</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('mm')">&#10005;</button></div>
+    <input class="mi" id="mnam" placeholder="Name *">
+    <input class="mi" id="mrol" placeholder="Role (Guitar, Keys, Manager)">
+    <button class="sb" onclick="adMem()" style="width:100%">Add to Band</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+// ── FIREBASE INIT ──────────────────────────────────────────────────────────
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCMg2p0ey80TUgsqtMc0owsxpzGoOlTyQ8",
+  authDomain: "outoftimeband-27c19.firebaseapp.com",
+  projectId: "outoftimeband-27c19",
+  storageBucket: "outoftimeband-27c19.firebasestorage.app",
+  messagingSenderId: "310888502812",
+  appId: "1:310888502812:web:2f4334d535d3ef1ae3f1d9"
+};
+
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
+
+// ── NAME PICKER ────────────────────────────────────────────────────────────
+var ME = null;
+var myName = localStorage.getItem('oot_me');
+var memberNames = ["Jim","Amy","Rich","Ed","Rachel","Zach"];
+
+function showNamePicker(){
+  document.getElementById('name-picker-overlay').style.display='flex';
+}
+function pickName(idx){
+  ME = idx + 1; // 1-based id
+  myName = memberNames[idx];
+  localStorage.setItem('oot_me', myName);
+  localStorage.setItem('oot_me_id', ME);
+  document.getElementById('name-picker-overlay').style.display='none';
+  initApp();
+}
+function initApp(){
+  rHome();
+  listenEvents();
+  listenMsgs();
+  listenSets();
+  listenPay();
+  listenMembers();
+}
+
+// ── FIRESTORE LISTENERS ────────────────────────────────────────────────────
+function listenEvents(){
+  db.collection('events').orderBy('date').onSnapshot(function(snap){
+    events = [];
+    snap.forEach(function(doc){ events.push(Object.assign({id:doc.id},doc.data())); });
+    rHome();
+    if(document.getElementById('sc-cal').classList.contains('on')) rCal();
+  });
+}
+function listenMsgs(){
+  db.collection('messages').orderBy('ts').limitToLast(100).onSnapshot(function(snap){
+    msgs = [];
+    snap.forEach(function(doc){ msgs.push(Object.assign({id:doc.id},doc.data())); });
+    if(document.getElementById('sc-chat').classList.contains('on')) rChat();
+  });
+}
+function listenSets(){
+  db.collection('setlists').orderBy('created').onSnapshot(function(snap){
+    sets = [];
+    snap.forEach(function(doc){ sets.push(Object.assign({id:doc.id},doc.data())); });
+    if(document.getElementById('sc-sets').classList.contains('on')) rSets();
+  });
+}
+function listenPay(){
+  db.collection('pay').orderBy('date','desc').onSnapshot(function(snap){
+    pay = [];
+    snap.forEach(function(doc){ pay.push(Object.assign({id:doc.id},doc.data())); });
+    if(document.getElementById('sc-pay').classList.contains('on')) rPay();
+  });
+}
+function listenMembers(){
+  db.collection('members').onSnapshot(function(snap){
+    snap.forEach(function(doc){
+      var d=doc.data();
+      var m=members.find(function(x){return x.name===doc.id;});
+      if(m){ m.ph=d.ph||''; m.em=d.em||''; m.addr=d.addr||''; }
+    });
+    if(document.getElementById('sc-band').classList.contains('on')) rBand();
+  });
+}
+
+// ── FIREBASE SAVE FUNCTIONS ────────────────────────────────────────────────
+function saveEvent(ev){
+  db.collection('events').doc(String(ev.id)).set(ev);
+}
+function deleteEvent(id){
+  db.collection('events').doc(String(id)).delete();
+}
+function saveMsg(msg){
+  db.collection('messages').add(Object.assign({ts:firebase.firestore.FieldValue.serverTimestamp()},msg));
+}
+function saveSet(sl){
+  db.collection('setlists').doc(String(sl.id)).set(sl);
+}
+function deleteSet(id){
+  db.collection('setlists').doc(String(id)).delete();
+}
+function savePay(g){
+  db.collection('pay').doc(String(g.id)).set(g);
+}
+function deletePay(id){
+  db.collection('pay').doc(String(id)).delete();
+}
+function saveMember(name,data){
+  db.collection('members').doc(name).set(data,{merge:true});
+}
+
+function go(id,btn){
+  document.querySelectorAll('.sc').forEach(function(s){s.classList.remove('on');});
+  document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('on');});
+  var sc=document.getElementById('sc-'+id);
+  if(sc)sc.classList.add('on');
+  if(btn)btn.classList.add('on');
+  if(id==='home')rHome();
+  else if(id==='cal')rCal();
+  else if(id==='sets')rSets();
+  else if(id==='chat'){rChatTo();rChat();}
+  else if(id==='band')rBand();
+  else if(id==='songs')rLib();
+  else if(id==='pay')rPay();
+}
+
+var INST=["Vocals","Lead Guitar","Rhythm Guitar","Bass Guitar","Drums","Keyboards","Keys / Vocals","Acoustic Guitar","Percussion","Trumpet","Saxophone","Manager","Other"];
+var members=[
+  {id:1,name:"Jim",   inst:"Lead Guitar", av:"JM",color:"#4a9eff",ph:"",em:"",addr:""},
+  {id:2,name:"Amy",   inst:"Bass Guitar", av:"AM",color:"#06d6a0",ph:"",em:"",addr:""},
+  {id:3,name:"Rich",  inst:"Drums",       av:"RI",color:"#ff6b6b",ph:"",em:"",addr:""},
+  {id:4,name:"Ed",    inst:"Lead Guitar", av:"ED",color:"#f5c518",ph:"",em:"",addr:""},
+  {id:5,name:"Rachel",inst:"Vocals",      av:"RC",color:"#ff9ef5",ph:"",em:"",addr:""},
+  {id:6,name:"Zach",  inst:"Keyboards",   av:"ZK",color:"#c084fc",ph:"",em:"",addr:""},
+];
+var events=[];
+var msgs=[];
+var sets=[];
+var pay=[];
+var CY=2026,CM=3,sDay=null,cET="gig",aSL=null,eSID=null;
+var MO=["January","February","March","April","May","June","July","August","September","October","November","December"];
+var DW=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+var EC={gig:"#f5c518",blackout:"#ff4757",rehearsal:"#4a9eff"};
+var ME=3;
+var chatTo="band";
+
+function dU(d){return Math.ceil((new Date(d+"T00:00:00")-new Date())/86400000);}
+function gM(id){return members.find(function(m){return m.id==id;})||{name:"?",av:"?",color:"#555"};}
+function fD(y,m,d){return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");}
+function tD(ss){var x=ss.reduce(function(a,s){var p=(s.d||"0:00").split(":");return a+parseInt(p[0])*60+(parseInt(p[1])||0);},0);return Math.floor(x/60)+"m "+x%60+"s";}
+
+function rHome(){
+  var gg=events.filter(function(e){return e.type==='gig'&&dU(e.date)>=0;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,3);
+  document.getElementById('hg').innerHTML=gg.length?gg.map(function(e){var d=dU(e.date);return '<div class="gi"><div class="git">'+e.title+'</div><div class="gim">'+e.date+' - '+e.note+'</div><div class="gid">'+(d===0?'TONIGHT':d===1?'TOMORROW':d+' DAYS AWAY')+'</div></div>';}).join(''):'<div class="none">NONE</div>';
+  var rr=events.filter(function(e){return e.type==='rehearsal'&&dU(e.date)>=0;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,3);
+  document.getElementById('hr').innerHTML=rr.length?rr.map(function(e){var d=dU(e.date);return '<div class="ri"><div class="git">'+e.title+'</div><div class="gim" style="color:#aaa">'+e.date+' - '+e.note+'</div></div>';}).join(''):'<div class="none">NONE</div>';
+  document.getElementById('hm').innerHTML=
+    '<div id="mem-toggle" onclick="toggleMems()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:6px;">'+
+      '<div style="display:flex;gap:5px;">'+
+        members.map(function(m){return '<div onclick="memTap(event,'+m.id+')" style="width:28px;height:28px;border-radius:50%;background:'+m.color+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;cursor:pointer;flex-shrink:0;">'+m.av+'</div>';}).join('')+
+      '</div>'+
+      '<span id="mem-arrow" style="color:#4a9eff;font-size:16px;">&#8964;</span>'+
+    '</div>'+
+    '<div id="mem-list" style="display:none;">'+
+      members.map(function(m){return '<div class="mr"><div class="mrav" style="background:'+m.color+'">'+m.av+'</div><span style="flex:1;font-size:12px;font-weight:600;color:#e8f0ff;">'+m.name+'</span><span style="font-size:11px;color:#4a9eff;">'+m.inst+'</span></div>';}).join('')+
+    '</div>';
+}
+
+function rCal(){
+  document.getElementById('mlbl').textContent=MO[CM].toUpperCase()+' '+CY;
+  var fd=new Date(CY,CM,1).getDay(),dim=new Date(CY,CM+1,0).getDate();
+  var h=DW.map(function(d){return '<div class="dhdr">'+d+'</div>';}).join('');
+  for(var i=0;i<fd;i++)h+='<div></div>';
+  for(var d=1;d<=dim;d++){var ds=fD(CY,CM,d),de=events.filter(function(e){return e.date===ds;});var td=CY===2026&&CM===3&&d===21;var pp=['gig','rehearsal','blackout'].filter(function(t){return de.some(function(e){return e.type===t;});}).map(function(t){return '<div class="pip" style="background:'+EC[t]+'"></div>';}).join('');h+='<div class="dc'+(td?' td':'')+'" onclick="oDy('+d+')"><span class="dn">'+d+'</span><div class="pips">'+pp+'</div></div>';}
+  document.getElementById('cgrid').innerHTML=h;
+  rEvL();
+}
+function pMo(){CM--;if(CM<0){CM=11;CY--;}rCal();}
+function nMo(){CM++;if(CM>11){CM=0;CY++;}rCal();}
+function rEvL(){document.getElementById('evl').innerHTML=events.length?events.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(e){return '<div class="er"><div class="ebdg" style="background:'+EC[e.type]+'22;color:'+EC[e.type]+'">'+e.type+'</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:#fff">'+e.title+'</div><div style="font-size:11px;color:#aaa;margin-top:2px">'+e.date+' - '+e.note+'</div></div><button style="background:none;border:none;color:#aaa;font-size:14px;" onclick="dEv('+e.id+')">&#10005;</button></div>';}).join(''):'<div style="color:#fff;font-style:italic;padding:8px">No events. Tap a day to add.</div>';}
+function oDy(day){sDay=day;document.getElementById('emtit').textContent=MO[CM]+' '+day;var ds=fD(CY,CM,day),de=events.filter(function(e){return e.date===ds;});document.getElementById('eex').innerHTML=de.map(function(e){return '<div style="padding:9px;background:#060e1c;border-radius:8px;margin-bottom:8px;border-left:3px solid '+EC[e.type]+'"><div style="font-size:13px;font-weight:600;color:#fff">'+e.title+'</div><div style="font-size:11px;color:#aaa;margin-top:2px">'+e.note+'</div><button class="cb" style="margin-top:8px;font-size:11px;padding:4px 10px" onclick="dEv('+e.id+');clM(\'evm\');oDy('+day+')">Remove</button></div>';}).join('');sET('gig');document.getElementById('etit').value='';document.getElementById('enot').value='';opM('evm');}
+function sET(t){cET=t;['gig','rehearsal','blackout'].forEach(function(k){var b=document.getElementById('et-'+k);b.style.background=k===t?EC[k]+'33':'transparent';b.style.color=k===t?EC[k]:'#aaa';b.style.borderColor=k===t?EC[k]:'#0d1f3a';});}
+function adEv(){var t=document.getElementById('etit').value.trim();if(!t)return;var ev={id:Date.now(),date:fD(CY,CM,sDay),type:cET,title:t,note:document.getElementById('enot').value.trim()};saveEvent(ev);clM('evm');}
+function dEv(id){deleteEvent(id);}
+
+function rSets(){document.getElementById('si').style.display='block';document.getElementById('se').style.display='none';document.getElementById('sll').innerHTML=sets.length?sets.map(function(s){return '<div class="slc" onclick="opSL('+s.id+')"><div style="flex:1"><div class="sln">'+s.name+'</div><div class="slm">'+s.songs.length+' songs - '+tD(s.songs)+'</div></div><div style="color:#f5c518;font-size:20px">&#8250;</div></div>';}).join(''):'<div style="color:#fff;font-style:italic;padding:8px">No setlists yet.</div>';}
+function nwSL(){
+  var name=prompt('Setlist name (e.g. The Trip Gig, Tiki Bar):','New Setlist');
+  if(!name)return;
+  var n={id:Date.now(),name:name,gd:"",songs:[],created:Date.now()};
+  saveSet(n);
+  setTimeout(function(){
+    var sl=sets.find(function(s){return s.name===name;});
+    if(sl)opSL(sl.id);
+  },800);
+}
+function opSL(id){aSL=id;document.getElementById('si').style.display='none';document.getElementById('se').style.display='block';rEd();}
+function clEd(){document.getElementById('si').style.display='block';document.getElementById('se').style.display='none';eSID=null;rSets();}
+function rEd(){var s=sets.find(function(x){return x.id===aSL;});if(!s)return;document.getElementById('eh').innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;"><span style="font-family:Russo One,sans-serif;font-size:16px;color:#fff;">'+s.name+'</span><button onclick="renSL()" style="background:none;border:none;color:#4a9eff;font-size:12px;cursor:pointer;">&#9998; Rename</button></div><div style="font-size:11px;color:#aaa;margin-bottom:10px;">'+s.songs.length+' songs - '+tD(s.songs)+'</div>';document.getElementById('ssl').innerHTML=s.songs.map(function(sg,i){var info=eSID===sg.id?'<div style="display:flex;flex-direction:column;gap:6px"><input class="fi2" id="et-'+sg.id+'" value="'+sg.t+'"><div style="display:flex;gap:6px"><input class="fi2" id="ed-'+sg.id+'" value="'+sg.d+'" style="width:70px;flex:none"><input class="fi2" id="ek-'+sg.id+'" value="'+sg.k+'" style="width:52px;flex:none"></div><input class="fi2" id="en-'+sg.id+'" value="'+sg.n+'" placeholder="Notes"><button class="sb" onclick="svEd('+sg.id+')" style="align-self:flex-start;padding:6px 12px;margin-top:2px">Done</button></div>':'<div class="st">'+sg.t+'</div><div class="sd">'+sg.d+(sg.k?' - Key of '+sg.k:'')+(sg.n?' - '+sg.n:'')+'</div>';return '<div class="sr"><div class="sn">'+(i+1)+'</div><div style="flex:1;min-width:0">'+info+'</div><div class="sa"><button class="ib" onclick="mvS('+sg.id+',-1)">&#8593;</button><button class="ib" onclick="mvS('+sg.id+',1)">&#8595;</button><button class="ib" onclick="edS('+sg.id+')">&#9998;</button><button class="ib" onclick="rmS('+sg.id+')">&#128465;</button></div></div>';}).join('');document.getElementById('nsf').style.display='none';}
+function edS(id){eSID=(eSID===id?null:id);rEd();}
+function svEd(id){var s=sets.find(function(x){return x.id===aSL;});var sg=s.songs.find(function(x){return x.id===id;});sg.t=document.getElementById('et-'+id).value;sg.d=document.getElementById('ed-'+id).value;sg.k=document.getElementById('ek-'+id).value;sg.n=document.getElementById('en-'+id).value;eSID=null;saveSet(s);rEd();}
+function mvS(id,dir){var s=sets.find(function(x){return x.id===aSL;});var i=s.songs.findIndex(function(x){return x.id===id;}),ni=i+dir;if(ni<0||ni>=s.songs.length)return;var tmp=s.songs[i];s.songs[i]=s.songs[ni];s.songs[ni]=tmp;saveSet(s);rEd();}
+function rmS(id){var s=sets.find(function(x){return x.id===aSL;});s.songs=s.songs.filter(function(x){return x.id!==id;});saveSet(s);rEd();}
+function adSong(){var t=document.getElementById('nt').value.trim();if(!t)return;var s=sets.find(function(x){return x.id===aSL;});s.songs.push({id:Date.now(),t:t,d:document.getElementById('nd').value,k:document.getElementById('nk').value,n:document.getElementById('nn').value});saveSet(s);rEd();}
+
+var chatTo='band';
+function rChatTo(){
+  var el=document.getElementById('chat-to-row');if(!el)return;
+  var opts=[{id:'band',name:'The Band',color:'#f5c518',av:'ALL',isBand:true}].concat(members.map(function(m){return{id:m.id,name:m.name,color:m.color,av:m.av,isBand:false};}));
+  el.innerHTML=opts.map(function(o){
+    var active=chatTo==o.id;
+    if(o.isBand){return '<button onclick="setChatTo(\'band\')" style="display:flex;align-items:center;gap:5px;background:'+(active?'rgba(245,197,24,.2)':'#101e34')+';border:2px solid '+(active?'#f5c518':'#1a3a8a')+';border-radius:20px;padding:4px 10px;cursor:pointer;touch-action:manipulation;"><div style="width:22px;height:22px;border-radius:50%;background:#f5c518;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#000;flex-shrink:0;">ALL</div><span style="font-size:11px;color:'+(active?'#f5c518':'#e8f0ff')+';">The Band</span></button>';}
+    else{return '<button onclick="setChatTo('+o.id+')" style="background:none;border:none;cursor:pointer;touch-action:manipulation;padding:2px;"><div style="width:36px;height:36px;border-radius:50%;background:'+o.color+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#000;border:3px solid '+(active?'#ffffff':'transparent')+';box-sizing:border-box;" title="'+o.name+'">'+o.av+'</div></button>';}
+  }).join('');
+}
+function setChatTo(id){chatTo=id;rChatTo();rChat();}
+function rChat(){
+  var el=document.getElementById('cmsgs');
+  var filtered=msgs.filter(function(m){if(chatTo==='band')return !m.to||m.to==='band';return(m.who===ME&&m.to==chatTo)||(m.who==chatTo&&m.to===ME);});
+  el.innerHTML=filtered.length?filtered.map(function(m,i){var s=gM(m.who),me=m.who===ME,nd=i===0||filtered[i-1].day!==m.day;return(nd?'<div class="dsep">'+m.day+'</div>':'')+'<div class="mrow'+(me?' me':'')+'">'+(!me?'<div style="width:26px;height:26px;border-radius:50%;background:'+s.color+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;flex-shrink:0">'+s.av+'</div>':'')+'<div class="mb '+(me?'me':'them')+'">'+(!me?'<div class="ms" style="color:'+s.color+'">'+s.name+'</div>':'')+'<div class="mt">'+m.txt+'</div><div class="mti">'+m.time+'</div></div></div>';}).join(''):'<div style="color:#aaa;font-style:italic;padding:12px;text-align:center;font-size:13px;">No messages yet</div>';
+  el.scrollTop=el.scrollHeight;
+}
+function sMsg(){var inp=document.getElementById('cin'),txt=inp.value.trim();if(!txt)return;var t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});var msg={who:ME,to:chatTo,txt:txt,time:t,day:'Today'};saveMsg(msg);inp.value='';}
+
+function rBand(){
+  var inp='background:#060e1c;border:1px solid #1a3a8a;border-radius:4px;padding:4px 7px;font-size:11px;color:#e8f0ff;outline:none;width:100%;';
+  var lbl='font-size:9px;color:#fff;letter-spacing:1px;font-family:Russo One,sans-serif;width:22px;flex-shrink:0;';
+  document.getElementById('ml').innerHTML=members.map(function(m){
+    return '<div class="mc"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><div class="avmd" style="background:'+m.color+'">'+m.av+'</div><div><div style="font-size:14px;font-weight:600;color:#e8f0ff;">'+m.name+'</div><div style="font-size:11px;color:#4a9eff;font-family:Russo One,sans-serif;">'+m.inst+'</div></div></div>'+
+    '<div style="display:flex;align-items:center;margin-bottom:4px;gap:4px;"><span style="'+lbl+'">PH</span><input style="'+inp+'" type="tel" value="'+m.ph+'" placeholder="(555) 555-5555" oninput="fmtPhone(this);uM('+m.id+',\'ph\',this.value)"></div>'+
+    '<div style="display:flex;align-items:center;margin-bottom:4px;gap:4px;"><span style="'+lbl+'">EM</span><input style="'+inp+'" type="email" value="'+m.em+'" placeholder="email@example.com" oninput="uM('+m.id+',\'em\',this.value)"></div>'+
+    '<div style="display:flex;align-items:center;gap:4px;"><span style="'+lbl+'">AD</span><input style="'+inp+'" type="text" value="'+m.addr+'" placeholder="City, State" oninput="uM('+m.id+',\'addr\',this.value)"></div></div>';
+  }).join('');
+}
+function uM(id,f,v){var m=members.find(function(x){return x.id===id;});if(m){m[f]=v;var data={};data[f]=v;saveMember(m.name,data);}}
+function adMem(){var n=document.getElementById('mnam').value.trim();if(!n)return;var r=document.getElementById('mrol').value.trim()||'Member';var cl=['#f5c518','#4a9eff','#06d6a0','#ff6b6b','#c084fc','#fb923c'];var av=n.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);members.push({id:Date.now(),name:n,inst:r,av:av,color:cl[members.length%cl.length],ph:'',em:'',addr:''});document.getElementById('mnam').value='';document.getElementById('mrol').value='';clM('mm');rBand();rHome();}
+
+var library=[
+{id:1,title:"A Million Miles Away",artist:"Plimsouls",key:"Em"},
+{id:2,title:"Aint Talkin bout Love",artist:"Van Halen",key:""},
+{id:3,title:"American Girl",artist:"Tom Petty",key:"D"},
+{id:4,title:"Any way you want it",artist:"Journey",key:""},
+{id:5,title:"Back on the Chain Gang",artist:"Pretenders",key:""},
+{id:6,title:"Bad Case of Lovin You",artist:"Robert Palmer",key:""},
+{id:7,title:"Born on the Bayou ",artist:"Foo Fighters",key:""},
+{id:8,title:"Born To Be Wild",artist:"Steppenwolf ",key:""},
+{id:9,title:"Boys of Summer",artist:"Ataris",key:""},
+{id:10,title:"Brown Eyed Girl",artist:"Van Morrison",key:""},
+{id:11,title:"China Grove",artist:"Doobies",key:"E"},
+{id:12,title:"Crazy Little Thing ",artist:"Queen",key:"D"},
+{id:13,title:"Day Tripper",artist:"The Beatles",key:""},
+{id:14,title:"Exes and Ohs",artist:"Ellie King",key:""},
+{id:15,title:"Get Down Tonight",artist:"KC and The Sunshine band",key:""},
+{id:16,title:"Get Ready",artist:"Rare Earth",key:""},
+{id:17,title:"Gimme Three Steps",artist:"Lynnrd Skynard",key:""},
+{id:18,title:"Gimme Some Lovin",artist:"Spencer Davis Group",key:""},
+{id:19,title:"Goodbye To You",artist:"Scandal",key:""},
+{id:20,title:"Hard To Handle",artist:"Black Crowes",key:""},
+{id:21,title:"Heartbreaker",artist:"Pat Benatar",key:""},
+{id:22,title:"Hit Me With Your Best Shot",artist:"Pat Benetar",key:"E"},
+{id:23,title:"Honky Tonk Woman",artist:"The Rolling Stones",key:""},
+{id:24,title:"Hurts So Good",artist:"John Mellencamp",key:"A"},
+{id:25,title:"I Hate Myself For Lovin You",artist:"Joan Jett and the Blackhearts",key:""},
+{id:26,title:"I Love Rock and Roll",artist:"Joan Jett and the Blackhearts",key:""},
+{id:27,title:"I Melt With You",artist:"Modern English",key:""},
+{id:28,title:"I Ran",artist:"Flock of Seagulls",key:""},
+{id:29,title:"I Saw Her Standing There",artist:"Beatles",key:""},
+{id:30,title:"Jenny/867-5309",artist:"Tommy Tutone",key:"F#m"},
+{id:31,title:"Johnny B. Goode",artist:"Chuck Berry",key:""},
+{id:32,title:"Just Like Heaven",artist:"The Cure",key:"A"},
+{id:33,title:"Keep Your Hands To Yourself",artist:"Georgia Satellites",key:""},
+{id:34,title:"Listen to her Heart",artist:"Tom Petty",key:"A"},
+{id:35,title:"Listen to the Music",artist:"Doobies",key:""},
+{id:36,title:"Little Sister",artist:"Dwight Yoakam",key:""},
+{id:37,title:"Long Train Runnin",artist:"Doobie Brothers",key:""},
+{id:38,title:"Love Shack",artist:"B-52s",key:""},
+{id:39,title:"Man, I Feel Like a Woman",artist:"Shania Twain",key:""},
+{id:40,title:"My Own Worst Enemy",artist:"Lit",key:""},
+{id:41,title:"My Sharona",artist:"The Knack",key:""},
+{id:42,title:"No Matter What",artist:"Badfinger",key:"A"},
+{id:43,title:"Now",artist:"Plimsouls",key:"D"},
+{id:44,title:"One Way or Another",artist:"Blondie",key:""},
+{id:45,title:"Panama",artist:"Van Halen",key:""},
+{id:46,title:"Rock and Roll",artist:"Led Zeppelin",key:""},
+{id:47,title:"Runnin Down A Dream",artist:"Tom Petty",key:""},
+{id:48,title:"Sharp Dressed Man",artist:"ZZ Top",key:""},
+{id:49,title:"She Sells Sanctuary",artist:"The Cult",key:""},
+{id:50,title:"Surrender",artist:"Cheap Trick",key:""},
+{id:51,title:"Sweet Child O Mine",artist:"Guns n Roses",key:""},
+{id:52,title:"Take It Easy",artist:"Eagles",key:"E"},
+{id:53,title:"The Authority Song",artist:"John Mellencamp",key:""},
+{id:54,title:"The Breakup Song",artist:"The Greg Kihn Band",key:""},
+{id:55,title:"The Middle",artist:"Jimmy Eat World",key:""},
+{id:56,title:"The One I Love",artist:"REM",key:""},
+{id:57,title:"Tush",artist:"ZZ Top",key:""},
+{id:58,title:"Twist and Shout",artist:"The Beatles",key:""},
+{id:59,title:"Two Tickets To Paradise",artist:"Eddie Money",key:""},
+{id:60,title:"Walking on Sunshine",artist:"Katrina and Waves",key:"Bb"},
+{id:61,title:"We Got The Beat",artist:"Go-Gos",key:"A"},
+{id:62,title:"What I like about you",artist:"The Romantics",key:"A"},
+{id:63,title:"White Wedding",artist:"Billy Idol",key:"Bm"},
+{id:64,title:"You Wrecked Me",artist:"Tom Petty",key:""},
+{id:65,title:"Jumping Jack Flash",artist:"Rolling Stones",key:""},
+{id:66,title:"Since Youve Been Gone",artist:"Kelly Clarkson",key:""},
+{id:67,title:"Barracuda",artist:"Heart",key:""},
+{id:68,title:"Stone in Love",artist:"Journey",key:""},
+{id:69,title:"Jet Airliner",artist:"Steve Miller",key:""},
+{id:70,title:"Private Idaho",artist:"B-52s",key:""},
+{id:71,title:"52 Girls",artist:"B-52s",key:""},
+{id:72,title:"Lava",artist:"B-52s",key:""},
+{id:73,title:"Quiche Lorraine",artist:"B-52s",key:""},
+{id:74,title:"Strobe Light",artist:"B-52s",key:""},
+{id:75,title:"Nip it in the Bud",artist:"B-52s",key:""},
+{id:76,title:"Already Gone",artist:"The Eagles",key:""},
+{id:77,title:"Rock Around the Clock",artist:"Bill Hailey and the Comets",key:""},
+{id:78,title:"La Bamba",artist:"Los Lobos",key:""},
+{id:79,title:"Johnny B Goode",artist:"Chuck Berry",key:""},
+{id:80,title:"Sweet Caroline",artist:"Neil Diamond",key:""},
+{id:81,title:"Brown eyed Girl",artist:"Van Morrison",key:""},
+{id:82,title:"Surfin USA",artist:"The Beach Boys",key:""},
+{id:83,title:"And Then He Kissed Me",artist:"The Crystals",key:""}
+];
+
+function rLib(){
+  var q=(document.getElementById('song-search')||{value:''}).value.toLowerCase();
+  var songs=library.filter(function(s){return !q||s.title.toLowerCase().includes(q)||(s.artist||'').toLowerCase().includes(q);});
+  songs.sort(function(a,b){return a.title.localeCompare(b.title);});
+  var el=document.getElementById('library-list');if(!el)return;
+  el.innerHTML=songs.length?
+    '<div style="font-size:11px;color:#fff;margin-bottom:6px;">'+songs.length+' songs</div>'+
+    songs.map(function(s){return '<div style="display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid #0d1f3a;"><div style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><span style="font-size:13px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+(s.artist?'<span style="font-size:11px;color:#f5c518;"> - '+s.artist+'</span>':'')+' </div><button style="background:none;border:none;color:#555;font-size:12px;cursor:pointer;padding:2px 4px;flex-shrink:0;" onclick="cnfDel('+s.id+')">&#10005;</button></div>';}).join('')
+  :'<div style="color:#aaa;font-style:italic;padding:8px;">No songs yet.</div>';
+}
+function adLibSong(){var t=document.getElementById('lib-title').value.trim();if(!t)return;library.push({id:Date.now(),title:t,artist:document.getElementById('lib-artist').value.trim(),key:document.getElementById('lib-key').value.trim()});document.getElementById('lib-title').value='';document.getElementById('lib-artist').value='';document.getElementById('lib-key').value='';document.getElementById('add-song-form').style.display='none';rLib();}
+function dlLib(id){library=library.filter(function(s){return s.id!==id;});rLib();}
+
+function rPay(){var tot=pay.reduce(function(s,g){return s+g.gross-g.exp;},0);document.getElementById('bt').textContent='$'+tot.toLocaleString();document.getElementById('mc2').textContent='$'+(tot/members.length).toFixed(0);document.getElementById('cs').textContent='/ '+members.length+' members';document.getElementById('pl').innerHTML=pay.length?pay.map(function(g){var net=g.gross-g.exp;return '<div style="background:#101e34;border-radius:8px;padding:9px 11px;margin-bottom:6px;display:flex;align-items:center;gap:10px;"><div style="width:30px;height:30px;border-radius:7px;background:rgba(245,197,24,.1);color:#f5c518;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">$</div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:#fff;">'+g.venue+'</div><div style="font-size:11px;color:#aaa;margin-top:2px;">'+g.date+'</div></div><div style="text-align:right;flex-shrink:0;"><div style="font-family:Russo One,sans-serif;font-size:15px;color:#f5c518;">$'+net.toLocaleString()+'</div><div style="font-size:10px;color:#4a9eff;">You: $'+(net/members.length).toFixed(2)+'</div></div></div>';}).join(''):'<div style="color:#aaa;font-style:italic;padding:8px;">No gigs logged yet.</div>';}
+function adPay(){var v=document.getElementById('pv').value.trim(),g=parseFloat(document.getElementById('pg').value)||0,e=parseFloat(document.getElementById('pe').value)||0;if(!v||!g)return;var p={id:Date.now(),date:new Date().toISOString().slice(0,10),venue:v,gross:g,exp:e};savePay(p);document.getElementById('pf').style.display='none';document.getElementById('pv').value='';document.getElementById('pg').value='';document.getElementById('pe').value='';}
+
+
+function fmtPhone(inp){
+  var v=inp.value.replace(/\D/g,'').slice(0,10);
+  if(v.length>=6) v='('+v.slice(0,3)+') '+v.slice(3,6)+'-'+v.slice(6);
+  else if(v.length>=3) v='('+v.slice(0,3)+') '+v.slice(3);
+  inp.value=v;
+}
+
+function cnfDel(id){
+  if(confirm('Remove this song from the library?')){dlLib(id);}
+}
+
+
+var memsOpen=false;
+function toggleMems(){
+  memsOpen=!memsOpen;
+  document.getElementById('mem-list').style.display=memsOpen?'block':'none';
+  document.getElementById('mem-arrow').innerHTML=memsOpen?'&#8963;':'&#8964;';
+}
+
+function memTap(e,id){
+  e.stopPropagation();
+  var m=members.find(function(x){return x.id===id;});
+  if(!m)return;
+  var choice=confirm(m.name+'\n\nOK = Chat\nCancel = Contact Info');
+  if(choice){
+    // Go to chat, select this member
+    chatTo=id;
+    var tabs=document.querySelectorAll('.tb');
+    var scs=document.querySelectorAll('.sc');
+    scs.forEach(function(s){s.classList.remove('on');});
+    tabs.forEach(function(b){b.classList.remove('on');});
+    document.getElementById('sc-chat').classList.add('on');
+    // Find chat tab button and highlight it
+    tabs.forEach(function(b){if(b.textContent.trim().indexOf('Chat')>=0)b.classList.add('on');});
+    rChatTo();rChat();
+  } else {
+    // Go to band tab
+    var tabs=document.querySelectorAll('.tb');
+    var scs=document.querySelectorAll('.sc');
+    scs.forEach(function(s){s.classList.remove('on');});
+    tabs.forEach(function(b){b.classList.remove('on');});
+    document.getElementById('sc-band').classList.add('on');
+    tabs.forEach(function(b){if(b.textContent.trim().indexOf('Band')>=0)b.classList.add('on');});
+    rBand();
+    // Scroll to that member
+    setTimeout(function(){
+      var cards=document.querySelectorAll('#ml .mc');
+      var idx=members.findIndex(function(x){return x.id===id;});
+      if(cards[idx])cards[idx].scrollIntoView({behavior:'smooth'});
+    },100);
+  }
+}
+
+var pickedSongs={};
+
+function showPicker(){
+  pickedSongs={};
+  document.getElementById('song-picker').style.display='flex';
+  document.getElementById('picker-search').value='';
+  rPicker();
+}
+function hidePicker(){document.getElementById('song-picker').style.display='none';}
+
+function rPicker(){
+  var q=document.getElementById('picker-search').value.toLowerCase();
+  var songs=library.filter(function(s){return !q||s.title.toLowerCase().includes(q)||(s.artist||'').toLowerCase().includes(q);});
+  songs.sort(function(a,b){return a.title.localeCompare(b.title);});
+  var sl=sets.find(function(x){return x.id===aSL;});
+  var inSet=sl?sl.songs.map(function(s){return s.libId;}):[];
+  document.getElementById('picker-list').innerHTML=songs.map(function(s){
+    var picked=pickedSongs[s.id];
+    var already=inSet.indexOf(s.id)>=0;
+    return '<div onclick="togglePick('+s.id+')" style="display:flex;align-items:center;padding:8px;border-bottom:1px solid #0d1f3a;cursor:pointer;background:'+(picked?'rgba(245,197,24,.15)':'transparent')+';">'+
+      '<div style="width:20px;height:20px;border-radius:4px;border:2px solid '+(picked?'#f5c518':'#1a3a8a')+';background:'+(picked?'#f5c518':'transparent')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:10px;font-size:12px;color:#000;">'+(picked?'&#10003;':'')+' </div>'+
+      '<div style="flex:1;min-width:0;">'+
+        '<div style="font-size:13px;font-weight:600;color:'+(already?'#555':'#e8f0ff')+';">'+s.title+(already?' (already in set)':'')+'</div>'+
+        (s.artist?'<div style="font-size:11px;color:#f5c518;">'+s.artist+'</div>':'')+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function togglePick(id){
+  if(pickedSongs[id])delete pickedSongs[id];
+  else pickedSongs[id]=true;
+  rPicker();
+}
+
+function addPickedSongs(){
+  var sl=sets.find(function(x){return x.id===aSL;});
+  if(!sl)return;
+  var ids=Object.keys(pickedSongs).map(Number);
+  ids.forEach(function(id){
+    var libSong=library.find(function(s){return s.id===id;});
+    if(libSong){
+      sl.songs.push({id:Date.now()+Math.random(),t:libSong.title,d:'',k:libSong.key||'',n:'',libId:libSong.id});
+    }
+  });
+  saveSet(sl);
+  hidePicker();
+  rEd();
+}
+
+function renSL(){
+  var sl=sets.find(function(x){return x.id===aSL;});
+  if(!sl)return;
+  var name=prompt('Rename setlist:',sl.name);
+  if(name){sl.name=name;saveSet(sl);}
+  rEd();
+}
+
+function opM(id){document.getElementById(id).classList.add('on');}
+function clM(id){document.getElementById(id).classList.remove('on');}
+document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});});
+
+// Check if user has picked their name
+var savedName = localStorage.getItem('oot_me');
+var savedId = localStorage.getItem('oot_me_id');
+if(savedName && savedId){
+  ME = parseInt(savedId);
+  myName = savedName;
+  initApp();
+} else {
+  showNamePicker();
+}
+</script>
+
+<div id="name-picker-overlay" style="display:none;position:fixed;inset:0;background:#060e1c;z-index:1000;flex-direction:column;align-items:center;justify-content:center;padding:30px;">
+  <img src="logo.jpg" style="width:140px;margin-bottom:20px;filter:drop-shadow(0 0 20px rgba(245,197,24,.5));">
+  <div style="font-family:'Russo One',sans-serif;font-size:22px;color:#f5c518;letter-spacing:2px;margin-bottom:8px;">OUT OF TIME</div>
+  <div style="font-size:14px;color:#4a6a9a;margin-bottom:30px;text-align:center;">Band Management App</div>
+  <div style="font-family:'Russo One',sans-serif;font-size:11px;color:#fff;letter-spacing:3px;margin-bottom:16px;">WHO ARE YOU?</div>
+  <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px;">
+    <button onclick="pickName(0)" style="background:#0a1628;border:1px solid #4a9eff;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
+      <div style="width:36px;height:36px;border-radius:50%;background:#4a9eff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">JM</div>
+      <div style="text-align:left;"><div style="font-size:15px;font-weight:600;color:#e8f0ff;">Jim</div><div style="font-size:11px;color:#4a9eff;">Lead Guitar</div></div>
+    </button>
+    <button onclick="pickName(1)" style="background:#0a1628;border:1px solid #06d6a0;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
+      <div style="width:36px;height:36px;border-radius:50%;background:#06d6a0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">AM</div>
+      <div style="text-align:left;"><div style="font-size:15px;font-weight:600;color:#e8f0ff;">Amy</div><div style="font-size:11px;color:#06d6a0;">Bass Guitar</div></div>
+    </button>
+    <button onclick="pickName(2)" style="background:#0a1628;border:1px solid #ff6b6b;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
+      <div style="width:36px;height:36px;border-radius:50%;background:#ff6b6b;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">RI</div>
+      <div style="text-align:left;"><div style="font-size:15px;font-weight:600;color:#e8f0ff;">Rich</div><div style="font-size:11px;color:#ff6b6b;">Drums</div></div>
+    </button>
+    <button onclick="pickName(3)" style="background:#0a1628;border:1px solid #f5c518;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
+      <div style="width:36px;height:36px;border-radius:50%;background:#f5c518;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">ED</div>
+      <div style="text-align:left;"><div style="font-size:15px;font-weight:600;color:#e8f0ff;">Ed</div><div style="font-size:11px;color:#f5c518;">Lead Guitar</div></div>
+    </button>
+    <button onclick="pickName(4)" style="background:#0a1628;border:1px solid #ff9ef5;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
+      <div style="width:36px;height:36px;border-radius:50%;background:#ff9ef5;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">RC</div>
+      <div style="text-align:left;"><div style="font-size:15px;font-weight:600;color:#e8f0ff;">Rachel</div><div style="font-size:11px;color:#ff9ef5;">Vocals</div></div>
+    </button>
+    <button onclick="pickName(5)" style="background:#0a1628;border:1px solid #c084fc;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
+      <div style="width:36px;height:36px;border-radius:50%;background:#c084fc;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">ZK</div>
+      <div style="text-align:left;"><div style="font-size:15px;font-weight:600;color:#e8f0ff;">Zach</div><div style="font-size:11px;color:#c084fc;">Keyboards</div></div>
+    </button>
+  </div>
+</div>
+</body>
+</html>
