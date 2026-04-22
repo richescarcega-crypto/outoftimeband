@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#060e1c">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="shortcut icon" href="icon.png">
-<title>Out of Time</title>
+<title>Out of Time v3</title>
 <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -543,10 +543,7 @@ function memTap(e, id) {
   e.stopPropagation();
   var m = gM(id);
   if (!m) return;
-  var choice = confirm(m.name + '
-
-OK = Chat with ' + m.name + '
-Cancel = View contact info');
+  var choice = confirm(m.name + ' - OK=Chat, Cancel=Contact Info');
   if (choice) {
     chatTo = id;
     document.querySelectorAll('.sc').forEach(function(s){s.classList.remove('on');});
