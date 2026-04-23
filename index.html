@@ -2108,7 +2108,15 @@ function rLib() {
     var titleDiv=document.createElement('div');
     titleDiv.style.cssText='flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;';
     titleDiv.innerHTML='<span style="font-size:13px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+(s.artist?'<span style="font-size:11px;color:#f5c518;"> - '+s.artist+'</span>':'')+' <span style="font-size:10px;color:#1a3a8a;">&#9654;</span>';
-    titleDiv.onclick=(function(song){ return function(){ playYT(song.title+' '+(song.artist||'')); }; })(s);
+    titleDiv.onclick=(function(song){ return function(){
+    var det = songDetails[String(song.id)] || {};
+    var savedUrl = det.yt || song.yt || '';
+    if(savedUrl){
+      window.open(savedUrl, '_blank');
+    } else {
+      playYT(song.title+' '+(song.artist||''));
+    }
+  }; })(s);
     var infoBtn=document.createElement('button');
     infoBtn.style.cssText='background:#4a9eff;border:none;border-radius:50%;width:13px;height:13px;display:flex;align-items:center;justify-content:center;color:#000;font-size:7px;font-weight:700;cursor:pointer;flex-shrink:0;margin-right:12px;';
     infoBtn.innerHTML='i';
