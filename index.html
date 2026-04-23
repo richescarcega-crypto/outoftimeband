@@ -375,9 +375,19 @@ body.light .mrav{color:#000 !important;}
     </div>
     <input class="mi" id="etit" placeholder="Title *">
     <input class="mi" id="enot" placeholder="Notes (time, address)">
-    <div id="blackout-range" style="display:none;margin-bottom:8px;">
-      <div style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;margin-bottom:6px;letter-spacing:1px;">CONSECUTIVE DAYS? (optional end date)</div>
-      <input type="date" id="eend" class="mi" type="date" style="margin-bottom:0;">
+    <div id="blackout-range" style="display:none;margin-bottom:8px;background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.3);border-radius:8px;padding:10px;">
+      <div style="font-size:10px;color:#ff4757;font-family:Russo One,sans-serif;margin-bottom:8px;letter-spacing:1px;">BLACKOUT DATE RANGE</div>
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1;">
+          <div style="font-size:9px;color:#aaa;font-family:Russo One,sans-serif;margin-bottom:4px;letter-spacing:1px;">START</div>
+          <input type="date" id="estart" class="mi" style="margin-bottom:0;width:100%;padding:6px 8px;">
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:9px;color:#aaa;font-family:Russo One,sans-serif;margin-bottom:4px;letter-spacing:1px;">END</div>
+          <input type="date" id="eend" class="mi" style="margin-bottom:0;width:100%;padding:6px 8px;">
+        </div>
+      </div>
+      <div style="font-size:10px;color:#4a6a9a;margin-top:6px;">Creates a blackout event for each day in range</div>
     </div>
     <button class="sb" onclick="adEv()" style="width:100%">Add to Calendar</button>
   </div>
@@ -1297,7 +1307,9 @@ function rCal() {
   for(var d=1;d<=dim;d++){
     var ds=fD(CY,CM,d), de=events.filter(function(e){return e.date===ds;});
     var today=new Date(); var td=CY===today.getFullYear()&&CM===today.getMonth()&&d===today.getDate();
-    var pp=['gig','rehearsal','blackout'].filter(function(t){return de.some(function(e){return e.type===t;});}).map(function(t){return '<div class="pip" style="background:'+EC[t]+';cursor:pointer;" onclick="event.stopPropagation();oDy('+d+')"></div>';}).join('');;
+    var eventTypes=['gig','rehearsal','blackout'].filter(function(t){return de.some(function(e){return e.type===t;});});
+    var pipSize = eventTypes.length>1 ? '5px' : '8px';
+    var pp=eventTypes.map(function(t){return '<div class="pip" style="background:'+EC[t]+';cursor:pointer;width:'+pipSize+';height:'+pipSize+';" onclick="event.stopPropagation();oDy('+d+')"></div>';}).join('');;
     h+='<div class="dc'+(td?' td':'')+'" onclick="oDy('+d+')"><span class="dn">'+d+'</span><div class="pips">'+pp+'</div></div>';
   }
   document.getElementById('cgrid').innerHTML = h;
@@ -1448,7 +1460,13 @@ function sET(t) {
   });
   var rangeEl=document.getElementById('blackout-range');
   if(rangeEl) rangeEl.style.display=t==='blackout'?'block':'none';
-  if(t!=='blackout'){var eend=document.getElementById('eend');if(eend)eend.value='';}
+  if(t==='blackout'){
+    var estart=document.getElementById('estart');
+    if(estart && sDay) estart.value=fD(CY,CM,sDay);
+  } else {
+    var eend=document.getElementById('eend');if(eend)eend.value='';
+    var estart2=document.getElementById('estart');if(estart2)estart2.value='';
+  }
 }
 
 function editEv(id){
@@ -1502,28 +1520,34 @@ function adEv() {
   var t=document.getElementById('etit').value.trim();
   if(!t)return;
   var note=document.getElementById('enot').value.trim();
-  var startDate=fD(CY,CM,sDay);
-  var endEl=document.getElementById('eend');
-  var endDate=endEl?endEl.value:'';
-  if(cET==='blackout'&&endDate&&endDate>startDate){
-    var cur=new Date(startDate+'T00:00:00'),end=new Date(endDate+'T00:00:00'),day=0;
-    while(cur<=end&&day<60){var ds=cur.toISOString().slice(0,10);saveEvent({id:Date.now()+day,date:ds,type:'blackout',title:t,note:note});cur.setDate(cur.getDate()+1);day++;}
-    clM('evm');if(endEl)endEl.value='';return;
-  }
-  var dateStr=fD(CY,CM,sDay);
-  var ev={id:Date.now(),date:dateStr,type:cET,title:t,note:document.getElementById('enot').value.trim()};
-  // Check for conflicts
-  if(cET==='gig' || cET==='rehearsal'){
-    var conflicts = availability.filter(function(a){ return a.date===dateStr; });
-    if(conflicts.length){
-      var names = conflicts.map(function(a){ return a.name.split(' ')[0]; }).join(', ');
-      var proceed = confirm('⚠️ Conflict: ' + names + ' marked this date unavailable. Add event anyway?');
-      if(!proceed) return;
+  if(cET==='blackout'){
+    var estartEl=document.getElementById('estart');
+    var eendEl=document.getElementById('eend');
+    var startDate=estartEl&&estartEl.value ? estartEl.value : fD(CY,CM,sDay);
+    var endDate=eendEl&&eendEl.value ? eendEl.value : '';
+    if(endDate && endDate>=startDate){
+      // Range - create blackout for each day
+      var cur=new Date(startDate+'T00:00:00');
+      var end=new Date(endDate+'T00:00:00');
+      var day=0;
+      while(cur<=end && day<60){
+        var ds=cur.toISOString().slice(0,10);
+        saveEvent({id:Date.now()+day,date:ds,type:'blackout',title:t,note:note});
+        cur.setDate(cur.getDate()+1);
+        day++;
+      }
+    } else {
+      // Single day blackout
+      saveEvent({id:Date.now(),date:startDate,type:'blackout',title:t,note:note});
     }
+    if(estartEl) estartEl.value='';
+    if(eendEl) eendEl.value='';
+  } else {
+    saveEvent({id:Date.now(),date:fD(CY,CM,sDay),type:cET,title:t,note:note});
   }
-  saveEvent(ev);
   clM('evm');
 }
+
 function dEv(id){db.collection('events').doc(String(id)).delete();}
 
 // AVAILABILITY
