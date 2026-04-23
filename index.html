@@ -666,6 +666,7 @@ function initApp() {
   listenGigDetails();
   listenSongDetails();
   listenReactions();
+  loadLastRead();
   listenAgendas();
   listenSuggestions();
   loadTabOrder();
@@ -681,7 +682,11 @@ function go(id, btn) {
   if (id === 'home') rHome();
   else if (id === 'cal') rCal();
   else if (id === 'sets'){ if(setsViewState==='edit' && aSL){ document.getElementById('si').style.display='none'; document.getElementById('se').style.display='block'; rEd(); } else { setsViewState='list'; rSets(); } }
-  else if (id === 'chat') { rChatTo(); rChat(); }
+  else if (id === 'chat') {
+    var tid = (chatTo==='band') ? 'band' : [String(ME), String(chatTo)].sort().join('-');
+    markThreadRead(tid);
+    rChatTo(); rChat();
+  }
   else if (id === 'band') { rBand(); rContacts(); }
   else if (id === 'songs') { rLib(); rVotes(); }
   else if (id === 'pay') rPay();
@@ -705,6 +710,8 @@ var EC={gig:"#f5c518", blackout:"#ff4757", rehearsal:"#4a9eff"};
 var chatTo = "band";
 var chatFilter = "all";
 var reactions = {};
+var lastReadTs = {}; // threadId -> last read timestamp
+var unreadCounts = {}; // threadId -> count
 var cardStates = {};
 var setsViewState = "list"; // "list" or "edit"
 var pickedSongs = {};
@@ -727,7 +734,78 @@ function listenMsgs(){
   db.collection('messages').orderBy('ts').limitToLast(100).onSnapshot(function(snap){
     msgs=[];
     snap.forEach(function(doc){msgs.push(Object.assign({id:doc.id},doc.data()));});
-    if(document.getElementById('sc-chat').classList.contains('on'))rChat();
+    calcUnread();
+    if(document.getElementById('sc-chat').classList.contains('on')) rChat();
+    else rUnreadBadges();
+  });
+}
+
+function getThreadId(msg){
+  // Normalize thread ID so both sides see same key
+  if(!msg.to || msg.to==='band') return 'band';
+  var ids = [String(msg.who), String(msg.to)].sort();
+  return ids.join('-');
+}
+
+function calcUnread(){
+  unreadCounts = {};
+  msgs.forEach(function(m){
+    // Only count messages NOT sent by me
+    if(m.who === ME) return;
+    var threadId = getThreadId(m);
+    // Check if this message is after our last read time for this thread
+    var lastRead = lastReadTs[threadId] || 0;
+    var msgTime = m.ts ? (m.ts.seconds || 0) : 0;
+    if(msgTime > lastRead){
+      unreadCounts[threadId] = (unreadCounts[threadId]||0) + 1;
+    }
+  });
+  rUnreadBadges();
+}
+
+function markThreadRead(threadId){
+  lastReadTs[threadId] = Math.floor(Date.now()/1000);
+  // Persist to localStorage
+  localStorage.setItem('lastRead_'+threadId, String(lastReadTs[threadId]));
+  unreadCounts[threadId] = 0;
+  rUnreadBadges();
+}
+
+function loadLastRead(){
+  // Load saved read timestamps from localStorage
+  ['band'].concat(members.map(function(m){
+    return [String(ME), String(m.id)].sort().join('-');
+  })).forEach(function(tid){
+    var saved = localStorage.getItem('lastRead_'+tid);
+    if(saved) lastReadTs[tid] = parseInt(saved);
+  });
+}
+
+function rUnreadBadges(){
+  // Update badge on each pill in chat-to-row
+  var el = document.getElementById('chat-to-row');
+  if(!el) return;
+  var pills = el.querySelectorAll('button');
+  pills.forEach(function(pill){
+    var cid = pill.getAttribute('data-cid');
+    var threadId;
+    if(cid === 'band') threadId = 'band';
+    else threadId = [String(ME), String(cid)].sort().join('-');
+    var count = unreadCounts[threadId] || 0;
+    // Find or create badge
+    var badge = pill.querySelector('.unread-badge');
+    if(count > 0){
+      if(!badge){
+        badge = document.createElement('div');
+        badge.className = 'unread-badge';
+        badge.style.cssText = 'position:absolute;top:-4px;right:-4px;background:#ff4757;color:#fff;font-size:9px;font-weight:700;font-family:Russo One,sans-serif;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;border:2px solid #080f1e;';
+        pill.style.position = 'relative';
+        pill.appendChild(badge);
+      }
+      badge.textContent = count > 9 ? '9+' : String(count);
+    } else {
+      if(badge) badge.remove();
+    }
   });
 }
 function listenReactions(){
@@ -1375,6 +1453,9 @@ function rChatTo() {
 }
 function setChatTo(id){
   chatTo = id;
+  // Mark this thread as read
+  var threadId = (id==='band') ? 'band' : [String(ME), String(id)].sort().join('-');
+  markThreadRead(threadId);
   rChatTo();
   rChat();
 }
