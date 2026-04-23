@@ -140,19 +140,19 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
     <div class="card-lbl" onclick="toggleCard('hg','ga')">
       <span>UPCOMING GIGS</span><span id="ga">&#8964;</span>
     </div>
-    <div id="hg"></div>
+    <div id="hg" style="display:none;"></div>
   </div>
   <div class="card">
     <div class="card-lbl" onclick="toggleCard('hr','ra')" style="color:#fff;">
       <span>UPCOMING REHEARSALS</span><span id="ra">&#8964;</span>
     </div>
-    <div id="hr"></div>
+    <div id="hr" style="display:none;"></div>
   </div>
   <div class="card">
     <div class="card-lbl" onclick="toggleCard('hbo','ba')" style="color:#ff4757;">
       <span>BLACKOUT DATES</span><span id="ba">&#8964;</span>
     </div>
-    <div id="hbo"></div>
+    <div id="hbo" style="display:none;"></div>
   </div>
   <div class="sh">MEMBERS</div>
   <div id="hm"></div>
@@ -960,6 +960,11 @@ function toggleCard(contentId, arrowId) {
 
 // HOME
 function rHome() {
+  // Enforce collapsed state for home sections
+  ['hg','hr','hbo'].forEach(function(id){
+    if(!cardStates[id]) cardStates[id] = true; // default collapsed
+    document.getElementById(id).style.display = cardStates[id] ? 'none' : 'block';
+  });
   var wi = document.getElementById('who-am-i');
   if (wi && myName) {
     var m = gM(ME);
