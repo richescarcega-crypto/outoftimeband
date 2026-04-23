@@ -262,27 +262,7 @@ body.light .mrav{color:#000 !important;}
     <button onclick="exportData('events')" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:2px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;">&#8679; Share</button>
   </div>
   <div id="evl"></div>
-  <div class="sh" style="margin-top:16px;">AVAILABILITY</div>
-  <p style="font-size:11px;color:#aaa;margin-bottom:8px;">Mark dates you are NOT available — posts as blackout on calendar</p>
-  <div id="avail-list"></div>
-  <div id="avail-form" style="display:none;" class="fb">
-    <div style="display:flex;gap:8px;">
-      <div style="flex:1;">
-        <div style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;margin-bottom:4px;">START DATE *</div>
-        <input type="date" id="avail-start" class="fi2" style="width:100%;">
-      </div>
-      <div style="flex:1;">
-        <div style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;margin-bottom:4px;">END DATE (optional)</div>
-        <input type="date" id="avail-end" class="fi2" style="width:100%;">
-      </div>
-    </div>
-    <input class="fi2" id="avail-note" placeholder="Note (e.g. vacation, work trip)">
-    <div class="r2">
-      <button class="sb" onclick="submitAvail()">Save</button>
-      <button class="cb" onclick="document.getElementById('avail-form').style.display='none'">Cancel</button>
-    </div>
-  </div>
-  <button class="ab" onclick="document.getElementById('avail-form').style.display='flex';document.getElementById('avail-form').style.flexDirection='column';">+ Mark Me Unavailable</button>
+
 </div>
 
 <div id="sc-sets" class="sc">
@@ -1395,6 +1375,9 @@ function sET(t) {
     b.style.color=k===t?EC[k]:'#aaa';
     b.style.borderColor=k===t?EC[k]:'#0d1f3a';
   });
+  var rangeEl=document.getElementById('blackout-range');
+  if(rangeEl) rangeEl.style.display=t==='blackout'?'block':'none';
+  if(t!=='blackout'){var eend=document.getElementById('eend');if(eend)eend.value='';}
 }
 
 function editEv(id){
