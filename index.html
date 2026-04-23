@@ -64,7 +64,11 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 .slc{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;touch-action:manipulation;}
 .sln{font-family:"Russo One",sans-serif;font-size:16px;color:#fff;}
 .slm{font-size:11px;color:#aaa;margin-top:2px;}
-.sr{background:var(--n4);border-radius:8px;padding:9px 11px;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.sr{background:var(--n4);border-radius:8px;padding:9px 11px;margin-bottom:6px;display:flex;align-items:center;gap:8px;transition:box-shadow .15s;}
+.sr.dragging{opacity:.5;box-shadow:0 4px 20px rgba(245,197,24,.3);}
+.sr.drag-over{border-top:2px solid #f5c518;}
+.grip{color:#1a3a8a;font-size:18px;cursor:grab;padding:4px 6px;flex-shrink:0;touch-action:none;user-select:none;}
+.grip:active{cursor:grabbing;color:#4a9eff;}
 .sn{font-family:"Russo One",sans-serif;font-size:15px;color:var(--g);width:20px;text-align:center;flex-shrink:0;}
 .st{font-size:13px;font-weight:600;color:#fff;}
 .sd{font-size:11px;color:#aaa;margin-top:2px;}
@@ -1308,17 +1312,19 @@ function rEd() {
     '<button onclick="renSL()" style="background:none;border:none;color:#4a9eff;font-size:12px;cursor:pointer;">&#9998; Rename</button>'+
     '<button onclick="printSL()" style="background:none;border:none;color:#f5c518;font-size:12px;cursor:pointer;">&#128221; Share</button>'+
     '</div>'+
-    '<div style="font-size:12px;color:#aaa;margin-bottom:6px;">'+s.songs.length+' songs'+durStr+'</div>'+
-    '<div style="font-size:10px;color:#4a6a9a;margin-bottom:10px;">Tap # to move a song to a different position</div>';
+    '<div style="font-size:12px;color:#aaa;margin-bottom:4px;">'+s.songs.length+' songs'+durStr+'</div>'+
+    '<div style="font-size:10px;color:#4a6a9a;margin-bottom:10px;">Hold ≡ and drag to reorder</div>';
 
   var container = document.getElementById('ssl');
   container.innerHTML = '';
+
   s.songs.forEach(function(sg, i){
     var div = document.createElement('div');
     div.className = 'sr';
-    div.style.cssText = 'background:#101e34;border-radius:8px;padding:10px 11px;margin-bottom:6px;display:flex;align-items:center;gap:8px;';
+    div.setAttribute('data-song-id', sg.id);
 
     if(eSID===sg.id){
+      // Edit mode - no drag handle
       div.innerHTML =
         '<div class="sn">'+(i+1)+'</div>'+
         '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;">'+
@@ -1336,22 +1342,15 @@ function rEd() {
       doneBtn.onclick = (function(id){ return function(e){ e.stopPropagation(); svEd(id); }; })(sg.id);
       div.appendChild(doneBtn);
     } else {
-      // Position number - tappable to move
-      var numBtn = document.createElement('button');
-      numBtn.style.cssText = 'background:#0a1628;border:1px solid #f5c518;border-radius:6px;width:32px;height:32px;color:#f5c518;font-size:13px;font-weight:700;font-family:Russo One,sans-serif;cursor:pointer;flex-shrink:0;touch-action:manipulation;';
-      numBtn.textContent = i+1;
-      numBtn.title = 'Tap to move this song';
-      numBtn.onclick = (function(idx, title){ return function(e){
-        e.stopPropagation();
-        var newPos = prompt('Move "'+title+'" to position (1-'+s.songs.length+'):', idx+1);
-        if(!newPos) return;
-        var np = parseInt(newPos)-1;
-        if(isNaN(np)||np<0||np>=s.songs.length) return;
-        var song = s.songs.splice(idx,1)[0];
-        s.songs.splice(np,0,song);
-        saveSet(s);
-        rEd();
-      }; })(i, sg.t);
+      // Normal view with grip handle
+      var grip = document.createElement('div');
+      grip.className = 'grip';
+      grip.innerHTML = '&#8801;'; // ≡
+      grip.title = 'Hold to drag';
+
+      var numDiv = document.createElement('div');
+      numDiv.className = 'sn';
+      numDiv.textContent = i+1;
 
       var textDiv = document.createElement('div');
       textDiv.style.cssText = 'flex:1;min-width:0;';
@@ -1361,31 +1360,142 @@ function rEd() {
           (sg.d?sg.d:'')+(sg.k?' · Key of '+sg.k:'')+(sg.n?' · '+sg.n:'')+
         '</div>';
 
-      var actions = document.createElement('div');
-      actions.style.cssText = 'display:flex;gap:4px;flex-shrink:0;';
-
       var edBtn = document.createElement('button');
-      edBtn.style.cssText = 'background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;width:34px;height:34px;color:#4a9eff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;';
+      edBtn.style.cssText = 'background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;width:34px;height:34px;color:#4a9eff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;flex-shrink:0;';
       edBtn.innerHTML = '&#9998;';
       edBtn.onclick = (function(id){ return function(e){ e.stopPropagation(); edS(id); }; })(sg.id);
 
       var rmBtn = document.createElement('button');
-      rmBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:6px;width:34px;height:34px;color:#ff4757;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;';
+      rmBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:6px;width:34px;height:34px;color:#ff4757;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;flex-shrink:0;';
       rmBtn.innerHTML = '&#128465;';
       rmBtn.onclick = (function(id, title){ return function(e){
         e.stopPropagation();
         if(confirm('Remove "'+title+'" from this setlist?')) rmS(id);
       }; })(sg.id, sg.t);
 
-      actions.appendChild(edBtn);
-      actions.appendChild(rmBtn);
-
-      div.appendChild(numBtn);
+      div.appendChild(grip);
+      div.appendChild(numDiv);
       div.appendChild(textDiv);
-      div.appendChild(actions);
+      div.appendChild(edBtn);
+      div.appendChild(rmBtn);
+
+      // Desktop drag
+      div.draggable = false; // only drag via grip
+      grip.addEventListener('mousedown', function(){ div.draggable = true; });
+      div.addEventListener('dragend', function(){ div.draggable = false; });
+      initSongDrag(div, grip);
+
+      // Touch drag
+      initSongTouch(div, grip);
     }
     container.appendChild(div);
   });
+}
+
+function initSongDrag(div, grip){
+  div.addEventListener('dragstart', function(e){
+    div.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', div.getAttribute('data-song-id'));
+  });
+  div.addEventListener('dragend', function(){
+    div.classList.remove('dragging');
+    div.draggable = false;
+    document.querySelectorAll('.sr').forEach(function(r){ r.classList.remove('drag-over'); });
+    saveSongOrder();
+  });
+  div.addEventListener('dragover', function(e){
+    e.preventDefault();
+    document.querySelectorAll('.sr').forEach(function(r){ r.classList.remove('drag-over'); });
+    div.classList.add('drag-over');
+  });
+  div.addEventListener('drop', function(e){
+    e.preventDefault();
+    var srcId = e.dataTransfer.getData('text/plain');
+    var container = document.getElementById('ssl');
+    var rows = Array.from(container.querySelectorAll('.sr'));
+    var srcRow = rows.find(function(r){ return r.getAttribute('data-song-id')==srcId; });
+    if(srcRow && srcRow !== div){
+      var srcIdx = rows.indexOf(srcRow);
+      var tgtIdx = rows.indexOf(div);
+      if(srcIdx < tgtIdx) container.insertBefore(srcRow, div.nextSibling);
+      else container.insertBefore(srcRow, div);
+    }
+    div.classList.remove('drag-over');
+  });
+}
+
+function initSongTouch(div, grip){
+  var startY, startIdx, clone, scrollEl;
+  grip.addEventListener('touchstart', function(e){
+    e.stopPropagation();
+    scrollEl = document.getElementById('sc-sets');
+    scrollEl.style.overflow = 'hidden'; // prevent scroll during drag
+    var touch = e.touches[0];
+    startY = touch.clientY;
+    var container = document.getElementById('ssl');
+    var rows = Array.from(container.querySelectorAll('.sr'));
+    startIdx = rows.indexOf(div);
+    div.classList.add('dragging');
+    // Create floating clone
+    var rect = div.getBoundingClientRect();
+    clone = div.cloneNode(true);
+    clone.style.cssText = 'position:fixed;left:'+rect.left+'px;top:'+rect.top+'px;width:'+rect.width+'px;z-index:9999;pointer-events:none;opacity:.85;background:#1a3a8a;border-radius:8px;box-shadow:0 8px 30px rgba(245,197,24,.4);';
+    document.body.appendChild(clone);
+  }, {passive:true});
+
+  grip.addEventListener('touchmove', function(e){
+    e.stopPropagation();
+    if(!clone) return;
+    var touch = e.touches[0];
+    var dy = touch.clientY - startY;
+    clone.style.top = (parseFloat(clone.style.top) + dy) + 'px';
+    startY = touch.clientY;
+    // Find row under touch
+    clone.style.display='none';
+    var el = document.elementFromPoint(touch.clientX, touch.clientY);
+    clone.style.display='';
+    var targetRow = el ? el.closest('.sr') : null;
+    document.querySelectorAll('.sr').forEach(function(r){ r.classList.remove('drag-over'); });
+    if(targetRow && targetRow !== div) targetRow.classList.add('drag-over');
+  }, {passive:true});
+
+  grip.addEventListener('touchend', function(e){
+    e.stopPropagation();
+    if(scrollEl) scrollEl.style.overflow = '';
+    if(clone){ document.body.removeChild(clone); clone=null; }
+    div.classList.remove('dragging');
+    var touch = e.changedTouches[0];
+    clone && clone.style && (clone.style.display='none');
+    var el = document.elementFromPoint(touch.clientX, touch.clientY);
+    var targetRow = el ? el.closest('.sr') : null;
+    document.querySelectorAll('.sr').forEach(function(r){ r.classList.remove('drag-over'); });
+    if(targetRow && targetRow !== div){
+      var container = document.getElementById('ssl');
+      var rows = Array.from(container.querySelectorAll('.sr'));
+      var srcIdx = rows.indexOf(div);
+      var tgtIdx = rows.indexOf(targetRow);
+      if(srcIdx < tgtIdx) container.insertBefore(div, targetRow.nextSibling);
+      else container.insertBefore(div, targetRow);
+      saveSongOrder();
+    }
+  });
+}
+
+function saveSongOrder(){
+  var s = sets.find(function(x){return x.id==aSL;});
+  if(!s) return;
+  var container = document.getElementById('ssl');
+  var rows = Array.from(container.querySelectorAll('.sr'));
+  var newOrder = [];
+  rows.forEach(function(row){
+    var id = row.getAttribute('data-song-id');
+    var song = s.songs.find(function(sg){ return String(sg.id)===String(id); });
+    if(song) newOrder.push(song);
+  });
+  s.songs = newOrder;
+  saveSet(s);
+  rEd();
 }
 function edS(id){eSID=(eSID===id?null:id);rEd();}
 function svEd(id){
