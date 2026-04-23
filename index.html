@@ -325,7 +325,7 @@ body.light .mrav{color:#000 !important;}
     <span>CONTACTS</span><span id="contacts-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span>
   </div>
   <div id="contacts-list"></div>
-  <div id="contacts-add-btn"><button class="ab" onclick="opM('contact-modal')">+ Add Contact</button></div>
+  <div id="contacts-add-btn"><button class="ab" onclick="editingContactId=null;var t=document.getElementById('contact-modal-title');var b=document.getElementById('contact-save-btn');if(t)t.textContent='Add Contact';if(b)b.textContent='Add Contact';opM('contact-modal');">+ Add Contact</button></div>
 </div>
 
 <div id="sc-songs" class="sc">
@@ -511,7 +511,7 @@ body.light .mrav{color:#000 !important;}
     <input class="mi" id="ct-ph" placeholder="Phone">
     <input class="mi" id="ct-em" placeholder="Email">
     <input class="mi" id="ct-note" placeholder="Notes">
-    <button class="sb" onclick="addContact()" style="width:100%">Add Contact</button>
+    <button class="sb" id="contact-save-btn" onclick="addContact()" style="width:100%">Add Contact</button>
   </div>
 </div>
 
@@ -2416,6 +2416,10 @@ function rContacts() {
         document.getElementById('ct-em').value=contact.em||'';
         document.getElementById('ct-note').value=contact.note||'';
         editingContactId=contact.id;
+        var t=document.getElementById('contact-modal-title');
+        var b=document.getElementById('contact-save-btn');
+        if(t) t.textContent='Edit Contact';
+        if(b) b.textContent='Done';
         opM('contact-modal');
       }; })(c);
       detail.appendChild(editBtn);
