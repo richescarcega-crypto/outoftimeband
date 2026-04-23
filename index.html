@@ -49,6 +49,27 @@ body.light .mb.me{background:#1a3a8a;}
 body.light .slc{background:#fff;border-color:#c8d4e8;}
 body.light .fc{background:#fff;}
 body.light .none{color:#666;}
+body.light .git{color:#1a2a4a;}
+body.light .gim{color:#3a5a7a;}
+body.light .gid{color:#1565c0;}
+body.light .gi{background:#e8eef8;border-left-color:#f5c518;}
+body.light .ri{background:#e8eef8;}
+body.light .sh{color:#1a2a4a;}
+body.light .card-lbl{color:#1a2a4a;}
+body.light .sln{color:#1a2a4a;}
+body.light .slm{color:#555;}
+body.light .st{color:#1a2a4a;}
+body.light .sd{color:#555;}
+body.light .sn{color:#1565c0;}
+body.light .dn{color:#1a2a4a;}
+body.light .dc{background:#e8eef8;}
+body.light .dc:hover{background:#d0daf0;}
+body.light .mb.me div{color:#fff;}
+body.light #tabs{background:#1a3a8a;}
+body.light .grip{color:#888;}
+body.light .htag{color:#1a2a4a;}
+body.light #cmsgs{background:#f0f4ff;}
+body.light .dsep{color:#888;}
 .sh{font-family:"Russo One",sans-serif;font-size:10px;letter-spacing:3px;color:#fff;margin:12px 0 7px;padding-bottom:5px;border-bottom:1px solid var(--n3);}
 .card{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:12px;margin-bottom:10px;}
 .card-lbl{font-family:"Russo One",sans-serif;font-size:9px;letter-spacing:3px;color:#fff;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
@@ -166,22 +187,22 @@ body.light .none{color:#666;}
     <a href="https://www.instagram.com/outoftimecoverband?igsh=NTc4MTIwNjQ2YQ==" target="_blank" style="display:flex;align-items:center;gap:5px;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:11px;font-family:Russo One,sans-serif;text-decoration:none;letter-spacing:1px;">&#128247; Instagram</a>
     <a href="https://www.facebook.com/profile.php?id=61565057075702&mibextid=ZbWKwL" target="_blank" style="display:flex;align-items:center;gap:5px;background:#1877f2;border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:11px;font-family:Russo One,sans-serif;text-decoration:none;letter-spacing:1px;">&#128100; Facebook</a>
   </div>
-  <div id="next-gig-countdown" style="display:none;background:linear-gradient(135deg,#0d2b6b,#1a56c4);border-radius:10px;padding:8px 12px;margin-bottom:10px;text-align:center;border:1px solid rgba(245,197,24,.3);">
+  <div id="next-gig-countdown" style="display:none;background:linear-gradient(135deg,#0d2b6b,#1a56c4);border-radius:8px;padding:6px 10px;margin-bottom:8px;text-align:center;border:1px solid rgba(245,197,24,.3);">
     <div style="font-family:'Russo One',sans-serif;font-size:9px;letter-spacing:3px;color:#f5c518;margin-bottom:6px;">NEXT GIG</div>
     <div id="ngc-title" style="font-family:'Russo One',sans-serif;font-size:16px;color:#fff;margin-bottom:4px;"></div>
     <div id="ngc-detail" style="font-size:11px;color:#a0c0ff;margin-bottom:10px;"></div>
     <div style="display:flex;justify-content:center;gap:12px;">
       <div style="text-align:center;">
-        <div id="ngc-days" style="font-family:'Russo One',sans-serif;font-size:18px;color:#f5c518;line-height:1;"></div>
-        <div style="font-size:9px;color:#a0c0ff;letter-spacing:2px;margin-top:2px;">DAYS</div>
+        <div id="ngc-days" style="font-family:'Russo One',sans-serif;font-size:12px;color:#f5c518;line-height:1;"></div>
+        <div style="font-size:8px;color:#a0c0ff;letter-spacing:1px;margin-top:1px;">DAYS</div>
       </div>
       <div style="text-align:center;">
-        <div id="ngc-hrs" style="font-family:'Russo One',sans-serif;font-size:18px;color:#f5c518;line-height:1;"></div>
-        <div style="font-size:9px;color:#a0c0ff;letter-spacing:2px;margin-top:2px;">HRS</div>
+        <div id="ngc-hrs" style="font-family:'Russo One',sans-serif;font-size:12px;color:#f5c518;line-height:1;"></div>
+        <div style="font-size:8px;color:#a0c0ff;letter-spacing:1px;margin-top:1px;">HRS</div>
       </div>
       <div style="text-align:center;">
-        <div id="ngc-min" style="font-family:'Russo One',sans-serif;font-size:18px;color:#f5c518;line-height:1;"></div>
-        <div style="font-size:9px;color:#a0c0ff;letter-spacing:2px;margin-top:2px;">MIN</div>
+        <div id="ngc-min" style="font-family:'Russo One',sans-serif;font-size:12px;color:#f5c518;line-height:1;"></div>
+        <div style="font-size:8px;color:#a0c0ff;letter-spacing:1px;margin-top:1px;">MIN</div>
       </div>
     </div>
     <div id="ngc-tonight" style="display:none;font-family:'Russo One',sans-serif;font-size:14px;color:#f5c518;letter-spacing:2px;">TONIGHT! 🎸</div>
@@ -304,20 +325,20 @@ body.light .none{color:#666;}
 </div>
 
 <div id="sc-songs" class="sc">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0;">
-  <div class="sh" style="margin:0;border:none;">SONG LIBRARY</div>
-  <div style="display:flex;gap:6px;align-items:center;">
-    <button onclick="opM('votes-modal')" style="position:relative;background:#101e34;border:1px solid #f5c518;border-radius:8px;padding:5px 10px;color:#f5c518;font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px;">
-      &#128123; Vote
-      <span id="vote-badge" style="display:none;background:#ff4757;color:#fff;font-size:9px;font-weight:700;border-radius:50%;width:16px;height:16px;align-items:center;justify-content:center;font-family:Russo One,sans-serif;"></span>
-    </button>
-    <button onclick="exportData('songs')" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:2px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;">&#8679; Share</button>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+  <div>
+    <span style="font-family:'Russo One',sans-serif;font-size:12px;letter-spacing:2px;color:#fff;">SONG LIBRARY</span>
+    <span id="lib-count" style="font-size:10px;color:#4a9eff;margin-left:8px;font-family:'Exo 2',sans-serif;"></span>
   </div>
 </div>
-  <div style="display:flex;gap:8px;margin-bottom:10px;">
-    <input id="song-search" class="fi2" placeholder="Search songs..." oninput="rLib()" style="flex:1;">
-    <button onclick="clearSearch()" style="background:#101e34;border:1px solid #1a3a8a;border-radius:6px;padding:6px 10px;color:#4a9eff;font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;flex-shrink:0;">CLEAR</button>
-  </div>
+<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+  <button onclick="showAddSongForm()" style="flex:1;min-width:0;background:#101e34;border:1px solid #06d6a0;border-radius:8px;padding:7px 6px;color:#06d6a0;font-size:11px;font-family:'Russo One',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;touch-action:manipulation;">&#43; Add</button>
+  <button onclick="opM('votes-modal')" style="flex:1;min-width:0;position:relative;background:#101e34;border:1px solid #f5c518;border-radius:8px;padding:7px 6px;color:#f5c518;font-size:11px;font-family:'Russo One',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;touch-action:manipulation;">
+    &#128123; Vote<span id="vote-badge" style="display:none;background:#ff4757;color:#fff;font-size:9px;font-weight:700;border-radius:50%;width:14px;height:14px;align-items:center;justify-content:center;font-family:'Russo One',sans-serif;margin-left:2px;"></span>
+  </button>
+  <button onclick="exportData('songs')" style="flex:1;min-width:0;background:#101e34;border:1px solid #4a9eff;border-radius:8px;padding:7px 6px;color:#4a9eff;font-size:11px;font-family:'Russo One',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;touch-action:manipulation;">&#8679; Share</button>
+</div>
+  <input id="song-search" class="fi2" placeholder="🔍  Search songs..." oninput="rLib()" style="width:100%;margin-bottom:8px;">
   <div id="library-list"></div>
   <div id="add-song-form" style="display:none" class="fb">
     <input class="fi2" id="lib-title" placeholder="Song title *">
@@ -471,7 +492,7 @@ body.light .none{color:#666;}
 
 <div class="ov" id="contact-modal">
   <div class="mo">
-    <div class="moh"><span class="mot">Add Contact</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('contact-modal')">&#10005;</button></div>
+    <div class="moh"><span class="mot" id="contact-modal-title">Add Contact</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('contact-modal')">&#10005;</button></div>
     <input class="mi" id="ct-name" placeholder="Name *">
     <input class="mi" id="ct-role" placeholder="Role (Venue, Sound Engineer, Promoter)">
     <input class="mi" id="ct-ph" placeholder="Phone">
@@ -559,6 +580,7 @@ function pickName(idx) {
 
 // ── SONG VOTING ────────────────────────────────────────────────────────────
 var suggestions = [];
+var editingContactId = null;
 
 function listenSuggestions(){
   db.collection('suggestions').orderBy('votes','desc').onSnapshot(function(snap){
@@ -1426,7 +1448,7 @@ function rAvailability() {
     html2 += '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#e8f0ff;">'+a.name+'</div>';
     html2 += '<div style="font-size:11px;color:#ff4757;">'+a.date+(a.note?' - '+a.note:'')+'</div></div>';
     if(a.who===ME){
-      html2 += '<button onclick="delAvail(\''+a.id+'\')" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;">&#10005;</button>';
+      html2 += '<button onclick="if(confirm(\'Remove unavailability?\'))delAvail(\''+a.id+'\')" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;">&#10005;</button>';
     }
     html2 += '</div>';
   });
@@ -1582,12 +1604,11 @@ function rEd() {
   document.getElementById('eh').innerHTML =
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">'+
     '<span style="font-family:Russo One,sans-serif;font-size:16px;color:#fff;">'+s.name+'</span>'+
-    '<button onclick="renSL()" style="background:none;border:none;color:#4a9eff;font-size:12px;cursor:pointer;">&#9998; Rename</button>'+
-    '<button onclick="printSL()" style="background:none;border:none;color:#f5c518;font-size:12px;cursor:pointer;">&#128221; Share</button>'+
-    '<button onclick="toggleReorderMode()" id="reorder-btn" style="background:'+(reorderMode?'rgba(245,197,24,.2)':'none')+';border:1px solid '+(reorderMode?'#f5c518':'#1a3a8a')+';border-radius:6px;padding:2px 8px;color:'+(reorderMode?'#f5c518':'#4a6a9a')+';font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;">&#8801; Reorder</button>'+
+    '<button onclick="toggleSLEdit()" style="background:'+(reorderMode?'rgba(245,197,24,.15)':'none')+';border:1px solid '+(reorderMode?'#f5c518':'#1a3a8a')+';border-radius:6px;padding:3px 10px;color:'+(reorderMode?'#f5c518':'#4a9eff')+';font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;touch-action:manipulation;">&#9998; Edit</button>'+
+    '<button onclick="printSL()" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:3px 10px;color:#4a9eff;font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;touch-action:manipulation;">&#8679; Share</button>'+
     '</div>'+
     '<div style="font-size:12px;color:#aaa;margin-bottom:4px;">'+s.songs.length+' songs'+durStr+'</div>'+
-    '<div style="font-size:10px;color:#4a6a9a;margin-bottom:10px;">Hold ≡ and drag to reorder</div>';
+    '<div style="font-size:10px;color:'+(reorderMode?'#f5c518':'transparent')+';margin-bottom:10px;">Hold ≡ and drag to reorder · tap Edit to finish</div>';
 
   var container = document.getElementById('ssl');
   container.innerHTML = '';
@@ -1646,7 +1667,6 @@ function rEd() {
       div.appendChild(grip);
       div.appendChild(numDiv);
       div.appendChild(textDiv);
-      div.appendChild(edBtn);
       div.appendChild(rmBtn);
 
       // Desktop drag
@@ -2252,9 +2272,11 @@ function rContacts() {
 }
 function addContact(){
   var n=document.getElementById('ct-name').value.trim();if(!n)return;
-  var c={id:Date.now(),name:n,role:document.getElementById('ct-role').value.trim(),ph:document.getElementById('ct-ph').value.trim(),em:document.getElementById('ct-em').value.trim(),note:document.getElementById('ct-note').value.trim()};
-  db.collection('contacts').doc(String(c.id)).set(c);
-  ['ct-name','ct-role','ct-ph','ct-em','ct-note'].forEach(function(id){document.getElementById(id).value='';});
+  var id = editingContactId || Date.now();
+  var c={id:id,name:n,role:document.getElementById('ct-role').value.trim(),ph:document.getElementById('ct-ph').value.trim(),em:document.getElementById('ct-em').value.trim(),note:document.getElementById('ct-note').value.trim()};
+  db.collection('contacts').doc(String(id)).set(c);
+  ['ct-name','ct-role','ct-ph','ct-em','ct-note'].forEach(function(fid){document.getElementById(fid).value='';});
+  editingContactId = null;
   clM('contact-modal');
 }
 
@@ -2394,16 +2416,14 @@ function rLib() {
     el.innerHTML='<div style="color:#aaa;font-style:italic;padding:8px;">No songs.</div>';
     return;
   }
-  var countDiv=document.createElement('div');
-  countDiv.style.cssText='font-size:11px;color:#fff;margin-bottom:6px;';
-  countDiv.textContent=songs.length+' songs';
-  el.appendChild(countDiv);
+  var countEl = document.getElementById('lib-count');
+  if(countEl) countEl.textContent = '— ' + songs.length + ' songs';
   songs.forEach(function(s){
     var row=document.createElement('div');
     row.style.cssText='display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid #0d1f3a;';
     var titleDiv=document.createElement('div');
     titleDiv.style.cssText='flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;';
-    titleDiv.innerHTML='<span style="font-size:13px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+(s.artist?'<span style="font-size:11px;color:#f5c518;"> - '+s.artist+'</span>':'')+' <span style="font-size:10px;color:#1a3a8a;">&#9654;</span>';
+    titleDiv.innerHTML='<span style="font-size:13px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+(s.artist?'<span style="font-size:11px;color:#f5c518;"> - '+s.artist+'</span>':'')+'';
     titleDiv.onclick=(function(song){ return function(){
     var det = songDetails[String(song.id)] || {};
     var savedUrl = det.yt || song.yt || '';
@@ -2427,6 +2447,12 @@ function rLib() {
     row.appendChild(delBtn);
     el.appendChild(row);
   });
+}
+function showAddSongForm(){
+  var f=document.getElementById('add-song-form');
+  f.style.display='flex';
+  f.style.flexDirection='column';
+  f.scrollIntoView({behavior:'smooth'});
 }
 function clearSearch(){document.getElementById('song-search').value='';rLib();}
 function playYT(query){window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(query),'_blank');}
