@@ -14,7 +14,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body{height:100%;background:#060e1c;color:#e8f0ff;font-family:"Exo 2",sans-serif;}
+html,body{height:100%;background:#060e1c;color:#e8f0ff;font-family:"Exo 2",sans-serif;transition:background .3s,color .3s;}
 input,select,textarea{font-family:"Exo 2",sans-serif;outline:none;border:none;background:transparent;color:#e8f0ff;}
 button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 #app{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;max-width:480px;margin:0 auto;}
@@ -27,7 +27,28 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 #cnt{flex:1;position:relative;overflow:hidden;}
 .sc{position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;visibility:hidden;background:#060e1c;}
 .sc.on{visibility:visible;}
-:root{--g:#f5c518;--b:#4a9eff;--n2:#0a1628;--n3:#0d1f3a;--n4:#101e34;}
+:root{--g:#f5c518;--b:#4a9eff;--n2:#0a1628;--n3:#0d1f3a;--n4:#101e34;--bg:#060e1c;--text:#e8f0ff;--card-bg:#101e34;--card-border:#0d1f3a;--aaa:#aaa;}
+body.light{--bg:#f0f4ff;--text:#1a2a4a;--n2:#e8eef8;--n3:#d0daf0;--n4:#dce4f5;--card-bg:#fff;--card-border:#c8d4e8;--aaa:#666;}
+body.light #app{background:#f0f4ff;}
+body.light .sc{background:#f0f4ff;}
+body.light #tabs{background:#1a3a8a;}
+body.light .tb{color:#a0b4d0;}
+body.light .tb.on{color:#f5c518;}
+body.light .sh{color:#1a2a4a;border-color:#c8d4e8;}
+body.light .card{background:#fff;border-color:#c8d4e8;}
+body.light .card-lbl{color:#1a2a4a;}
+body.light .mc{background:#fff;border-color:#c8d4e8;}
+body.light .er{background:#fff;}
+body.light .sr{background:#fff;}
+body.light .mo{background:#e8eef8;}
+body.light .mi{background:#fff;border-color:#c8d4e8;color:#1a2a4a;}
+body.light .fi2{background:#fff;border-color:#c8d4e8;color:#1a2a4a;}
+body.light #cin{background:#fff;border-color:#c8d4e8;color:#1a2a4a;}
+body.light .mb.them{background:#dce4f5;}
+body.light .mb.me{background:#1a3a8a;}
+body.light .slc{background:#fff;border-color:#c8d4e8;}
+body.light .fc{background:#fff;}
+body.light .none{color:#666;}
 .sh{font-family:"Russo One",sans-serif;font-size:10px;letter-spacing:3px;color:#fff;margin:12px 0 7px;padding-bottom:5px;border-bottom:1px solid var(--n3);}
 .card{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:12px;margin-bottom:10px;}
 .card-lbl{font-family:"Russo One",sans-serif;font-size:9px;letter-spacing:3px;color:#fff;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
@@ -135,10 +156,35 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
     </div>
     <div id="announce-list"></div>
   </div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><button onclick="openReorder()" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;padding:0;" title="Arrange tabs">&#9776;</button><div id="who-am-i" onclick="whoAmITap()" style="font-size:11px;cursor:pointer;"></div></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><button onclick="openReorder()" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;padding:0;" title="Arrange tabs">&#9776;</button><div style="display:flex;align-items:center;gap:8px;"><button onclick="toggleDarkMode()" id="mode-btn" style="background:none;border:1px solid #1a3a8a;border-radius:12px;padding:2px 8px;color:#4a6a9a;font-size:11px;cursor:pointer;">&#9788; Light</button><div id="who-am-i" onclick="whoAmITap()" style="font-size:11px;cursor:pointer;"></div></div></div>
   <div class="hero">
-    <div class="hero-l"><img src="logo.jpg" alt="OOT"><div class="htag">Danceable Classic Rock<br>Pure Energy</div></div>
+    <div class="hero-l" style="padding:0;overflow:hidden;"><img src="logo.jpg" alt="OOT" style="width:100%;height:100%;object-fit:cover;"></div>
     <div class="hero-r"><img src="band.jpg" alt="Band"></div>
+  </div>
+  <div style="text-align:center;font-family:'Russo One',sans-serif;font-size:12px;color:#f5c518;letter-spacing:2px;padding:6px 0 2px;">DANCEABLE CLASSIC ROCK &bull; PURE ENERGY</div>
+  <div style="display:flex;justify-content:center;gap:12px;padding:8px 0 4px;">
+    <a href="https://www.instagram.com/outoftimecoverband?igsh=NTc4MTIwNjQ2YQ==" target="_blank" style="display:flex;align-items:center;gap:5px;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:11px;font-family:Russo One,sans-serif;text-decoration:none;letter-spacing:1px;">&#128247; Instagram</a>
+    <a href="https://www.facebook.com/profile.php?id=61565057075702&mibextid=ZbWKwL" target="_blank" style="display:flex;align-items:center;gap:5px;background:#1877f2;border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:11px;font-family:Russo One,sans-serif;text-decoration:none;letter-spacing:1px;">&#128100; Facebook</a>
+  </div>
+  <div id="next-gig-countdown" style="display:none;background:linear-gradient(135deg,#0d2b6b,#1a56c4);border-radius:12px;padding:14px 16px;margin-bottom:10px;text-align:center;border:1px solid rgba(245,197,24,.3);">
+    <div style="font-family:'Russo One',sans-serif;font-size:9px;letter-spacing:3px;color:#f5c518;margin-bottom:6px;">NEXT GIG</div>
+    <div id="ngc-title" style="font-family:'Russo One',sans-serif;font-size:16px;color:#fff;margin-bottom:4px;"></div>
+    <div id="ngc-detail" style="font-size:11px;color:#a0c0ff;margin-bottom:10px;"></div>
+    <div style="display:flex;justify-content:center;gap:12px;">
+      <div style="text-align:center;">
+        <div id="ngc-days" style="font-family:'Russo One',sans-serif;font-size:36px;color:#f5c518;line-height:1;"></div>
+        <div style="font-size:9px;color:#a0c0ff;letter-spacing:2px;margin-top:2px;">DAYS</div>
+      </div>
+      <div style="text-align:center;">
+        <div id="ngc-hrs" style="font-family:'Russo One',sans-serif;font-size:36px;color:#f5c518;line-height:1;"></div>
+        <div style="font-size:9px;color:#a0c0ff;letter-spacing:2px;margin-top:2px;">HRS</div>
+      </div>
+      <div style="text-align:center;">
+        <div id="ngc-min" style="font-family:'Russo One',sans-serif;font-size:36px;color:#f5c518;line-height:1;"></div>
+        <div style="font-size:9px;color:#a0c0ff;letter-spacing:2px;margin-top:2px;">MIN</div>
+      </div>
+    </div>
+    <div id="ngc-tonight" style="display:none;font-family:'Russo One',sans-serif;font-size:28px;color:#f5c518;letter-spacing:3px;">TONIGHT! 🎸</div>
   </div>
   <div class="card gc">
     <div class="card-lbl" onclick="toggleCard('hg','ga')">
@@ -172,13 +218,30 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
   <div class="cgrid" id="cgrid"></div>
   <div class="sh" style="display:flex;justify-content:space-between;align-items:center;">
     <span onclick="toggleCard('evl','evl-arrow')" style="cursor:pointer;display:flex;align-items:center;gap:6px;flex:1;">ALL EVENTS <span id="evl-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span></span>
-    <button onclick="exportData('events')" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:2px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;">&#8681; Export</button>
+    <button onclick="exportData('events')" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:2px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;">&#8679; Share</button>
   </div>
   <div id="evl"></div>
   <div class="sh" style="margin-top:16px;">AVAILABILITY</div>
-  <p style="font-size:11px;color:#aaa;margin-bottom:8px;">Mark dates you are NOT available</p>
+  <p style="font-size:11px;color:#aaa;margin-bottom:8px;">Mark dates you are NOT available — posts as blackout on calendar</p>
   <div id="avail-list"></div>
-  <button class="ab" onclick="addMyAvail()">+ Mark Me Unavailable</button>
+  <div id="avail-form" style="display:none;" class="fb">
+    <div style="display:flex;gap:8px;">
+      <div style="flex:1;">
+        <div style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;margin-bottom:4px;">START DATE *</div>
+        <input type="date" id="avail-start" class="fi2" style="width:100%;">
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;margin-bottom:4px;">END DATE (optional)</div>
+        <input type="date" id="avail-end" class="fi2" style="width:100%;">
+      </div>
+    </div>
+    <input class="fi2" id="avail-note" placeholder="Note (e.g. vacation, work trip)">
+    <div class="r2">
+      <button class="sb" onclick="submitAvail()">Save</button>
+      <button class="cb" onclick="document.getElementById('avail-form').style.display='none'">Cancel</button>
+    </div>
+  </div>
+  <button class="ab" onclick="document.getElementById('avail-form').style.display='flex';document.getElementById('avail-form').style.flexDirection='column';">+ Mark Me Unavailable</button>
 </div>
 
 <div id="sc-sets" class="sc">
@@ -201,19 +264,31 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 </div>
 
 <div id="sc-chat" class="sc" style="padding:0;display:flex;flex-direction:column;">
-  <!-- Thread selector -->
-  <div style="padding:10px 12px 6px;background:#080f1e;border-bottom:1px solid #0d1f3a;flex-shrink:0;">
-    <div style="font-family:Russo One,sans-serif;font-size:9px;letter-spacing:2px;color:#4a6a9a;margin-bottom:8px;">CONVERSATION</div>
-    <div id="chat-to-row" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+  <!-- Screen 1: Conversations List -->
+  <div id="chat-list-screen" style="flex:1;display:flex;flex-direction:column;">
+    <div style="padding:12px 14px 8px;background:#080f1e;border-bottom:1px solid #0d1f3a;flex-shrink:0;">
+      <div style="font-family:'Russo One',sans-serif;font-size:16px;color:#fff;letter-spacing:1px;">Messages</div>
+    </div>
+    <div id="chat-threads" style="flex:1;overflow-y:auto;"></div>
   </div>
-  <!-- Thread label -->
-  <div id="chat-thread-label" style="padding:6px 12px;background:#060e1c;border-bottom:1px solid #0d1f3a;font-size:11px;color:#4a9eff;font-family:Russo One,sans-serif;letter-spacing:1px;flex-shrink:0;"></div>
-  <!-- Messages -->
-  <div id="cmsgs" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;"></div>
-  <!-- Input bar -->
-  <div style="padding:8px 12px;background:#080f1e;border-top:1px solid #0d1f3a;display:flex;gap:8px;align-items:center;flex-shrink:0;">
-    <input id="cin" placeholder="Message..." onkeydown="if(event.key==='Enter')sMsg()" style="flex:1;background:#0d1f3a;border:1px solid #1a3a8a;border-radius:20px;padding:9px 14px;color:#e8f0ff;font-size:13px;font-family:Exo 2,sans-serif;outline:none;">
-    <button onclick="sMsg()" style="background:#1a3a8a;border:none;border-radius:50%;width:40px;height:40px;color:#f5c518;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;touch-action:manipulation;">&#10148;</button>
+  <!-- Screen 2: Thread View -->
+  <div id="chat-thread-screen" style="flex:1;display:none;flex-direction:column;">
+    <!-- Thread header -->
+    <div style="padding:10px 12px;background:#080f1e;border-bottom:1px solid #0d1f3a;display:flex;align-items:center;gap:10px;flex-shrink:0;">
+      <button onclick="showChatList()" style="background:none;border:none;color:#4a9eff;font-size:20px;cursor:pointer;padding:0 4px;">&#8592;</button>
+      <div id="thread-av" style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div id="thread-name" style="font-size:15px;font-weight:600;color:#fff;font-family:'Russo One',sans-serif;"></div>
+        <div id="thread-sub" style="font-size:10px;color:#4a6a9a;"></div>
+      </div>
+    </div>
+    <!-- Messages -->
+    <div id="cmsgs" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;"></div>
+    <!-- Input -->
+    <div style="padding:8px 12px;background:#080f1e;border-top:1px solid #0d1f3a;display:flex;gap:8px;align-items:center;flex-shrink:0;">
+      <input id="cin" placeholder="Message..." onkeydown="if(event.key==='Enter')sMsg()" style="flex:1;background:#0d1f3a;border:1px solid #1a3a8a;border-radius:20px;padding:9px 14px;color:#e8f0ff;font-size:13px;font-family:'Exo 2',sans-serif;outline:none;">
+      <button onclick="sMsg()" style="background:#1a3a8a;border:none;border-radius:50%;width:40px;height:40px;color:#f5c518;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;touch-action:manipulation;">&#10148;</button>
+    </div>
   </div>
 </div>
 
@@ -224,12 +299,21 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
   <div class="sh" onclick="toggleCard('contacts-list','contacts-arrow')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-top:16px;">
     <span>CONTACTS</span><span id="contacts-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span>
   </div>
-  <div id="contacts-list" style="display:none;"></div>
-  <div id="contacts-add-btn" style="display:none;"><button class="ab" onclick="opM('contact-modal')">+ Add Contact</button></div>
+  <div id="contacts-list"></div>
+  <div id="contacts-add-btn"><button class="ab" onclick="opM('contact-modal')">+ Add Contact</button></div>
 </div>
 
 <div id="sc-songs" class="sc">
-  <div class="sh" style="display:flex;justify-content:space-between;align-items:center;"><span>SONG LIBRARY</span><button onclick="exportData('songs')" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:2px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;">&#8681; Export</button></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0;">
+  <div class="sh" style="margin:0;border:none;">SONG LIBRARY</div>
+  <div style="display:flex;gap:6px;align-items:center;">
+    <button onclick="opM('votes-modal')" style="position:relative;background:#101e34;border:1px solid #f5c518;border-radius:8px;padding:5px 10px;color:#f5c518;font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px;">
+      &#128123; Vote
+      <span id="vote-badge" style="display:none;background:#ff4757;color:#fff;font-size:9px;font-weight:700;border-radius:50%;width:16px;height:16px;align-items:center;justify-content:center;font-family:Russo One,sans-serif;"></span>
+    </button>
+    <button onclick="exportData('songs')" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:2px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;">&#8679; Share</button>
+  </div>
+</div>
   <div style="display:flex;gap:8px;margin-bottom:10px;">
     <input id="song-search" class="fi2" placeholder="Search songs..." oninput="rLib()" style="flex:1;">
     <button onclick="clearSearch()" style="background:#101e34;border:1px solid #1a3a8a;border-radius:6px;padding:6px 10px;color:#4a9eff;font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;flex-shrink:0;">CLEAR</button>
@@ -241,19 +325,6 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
     <div class="r2"><button class="sb" onclick="adLibSong()">Add Song</button><button class="cb" onclick="document.getElementById('add-song-form').style.display='none'">Cancel</button></div>
   </div>
   <button class="ab" onclick="document.getElementById('add-song-form').style.display='flex';document.getElementById('add-song-form').style.flexDirection='column'">+ Add Song to Library</button>
-  <div class="sh" style="margin-top:16px;">SONG SUGGESTIONS &amp; VOTES</div>
-  <p style="font-size:11px;color:#aaa;margin-bottom:8px;">Suggest a song for the band to learn. Everyone can vote.</p>
-  <div id="votes-list"></div>
-  <div class="fb" id="suggest-form" style="display:none;">
-    <input class="fi2" id="suggest-title" placeholder="Song title *">
-    <input class="fi2" id="suggest-artist" placeholder="Artist">
-    <input class="fi2" id="suggest-note" placeholder="Why this song? (optional)">
-    <div class="r2">
-      <button class="sb" onclick="submitSuggestion()">Submit</button>
-      <button class="cb" onclick="document.getElementById('suggest-form').style.display='none'">Cancel</button>
-    </div>
-  </div>
-  <button class="ab" onclick="document.getElementById('suggest-form').style.display='flex';document.getElementById('suggest-form').style.flexDirection='column'">+ Suggest a Song</button>
 </div>
 
 <div id="sc-pay" class="sc">
@@ -261,7 +332,7 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
     <div class="fc"><div class="fcl">BAND TOTAL</div><div class="fca" id="bt">$0</div><div class="fcs">all gigs</div></div>
     <div class="fc"><div class="fcl">YOUR CUT</div><div class="fca" id="mc2">$0</div><div class="fcs" id="cs"></div></div>
   </div>
-  <div class="sh" style="display:flex;justify-content:space-between;align-items:center;"><span>GIG PAYOUTS</span><button onclick="exportData('pay')" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:2px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;">&#8681; Export</button></div>
+  <div class="sh" style="display:flex;justify-content:space-between;align-items:center;"><span>GIG PAYOUTS</span><button onclick="exportData('pay')" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:2px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;">&#8679; Share</button></div>
   <div id="pl"></div>
   <div id="pf" style="display:none" class="fb">
     <input class="fi2" id="pv" placeholder="Venue *">
@@ -369,6 +440,27 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
   </div>
 </div>
 
+<div class="ov" id="votes-modal">
+  <div class="mo" style="max-height:85vh;">
+    <div class="moh">
+      <span class="mot">🎸 Song Suggestions</span>
+      <button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('votes-modal')">&#10005;</button>
+    </div>
+    <p style="font-size:12px;color:#4a6a9a;margin-bottom:12px;">Vote on songs to add to the repertoire. One vote per person.</p>
+    <div id="votes-list" style="margin-bottom:12px;"></div>
+    <div id="suggest-form" style="display:none;" class="fb">
+      <input class="fi2" id="suggest-title" placeholder="Song title *">
+      <input class="fi2" id="suggest-artist" placeholder="Artist">
+      <input class="fi2" id="suggest-note" placeholder="Why this song? (optional)">
+      <div class="r2">
+        <button class="sb" onclick="submitSuggestion()">Submit</button>
+        <button class="cb" onclick="document.getElementById('suggest-form').style.display='none'">Cancel</button>
+      </div>
+    </div>
+    <button class="ab" onclick="document.getElementById('suggest-form').style.display='flex';document.getElementById('suggest-form').style.flexDirection='column'">+ Suggest a Song</button>
+  </div>
+</div>
+
 <div class="ov" id="announce-modal">
   <div class="mo">
     <div class="moh"><span class="mot">Post Announcement</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('announce-modal')">&#10005;</button></div>
@@ -472,7 +564,8 @@ function listenSuggestions(){
   db.collection('suggestions').orderBy('votes','desc').onSnapshot(function(snap){
     suggestions=[];
     snap.forEach(function(doc){ suggestions.push(Object.assign({id:doc.id},doc.data())); });
-    if(document.getElementById('sc-songs').classList.contains('on')) rVotes();
+    rVotes();
+    updateVoteBadge();
   });
 }
 
@@ -541,6 +634,24 @@ function rVotes(){
     }
     el.appendChild(card);
   });
+  // Update badge
+  updateVoteBadge();
+}
+
+function updateVoteBadge(){
+  var badge = document.getElementById('vote-badge');
+  if(!badge) return;
+  var unvoted = suggestions.filter(function(s){
+    var yv = s.yesVoters||[];
+    var nv = s.noVoters||[];
+    return yv.indexOf(ME)<0 && nv.indexOf(ME)<0;
+  }).length;
+  if(unvoted > 0){
+    badge.textContent = unvoted > 9 ? '9+' : String(unvoted);
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
 }
 
 function castVote(id, voteType){
@@ -703,6 +814,62 @@ function loadTabOrder(){
     } catch(e){}
   }
 }
+
+var isDarkMode = true;
+function toggleDarkMode(){
+  isDarkMode = !isDarkMode;
+  document.body.classList.toggle('light', !isDarkMode);
+  var btn = document.getElementById('mode-btn');
+  if(btn) btn.innerHTML = isDarkMode ? '&#9788; Light' : '&#9790; Dark';
+  localStorage.setItem('darkMode', isDarkMode ? '1' : '0');
+}
+function loadDarkMode(){
+  var saved = localStorage.getItem('darkMode');
+  if(saved === '0'){
+    isDarkMode = false;
+    document.body.classList.add('light');
+    var btn = document.getElementById('mode-btn');
+    if(btn) btn.innerHTML = '&#9790; Dark';
+  }
+}
+
+var countdownInterval = null;
+function updateCountdown(){
+  var upcoming = events.filter(function(e){ return e.type==='gig' && dU(e.date)>=0; })
+    .sort(function(a,b){ return a.date.localeCompare(b.date); });
+  var card = document.getElementById('next-gig-countdown');
+  if(!card) return;
+  if(!upcoming.length){ card.style.display='none'; return; }
+  var next = upcoming[0];
+  card.style.display='block';
+  document.getElementById('ngc-title').textContent = next.title;
+  document.getElementById('ngc-detail').textContent = next.date + (next.note?' · '+next.note:'');
+  var d = dU(next.date);
+  if(d===0){
+    document.getElementById('ngc-tonight').style.display='block';
+    document.querySelector('#next-gig-countdown .countdown-nums') && (document.querySelector('#next-gig-countdown .countdown-nums').style.display='none');
+  } else {
+    // Live countdown
+    if(countdownInterval) clearInterval(countdownInterval);
+    function tick(){
+      var now = new Date();
+      var gigDate = new Date(next.date + 'T20:00:00'); // assume 8pm
+      var diff = gigDate - now;
+      if(diff <= 0){ updateCountdown(); return; }
+      var days = Math.floor(diff/86400000);
+      var hrs = Math.floor((diff%86400000)/3600000);
+      var mins = Math.floor((diff%3600000)/60000);
+      var dEl=document.getElementById('ngc-days');
+      var hEl=document.getElementById('ngc-hrs');
+      var mEl=document.getElementById('ngc-min');
+      if(dEl) dEl.textContent=String(days).padStart(2,'0');
+      if(hEl) hEl.textContent=String(hrs).padStart(2,'0');
+      if(mEl) mEl.textContent=String(mins).padStart(2,'0');
+    }
+    tick();
+    countdownInterval = setInterval(tick, 30000);
+  }
+}
 function whoAmITap() { alert("You are logged in as: " + myName + ". To change, clear browser data."); }
 
 function initApp() {
@@ -718,6 +885,7 @@ function initApp() {
   listenGigDetails();
   listenSongDetails();
   listenReactions();
+  loadDarkMode();
   loadLastRead();
   listenAgendas();
   listenSuggestions();
@@ -735,12 +903,10 @@ function go(id, btn) {
   else if (id === 'cal') rCal();
   else if (id === 'sets'){ if(setsViewState==='edit' && aSL){ document.getElementById('si').style.display='none'; document.getElementById('se').style.display='block'; rEd(); } else { setsViewState='list'; rSets(); } }
   else if (id === 'chat') {
-    var tid = (chatTo==='band') ? 'band' : [String(ME), String(chatTo)].sort().join('-');
-    markThreadRead(tid);
-    rChatTo(); rChat();
+    showChatList();
   }
   else if (id === 'band') { rBand(); rContacts(); }
-  else if (id === 'songs') { rLib(); rVotes(); }
+  else if (id === 'songs') { rLib(); rVotes(); updateVoteBadge(); }
   else if (id === 'pay') rPay();
 }
 
@@ -788,8 +954,11 @@ function listenMsgs(){
     msgs=[];
     snap.forEach(function(doc){msgs.push(Object.assign({id:doc.id},doc.data()));});
     calcUnread();
-    if(document.getElementById('sc-chat').classList.contains('on')) rChat();
-    else rUnreadBadges();
+    if(document.getElementById('sc-chat').classList.contains('on')){
+      rChatThreads();
+      if(document.getElementById('chat-thread-screen').style.display!=='none') rChat();
+    }
+    rUnreadBadges();
   });
 }
 
@@ -982,6 +1151,7 @@ function rHome() {
     if(!cardStates[id]) cardStates[id] = true; // default collapsed
     document.getElementById(id).style.display = cardStates[id] ? 'none' : 'block';
   });
+  updateCountdown();
   var wi = document.getElementById('who-am-i');
   if (wi && myName) {
     var m = gM(ME);
@@ -992,7 +1162,57 @@ function rHome() {
   var rr = events.filter(function(e){return e.type==='rehearsal'&&dU(e.date)>=0;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,3);
   document.getElementById('hr').innerHTML = rr.length ? rr.map(function(e){var d=dU(e.date);return '<div class="ri"><div class="git">'+e.title+'</div><div class="gim" style="color:#aaa">'+e.date+' - '+e.note+(d<=7?' <b style="color:#4a9eff">'+(d===0?'TODAY':d===1?'TOMORROW':d+'d')+'</b>':'')+' </div></div>';}).join('') : '<div class="none">NONE</div>';
   var bo = events.filter(function(e){return e.type==='blackout';}).sort(function(a,b){return a.date.localeCompare(b.date);});
-  document.getElementById('hbo').innerHTML = bo.length ? bo.map(function(e){return '<div class="ri" style="border-left-color:#ff4757"><div class="git">'+e.title+'</div><div class="gim" style="color:#ff4757">'+e.date+(e.note?' - '+e.note:'')+'</div></div>';}).join('') : '<div class="none">NONE</div>';
+  var boEl = document.getElementById('hbo');
+  if(!bo.length){
+    boEl.innerHTML = '<div class="none">NONE</div>';
+  } else {
+    // Group by member name
+    var boGroups = {};
+    bo.forEach(function(e){
+      var name = e.title.replace(' unavailable','') || 'Unknown';
+      if(!boGroups[name]) boGroups[name] = [];
+      boGroups[name].push(e);
+    });
+    var names = Object.keys(boGroups);
+    if(names.length === 1){
+      // Single member - show flat
+      boEl.innerHTML = bo.map(function(e){
+        return '<div class="ri" style="border-left-color:#ff4757"><div class="git">'+e.title+'</div><div class="gim" style="color:#ff4757">'+e.date+(e.note?' - '+e.note:'')+'</div></div>';
+      }).join('');
+    } else {
+      // Multiple members - group with nested collapse
+      boEl.innerHTML = '';
+      names.forEach(function(name){
+        var stateKey = 'bo_'+name;
+        if(cardStates[stateKey] === undefined) cardStates[stateKey] = true; // collapsed
+        var isOpen = !cardStates[stateKey];
+        var group = document.createElement('div');
+        group.style.cssText = 'margin-bottom:6px;';
+        var header = document.createElement('div');
+        header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(255,71,87,.1);border-radius:6px;cursor:pointer;border-left:3px solid #ff4757;';
+        header.innerHTML = '<span style="font-size:13px;font-weight:600;color:#ff4757;">'+name+'</span><span style="color:#ff4757;font-size:12px;">&#8964; '+boGroups[name].length+'</span>';
+        header.setAttribute('data-name', name);
+        header.onclick = function(){
+          var n = this.getAttribute('data-name');
+          cardStates['bo_'+n] = !cardStates['bo_'+n];
+          rHome();
+        };
+        group.appendChild(header);
+        if(isOpen){
+          var list = document.createElement('div');
+          list.style.cssText = 'padding:4px 0 0 10px;';
+          boGroups[name].forEach(function(e){
+            var row = document.createElement('div');
+            row.style.cssText = 'padding:5px 8px;font-size:12px;color:#ff4757;border-left:1px solid rgba(255,71,87,.3);margin-bottom:2px;';
+            row.textContent = e.date + (e.note ? ' · '+e.note : '');
+            list.appendChild(row);
+          });
+          group.appendChild(list);
+        }
+        boEl.appendChild(group);
+      });
+    }
+  }
   document.getElementById('hm').innerHTML =
     '<div id="mem-toggle" onclick="toggleMems()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:6px;">' +
     '<div style="display:flex;gap:5px;">' +
@@ -1214,11 +1434,51 @@ function rAvailability() {
 }
 function delAvail(id){ db.collection('availability').doc(String(id)).delete(); }
 function addMyAvail() {
-  var date=prompt('Enter date you are NOT available (YYYY-MM-DD):', new Date().toISOString().slice(0,10));
-  if(!date)return;
-  var note=prompt('Optional note (vacation, work, etc):', '') || '';
-  var av={id:Date.now(),who:ME,name:myName,date:date,note:note};
+  document.getElementById('avail-form').style.display='flex';
+  document.getElementById('avail-form').style.flexDirection='column';
+  // Set default start date to today
+  document.getElementById('avail-start').value = new Date().toISOString().slice(0,10);
+  document.getElementById('avail-end').value = '';
+  document.getElementById('avail-note').value = '';
+}
+
+function submitAvail(){
+  var start = document.getElementById('avail-start').value;
+  var end = document.getElementById('avail-end').value;
+  var note = document.getElementById('avail-note').value.trim();
+  if(!start) return;
+
+  // If no end date, single day
+  if(!end) end = start;
+
+  // Create availability entry
+  var av = {id:Date.now(), who:ME, name:myName, startDate:start, endDate:end, note:note};
   db.collection('availability').doc(String(av.id)).set(av);
+
+  // Also post blackout events to calendar for each day in range
+  var cur = new Date(start + 'T00:00:00');
+  var endD = new Date(end + 'T00:00:00');
+  var memberFirst = myName.split(' ')[0];
+  var dayCount = 0;
+  while(cur <= endD && dayCount < 60){
+    var dateStr = cur.toISOString().slice(0,10);
+    var ev = {
+      id: Date.now() + dayCount,
+      date: dateStr,
+      type: 'blackout',
+      title: memberFirst + ' unavailable',
+      note: note,
+      availId: String(av.id) // link back to availability entry
+    };
+    saveEvent(ev);
+    cur.setDate(cur.getDate()+1);
+    dayCount++;
+  }
+
+  document.getElementById('avail-form').style.display='none';
+  document.getElementById('avail-start').value='';
+  document.getElementById('avail-end').value='';
+  document.getElementById('avail-note').value='';
 }
 
 // GIG DETAILS
@@ -1370,15 +1630,10 @@ function rEd() {
       var textDiv = document.createElement('div');
       textDiv.style.cssText = 'flex:1;min-width:0;';
       textDiv.innerHTML =
-        '<div style="font-size:13px;font-weight:600;color:#fff;">'+sg.t+'</div>'+
+        '<div style="font-size:13px;font-weight:600;color:#fff;">'+(sg.libId?(library.find(function(l){return l.id===sg.libId;})||{title:sg.t}).title:sg.t)+'</div>'+
         '<div style="font-size:11px;color:#aaa;margin-top:2px;">'+
           (sg.d?sg.d:'')+(sg.k?' · Key of '+sg.k:'')+(sg.n?' · '+sg.n:'')+
         '</div>';
-
-      var edBtn = document.createElement('button');
-      edBtn.style.cssText = 'background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;width:34px;height:34px;color:#4a9eff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;flex-shrink:0;';
-      edBtn.innerHTML = '&#9998;';
-      edBtn.onclick = (function(id){ return function(e){ e.stopPropagation(); edS(id); }; })(sg.id);
 
       var rmBtn = document.createElement('button');
       rmBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:6px;width:34px;height:34px;color:#ff4757;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;flex-shrink:0;';
@@ -1517,6 +1772,19 @@ function saveSongOrder(){
 
 function toggleReorderMode(){
   reorderMode = !reorderMode;
+  rEd();
+}
+function toggleSLEdit(){
+  // Show rename field inline + activate reorder
+  var s = sets.find(function(x){return x.id==aSL;});
+  if(!s) return;
+  if(!reorderMode){
+    reorderMode = true;
+    var name = prompt('Rename setlist (or cancel to just reorder):', s.name);
+    if(name && name !== s.name){ s.name=name; saveSet(s); }
+  } else {
+    reorderMode = false;
+  }
   rEd();
 }
 function edS(id){eSID=(eSID===id?null:id);rEd();}
@@ -1671,155 +1939,173 @@ function addPickedSongs(){
 }
 
 // CHAT
-function rChatTo() {
-  var el = document.getElementById('chat-to-row');
-  if(!el) return;
-  el.innerHTML = '';
-  var opts = [{id:'band', name:'The Band', color:'#f5c518', av:'ALL'}].concat(
-    members.map(function(m){ return {id:m.id, name:m.name.split(' ')[0], color:m.color, av:m.av}; })
-  );
-  opts.forEach(function(o){
-    var active = chatTo == o.id;
-    var btn = document.createElement('button');
-    btn.style.cssText = 'display:flex;align-items:center;gap:5px;background:' + (active ? o.color : '#101e34') + ';border:2px solid ' + (active ? o.color : '#1a3a8a') + ';border-radius:20px;padding:4px 10px 4px 5px;cursor:pointer;touch-action:manipulation;transition:all .15s;';
-    var av = document.createElement('div');
-    av.style.cssText = 'width:24px;height:24px;border-radius:50%;background:' + (active ? 'rgba(0,0,0,.3)' : o.color) + ';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;flex-shrink:0;';
-    av.textContent = o.av;
-    var nm = document.createElement('span');
-    nm.style.cssText = 'font-size:11px;color:' + (active ? '#000' : '#e8f0ff') + ';font-weight:600;';
-    nm.textContent = o.name;
-    btn.appendChild(av);
-    btn.appendChild(nm);
-    btn.setAttribute('data-cid', String(o.id));
-    btn.onclick = function(){ setChatTo(this.getAttribute('data-cid')==='band' ? 'band' : parseInt(this.getAttribute('data-cid'))); };
-    el.appendChild(btn);
-  });
-  // Update thread label
-  var lbl = document.getElementById('chat-thread-label');
-  if(lbl){
-    if(chatTo === 'band') lbl.textContent = '💬 Band Chat — visible to everyone';
-    else {
-      var m = gM(chatTo);
-      lbl.textContent = '🔒 Private — You & ' + (m ? m.name : '');
-    }
-  }
+function showChatList(){
+  document.getElementById('chat-list-screen').style.display='flex';
+  document.getElementById('chat-thread-screen').style.display='none';
+  rChatThreads();
 }
-function setChatTo(id){
+
+function openThread(id){
   chatTo = id;
-  // Mark this thread as read
-  var threadId = (id==='band') ? 'band' : [String(ME), String(id)].sort().join('-');
+  document.getElementById('chat-list-screen').style.display='none';
+  document.getElementById('chat-thread-screen').style.display='flex';
+  // Set header
+  var avEl = document.getElementById('thread-av');
+  var nameEl = document.getElementById('thread-name');
+  var subEl = document.getElementById('thread-sub');
+  if(id==='band'){
+    avEl.style.background='#f5c518';
+    avEl.textContent='ALL';
+    nameEl.textContent='Band Chat';
+    subEl.textContent='Visible to all members';
+  } else {
+    var m=gM(id);
+    avEl.style.background=m.color;
+    avEl.textContent=m.av;
+    nameEl.textContent=m.name;
+    subEl.textContent='Private conversation';
+  }
+  var threadId = id==='band'?'band':[String(ME),String(id)].sort().join('-');
   markThreadRead(threadId);
-  rChatTo();
   rChat();
+  rChatThreads();
 }
+
+function rChatTo(){
+  // Legacy - just refresh thread list
+  rChatThreads();
+}
+
+function rChatThreads(){
+  var el = document.getElementById('chat-threads');
+  if(!el) return;
+  el.innerHTML='';
+
+  var threads = [
+    {id:'band', name:'Band Chat', color:'#f5c518', av:'ALL', sub:'Group · all members'}
+  ].concat(members.filter(function(m){ return m.id!==ME; }).map(function(m){
+    return {id:m.id, name:m.name, color:m.color, av:m.av, sub:m.inst};
+  }));
+
+  threads.forEach(function(t){
+    var threadId = t.id==='band'?'band':[String(ME),String(t.id)].sort().join('-');
+    // Get last message for this thread
+    var threadMsgs = msgs.filter(function(m){
+      if(t.id==='band') return !m.to||m.to==='band';
+      return (m.who===ME&&String(m.to)===String(t.id))||(String(m.who)===String(t.id)&&(m.to===ME||String(m.to)===String(ME)));
+    });
+    var lastMsg = threadMsgs[threadMsgs.length-1];
+    var unread = unreadCounts[threadId]||0;
+
+    var row = document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #0d1f3a;cursor:pointer;touch-action:manipulation;'+(chatTo==t.id?'background:rgba(74,158,255,.08);':'');
+    row.onclick=(function(tid){ return function(){ openThread(tid); }; })(t.id);
+
+    var av=document.createElement('div');
+    av.style.cssText='width:44px;height:44px;border-radius:50%;background:'+t.color+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#000;flex-shrink:0;position:relative;';
+    av.textContent=t.av;
+    if(unread>0){
+      var badge=document.createElement('div');
+      badge.style.cssText='position:absolute;top:-2px;right:-2px;background:#ff4757;color:#fff;font-size:9px;font-weight:700;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border:2px solid #060e1c;font-family:Russo One,sans-serif;';
+      badge.textContent=unread>9?'9+':String(unread);
+      av.appendChild(badge);
+    }
+
+    var info=document.createElement('div');
+    info.style.cssText='flex:1;min-width:0;';
+    info.innerHTML=
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;">'+
+        '<span style="font-size:14px;font-weight:'+(unread?'700':'600')+';color:#fff;">'+t.name+'</span>'+
+        (lastMsg?'<span style="font-size:10px;color:#4a6a9a;">'+lastMsg.time+'</span>':'')+
+      '</div>'+
+      '<div style="font-size:12px;color:'+(unread?'#e8f0ff':'#4a6a9a')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;">'+
+        (lastMsg?(lastMsg.who===ME?'You: ':gM(lastMsg.who).name.split(' ')[0]+': ')+lastMsg.txt : t.sub)+
+      '</div>';
+
+    row.appendChild(av);
+    row.appendChild(info);
+    el.appendChild(row);
+  });
+}
+
+function setChatTo(id){ openThread(id); }
 
 function rChat() {
-  var el = document.getElementById('cmsgs');
+  var el=document.getElementById('cmsgs');
   if(!el) return;
-
-  // Filter messages for current thread
   var filtered = msgs.filter(function(m){
-    var mWho = String(m.who);
-    var mTo = String(m.to||'band');
-    var meStr = String(ME);
-    var toStr = String(chatTo);
-    if(chatTo === 'band') return mTo === 'band' || mTo === 'undefined' || mTo === 'null' || !m.to;
-    // Show message if I sent it to this person OR they sent it to me
-    return (mWho === meStr && mTo === toStr) || (mWho === toStr && mTo === meStr);
+    var mWho=String(m.who), mTo=String(m.to||'band'), meStr=String(ME), toStr=String(chatTo);
+    if(chatTo==='band') return mTo==='band'||mTo==='undefined'||mTo==='null'||!m.to;
+    return (mWho===meStr&&mTo===toStr)||(mWho===toStr&&mTo===meStr);
   });
-
-  // Clear and rebuild
   while(el.firstChild) el.removeChild(el.firstChild);
-
   if(!filtered.length){
-    var empty = document.createElement('div');
-    empty.style.cssText = 'text-align:center;color:#4a6a9a;font-size:13px;padding:30px 0;';
-    empty.textContent = chatTo === 'band' ? 'No band messages yet. Say something! 🎸' : 'No messages yet. Start the conversation!';
+    var empty=document.createElement('div');
+    empty.style.cssText='text-align:center;color:#4a6a9a;font-size:13px;padding:30px 0;';
+    empty.textContent=chatTo==='band'?'No band messages yet. Say something! 🎸':'No messages yet. Start the conversation!';
     el.appendChild(empty);
     return;
   }
-
-  var lastDay = '';
+  var lastDay='';
   filtered.forEach(function(m){
-    var isMe = m.who === ME;
-    var sender = gM(m.who);
-
-    // Day separator
-    if(m.day !== lastDay){
-      var sep = document.createElement('div');
-      sep.style.cssText = 'text-align:center;font-size:10px;color:#4a6a9a;padding:4px 0;font-family:Russo One,sans-serif;';
-      sep.textContent = m.day || 'Today';
+    var isMe=m.who===ME, sender=gM(m.who);
+    if((m.day||'Today')!==lastDay){
+      var sep=document.createElement('div');
+      sep.style.cssText='text-align:center;font-size:10px;color:#4a6a9a;padding:4px 0;font-family:Russo One,sans-serif;';
+      sep.textContent=m.day||'Today';
       el.appendChild(sep);
-      lastDay = m.day || 'Today';
+      lastDay=m.day||'Today';
     }
-
-    // Message row
-    var row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:flex-end;gap:6px;' + (isMe ? 'flex-direction:row-reverse;' : '');
-    row.id = 'msg-' + m.id;
-
-    // Avatar (others only)
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:flex-end;gap:6px;'+(isMe?'flex-direction:row-reverse;':'');
+    row.id='msg-'+m.id;
     if(!isMe){
-      var av = document.createElement('div');
-      av.style.cssText = 'width:28px;height:28px;border-radius:50%;background:' + sender.color + ';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;flex-shrink:0;margin-bottom:2px;';
-      av.textContent = sender.av;
+      var av=document.createElement('div');
+      av.style.cssText='width:28px;height:28px;border-radius:50%;background:'+sender.color+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;flex-shrink:0;margin-bottom:2px;';
+      av.textContent=sender.av;
       row.appendChild(av);
     }
-
-    // Bubble wrapper
-    var wrap = document.createElement('div');
-    wrap.style.cssText = 'display:flex;flex-direction:column;max-width:72%;' + (isMe ? 'align-items:flex-end;' : 'align-items:flex-start;');
-
-    // Sender name (others in group chat)
-    if(!isMe && chatTo === 'band'){
-      var nm = document.createElement('div');
-      nm.style.cssText = 'font-size:10px;font-weight:700;color:' + sender.color + ';margin-bottom:2px;padding-left:4px;';
-      nm.textContent = sender.name ? sender.name.split(' ')[0] : '';
+    var wrap=document.createElement('div');
+    wrap.style.cssText='display:flex;flex-direction:column;max-width:72%;'+(isMe?'align-items:flex-end;':'align-items:flex-start;');
+    if(!isMe&&chatTo==='band'){
+      var nm=document.createElement('div');
+      nm.style.cssText='font-size:10px;font-weight:700;color:'+sender.color+';margin-bottom:2px;padding-left:4px;';
+      nm.textContent=sender.name?sender.name.split(' ')[0]:'';
       wrap.appendChild(nm);
     }
-
-    // Bubble
-    var bub = document.createElement('div');
-    bub.style.cssText = 'padding:9px 13px;border-radius:' + (isMe ? '18px 18px 4px 18px' : '18px 18px 18px 4px') + ';background:' + (isMe ? '#1a3a8a' : '#0d1f3a') + ';cursor:pointer;';
-    var txt = document.createElement('div');
-    txt.style.cssText = 'font-size:14px;color:#fff;line-height:1.4;';
-    txt.textContent = m.txt;
+    var bub=document.createElement('div');
+    bub.style.cssText='padding:9px 13px;border-radius:'+(isMe?'18px 18px 4px 18px':'18px 18px 18px 4px')+';background:'+(isMe?'#1a3a8a':'#0d1f3a')+';cursor:pointer;';
+    var txt=document.createElement('div');
+    txt.style.cssText='font-size:14px;color:#fff;line-height:1.4;';
+    txt.textContent=m.txt;
     bub.appendChild(txt);
-
-    // Reactions display
-    var msgReactions = reactions[String(m.id)] || {};
-    var reactionKeys = Object.keys(msgReactions).filter(function(e){ return msgReactions[e] && msgReactions[e].length > 0; });
-    if(reactionKeys.length){
-      var rRow = document.createElement('div');
-      rRow.style.cssText = 'display:flex;gap:3px;margin-top:4px;flex-wrap:wrap;';
-      reactionKeys.forEach(function(emoji){
-        var rBtn = document.createElement('button');
-        var iVoted = msgReactions[emoji].indexOf(ME) >= 0;
-        rBtn.style.cssText = 'background:' + (iVoted ? 'rgba(74,158,255,.3)' : 'rgba(255,255,255,.1)') + ';border:1px solid ' + (iVoted ? '#4a9eff' : 'transparent') + ';border-radius:10px;padding:2px 6px;font-size:12px;cursor:pointer;color:#fff;';
-        rBtn.textContent = emoji + ' ' + msgReactions[emoji].length;
-        rBtn.onclick = (function(mid, em){ return function(e){ e.stopPropagation(); toggleReaction(mid, em); }; })(m.id, emoji);
+    var msgReactions=reactions[String(m.id)]||{};
+    var rKeys=Object.keys(msgReactions).filter(function(e){return msgReactions[e]&&msgReactions[e].length>0;});
+    if(rKeys.length){
+      var rRow=document.createElement('div');
+      rRow.style.cssText='display:flex;gap:3px;margin-top:4px;flex-wrap:wrap;';
+      rKeys.forEach(function(emoji){
+        var iVoted=msgReactions[emoji].indexOf(ME)>=0;
+        var rBtn=document.createElement('button');
+        rBtn.style.cssText='background:'+(iVoted?'rgba(74,158,255,.3)':'rgba(255,255,255,.1)')+';border:1px solid '+(iVoted?'#4a9eff':'transparent')+';border-radius:10px;padding:2px 6px;font-size:12px;cursor:pointer;color:#fff;';
+        rBtn.textContent=emoji+' '+msgReactions[emoji].length;
+        rBtn.onclick=(function(mid,em){return function(e){e.stopPropagation();toggleReaction(mid,em);};})(m.id,emoji);
         rRow.appendChild(rBtn);
       });
       bub.appendChild(rRow);
     }
-
-    // Time
-    var ti = document.createElement('div');
-    ti.style.cssText = 'font-size:10px;color:rgba(255,255,255,.3);margin-top:3px;padding:0 4px;';
-    ti.textContent = m.time || '';
-
-    // Tap bubble to react
-    bub.onclick = function(){ showEmojiPicker(m.id); };
-
+    var ti=document.createElement('div');
+    ti.style.cssText='font-size:10px;color:rgba(255,255,255,.3);margin-top:3px;padding:0 4px;';
+    ti.textContent=m.time||'';
+    bub.onclick=function(){showEmojiPicker(m.id);};
     wrap.appendChild(bub);
     wrap.appendChild(ti);
     row.appendChild(wrap);
     el.appendChild(row);
   });
-
-  el.scrollTop = el.scrollHeight;
-  rChatTo();
+  el.scrollTop=el.scrollHeight;
 }
+
 function sMsg(){
   var inp=document.getElementById('cin'),txt=inp.value.trim();
   if(!txt)return;
@@ -1832,6 +2118,8 @@ function sMsg(){
 
 // BAND
 function rBand() {
+  // Contacts open by default
+  if(cardStates['contacts-list']===undefined) cardStates['contacts-list']=false;
   var el = document.getElementById('ml');
   el.innerHTML = '';
   members.forEach(function(m){
@@ -1929,11 +2217,11 @@ function rContacts() {
     var header = document.createElement('div');
     header.style.cssText = 'display:flex;align-items:center;padding:10px 12px;cursor:pointer;gap:8px;';
     header.innerHTML =
-      '<div style="flex:1;min-width:0;">'+
-        '<div style="font-size:14px;font-weight:600;color:#e8f0ff;">'+c.name+'</div>'+
-        '<div style="font-size:11px;color:#f5c518;font-family:Russo One,sans-serif;">'+c.role+'</div>'+
+      '<div style="flex:1;min-width:0;display:flex;align-items:center;gap:8px;">'+
+        '<span style="font-size:13px;font-weight:600;color:#e8f0ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%;">'+c.name+'</span>'+
+        '<span style="font-size:11px;color:#f5c518;font-family:Russo One,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;">'+c.role+'</span>'+
       '</div>'+
-      '<span style="color:#f5c518;font-size:14px;">&#8964;</span>';
+      '<span style="color:#f5c518;font-size:14px;flex-shrink:0;">&#8964;</span>';
     header.setAttribute('data-cid2', c.id);
     header.onclick = function(){
       var id = this.getAttribute('data-cid2');
