@@ -305,6 +305,14 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
     <div id="si-body"></div>
     <div class="mdi"></div>
     <div style="font-family:Russo One,sans-serif;font-size:9px;letter-spacing:2px;color:#4a6a9a;margin-bottom:10px;">EDIT DETAILS</div>
+    <div style="padding:10px 0;border-bottom:1px solid #0d1f3a;">
+      <div style="color:#aaa;font-size:13px;margin-bottom:6px;">Title</div>
+      <input id="si-title-edit" class="mi" style="width:100%;margin:0;font-size:13px;" placeholder="Song title">
+    </div>
+    <div style="padding:10px 0;border-bottom:1px solid #0d1f3a;">
+      <div style="color:#aaa;font-size:13px;margin-bottom:6px;">Artist</div>
+      <input id="si-artist-edit" class="mi" style="width:100%;margin:0;font-size:13px;" placeholder="Artist name">
+    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #0d1f3a;">
       <span style="color:#aaa;font-size:13px;">Keyboards / Keys</span>
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
@@ -2214,6 +2222,8 @@ function clearYTLink(){
 }
 function saveSongInfo(){
   if(!editingSongId) return;
+  var newTitle = document.getElementById('si-title-edit').value.trim();
+  var newArtist = document.getElementById('si-artist-edit').value.trim();
   var det = {
     keys: editingSongKeys,
     key: document.getElementById('si-key').value.trim(),
@@ -2225,12 +2235,16 @@ function saveSongInfo(){
   // Also update library item
   var s = library.find(function(x){return x.id===editingSongId;});
   if(s){
+    if(newTitle) s.title = newTitle;
+    if(newArtist !== undefined) s.artist = newArtist;
     s.key = det.key;
     s.bpm = det.bpm;
     s.vocal = det.vocal;
     s.dur = det.dur;
     s.keys = det.keys;
   }
+  // Update modal title display
+  document.getElementById('si-title').textContent = newTitle || s.title;
   db.collection('songdetails').doc(String(editingSongId)).set(det);
   songDetails[String(editingSongId)] = det;
   clM('song-info-modal');
@@ -2316,6 +2330,8 @@ function showSongInfo(id) {
     lbl.textContent = keys ? 'Yes' : 'No';
     lbl.style.color = keys ? '#4a9eff' : '#4a6a9a';
   }
+  document.getElementById('si-title-edit').value = s.title;
+  document.getElementById('si-artist-edit').value = s.artist||'';
   document.getElementById('si-key').value = key;
   document.getElementById('si-bpm').value = bpm||'';
   document.getElementById('si-vocal').value = vocal||'';
