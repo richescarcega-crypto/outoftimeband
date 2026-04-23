@@ -2376,9 +2376,13 @@ window.addEventListener('beforeunload', function(e){
   return '';
 });
 
-// Trap mobile back button - keep app open
+// Trap Android back button - keep app open
+// Push multiple states so back button has to work harder
 window.history.pushState(null, '', window.location.href);
-window.addEventListener('popstate', function(){
+window.history.pushState(null, '', window.location.href);
+window.history.pushState(null, '', window.location.href);
+window.addEventListener('popstate', function(e){
+  // Always push back immediately
   window.history.pushState(null, '', window.location.href);
 });
 
