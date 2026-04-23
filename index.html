@@ -1383,8 +1383,13 @@ function rChat() {
 
   // Filter messages for current thread
   var filtered = msgs.filter(function(m){
-    if(chatTo === 'band') return !m.to || m.to === 'band';
-    return (m.who === ME && m.to == chatTo) || (m.who == chatTo && (m.to === ME || m.to == ME));
+    var mWho = String(m.who);
+    var mTo = String(m.to||'band');
+    var meStr = String(ME);
+    var toStr = String(chatTo);
+    if(chatTo === 'band') return mTo === 'band' || mTo === 'undefined' || mTo === 'null' || !m.to;
+    // Show message if I sent it to this person OR they sent it to me
+    return (mWho === meStr && mTo === toStr) || (mWho === toStr && mTo === meStr);
   });
 
   // Clear and rebuild
