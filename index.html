@@ -166,7 +166,10 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
     <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#ff4757;margin-right:4px;vertical-align:middle;"></span>Blackout</span>
   </div>
   <div class="cgrid" id="cgrid"></div>
-  <div class="sh">ALL EVENTS</div>
+  <div class="sh" style="display:flex;justify-content:space-between;align-items:center;">
+    <span onclick="toggleCard('evl','evl-arrow')" style="cursor:pointer;display:flex;align-items:center;gap:6px;flex:1;">ALL EVENTS <span id="evl-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span></span>
+    <button onclick="exportData('events')" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:2px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;">&#8681; Export</button>
+  </div>
   <div id="evl"></div>
   <div class="sh" style="margin-top:16px;">AVAILABILITY</div>
   <p style="font-size:11px;color:#aaa;margin-bottom:8px;">Mark dates you are NOT available</p>
@@ -218,7 +221,7 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 </div>
 
 <div id="sc-songs" class="sc">
-  <div class="sh">SONG LIBRARY</div>
+  <div class="sh" style="display:flex;justify-content:space-between;align-items:center;"><span>SONG LIBRARY</span><button onclick="exportData('songs')" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:2px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;">&#8681; Export</button></div>
   <div style="display:flex;gap:8px;margin-bottom:10px;">
     <input id="song-search" class="fi2" placeholder="Search songs..." oninput="rLib()" style="flex:1;">
     <button onclick="clearSearch()" style="background:#101e34;border:1px solid #1a3a8a;border-radius:6px;padding:6px 10px;color:#4a9eff;font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;flex-shrink:0;">CLEAR</button>
@@ -230,6 +233,19 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
     <div class="r2"><button class="sb" onclick="adLibSong()">Add Song</button><button class="cb" onclick="document.getElementById('add-song-form').style.display='none'">Cancel</button></div>
   </div>
   <button class="ab" onclick="document.getElementById('add-song-form').style.display='flex';document.getElementById('add-song-form').style.flexDirection='column'">+ Add Song to Library</button>
+  <div class="sh" style="margin-top:16px;">SONG SUGGESTIONS &amp; VOTES</div>
+  <p style="font-size:11px;color:#aaa;margin-bottom:8px;">Suggest a song for the band to learn. Everyone can vote.</p>
+  <div id="votes-list"></div>
+  <div class="fb" id="suggest-form" style="display:none;">
+    <input class="fi2" id="suggest-title" placeholder="Song title *">
+    <input class="fi2" id="suggest-artist" placeholder="Artist">
+    <input class="fi2" id="suggest-note" placeholder="Why this song? (optional)">
+    <div class="r2">
+      <button class="sb" onclick="submitSuggestion()">Submit</button>
+      <button class="cb" onclick="document.getElementById('suggest-form').style.display='none'">Cancel</button>
+    </div>
+  </div>
+  <button class="ab" onclick="document.getElementById('suggest-form').style.display='flex';document.getElementById('suggest-form').style.flexDirection='column'">+ Suggest a Song</button>
 </div>
 
 <div id="sc-pay" class="sc">
@@ -237,7 +253,7 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
     <div class="fc"><div class="fcl">BAND TOTAL</div><div class="fca" id="bt">$0</div><div class="fcs">all gigs</div></div>
     <div class="fc"><div class="fcl">YOUR CUT</div><div class="fca" id="mc2">$0</div><div class="fcs" id="cs"></div></div>
   </div>
-  <div class="sh">GIG PAYOUTS</div>
+  <div class="sh" style="display:flex;justify-content:space-between;align-items:center;"><span>GIG PAYOUTS</span><button onclick="exportData('pay')" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:2px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;">&#8681; Export</button></div>
   <div id="pl"></div>
   <div id="pf" style="display:none" class="fb">
     <input class="fi2" id="pv" placeholder="Venue *">
@@ -315,7 +331,24 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
       <span style="color:#aaa;font-size:13px;">Duration</span>
       <input id="si-dur" class="mi" style="width:80px;margin:0;padding:6px 8px;text-align:center;" placeholder="3:30" oninput="fmtDuration(this)" maxlength="5">
     </div>
+    <div style="padding:10px 0;border-bottom:1px solid #0d1f3a;">
+      <div style="color:#aaa;font-size:13px;margin-bottom:6px;">YouTube Link</div>
+      <input id="si-yt" class="mi" style="width:100%;margin:0;font-size:11px;" placeholder="Paste YouTube URL here">
+    </div>
     <button class="sb" onclick="saveSongInfo()" style="width:100%;margin-top:14px;">Save</button>
+  </div>
+</div>
+
+<div class="ov" id="agenda-modal">
+  <div class="mo">
+    <div class="moh"><span class="mot" id="agenda-title">Rehearsal Agenda</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('agenda-modal')">&#10005;</button></div>
+    <p style="font-size:12px;color:#4a6a9a;margin-bottom:12px;">Songs to work on at this rehearsal</p>
+    <div id="agenda-list" style="margin-bottom:12px;"></div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <input id="agenda-song-input" class="fi2" placeholder="Add song to agenda..." style="flex:1;">
+      <button class="sb" onclick="addAgendaItem()" style="padding:8px 12px;">Add</button>
+    </div>
+    <button class="sb" onclick="clM('agenda-modal')" style="width:100%;margin-top:6px;background:#1a3a8a;color:#fff;">Done</button>
   </div>
 </div>
 
@@ -413,6 +446,131 @@ function pickName(idx) {
 
 
 
+
+
+// ── SONG VOTING ────────────────────────────────────────────────────────────
+var suggestions = [];
+
+function listenSuggestions(){
+  db.collection('suggestions').orderBy('votes','desc').onSnapshot(function(snap){
+    suggestions=[];
+    snap.forEach(function(doc){ suggestions.push(Object.assign({id:doc.id},doc.data())); });
+    if(document.getElementById('sc-songs').classList.contains('on')) rVotes();
+  });
+}
+
+function rVotes(){
+  var el=document.getElementById('votes-list');if(!el)return;
+  if(!suggestions.length){
+    el.innerHTML='<div style="color:#aaa;font-style:italic;font-size:13px;padding:8px;">No suggestions yet. Be the first!</div>';
+    return;
+  }
+  el.innerHTML='';
+  suggestions.forEach(function(s){
+    var voted=(s.voters||[]).indexOf(ME)>=0;
+    var card=document.createElement('div');
+    card.style.cssText='background:#101e34;border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;';
+    card.innerHTML=
+      '<div style="flex:1;min-width:0;">'+
+        '<div style="font-size:13px;font-weight:600;color:#e8f0ff;">'+s.title+'</div>'+
+        (s.artist?'<div style="font-size:11px;color:#f5c518;">'+s.artist+'</div>':'')+
+        (s.note?'<div style="font-size:11px;color:#4a6a9a;margin-top:2px;">'+s.note+'</div>':'')+
+        '<div style="font-size:10px;color:#4a6a9a;margin-top:3px;">by '+s.suggestedBy+'</div>'+
+      '</div>';
+    var voteBtn=document.createElement('button');
+    voteBtn.style.cssText='background:'+(voted?'rgba(245,197,24,.2)':'#0a1628')+';border:1px solid '+(voted?'#f5c518':'#1a3a8a')+';border-radius:8px;padding:6px 10px;color:'+(voted?'#f5c518':'#aaa')+';font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:44px;';
+    voteBtn.innerHTML='&#9650;<br><span style="font-size:13px;font-weight:700;">'+(s.votes||0)+'</span>';
+    voteBtn.onclick=(function(sg){ return function(){ castVote(sg.id, sg.voters||[]); }; })(s);
+    card.appendChild(voteBtn);
+    if(s.suggestedById===ME){
+      var del=document.createElement('button');
+      del.style.cssText='background:none;border:none;color:#4a6a9a;font-size:13px;cursor:pointer;';
+      del.innerHTML='&#10005;';
+      del.onclick=(function(id){ return function(){ db.collection('suggestions').doc(id).delete(); }; })(s.id);
+      card.appendChild(del);
+    }
+    el.appendChild(card);
+  });
+}
+
+function castVote(id, voters){
+  var idx=voters.indexOf(ME);
+  if(idx>=0) voters.splice(idx,1);
+  else voters.push(ME);
+  db.collection('suggestions').doc(id).update({votes:voters.length, voters:voters});
+}
+
+function submitSuggestion(){
+  var t=document.getElementById('suggest-title').value.trim();
+  if(!t)return;
+  var s={
+    title:t,
+    artist:document.getElementById('suggest-artist').value.trim(),
+    note:document.getElementById('suggest-note').value.trim(),
+    suggestedBy:myName,
+    suggestedById:ME,
+    votes:0,
+    voters:[],
+    created:Date.now()
+  };
+  db.collection('suggestions').add(s);
+  document.getElementById('suggest-title').value='';
+  document.getElementById('suggest-artist').value='';
+  document.getElementById('suggest-note').value='';
+  document.getElementById('suggest-form').style.display='none';
+}
+// ── REHEARSAL AGENDA ───────────────────────────────────────────────────────
+var agendas = {}; // eventId -> [songs]
+var editingAgendaId = null;
+
+function listenAgendas(){
+  db.collection('agendas').onSnapshot(function(snap){
+    agendas={};
+    snap.forEach(function(doc){ agendas[doc.id]=doc.data().songs||[]; });
+    if(document.getElementById('sc-cal').classList.contains('on')) rEvL();
+  });
+}
+function openAgenda(evId){
+  editingAgendaId=evId;
+  var ev=events.find(function(e){return e.id==evId;});
+  document.getElementById('agenda-title').textContent=(ev?ev.title:'')+' - Agenda';
+  rAgendaList();
+  opM('agenda-modal');
+}
+function rAgendaList(){
+  var el=document.getElementById('agenda-list');
+  var songs=agendas[String(editingAgendaId)]||[];
+  if(!songs.length){ el.innerHTML='<div style="color:#aaa;font-style:italic;font-size:13px;">No songs added yet.</div>'; return; }
+  el.innerHTML='';
+  songs.forEach(function(song,i){
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:8px;padding:7px 8px;background:#101e34;border-radius:6px;margin-bottom:4px;';
+    row.innerHTML='<span style="color:#f5c518;font-size:12px;font-family:Russo One,sans-serif;width:16px;">'+( i+1)+'</span><span style="flex:1;font-size:13px;color:#e8f0ff;">'+song+'</span>';
+    var del=document.createElement('button');
+    del.style.cssText='background:none;border:none;color:#4a6a9a;font-size:13px;cursor:pointer;';
+    del.innerHTML='&#10005;';
+    del.onclick=(function(idx){ return function(){
+      var songs2=agendas[String(editingAgendaId)]||[];
+      songs2.splice(idx,1);
+      agendas[String(editingAgendaId)]=songs2;
+      db.collection('agendas').doc(String(editingAgendaId)).set({songs:songs2});
+      rAgendaList();
+    }; })(i);
+    row.appendChild(del);
+    el.appendChild(row);
+  });
+}
+function addAgendaItem(){
+  var inp=document.getElementById('agenda-song-input');
+  var val=inp.value.trim();
+  if(!val)return;
+  var songs=agendas[String(editingAgendaId)]||[];
+  songs.push(val);
+  agendas[String(editingAgendaId)]=songs;
+  db.collection('agendas').doc(String(editingAgendaId)).set({songs:songs});
+  inp.value='';
+  rAgendaList();
+}
 // ── TAB REORDER ────────────────────────────────────────────────────────────
 var TAB_DEFS = [
   {id:'home',  icon:'&#127968;', label:'Home'},
@@ -504,6 +662,9 @@ function initApp() {
   listenAvailability();
   listenGigDetails();
   listenSongDetails();
+  listenReactions();
+  listenAgendas();
+  listenSuggestions();
   loadTabOrder();
 }
 
@@ -519,7 +680,7 @@ function go(id, btn) {
   else if (id === 'sets'){ if(setsViewState==='edit' && aSL){ document.getElementById('si').style.display='none'; document.getElementById('se').style.display='block'; rEd(); } else { setsViewState='list'; rSets(); } }
   else if (id === 'chat') { rChatTo(); rChat(); }
   else if (id === 'band') { rBand(); rContacts(); }
-  else if (id === 'songs') rLib();
+  else if (id === 'songs') { rLib(); rVotes(); }
   else if (id === 'pay') rPay();
 }
 
@@ -564,6 +725,42 @@ function listenMsgs(){
     if(document.getElementById('sc-chat').classList.contains('on'))rChat();
   });
 }
+function listenReactions(){
+  db.collection('reactions').onSnapshot(function(snap){
+    reactions={};
+    snap.forEach(function(doc){ reactions[doc.id]=doc.data(); });
+    if(document.getElementById('sc-chat').classList.contains('on')) rChat();
+  });
+}
+function toggleReaction(msgId, emoji){
+  var key = String(msgId);
+  var r = reactions[key] ? JSON.parse(JSON.stringify(reactions[key])) : {};
+  if(!r[emoji]) r[emoji]=[];
+  var idx = r[emoji].indexOf(ME);
+  if(idx>=0) r[emoji].splice(idx,1);
+  else r[emoji].push(ME);
+  if(r[emoji].length===0) delete r[emoji];
+  reactions[key]=r;
+  db.collection('reactions').doc(key).set(r);
+}
+var EMOJIS = ['👍','❤️','😂','🔥','🎸','👏'];
+function showEmojiPicker(msgId){
+  var existing = document.getElementById('emoji-picker-'+msgId);
+  if(existing){ existing.remove(); return; }
+  var picker = document.createElement('div');
+  picker.id = 'emoji-picker-'+msgId;
+  picker.style.cssText='display:flex;gap:6px;padding:6px 10px;background:#0a1628;border:1px solid #1a3a8a;border-radius:20px;margin-top:4px;flex-wrap:wrap;';
+  EMOJIS.forEach(function(e){
+    var btn=document.createElement('button');
+    btn.style.cssText='background:none;border:none;font-size:18px;cursor:pointer;padding:2px;';
+    btn.textContent=e;
+    btn.onclick=function(){ toggleReaction(msgId,e); picker.remove(); };
+    picker.appendChild(btn);
+  });
+  var msgEl = document.getElementById('msg-'+msgId);
+  if(msgEl) msgEl.appendChild(picker);
+}
+
 function listenSets(){
   db.collection('setlists').orderBy('created').onSnapshot(function(snap){
     sets=[];
@@ -712,7 +909,8 @@ function rEvL() {
   var sorted = events.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
   el.innerHTML = sorted.map(function(e){
     var del = '<button style="background:none;border:none;color:#aaa;font-size:14px;cursor:pointer;" onclick="dEv(\'' + e.id + '\')">&#10005;</button>';
-    var info = e.type==='gig' ? '<button style="background:none;border:1px solid #1a3a8a;border-radius:4px;padding:1px 5px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;margin-right:4px;" onclick="showGigDetail(\'' + e.id + '\')">INFO</button>' : '';
+    var info = e.type==='gig' ? '<button style="background:none;border:1px solid #1a3a8a;border-radius:4px;padding:1px 5px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;margin-right:4px;" onclick="showGigDetail(\'' + e.id + '\')">INFO</button>' :
+               e.type==='rehearsal' ? '<button style="background:none;border:1px solid #06d6a0;border-radius:4px;padding:1px 5px;color:#06d6a0;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;margin-right:4px;" onclick="openAgenda(\'' + e.id + '\')">AGENDA</button>' : '';
     return '<div class="er">' +
       '<div class="ebdg" style="background:' + EC[e.type] + '22;color:' + EC[e.type] + '">' + e.type + '</div>' +
       '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:#fff">' + e.title + '</div>' +
@@ -755,7 +953,17 @@ function sET(t) {
 function adEv() {
   var t=document.getElementById('etit').value.trim();
   if(!t)return;
-  var ev={id:Date.now(),date:fD(CY,CM,sDay),type:cET,title:t,note:document.getElementById('enot').value.trim()};
+  var dateStr=fD(CY,CM,sDay);
+  var ev={id:Date.now(),date:dateStr,type:cET,title:t,note:document.getElementById('enot').value.trim()};
+  // Check for conflicts
+  if(cET==='gig' || cET==='rehearsal'){
+    var conflicts = availability.filter(function(a){ return a.date===dateStr; });
+    if(conflicts.length){
+      var names = conflicts.map(function(a){ return a.name.split(' ')[0]; }).join(', ');
+      var proceed = confirm('⚠️ Conflict: ' + names + ' marked this date unavailable. Add event anyway?');
+      if(!proceed) return;
+    }
+  }
   saveEvent(ev);
   clM('evm');
 }
@@ -888,7 +1096,7 @@ function clEd(){setsViewState='list';document.getElementById('si').style.display
 function rEd() {
   var s=sets.find(function(x){return x.id==aSL;});
   if(!s)return;
-  document.getElementById('eh').innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;"><span style="font-family:Russo One,sans-serif;font-size:16px;color:#fff;">'+s.name+'</span><button onclick="renSL()" style="background:none;border:none;color:#4a9eff;font-size:12px;cursor:pointer;">&#9998; Rename</button></div>' + (function(){ var t=getSetDuration(s.songs); return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:11px;color:#aaa;">'+s.songs.length+' songs</span>'+(t>0?'<span style="font-family:Russo One,sans-serif;font-size:13px;color:#f5c518;">&#9201; '+formatDuration(t)+'</span>':'')+'</div>'; })();
+  document.getElementById('eh').innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;"><span style="font-family:Russo One,sans-serif;font-size:16px;color:#fff;">'+s.name+'</span><button onclick="renSL()" style="background:none;border:none;color:#4a9eff;font-size:12px;cursor:pointer;">&#9998; Rename</button><button onclick="printSL()" style="background:none;border:none;color:#f5c518;font-size:12px;cursor:pointer;">&#128221; Share</button></div>' + (function(){ var t=getSetDuration(s.songs); return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:11px;color:#aaa;">'+s.songs.length+' songs</span>'+(t>0?'<span style="font-family:Russo One,sans-serif;font-size:13px;color:#f5c518;">&#9201; '+formatDuration(t)+'</span>':'')+'</div>'; })();
   var container = document.getElementById('ssl');
   container.innerHTML = '';
   s.songs.forEach(function(sg, i){
@@ -930,6 +1138,96 @@ function rmS(id){
   var s=sets.find(function(x){return x.id==aSL;});
   s.songs=s.songs.filter(function(x){return x.id!==id;});
   saveSet(s);rEd();
+}
+
+
+// ── EXPORT DATA ────────────────────────────────────────────────────────────
+function exportData(type){
+  var text = '';
+  var filename = '';
+  if(type==='events'){
+    text = 'OUT OF TIME - EVENTS\n';
+    text += '━━━━━━━━━━━━━━━━━━━━━━\n\n';
+    var sorted = events.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
+    sorted.forEach(function(e){
+      text += e.type.toUpperCase() + ': ' + e.title + '\n';
+      text += '  Date: ' + e.date + '\n';
+      if(e.note) text += '  Notes: ' + e.note + '\n';
+      text += '\n';
+    });
+    filename = 'OOT-Events.txt';
+  } else if(type==='pay'){
+    text = 'OUT OF TIME - PAY LOG\n';
+    text += '━━━━━━━━━━━━━━━━━━━━━━\n\n';
+    var total=0;
+    pay.forEach(function(g){
+      var net=(g.gross||0)-(g.exp||0);
+      total+=net;
+      text += g.venue + ' (' + g.date + ')\n';
+      text += '  Gross: $'+g.gross+' | Expenses: $'+g.exp+' | Net: $'+net+'\n';
+      text += '  Per member: $'+(net/members.length).toFixed(2)+'\n\n';
+    });
+    text += '━━━━━━━━━━━━━━━━━━━━━━\n';
+    text += 'TOTAL NET: $'+total.toLocaleString()+'\n';
+    text += 'YOUR TOTAL: $'+(total/members.length).toFixed(2)+'\n';
+    filename = 'OOT-PayLog.txt';
+  } else if(type==='songs'){
+    text = 'OUT OF TIME - SONG LIBRARY\n';
+    text += '━━━━━━━━━━━━━━━━━━━━━━\n\n';
+    var sorted2=library.slice().sort(function(a,b){return a.title.localeCompare(b.title);});
+    sorted2.forEach(function(s,i){
+      var det=songDetails[String(s.id)]||{};
+      text += (i+1)+'. '+s.title+(s.artist?' - '+s.artist:'')+'\n';
+      var extras=[];
+      if(det.key||s.key) extras.push('Key: '+(det.key||s.key));
+      if(det.bpm) extras.push('BPM: '+det.bpm);
+      if(det.vocal) extras.push('Lead: '+det.vocal);
+      if(det.dur||s.dur) extras.push('Duration: '+(det.dur||s.dur));
+      if(det.keys) extras.push('Keys: Yes');
+      if(extras.length) text += '   '+extras.join(' | ')+'\n';
+    });
+    filename = 'OOT-SongLibrary.txt';
+  }
+  if(navigator.share){
+    navigator.share({title:filename, text:text});
+  } else {
+    navigator.clipboard.writeText(text).then(function(){
+      alert('Copied to clipboard!');
+    }).catch(function(){
+      var w=window.open('','_blank');
+      w.document.write('<pre style="font-family:monospace;padding:20px;white-space:pre-wrap;">'+text+'</pre>');
+    });
+  }
+}
+function printSL(){
+  var s=sets.find(function(x){return x.id==aSL;});
+  if(!s)return;
+  var totalSecs=getSetDuration(s.songs);
+  var text = 'OUT OF TIME\n';
+  text += '━━━━━━━━━━━━━━━━━━━━━━\n';
+  text += s.name.toUpperCase() + '\n';
+  if(totalSecs>0) text += 'Total time: ' + formatDuration(totalSecs) + '\n';
+  text += '━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  s.songs.forEach(function(sg,i){
+    var det = songDetails[String(sg.libId)] || {};
+    text += (i+1) + '. ' + sg.t;
+    if(sg.k || det.key) text += '  [Key: '+(sg.k||det.key)+']';
+    if(det.vocal) text += '  ['+det.vocal+']';
+    if(det.dur||sg.d) text += '  ('+(det.dur||sg.d)+')';
+    text += '\n';
+  });
+  // Use share API if available, fallback to copy
+  if(navigator.share){
+    navigator.share({title: 'Out of Time - '+s.name, text: text});
+  } else {
+    navigator.clipboard.writeText(text).then(function(){
+      alert('Setlist copied to clipboard!');
+    }).catch(function(){
+      // Fallback - open in new window
+      var w=window.open('','_blank');
+      w.document.write('<pre style="font-family:monospace;padding:20px;font-size:14px;">'+text+'</pre>');
+    });
+  }
 }
 function renSL(){
   var s=sets.find(function(x){return x.id==aSL;});
@@ -1442,7 +1740,8 @@ function saveSongInfo(){
     key: document.getElementById('si-key').value.trim(),
     bpm: parseInt(document.getElementById('si-bpm').value)||0,
     vocal: document.getElementById('si-vocal').value,
-    dur: document.getElementById('si-dur').value.trim()
+    dur: document.getElementById('si-dur').value.trim(),
+    yt: document.getElementById('si-yt').value.trim()
   };
   // Also update library item
   var s = library.find(function(x){return x.id===editingSongId;});
@@ -1520,8 +1819,12 @@ function showSongInfo(id) {
   var ytBtn=document.createElement('button');
   ytBtn.style.cssText='width:100%;margin-top:10px;background:#ff0000;border:none;border-radius:8px;padding:10px;color:#fff;font-family:Russo One,sans-serif;font-size:12px;cursor:pointer;';
   ytBtn.innerHTML='&#9654; Play on YouTube';
+  var savedYt = det.yt||s.yt||'';
   var ytQuery=s.title+' '+(s.artist||'');
-  ytBtn.onclick=function(){ window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(ytQuery),'_blank'); };
+  ytBtn.onclick=function(){
+    var url = savedYt || ('https://www.youtube.com/results?search_query='+encodeURIComponent(ytQuery));
+    window.open(url,'_blank');
+  };
   b.appendChild(ytBtn);
   // Populate edit fields
   editingSongKeys = keys;
@@ -1538,6 +1841,7 @@ function showSongInfo(id) {
   document.getElementById('si-bpm').value = bpm||'';
   document.getElementById('si-vocal').value = vocal||'';
   document.getElementById('si-dur').value = dur||'';
+  document.getElementById('si-yt').value = det.yt||s.yt||'';
   opM('song-info-modal');
 }
 // PAY
