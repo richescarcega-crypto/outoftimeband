@@ -1309,7 +1309,11 @@ function rCal() {
     var today=new Date(); var td=CY===today.getFullYear()&&CM===today.getMonth()&&d===today.getDate();
     var eventTypes=['gig','rehearsal','blackout'].filter(function(t){return de.some(function(e){return e.type===t;});});
     var pipSize = eventTypes.length>1 ? '5px' : '8px';
-    var pp=eventTypes.map(function(t){return '<div class="pip" style="background:'+EC[t]+';cursor:pointer;width:'+pipSize+';height:'+pipSize+';" onclick="event.stopPropagation();oDy('+d+')"></div>';}).join('');;
+    var pp=eventTypes.map(function(t){
+      var count=de.filter(function(e){return e.type===t;}).length;
+      var badge=count>1?'<span style="position:absolute;top:-4px;right:-4px;background:#fff;color:#000;font-size:6px;font-weight:700;border-radius:50%;width:8px;height:8px;display:flex;align-items:center;justify-content:center;line-height:1;">'+count+'</span>':'';
+      return '<div style="position:relative;display:inline-flex;"><div class="pip" style="background:'+EC[t]+';cursor:pointer;width:'+pipSize+';height:'+pipSize+';" onclick="event.stopPropagation();oDy('+d+')"></div>'+badge+'</div>';
+    }).join('');;
     h+='<div class="dc'+(td?' td':'')+'" onclick="oDy('+d+')"><span class="dn">'+d+'</span><div class="pips">'+pp+'</div></div>';
   }
   document.getElementById('cgrid').innerHTML = h;
