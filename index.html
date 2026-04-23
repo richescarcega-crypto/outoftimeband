@@ -1308,7 +1308,8 @@ function rEd() {
     '<button onclick="renSL()" style="background:none;border:none;color:#4a9eff;font-size:12px;cursor:pointer;">&#9998; Rename</button>'+
     '<button onclick="printSL()" style="background:none;border:none;color:#f5c518;font-size:12px;cursor:pointer;">&#128221; Share</button>'+
     '</div>'+
-    '<div style="font-size:12px;color:#aaa;margin-bottom:10px;">'+s.songs.length+' songs'+durStr+'</div>';
+    '<div style="font-size:12px;color:#aaa;margin-bottom:6px;">'+s.songs.length+' songs'+durStr+'</div>'+
+    '<div style="font-size:10px;color:#4a6a9a;margin-bottom:10px;">Tap # to move a song to a different position</div>';
 
   var container = document.getElementById('ssl');
   container.innerHTML = '';
@@ -1318,7 +1319,6 @@ function rEd() {
     div.style.cssText = 'background:#101e34;border-radius:8px;padding:10px 11px;margin-bottom:6px;display:flex;align-items:center;gap:8px;';
 
     if(eSID===sg.id){
-      // Edit mode
       div.innerHTML =
         '<div class="sn">'+(i+1)+'</div>'+
         '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;">'+
@@ -1331,16 +1331,27 @@ function rEd() {
         '</div>';
       var doneBtn = document.createElement('button');
       doneBtn.className = 'sb';
-      doneBtn.style.cssText = 'padding:6px 12px;font-size:11px;';
+      doneBtn.style.cssText = 'padding:6px 12px;font-size:11px;flex-shrink:0;';
       doneBtn.textContent = 'Done';
-      doneBtn.onclick = (function(id){ return function(){ svEd(id); }; })(sg.id);
+      doneBtn.onclick = (function(id){ return function(e){ e.stopPropagation(); svEd(id); }; })(sg.id);
       div.appendChild(doneBtn);
     } else {
-      // View mode - with move buttons, edit, delete
-      var numDiv = document.createElement('div');
-      numDiv.className = 'sn';
-      numDiv.textContent = i+1;
-      div.appendChild(numDiv);
+      // Position number - tappable to move
+      var numBtn = document.createElement('button');
+      numBtn.style.cssText = 'background:#0a1628;border:1px solid #f5c518;border-radius:6px;width:32px;height:32px;color:#f5c518;font-size:13px;font-weight:700;font-family:Russo One,sans-serif;cursor:pointer;flex-shrink:0;touch-action:manipulation;';
+      numBtn.textContent = i+1;
+      numBtn.title = 'Tap to move this song';
+      numBtn.onclick = (function(idx, title){ return function(e){
+        e.stopPropagation();
+        var newPos = prompt('Move "'+title+'" to position (1-'+s.songs.length+'):', idx+1);
+        if(!newPos) return;
+        var np = parseInt(newPos)-1;
+        if(isNaN(np)||np<0||np>=s.songs.length) return;
+        var song = s.songs.splice(idx,1)[0];
+        s.songs.splice(np,0,song);
+        saveSet(s);
+        rEd();
+      }; })(i, sg.t);
 
       var textDiv = document.createElement('div');
       textDiv.style.cssText = 'flex:1;min-width:0;';
@@ -1349,39 +1360,28 @@ function rEd() {
         '<div style="font-size:11px;color:#aaa;margin-top:2px;">'+
           (sg.d?sg.d:'')+(sg.k?' · Key of '+sg.k:'')+(sg.n?' · '+sg.n:'')+
         '</div>';
-      div.appendChild(textDiv);
 
-      // Action buttons - larger touch targets
       var actions = document.createElement('div');
       actions.style.cssText = 'display:flex;gap:4px;flex-shrink:0;';
 
-      var upBtn = document.createElement('button');
-      upBtn.style.cssText = 'background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;width:32px;height:32px;color:#4a9eff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;';
-      upBtn.innerHTML = '&#8593;';
-      upBtn.onclick = (function(id){ return function(e){ e.stopPropagation(); mvS(id,-1); }; })(sg.id);
-
-      var dnBtn = document.createElement('button');
-      dnBtn.style.cssText = 'background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;width:32px;height:32px;color:#4a9eff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;';
-      dnBtn.innerHTML = '&#8595;';
-      dnBtn.onclick = (function(id){ return function(e){ e.stopPropagation(); mvS(id,1); }; })(sg.id);
-
       var edBtn = document.createElement('button');
-      edBtn.style.cssText = 'background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;width:32px;height:32px;color:#4a9eff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;';
+      edBtn.style.cssText = 'background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;width:34px;height:34px;color:#4a9eff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;';
       edBtn.innerHTML = '&#9998;';
       edBtn.onclick = (function(id){ return function(e){ e.stopPropagation(); edS(id); }; })(sg.id);
 
       var rmBtn = document.createElement('button');
-      rmBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:6px;width:32px;height:32px;color:#ff4757;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;';
+      rmBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:6px;width:34px;height:34px;color:#ff4757;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;';
       rmBtn.innerHTML = '&#128465;';
       rmBtn.onclick = (function(id, title){ return function(e){
         e.stopPropagation();
         if(confirm('Remove "'+title+'" from this setlist?')) rmS(id);
       }; })(sg.id, sg.t);
 
-      actions.appendChild(upBtn);
-      actions.appendChild(dnBtn);
       actions.appendChild(edBtn);
       actions.appendChild(rmBtn);
+
+      div.appendChild(numBtn);
+      div.appendChild(textDiv);
       div.appendChild(actions);
     }
     container.appendChild(div);
@@ -1787,22 +1787,46 @@ function rContacts() {
     return;
   }
   contacts.forEach(function(c){
+    if(cardStates['ct_'+c.id]===undefined) cardStates['ct_'+c.id]=true; // collapsed
+    var isOpen = !cardStates['ct_'+c.id];
     var card = document.createElement('div');
     card.className = 'mc';
-    card.style.cssText = 'padding:10px 12px;margin-bottom:8px;';
+    card.style.cssText = 'padding:0;overflow:hidden;margin-bottom:8px;';
+
+    // Header - always visible
     var header = document.createElement('div');
-    header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;';
-    header.innerHTML = '<div><div style="font-size:14px;font-weight:600;color:#e8f0ff;">'+c.name+'</div><div style="font-size:11px;color:#f5c518;font-family:Russo One,sans-serif;">'+c.role+'</div></div>';
-    var delBtn = document.createElement('button');
-    delBtn.style.cssText = 'background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;';
-    delBtn.innerHTML = '&#10005;';
-    delBtn.setAttribute('data-cid', c.id);
-    delBtn.onclick = function(){ db.collection('contacts').doc(String(this.getAttribute('data-cid'))).delete(); };
-    header.appendChild(delBtn);
+    header.style.cssText = 'display:flex;align-items:center;padding:10px 12px;cursor:pointer;gap:8px;';
+    header.innerHTML =
+      '<div style="flex:1;min-width:0;">'+
+        '<div style="font-size:14px;font-weight:600;color:#e8f0ff;">'+c.name+'</div>'+
+        '<div style="font-size:11px;color:#f5c518;font-family:Russo One,sans-serif;">'+c.role+'</div>'+
+      '</div>'+
+      '<span style="color:#f5c518;font-size:14px;">&#8964;</span>';
+    header.setAttribute('data-cid2', c.id);
+    header.onclick = function(){
+      var id = this.getAttribute('data-cid2');
+      cardStates['ct_'+id] = !cardStates['ct_'+id];
+      rContacts();
+    };
     card.appendChild(header);
-    if(c.ph) { var p=document.createElement('div'); p.style.cssText='font-size:12px;color:#e8f0ff;margin-bottom:3px;'; p.textContent='📞 '+c.ph; card.appendChild(p); }
-    if(c.em) { var e=document.createElement('div'); e.style.cssText='font-size:12px;color:#e8f0ff;margin-bottom:3px;'; e.textContent='✉️ '+c.em; card.appendChild(e); }
-    if(c.note) { var n=document.createElement('div'); n.style.cssText='font-size:11px;color:#aaa;'; n.textContent=c.note; card.appendChild(n); }
+
+    // Detail - shown when expanded
+    if(isOpen){
+      var detail = document.createElement('div');
+      detail.style.cssText = 'padding:0 12px 12px;border-top:1px solid #0d1f3a;';
+      if(c.ph){ var p=document.createElement('div'); p.style.cssText='font-size:12px;color:#e8f0ff;margin-top:8px;'; p.textContent='📞 '+c.ph; detail.appendChild(p); }
+      if(c.em){ var e=document.createElement('div'); e.style.cssText='font-size:12px;color:#e8f0ff;margin-top:4px;'; e.textContent='✉️ '+c.em; detail.appendChild(e); }
+      if(c.note){ var n=document.createElement('div'); n.style.cssText='font-size:11px;color:#aaa;margin-top:4px;'; n.textContent=c.note; detail.appendChild(n); }
+      var delBtn=document.createElement('button');
+      delBtn.style.cssText='background:none;border:none;color:#4a6a9a;font-size:11px;cursor:pointer;margin-top:10px;display:block;font-family:Russo One,sans-serif;';
+      delBtn.textContent='Delete contact';
+      delBtn.setAttribute('data-cid', c.id);
+      delBtn.onclick=function(){
+        if(confirm('Delete this contact?')) db.collection('contacts').doc(String(this.getAttribute('data-cid'))).delete();
+      };
+      detail.appendChild(delBtn);
+      card.appendChild(detail);
+    }
     el.appendChild(card);
   });
 }
