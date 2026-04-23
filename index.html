@@ -1499,6 +1499,7 @@ function editEv(id){
   eex.appendChild(divider);
   // Show editable fields
   showNewEventForm();
+  sET(ev.type); // restore correct event type after showNewEventForm resets it
   // Gig details if applicable
   if(ev.type === 'gig'){
     var det = gigDetails[String(id)] || {};
