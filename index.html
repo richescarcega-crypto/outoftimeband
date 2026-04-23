@@ -196,18 +196,21 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
   </div>
 </div>
 
-<div id="sc-chat" class="sc">
-  <div style="margin-bottom:8px;">
-    <div style="font-family:Russo One,sans-serif;font-size:9px;letter-spacing:2px;color:#fff;margin-bottom:6px;">SEND TO:</div>
-    <div id="chat-to-row" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;"></div>
-    <div style="font-family:Russo One,sans-serif;font-size:9px;letter-spacing:2px;color:#4a6a9a;margin-bottom:6px;">VIEW:</div>
-    <div id="chat-filter-row" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+<div id="sc-chat" class="sc" style="padding:0;display:flex;flex-direction:column;">
+  <!-- Thread selector -->
+  <div style="padding:10px 12px 6px;background:#080f1e;border-bottom:1px solid #0d1f3a;flex-shrink:0;">
+    <div style="font-family:Russo One,sans-serif;font-size:9px;letter-spacing:2px;color:#4a6a9a;margin-bottom:8px;">CONVERSATION</div>
+    <div id="chat-to-row" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
   </div>
-  <div id="cir">
-    <input id="cin" placeholder="Message..." onkeydown="if(event.key==='Enter')sMsg()">
-    <button id="csb" onclick="sMsg()">&#10148;</button>
+  <!-- Thread label -->
+  <div id="chat-thread-label" style="padding:6px 12px;background:#060e1c;border-bottom:1px solid #0d1f3a;font-size:11px;color:#4a9eff;font-family:Russo One,sans-serif;letter-spacing:1px;flex-shrink:0;"></div>
+  <!-- Messages -->
+  <div id="cmsgs" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;"></div>
+  <!-- Input bar -->
+  <div style="padding:8px 12px;background:#080f1e;border-top:1px solid #0d1f3a;display:flex;gap:8px;align-items:center;flex-shrink:0;">
+    <input id="cin" placeholder="Message..." onkeydown="if(event.key==='Enter')sMsg()" style="flex:1;background:#0d1f3a;border:1px solid #1a3a8a;border-radius:20px;padding:9px 14px;color:#e8f0ff;font-size:13px;font-family:Exo 2,sans-serif;outline:none;">
+    <button onclick="sMsg()" style="background:#1a3a8a;border:none;border-radius:50%;width:40px;height:40px;color:#f5c518;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;touch-action:manipulation;">&#10148;</button>
   </div>
-  <div id="cmsgs"></div>
 </div>
 
 <div id="sc-band" class="sc">
@@ -1336,140 +1339,153 @@ function addPickedSongs(){
 
 // CHAT
 function rChatTo() {
-  // SEND TO row - who you're messaging
-  var el=document.getElementById('chat-to-row');
-  if(!el)return;
-  el.innerHTML='';
-  var sendOpts=[{id:'band',name:'The Band',color:'#f5c518',av:'ALL',isBand:true}].concat(
-    members.map(function(m){return{id:m.id,name:m.name,color:m.color,av:m.av,isBand:false};})
+  var el = document.getElementById('chat-to-row');
+  if(!el) return;
+  el.innerHTML = '';
+  var opts = [{id:'band', name:'The Band', color:'#f5c518', av:'ALL'}].concat(
+    members.map(function(m){ return {id:m.id, name:m.name.split(' ')[0], color:m.color, av:m.av}; })
   );
-  sendOpts.forEach(function(o){
-    var active=chatTo==o.id;
-    if(o.isBand){
-      var btn=document.createElement('button');
-      btn.style.cssText='display:flex;align-items:center;gap:5px;background:'+(active?'rgba(245,197,24,.2)':'#101e34')+';border:2px solid '+(active?'#f5c518':'#1a3a8a')+';border-radius:20px;padding:4px 10px;cursor:pointer;touch-action:manipulation;';
-      btn.innerHTML='<div style="width:22px;height:22px;border-radius:50%;background:#f5c518;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#000;flex-shrink:0;">ALL</div><span style="font-size:11px;color:'+(active?'#f5c518':'#e8f0ff')+';">The Band</span>';
-      btn.onclick=function(){setChatTo('band');};
-      el.appendChild(btn);
-    } else {
-      var btn=document.createElement('button');
-      btn.style.cssText='background:none;border:none;cursor:pointer;touch-action:manipulation;padding:2px;';
-      btn.title=o.name;
-      btn.innerHTML='<div style="width:34px;height:34px;border-radius:50%;background:'+o.color+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#000;border:3px solid '+(active?'#fff':'transparent')+';box-sizing:border-box;">'+o.av+'</div>';
-      btn.setAttribute('data-mid',o.id);
-      btn.onclick=function(){setChatTo(parseInt(this.getAttribute('data-mid')));};
-      el.appendChild(btn);
+  opts.forEach(function(o){
+    var active = chatTo == o.id;
+    var btn = document.createElement('button');
+    btn.style.cssText = 'display:flex;align-items:center;gap:5px;background:' + (active ? o.color : '#101e34') + ';border:2px solid ' + (active ? o.color : '#1a3a8a') + ';border-radius:20px;padding:4px 10px 4px 5px;cursor:pointer;touch-action:manipulation;transition:all .15s;';
+    var av = document.createElement('div');
+    av.style.cssText = 'width:24px;height:24px;border-radius:50%;background:' + (active ? 'rgba(0,0,0,.3)' : o.color) + ';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;flex-shrink:0;';
+    av.textContent = o.av;
+    var nm = document.createElement('span');
+    nm.style.cssText = 'font-size:11px;color:' + (active ? '#000' : '#e8f0ff') + ';font-weight:600;';
+    nm.textContent = o.name;
+    btn.appendChild(av);
+    btn.appendChild(nm);
+    btn.setAttribute('data-cid', String(o.id));
+    btn.onclick = function(){ setChatTo(this.getAttribute('data-cid')==='band' ? 'band' : parseInt(this.getAttribute('data-cid'))); };
+    el.appendChild(btn);
+  });
+  // Update thread label
+  var lbl = document.getElementById('chat-thread-label');
+  if(lbl){
+    if(chatTo === 'band') lbl.textContent = '💬 Band Chat — visible to everyone';
+    else {
+      var m = gM(chatTo);
+      lbl.textContent = '🔒 Private — You & ' + (m ? m.name : '');
     }
+  }
+}
+function setChatTo(id){
+  chatTo = id;
+  rChatTo();
+  rChat();
+}
+
+function rChat() {
+  var el = document.getElementById('cmsgs');
+  if(!el) return;
+
+  // Filter messages for current thread
+  var filtered = msgs.filter(function(m){
+    if(chatTo === 'band') return !m.to || m.to === 'band';
+    return (m.who === ME && m.to == chatTo) || (m.who == chatTo && (m.to === ME || m.to == ME));
   });
 
-  // VIEW/FILTER row - what messages to show
-  var fel=document.getElementById('chat-filter-row');
-  if(!fel)return;
-  fel.innerHTML='';
-  var filterOpts=[{id:'all',label:'All Messages'}].concat(
-    [{id:'band',label:'Band Chat'}].concat(
-      members.filter(function(m){return m.id!==ME;}).map(function(m){return{id:m.id,label:m.name,color:m.color,av:m.av};})
-    )
-  );
-  filterOpts.forEach(function(f){
-    var active=chatFilter==f.id;
-    var btn=document.createElement('button');
-    if(f.id==='all'){
-      btn.style.cssText='background:'+(active?'rgba(255,255,255,.2)':'#101e34')+';border:1px solid '+(active?'#fff':'#1a3a8a')+';border-radius:12px;padding:3px 8px;color:'+(active?'#fff':'#aaa')+';font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;touch-action:manipulation;';
-      btn.textContent='ALL';
-    } else if(f.id==='band'){
-      btn.style.cssText='background:'+(active?'rgba(245,197,24,.2)':'#101e34')+';border:1px solid '+(active?'#f5c518':'#1a3a8a')+';border-radius:12px;padding:3px 8px;color:'+(active?'#f5c518':'#aaa')+';font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;touch-action:manipulation;';
-      btn.textContent='BAND';
-    } else {
-      btn.style.cssText='background:none;border:none;cursor:pointer;touch-action:manipulation;padding:2px;';
-      btn.innerHTML='<div style="width:28px;height:28px;border-radius:50%;background:'+f.color+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;border:2px solid '+(active?'#fff':'transparent')+';box-sizing:border-box;">'+f.av+'</div>';
-    }
-    btn.setAttribute('data-fid', String(f.id));
-    btn.onclick=function(){ chatFilter=this.getAttribute('data-fid'); if(!isNaN(parseInt(chatFilter)))chatFilter=parseInt(chatFilter); rChatTo(); rChat(); };
-    fel.appendChild(btn);
-  });
-}
-function setChatTo(id){ chatTo=id; rChatTo(); }
-function rChat() {
-  var el=document.getElementById('cmsgs');
-  // Filter messages based on chatFilter
-  var filtered;
-  if(chatFilter==='all'){
-    // Show all messages involving ME
-    filtered=msgs.filter(function(m){
-      return m.to==='band'||!m.to||(m.who===ME)||(m.to===ME);
-    });
-  } else if(chatFilter==='band'){
-    filtered=msgs.filter(function(m){return !m.to||m.to==='band';});
-  } else {
-    // Specific person thread
-    filtered=msgs.filter(function(m){
-      return (m.who===ME&&m.to==chatFilter)||(m.who==chatFilter&&(m.to===ME||m.to==ME));
-    });
-  }
-  
-  el.innerHTML='';
+  // Clear and rebuild
+  while(el.firstChild) el.removeChild(el.firstChild);
+
   if(!filtered.length){
-    el.innerHTML='<div style="color:#aaa;font-style:italic;padding:12px;text-align:center;font-size:13px;">No messages yet</div>';
+    var empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;color:#4a6a9a;font-size:13px;padding:30px 0;';
+    empty.textContent = chatTo === 'band' ? 'No band messages yet. Say something! 🎸' : 'No messages yet. Start the conversation!';
+    el.appendChild(empty);
     return;
   }
 
-  var lastDay='';
+  var lastDay = '';
   filtered.forEach(function(m){
-    var s=gM(m.who), isMe=m.who===ME;
-    if(m.day!==lastDay){
-      var sep=document.createElement('div');
-      sep.className='dsep';
-      sep.textContent=m.day;
+    var isMe = m.who === ME;
+    var sender = gM(m.who);
+
+    // Day separator
+    if(m.day !== lastDay){
+      var sep = document.createElement('div');
+      sep.style.cssText = 'text-align:center;font-size:10px;color:#4a6a9a;padding:4px 0;font-family:Russo One,sans-serif;';
+      sep.textContent = m.day || 'Today';
       el.appendChild(sep);
-      lastDay=m.day;
+      lastDay = m.day || 'Today';
     }
-    // Thread label for "all" view
-    if(chatFilter==='all' && m.to && m.to!=='band'){
-      var threadLabel=document.createElement('div');
-      threadLabel.style.cssText='font-size:9px;color:#4a6a9a;text-align:'+(isMe?'right':'left')+';margin-bottom:2px;padding:0 8px;font-family:Russo One,sans-serif;letter-spacing:1px;';
-      if(isMe){
-        var toM=gM(m.to);
-        threadLabel.textContent='TO: '+(toM?toM.name:'?');
-      }
-      el.appendChild(threadLabel);
-    }
-    var row=document.createElement('div');
-    row.className='mrow'+(isMe?' me':'');
+
+    // Message row
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:flex-end;gap:6px;' + (isMe ? 'flex-direction:row-reverse;' : '');
+    row.id = 'msg-' + m.id;
+
+    // Avatar (others only)
     if(!isMe){
-      var av=document.createElement('div');
-      av.style.cssText='width:26px;height:26px;border-radius:50%;background:'+s.color+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;flex-shrink:0;';
-      av.textContent=s.av;
+      var av = document.createElement('div');
+      av.style.cssText = 'width:28px;height:28px;border-radius:50%;background:' + sender.color + ';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;flex-shrink:0;margin-bottom:2px;';
+      av.textContent = sender.av;
       row.appendChild(av);
     }
-    var bub=document.createElement('div');
-    bub.className='mb '+(isMe?'me':'them');
-    if(!isMe){
-      var sndr=document.createElement('div');
-      sndr.className='ms';
-      sndr.style.color=s.color;
-      sndr.textContent=s.name;
-      bub.appendChild(sndr);
+
+    // Bubble wrapper
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;max-width:72%;' + (isMe ? 'align-items:flex-end;' : 'align-items:flex-start;');
+
+    // Sender name (others in group chat)
+    if(!isMe && chatTo === 'band'){
+      var nm = document.createElement('div');
+      nm.style.cssText = 'font-size:10px;font-weight:700;color:' + sender.color + ';margin-bottom:2px;padding-left:4px;';
+      nm.textContent = sender.name ? sender.name.split(' ')[0] : '';
+      wrap.appendChild(nm);
     }
-    var txt=document.createElement('div');
-    txt.className='mt';
-    txt.textContent=m.txt;
+
+    // Bubble
+    var bub = document.createElement('div');
+    bub.style.cssText = 'padding:9px 13px;border-radius:' + (isMe ? '18px 18px 4px 18px' : '18px 18px 18px 4px') + ';background:' + (isMe ? '#1a3a8a' : '#0d1f3a') + ';cursor:pointer;';
+    var txt = document.createElement('div');
+    txt.style.cssText = 'font-size:14px;color:#fff;line-height:1.4;';
+    txt.textContent = m.txt;
     bub.appendChild(txt);
-    var ti=document.createElement('div');
-    ti.className='mti';
-    ti.textContent=m.time;
-    bub.appendChild(ti);
-    row.appendChild(bub);
+
+    // Reactions display
+    var msgReactions = reactions[String(m.id)] || {};
+    var reactionKeys = Object.keys(msgReactions).filter(function(e){ return msgReactions[e] && msgReactions[e].length > 0; });
+    if(reactionKeys.length){
+      var rRow = document.createElement('div');
+      rRow.style.cssText = 'display:flex;gap:3px;margin-top:4px;flex-wrap:wrap;';
+      reactionKeys.forEach(function(emoji){
+        var rBtn = document.createElement('button');
+        var iVoted = msgReactions[emoji].indexOf(ME) >= 0;
+        rBtn.style.cssText = 'background:' + (iVoted ? 'rgba(74,158,255,.3)' : 'rgba(255,255,255,.1)') + ';border:1px solid ' + (iVoted ? '#4a9eff' : 'transparent') + ';border-radius:10px;padding:2px 6px;font-size:12px;cursor:pointer;color:#fff;';
+        rBtn.textContent = emoji + ' ' + msgReactions[emoji].length;
+        rBtn.onclick = (function(mid, em){ return function(e){ e.stopPropagation(); toggleReaction(mid, em); }; })(m.id, emoji);
+        rRow.appendChild(rBtn);
+      });
+      bub.appendChild(rRow);
+    }
+
+    // Time
+    var ti = document.createElement('div');
+    ti.style.cssText = 'font-size:10px;color:rgba(255,255,255,.3);margin-top:3px;padding:0 4px;';
+    ti.textContent = m.time || '';
+
+    // Tap bubble to react
+    bub.onclick = function(){ showEmojiPicker(m.id); };
+
+    wrap.appendChild(bub);
+    wrap.appendChild(ti);
+    row.appendChild(wrap);
     el.appendChild(row);
   });
-  el.scrollTop=el.scrollHeight;
+
+  el.scrollTop = el.scrollHeight;
   rChatTo();
 }
 function sMsg(){
   var inp=document.getElementById('cin'),txt=inp.value.trim();
   if(!txt)return;
-  var t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  saveMsg({who:ME,to:chatTo,txt:txt,time:t,day:'Today'});
+  var now=new Date();
+  var t=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  var day=now.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
+  saveMsg({who:ME,to:chatTo,txt:txt,time:t,day:day});
   inp.value='';
 }
 
