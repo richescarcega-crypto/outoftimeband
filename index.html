@@ -2353,6 +2353,19 @@ function clM(id){document.getElementById(id).classList.remove('on');}
 document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});});
 
 // INIT
+// Prevent accidental close / back button
+window.addEventListener('beforeunload', function(e){
+  e.preventDefault();
+  e.returnValue = '';
+  return '';
+});
+
+// Trap mobile back button - keep app open
+window.history.pushState(null, '', window.location.href);
+window.addEventListener('popstate', function(){
+  window.history.pushState(null, '', window.location.href);
+});
+
 var savedName=localStorage.getItem('oot_me');
 var savedId=localStorage.getItem('oot_me_id');
 if(savedName&&savedId){
