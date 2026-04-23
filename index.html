@@ -303,18 +303,18 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
       <span style="color:#aaa;font-size:13px;">Lead Vocal</span>
       <select id="si-vocal" style="background:#060e1c;border:1px solid #1a3a8a;border-radius:6px;padding:6px 8px;color:#e8f0ff;font-family:Exo 2,sans-serif;font-size:12px;">
         <option value="">-- Select --</option>
-        <option value="Rachel">Rachel</option>
-        <option value="Jim">Jim</option>
-        <option value="Amy">Amy</option>
-        <option value="Rich">Rich</option>
-        <option value="Ed">Ed</option>
-        <option value="Zach">Zach</option>
+        <option value="Rachel Cervantes">Rachel Cervantes</option>
+        <option value="Jim Locherie">Jim Locherie</option>
+        <option value="Amy Eisenberg Ritz">Amy Eisenberg Ritz</option>
+        <option value="Rich Escarcega">Rich Escarcega</option>
+        <option value="Ed Escarcega">Ed Escarcega</option>
+        <option value="Zach Dennert">Zach Dennert</option>
         <option value="All">All</option>
       </select>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #0d1f3a;">
       <span style="color:#aaa;font-size:13px;">Duration</span>
-      <input id="si-dur" class="mi" style="width:80px;margin:0;padding:6px 8px;text-align:center;" placeholder="3:30">
+      <input id="si-dur" class="mi" style="width:80px;margin:0;padding:6px 8px;text-align:center;" placeholder="3:30" oninput="fmtDuration(this)" maxlength="5">
     </div>
     <button class="sb" onclick="saveSongInfo()" style="width:100%;margin-top:14px;">Save</button>
   </div>
@@ -358,27 +358,27 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
   <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px;">
     <button onclick="pickName(0)" style="background:#0a1628;border:1px solid #4a9eff;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
       <div style="width:36px;height:36px;border-radius:50%;background:#4a9eff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">JM</div>
-      <div><div style="font-size:15px;font-weight:600;color:#e8f0ff;">Jim</div><div style="font-size:11px;color:#4a9eff;">Lead Guitar</div></div>
+      <div><div style="font-size:13px;font-weight:600;color:#e8f0ff;">Jim Locherie</div><div style="font-size:11px;color:#4a9eff;">Lead Guitar</div></div>
     </button>
     <button onclick="pickName(1)" style="background:#0a1628;border:1px solid #06d6a0;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
       <div style="width:36px;height:36px;border-radius:50%;background:#06d6a0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">AM</div>
-      <div><div style="font-size:15px;font-weight:600;color:#e8f0ff;">Amy</div><div style="font-size:11px;color:#06d6a0;">Bass Guitar</div></div>
+      <div><div style="font-size:13px;font-weight:600;color:#e8f0ff;">Amy Eisenberg Ritz</div><div style="font-size:11px;color:#06d6a0;">Bass Guitar</div></div>
     </button>
     <button onclick="pickName(2)" style="background:#0a1628;border:1px solid #ff6b6b;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
       <div style="width:36px;height:36px;border-radius:50%;background:#ff6b6b;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">RI</div>
-      <div><div style="font-size:15px;font-weight:600;color:#e8f0ff;">Rich</div><div style="font-size:11px;color:#ff6b6b;">Drums</div></div>
+      <div><div style="font-size:13px;font-weight:600;color:#e8f0ff;">Rich Escarcega</div><div style="font-size:11px;color:#ff6b6b;">Drums</div></div>
     </button>
     <button onclick="pickName(3)" style="background:#0a1628;border:1px solid #f5c518;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
       <div style="width:36px;height:36px;border-radius:50%;background:#f5c518;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">ED</div>
-      <div><div style="font-size:15px;font-weight:600;color:#e8f0ff;">Ed</div><div style="font-size:11px;color:#f5c518;">Lead Guitar</div></div>
+      <div><div style="font-size:13px;font-weight:600;color:#e8f0ff;">Ed Escarcega</div><div style="font-size:11px;color:#f5c518;">Lead Guitar</div></div>
     </button>
     <button onclick="pickName(4)" style="background:#0a1628;border:1px solid #ff9ef5;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
       <div style="width:36px;height:36px;border-radius:50%;background:#ff9ef5;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">RC</div>
-      <div><div style="font-size:15px;font-weight:600;color:#e8f0ff;">Rachel</div><div style="font-size:11px;color:#ff9ef5;">Vocals</div></div>
+      <div><div style="font-size:13px;font-weight:600;color:#e8f0ff;">Rachel Cervantes</div><div style="font-size:11px;color:#ff9ef5;">Vocals</div></div>
     </button>
     <button onclick="pickName(5)" style="background:#0a1628;border:1px solid #c084fc;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
       <div style="width:36px;height:36px;border-radius:50%;background:#c084fc;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">ZK</div>
-      <div><div style="font-size:15px;font-weight:600;color:#e8f0ff;">Zach</div><div style="font-size:11px;color:#c084fc;">Keyboards</div></div>
+      <div><div style="font-size:13px;font-weight:600;color:#e8f0ff;">Zach Dennert</div><div style="font-size:11px;color:#c084fc;">Keyboards</div></div>
     </button>
   </div>
 </div>
@@ -400,7 +400,7 @@ var db = firebase.firestore();
 
 // IDENTITY
 var ME = null, myName = null;
-var memberNames = ["Jim","Amy","Rich","Ed","Rachel","Zach"];
+var memberNames = ["Jim Locherie","Amy Eisenberg Ritz","Rich Escarcega","Ed Escarcega","Rachel Cervantes","Zach Dennert"];
 
 function pickName(idx) {
   ME = idx + 1;
@@ -557,12 +557,12 @@ function go(id, btn) {
 
 // DATA
 var members = [
-  {id:1, name:"Jim",    inst:"Lead Guitar", av:"JM", color:"#4a9eff", ph:"", em:"", addr:""},
-  {id:2, name:"Amy",    inst:"Bass Guitar", av:"AM", color:"#06d6a0", ph:"", em:"", addr:""},
-  {id:3, name:"Rich",   inst:"Drums",       av:"RI", color:"#ff6b6b", ph:"", em:"", addr:""},
-  {id:4, name:"Ed",     inst:"Lead Guitar", av:"ED", color:"#f5c518", ph:"", em:"", addr:""},
-  {id:5, name:"Rachel", inst:"Vocals",      av:"RC", color:"#ff9ef5", ph:"", em:"", addr:""},
-  {id:6, name:"Zach",   inst:"Keyboards",   av:"ZK", color:"#c084fc", ph:"", em:"", addr:""}
+  {id:1, name:"Jim Locherie",        inst:"Lead Guitar", av:"JL", color:"#4a9eff", ph:"", em:"", addr:""},
+  {id:2, name:"Amy Eisenberg Ritz",  inst:"Bass Guitar", av:"AR", color:"#06d6a0", ph:"", em:"", addr:""},
+  {id:3, name:"Rich Escarcega",      inst:"Drums",       av:"RE", color:"#ff6b6b", ph:"", em:"", addr:""},
+  {id:4, name:"Ed Escarcega",        inst:"Lead Guitar", av:"EE", color:"#f5c518", ph:"", em:"", addr:""},
+  {id:5, name:"Rachel Cervantes",    inst:"Vocals",      av:"RC", color:"#ff9ef5", ph:"", em:"", addr:""},
+  {id:6, name:"Zach Dennert",        inst:"Keyboards",   av:"ZD", color:"#c084fc", ph:"", em:"", addr:""}
 ];
 var events = [], msgs = [], sets = [], pay = [], contacts = [], announcements = [], availability = [];
 var gigDetails = {};
@@ -1419,6 +1419,18 @@ function listenSongDetails(){
   });
 }
 
+
+function fmtDuration(inp){
+  var v = inp.value.replace(/[^0-9]/g,'');
+  if(v.length >= 3){
+    var mins = v.slice(0, v.length-2);
+    var secs = v.slice(-2);
+    if(parseInt(secs) > 59) secs = '59';
+    inp.value = mins + ':' + secs;
+  } else {
+    inp.value = v;
+  }
+}
 function toggleSongKeys(){
   editingSongKeys = !editingSongKeys;
   var toggle = document.getElementById('si-keys-toggle');
