@@ -218,7 +218,7 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
   <div id="ml"></div>
   <button class="ab" onclick="opM('mm')">+ Add Member</button>
   <div class="sh" onclick="toggleCard('contacts-list','contacts-arrow')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-top:16px;">
-    <span>CONTACTS</span><span id="contacts-arrow" style="color:#f5c518;font-size:14px;">&#8963;</span>
+    <span>CONTACTS</span><span id="contacts-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span>
   </div>
   <div id="contacts-list" style="display:none;"></div>
   <div id="contacts-add-btn" style="display:none;"><button class="ab" onclick="opM('contact-modal')">+ Add Contact</button></div>
@@ -949,7 +949,8 @@ function toggleCard(contentId, arrowId) {
   var el = document.getElementById(contentId);
   var ar = document.getElementById(arrowId);
   if (el) el.style.display = cardStates[contentId] ? 'none' : 'block';
-  if (ar) ar.innerHTML = cardStates[contentId] ? '&#8963;' : '&#8964;';
+  // Arrow always points down - it's a dropdown indicator not a state indicator
+  if (ar) ar.innerHTML = '&#8964;';
   // Special case - contacts add button
   if(contentId === 'contacts-list'){
     var addBtn = document.getElementById('contacts-add-btn');
@@ -1035,7 +1036,7 @@ function rEvL() {
   var evlEl = document.getElementById('evl');
   var evlAr = document.getElementById('evl-arrow');
   if(evlEl) evlEl.style.display = cardStates['evl'] ? 'none' : 'block';
-  if(evlAr) evlAr.innerHTML = cardStates['evl'] ? '&#8963;' : '&#8964;';
+  if(evlAr) evlAr.innerHTML = '&#8964;';
   var el = document.getElementById('evl');
   if(!events.length){ el.innerHTML='<div style="color:#aaa;font-style:italic;padding:8px">No events. Tap a day to add.</div>'; return; }
   var sorted = events.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
@@ -1352,22 +1353,23 @@ function rEd() {
       var upBtn = document.createElement('button');
       upBtn.style.cssText = 'background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;width:32px;height:32px;color:#4a9eff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;';
       upBtn.innerHTML = '&#8593;';
-      upBtn.onclick = (function(id){ return function(){ mvS(id,-1); }; })(sg.id);
+      upBtn.onclick = (function(id){ return function(e){ e.stopPropagation(); mvS(id,-1); }; })(sg.id);
 
       var dnBtn = document.createElement('button');
       dnBtn.style.cssText = 'background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;width:32px;height:32px;color:#4a9eff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;';
       dnBtn.innerHTML = '&#8595;';
-      dnBtn.onclick = (function(id){ return function(){ mvS(id,1); }; })(sg.id);
+      dnBtn.onclick = (function(id){ return function(e){ e.stopPropagation(); mvS(id,1); }; })(sg.id);
 
       var edBtn = document.createElement('button');
       edBtn.style.cssText = 'background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;width:32px;height:32px;color:#4a9eff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;';
       edBtn.innerHTML = '&#9998;';
-      edBtn.onclick = (function(id){ return function(){ edS(id); }; })(sg.id);
+      edBtn.onclick = (function(id){ return function(e){ e.stopPropagation(); edS(id); }; })(sg.id);
 
       var rmBtn = document.createElement('button');
       rmBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:6px;width:32px;height:32px;color:#ff4757;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;';
       rmBtn.innerHTML = '&#128465;';
-      rmBtn.onclick = (function(id, title){ return function(){
+      rmBtn.onclick = (function(id, title){ return function(e){
+        e.stopPropagation();
         if(confirm('Remove "'+title+'" from this setlist?')) rmS(id);
       }; })(sg.id, sg.t);
 
