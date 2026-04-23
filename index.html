@@ -377,7 +377,7 @@ body.light .mrav{color:#000 !important;}
     <input class="mi" id="enot" placeholder="Notes (time, address)">
     <div id="blackout-range" style="display:none;margin-bottom:8px;">
       <div style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;margin-bottom:6px;letter-spacing:1px;">CONSECUTIVE DAYS? (optional end date)</div>
-      <input type="date" id="eend" class="mi" style="margin-bottom:0;">
+      <input type="date" id="eend" class="mi" type="date" style="margin-bottom:0;">
     </div>
     <button class="sb" onclick="adEv()" style="width:100%">Add to Calendar</button>
   </div>
@@ -1333,40 +1333,111 @@ function oDy(day) {
   document.querySelectorAll('.dc').forEach(function(d){
     if(d.querySelector('.dn')&&d.querySelector('.dn').textContent==day) d.classList.add('sel');
   });
-  document.getElementById('emtit').textContent = MO[CM] + ' ' + day;
   var ds=fD(CY,CM,day);
   var de=events.filter(function(e){return e.date===ds;});
+
+  if(de.length){
+    // Existing events on this date - ask what they want to do
+    showDayOptions(day, de);
+  } else {
+    // No events - go straight to new event form
+    openNewEventModal(day);
+  }
+}
+
+function showDayOptions(day, de){
+  // Build a clean choice modal
+  document.getElementById('emtit').textContent = MO[CM] + ' ' + day;
   var eex = document.getElementById('eex');
   eex.innerHTML = '';
+
+  // Show existing events
   de.forEach(function(e){
     var card = document.createElement('div');
-    card.style.cssText = 'padding:9px;background:#060e1c;border-radius:8px;margin-bottom:8px;border-left:3px solid ' + EC[e.type] + ';';
-    card.innerHTML = '<div style="font-size:13px;font-weight:600;color:#fff;">' + e.title + '</div>' +
-      (e.note ? '<div style="font-size:11px;color:#aaa;margin-top:2px;">' + e.note + '</div>' : '');
+    card.style.cssText = 'padding:8px 10px;background:#060e1c;border-radius:8px;margin-bottom:6px;border-left:3px solid ' + EC[e.type] + ';display:flex;align-items:center;justify-content:space-between;';
+    var info = document.createElement('div');
+    info.innerHTML = '<div style="font-size:13px;font-weight:600;color:#fff;">' + e.title + '</div>' +
+      (e.note?'<div style="font-size:11px;color:#aaa;margin-top:1px;">'+e.note+'</div>':'');
     var btnRow = document.createElement('div');
-    btnRow.style.cssText = 'display:flex;gap:6px;margin-top:8px;';
+    btnRow.style.cssText = 'display:flex;gap:4px;flex-shrink:0;margin-left:8px;';
     var editBtn = document.createElement('button');
-    editBtn.className = 'sb';
-    editBtn.style.cssText = 'font-size:11px;padding:4px 12px;';
+    editBtn.style.cssText = 'background:none;border:1px solid #4a9eff;border-radius:6px;padding:3px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;';
     editBtn.textContent = 'Edit';
     editBtn.onclick = (function(ev){ return function(){ clM('evm'); editEv(ev.id); }; })(e);
     var delBtn = document.createElement('button');
-    delBtn.className = 'cb';
-    delBtn.style.cssText = 'font-size:11px;padding:4px 10px;';
+    delBtn.style.cssText = 'background:none;border:1px solid #ff4757;border-radius:6px;padding:3px 8px;color:#ff4757;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;';
     delBtn.textContent = 'Remove';
-    delBtn.onclick = (function(ev, d){ return function(){ dEv(ev.id); clM('evm'); oDy(d); }; })(e, day);
+    delBtn.onclick = (function(ev){ return function(){
+      if(confirm('Remove "' + ev.title + '"?')){ dEv(ev.id); clM('evm'); }
+    }; })(e);
     btnRow.appendChild(editBtn);
     btnRow.appendChild(delBtn);
+    card.appendChild(info);
     card.appendChild(btnRow);
     eex.appendChild(card);
   });
-  sET('gig');
+
+  // Add new event button
+  var divider = document.createElement('div');
+  divider.style.cssText = 'height:1px;background:#0d1f3a;margin:10px 0;';
+  eex.appendChild(divider);
+
+  var addBtn = document.createElement('button');
+  addBtn.className = 'ab';
+  addBtn.style.cssText = 'width:100%;margin-top:0;';
+  addBtn.textContent = '+ Add Another Event on This Day';
+  addBtn.onclick = function(){
+    eex.innerHTML = '';
+    showNewEventForm();
+  };
+  eex.appendChild(addBtn);
+
+  // Hide the new event form fields initially
   document.getElementById('etit').value = '';
   document.getElementById('enot').value = '';
-  // Reset save button to normal Add mode
-  var saveBtn = document.querySelector('#evm .sb:last-of-type');
+  if(document.getElementById('eend')) document.getElementById('eend').value = '';
+  document.getElementById('etit').closest('div') && hideNewEventForm();
   opM('evm');
 }
+
+function hideNewEventForm(){
+  var etit = document.getElementById('etit');
+  var enot = document.getElementById('enot');
+  var eend = document.getElementById('blackout-range');
+  var saveBtn = document.querySelector('#evm .sb');
+  var etr = document.querySelector('#evm .etr');
+  if(etit) etit.style.display='none';
+  if(enot) enot.style.display='none';
+  if(eend) eend.style.display='none';
+  if(saveBtn) saveBtn.style.display='none';
+  if(etr) etr.style.display='none';
+}
+
+function showNewEventForm(){
+  var etit = document.getElementById('etit');
+  var enot = document.getElementById('enot');
+  var saveBtn = document.querySelector('#evm .sb');
+  var etr = document.querySelector('#evm .etr');
+  if(etit){ etit.style.display=''; etit.focus(); }
+  if(enot) enot.style.display='';
+  if(saveBtn){ saveBtn.style.display=''; saveBtn.textContent='Add to Calendar'; saveBtn.onclick=function(){adEv();}; }
+  if(etr) etr.style.display='';
+  sET('gig');
+}
+
+function openNewEventModal(day){
+  sDay=day;
+  document.getElementById('emtit').textContent = MO[CM] + ' ' + day;
+  document.getElementById('eex').innerHTML = '';
+  document.getElementById('etit').value = '';
+  document.getElementById('enot').value = '';
+  if(document.getElementById('eend')) document.getElementById('eend').value = '';
+  // Show all form elements
+  showNewEventForm();
+  opM('evm');
+}
+
+
 function sET(t) {
   cET=t;
   ['gig','rehearsal','blackout'].forEach(function(k){
