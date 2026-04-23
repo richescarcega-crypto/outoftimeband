@@ -70,31 +70,11 @@ body.light .grip{color:#888;}
 body.light .htag{color:#1a2a4a;}
 body.light #cmsgs{background:#f0f4ff;}
 body.light .dsep{color:#888;}
-body.light .sc [style*="color:#fff"]{color:#1a2a4a !important;}
-body.light .sc [style*="color:#e8f0ff"]{color:#1a2a4a !important;}
-body.light .sc [style*="color:#aaa"]{color:#666 !important;}
-body.light .sc [style*="color:#4a6a9a"]{color:#3a5a8a !important;}
-body.light .sh{color:#1a2a4a !important;}
-body.light .card-lbl{color:#1a2a4a !important;}
-body.light .git{color:#1a2a4a !important;}
-body.light .gim{color:#3a5a7a !important;}
-body.light .mot{color:#1a2a4a !important;}
-body.light .fca{color:#1565c0 !important;}
-body.light .fcl{color:#666 !important;}
-body.light .fcs{color:#666 !important;}
-body.light .mb.them .mt{color:#1a2a4a !important;}
-body.light .mb.me .mt{color:#fff !important;}
-body.light #next-gig-countdown{background:linear-gradient(135deg,#0d2b6b,#1a56c4) !important;}
-body.light #next-gig-countdown *{color:#fff !important;}
-body.light .cnav *{color:#f5c518 !important;}
-body.light button.sb{color:#060e1c !important;}
-body.light .avmd{color:#000 !important;}
-body.light .mrav{color:#000 !important;}
 .sh{font-family:"Russo One",sans-serif;font-size:10px;letter-spacing:3px;color:#fff;margin:12px 0 7px;padding-bottom:5px;border-bottom:1px solid var(--n3);}
 .card{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:12px;margin-bottom:10px;}
 .card-lbl{font-family:"Russo One",sans-serif;font-size:9px;letter-spacing:3px;color:#fff;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
 .none{font-size:13px;color:#aaa;font-style:italic;}
-.hero{display:grid;grid-template-columns:1fr 1fr;height:185px;border-radius:12px;overflow:hidden;border:1px solid rgba(245,197,24,.2);margin-bottom:2px;}
+.hero{display:grid;grid-template-columns:1fr 1fr;height:185px;border-radius:12px;overflow:hidden;border:1px solid rgba(245,197,24,.2);margin-bottom:12px;}
 .hero-l{background:linear-gradient(135deg,#0d2050,#0a1628);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;}
 .hero-l img{width:90%;object-fit:contain;filter:drop-shadow(0 0 10px rgba(245,197,24,.4));}
 .htag{font-family:"Russo One",sans-serif;font-size:7px;color:var(--g);letter-spacing:1.5px;text-align:center;margin-top:7px;line-height:1.8;}
@@ -197,31 +177,31 @@ body.light .mrav{color:#000 !important;}
     </div>
     <div id="announce-list"></div>
   </div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><button onclick="openReorder()" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;padding:0;" title="Arrange tabs">&#9776;</button><div id="who-am-i" onclick="whoAmITap()" style="font-size:11px;cursor:pointer;"></div></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><button onclick="openReorder()" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;padding:0;" title="Arrange tabs">&#9776;</button><div style="display:flex;align-items:center;gap:8px;"><button onclick="toggleDarkMode()" id="mode-btn" style="background:none;border:1px solid #1a3a8a;border-radius:12px;padding:2px 8px;color:#4a6a9a;font-size:11px;cursor:pointer;">&#9788; Light</button><div id="who-am-i" onclick="whoAmITap()" style="font-size:11px;cursor:pointer;"></div></div></div>
   <div class="hero">
     <div class="hero-l" style="padding:0;overflow:hidden;"><img src="logo.jpg" alt="OOT" style="width:100%;height:100%;object-fit:cover;"></div>
     <div class="hero-r"><img src="band.jpg" alt="Band"></div>
   </div>
-  <div style="text-align:center;font-family:'Russo One',sans-serif;font-size:10px;color:#f5c518;letter-spacing:2px;padding:2px 0 0;margin-top:-4px;text-shadow:0 0 12px rgba(245,197,24,.6);font-style:italic;">Where Rock &amp; Roll Meets the Dancefloor</div>
-  <div style="display:flex;justify-content:center;gap:12px;padding:12px 0 12px;">
+  <div style="text-align:center;font-family:'Russo One',sans-serif;font-size:12px;color:#f5c518;letter-spacing:2px;padding:6px 0 2px;">Where Rock &amp; Roll Meets the Dancefloor</div>
+  <div style="display:flex;justify-content:center;gap:12px;padding:8px 0 4px;">
     <a href="https://www.instagram.com/outoftimecoverband?igsh=NTc4MTIwNjQ2YQ==" target="_blank" style="display:flex;align-items:center;gap:5px;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:11px;font-family:Russo One,sans-serif;text-decoration:none;letter-spacing:1px;">&#128247; Instagram</a>
     <a href="https://www.facebook.com/profile.php?id=61565057075702&mibextid=ZbWKwL" target="_blank" style="display:flex;align-items:center;gap:5px;background:#1877f2;border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:11px;font-family:Russo One,sans-serif;text-decoration:none;letter-spacing:1px;">&#128100; Facebook</a>
   </div>
   <div id="next-gig-countdown" style="display:none;background:linear-gradient(135deg,#0d2b6b,#1a56c4);border-radius:8px;padding:6px 10px;margin-bottom:8px;text-align:center;border:1px solid rgba(245,197,24,.3);">
-    <div style="font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:3px;color:#f5c518;margin-bottom:6px;">NEXT GIG</div>
-    <div id="ngc-title" style="font-family:'Russo One',sans-serif;font-size:20px;color:#fff;margin-bottom:4px;"></div>
+    <div style="font-family:'Russo One',sans-serif;font-size:9px;letter-spacing:3px;color:#f5c518;margin-bottom:6px;">NEXT GIG</div>
+    <div id="ngc-title" style="font-family:'Russo One',sans-serif;font-size:16px;color:#fff;margin-bottom:4px;"></div>
     <div id="ngc-detail" style="font-size:11px;color:#a0c0ff;margin-bottom:10px;"></div>
     <div style="display:flex;justify-content:center;gap:12px;">
       <div style="text-align:center;">
-        <div id="ngc-days" style="font-family:'Russo One',sans-serif;font-size:22px;color:#f5c518;line-height:1;"></div>
+        <div id="ngc-days" style="font-family:'Russo One',sans-serif;font-size:12px;color:#f5c518;line-height:1;"></div>
         <div style="font-size:8px;color:#a0c0ff;letter-spacing:1px;margin-top:1px;">DAYS</div>
       </div>
       <div style="text-align:center;">
-        <div id="ngc-hrs" style="font-family:'Russo One',sans-serif;font-size:22px;color:#f5c518;line-height:1;"></div>
+        <div id="ngc-hrs" style="font-family:'Russo One',sans-serif;font-size:12px;color:#f5c518;line-height:1;"></div>
         <div style="font-size:8px;color:#a0c0ff;letter-spacing:1px;margin-top:1px;">HRS</div>
       </div>
       <div style="text-align:center;">
-        <div id="ngc-min" style="font-family:'Russo One',sans-serif;font-size:22px;color:#f5c518;line-height:1;"></div>
+        <div id="ngc-min" style="font-family:'Russo One',sans-serif;font-size:12px;color:#f5c518;line-height:1;"></div>
         <div style="font-size:8px;color:#a0c0ff;letter-spacing:1px;margin-top:1px;">MIN</div>
       </div>
     </div>
@@ -229,13 +209,13 @@ body.light .mrav{color:#000 !important;}
   </div>
   <div class="card gc">
     <div class="card-lbl" onclick="toggleCard('hg','ga')">
-      <span style='color:#f5c518;'>UPCOMING GIGS</span><span id="ga">&#8964;</span>
+      <span>UPCOMING GIGS</span><span id="ga">&#8964;</span>
     </div>
     <div id="hg" style="display:none;"></div>
   </div>
   <div class="card">
     <div class="card-lbl" onclick="toggleCard('hr','ra')" style="color:#fff;">
-      <span style='color:#4a9eff;'>UPCOMING REHEARSALS</span><span id="ra">&#8964;</span>
+      <span>UPCOMING REHEARSALS</span><span id="ra">&#8964;</span>
     </div>
     <div id="hr" style="display:none;"></div>
   </div>
@@ -245,12 +225,8 @@ body.light .mrav{color:#000 !important;}
     </div>
     <div id="hbo" style="display:none;"></div>
   </div>
-  <div class="card">
-    <div class="card-lbl" onclick="toggleCard('hm','mem-arrow-lbl')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
-      <span>MEMBERS</span><span id="mem-arrow-lbl">&#8964;</span>
-    </div>
-    <div id="hm" style="display:none;"></div>
-  </div>
+  <div class="sh">MEMBERS</div>
+  <div id="hm"></div>
 </div>
 
 <div id="sc-cal" class="sc">
@@ -266,7 +242,27 @@ body.light .mrav{color:#000 !important;}
     <button onclick="exportData('events')" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:2px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;">&#8679; Share</button>
   </div>
   <div id="evl"></div>
-
+  <div class="sh" style="margin-top:16px;">AVAILABILITY</div>
+  <p style="font-size:11px;color:#aaa;margin-bottom:8px;">Mark dates you are NOT available — posts as blackout on calendar</p>
+  <div id="avail-list"></div>
+  <div id="avail-form" style="display:none;" class="fb">
+    <div style="display:flex;gap:8px;">
+      <div style="flex:1;">
+        <div style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;margin-bottom:4px;">START DATE *</div>
+        <input type="date" id="avail-start" class="fi2" style="width:100%;">
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;margin-bottom:4px;">END DATE (optional)</div>
+        <input type="date" id="avail-end" class="fi2" style="width:100%;">
+      </div>
+    </div>
+    <input class="fi2" id="avail-note" placeholder="Note (e.g. vacation, work trip)">
+    <div class="r2">
+      <button class="sb" onclick="submitAvail()">Save</button>
+      <button class="cb" onclick="document.getElementById('avail-form').style.display='none'">Cancel</button>
+    </div>
+  </div>
+  <button class="ab" onclick="document.getElementById('avail-form').style.display='flex';document.getElementById('avail-form').style.flexDirection='column';">+ Mark Me Unavailable</button>
 </div>
 
 <div id="sc-sets" class="sc">
@@ -379,20 +375,6 @@ body.light .mrav{color:#000 !important;}
     </div>
     <input class="mi" id="etit" placeholder="Title *">
     <input class="mi" id="enot" placeholder="Notes (time, address)">
-    <div id="blackout-range" style="display:none;margin-bottom:8px;background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.3);border-radius:8px;padding:10px;">
-      <div style="font-size:10px;color:#ff4757;font-family:Russo One,sans-serif;margin-bottom:8px;letter-spacing:1px;">BLACKOUT DATE RANGE</div>
-      <div style="display:flex;gap:8px;">
-        <div style="flex:1;">
-          <div style="font-size:9px;color:#aaa;font-family:Russo One,sans-serif;margin-bottom:4px;letter-spacing:1px;">START</div>
-          <input type="date" id="estart" class="mi" style="margin-bottom:0;width:100%;padding:6px 8px;">
-        </div>
-        <div style="flex:1;">
-          <div style="font-size:9px;color:#aaa;font-family:Russo One,sans-serif;margin-bottom:4px;letter-spacing:1px;">END</div>
-          <input type="date" id="eend" class="mi" style="margin-bottom:0;width:100%;padding:6px 8px;">
-        </div>
-      </div>
-      <div style="font-size:10px;color:#4a6a9a;margin-top:6px;">Creates a blackout event for each day in range</div>
-    </div>
     <button class="sb" onclick="adEv()" style="width:100%">Add to Calendar</button>
   </div>
 </div>
@@ -1183,7 +1165,7 @@ function toggleCard(contentId, arrowId) {
 function rHome() {
   // Enforce collapsed state for home sections
   ['hg','hr','hbo'].forEach(function(id){
-    if(cardStates[id]===undefined) cardStates[id] = true; // default collapsed
+    if(!cardStates[id]) cardStates[id] = true; // default collapsed
     document.getElementById(id).style.display = cardStates[id] ? 'none' : 'block';
   });
   updateCountdown();
@@ -1196,77 +1178,93 @@ function rHome() {
   document.getElementById('hg').innerHTML = gg.length ? gg.map(function(e){var d=dU(e.date);return '<div class="gi"><div class="git">'+e.title+'</div><div class="gim">'+e.date+' - '+e.note+'</div><div class="gid">'+(d===0?'TONIGHT':d===1?'TOMORROW':d+' DAYS AWAY')+'</div></div>';}).join('') : '<div class="none">NONE</div>';
   var rr = events.filter(function(e){return e.type==='rehearsal'&&dU(e.date)>=0;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,3);
   document.getElementById('hr').innerHTML = rr.length ? rr.map(function(e){var d=dU(e.date);return '<div class="ri"><div class="git">'+e.title+'</div><div class="gim" style="color:#aaa">'+e.date+' - '+e.note+(d<=7?' <b style="color:#4a9eff">'+(d===0?'TODAY':d===1?'TOMORROW':d+'d')+'</b>':'')+' </div></div>';}).join('') : '<div class="none">NONE</div>';
-  rBlackout();
-    document.getElementById('hm').innerHTML =
+  var bo = events.filter(function(e){return e.type==='blackout';}).sort(function(a,b){return a.date.localeCompare(b.date);});
+  var boEl = document.getElementById('hbo');
+  if(!bo.length){
+    boEl.innerHTML = '<div class="none">NONE</div>';
+  } else {
+    // Group by member - match event to member by first name
+    var boGroups = {}; // memberName -> {member, events[]}
+    bo.forEach(function(e){
+      // Try to match to a known member by first name
+      var matched = null;
+      members.forEach(function(m){
+        var firstName = m.name.split(' ')[0].toLowerCase();
+        if(e.title.toLowerCase().indexOf(firstName) === 0){
+          matched = m;
+        }
+      });
+      var key = matched ? matched.name.split(' ')[0] : 'Other';
+      if(!boGroups[key]) boGroups[key] = {member: matched, events: []};
+      boGroups[key].events.push(e);
+    });
+    var names = Object.keys(boGroups);
+    if(names.length === 1 && names[0] === Object.keys(boGroups)[0]){
+      // Could be single member or "Other" - show flat if just one group
+      boEl.innerHTML = '';
+      boGroups[names[0]].events.forEach(function(e){
+        var row = document.createElement('div');
+        row.className = 'ri';
+        row.style.borderLeftColor = '#ff4757';
+        row.innerHTML = '<div class="git">'+e.date+(e.note?' · '+e.note:'')+'</div>';
+        boEl.appendChild(row);
+      });
+    } else {
+      // Multiple members - nested collapse per member
+      boEl.innerHTML = '';
+      names.forEach(function(name){
+        var group = boGroups[name];
+        var stateKey = 'bo_'+name;
+        if(cardStates[stateKey] === undefined) cardStates[stateKey] = true; // collapsed
+        var isOpen = !cardStates[stateKey];
+        var wrapper = document.createElement('div');
+        wrapper.style.cssText = 'margin-bottom:4px;';
+
+        var header = document.createElement('div');
+        header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:rgba(255,71,87,.1);border-radius:6px;cursor:pointer;border-left:2px solid #ff4757;';
+        var memberColor = group.member ? group.member.color : '#ff4757';
+        header.innerHTML =
+          '<div style="display:flex;align-items:center;gap:6px;">'+
+            '<div style="width:20px;height:20px;border-radius:50%;background:'+memberColor+';display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#000;">'+(group.member?group.member.av:name.slice(0,2).toUpperCase())+'</div>'+
+            '<span style="font-size:12px;font-weight:600;color:#ff4757;">'+name+'</span>'+
+            '<span style="font-size:10px;color:#4a6a9a;">('+group.events.length+')</span>'+
+          '</div>'+
+          '<span style="color:#ff4757;font-size:12px;">&#8964;</span>';
+        header.setAttribute('data-bo-name', name);
+        header.onclick = function(e){
+          e.stopPropagation(); // prevent closing parent
+          var n = this.getAttribute('data-bo-name');
+          cardStates['bo_'+n] = !cardStates['bo_'+n];
+          rHome();
+        };
+        wrapper.appendChild(header);
+
+        if(isOpen){
+          var list = document.createElement('div');
+          list.style.cssText = 'padding:4px 0 2px 14px;';
+          group.events.forEach(function(ev){
+            var row = document.createElement('div');
+            row.style.cssText = 'font-size:11px;color:#ff4757;padding:3px 8px;border-left:1px solid rgba(255,71,87,.3);margin-bottom:2px;';
+            row.textContent = ev.date + (ev.note ? ' · '+ev.note : '');
+            list.appendChild(row);
+          });
+          wrapper.appendChild(list);
+        }
+        boEl.appendChild(wrapper);
+      });
+    }
+  } // end blackout
+  document.getElementById('hm').innerHTML =
+    '<div id="mem-toggle" onclick="toggleMems()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:6px;">' +
+    '<div style="display:flex;gap:5px;">' +
+    members.map(function(m){return '<div onclick="memTap(event,'+m.id+')" style="width:28px;height:28px;border-radius:50%;background:'+m.color+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;cursor:pointer;flex-shrink:0;">'+m.av+'</div>';}).join('') +
+    '</div><span id="mem-arrow" style="color:#4a9eff;font-size:16px;">&#8964;</span></div>' +
     '<div id="mem-list" style="display:none;">' +
     members.map(function(m){return '<div class="mr"><div class="mrav" style="background:'+m.color+'">'+m.av+'</div><span style="flex:1;font-size:12px;font-weight:600;color:#e8f0ff;">'+m.name+'</span><span style="font-size:11px;color:#4a9eff;">'+m.inst+'</span></div>';}).join('') +
     '</div>';
 }
 
 var memsOpen = false;
-
-function rBlackout(){
-  var boEl = document.getElementById('hbo');
-  if(!boEl) return;
-  var bo = events.filter(function(e){return e.type==='blackout';}).sort(function(a,b){return a.date.localeCompare(b.date);});
-  if(!bo.length){ boEl.innerHTML='<div class="none">NONE</div>'; return; }
-  var boGroups = {};
-  bo.forEach(function(e){
-    var matched = null;
-    members.forEach(function(m){
-      var firstName = m.name.split(' ')[0].toLowerCase();
-      if(e.title.toLowerCase().indexOf(firstName)===0) matched=m;
-    });
-    var key = matched ? matched.name.split(' ')[0] : 'Other';
-    if(!boGroups[key]) boGroups[key]={member:matched,events:[]};
-    boGroups[key].events.push(e);
-  });
-  var names = Object.keys(boGroups);
-  boEl.innerHTML='';
-  if(names.length===1){
-    boGroups[names[0]].events.forEach(function(e){
-      var row=document.createElement('div');
-      row.className='ri'; row.style.borderLeftColor='#ff4757';
-      row.innerHTML='<div class="git">'+e.date+(e.note?' · '+e.note:'')+'</div>';
-      boEl.appendChild(row);
-    });
-  } else {
-    names.forEach(function(name){
-      var group=boGroups[name];
-      var stateKey='bo_'+name;
-      if(cardStates[stateKey]===undefined) cardStates[stateKey]=true;
-      var isOpen=!cardStates[stateKey];
-      var wrapper=document.createElement('div');
-      wrapper.style.cssText='margin-bottom:4px;';
-      var header=document.createElement('div');
-      header.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:rgba(255,71,87,.1);border-radius:6px;cursor:pointer;border-left:2px solid #ff4757;touch-action:manipulation;';
-      var mc=group.member?group.member.color:'#ff4757';
-      var mav=group.member?group.member.av:name.slice(0,2).toUpperCase();
-      header.innerHTML='<div style="display:flex;align-items:center;gap:6px;"><div style="width:20px;height:20px;border-radius:50%;background:'+mc+';display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#000;">'+mav+'</div><span style="font-size:12px;font-weight:600;color:#ff4757;">'+name+'</span><span style="font-size:10px;color:#4a6a9a;">('+group.events.length+')</span></div><span style="color:#ff4757;font-size:12px;">&#8964;</span>';
-      header.setAttribute('data-bo-name',name);
-      header.onclick=function(e){
-        e.stopPropagation(); e.preventDefault();
-        var n=this.getAttribute('data-bo-name');
-        cardStates['bo_'+n]=!cardStates['bo_'+n];
-        rBlackout();
-      };
-      wrapper.appendChild(header);
-      if(isOpen){
-        var list=document.createElement('div');
-        list.style.cssText='padding:4px 0 2px 14px;';
-        group.events.forEach(function(ev){
-          var row=document.createElement('div');
-          row.style.cssText='font-size:11px;color:#ff4757;padding:3px 8px;border-left:1px solid rgba(255,71,87,.3);margin-bottom:2px;';
-          row.textContent=ev.date+(ev.note?' · '+ev.note:'');
-          list.appendChild(row);
-        });
-        wrapper.appendChild(list);
-      }
-      boEl.appendChild(wrapper);
-    });
-  }
-}
-
 function toggleMems() {
   memsOpen = !memsOpen;
   document.getElementById('mem-list').style.display = memsOpen ? 'block' : 'none';
@@ -1306,14 +1304,8 @@ function rCal() {
   for(var i=0;i<fd;i++) h+='<div></div>';
   for(var d=1;d<=dim;d++){
     var ds=fD(CY,CM,d), de=events.filter(function(e){return e.date===ds;});
-    var today=new Date(); var td=CY===today.getFullYear()&&CM===today.getMonth()&&d===today.getDate();
-    var eventTypes=['gig','rehearsal','blackout'].filter(function(t){return de.some(function(e){return e.type===t;});});
-    var pipSize = eventTypes.length>1 ? '5px' : '8px';
-    var pp=eventTypes.map(function(t){
-      var count=de.filter(function(e){return e.type===t;}).length;
-      var badge=count>1?'<span style="position:absolute;top:-4px;right:-4px;background:#fff;color:#000;font-size:6px;font-weight:700;border-radius:50%;width:8px;height:8px;display:flex;align-items:center;justify-content:center;line-height:1;">'+count+'</span>':'';
-      return '<div style="position:relative;display:inline-flex;"><div class="pip" style="background:'+EC[t]+';cursor:pointer;width:'+pipSize+';height:'+pipSize+';" onclick="event.stopPropagation();oDy('+d+')"></div>'+badge+'</div>';
-    }).join('');;
+    var td=CY===2026&&CM===3&&d===21;
+    var pp=['gig','rehearsal','blackout'].filter(function(t){return de.some(function(e){return e.type===t;});}).map(function(t){return '<div class="pip" style="background:'+EC[t]+';cursor:pointer;" onclick="event.stopPropagation();oDy('+d+')"></div>';}).join('');;
     h+='<div class="dc'+(td?' td':'')+'" onclick="oDy('+d+')"><span class="dn">'+d+'</span><div class="pips">'+pp+'</div></div>';
   }
   document.getElementById('cgrid').innerHTML = h;
@@ -1349,111 +1341,40 @@ function oDy(day) {
   document.querySelectorAll('.dc').forEach(function(d){
     if(d.querySelector('.dn')&&d.querySelector('.dn').textContent==day) d.classList.add('sel');
   });
+  document.getElementById('emtit').textContent = MO[CM] + ' ' + day;
   var ds=fD(CY,CM,day);
   var de=events.filter(function(e){return e.date===ds;});
-
-  if(de.length){
-    // Existing events on this date - ask what they want to do
-    showDayOptions(day, de);
-  } else {
-    // No events - go straight to new event form
-    openNewEventModal(day);
-  }
-}
-
-function showDayOptions(day, de){
-  // Build a clean choice modal
-  document.getElementById('emtit').textContent = MO[CM] + ' ' + day;
   var eex = document.getElementById('eex');
   eex.innerHTML = '';
-
-  // Show existing events
   de.forEach(function(e){
     var card = document.createElement('div');
-    card.style.cssText = 'padding:8px 10px;background:#060e1c;border-radius:8px;margin-bottom:6px;border-left:3px solid ' + EC[e.type] + ';display:flex;align-items:center;justify-content:space-between;';
-    var info = document.createElement('div');
-    info.innerHTML = '<div style="font-size:13px;font-weight:600;color:#fff;">' + e.title + '</div>' +
-      (e.note?'<div style="font-size:11px;color:#aaa;margin-top:1px;">'+e.note+'</div>':'');
+    card.style.cssText = 'padding:9px;background:#060e1c;border-radius:8px;margin-bottom:8px;border-left:3px solid ' + EC[e.type] + ';';
+    card.innerHTML = '<div style="font-size:13px;font-weight:600;color:#fff;">' + e.title + '</div>' +
+      (e.note ? '<div style="font-size:11px;color:#aaa;margin-top:2px;">' + e.note + '</div>' : '');
     var btnRow = document.createElement('div');
-    btnRow.style.cssText = 'display:flex;gap:4px;flex-shrink:0;margin-left:8px;';
+    btnRow.style.cssText = 'display:flex;gap:6px;margin-top:8px;';
     var editBtn = document.createElement('button');
-    editBtn.style.cssText = 'background:none;border:1px solid #4a9eff;border-radius:6px;padding:3px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;';
+    editBtn.className = 'sb';
+    editBtn.style.cssText = 'font-size:11px;padding:4px 12px;';
     editBtn.textContent = 'Edit';
     editBtn.onclick = (function(ev){ return function(){ clM('evm'); editEv(ev.id); }; })(e);
     var delBtn = document.createElement('button');
-    delBtn.style.cssText = 'background:none;border:1px solid #ff4757;border-radius:6px;padding:3px 8px;color:#ff4757;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;';
+    delBtn.className = 'cb';
+    delBtn.style.cssText = 'font-size:11px;padding:4px 10px;';
     delBtn.textContent = 'Remove';
-    delBtn.onclick = (function(ev){ return function(){
-      if(confirm('Remove "' + ev.title + '"?')){ dEv(ev.id); clM('evm'); }
-    }; })(e);
+    delBtn.onclick = (function(ev, d){ return function(){ dEv(ev.id); clM('evm'); oDy(d); }; })(e, day);
     btnRow.appendChild(editBtn);
     btnRow.appendChild(delBtn);
-    card.appendChild(info);
     card.appendChild(btnRow);
     eex.appendChild(card);
   });
-
-  // Add new event button
-  var divider = document.createElement('div');
-  divider.style.cssText = 'height:1px;background:#0d1f3a;margin:10px 0;';
-  eex.appendChild(divider);
-
-  var addBtn = document.createElement('button');
-  addBtn.className = 'ab';
-  addBtn.style.cssText = 'width:100%;margin-top:0;';
-  addBtn.textContent = '+ Add Another Event on This Day';
-  addBtn.onclick = function(){
-    eex.innerHTML = '';
-    showNewEventForm();
-  };
-  eex.appendChild(addBtn);
-
-  // Hide the new event form fields initially
-  document.getElementById('etit').value = '';
-  document.getElementById('enot').value = '';
-  if(document.getElementById('eend')) document.getElementById('eend').value = '';
-  document.getElementById('etit').closest('div') && hideNewEventForm();
-  opM('evm');
-}
-
-function hideNewEventForm(){
-  var etit = document.getElementById('etit');
-  var enot = document.getElementById('enot');
-  var eend = document.getElementById('blackout-range');
-  var saveBtn = document.querySelector('#evm .sb');
-  var etr = document.querySelector('#evm .etr');
-  if(etit) etit.style.display='none';
-  if(enot) enot.style.display='none';
-  if(eend) eend.style.display='none';
-  if(saveBtn) saveBtn.style.display='none';
-  if(etr) etr.style.display='none';
-}
-
-function showNewEventForm(){
-  var etit = document.getElementById('etit');
-  var enot = document.getElementById('enot');
-  var saveBtn = document.querySelector('#evm .sb');
-  var etr = document.querySelector('#evm .etr');
-  if(etit){ etit.style.display=''; etit.focus(); }
-  if(enot) enot.style.display='';
-  if(saveBtn){ saveBtn.style.display=''; saveBtn.textContent='Add to Calendar'; saveBtn.onclick=function(){adEv();}; }
-  if(etr) etr.style.display='';
   sET('gig');
-}
-
-function openNewEventModal(day){
-  sDay=day;
-  document.getElementById('emtit').textContent = MO[CM] + ' ' + day;
-  document.getElementById('eex').innerHTML = '';
   document.getElementById('etit').value = '';
   document.getElementById('enot').value = '';
-  if(document.getElementById('eend')) document.getElementById('eend').value = '';
-  // Show all form elements
-  showNewEventForm();
+  // Reset save button to normal Add mode
+  var saveBtn = document.querySelector('#evm .sb:last-of-type');
   opM('evm');
 }
-
-
 function sET(t) {
   cET=t;
   ['gig','rehearsal','blackout'].forEach(function(k){
@@ -1462,15 +1383,6 @@ function sET(t) {
     b.style.color=k===t?EC[k]:'#aaa';
     b.style.borderColor=k===t?EC[k]:'#0d1f3a';
   });
-  var rangeEl=document.getElementById('blackout-range');
-  if(rangeEl) rangeEl.style.display=t==='blackout'?'block':'none';
-  if(t==='blackout'){
-    var estart=document.getElementById('estart');
-    if(estart && sDay) estart.value=fD(CY,CM,sDay);
-  } else {
-    var eend=document.getElementById('eend');if(eend)eend.value='';
-    var estart2=document.getElementById('estart');if(estart2)estart2.value='';
-  }
 }
 
 function editEv(id){
@@ -1485,21 +1397,35 @@ function editEv(id){
   sET(ev.type);
   var eex = document.getElementById('eex');
   eex.innerHTML = '';
-  var info = document.createElement('div');
-  info.style.cssText = 'padding:8px;background:#060e1c;border-radius:8px;margin-bottom:8px;border-left:3px solid ' + EC[ev.type] + ';';
-  info.innerHTML = '<div style="font-size:11px;color:#aaa;margin-bottom:4px;">Editing: <b style="color:#fff;">' + ev.title + '</b></div><div style="font-size:11px;color:#4a6a9a;">Update fields below and tap Save.</div>';
+  // Delete button with confirmation
   var delBtn = document.createElement('button');
   delBtn.className = 'cb';
-  delBtn.style.cssText = 'margin-top:8px;font-size:11px;padding:4px 10px;';
+  delBtn.style.cssText = 'font-size:11px;padding:4px 10px;color:#ff4757;border:1px solid #ff4757;border-radius:6px;margin-bottom:10px;';
   delBtn.textContent = 'Delete Event';
-  delBtn.onclick = function(){ dEv(id); clM('evm'); };
-  info.appendChild(delBtn);
-  eex.appendChild(info);
-  var saveBtn = document.querySelector('#evm .sb');
-  if(saveBtn){
-    saveBtn.textContent = 'Save Changes';
-    saveBtn.onclick = function(){ saveEditEv(id); };
+  delBtn.onclick = function(){
+    if(confirm('Delete "' + ev.title + '"? This cannot be undone.')){ dEv(id); clM('evm'); }
+  };
+  eex.appendChild(delBtn);
+  var divider = document.createElement('div');
+  divider.style.cssText = 'height:1px;background:#0d1f3a;margin-bottom:10px;';
+  eex.appendChild(divider);
+  // Show all editable fields
+  showNewEventForm();
+  // If gig, show gig detail fields
+  if(ev.type === 'gig'){
+    var det = gigDetails[String(id)] || {};
+    var gigSection = document.createElement('div');
+    gigSection.style.cssText = 'margin-top:4px;';
+    gigSection.innerHTML =
+      '<div style="font-size:9px;color:#4a6a9a;font-family:Russo One,sans-serif;letter-spacing:2px;margin-bottom:8px;">GIG DETAILS</div>'+
+      '<input class="mi" id="edit-venue" placeholder="Venue / Address" value="'+(det.venue||'')+'">'+
+      '<div style="display:flex;gap:8px;"><input class="mi" id="edit-loadin" placeholder="Load-in" value="'+(det.loadin||'')+'" style="flex:1;"><input class="mi" id="edit-sc" placeholder="Sound check" value="'+(det.sc||'')+'" style="flex:1;"></div>'+
+      '<div style="display:flex;gap:8px;"><input class="mi" id="edit-settime" placeholder="Set time" value="'+(det.settime||'')+'" style="flex:1;"><input class="mi" id="edit-contact" placeholder="Contact" value="'+(det.contact||'')+'" style="flex:1;"></div>'+
+      '<textarea class="mi" id="edit-notes" rows="2" style="resize:none;" placeholder="Notes">'+(det.notes||'')+'</textarea>';
+    eex.appendChild(gigSection);
   }
+  var saveBtn = document.querySelector('#evm .sb');
+  if(saveBtn){ saveBtn.textContent='Save Changes'; saveBtn.onclick=function(){ saveEditEv(id); }; }
   opM('evm');
 }
 
@@ -1512,46 +1438,43 @@ function saveEditEv(id){
   ev.note = document.getElementById('enot').value.trim();
   ev.type = cET;
   saveEvent(ev);
-  var saveBtn = document.querySelector('#evm .sb');
-  if(saveBtn){
-    saveBtn.textContent = 'Add to Calendar';
-    saveBtn.onclick = function(){ adEv(); };
+  if(ev.type === 'gig'){
+    var venueEl = document.getElementById('edit-venue');
+    if(venueEl){
+      var det = {
+        venue: venueEl.value,
+        loadin: (document.getElementById('edit-loadin')||{value:''}).value,
+        sc: (document.getElementById('edit-sc')||{value:''}).value,
+        settime: (document.getElementById('edit-settime')||{value:''}).value,
+        contact: (document.getElementById('edit-contact')||{value:''}).value,
+        notes: (document.getElementById('edit-notes')||{value:''}).value
+      };
+      gigDetails[String(id)] = det;
+      db.collection('gigdetails').doc(String(id)).set(det);
+    }
   }
+  var saveBtn = document.querySelector('#evm .sb');
+  if(saveBtn){ saveBtn.textContent='Add to Calendar'; saveBtn.onclick=function(){adEv();}; }
   clM('evm');
 }
 
 function adEv() {
   var t=document.getElementById('etit').value.trim();
   if(!t)return;
-  var note=document.getElementById('enot').value.trim();
-  if(cET==='blackout'){
-    var estartEl=document.getElementById('estart');
-    var eendEl=document.getElementById('eend');
-    var startDate=estartEl&&estartEl.value ? estartEl.value : fD(CY,CM,sDay);
-    var endDate=eendEl&&eendEl.value ? eendEl.value : '';
-    if(endDate && endDate>=startDate){
-      // Range - create blackout for each day
-      var cur=new Date(startDate+'T00:00:00');
-      var end=new Date(endDate+'T00:00:00');
-      var day=0;
-      while(cur<=end && day<60){
-        var ds=cur.toISOString().slice(0,10);
-        saveEvent({id:Date.now()+day,date:ds,type:'blackout',title:t,note:note});
-        cur.setDate(cur.getDate()+1);
-        day++;
-      }
-    } else {
-      // Single day blackout
-      saveEvent({id:Date.now(),date:startDate,type:'blackout',title:t,note:note});
+  var dateStr=fD(CY,CM,sDay);
+  var ev={id:Date.now(),date:dateStr,type:cET,title:t,note:document.getElementById('enot').value.trim()};
+  // Check for conflicts
+  if(cET==='gig' || cET==='rehearsal'){
+    var conflicts = availability.filter(function(a){ return a.date===dateStr; });
+    if(conflicts.length){
+      var names = conflicts.map(function(a){ return a.name.split(' ')[0]; }).join(', ');
+      var proceed = confirm('⚠️ Conflict: ' + names + ' marked this date unavailable. Add event anyway?');
+      if(!proceed) return;
     }
-    if(estartEl) estartEl.value='';
-    if(eendEl) eendEl.value='';
-  } else {
-    saveEvent({id:Date.now(),date:fD(CY,CM,sDay),type:cET,title:t,note:note});
   }
+  saveEvent(ev);
   clM('evm');
 }
-
 function dEv(id){db.collection('events').doc(String(id)).delete();}
 
 // AVAILABILITY
@@ -1726,7 +1649,7 @@ function rEd() {
   document.getElementById('eh').innerHTML =
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">'+
     '<span style="font-family:Russo One,sans-serif;font-size:16px;color:#fff;">'+s.name+'</span>'+
-    '<button onclick="toggleSLEdit()" style="background:'+(reorderMode?'rgba(245,197,24,.15)':'none')+';border:1px solid '+(reorderMode?'#f5c518':'#1a3a8a')+';border-radius:6px;padding:3px 10px;color:'+(reorderMode?'#f5c518':'#4a9eff')+';font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;touch-action:manipulation;">'+(reorderMode?'✓ Done':'&#9998; Edit')+'</button>'+
+    '<button onclick="toggleSLEdit()" style="background:'+(reorderMode?'rgba(245,197,24,.15)':'none')+';border:1px solid '+(reorderMode?'#f5c518':'#1a3a8a')+';border-radius:6px;padding:3px 10px;color:'+(reorderMode?'#f5c518':'#4a9eff')+';font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;touch-action:manipulation;">&#9998; Edit</button>'+
     '<button onclick="printSL()" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:3px 10px;color:#4a9eff;font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;touch-action:manipulation;">&#8679; Share</button>'+
     '</div>'+
     '<div style="font-size:12px;color:#aaa;margin-bottom:4px;">'+s.songs.length+' songs'+durStr+'</div>'+
@@ -2379,19 +2302,6 @@ function rContacts() {
       if(c.ph){ var p=document.createElement('div'); p.style.cssText='font-size:12px;color:#e8f0ff;margin-top:8px;'; p.textContent='📞 '+c.ph; detail.appendChild(p); }
       if(c.em){ var e=document.createElement('div'); e.style.cssText='font-size:12px;color:#e8f0ff;margin-top:4px;'; e.textContent='✉️ '+c.em; detail.appendChild(e); }
       if(c.note){ var n=document.createElement('div'); n.style.cssText='font-size:11px;color:#aaa;margin-top:4px;'; n.textContent=c.note; detail.appendChild(n); }
-      var editBtn=document.createElement('button');
-      editBtn.style.cssText='background:none;border:1px solid #4a9eff;border-radius:6px;padding:4px 12px;color:#4a9eff;font-size:11px;cursor:pointer;margin-top:10px;font-family:Russo One,sans-serif;';
-      editBtn.textContent='Edit';
-      editBtn.onclick=(function(contact){ return function(){
-        document.getElementById('ct-name').value=contact.name||'';
-        document.getElementById('ct-role').value=contact.role||'';
-        document.getElementById('ct-ph').value=contact.ph||'';
-        document.getElementById('ct-em').value=contact.em||'';
-        document.getElementById('ct-note').value=contact.note||'';
-        editingContactId=contact.id;
-        opM('contact-modal');
-      }; })(c);
-      detail.appendChild(editBtn);
       var delBtn=document.createElement('button');
       delBtn.style.cssText='background:none;border:none;color:#4a6a9a;font-size:11px;cursor:pointer;margin-top:10px;display:block;font-family:Russo One,sans-serif;';
       delBtn.textContent='Delete contact';
@@ -2898,11 +2808,6 @@ if(savedName&&savedId){
     </div>
     <p style="font-size:12px;color:#4a6a9a;margin-bottom:14px;">Tap the arrows to reorder your tabs. Changes apply to your phone only.</p>
     <div id="reorder-list"></div>
-    <div style="height:1px;background:#0d1f3a;margin:14px 0 12px;"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;">
-      <span style="font-size:13px;color:#e8f0ff;">Display Mode</span>
-      <button onclick="toggleDarkMode()" id="mode-btn" style="background:#101e34;border:1px solid #1a3a8a;border-radius:20px;padding:5px 14px;color:#4a9eff;font-size:12px;font-family:Russo One,sans-serif;cursor:pointer;">&#9788; Light</button>
-    </div>
     <button class="sb" onclick="saveTabOrder();clM('reorder-modal')" style="width:100%;margin-top:14px;">Done</button>
   </div>
 </div>
