@@ -340,12 +340,7 @@ body.light .dsep{color:#888;}
 </div>
   <input id="song-search" class="fi2" placeholder="🔍  Search songs..." oninput="rLib()" style="width:100%;margin-bottom:8px;">
   <div id="library-list"></div>
-  <div id="add-song-form" style="display:none" class="fb">
-    <input class="fi2" id="lib-title" placeholder="Song title *">
-    <div class="r2"><input class="fi2" id="lib-artist" placeholder="Artist" style="flex:2"><input class="fi2" id="lib-key" placeholder="Key" style="width:60px;flex:none"></div>
-    <div class="r2"><button class="sb" onclick="adLibSong()">Add Song</button><button class="cb" onclick="document.getElementById('add-song-form').style.display='none'">Cancel</button></div>
-  </div>
-  <button class="ab" onclick="document.getElementById('add-song-form').style.display='flex';document.getElementById('add-song-form').style.flexDirection='column'">+ Add Song to Library</button>
+
 </div>
 
 <div id="sc-pay" class="sc">
@@ -2473,10 +2468,25 @@ function rLib() {
   });
 }
 function showAddSongForm(){
-  var f=document.getElementById('add-song-form');
-  f.style.display='flex';
-  f.style.flexDirection='column';
-  f.scrollIntoView({behavior:'smooth'});
+  // Open the song info modal in "add" mode
+  editingSongId = null;
+  editingSongKeys = false;
+  document.getElementById('si-title').textContent = 'Add New Song';
+  document.getElementById('si-body').innerHTML = '';
+  // Clear all fields
+  document.getElementById('si-title-edit').value = '';
+  document.getElementById('si-artist-edit').value = '';
+  document.getElementById('si-key').value = '';
+  document.getElementById('si-bpm').value = '';
+  document.getElementById('si-vocal').value = '';
+  document.getElementById('si-dur').value = '';
+  document.getElementById('si-yt').value = '';
+  // Reset keys toggle
+  var toggle = document.getElementById('si-keys-toggle');
+  var knob = document.getElementById('si-keys-knob');
+  var lbl = document.getElementById('si-keys-lbl');
+  if(toggle){ toggle.style.background='#1a3a8a'; knob.style.left='2px'; lbl.textContent='No'; lbl.style.color='#4a6a9a'; }
+  opM('song-info-modal');
 }
 function clearSearch(){document.getElementById('song-search').value='';rLib();}
 function playYT(query){window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(query),'_blank');}
@@ -2559,7 +2569,36 @@ function clearYTLink(){
   db.collection('songdetails').doc(String(editingSongId)).set(det, {merge:true});
 }
 function saveSongInfo(){
-  if(!editingSongId) return;
+  var newTitle = document.getElementById('si-title-edit').value.trim();
+  if(!newTitle){ alert('Song title is required.'); return; }
+
+  // ADD mode - create new song
+  if(!editingSongId){
+    var newSong = {
+      id: Date.now(),
+      title: newTitle,
+      artist: document.getElementById('si-artist-edit').value.trim(),
+      key: document.getElementById('si-key').value.trim(),
+      bpm: parseInt(document.getElementById('si-bpm').value)||0,
+      vocal: document.getElementById('si-vocal').value,
+      dur: document.getElementById('si-dur').value.trim(),
+      keys: editingSongKeys,
+      yt: document.getElementById('si-yt').value.trim()
+    };
+    library.push(newSong);
+    // Save details to Firebase
+    db.collection('songdetails').doc(String(newSong.id)).set({
+      keys: newSong.keys,
+      key: newSong.key,
+      bpm: newSong.bpm,
+      vocal: newSong.vocal,
+      dur: newSong.dur,
+      yt: newSong.yt
+    });
+    clM('song-info-modal');
+    rLib();
+    return;
+  }
   var newTitle = document.getElementById('si-title-edit').value.trim();
   var newArtist = document.getElementById('si-artist-edit').value.trim();
   var det = {
