@@ -1316,7 +1316,7 @@ function rCal() {
   for(var i=0;i<fd;i++) h+='<div></div>';
   for(var d=1;d<=dim;d++){
     var ds=fD(CY,CM,d), de=events.filter(function(e){return e.date===ds;});
-    var td=CY===2026&&CM===3&&d===21;
+    var today=new Date(); var td=CY===today.getFullYear()&&CM===today.getMonth()&&d===today.getDate();
     var pp=['gig','rehearsal','blackout'].filter(function(t){return de.some(function(e){return e.type===t;});}).map(function(t){return '<div class="pip" style="background:'+EC[t]+';cursor:pointer;" onclick="event.stopPropagation();oDy('+d+')"></div>';}).join('');;
     h+='<div class="dc'+(td?' td':'')+'" onclick="oDy('+d+')"><span class="dn">'+d+'</span><div class="pips">'+pp+'</div></div>';
   }
