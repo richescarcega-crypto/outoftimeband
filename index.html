@@ -217,10 +217,11 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
   <div class="sh">OUT OF TIME - BAND ROSTER</div>
   <div id="ml"></div>
   <button class="ab" onclick="opM('mm')">+ Add Member</button>
-  <div class="sh" style="margin-top:16px;">CONTACTS</div>
-  <p style="font-size:11px;color:#aaa;margin-bottom:8px;">Venues, sound engineers, promoters</p>
-  <div id="contacts-list"></div>
-  <button class="ab" onclick="opM('contact-modal')">+ Add Contact</button>
+  <div class="sh" onclick="toggleCard('contacts-list','contacts-arrow')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-top:16px;">
+    <span>CONTACTS</span><span id="contacts-arrow" style="color:#f5c518;font-size:14px;">&#8963;</span>
+  </div>
+  <div id="contacts-list" style="display:none;"></div>
+  <div id="contacts-add-btn" style="display:none;"><button class="ab" onclick="opM('contact-modal')">+ Add Contact</button></div>
 </div>
 
 <div id="sc-songs" class="sc">
@@ -470,37 +471,75 @@ function rVotes(){
   }
   el.innerHTML='';
   suggestions.forEach(function(s){
-    var voted=(s.voters||[]).indexOf(ME)>=0;
+    var yesVoters = s.yesVoters||[];
+    var noVoters = s.noVoters||[];
+    var myVote = yesVoters.indexOf(ME)>=0 ? 'yes' : (noVoters.indexOf(ME)>=0 ? 'no' : null);
     var card=document.createElement('div');
-    card.style.cssText='background:#101e34;border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;';
-    card.innerHTML=
-      '<div style="flex:1;min-width:0;">'+
-        '<div style="font-size:13px;font-weight:600;color:#e8f0ff;">'+s.title+'</div>'+
-        (s.artist?'<div style="font-size:11px;color:#f5c518;">'+s.artist+'</div>':'')+
-        (s.note?'<div style="font-size:11px;color:#4a6a9a;margin-top:2px;">'+s.note+'</div>':'')+
-        '<div style="font-size:10px;color:#4a6a9a;margin-top:3px;">by '+s.suggestedBy+'</div>'+
-      '</div>';
-    var voteBtn=document.createElement('button');
-    voteBtn.style.cssText='background:'+(voted?'rgba(245,197,24,.2)':'#0a1628')+';border:1px solid '+(voted?'#f5c518':'#1a3a8a')+';border-radius:8px;padding:6px 10px;color:'+(voted?'#f5c518':'#aaa')+';font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:44px;';
-    voteBtn.innerHTML='&#9650;<br><span style="font-size:13px;font-weight:700;">'+(s.votes||0)+'</span>';
-    voteBtn.onclick=(function(sg){ return function(){ castVote(sg.id, sg.voters||[]); }; })(s);
-    card.appendChild(voteBtn);
+    card.style.cssText='background:#101e34;border-radius:8px;padding:10px 12px;margin-bottom:8px;';
+    var info = document.createElement('div');
+    info.innerHTML=
+      '<div style="font-size:13px;font-weight:600;color:#e8f0ff;">'+s.title+'</div>'+
+      (s.artist?'<div style="font-size:11px;color:#f5c518;">'+s.artist+'</div>':'')+
+      (s.note?'<div style="font-size:11px;color:#4a6a9a;margin-top:2px;">'+s.note+'</div>':'')+
+      '<div style="font-size:10px;color:#4a6a9a;margin-top:3px;">Suggested by '+s.suggestedBy+'</div>';
+    card.appendChild(info);
+
+    // Vote row
+    var voteRow = document.createElement('div');
+    voteRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:10px;';
+
+    if(myVote){
+      // Already voted - show result, no changes
+      var voted = document.createElement('div');
+      voted.style.cssText = 'font-size:11px;color:#4a6a9a;font-style:italic;flex:1;';
+      voted.textContent = 'Your vote: ' + (myVote==='yes'?'👍 Yes':'👎 No');
+      voteRow.appendChild(voted);
+    } else {
+      // Not voted yet
+      var yesBtn = document.createElement('button');
+      yesBtn.style.cssText = 'background:rgba(6,214,160,.15);border:1px solid #06d6a0;border-radius:8px;padding:6px 14px;color:#06d6a0;font-size:12px;font-family:Russo One,sans-serif;cursor:pointer;';
+      yesBtn.innerHTML = '👍 Yes';
+      yesBtn.onclick = (function(sg){ return function(){ castVote(sg.id,'yes'); }; })(s);
+      var noBtn = document.createElement('button');
+      noBtn.style.cssText = 'background:rgba(255,71,87,.15);border:1px solid #ff4757;border-radius:8px;padding:6px 14px;color:#ff4757;font-size:12px;font-family:Russo One,sans-serif;cursor:pointer;';
+      noBtn.innerHTML = '👎 No';
+      noBtn.onclick = (function(sg){ return function(){ castVote(sg.id,'no'); }; })(s);
+      voteRow.appendChild(yesBtn);
+      voteRow.appendChild(noBtn);
+    }
+
+    // Tally
+    var tally = document.createElement('div');
+    tally.style.cssText = 'margin-left:auto;text-align:right;font-size:11px;';
+    tally.innerHTML = '<span style="color:#06d6a0;">👍 '+yesVoters.length+'</span> <span style="color:#ff4757;margin-left:6px;">👎 '+noVoters.length+'</span>';
+    voteRow.appendChild(tally);
+
+    card.appendChild(voteRow);
+
+    // Delete (with confirm, only for suggester)
     if(s.suggestedById===ME){
       var del=document.createElement('button');
-      del.style.cssText='background:none;border:none;color:#4a6a9a;font-size:13px;cursor:pointer;';
-      del.innerHTML='&#10005;';
-      del.onclick=(function(id){ return function(){ db.collection('suggestions').doc(id).delete(); }; })(s.id);
+      del.style.cssText='background:none;border:none;color:#4a6a9a;font-size:11px;cursor:pointer;margin-top:6px;display:block;font-family:Russo One,sans-serif;';
+      del.textContent='Remove suggestion';
+      del.onclick=(function(id){ return function(){
+        if(confirm('Remove this song suggestion?')) db.collection('suggestions').doc(id).delete();
+      }; })(s.id);
       card.appendChild(del);
     }
     el.appendChild(card);
   });
 }
 
-function castVote(id, voters){
-  var idx=voters.indexOf(ME);
-  if(idx>=0) voters.splice(idx,1);
-  else voters.push(ME);
-  db.collection('suggestions').doc(id).update({votes:voters.length, voters:voters});
+function castVote(id, voteType){
+  var s = suggestions.find(function(x){return x.id===id;});
+  if(!s) return;
+  var yesVoters = (s.yesVoters||[]).slice();
+  var noVoters = (s.noVoters||[]).slice();
+  // Only allow voting once - don't change
+  if(yesVoters.indexOf(ME)>=0 || noVoters.indexOf(ME)>=0) return;
+  if(voteType==='yes') yesVoters.push(ME);
+  else noVoters.push(ME);
+  db.collection('suggestions').doc(id).update({yesVoters:yesVoters, noVoters:noVoters, votes:yesVoters.length});
 }
 
 function submitSuggestion(){
@@ -911,6 +950,11 @@ function toggleCard(contentId, arrowId) {
   var ar = document.getElementById(arrowId);
   if (el) el.style.display = cardStates[contentId] ? 'none' : 'block';
   if (ar) ar.innerHTML = cardStates[contentId] ? '&#8963;' : '&#8964;';
+  // Special case - contacts add button
+  if(contentId === 'contacts-list'){
+    var addBtn = document.getElementById('contacts-add-btn');
+    if(addBtn) addBtn.style.display = cardStates[contentId] ? 'none' : 'block';
+  }
 }
 
 // HOME
@@ -987,6 +1031,11 @@ function rCal() {
 function pMo(){CM--;if(CM<0){CM=11;CY--;}rCal();}
 function nMo(){CM++;if(CM>11){CM=0;CY++;}rCal();}
 function rEvL() {
+  if(cardStates['evl'] === undefined) cardStates['evl'] = true; // collapsed by default
+  var evlEl = document.getElementById('evl');
+  var evlAr = document.getElementById('evl-arrow');
+  if(evlEl) evlEl.style.display = cardStates['evl'] ? 'none' : 'block';
+  if(evlAr) evlAr.innerHTML = cardStates['evl'] ? '&#8963;' : '&#8964;';
   var el = document.getElementById('evl');
   if(!events.length){ el.innerHTML='<div style="color:#aaa;font-style:italic;padding:8px">No events. Tap a day to add.</div>'; return; }
   var sorted = events.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
@@ -1245,23 +1294,88 @@ function clEd(){setsViewState='list';document.getElementById('si').style.display
 function rEd() {
   var s=sets.find(function(x){return x.id==aSL;});
   if(!s)return;
-  document.getElementById('eh').innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;"><span style="font-family:Russo One,sans-serif;font-size:16px;color:#fff;">'+s.name+'</span><button onclick="renSL()" style="background:none;border:none;color:#4a9eff;font-size:12px;cursor:pointer;">&#9998; Rename</button><button onclick="printSL()" style="background:none;border:none;color:#f5c518;font-size:12px;cursor:pointer;">&#128221; Share</button></div>' + (function(){ var t=getSetDuration(s.songs); return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:11px;color:#aaa;">'+s.songs.length+' songs</span>'+(t>0?'<span style="font-family:Russo One,sans-serif;font-size:13px;color:#f5c518;">&#9201; '+formatDuration(t)+'</span>':'')+'</div>'; })();
+  var totalSecs=getSetDuration(s.songs);
+  var durStr = totalSecs>0 ? ' · &#9201; '+formatDuration(totalSecs) : '';
+  document.getElementById('eh').innerHTML =
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">'+
+    '<span style="font-family:Russo One,sans-serif;font-size:16px;color:#fff;">'+s.name+'</span>'+
+    '<button onclick="renSL()" style="background:none;border:none;color:#4a9eff;font-size:12px;cursor:pointer;">&#9998; Rename</button>'+
+    '<button onclick="printSL()" style="background:none;border:none;color:#f5c518;font-size:12px;cursor:pointer;">&#128221; Share</button>'+
+    '</div>'+
+    '<div style="font-size:12px;color:#aaa;margin-bottom:10px;">'+s.songs.length+' songs'+durStr+'</div>';
+
   var container = document.getElementById('ssl');
   container.innerHTML = '';
   s.songs.forEach(function(sg, i){
     var div = document.createElement('div');
     div.className = 'sr';
+    div.style.cssText = 'background:#101e34;border-radius:8px;padding:10px 11px;margin-bottom:6px;display:flex;align-items:center;gap:8px;';
+
     if(eSID===sg.id){
-      div.innerHTML = '<div class="sn">'+(i+1)+'</div><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;"><input class="fi2" id="et-'+sg.id+'" value="'+sg.t+'"><div style="display:flex;gap:6px;"><input class="fi2" id="ed-'+sg.id+'" value="'+sg.d+'" style="width:70px;flex:none"><input class="fi2" id="ek-'+sg.id+'" value="'+sg.k+'" style="width:52px;flex:none"></div><input class="fi2" id="en-'+sg.id+'" value="'+sg.n+'" placeholder="Notes"><button class="sb" style="align-self:flex-start;padding:6px 12px;margin-top:2px">Done</button></div>';
-      div.querySelector('.sb').setAttribute('data-id', sg.id);
-      div.querySelector('.sb').onclick = function(){ svEd(this.getAttribute('data-id')); };
+      // Edit mode
+      div.innerHTML =
+        '<div class="sn">'+(i+1)+'</div>'+
+        '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;">'+
+          '<input class="fi2" id="et-'+sg.id+'" value="'+sg.t+'">'+
+          '<div style="display:flex;gap:6px;">'+
+            '<input class="fi2" id="ed-'+sg.id+'" value="'+sg.d+'" style="width:70px;flex:none;" placeholder="3:30">'+
+            '<input class="fi2" id="ek-'+sg.id+'" value="'+sg.k+'" style="width:52px;flex:none;" placeholder="Key">'+
+          '</div>'+
+          '<input class="fi2" id="en-'+sg.id+'" value="'+sg.n+'" placeholder="Notes">'+
+        '</div>';
+      var doneBtn = document.createElement('button');
+      doneBtn.className = 'sb';
+      doneBtn.style.cssText = 'padding:6px 12px;font-size:11px;';
+      doneBtn.textContent = 'Done';
+      doneBtn.onclick = (function(id){ return function(){ svEd(id); }; })(sg.id);
+      div.appendChild(doneBtn);
     } else {
-      div.innerHTML = '<div class="sn">'+(i+1)+'</div><div style="flex:1;min-width:0"><div class="st">'+sg.t+'</div><div class="sd">'+sg.d+(sg.k?' - Key of '+sg.k:'')+(sg.n?' - '+sg.n:'')+'</div></div><div class="sa"><button class="ib" title="up">&#8593;</button><button class="ib" title="dn">&#8595;</button><button class="ib" title="ed">&#9998;</button><button class="ib" title="rm">&#128465;</button></div>';
-      var btns = div.querySelectorAll('.ib');
-      btns[0].onclick = function(){ mvS(sg.id,-1); };
-      btns[1].onclick = function(){ mvS(sg.id,1); };
-      btns[2].onclick = function(){ edS(sg.id); };
-      btns[3].onclick = function(){ rmS(sg.id); };
+      // View mode - with move buttons, edit, delete
+      var numDiv = document.createElement('div');
+      numDiv.className = 'sn';
+      numDiv.textContent = i+1;
+      div.appendChild(numDiv);
+
+      var textDiv = document.createElement('div');
+      textDiv.style.cssText = 'flex:1;min-width:0;';
+      textDiv.innerHTML =
+        '<div style="font-size:13px;font-weight:600;color:#fff;">'+sg.t+'</div>'+
+        '<div style="font-size:11px;color:#aaa;margin-top:2px;">'+
+          (sg.d?sg.d:'')+(sg.k?' · Key of '+sg.k:'')+(sg.n?' · '+sg.n:'')+
+        '</div>';
+      div.appendChild(textDiv);
+
+      // Action buttons - larger touch targets
+      var actions = document.createElement('div');
+      actions.style.cssText = 'display:flex;gap:4px;flex-shrink:0;';
+
+      var upBtn = document.createElement('button');
+      upBtn.style.cssText = 'background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;width:32px;height:32px;color:#4a9eff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;';
+      upBtn.innerHTML = '&#8593;';
+      upBtn.onclick = (function(id){ return function(){ mvS(id,-1); }; })(sg.id);
+
+      var dnBtn = document.createElement('button');
+      dnBtn.style.cssText = 'background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;width:32px;height:32px;color:#4a9eff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;';
+      dnBtn.innerHTML = '&#8595;';
+      dnBtn.onclick = (function(id){ return function(){ mvS(id,1); }; })(sg.id);
+
+      var edBtn = document.createElement('button');
+      edBtn.style.cssText = 'background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;width:32px;height:32px;color:#4a9eff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;';
+      edBtn.innerHTML = '&#9998;';
+      edBtn.onclick = (function(id){ return function(){ edS(id); }; })(sg.id);
+
+      var rmBtn = document.createElement('button');
+      rmBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:6px;width:32px;height:32px;color:#ff4757;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;';
+      rmBtn.innerHTML = '&#128465;';
+      rmBtn.onclick = (function(id, title){ return function(){
+        if(confirm('Remove "'+title+'" from this setlist?')) rmS(id);
+      }; })(sg.id, sg.t);
+
+      actions.appendChild(upBtn);
+      actions.appendChild(dnBtn);
+      actions.appendChild(edBtn);
+      actions.appendChild(rmBtn);
+      div.appendChild(actions);
     }
     container.appendChild(div);
   });
@@ -1582,45 +1696,66 @@ function rBand() {
   var el = document.getElementById('ml');
   el.innerHTML = '';
   members.forEach(function(m){
+    if(cardStates['mem_'+m.id] === undefined) cardStates['mem_'+m.id] = true; // collapsed
+    var isOpen = !cardStates['mem_'+m.id];
     var card = document.createElement('div');
     card.className = 'mc';
-    card.innerHTML =
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
-        '<div class="avmd" style="background:'+m.color+'">'+m.av+'</div>' +
-        '<div><div style="font-size:14px;font-weight:600;color:#e8f0ff;">'+m.name+'</div>' +
-        '<div style="font-size:11px;color:#4a9eff;font-family:Russo One,sans-serif;">'+m.inst+'</div></div>' +
-      '</div>';
-    var inp_style = 'background:#060e1c;border:1px solid #1a3a8a;border-radius:4px;padding:4px 7px;font-size:11px;color:#e8f0ff;outline:none;width:100%;font-family:Exo 2,sans-serif;box-sizing:border-box;';
-    var lbl_style = 'font-size:9px;color:#fff;letter-spacing:1px;font-family:Russo One,sans-serif;width:22px;flex-shrink:0;';
-    function makeRow(label, type, val, placeholder, field){
-      var row = document.createElement('div');
-      row.style.cssText = 'display:flex;align-items:center;margin-bottom:4px;gap:4px;';
-      var lbl = document.createElement('span');
-      lbl.style.cssText = lbl_style;
-      lbl.textContent = label;
-      var inp = document.createElement('input');
-      inp.type = type;
-      inp.value = val||'';
-      inp.placeholder = placeholder;
-      inp.style.cssText = inp_style;
-      inp.setAttribute('data-mid', m.id);
-      inp.setAttribute('data-field', field);
-      inp.oninput = function(){
-        uM(parseInt(this.getAttribute('data-mid')), this.getAttribute('data-field'), this.value);
-      };
-      if(field==='ph'){
-        inp.onblur = function(){
-          fmtPhone(this);
-          uM(parseInt(this.getAttribute('data-mid')), 'ph', this.value);
+    card.style.cssText = 'padding:0;overflow:hidden;margin-bottom:8px;';
+
+    // Header row - always visible, tap to expand
+    var header = document.createElement('div');
+    header.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;';
+    header.innerHTML =
+      '<div class="avmd" style="background:'+m.color+';width:32px;height:32px;font-size:11px;">'+m.av+'</div>'+
+      '<div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#e8f0ff;">'+m.name+'</div>'+
+      '<div style="font-size:11px;color:#4a9eff;font-family:Russo One,sans-serif;">'+m.inst+'</div></div>'+
+      '<span style="color:#4a9eff;font-size:14px;">'+(isOpen?'&#8963;':'&#8964;')+'</span>';
+    header.setAttribute('data-mid', m.id);
+    header.onclick = function(){
+      var mid = this.getAttribute('data-mid');
+      cardStates['mem_'+mid] = !cardStates['mem_'+mid];
+      rBand();
+    };
+    card.appendChild(header);
+
+    // Detail section - shown when expanded
+    if(isOpen){
+      var detail = document.createElement('div');
+      detail.style.cssText = 'padding:0 12px 12px;border-top:1px solid #0d1f3a;';
+      var inp_style = 'background:#060e1c;border:1px solid #1a3a8a;border-radius:4px;padding:4px 7px;font-size:11px;color:#e8f0ff;outline:none;width:100%;font-family:Exo 2,sans-serif;box-sizing:border-box;';
+      var lbl_style = 'font-size:9px;color:#fff;letter-spacing:1px;font-family:Russo One,sans-serif;width:22px;flex-shrink:0;';
+
+      function makeRow(label, type, val, placeholder, field){
+        var row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;margin-top:8px;gap:4px;';
+        var lbl = document.createElement('span');
+        lbl.style.cssText = lbl_style;
+        lbl.textContent = label;
+        var inp = document.createElement('input');
+        inp.type = type;
+        inp.value = val||'';
+        inp.placeholder = placeholder;
+        inp.style.cssText = inp_style;
+        inp.setAttribute('data-mid', m.id);
+        inp.setAttribute('data-field', field);
+        inp.oninput = function(){
+          uM(parseInt(this.getAttribute('data-mid')), this.getAttribute('data-field'), this.value);
         };
+        if(field==='ph'){
+          inp.onblur = function(){
+            fmtPhone(this);
+            uM(parseInt(this.getAttribute('data-mid')), 'ph', this.value);
+          };
+        }
+        row.appendChild(lbl);
+        row.appendChild(inp);
+        return row;
       }
-      row.appendChild(lbl);
-      row.appendChild(inp);
-      return row;
+      detail.appendChild(makeRow('PH','tel',m.ph,'(555) 555-5555','ph'));
+      detail.appendChild(makeRow('EM','email',m.em,'email@example.com','em'));
+      detail.appendChild(makeRow('AD','text',m.addr,'City, State','addr'));
+      card.appendChild(detail);
     }
-    card.appendChild(makeRow('PH','tel',m.ph,'(555) 555-5555','ph'));
-    card.appendChild(makeRow('EM','email',m.em,'email@example.com','em'));
-    card.appendChild(makeRow('AD','text',m.addr,'City, State','addr'));
     el.appendChild(card);
   });
 }
@@ -1820,7 +1955,7 @@ function rLib() {
     titleDiv.innerHTML='<span style="font-size:13px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+(s.artist?'<span style="font-size:11px;color:#f5c518;"> - '+s.artist+'</span>':'')+' <span style="font-size:10px;color:#1a3a8a;">&#9654;</span>';
     titleDiv.onclick=(function(song){ return function(){ playYT(song.title+' '+(song.artist||'')); }; })(s);
     var infoBtn=document.createElement('button');
-    infoBtn.style.cssText='background:#4a9eff;border:none;border-radius:50%;width:15px;height:15px;display:flex;align-items:center;justify-content:center;color:#000;font-size:8px;font-weight:700;cursor:pointer;flex-shrink:0;margin-right:8px;';
+    infoBtn.style.cssText='background:#4a9eff;border:none;border-radius:50%;width:13px;height:13px;display:flex;align-items:center;justify-content:center;color:#000;font-size:7px;font-weight:700;cursor:pointer;flex-shrink:0;margin-right:12px;';
     infoBtn.innerHTML='i';
     infoBtn.title='Song info';
     infoBtn.onclick=(function(song){ return function(){ showSongInfo(song.id); }; })(s);
