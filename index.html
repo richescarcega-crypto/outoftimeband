@@ -891,7 +891,10 @@ function listenSets(){
   db.collection('setlists').orderBy('created').onSnapshot(function(snap){
     sets=[];
     snap.forEach(function(doc){sets.push(Object.assign({id:doc.id},doc.data()));});
-    if(document.getElementById('sc-sets').classList.contains('on'))rSets();
+    if(document.getElementById('sc-sets').classList.contains('on')){
+      if(setsViewState==='edit' && aSL) rEd();
+      else rSets();
+    }
   });
 }
 function listenPay(){
@@ -1495,7 +1498,9 @@ function saveSongOrder(){
   });
   s.songs = newOrder;
   saveSet(s);
-  rEd();
+  // Update just the position numbers without rebuilding - Firebase listener will sync
+  var numDivs = container.querySelectorAll('.sn');
+  numDivs.forEach(function(nd, i){ nd.textContent = i+1; });
 }
 function edS(id){eSID=(eSID===id?null:id);rEd();}
 function svEd(id){
