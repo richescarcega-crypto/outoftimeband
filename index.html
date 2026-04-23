@@ -1188,53 +1188,77 @@ function rHome() {
   if(!bo.length){
     boEl.innerHTML = '<div class="none">NONE</div>';
   } else {
-    // Group by member name
-    var boGroups = {};
+    // Group by member - match event to member by first name
+    var boGroups = {}; // memberName -> {member, events[]}
     bo.forEach(function(e){
-      var name = e.title.replace(' unavailable','') || 'Unknown';
-      if(!boGroups[name]) boGroups[name] = [];
-      boGroups[name].push(e);
+      // Try to match to a known member by first name
+      var matched = null;
+      members.forEach(function(m){
+        var firstName = m.name.split(' ')[0].toLowerCase();
+        if(e.title.toLowerCase().indexOf(firstName) === 0){
+          matched = m;
+        }
+      });
+      var key = matched ? matched.name.split(' ')[0] : 'Other';
+      if(!boGroups[key]) boGroups[key] = {member: matched, events: []};
+      boGroups[key].events.push(e);
     });
     var names = Object.keys(boGroups);
-    if(names.length === 1){
-      // Single member - show flat
-      boEl.innerHTML = bo.map(function(e){
-        return '<div class="ri" style="border-left-color:#ff4757"><div class="git">'+e.title+'</div><div class="gim" style="color:#ff4757">'+e.date+(e.note?' - '+e.note:'')+'</div></div>';
-      }).join('');
+    if(names.length === 1 && names[0] === Object.keys(boGroups)[0]){
+      // Could be single member or "Other" - show flat if just one group
+      boEl.innerHTML = '';
+      boGroups[names[0]].events.forEach(function(e){
+        var row = document.createElement('div');
+        row.className = 'ri';
+        row.style.borderLeftColor = '#ff4757';
+        row.innerHTML = '<div class="git">'+e.date+(e.note?' · '+e.note:'')+'</div>';
+        boEl.appendChild(row);
+      });
     } else {
-      // Multiple members - group with nested collapse
+      // Multiple members - nested collapse per member
       boEl.innerHTML = '';
       names.forEach(function(name){
+        var group = boGroups[name];
         var stateKey = 'bo_'+name;
         if(cardStates[stateKey] === undefined) cardStates[stateKey] = true; // collapsed
         var isOpen = !cardStates[stateKey];
-        var group = document.createElement('div');
-        group.style.cssText = 'margin-bottom:6px;';
+        var wrapper = document.createElement('div');
+        wrapper.style.cssText = 'margin-bottom:4px;';
+
         var header = document.createElement('div');
-        header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(255,71,87,.1);border-radius:6px;cursor:pointer;border-left:3px solid #ff4757;';
-        header.innerHTML = '<span style="font-size:13px;font-weight:600;color:#ff4757;">'+name+'</span><span style="color:#ff4757;font-size:12px;">&#8964; '+boGroups[name].length+'</span>';
-        header.setAttribute('data-name', name);
-        header.onclick = function(){
-          var n = this.getAttribute('data-name');
+        header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:rgba(255,71,87,.1);border-radius:6px;cursor:pointer;border-left:2px solid #ff4757;';
+        var memberColor = group.member ? group.member.color : '#ff4757';
+        header.innerHTML =
+          '<div style="display:flex;align-items:center;gap:6px;">'+
+            '<div style="width:20px;height:20px;border-radius:50%;background:'+memberColor+';display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#000;">'+(group.member?group.member.av:name.slice(0,2).toUpperCase())+'</div>'+
+            '<span style="font-size:12px;font-weight:600;color:#ff4757;">'+name+'</span>'+
+            '<span style="font-size:10px;color:#4a6a9a;">('+group.events.length+')</span>'+
+          '</div>'+
+          '<span style="color:#ff4757;font-size:12px;">&#8964;</span>';
+        header.setAttribute('data-bo-name', name);
+        header.onclick = function(e){
+          e.stopPropagation(); // prevent closing parent
+          var n = this.getAttribute('data-bo-name');
           cardStates['bo_'+n] = !cardStates['bo_'+n];
           rHome();
         };
-        group.appendChild(header);
+        wrapper.appendChild(header);
+
         if(isOpen){
           var list = document.createElement('div');
-          list.style.cssText = 'padding:4px 0 0 10px;';
-          boGroups[name].forEach(function(e){
+          list.style.cssText = 'padding:4px 0 2px 14px;';
+          group.events.forEach(function(ev){
             var row = document.createElement('div');
-            row.style.cssText = 'padding:5px 8px;font-size:12px;color:#ff4757;border-left:1px solid rgba(255,71,87,.3);margin-bottom:2px;';
-            row.textContent = e.date + (e.note ? ' · '+e.note : '');
+            row.style.cssText = 'font-size:11px;color:#ff4757;padding:3px 8px;border-left:1px solid rgba(255,71,87,.3);margin-bottom:2px;';
+            row.textContent = ev.date + (ev.note ? ' · '+ev.note : '');
             list.appendChild(row);
           });
-          group.appendChild(list);
+          wrapper.appendChild(list);
         }
-        boEl.appendChild(group);
+        boEl.appendChild(wrapper);
       });
     }
-  }
+  } // end blackout
   document.getElementById('hm').innerHTML =
     '<div id="mem-toggle" onclick="toggleMems()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:6px;">' +
     '<div style="display:flex;gap:5px;">' +
