@@ -909,13 +909,14 @@ function rEvL() {
   var sorted = events.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
   el.innerHTML = sorted.map(function(e){
     var del = '<button style="background:none;border:none;color:#aaa;font-size:14px;cursor:pointer;" onclick="dEv(\'' + e.id + '\')">&#10005;</button>';
+    var edit = '<button style="background:none;border:1px solid #1a3a8a;border-radius:4px;padding:1px 5px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;margin-right:4px;" onclick="editEv(\'' + e.id + '\')">EDIT</button>';
     var info = e.type==='gig' ? '<button style="background:none;border:1px solid #1a3a8a;border-radius:4px;padding:1px 5px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;margin-right:4px;" onclick="showGigDetail(\'' + e.id + '\')">INFO</button>' :
                e.type==='rehearsal' ? '<button style="background:none;border:1px solid #06d6a0;border-radius:4px;padding:1px 5px;color:#06d6a0;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;margin-right:4px;" onclick="openAgenda(\'' + e.id + '\')">AGENDA</button>' : '';
     return '<div class="er">' +
       '<div class="ebdg" style="background:' + EC[e.type] + '22;color:' + EC[e.type] + '">' + e.type + '</div>' +
       '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:#fff">' + e.title + '</div>' +
       '<div style="font-size:11px;color:#aaa;margin-top:2px">' + e.date + ' - ' + e.note + '</div></div>' +
-      info + del + '</div>';
+      edit + info + del + '</div>';
   }).join('');
 }
 function oDy(day) {
@@ -950,6 +951,54 @@ function sET(t) {
     b.style.borderColor=k===t?EC[k]:'#0d1f3a';
   });
 }
+
+function editEv(id){
+  var ev = events.find(function(e){ return e.id==id; });
+  if(!ev) return;
+  sDay = parseInt(ev.date.split('-')[2]);
+  CM = parseInt(ev.date.split('-')[1]) - 1;
+  CY = parseInt(ev.date.split('-')[0]);
+  document.getElementById('emtit').textContent = 'Edit Event';
+  document.getElementById('etit').value = ev.title;
+  document.getElementById('enot').value = ev.note || '';
+  sET(ev.type);
+  var eex = document.getElementById('eex');
+  eex.innerHTML = '';
+  var info = document.createElement('div');
+  info.style.cssText = 'padding:8px;background:#060e1c;border-radius:8px;margin-bottom:8px;border-left:3px solid ' + EC[ev.type] + ';';
+  info.innerHTML = '<div style="font-size:11px;color:#aaa;margin-bottom:4px;">Editing: <b style="color:#fff;">' + ev.title + '</b></div><div style="font-size:11px;color:#4a6a9a;">Update fields below and tap Save.</div>';
+  var delBtn = document.createElement('button');
+  delBtn.className = 'cb';
+  delBtn.style.cssText = 'margin-top:8px;font-size:11px;padding:4px 10px;';
+  delBtn.textContent = 'Delete Event';
+  delBtn.onclick = function(){ dEv(id); clM('evm'); };
+  info.appendChild(delBtn);
+  eex.appendChild(info);
+  var saveBtn = document.querySelector('#evm .sb');
+  if(saveBtn){
+    saveBtn.textContent = 'Save Changes';
+    saveBtn.onclick = function(){ saveEditEv(id); };
+  }
+  opM('evm');
+}
+
+function saveEditEv(id){
+  var t = document.getElementById('etit').value.trim();
+  if(!t) return;
+  var ev = events.find(function(e){ return e.id==id; });
+  if(!ev) return;
+  ev.title = t;
+  ev.note = document.getElementById('enot').value.trim();
+  ev.type = cET;
+  saveEvent(ev);
+  var saveBtn = document.querySelector('#evm .sb');
+  if(saveBtn){
+    saveBtn.textContent = 'Add to Calendar';
+    saveBtn.onclick = function(){ adEv(); };
+  }
+  clM('evm');
+}
+
 function adEv() {
   var t=document.getElementById('etit').value.trim();
   if(!t)return;
