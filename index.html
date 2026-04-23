@@ -1726,7 +1726,7 @@ function rEd() {
   document.getElementById('eh').innerHTML =
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">'+
     '<span style="font-family:Russo One,sans-serif;font-size:16px;color:#fff;">'+s.name+'</span>'+
-    '<button onclick="toggleSLEdit()" style="background:'+(reorderMode?'rgba(245,197,24,.15)':'none')+';border:1px solid '+(reorderMode?'#f5c518':'#1a3a8a')+';border-radius:6px;padding:3px 10px;color:'+(reorderMode?'#f5c518':'#4a9eff')+';font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;touch-action:manipulation;">&#9998; Edit</button>'+
+    '<button onclick="toggleSLEdit()" style="background:'+(reorderMode?'rgba(245,197,24,.15)':'none')+';border:1px solid '+(reorderMode?'#f5c518':'#1a3a8a')+';border-radius:6px;padding:3px 10px;color:'+(reorderMode?'#f5c518':'#4a9eff')+';font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;touch-action:manipulation;">'+(reorderMode?'✓ Done':'&#9998; Edit')+'</button>'+
     '<button onclick="printSL()" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:3px 10px;color:#4a9eff;font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;touch-action:manipulation;">&#8679; Share</button>'+
     '</div>'+
     '<div style="font-size:12px;color:#aaa;margin-bottom:4px;">'+s.songs.length+' songs'+durStr+'</div>'+
