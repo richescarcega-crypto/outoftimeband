@@ -202,7 +202,7 @@ body.light .mrav{color:#000 !important;}
     <div class="hero-l" style="padding:0;overflow:hidden;"><img src="logo.jpg" alt="OOT" style="width:100%;height:100%;object-fit:cover;"></div>
     <div class="hero-r"><img src="band.jpg" alt="Band"></div>
   </div>
-  <div style="text-align:center;font-family:'Russo One',sans-serif;font-size:12px;color:#f5c518;letter-spacing:2px;padding:2px 0 0;margin-top:-4px;">Where Rock &amp; Roll Meets the Dancefloor</div>
+  <div style="text-align:center;font-family:'Russo One',sans-serif;font-size:10px;color:#f5c518;letter-spacing:2px;padding:2px 0 0;margin-top:-4px;text-shadow:0 0 12px rgba(245,197,24,.6);">Where Rock &amp; Roll Meets the Dancefloor</div>
   <div style="display:flex;justify-content:center;gap:12px;padding:12px 0 12px;">
     <a href="https://www.instagram.com/outoftimecoverband?igsh=NTc4MTIwNjQ2YQ==" target="_blank" style="display:flex;align-items:center;gap:5px;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:11px;font-family:Russo One,sans-serif;text-decoration:none;letter-spacing:1px;">&#128247; Instagram</a>
     <a href="https://www.facebook.com/profile.php?id=61565057075702&mibextid=ZbWKwL" target="_blank" style="display:flex;align-items:center;gap:5px;background:#1877f2;border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:11px;font-family:Russo One,sans-serif;text-decoration:none;letter-spacing:1px;">&#128100; Facebook</a>
@@ -245,8 +245,12 @@ body.light .mrav{color:#000 !important;}
     </div>
     <div id="hbo" style="display:none;"></div>
   </div>
-  <div class="sh">MEMBERS</div>
-  <div id="hm"></div>
+  <div class="card">
+    <div class="card-lbl" onclick="toggleCard('hm','mem-arrow-lbl')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+      <span>MEMBERS</span><span id="mem-arrow-lbl">&#8964;</span>
+    </div>
+    <div id="hm" style="display:none;"></div>
+  </div>
 </div>
 
 <div id="sc-cal" class="sc">
@@ -1194,9 +1198,6 @@ function rHome() {
   document.getElementById('hr').innerHTML = rr.length ? rr.map(function(e){var d=dU(e.date);return '<div class="ri"><div class="git">'+e.title+'</div><div class="gim" style="color:#aaa">'+e.date+' - '+e.note+(d<=7?' <b style="color:#4a9eff">'+(d===0?'TODAY':d===1?'TOMORROW':d+'d')+'</b>':'')+' </div></div>';}).join('') : '<div class="none">NONE</div>';
   rBlackout();
     document.getElementById('hm').innerHTML =
-    '<div id="mem-toggle" onclick="toggleMems()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:6px;">' +
-    '<span style="font-size:11px;color:#4a6a9a;font-family:Russo One,sans-serif;letter-spacing:1px;">'+members.length+' members</span>' +
-    '<span id="mem-arrow" style="color:#4a9eff;font-size:16px;">&#8964;</span></div>' +
     '<div id="mem-list" style="display:none;">' +
     members.map(function(m){return '<div class="mr"><div class="mrav" style="background:'+m.color+'">'+m.av+'</div><span style="flex:1;font-size:12px;font-weight:600;color:#e8f0ff;">'+m.name+'</span><span style="font-size:11px;color:#4a9eff;">'+m.inst+'</span></div>';}).join('') +
     '</div>';
