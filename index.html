@@ -1485,21 +1485,35 @@ function editEv(id){
   sET(ev.type);
   var eex = document.getElementById('eex');
   eex.innerHTML = '';
-  var info = document.createElement('div');
-  info.style.cssText = 'padding:8px;background:#060e1c;border-radius:8px;margin-bottom:8px;border-left:3px solid ' + EC[ev.type] + ';';
-  info.innerHTML = '<div style="font-size:11px;color:#aaa;margin-bottom:4px;">Editing: <b style="color:#fff;">' + ev.title + '</b></div><div style="font-size:11px;color:#4a6a9a;">Update fields below and tap Save.</div>';
+  // Delete button with confirmation
   var delBtn = document.createElement('button');
   delBtn.className = 'cb';
-  delBtn.style.cssText = 'margin-top:8px;font-size:11px;padding:4px 10px;';
+  delBtn.style.cssText = 'font-size:11px;padding:4px 10px;color:#ff4757;border:1px solid #ff4757;border-radius:6px;margin-bottom:10px;';
   delBtn.textContent = 'Delete Event';
-  delBtn.onclick = function(){ dEv(id); clM('evm'); };
-  info.appendChild(delBtn);
-  eex.appendChild(info);
-  var saveBtn = document.querySelector('#evm .sb');
-  if(saveBtn){
-    saveBtn.textContent = 'Save Changes';
-    saveBtn.onclick = function(){ saveEditEv(id); };
+  delBtn.onclick = function(){
+    if(confirm('Delete "' + ev.title + '"? This cannot be undone.')){ dEv(id); clM('evm'); }
+  };
+  eex.appendChild(delBtn);
+  var divider = document.createElement('div');
+  divider.style.cssText = 'height:1px;background:#0d1f3a;margin-bottom:10px;';
+  eex.appendChild(divider);
+  // Show editable fields
+  showNewEventForm();
+  // Gig details if applicable
+  if(ev.type === 'gig'){
+    var det = gigDetails[String(id)] || {};
+    var gigSection = document.createElement('div');
+    gigSection.style.cssText = 'margin-top:4px;';
+    gigSection.innerHTML =
+      '<div style="font-size:9px;color:#4a6a9a;font-family:Russo One,sans-serif;letter-spacing:2px;margin-bottom:8px;">GIG DETAILS</div>'+
+      '<input class="mi" id="edit-venue" placeholder="Venue / Address" value="'+(det.venue||'')+'">'+
+      '<div style="display:flex;gap:8px;"><input class="mi" id="edit-loadin" placeholder="Load-in" value="'+(det.loadin||'')+'" style="flex:1;"><input class="mi" id="edit-sc" placeholder="Sound check" value="'+(det.sc||'')+'" style="flex:1;"></div>'+
+      '<div style="display:flex;gap:8px;"><input class="mi" id="edit-settime" placeholder="Set time" value="'+(det.settime||'')+'" style="flex:1;"><input class="mi" id="edit-contact" placeholder="Contact" value="'+(det.contact||'')+'" style="flex:1;"></div>'+
+      '<textarea class="mi" id="edit-notes" rows="2" style="resize:none;" placeholder="Notes">'+(det.notes||'')+'</textarea>';
+    eex.appendChild(gigSection);
   }
+  var saveBtn = document.querySelector('#evm .sb');
+  if(saveBtn){ saveBtn.textContent='Save Changes'; saveBtn.onclick=function(){ saveEditEv(id); }; }
   opM('evm');
 }
 
@@ -1512,11 +1526,23 @@ function saveEditEv(id){
   ev.note = document.getElementById('enot').value.trim();
   ev.type = cET;
   saveEvent(ev);
-  var saveBtn = document.querySelector('#evm .sb');
-  if(saveBtn){
-    saveBtn.textContent = 'Add to Calendar';
-    saveBtn.onclick = function(){ adEv(); };
+  if(ev.type === 'gig'){
+    var venueEl = document.getElementById('edit-venue');
+    if(venueEl){
+      var det = {
+        venue: venueEl.value,
+        loadin: (document.getElementById('edit-loadin')||{value:''}).value,
+        sc: (document.getElementById('edit-sc')||{value:''}).value,
+        settime: (document.getElementById('edit-settime')||{value:''}).value,
+        contact: (document.getElementById('edit-contact')||{value:''}).value,
+        notes: (document.getElementById('edit-notes')||{value:''}).value
+      };
+      gigDetails[String(id)] = det;
+      db.collection('gigdetails').doc(String(id)).set(det);
+    }
   }
+  var saveBtn = document.querySelector('#evm .sb');
+  if(saveBtn){ saveBtn.textContent='Add to Calendar'; saveBtn.onclick=function(){adEv();}; }
   clM('evm');
 }
 
