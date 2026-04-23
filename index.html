@@ -19,9 +19,8 @@ input,select,textarea{font-family:"Exo 2",sans-serif;outline:none;border:none;ba
 button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 #app{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;max-width:480px;margin:0 auto;}
 #tabs{flex-shrink:0;display:flex;background:#080f1e;border-bottom:2px solid #1a3a8a;}
-.tb{flex:1;padding:9px 2px 7px;background:none;border:none;color:#3a5a7a;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:"Russo One",sans-serif;font-size:8px;letter-spacing:.3px;-webkit-tap-highlight-color:rgba(245,197,24,.3);touch-action:manipulation;cursor:grab;user-select:none;}
-.tb.dragging{opacity:.4;background:rgba(245,197,24,.1);}
-.tb.drag-over{background:rgba(74,158,255,.2);border-bottom:3px solid #4a9eff;}
+.tb{flex:1;padding:9px 2px 7px;background:none;border:none;color:#3a5a7a;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:"Russo One",sans-serif;font-size:8px;letter-spacing:.3px;-webkit-tap-highlight-color:rgba(245,197,24,.3);touch-action:manipulation;}
+
 .tb .i{font-size:16px;pointer-events:none;}
 .tb span{pointer-events:none;}
 .tb.on{color:#f5c518;border-bottom:3px solid #f5c518;}
@@ -114,13 +113,13 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
 <body>
 <div id="app">
 <div id="tabs">
-  <button class="tb on" onclick="go('home',this)"><span class="i">&#127968;</span><span>Home</span></button>
-  <button class="tb" onclick="go('cal',this)"><span class="i">&#128197;</span><span>Calendar</span></button>
-  <button class="tb" onclick="go('sets',this)"><span class="i">&#127925;</span><span>Setlists</span></button>
-  <button class="tb" onclick="go('chat',this)"><span class="i">&#128172;</span><span>Chat</span></button>
-  <button class="tb" onclick="go('band',this)"><span class="i">&#128101;</span><span>Band</span></button>
-  <button class="tb" onclick="go('songs',this)"><span class="i">&#127908;</span><span>Songs</span></button>
-  <button class="tb" onclick="go('pay',this)"><span class="i">&#128176;</span><span>Pay</span></button>
+  <button class="tb on" id="tb-home" onclick="go('home',this)" data-sc="home"><span class="i">&#127968;</span><span>Home</span></button>
+  <button class="tb" id="tb-cal" onclick="go('cal',this)" data-sc="cal"><span class="i">&#128197;</span><span>Calendar</span></button>
+  <button class="tb" id="tb-sets" onclick="go('sets',this)" data-sc="sets"><span class="i">&#127925;</span><span>Setlists</span></button>
+  <button class="tb" id="tb-chat" onclick="go('chat',this)" data-sc="chat"><span class="i">&#128172;</span><span>Chat</span></button>
+  <button class="tb" id="tb-band" onclick="go('band',this)" data-sc="band"><span class="i">&#128101;</span><span>Band</span></button>
+  <button class="tb" id="tb-songs" onclick="go('songs',this)" data-sc="songs"><span class="i">&#127908;</span><span>Songs</span></button>
+  <button class="tb" id="tb-pay" onclick="go('pay',this)" data-sc="pay"><span class="i">&#128176;</span><span>Pay</span></button>
 </div>
 <div id="cnt">
 
@@ -132,7 +131,7 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
     </div>
     <div id="announce-list"></div>
   </div>
-  <div id="who-am-i" onclick="whoAmITap()" style="font-size:11px;text-align:right;margin-bottom:8px;cursor:pointer;"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><button onclick="openReorder()" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;padding:0;" title="Arrange tabs">&#9776;</button><div id="who-am-i" onclick="whoAmITap()" style="font-size:11px;cursor:pointer;"></div></div>
   <div class="hero">
     <div class="hero-l"><img src="logo.jpg" alt="OOT"><div class="htag">Danceable Classic Rock<br>Pure Energy</div></div>
     <div class="hero-r"><img src="band.jpg" alt="Band"></div>
@@ -413,113 +412,83 @@ function pickName(idx) {
 
 
 
-// ── TAB DRAG TO REORDER ────────────────────────────────────────────────────
-var dragSrcTab = null;
 
-function initTabDrag(){
-  var tabs = document.querySelectorAll('.tb');
-  tabs.forEach(function(tab){
-    tab.setAttribute('draggable','true');
+// ── TAB REORDER ────────────────────────────────────────────────────────────
+var TAB_DEFS = [
+  {id:'home',  icon:'&#127968;', label:'Home'},
+  {id:'cal',   icon:'&#128197;', label:'Calendar'},
+  {id:'sets',  icon:'&#127925;', label:'Setlists'},
+  {id:'chat',  icon:'&#128172;', label:'Chat'},
+  {id:'band',  icon:'&#128101;', label:'Band'},
+  {id:'songs', icon:'&#127908;', label:'Songs'},
+  {id:'pay',   icon:'&#128176;', label:'Pay'},
+];
+var tabOrder = ['home','cal','sets','chat','band','songs','pay'];
 
-    tab.addEventListener('dragstart', function(e){
-      dragSrcTab = this;
-      this.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-    });
-    tab.addEventListener('dragend', function(){
-      this.classList.remove('dragging');
-      document.querySelectorAll('.tb').forEach(function(t){ t.classList.remove('drag-over'); });
-    });
-    tab.addEventListener('dragover', function(e){
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      if(this !== dragSrcTab){
-        document.querySelectorAll('.tb').forEach(function(t){ t.classList.remove('drag-over'); });
-        this.classList.add('drag-over');
-      }
-    });
-    tab.addEventListener('drop', function(e){
-      e.preventDefault();
-      if(dragSrcTab && this !== dragSrcTab){
-        var tabBar = document.getElementById('tabs');
-        var tabs = Array.from(tabBar.querySelectorAll('.tb'));
-        var srcIdx = tabs.indexOf(dragSrcTab);
-        var tgtIdx = tabs.indexOf(this);
-        if(srcIdx < tgtIdx){
-          tabBar.insertBefore(dragSrcTab, this.nextSibling);
-        } else {
-          tabBar.insertBefore(dragSrcTab, this);
-        }
-        saveTabOrder();
-      }
-      this.classList.remove('drag-over');
-    });
+function openReorder(){
+  rReorderList();
+  opM('reorder-modal');
+}
 
-    // Touch support for mobile
-    var touchStartX = 0, touchTab = null, touchClone = null;
-    tab.addEventListener('touchstart', function(e){
-      touchTab = this;
-      touchStartX = e.touches[0].clientX;
-      var rect = this.getBoundingClientRect();
-      touchClone = this.cloneNode(true);
-      touchClone.style.cssText = 'position:fixed;top:'+rect.top+'px;left:'+rect.left+'px;width:'+rect.width+'px;opacity:.7;z-index:9999;pointer-events:none;background:#1a3a8a;border-radius:6px;';
-      document.body.appendChild(touchClone);
-    }, {passive:true});
+function rReorderList(){
+  var el = document.getElementById('reorder-list');
+  el.innerHTML = '';
+  tabOrder.forEach(function(id, i){
+    var def = TAB_DEFS.find(function(d){return d.id===id;});
+    if(!def) return;
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 8px;background:#101e34;border-radius:8px;margin-bottom:6px;';
+    row.innerHTML = '<span style="font-size:18px;">'+def.icon+'</span><span style="flex:1;font-size:14px;font-weight:600;color:#e8f0ff;">'+def.label+'</span>';
+    var btnUp = document.createElement('button');
+    btnUp.style.cssText = 'background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;padding:6px 10px;color:#4a9eff;font-size:14px;cursor:pointer;';
+    btnUp.innerHTML = '&#8593;';
+    btnUp.disabled = i===0;
+    btnUp.style.opacity = i===0?'0.3':'1';
+    btnUp.onclick = (function(idx){ return function(){ moveTab(idx,-1); }; })(i);
+    var btnDn = document.createElement('button');
+    btnDn.style.cssText = 'background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;padding:6px 10px;color:#4a9eff;font-size:14px;cursor:pointer;';
+    btnDn.innerHTML = '&#8595;';
+    btnDn.disabled = i===tabOrder.length-1;
+    btnDn.style.opacity = i===tabOrder.length-1?'0.3':'1';
+    btnDn.onclick = (function(idx){ return function(){ moveTab(idx,1); }; })(i);
+    row.appendChild(btnUp);
+    row.appendChild(btnDn);
+    el.appendChild(row);
+  });
+}
 
-    tab.addEventListener('touchmove', function(e){
-      if(!touchClone) return;
-      var touch = e.touches[0];
-      touchClone.style.left = (touch.clientX - touchClone.offsetWidth/2) + 'px';
-      // Find tab under touch
-      touchClone.style.display='none';
-      var el = document.elementFromPoint(touch.clientX, touch.clientY);
-      touchClone.style.display='';
-      var targetTab = el ? el.closest('.tb') : null;
-      document.querySelectorAll('.tb').forEach(function(t){ t.classList.remove('drag-over'); });
-      if(targetTab && targetTab !== touchTab) targetTab.classList.add('drag-over');
-    }, {passive:true});
+function moveTab(idx, dir){
+  var ni = idx+dir;
+  if(ni<0||ni>=tabOrder.length) return;
+  var tmp = tabOrder[idx];
+  tabOrder[idx] = tabOrder[ni];
+  tabOrder[ni] = tmp;
+  applyTabOrder();
+  rReorderList();
+}
 
-    tab.addEventListener('touchend', function(e){
-      if(touchClone){ document.body.removeChild(touchClone); touchClone=null; }
-      var touch = e.changedTouches[0];
-      var el = document.elementFromPoint(touch.clientX, touch.clientY);
-      var targetTab = el ? el.closest('.tb') : null;
-      document.querySelectorAll('.tb').forEach(function(t){ t.classList.remove('drag-over'); });
-      if(targetTab && targetTab !== touchTab){
-        var tabBar = document.getElementById('tabs');
-        var tabs = Array.from(tabBar.querySelectorAll('.tb'));
-        var srcIdx = tabs.indexOf(touchTab);
-        var tgtIdx = tabs.indexOf(targetTab);
-        if(srcIdx < tgtIdx){
-          tabBar.insertBefore(touchTab, targetTab.nextSibling);
-        } else {
-          tabBar.insertBefore(touchTab, targetTab);
-        }
-        saveTabOrder();
-      }
-      touchTab = null;
-    });
+function applyTabOrder(){
+  var bar = document.getElementById('tabs');
+  tabOrder.forEach(function(id){
+    var btn = document.getElementById('tb-'+id);
+    if(btn) bar.appendChild(btn);
   });
 }
 
 function saveTabOrder(){
-  var tabs = Array.from(document.querySelectorAll('.tb'));
-  var order = tabs.map(function(t){ return t.querySelector('span:last-child').textContent.trim(); });
-  localStorage.setItem('tab_order', JSON.stringify(order));
+  localStorage.setItem('tab_order', JSON.stringify(tabOrder));
 }
 
 function loadTabOrder(){
   var saved = localStorage.getItem('tab_order');
-  if(!saved) return;
-  try {
-    var order = JSON.parse(saved);
-    var tabBar = document.getElementById('tabs');
-    order.forEach(function(name){
-      var tabs = Array.from(tabBar.querySelectorAll('.tb'));
-      var tab = tabs.find(function(t){ return t.querySelector('span:last-child').textContent.trim() === name; });
-      if(tab) tabBar.appendChild(tab);
-    });
-  } catch(e){}
+  if(saved){
+    try{
+      var order = JSON.parse(saved);
+      // Validate - make sure all 7 tabs are present
+      var valid = TAB_DEFS.every(function(d){ return order.indexOf(d.id)>=0; });
+      if(valid){ tabOrder = order; applyTabOrder(); }
+    } catch(e){}
+  }
 }
 function whoAmITap() { alert("You are logged in as: " + myName + ". To change, clear browser data."); }
 
@@ -536,7 +505,6 @@ function initApp() {
   listenGigDetails();
   listenSongDetails();
   loadTabOrder();
-  initTabDrag();
 }
 
 // TAB NAVIGATION
@@ -572,6 +540,7 @@ var DW=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 var EC={gig:"#f5c518", blackout:"#ff4757", rehearsal:"#4a9eff"};
 var chatTo = "band";
 var cardStates = {};
+var setsViewState = "list"; // "list" or "edit"
 var pickedSongs = {};
 
 function dU(d){return Math.ceil((new Date(d+"T00:00:00")-new Date())/86400000);}
@@ -914,8 +883,8 @@ function nwSL() {
     else setTimeout(function(){var sl2=sets[sets.length-1];if(sl2)opSL(sl2.id);},500);
   },800);
 }
-function opSL(id){aSL=id;document.getElementById('si').style.display='none';document.getElementById('se').style.display='block';rEd();}
-function clEd(){document.getElementById('si').style.display='block';document.getElementById('se').style.display='none';eSID=null;rSets();}
+function opSL(id){aSL=id;setsViewState='edit';document.getElementById('si').style.display='none';document.getElementById('se').style.display='block';rEd();}
+function clEd(){setsViewState='list';document.getElementById('si').style.display='block';document.getElementById('se').style.display='none';eSID=null;rSets();}
 function rEd() {
   var s=sets.find(function(x){return x.id==aSL;});
   if(!s)return;
@@ -1415,7 +1384,24 @@ var editingSongKeys = false;
 
 function listenSongDetails(){
   db.collection('songdetails').onSnapshot(function(snap){
-    snap.forEach(function(doc){ songDetails[doc.id] = doc.data(); });
+    snap.forEach(function(doc){ 
+      songDetails[doc.id] = doc.data();
+      // Also update library item so duration is always in sync
+      var libS = library.find(function(l){ return String(l.id)===doc.id; });
+      if(libS){
+        var d = doc.data();
+        if(d.dur) libS.dur = d.dur;
+        if(d.key) libS.key = d.key;
+        if(d.bpm) libS.bpm = d.bpm;
+        if(d.vocal) libS.vocal = d.vocal;
+        if(d.keys !== undefined) libS.keys = d.keys;
+      }
+    });
+    // Re-render setlists so durations update
+    if(document.getElementById('sc-sets').classList.contains('on')){
+      if(setsViewState==='edit' && aSL) rEd();
+      else rSets();
+    }
   });
 }
 
@@ -1496,9 +1482,11 @@ function formatDuration(secs){
 
 function getSetDuration(songs){
   var total = songs.reduce(function(acc, sg){
-    // Try to match to library song
-    var libS = library.find(function(l){ return l.title===sg.t || l.id===sg.libId; });
-    var dur = sg.d || (libS ? getSongDuration(libS) : '');
+    // Look up by libId first, then by title match
+    var libS = library.find(function(l){ return l.id===sg.libId; }) ||
+               library.find(function(l){ return l.title===sg.t; });
+    // Priority: library song's saved duration > setlist song's d field
+    var dur = (libS ? getSongDuration(libS) : '') || sg.d || '';
     return acc + parseDuration(dur);
   }, 0);
   return total;
@@ -1592,5 +1580,17 @@ if(savedName&&savedId){
   document.getElementById('name-picker-overlay').style.display='flex';
 }
 </script>
+
+<div class="ov" id="reorder-modal">
+  <div class="mo">
+    <div class="moh">
+      <span class="mot">Arrange Tabs</span>
+      <button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('reorder-modal')">&#10005;</button>
+    </div>
+    <p style="font-size:12px;color:#4a6a9a;margin-bottom:14px;">Tap the arrows to reorder your tabs. Changes apply to your phone only.</p>
+    <div id="reorder-list"></div>
+    <button class="sb" onclick="saveTabOrder();clM('reorder-modal')" style="width:100%;margin-top:14px;">Done</button>
+  </div>
+</div>
 </body>
 </html>
