@@ -516,7 +516,7 @@ function go(id, btn) {
   if (btn) btn.classList.add('on');
   if (id === 'home') rHome();
   else if (id === 'cal') rCal();
-  else if (id === 'sets') rSets();
+  else if (id === 'sets'){ if(setsViewState==='edit' && aSL){ document.getElementById('si').style.display='none'; document.getElementById('se').style.display='block'; rEd(); } else { setsViewState='list'; rSets(); } }
   else if (id === 'chat') { rChatTo(); rChat(); }
   else if (id === 'band') { rBand(); rContacts(); }
   else if (id === 'songs') rLib();
