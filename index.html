@@ -909,7 +909,7 @@ function rEvL() {
   var sorted = events.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
   el.innerHTML = sorted.map(function(e){
     var del = '<button style="background:none;border:none;color:#aaa;font-size:14px;cursor:pointer;" onclick="dEv(\'' + e.id + '\')">&#10005;</button>';
-    var edit = '<button style="background:none;border:1px solid #1a3a8a;border-radius:4px;padding:1px 5px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;margin-right:4px;" onclick="editEv(\'' + e.id + '\')">EDIT</button>';
+    var edit = '';
     var info = e.type==='gig' ? '<button style="background:none;border:1px solid #1a3a8a;border-radius:4px;padding:1px 5px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;margin-right:4px;" onclick="showGigDetail(\'' + e.id + '\')">INFO</button>' :
                e.type==='rehearsal' ? '<button style="background:none;border:1px solid #06d6a0;border-radius:4px;padding:1px 5px;color:#06d6a0;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;margin-right:4px;" onclick="openAgenda(\'' + e.id + '\')">AGENDA</button>' : '';
     return '<div class="er">' +
@@ -928,18 +928,35 @@ function oDy(day) {
   document.getElementById('emtit').textContent = MO[CM] + ' ' + day;
   var ds=fD(CY,CM,day);
   var de=events.filter(function(e){return e.date===ds;});
-  var exHtml = '';
+  var eex = document.getElementById('eex');
+  eex.innerHTML = '';
   de.forEach(function(e){
-    exHtml += '<div style="padding:9px;background:#060e1c;border-radius:8px;margin-bottom:8px;border-left:3px solid ' + EC[e.type] + '">';
-    exHtml += '<div style="font-size:13px;font-weight:600;color:#fff">' + e.title + '</div>';
-    exHtml += '<div style="font-size:11px;color:#aaa;margin-top:2px">' + e.note + '</div>';
-    exHtml += '<button class="cb" style="margin-top:8px;font-size:11px;padding:4px 10px" onclick="dEv(\''+e.id+'\');clM(\'evm\');oDy('+day+')">Remove</button>';
-    exHtml += '</div>';
+    var card = document.createElement('div');
+    card.style.cssText = 'padding:9px;background:#060e1c;border-radius:8px;margin-bottom:8px;border-left:3px solid ' + EC[e.type] + ';';
+    card.innerHTML = '<div style="font-size:13px;font-weight:600;color:#fff;">' + e.title + '</div>' +
+      (e.note ? '<div style="font-size:11px;color:#aaa;margin-top:2px;">' + e.note + '</div>' : '');
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:6px;margin-top:8px;';
+    var editBtn = document.createElement('button');
+    editBtn.className = 'sb';
+    editBtn.style.cssText = 'font-size:11px;padding:4px 12px;';
+    editBtn.textContent = 'Edit';
+    editBtn.onclick = (function(ev){ return function(){ clM('evm'); editEv(ev.id); }; })(e);
+    var delBtn = document.createElement('button');
+    delBtn.className = 'cb';
+    delBtn.style.cssText = 'font-size:11px;padding:4px 10px;';
+    delBtn.textContent = 'Remove';
+    delBtn.onclick = (function(ev, d){ return function(){ dEv(ev.id); clM('evm'); oDy(d); }; })(e, day);
+    btnRow.appendChild(editBtn);
+    btnRow.appendChild(delBtn);
+    card.appendChild(btnRow);
+    eex.appendChild(card);
   });
-  document.getElementById('eex').innerHTML = exHtml;
   sET('gig');
   document.getElementById('etit').value = '';
   document.getElementById('enot').value = '';
+  // Reset save button to normal Add mode
+  var saveBtn = document.querySelector('#evm .sb:last-of-type');
   opM('evm');
 }
 function sET(t) {
