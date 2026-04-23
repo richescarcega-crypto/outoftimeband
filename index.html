@@ -342,6 +342,7 @@ button{cursor:pointer;font-family:"Exo 2",sans-serif;}
     <div style="padding:10px 0;border-bottom:1px solid #0d1f3a;">
       <div style="color:#aaa;font-size:13px;margin-bottom:6px;">YouTube Link</div>
       <input id="si-yt" class="mi" style="width:100%;margin:0;font-size:11px;" placeholder="Paste YouTube URL here">
+      <button onclick="clearYTLink()" style="background:none;border:none;color:#ff4757;font-size:11px;cursor:pointer;margin-top:6px;font-family:Russo One,sans-serif;">&#10005; Clear saved link</button>
     </div>
     <button class="sb" onclick="saveSongInfo()" style="width:100%;margin-top:14px;">Save</button>
   </div>
@@ -2192,6 +2193,17 @@ function toggleSongKeys(){
   }
 }
 
+
+function clearYTLink(){
+  if(!editingSongId) return;
+  document.getElementById('si-yt').value = '';
+  var det = songDetails[String(editingSongId)] || {};
+  det.yt = '';
+  songDetails[String(editingSongId)] = det;
+  var s = library.find(function(x){return x.id===editingSongId;});
+  if(s) s.yt = '';
+  db.collection('songdetails').doc(String(editingSongId)).set(det, {merge:true});
+}
 function saveSongInfo(){
   if(!editingSongId) return;
   var det = {
