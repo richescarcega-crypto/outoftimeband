@@ -1207,11 +1207,7 @@ function rHome() {
   var rr = events.filter(function(e){return e.type==='rehearsal'&&dU(e.date)>=0;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,3);
   document.getElementById('hr').innerHTML = rr.length ? rr.map(function(e){var d=dU(e.date);return '<div class="ri"><div class="git">'+e.title+'</div><div class="gim" style="color:#aaa">'+e.date+' - '+e.note+(d<=7?' <b style="color:#4a9eff">'+(d===0?'TODAY':d===1?'TOMORROW':d+'d')+'</b>':'')+' </div></div>';}).join('') : '<div class="none">NONE</div>';
   rBlackout();
-    document.getElementById('hm').innerHTML =
-    '<div id="mem-list" style="display:none;">' +
-    members.map(function(m){return '<div class="mr"><div class="mrav" style="background:'+m.color+'">'+m.av+'</div><span style="flex:1;font-size:12px;font-weight:600;color:#e8f0ff;">'+m.name+'</span><span style="font-size:11px;color:#4a9eff;">'+m.inst+'</span></div>';}).join('') +
-    '</div>';
-}
+    }
 
 var memsOpen = false;
 
