@@ -838,7 +838,7 @@ function notifyBand(category, title, message, url, opts){
         // DM: only notify the targeted member
         if(opts.targetMemberId){
           var target = gM(opts.targetMemberId);
-          if(!target || target.name !== member) return;
+          if(!target || target.id !== data.memberId) return;
         }
         // Respect per-category opt-out; default true if no prefs doc
         var p = prefsByMember[member];
