@@ -208,7 +208,7 @@ body.light .mrav{color:#000 !important;}
     <a href="https://www.facebook.com/profile.php?id=61565057075702&mibextid=ZbWKwL" target="_blank" style="display:flex;align-items:center;gap:5px;background:#1877f2;border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:11px;font-family:Russo One,sans-serif;text-decoration:none;letter-spacing:1px;">&#128100; Facebook</a>
   </div>
   <div id="next-gig-countdown" style="display:none;background:linear-gradient(135deg,#0d2b6b,#1a56c4);border-radius:8px;padding:6px 10px;margin-bottom:8px;text-align:center;border:1px solid rgba(245,197,24,.3);">
-    <div style="font-family:'Russo One',sans-serif;font-size:13px;letter-spacing:3px;color:#f5c518;margin-bottom:6px;">NEXT GIG</div>
+    <div style="font-family:'Russo One',sans-serif;font-size:22px;letter-spacing:3px;color:#f5c518;margin-bottom:6px;">NEXT GIG</div>
     <div id="ngc-title" style="font-family:'Russo One',sans-serif;font-size:16px;color:#fff;margin-bottom:4px;"></div>
     <div id="ngc-detail" style="font-size:11px;color:#a0c0ff;margin-bottom:10px;"></div>
     <div style="display:flex;justify-content:center;gap:12px;">
@@ -882,7 +882,7 @@ function updateCountdown(){
   var formattedDate = parseInt(parts[1])+'/'+parseInt(parts[2])+'/'+parts[0];
   var titleEl = document.getElementById('ngc-title');
   if(titleEl){
-    titleEl.innerHTML = next.title + '<span style="color:#a0c0ff;font-weight:400;"> &nbsp;&ndash;&nbsp; </span><span style="color:#ff4757;font-size:16px;">'+formattedDate+'</span>';
+    titleEl.innerHTML = next.title + '<span style="color:#a0c0ff;font-weight:400;"> &nbsp;&ndash;&nbsp; </span><span style="color:#ff4757;font-size:14px;">'+formattedDate+'</span>';
   }
   var detailEl = document.getElementById('ngc-detail');
   if(detailEl){
