@@ -202,7 +202,7 @@ body.light .mrav{color:#000 !important;}
     <div class="hero-l" style="padding:0;overflow:hidden;"><img src="logo.jpg" alt="OOT" style="width:100%;height:100%;object-fit:cover;"></div>
     <div class="hero-r"><img src="band.jpg" alt="Band"></div>
   </div>
-  <div style="text-align:center;font-family:'Russo One',sans-serif;font-size:10px;color:#f5c518;letter-spacing:2px;padding:2px 0 0;margin-top:-4px;text-shadow:0 0 12px rgba(245,197,24,.6);font-style:italic;">Where Rock &amp; Roll Meets the Dancefloor</div>
+  <div style="text-align:center;font-family:'Russo One',sans-serif;font-size:10px;color:#f5c518;letter-spacing:2px;padding:2px 0 0;margin-top:-4px;text-shadow:0 0 12px rgba(245,197,24,.6);font-style:italic;">Where Rock &amp; Roll Meets the Dance Floor</div>
   <div style="display:flex;justify-content:center;gap:12px;padding:12px 0 12px;">
     <a href="https://www.instagram.com/outoftimecoverband?igsh=NTc4MTIwNjQ2YQ==" target="_blank" style="display:flex;align-items:center;gap:5px;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:11px;font-family:Russo One,sans-serif;text-decoration:none;letter-spacing:1px;">&#128247; Instagram</a>
     <a href="https://www.facebook.com/profile.php?id=61565057075702&mibextid=ZbWKwL" target="_blank" style="display:flex;align-items:center;gap:5px;background:#1877f2;border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:11px;font-family:Russo One,sans-serif;text-decoration:none;letter-spacing:1px;">&#128100; Facebook</a>
@@ -1766,7 +1766,15 @@ function rEd() {
       doneBtn.style.cssText = 'padding:6px 12px;font-size:11px;flex-shrink:0;';
       doneBtn.textContent = 'Done';
       doneBtn.onclick = (function(id){ return function(e){ e.stopPropagation(); svEd(id); }; })(sg.id);
+      var editDelBtn = document.createElement('button');
+      editDelBtn.style.cssText = 'background:none;border:1px solid #ff4757;border-radius:6px;padding:6px 10px;color:#ff4757;font-size:11px;cursor:pointer;flex-shrink:0;font-family:Russo One,sans-serif;';
+      editDelBtn.textContent = 'Remove';
+      editDelBtn.onclick = (function(id, title){ return function(e){
+        e.stopPropagation();
+        if(confirm('Remove "'+title+'" from this setlist?')) rmS(id);
+      }; })(sg.id, sg.t);
       div.appendChild(doneBtn);
+      div.appendChild(editDelBtn);
     } else {
       // Normal view with grip handle
       var grip = document.createElement('div');
@@ -1781,14 +1789,20 @@ function rEd() {
 
       var textDiv = document.createElement('div');
       textDiv.style.cssText = 'flex:1;min-width:0;';
+      var libSong = sg.libId ? library.find(function(l){return l.id===sg.libId;}) : null;
+      var songTitle = libSong ? libSong.title : sg.t;
+      var songArtist = libSong ? (libSong.artist||'') : '';
       textDiv.innerHTML =
-        '<div style="font-size:13px;font-weight:600;color:#fff;">'+(sg.libId?(library.find(function(l){return l.id===sg.libId;})||{title:sg.t}).title:sg.t)+'</div>'+
-        '<div style="font-size:11px;color:#aaa;margin-top:2px;">'+
-          (sg.d?sg.d:'')+(sg.k?' · Key of '+sg.k:'')+(sg.n?' · '+sg.n:'')+
+        '<div style="font-size:13px;font-weight:600;">' +
+          '<span style="color:#f5c518;">' + songTitle + '</span>' +
+          (songArtist ? '<span style="color:#4a6a9a;"> &nbsp;–&nbsp; </span><span style="color:#4a9eff;font-size:12px;">' + songArtist + '</span>' : '') +
+        '</div>' +
+        '<div style="font-size:11px;color:#aaa;margin-top:2px;">' +
+          (sg.d?sg.d:'')+(sg.k?' · Key of '+sg.k:'')+(sg.n?' · '+sg.n:'') +
         '</div>';
 
       var rmBtn = document.createElement('button');
-      rmBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:6px;width:34px;height:34px;color:#ff4757;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;flex-shrink:0;';
+      rmBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:6px;width:34px;height:34px;color:#ff4757;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;flex-shrink:0;display:'+(reorderMode?'flex':'none')+';';
       rmBtn.innerHTML = '&#128465;';
       rmBtn.onclick = (function(id, title){ return function(e){
         e.stopPropagation();
