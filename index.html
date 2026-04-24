@@ -112,7 +112,7 @@ body.light .mrav{color:#000 !important;}
 .mlbl{font-family:"Russo One",sans-serif;font-size:17px;letter-spacing:3px;color:#f5c518;text-shadow:0 0 10px rgba(245,197,24,.5);}
 .cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;background:linear-gradient(135deg,#0d2b6b,#1a56c4);border:1px solid rgba(74,158,255,.25);border-radius:12px;padding:8px 5px;margin-bottom:12px;}
 .dhdr{text-align:center;font-size:11px;font-weight:700;color:#f5c518;font-family:"Russo One",sans-serif;padding-bottom:6px;margin-bottom:3px;border-bottom:1px solid rgba(245,197,24,.3);letter-spacing:.5px;}
-.dc{min-height:38px;background:#0a1628;border-radius:6px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;cursor:pointer;transition:all .15s;border:1px solid rgba(74,158,255,.15);}
+.dc{min-height:50px;background:#0a1628;border-radius:6px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;cursor:pointer;transition:all .15s;border:1px solid rgba(74,158,255,.15);}
 .dc:hover{background:#132040;border-color:rgba(74,158,255,.5);transform:scale(1.05);}
 .dc:active{background:#1a3a8a;}
 .dc.td{background:rgba(245,197,24,.15);border:2px solid #f5c518;}
@@ -325,7 +325,7 @@ body.light .mrav{color:#000 !important;}
     <span>CONTACTS</span><span id="contacts-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span>
   </div>
   <div id="contacts-list"></div>
-  <div id="contacts-add-btn"><button class="ab" onclick="editingContactId=null;var t=document.getElementById('contact-modal-title');var b=document.getElementById('contact-save-btn');if(t)t.textContent='Add Contact';if(b)b.textContent='Add Contact';opM('contact-modal');">+ Add Contact</button></div>
+  <div id="contacts-add-btn"><button class="ab" onclick="opM('contact-modal')">+ Add Contact</button></div>
 </div>
 
 <div id="sc-songs" class="sc">
@@ -511,7 +511,7 @@ body.light .mrav{color:#000 !important;}
     <input class="mi" id="ct-ph" placeholder="Phone">
     <input class="mi" id="ct-em" placeholder="Email">
     <input class="mi" id="ct-note" placeholder="Notes">
-    <button class="sb" id="contact-save-btn" onclick="addContact()" style="width:100%">Add Contact</button>
+    <button class="sb" onclick="addContact()" style="width:100%">Add Contact</button>
   </div>
 </div>
 
@@ -878,17 +878,24 @@ function updateCountdown(){
   var next = upcoming[0];
   card.style.display='block';
   document.getElementById('ngc-title').textContent = next.title;
-  document.getElementById('ngc-detail').textContent = next.date + (next.note?' · '+next.note:'');
+  // Format date as M/D/YYYY in red, combined with note on same line
+  var parts = next.date.split('-');
+  var formattedDate = parseInt(parts[1])+'/'+parseInt(parts[2])+'/'+parts[0];
+  var detailEl = document.getElementById('ngc-detail');
+  if(detailEl){
+    var noteText = next.note ? next.note + '&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;' : '';
+    detailEl.innerHTML = noteText + '<span style="color:#ff4757;font-size:11px;">'+formattedDate+'</span>';
+  }
   var d = dU(next.date);
+  var tonightEl = document.getElementById('ngc-tonight');
   if(d===0){
-    document.getElementById('ngc-tonight').style.display='block';
-    document.querySelector('#next-gig-countdown .countdown-nums') && (document.querySelector('#next-gig-countdown .countdown-nums').style.display='none');
+    if(tonightEl) tonightEl.style.display='block';
   } else {
-    // Live countdown
+    if(tonightEl) tonightEl.style.display='none';
     if(countdownInterval) clearInterval(countdownInterval);
     function tick(){
       var now = new Date();
-      var gigDate = new Date(next.date + 'T20:00:00'); // assume 8pm
+      var gigDate = new Date(next.date + 'T20:00:00');
       var diff = gigDate - now;
       if(diff <= 0){ updateCountdown(); return; }
       var days = Math.floor(diff/86400000);
@@ -1485,36 +1492,21 @@ function editEv(id){
   sET(ev.type);
   var eex = document.getElementById('eex');
   eex.innerHTML = '';
-  // Delete button with confirmation
+  var info = document.createElement('div');
+  info.style.cssText = 'padding:8px;background:#060e1c;border-radius:8px;margin-bottom:8px;border-left:3px solid ' + EC[ev.type] + ';';
+  info.innerHTML = '<div style="font-size:11px;color:#aaa;margin-bottom:4px;">Editing: <b style="color:#fff;">' + ev.title + '</b></div><div style="font-size:11px;color:#4a6a9a;">Update fields below and tap Save.</div>';
   var delBtn = document.createElement('button');
   delBtn.className = 'cb';
-  delBtn.style.cssText = 'font-size:11px;padding:4px 10px;color:#ff4757;border:1px solid #ff4757;border-radius:6px;margin-bottom:10px;';
+  delBtn.style.cssText = 'margin-top:8px;font-size:11px;padding:4px 10px;';
   delBtn.textContent = 'Delete Event';
-  delBtn.onclick = function(){
-    if(confirm('Delete "' + ev.title + '"? This cannot be undone.')){ dEv(id); clM('evm'); }
-  };
-  eex.appendChild(delBtn);
-  var divider = document.createElement('div');
-  divider.style.cssText = 'height:1px;background:#0d1f3a;margin-bottom:10px;';
-  eex.appendChild(divider);
-  // Show editable fields
-  showNewEventForm();
-  sET(ev.type); // restore correct event type after showNewEventForm resets it
-  // Gig details if applicable
-  if(ev.type === 'gig'){
-    var det = gigDetails[String(id)] || {};
-    var gigSection = document.createElement('div');
-    gigSection.style.cssText = 'margin-top:4px;';
-    gigSection.innerHTML =
-      '<div style="font-size:9px;color:#4a6a9a;font-family:Russo One,sans-serif;letter-spacing:2px;margin-bottom:8px;">GIG DETAILS</div>'+
-      '<input class="mi" id="edit-venue" placeholder="Venue / Address" value="'+(det.venue||'')+'">'+
-      '<div style="display:flex;gap:8px;"><input class="mi" id="edit-loadin" placeholder="Load-in" value="'+(det.loadin||'')+'" style="flex:1;"><input class="mi" id="edit-sc" placeholder="Sound check" value="'+(det.sc||'')+'" style="flex:1;"></div>'+
-      '<div style="display:flex;gap:8px;"><input class="mi" id="edit-settime" placeholder="Set time" value="'+(det.settime||'')+'" style="flex:1;"><input class="mi" id="edit-contact" placeholder="Contact" value="'+(det.contact||'')+'" style="flex:1;"></div>'+
-      '<textarea class="mi" id="edit-notes" rows="2" style="resize:none;" placeholder="Notes">'+(det.notes||'')+'</textarea>';
-    eex.appendChild(gigSection);
-  }
+  delBtn.onclick = function(){ dEv(id); clM('evm'); };
+  info.appendChild(delBtn);
+  eex.appendChild(info);
   var saveBtn = document.querySelector('#evm .sb');
-  if(saveBtn){ saveBtn.textContent='Save Changes'; saveBtn.onclick=function(){ saveEditEv(id); }; }
+  if(saveBtn){
+    saveBtn.textContent = 'Save Changes';
+    saveBtn.onclick = function(){ saveEditEv(id); };
+  }
   opM('evm');
 }
 
@@ -1527,23 +1519,11 @@ function saveEditEv(id){
   ev.note = document.getElementById('enot').value.trim();
   ev.type = cET;
   saveEvent(ev);
-  if(ev.type === 'gig'){
-    var venueEl = document.getElementById('edit-venue');
-    if(venueEl){
-      var det = {
-        venue: venueEl.value,
-        loadin: (document.getElementById('edit-loadin')||{value:''}).value,
-        sc: (document.getElementById('edit-sc')||{value:''}).value,
-        settime: (document.getElementById('edit-settime')||{value:''}).value,
-        contact: (document.getElementById('edit-contact')||{value:''}).value,
-        notes: (document.getElementById('edit-notes')||{value:''}).value
-      };
-      gigDetails[String(id)] = det;
-      db.collection('gigdetails').doc(String(id)).set(det);
-    }
-  }
   var saveBtn = document.querySelector('#evm .sb');
-  if(saveBtn){ saveBtn.textContent='Add to Calendar'; saveBtn.onclick=function(){adEv();}; }
+  if(saveBtn){
+    saveBtn.textContent = 'Add to Calendar';
+    saveBtn.onclick = function(){ adEv(); };
+  }
   clM('evm');
 }
 
@@ -2416,10 +2396,6 @@ function rContacts() {
         document.getElementById('ct-em').value=contact.em||'';
         document.getElementById('ct-note').value=contact.note||'';
         editingContactId=contact.id;
-        var t=document.getElementById('contact-modal-title');
-        var b=document.getElementById('contact-save-btn');
-        if(t) t.textContent='Edit Contact';
-        if(b) b.textContent='Done';
         opM('contact-modal');
       }; })(c);
       detail.appendChild(editBtn);
