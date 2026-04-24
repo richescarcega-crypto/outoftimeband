@@ -877,13 +877,13 @@ function updateCountdown(){
   if(!upcoming.length){ card.style.display='none'; return; }
   var next = upcoming[0];
   card.style.display='block';
-  var titleEl = document.getElementById('ngc-title');
-  if(titleEl){
-    titleEl.innerHTML = next.title + '<span style="color:#a0c0ff;font-weight:400;"> &nbsp;-&nbsp; </span><span style="color:#ff4757;font-size:16px;">'+formattedDate+'</span>';
-  }
-  // Format date as M/D/YYYY in red, combined with note on same line
+  // Format date as M/D/YYYY
   var parts = next.date.split('-');
   var formattedDate = parseInt(parts[1])+'/'+parseInt(parts[2])+'/'+parts[0];
+  var titleEl = document.getElementById('ngc-title');
+  if(titleEl){
+    titleEl.innerHTML = next.title + '<span style="color:#a0c0ff;font-weight:400;"> &nbsp;&ndash;&nbsp; </span><span style="color:#ff4757;font-size:16px;">'+formattedDate+'</span>';
+  }
   var detailEl = document.getElementById('ngc-detail');
   if(detailEl){
     detailEl.innerHTML = '';
