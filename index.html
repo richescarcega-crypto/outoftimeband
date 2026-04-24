@@ -574,6 +574,378 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
 
+// ── PUSH NOTIFICATIONS ─────────────────────────────────────────────────────
+var PUSH_WORKER_URL = 'https://oot-push.rich-escarcega.workers.dev';
+var VAPID_PUBLIC_KEY = 'BEvv_vWeNGpGx0wJqwvyNHEIDyMjmFh2L1z-Rlu8CXOiYLAf2In6W8VbxIQ0oZfLpLJ4YMdehJbTLqPUo93QqOI';
+
+var DEFAULT_NOTIF_PREFS = {
+  announcements: true,
+  gigs: true,
+  blackouts: true,
+  availability: true,
+  votes_final: true,
+  roster: true,
+  chat: true,
+  contacts: true
+};
+var notifPrefs = Object.assign({}, DEFAULT_NOTIF_PREFS);
+var _notifPrefsUnsub = null;
+
+function loadNotifPrefs(){
+  try {
+    var raw = localStorage.getItem('oot_notif_prefs');
+    if(raw){
+      var parsed = JSON.parse(raw);
+      notifPrefs = Object.assign({}, DEFAULT_NOTIF_PREFS, parsed);
+    } else {
+      notifPrefs = Object.assign({}, DEFAULT_NOTIF_PREFS);
+    }
+  } catch(e){ notifPrefs = Object.assign({}, DEFAULT_NOTIF_PREFS); }
+}
+
+function saveNotifPrefs(){
+  try { localStorage.setItem('oot_notif_prefs', JSON.stringify(notifPrefs)); } catch(e){}
+  if(myName){
+    db.collection('notifprefs').doc(myName).set(notifPrefs).catch(function(){});
+  }
+}
+
+var NOTIF_CAT_LABELS = [
+  ['announcements','Announcements'],
+  ['gigs','Gigs & Rehearsals'],
+  ['blackouts','Blackout Dates'],
+  ['availability','Availability'],
+  ['votes_final','Final Vote Results'],
+  ['roster','Band Roster'],
+  ['chat','Chat'],
+  ['contacts','Contacts']
+];
+
+function _makeNotifToggle(on, onChange){
+  var t = document.createElement('div');
+  t.style.cssText = 'width:36px;height:20px;border-radius:10px;background:'+(on?'#4a9eff':'#1a3a8a')+';position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;';
+  var knob = document.createElement('div');
+  knob.style.cssText = 'position:absolute;top:2px;left:'+(on?'18px':'2px')+';width:16px;height:16px;border-radius:50%;background:#e8f0ff;transition:left .2s;';
+  t.appendChild(knob);
+  t.onclick = function(){ onChange(!on); };
+  return t;
+}
+
+function toggleNotifSettings(){
+  var body = document.getElementById('notif-settings-body');
+  var caret = document.getElementById('notif-settings-caret');
+  if(!body) return;
+  if(body.style.display === 'none' || !body.style.display){
+    body.style.display = 'block';
+    if(caret) caret.innerHTML = '&#8963;';
+    renderNotifSettings();
+  } else {
+    body.style.display = 'none';
+    if(caret) caret.innerHTML = '&#8964;';
+  }
+}
+
+function renderNotifSettings(){
+  var host = document.getElementById('notif-settings-body');
+  if(!host) return;
+  host.innerHTML = '';
+  var permGranted = (typeof Notification !== 'undefined') && Notification.permission === 'granted';
+  var subscribed = localStorage.getItem('oot_push_subscribed') === '1';
+  var masterOn = permGranted && subscribed;
+
+  // Master row
+  var masterRow = document.createElement('div');
+  masterRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:4px 0 10px;';
+  var masterLbl = document.createElement('div');
+  masterLbl.innerHTML = '<div style="font-family:\'Russo One\',sans-serif;font-size:11px;color:#e8f0ff;letter-spacing:1px;">PUSH NOTIFICATIONS</div>'+
+                       '<div style="font-size:11px;color:#8aa8d6;margin-top:2px;">'+(pushSupported()?(masterOn?'On for this device':'Off'):'Not supported in this browser')+'</div>';
+  masterRow.appendChild(masterLbl);
+  if(pushSupported()){
+    masterRow.appendChild(_makeNotifToggle(masterOn, function(newVal){
+      if(newVal){
+        subscribeForPush().then(renderNotifSettings).catch(function(){ renderNotifSettings(); });
+      } else {
+        unsubscribeFromPush().then(renderNotifSettings).catch(function(){ renderNotifSettings(); });
+      }
+    }));
+  }
+  host.appendChild(masterRow);
+
+  // Category rows
+  var sep = document.createElement('div');
+  sep.style.cssText = 'height:1px;background:#0d1f3a;margin:4px 0 8px;';
+  host.appendChild(sep);
+
+  NOTIF_CAT_LABELS.forEach(function(pair){
+    var key = pair[0], label = pair[1];
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:6px 0;opacity:'+(masterOn?'1':'0.5')+';';
+    var lbl = document.createElement('span');
+    lbl.style.cssText = 'font-size:13px;color:#e8f0ff;';
+    lbl.textContent = label;
+    row.appendChild(lbl);
+    var cur = notifPrefs[key] !== false;
+    row.appendChild(_makeNotifToggle(cur, function(newVal){
+      notifPrefs[key] = newVal;
+      saveNotifPrefs();
+      renderNotifSettings();
+    }));
+    host.appendChild(row);
+  });
+}
+
+function listenNotifPrefs(){
+  if(!myName) return;
+  if(_notifPrefsUnsub){ try{ _notifPrefsUnsub(); }catch(e){} }
+  _notifPrefsUnsub = db.collection('notifprefs').doc(myName).onSnapshot(function(doc){
+    if(doc.exists){
+      var data = doc.data() || {};
+      notifPrefs = Object.assign({}, DEFAULT_NOTIF_PREFS, data);
+      try { localStorage.setItem('oot_notif_prefs', JSON.stringify(notifPrefs)); } catch(e){}
+    }
+  }, function(){});
+}
+
+function pushSupported(){
+  return ('serviceWorker' in navigator) && ('PushManager' in window) && ('Notification' in window);
+}
+
+function urlB64ToUint8Array(base64String){
+  var padding = '='.repeat((4 - base64String.length % 4) % 4);
+  var base64 = (base64String + padding).replace(/-/g,'+').replace(/_/g,'/');
+  var rawData = atob(base64);
+  var outputArray = new Uint8Array(rawData.length);
+  for(var i=0;i<rawData.length;i++){ outputArray[i] = rawData.charCodeAt(i); }
+  return outputArray;
+}
+
+function _bufToB64Url(buf){
+  var bytes = new Uint8Array(buf);
+  var str = '';
+  for(var i=0;i<bytes.length;i++){ str += String.fromCharCode(bytes[i]); }
+  return btoa(str).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+
+function _subToJSON(sub){
+  // Normalize PushSubscription to plain {endpoint, keys:{p256dh, auth}}
+  var json = sub.toJSON ? sub.toJSON() : null;
+  if(json && json.endpoint && json.keys) return json;
+  var p256 = sub.getKey ? sub.getKey('p256dh') : null;
+  var auth = sub.getKey ? sub.getKey('auth') : null;
+  return {
+    endpoint: sub.endpoint,
+    keys: {
+      p256dh: p256 ? _bufToB64Url(p256) : '',
+      auth:   auth ? _bufToB64Url(auth) : ''
+    }
+  };
+}
+
+function _sha256Hex12(str){
+  if(!(window.crypto && window.crypto.subtle)){
+    // Fallback: cheap non-crypto hash truncated to 12 hex chars
+    var h = 0;
+    for(var i=0;i<str.length;i++){ h = ((h<<5)-h) + str.charCodeAt(i); h |= 0; }
+    var hex = (h>>>0).toString(16);
+    while(hex.length < 12) hex = '0' + hex;
+    return Promise.resolve(hex.slice(0,12));
+  }
+  var buf = new TextEncoder().encode(str);
+  return window.crypto.subtle.digest('SHA-256', buf).then(function(hash){
+    var bytes = new Uint8Array(hash);
+    var hex = '';
+    for(var i=0;i<bytes.length;i++){ hex += ('0'+bytes[i].toString(16)).slice(-2); }
+    return hex.slice(0,12);
+  });
+}
+
+function _subDocId(memberName, endpoint){
+  var safe = String(memberName||'unknown').replace(/\s+/g,'_');
+  return _sha256Hex12(endpoint).then(function(h){ return safe + '__' + h; });
+}
+
+function registerServiceWorker(){
+  if(!('serviceWorker' in navigator)) return Promise.reject(new Error('no sw'));
+  return navigator.serviceWorker.register('sw.js');
+}
+
+function subscribeForPush(){
+  if(!pushSupported()) return Promise.reject(new Error('push not supported'));
+  return Notification.requestPermission().then(function(perm){
+    if(perm !== 'granted') throw new Error('permission denied');
+    return navigator.serviceWorker.ready;
+  }).then(function(reg){
+    return reg.pushManager.getSubscription().then(function(existing){
+      if(existing) return existing;
+      return reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlB64ToUint8Array(VAPID_PUBLIC_KEY)
+      });
+    });
+  }).then(function(sub){
+    var subJson = _subToJSON(sub);
+    return _subDocId(myName, subJson.endpoint).then(function(docId){
+      return db.collection('pushsubs').doc(docId).set({
+        member: myName,
+        memberId: ME,
+        endpoint: subJson.endpoint,
+        keys: subJson.keys,
+        updated: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(function(){
+        try { localStorage.setItem('oot_push_subscribed','1'); } catch(e){}
+        return sub;
+      });
+    });
+  });
+}
+
+function unsubscribeFromPush(){
+  if(!('serviceWorker' in navigator)) return Promise.resolve();
+  return navigator.serviceWorker.ready.then(function(reg){
+    return reg.pushManager.getSubscription();
+  }).then(function(sub){
+    if(!sub) { try{ localStorage.setItem('oot_push_subscribed','0'); }catch(e){} return; }
+    var endpoint = sub.endpoint;
+    return sub.unsubscribe().then(function(){
+      return _subDocId(myName, endpoint).then(function(docId){
+        return db.collection('pushsubs').doc(docId).delete().catch(function(){});
+      });
+    }).then(function(){
+      try { localStorage.setItem('oot_push_subscribed','0'); } catch(e){}
+    });
+  });
+}
+
+function notifyBand(category, title, message, url, opts){
+  try {
+    opts = opts || {};
+    // Non-blocking; all errors swallowed.
+    Promise.all([
+      db.collection('pushsubs').get(),
+      db.collection('notifprefs').get()
+    ]).then(function(res){
+      var subsSnap = res[0], prefsSnap = res[1];
+      var prefsByMember = {};
+      prefsSnap.forEach(function(d){ prefsByMember[d.id] = d.data() || {}; });
+      var subs = [];
+      subsSnap.forEach(function(d){
+        var data = d.data() || {};
+        var member = data.member;
+        if(!member) return;
+        // Exclude sender
+        if(member === myName) return;
+        // DM: only notify the targeted member
+        if(opts.targetMemberId){
+          var target = gM(opts.targetMemberId);
+          if(!target || target.name !== member) return;
+        }
+        // Respect per-category opt-out; default true if no prefs doc
+        var p = prefsByMember[member];
+        if(p && p[category] === false) return;
+        if(!data.endpoint || !data.keys) return;
+        subs.push({ endpoint: data.endpoint, keys: data.keys });
+      });
+      if(!subs.length) return;
+      return fetch(PUSH_WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subscriptions: subs,
+          title: title,
+          message: message,
+          url: url || '/'
+        })
+      });
+    }).catch(function(){});
+  } catch(e){}
+}
+
+function fmtGigDateForNotif(dateStr){
+  try {
+    var d = new Date(dateStr + 'T00:00:00');
+    if(isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric' });
+  } catch(e){ return dateStr; }
+}
+
+function showSoftPushPrompt(){
+  if(document.getElementById('push-soft-prompt')) return;
+  if(!pushSupported()) return;
+  if(typeof Notification === 'undefined' || Notification.permission !== 'default') return;
+  try { localStorage.setItem('oot_push_prompted','1'); } catch(e){}
+  var wrap = document.createElement('div');
+  wrap.id = 'push-soft-prompt';
+  wrap.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#101e34;border-bottom:1px solid #1a3a8a;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 12px rgba(0,0,0,.4);';
+  var txt = document.createElement('div');
+  txt.style.cssText = 'flex:1;font-family:\"Exo 2\",sans-serif;';
+  txt.innerHTML = '<div style="font-family:\'Russo One\',sans-serif;font-size:12px;color:#e8f0ff;letter-spacing:1px;">TURN ON NOTIFICATIONS?</div>'+
+                  '<div style="font-size:11px;color:#8aa8d6;margin-top:3px;">Gigs, announcements, chat — stay in the loop.</div>';
+  wrap.appendChild(txt);
+  var notNow = document.createElement('button');
+  notNow.textContent = 'Not now';
+  notNow.style.cssText = 'background:transparent;border:1px solid #1a3a8a;border-radius:6px;padding:6px 10px;color:#8aa8d6;font-size:11px;font-family:\"Russo One\",sans-serif;cursor:pointer;';
+  notNow.onclick = function(){ if(wrap.parentNode) wrap.parentNode.removeChild(wrap); };
+  var turnOn = document.createElement('button');
+  turnOn.textContent = 'Turn on';
+  turnOn.style.cssText = 'background:#f5c518;border:none;border-radius:6px;padding:6px 12px;color:#060e1c;font-size:11px;font-family:\"Russo One\",sans-serif;cursor:pointer;';
+  turnOn.onclick = function(){
+    subscribeForPush().catch(function(){});
+    if(wrap.parentNode) wrap.parentNode.removeChild(wrap);
+  };
+  wrap.appendChild(notNow);
+  wrap.appendChild(turnOn);
+  document.body.appendChild(wrap);
+}
+
+// ── TAB ACTIVITY BADGES (in-app only, no push) ─────────────────────────────
+var tabActivity = { songs:0, chat:0 };
+var tabSeen = { songs:0, chat:0 };
+var _prevSuggestionIds = null;
+
+function loadTabActivitySeen(){
+  try {
+    var s = parseInt(localStorage.getItem('oot_tab_seen_songs')||'0',10);
+    var c = parseInt(localStorage.getItem('oot_tab_seen_chat')||'0',10);
+    tabSeen.songs = isNaN(s)?0:s;
+    tabSeen.chat = isNaN(c)?0:c;
+  } catch(e){}
+}
+
+function markTabSeen(tab){
+  var now = Math.floor(Date.now()/1000);
+  if(tab==='songs'){
+    tabSeen.songs = now;
+    try { localStorage.setItem('oot_tab_seen_songs', String(now)); } catch(e){}
+    tabActivity.songs = 0;
+  } else if(tab==='chat'){
+    tabSeen.chat = now;
+    try { localStorage.setItem('oot_tab_seen_chat', String(now)); } catch(e){}
+    tabActivity.chat = 0;
+  }
+  rTabBadges();
+}
+
+function rTabBadges(){
+  ['songs','chat'].forEach(function(tab){
+    var btn = document.getElementById('tb-'+tab);
+    if(!btn) return;
+    // Ensure positioning
+    if(btn.style.position !== 'relative') btn.style.position = 'relative';
+    var dot = btn.querySelector('.tact-dot');
+    var count = tabActivity[tab] || 0;
+    if(count > 0){
+      if(!dot){
+        dot = document.createElement('span');
+        dot.className = 'tact-dot';
+        dot.style.cssText = 'position:absolute;top:4px;right:10px;width:8px;height:8px;border-radius:50%;background:#ff4757;border:1.5px solid #080f1e;pointer-events:none;';
+        btn.appendChild(dot);
+      }
+    } else {
+      if(dot) dot.parentNode.removeChild(dot);
+    }
+  });
+}
+
 // IDENTITY
 var ME = null, myName = null;
 var memberNames = ["Jim Locherie","Amy Eisenberg Ritz","Rich Escarcega","Ed Escarcega","Rachel Cervantes","Zach Dennert"];
@@ -598,8 +970,62 @@ var editingContactId = null;
 
 function listenSuggestions(){
   db.collection('suggestions').orderBy('votes','desc').onSnapshot(function(snap){
-    suggestions=[];
-    snap.forEach(function(doc){ suggestions.push(Object.assign({id:doc.id},doc.data())); });
+    var prevById = {};
+    suggestions.forEach(function(s){ prevById[s.id] = s; });
+    var newList = [];
+    snap.forEach(function(doc){ newList.push(Object.assign({id:doc.id},doc.data())); });
+
+    // Detect vote-complete transitions (fire push only when my vote just pushed it to completion)
+    var bandSize = (members && members.length) ? members.length : 6;
+    newList.forEach(function(cur){
+      var prev = prevById[cur.id];
+      if(!prev) return; // brand-new suggestion, not a vote-complete event
+      var prevY = (prev.yesVoters||[]).length;
+      var prevN = (prev.noVoters||[]).length;
+      var curY = (cur.yesVoters||[]).length;
+      var curN = (cur.noVoters||[]).length;
+      var prevTotal = prevY + prevN;
+      var curTotal = curY + curN;
+      if(prevTotal < bandSize && curTotal >= bandSize){
+        var myPrevVoted = (prev.yesVoters||[]).indexOf(ME)>=0 || (prev.noVoters||[]).indexOf(ME)>=0;
+        var myNowVoted  = (cur.yesVoters||[]).indexOf(ME)>=0  || (cur.noVoters||[]).indexOf(ME)>=0;
+        if(myNowVoted && !myPrevVoted){
+          var verdict = curY > curN ? 'Approved' : (curN > curY ? 'Declined' : 'Tied');
+          notifyBand('votes_final',
+            'Vote complete: ' + cur.title,
+            verdict + ' — ' + curY + ' yes, ' + curN + ' no');
+        }
+      }
+    });
+
+    // Tab activity — count new suggestions when NOT on songs tab,
+    // authored by someone else, created after our last-seen timestamp.
+    try {
+      var songsSc = document.getElementById('sc-songs');
+      var onSongsTab = songsSc && songsSc.classList.contains('on');
+      if(!onSongsTab && _prevSuggestionIds !== null){
+        newList.forEach(function(cur){
+          if(prevById[cur.id]) return; // not new
+          if(cur.suggestedById && cur.suggestedById === ME) return;
+          if(cur.suggestedBy && cur.suggestedBy === myName) return;
+          var createdSec = 0;
+          if(cur.createdAt){
+            if(cur.createdAt.seconds) createdSec = cur.createdAt.seconds;
+            else if(typeof cur.createdAt === 'number') createdSec = Math.floor(cur.createdAt/1000);
+          } else if(cur.ts){
+            createdSec = cur.ts.seconds || Math.floor((cur.ts||0)/1000);
+          }
+          if(!createdSec || createdSec > (tabSeen.songs||0)){
+            tabActivity.songs = (tabActivity.songs||0) + 1;
+          }
+        });
+        rTabBadges();
+      }
+      _prevSuggestionIds = {};
+      newList.forEach(function(s){ _prevSuggestionIds[s.id] = true; });
+    } catch(e){}
+
+    suggestions = newList;
     rVotes();
     updateVoteBadge();
   });
@@ -935,6 +1361,23 @@ function initApp() {
   listenAgendas();
   listenSuggestions();
   loadTabOrder();
+
+  // Notifications / tab activity
+  loadNotifPrefs();
+  loadTabActivitySeen();
+  listenNotifPrefs();
+  rTabBadges();
+  if(pushSupported()){
+    registerServiceWorker().then(function(){
+      var subscribedFlag = localStorage.getItem('oot_push_subscribed');
+      if(subscribedFlag === '1' && typeof Notification !== 'undefined' && Notification.permission === 'granted'){
+        // Re-sync in case the browser dropped the subscription
+        subscribeForPush().catch(function(){});
+      } else if(Notification.permission === 'default' && !localStorage.getItem('oot_push_prompted')){
+        setTimeout(showSoftPushPrompt, 2500);
+      }
+    }).catch(function(){});
+  }
 }
 
 // TAB NAVIGATION
@@ -948,10 +1391,11 @@ function go(id, btn) {
   else if (id === 'cal') rCal();
   else if (id === 'sets'){ if(setsViewState==='edit' && aSL){ document.getElementById('si').style.display='none'; document.getElementById('se').style.display='block'; rEd(); } else { setsViewState='list'; rSets(); } }
   else if (id === 'chat') {
+    markTabSeen('chat');
     showChatList();
   }
   else if (id === 'band') { rBand(); rContacts(); }
-  else if (id === 'songs') { rLib(); rVotes(); updateVoteBadge(); }
+  else if (id === 'songs') { markTabSeen('songs'); rLib(); rVotes(); updateVoteBadge(); }
   else if (id === 'pay') rPay();
 }
 
@@ -1027,6 +1471,11 @@ function calcUnread(){
       unreadCounts[threadId] = (unreadCounts[threadId]||0) + 1;
     }
   });
+  // Aggregate for tab badge (in-app dot)
+  var total = 0;
+  for(var k in unreadCounts){ if(unreadCounts.hasOwnProperty(k)) total += unreadCounts[k]||0; }
+  tabActivity.chat = total;
+  if(typeof rTabBadges === 'function') rTabBadges();
   rUnreadBadges();
 }
 
@@ -1589,6 +2038,11 @@ function saveGigSheet(evId, isNew){
   gigDetails[String(id)] = det;
   db.collection('gigdetails').doc(String(id)).set(det);
   clM('gig-detail-modal');
+  var prettyDate = fmtGigDateForNotif(dateStr);
+  var msgTail = prettyDate + (det.venue ? ' — ' + det.venue : '');
+  notifyBand('gigs',
+    (isNew ? 'New gig: ' : 'Gig updated: ') + name,
+    msgTail);
 }
 
 function openRehearsalSheet(ev){
@@ -1713,6 +2167,11 @@ function saveRehearsalSheet(evId, isNew){
   var id = evId || Date.now();
   saveEvent({id:id, date:dateStr, type:'rehearsal', title:title, note:loc});
   clM('gig-detail-modal');
+  var prettyDate = fmtGigDateForNotif(dateStr);
+  var msgTail = prettyDate + (loc ? ' — ' + loc : '');
+  notifyBand('gigs',
+    (isNew ? 'New rehearsal: ' : 'Rehearsal updated: ') + title,
+    msgTail);
 }
 
 function openBlackoutSheet(ev){
@@ -1779,6 +2238,9 @@ function saveBlackoutSheet(evId, isNew){
     // Just update the single event
     var ev = events.find(function(e){return e.id==evId;});
     if(ev){ ev.title=title; ev.note=note; saveEvent(ev); }
+    notifyBand('blackouts',
+      'Blackout updated: ' + title,
+      fmtGigDateForNotif(ev ? ev.date : start) + (note ? ' — ' + note : ''));
   } else if(end && end > start){
     // Range
     var cur=new Date(start+'T00:00:00'), endD=new Date(end+'T00:00:00'), day=0;
@@ -1787,8 +2249,14 @@ function saveBlackoutSheet(evId, isNew){
       saveEvent({id:Date.now()+day,date:ds,type:'blackout',title:title,note:note});
       cur.setDate(cur.getDate()+1); day++;
     }
+    notifyBand('blackouts',
+      'New blackout: ' + title,
+      fmtGigDateForNotif(start) + ' – ' + fmtGigDateForNotif(end) + (note ? ' — ' + note : ''));
   } else {
     saveEvent({id:Date.now(),date:start,type:'blackout',title:title,note:note});
+    notifyBand('blackouts',
+      'New blackout: ' + title,
+      fmtGigDateForNotif(start) + (note ? ' — ' + note : ''));
   }
   clM('gig-detail-modal');
 }
@@ -1906,6 +2374,12 @@ function submitAvail(){
   document.getElementById('avail-start').value='';
   document.getElementById('avail-end').value='';
   document.getElementById('avail-note').value='';
+
+  var dateRange = (start === end) ? fmtGigDateForNotif(start)
+                                  : (fmtGigDateForNotif(start) + ' – ' + fmtGigDateForNotif(end));
+  notifyBand('availability',
+    myName + ' marked unavailable',
+    dateRange + (note ? ' — ' + note : ''));
 }
 
 // GIG DETAILS
@@ -2553,6 +3027,12 @@ function sMsg(){
   var day=now.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
   saveMsg({who:ME,to:chatTo,txt:txt,time:t,day:day});
   inp.value='';
+  var preview = txt.length > 100 ? txt.slice(0,100) + '…' : txt;
+  if(chatTo === 'band'){
+    notifyBand('chat', myName + ' (band chat)', preview);
+  } else {
+    notifyBand('chat', myName + ' sent you a message', preview, '/', { targetMemberId: chatTo });
+  }
 }
 
 // BAND
@@ -2625,7 +3105,23 @@ function rBand() {
     el.appendChild(card);
   });
 }
-function uM(id,f,v){var m=members.find(function(x){return x.id===id;});if(m){m[f]=v;var data={};data[f]=v;saveMember(m.name,data);}}
+var _rosterNotifyTimers = {};
+function uM(id,f,v){
+  var m=members.find(function(x){return x.id===id;});
+  if(m){
+    m[f]=v;
+    var data={};data[f]=v;
+    saveMember(m.name,data);
+    // Debounce a notification per member so rapid edits coalesce
+    if(_rosterNotifyTimers[id]) clearTimeout(_rosterNotifyTimers[id]);
+    _rosterNotifyTimers[id] = setTimeout((function(mm){
+      return function(){
+        delete _rosterNotifyTimers[mm.id];
+        notifyBand('roster', 'Band info updated', mm.name + ' — contact details changed');
+      };
+    })(m), 3000);
+  }
+}
 function fmtPhone(inp){var v=inp.value.replace(/\D/g,'').slice(0,10);if(v.length>=6)v='('+v.slice(0,3)+') '+v.slice(3,6)+'-'+v.slice(6);else if(v.length>=3)v='('+v.slice(0,3)+') '+v.slice(3);inp.value=v;}
 function adMem(){
   var n=document.getElementById('mnam').value.trim();if(!n)return;
@@ -2704,12 +3200,16 @@ function rContacts() {
 }
 function addContact(){
   var n=document.getElementById('ct-name').value.trim();if(!n)return;
+  var wasEditing = !!editingContactId;
   var id = editingContactId || Date.now();
   var c={id:id,name:n,role:document.getElementById('ct-role').value.trim(),ph:document.getElementById('ct-ph').value.trim(),em:document.getElementById('ct-em').value.trim(),note:document.getElementById('ct-note').value.trim()};
   db.collection('contacts').doc(String(id)).set(c);
   ['ct-name','ct-role','ct-ph','ct-em','ct-note'].forEach(function(fid){document.getElementById(fid).value='';});
   editingContactId = null;
   clM('contact-modal');
+  notifyBand('contacts',
+    wasEditing ? 'Contact updated' : 'New contact added',
+    n + (c.role ? ' — ' + c.role : ''));
 }
 
 // ANNOUNCEMENTS
@@ -2749,6 +3249,7 @@ function postAnnounce(){
   db.collection('announcements').add(ann);
   document.getElementById('ann-txt').value='';
   clM('announce-modal');
+  notifyBand('announcements', 'Announcement from ' + myName, txt);
 }
 
 // SONGS
@@ -3200,6 +3701,12 @@ if(savedName&&savedId){
       <span style="font-size:13px;color:#e8f0ff;">Display Mode</span>
       <button onclick="toggleDarkMode()" id="mode-btn" style="background:#101e34;border:1px solid #1a3a8a;border-radius:20px;padding:5px 14px;color:#4a9eff;font-size:12px;font-family:Russo One,sans-serif;cursor:pointer;">&#9788; Light</button>
     </div>
+    <div style="height:1px;background:#0d1f3a;margin:14px 0 10px;"></div>
+    <div id="notif-settings-header" onclick="toggleNotifSettings()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:4px 0;">
+      <span style="font-family:'Russo One',sans-serif;font-size:11px;color:#e8f0ff;letter-spacing:2px;">NOTIFICATIONS</span>
+      <span id="notif-settings-caret" style="color:#4a9eff;font-size:14px;">&#8964;</span>
+    </div>
+    <div id="notif-settings-body" style="display:none;margin-top:6px;"></div>
     <button class="sb" onclick="saveTabOrder();clM('reorder-modal')" style="width:100%;margin-top:14px;">Done</button>
   </div>
 </div>
