@@ -3439,7 +3439,7 @@ function rLib() {
     row.style.cssText='display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid #0d1f3a;';
     var titleDiv=document.createElement('div');
     titleDiv.style.cssText='flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;';
-    titleDiv.innerHTML='<span style="font-size:13px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+(s.artist?'<span style="font-size:11px;color:#f5c518;"> - '+s.artist+'</span>':'')+'';
+    titleDiv.innerHTML='<span style="font-size:16px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+(s.artist?'<span style="font-size:14px;color:#f5c518;"> - '+s.artist+'</span>':'')+'';
     titleDiv.onclick=(function(song){ return function(){
     var det = songDetails[String(song.id)] || {};
     var savedUrl = det.yt || song.yt || '';
@@ -3450,17 +3450,12 @@ function rLib() {
     }
   }; })(s);
     var infoBtn=document.createElement('button');
-    infoBtn.style.cssText='background:#4a9eff;border:none;border-radius:50%;width:13px;height:13px;display:flex;align-items:center;justify-content:center;color:#000;font-size:7px;font-weight:700;cursor:pointer;flex-shrink:0;margin-right:12px;';
+    infoBtn.style.cssText='background:#4a9eff;border:none;border-radius:50%;width:13px;height:13px;display:flex;align-items:center;justify-content:center;color:#000;font-size:7px;font-weight:700;cursor:pointer;flex-shrink:0;';
     infoBtn.innerHTML='i';
     infoBtn.title='Song info';
     infoBtn.onclick=(function(song){ return function(){ showSongInfo(song.id); }; })(s);
-    var delBtn=document.createElement('button');
-    delBtn.style.cssText='background:none;border:none;color:#555;font-size:13px;cursor:pointer;padding:4px 6px;flex-shrink:0;margin-left:4px;';
-    delBtn.innerHTML='&#10005;';
-    delBtn.onclick=(function(song){ return function(){ cnfDel(song.id); }; })(s);
     row.appendChild(titleDiv);
     row.appendChild(infoBtn);
-    row.appendChild(delBtn);
     el.appendChild(row);
   });
 }
@@ -3693,6 +3688,18 @@ function showSongInfo(id) {
     window.open(url,'_blank');
   };
   b.appendChild(ytBtn);
+
+  // Delete-from-library button (only for existing songs, not add-new flow)
+  var sDelBtn = document.createElement('button');
+  sDelBtn.style.cssText = 'width:100%;margin-top:8px;background:none;border:1px solid #ff4757;border-radius:8px;padding:9px;color:#ff4757;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;';
+  sDelBtn.innerHTML = '&#10005; DELETE FROM LIBRARY';
+  sDelBtn.onclick = (function(songId){ return function(){
+    if(confirm('Remove this song from the library?')){
+      dlLib(songId);
+      clM('song-info-modal');
+    }
+  }; })(id);
+  b.appendChild(sDelBtn);
   // Populate edit fields
   editingSongKeys = keys;
   var toggle = document.getElementById('si-keys-toggle');
