@@ -101,11 +101,11 @@ body.light .mrav{color:#000 !important;}
 .htag{font-family:"Russo One",sans-serif;font-size:7px;color:var(--g);letter-spacing:1.5px;text-align:center;margin-top:7px;line-height:1.8;}
 .hero-r{overflow:hidden;}
 .hero-r img{width:100%;height:185px;object-fit:cover;object-position:top;}
-.gi{padding:8px 10px;background:var(--n2);border-radius:8px;margin-bottom:6px;border-left:3px solid var(--g);}
-.git{font-size:14px;font-weight:600;}
+.gi{position:relative;padding:10px 12px;background:linear-gradient(135deg,rgba(245,197,24,.22) 0%,rgba(245,197,24,.06) 45%,#0a1628 100%);border-radius:10px;margin-bottom:7px;border-left:4px solid #f5c518;box-shadow:0 0 18px rgba(245,197,24,.18),inset 0 0 22px rgba(245,197,24,.06);}
+.git{font-size:14px;font-weight:600;color:#fff;}
 .gim{font-size:11px;color:var(--b);margin-top:2px;}
-.gid{font-family:"Russo One",sans-serif;font-size:11px;color:var(--g);margin-top:3px;}
-.ri{padding:8px 10px;background:var(--n2);border-radius:8px;margin-bottom:6px;border-left:3px solid var(--b);}
+.gid{font-family:"Russo One",sans-serif;font-size:11px;color:#f5c518;margin-top:3px;letter-spacing:1px;text-shadow:0 0 8px rgba(245,197,24,.5);}
+.ri{position:relative;padding:10px 12px;background:linear-gradient(135deg,rgba(74,158,255,.22) 0%,rgba(74,158,255,.06) 45%,#0a1628 100%);border-radius:10px;margin-bottom:7px;border-left:4px solid #4a9eff;box-shadow:0 0 18px rgba(74,158,255,.18),inset 0 0 22px rgba(74,158,255,.06);}
 .mr{display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--n2);border-radius:6px;margin-bottom:3px;}
 .mrav{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;flex-shrink:0;}
 .cnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;background:linear-gradient(135deg,#0d2b6b,#1a56c4);border-radius:10px;padding:5px 6px;}
@@ -587,27 +587,27 @@ body.light .mrav{color:#000 !important;}
   <div style="font-family:Russo One,sans-serif;font-size:11px;color:#fff;letter-spacing:3px;margin-bottom:16px;">WHO ARE YOU?</div>
   <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px;">
     <button onclick="pickName(0)" style="background:#0a1628;border:1px solid #4a9eff;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
-      <div style="width:36px;height:36px;border-radius:50%;background:#4a9eff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">JM</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 28% 22%, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 35%), radial-gradient(circle at 70% 78%, #4a9eff66 0%, #4a9eff 55%, #4a9effaa 100%);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;font-family:Russo One,sans-serif;box-shadow:0 0 12px #4a9eff55, inset 0 -2px 6px rgba(0,0,0,.18);">JM</div>
       <div><div style="font-size:13px;font-weight:600;color:#e8f0ff;">Jim Locherie</div><div style="font-size:11px;color:#4a9eff;">Lead Guitar</div></div>
     </button>
     <button onclick="pickName(1)" style="background:#0a1628;border:1px solid #06d6a0;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
-      <div style="width:36px;height:36px;border-radius:50%;background:#06d6a0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">AM</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 28% 22%, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 35%), radial-gradient(circle at 70% 78%, #06d6a066 0%, #06d6a0 55%, #06d6a0aa 100%);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;font-family:Russo One,sans-serif;box-shadow:0 0 12px #06d6a055, inset 0 -2px 6px rgba(0,0,0,.18);">AM</div>
       <div><div style="font-size:13px;font-weight:600;color:#e8f0ff;">Amy Eisenberg Ritz</div><div style="font-size:11px;color:#06d6a0;">Bass Guitar</div></div>
     </button>
     <button onclick="pickName(2)" style="background:#0a1628;border:1px solid #ff6b6b;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
-      <div style="width:36px;height:36px;border-radius:50%;background:#ff6b6b;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">RI</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 28% 22%, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 35%), radial-gradient(circle at 70% 78%, #ff6b6b66 0%, #ff6b6b 55%, #ff6b6baa 100%);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;font-family:Russo One,sans-serif;box-shadow:0 0 12px #ff6b6b55, inset 0 -2px 6px rgba(0,0,0,.18);">RI</div>
       <div><div style="font-size:13px;font-weight:600;color:#e8f0ff;">Rich Escarcega</div><div style="font-size:11px;color:#ff6b6b;">Drums</div></div>
     </button>
     <button onclick="pickName(3)" style="background:#0a1628;border:1px solid #f5c518;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
-      <div style="width:36px;height:36px;border-radius:50%;background:#f5c518;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">ED</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 28% 22%, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 35%), radial-gradient(circle at 70% 78%, #f5c51866 0%, #f5c518 55%, #f5c518aa 100%);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;font-family:Russo One,sans-serif;box-shadow:0 0 12px #f5c51855, inset 0 -2px 6px rgba(0,0,0,.18);">ED</div>
       <div><div style="font-size:13px;font-weight:600;color:#e8f0ff;">Ed Escarcega</div><div style="font-size:11px;color:#f5c518;">Lead Guitar</div></div>
     </button>
     <button onclick="pickName(4)" style="background:#0a1628;border:1px solid #ff9ef5;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
-      <div style="width:36px;height:36px;border-radius:50%;background:#ff9ef5;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">RC</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 28% 22%, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 35%), radial-gradient(circle at 70% 78%, #ff9ef566 0%, #ff9ef5 55%, #ff9ef5aa 100%);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;font-family:Russo One,sans-serif;box-shadow:0 0 12px #ff9ef555, inset 0 -2px 6px rgba(0,0,0,.18);">RC</div>
       <div><div style="font-size:13px;font-weight:600;color:#e8f0ff;">Rachel Cervantes</div><div style="font-size:11px;color:#ff9ef5;">Vocals</div></div>
     </button>
     <button onclick="pickName(5)" style="background:#0a1628;border:1px solid #c084fc;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation;">
-      <div style="width:36px;height:36px;border-radius:50%;background:#c084fc;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">ZK</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 28% 22%, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 35%), radial-gradient(circle at 70% 78%, #c084fc66 0%, #c084fc 55%, #c084fcaa 100%);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;font-family:Russo One,sans-serif;box-shadow:0 0 12px #c084fc55, inset 0 -2px 6px rgba(0,0,0,.18);">ZK</div>
       <div><div style="font-size:13px;font-weight:600;color:#e8f0ff;">Zach Dennert</div><div style="font-size:11px;color:#c084fc;">Keyboards</div></div>
     </button>
   </div>
@@ -1973,7 +1973,10 @@ function rBlackout(){
   if(names.length===1){
     boGroups[names[0]].events.forEach(function(e){
       var row=document.createElement('div');
-      row.className='ri'; row.style.borderLeftColor='#ff4757';
+      row.className='ri';
+      row.style.borderLeftColor='#ff4757';
+      row.style.background = 'linear-gradient(135deg,rgba(255,71,87,.22) 0%,rgba(255,71,87,.06) 45%,#0a1628 100%)';
+      row.style.boxShadow = '0 0 18px rgba(255,71,87,.18),inset 0 0 22px rgba(255,71,87,.06)';
       row.style.cursor='pointer';
       row.style.display='flex';
       row.style.alignItems='center';
@@ -1991,10 +1994,10 @@ function rBlackout(){
       var wrapper=document.createElement('div');
       wrapper.style.cssText='margin-bottom:4px;';
       var header=document.createElement('div');
-      header.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:rgba(255,71,87,.1);border-radius:6px;cursor:pointer;border-left:2px solid #ff4757;touch-action:manipulation;';
+      header.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:linear-gradient(135deg,rgba(255,71,87,.22) 0%,rgba(255,71,87,.06) 45%,#0a1628 100%);border-radius:10px;cursor:pointer;border-left:4px solid #ff4757;box-shadow:0 0 18px rgba(255,71,87,.18),inset 0 0 22px rgba(255,71,87,.06);touch-action:manipulation;'+(isOpen?'margin-bottom:2px;':'');
       var mc=group.member?group.member.color:'#ff4757';
       var mav=group.member?group.member.av:name.slice(0,2).toUpperCase();
-      header.innerHTML='<div style="display:flex;align-items:center;gap:6px;"><div style="width:20px;height:20px;border-radius:50%;background:'+mc+';display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#000;">'+mav+'</div><span style="font-size:12px;font-weight:600;color:#ff4757;">'+name+'</span><span style="font-size:10px;color:#4a6a9a;">('+group.events.length+')</span></div><span style="color:#ff4757;font-size:12px;">&#8964;</span>';
+      header.innerHTML='<div style="display:flex;align-items:center;gap:6px;"><div style="width:20px;height:20px;border-radius:50%;background:'+richGrad(mc)+';display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#000;font-family:Russo One,sans-serif;box-shadow:0 0 6px '+mc+'40, inset 0 -1px 2px rgba(0,0,0,.18);">'+mav+'</div><span style="font-size:12px;font-weight:600;color:#ff4757;">'+name+'</span><span style="font-size:10px;color:#4a6a9a;">('+group.events.length+')</span></div><span style="color:#ff4757;font-size:12px;">&#8964;</span>';
       header.setAttribute('data-bo-name',name);
       header.onclick=function(e){
         e.stopPropagation(); e.preventDefault();
@@ -2662,7 +2665,7 @@ function rAvailability() {
   availability.forEach(function(a){
     var m=gM(a.who);
     html2 += '<div style="background:#101e34;border-radius:8px;padding:8px 11px;margin-bottom:6px;display:flex;align-items:center;gap:8px;">';
-    html2 += '<div style="width:24px;height:24px;border-radius:50%;background:'+m.color+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;flex-shrink:0;">'+m.av+'</div>';
+    html2 += '<div style="width:24px;height:24px;border-radius:50%;background:'+richGrad(m.color)+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;flex-shrink:0;font-family:Russo One,sans-serif;box-shadow:0 0 8px '+m.color+'40, inset 0 -1px 3px rgba(0,0,0,.18);">'+m.av+'</div>';
     html2 += '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#e8f0ff;">'+a.name+'</div>';
     html2 += '<div style="font-size:11px;color:#ff4757;">'+a.date+(a.note?' - '+a.note:'')+'</div></div>';
     if(a.who===ME){
@@ -3531,7 +3534,7 @@ function rBand() {
     var header = document.createElement('div');
     header.style.cssText = 'display:flex;align-items:center;gap:10px;padding:11px 12px;cursor:pointer;';
     header.innerHTML =
-      '<div class="avmd" style="background:'+m.color+';width:34px;height:34px;font-size:12px;flex-shrink:0;">'+m.av+'</div>'+
+      '<div class="avmd" style="background:'+richGrad(m.color)+';width:34px;height:34px;font-size:12px;flex-shrink:0;box-shadow:0 0 14px '+m.color+'55, inset 0 -2px 6px rgba(0,0,0,.2);font-family:Russo One,sans-serif;">'+m.av+'</div>'+
       '<div style="flex:1;min-width:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+
         '<span style="font-size:14px;font-weight:600;color:#e8f0ff;">'+m.name+'</span>'+
         '<span style="display:inline-block;width:3px;height:3px;border-radius:50%;background:#4a6a9a;flex-shrink:0;"></span>'+
@@ -3809,7 +3812,7 @@ function rAnnouncements() {
     div.style.cssText='padding:8px;background:#060e1c;border-radius:8px;margin-bottom:6px;border-left:3px solid #f5c518;';
     var header=document.createElement('div');
     header.style.cssText='display:flex;align-items:center;gap:6px;margin-bottom:4px;';
-    header.innerHTML='<div style="width:20px;height:20px;border-radius:50%;background:'+m.color+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;">'+m.av+'</div><span style="font-size:11px;color:#4a9eff;font-weight:600;">'+a.name+'</span><span style="font-size:10px;color:#4a6a9a;margin-left:auto;">'+a.time+'</span>';
+    header.innerHTML='<div style="width:20px;height:20px;border-radius:50%;background:'+richGrad(m.color)+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;font-family:Russo One,sans-serif;box-shadow:0 0 6px '+m.color+'40, inset 0 -1px 2px rgba(0,0,0,.18);">'+m.av+'</div><span style="font-size:11px;color:#4a9eff;font-weight:600;">'+a.name+'</span><span style="font-size:10px;color:#4a6a9a;margin-left:auto;">'+a.time+'</span>';
     if(a.who===ME){
       var delBtn=document.createElement('button');
       delBtn.style.cssText='background:none;border:none;color:#4a6a9a;font-size:11px;cursor:pointer;';
