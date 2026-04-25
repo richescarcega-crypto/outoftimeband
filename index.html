@@ -3465,8 +3465,8 @@ function rLib() {
     titleDiv.innerHTML='<span style="font-size:16px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+(s.artist?'<span style="font-size:14px;color:#f5c518;"> - '+s.artist+'</span>':'')+'';
     titleDiv.onclick=(function(song){ return function(){ showSongInfo(song.id); }; })(s);
     var playBtn=document.createElement('button');
-    playBtn.style.cssText='background:none;border:none;color:#4a9eff;font-size:16px;cursor:pointer;flex-shrink:0;padding:4px 6px;line-height:1;';
-    playBtn.innerHTML='&#9654;';
+    playBtn.style.cssText='background:none;border:none;cursor:pointer;flex-shrink:0;padding:4px 6px;display:flex;align-items:center;gap:4px;color:#aaa;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;line-height:1;';
+    playBtn.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><rect x="1.5" y="5" width="21" height="14" rx="3.5" fill="#ff0000"/><polygon points="10,9 16,12 10,15" fill="#fff"/></svg><span>YT</span>';
     playBtn.title='Play on YouTube';
     playBtn.onclick=(function(song){ return function(e){
       e.stopPropagation();
