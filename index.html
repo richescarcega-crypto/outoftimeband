@@ -92,7 +92,7 @@ body.light button.sb{color:#060e1c !important;}
 body.light .avmd{color:#000 !important;}
 body.light .mrav{color:#000 !important;}
 .sh{font-family:"Russo One",sans-serif;font-size:10px;letter-spacing:3px;color:#fff;margin:12px 0 7px;padding-bottom:5px;border-bottom:1px solid var(--n3);}
-.tt-gold{background:linear-gradient(135deg,#d8e0f0 0%,#ffffff 50%,#e8eef8 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:700;text-shadow:0 0 16px rgba(232,238,248,.35);}
+.tt-gold{color:#ffb86b;font-weight:700;text-shadow:0 0 14px rgba(255,184,107,.4);}
 .tt-blue{background:linear-gradient(135deg,#2563d6 0%,#4a9eff 50%,#7ed4ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:700;text-shadow:0 0 18px rgba(74,158,255,.3);}
 .pill-action{background:linear-gradient(135deg,#1a3a8a,#0d2050);border:1px solid #4a9eff;border-radius:18px;padding:6px 14px;color:#4a9eff;font-family:"Russo One",sans-serif;font-size:10px;letter-spacing:1.5px;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 0 12px rgba(74,158,255,.15);touch-action:manipulation;line-height:1;}
 .card{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:12px;margin-bottom:10px;}
@@ -158,7 +158,7 @@ body.light .mrav{color:#000 !important;}
   0%,100%{box-shadow:0 0 8px rgba(245,197,24,.35),inset 0 0 12px rgba(245,197,24,.1);}
   50%{box-shadow:0 0 22px rgba(245,197,24,.7),inset 0 0 18px rgba(245,197,24,.18);}
 }
-.dn{font-family:"Russo One",sans-serif;font-size:16px;color:#f5f1e8;font-weight:400;letter-spacing:.5px;text-shadow:0 1px 3px rgba(0,0,0,.5),0 0 10px rgba(245,241,232,.15);}
+.dn{font-family:"Russo One",sans-serif;font-size:16px;color:#c5cee0;font-weight:400;letter-spacing:.5px;text-shadow:0 1px 3px rgba(0,0,0,.5),0 0 8px rgba(197,206,224,.18);}
 .dc.td .dn{color:#f5c518;font-weight:700;text-shadow:0 0 12px rgba(245,197,24,.7),0 1px 3px rgba(0,0,0,.4);}
 .dc.sel .dn{color:#fff;text-shadow:0 0 10px rgba(255,255,255,.5),0 1px 3px rgba(0,0,0,.5);}
 .pips{display:flex;gap:2px;margin-top:2px;}
@@ -2654,52 +2654,73 @@ function _swooshSound(direction){
   if(!ctx) return;
   if(ctx.state === 'suspended'){ try{ ctx.resume(); }catch(e){} }
   var now = ctx.currentTime;
-  var dur = 0.32;
+  var dur = 0.28;
 
-  // Build a noise buffer
+  // ── Component 1: Soft "whoosh" — pink-ish noise low-passed and swept ─
   var bufSize = Math.floor(ctx.sampleRate * dur);
   var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
   var data = buf.getChannelData(0);
-  for(var i=0; i<bufSize; i++){ data[i] = (Math.random()*2 - 1) * 0.6; }
+  // Generate softer noise (averaged samples = pink-ish)
+  var b0=0,b1=0,b2=0;
+  for(var i=0; i<bufSize; i++){
+    var w = Math.random()*2-1;
+    b0 = 0.99765*b0 + w*0.0990460;
+    b1 = 0.96300*b1 + w*0.2965164;
+    b2 = 0.57000*b2 + w*1.0526913;
+    data[i] = (b0 + b1 + b2 + w*0.1848) * 0.18;
+  }
   var noise = ctx.createBufferSource();
   noise.buffer = buf;
 
-  // Bandpass that sweeps — gives the "air rushing past" character
-  var bp = ctx.createBiquadFilter();
-  bp.type = 'bandpass';
-  bp.Q.value = 1.4;
-  // Forward = filter sweeps low→high (rising whoosh)
-  // Back    = filter sweeps high→low (falling whoosh)
-  var fStart = direction > 0 ? 380 : 2400;
-  var fEnd   = direction > 0 ? 2400 : 380;
-  bp.frequency.setValueAtTime(fStart, now);
-  bp.frequency.exponentialRampToValueAtTime(fEnd, now + dur);
+  // Low-pass that sweeps to give a "papery" feel rather than hissy
+  var lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.Q.value = 0.7;
+  var fStart = direction > 0 ? 600 : 3500;
+  var fEnd   = direction > 0 ? 3500 : 600;
+  lp.frequency.setValueAtTime(fStart, now);
+  lp.frequency.exponentialRampToValueAtTime(fEnd, now + dur);
 
-  // Soft amplitude envelope — quick rise, gentle tail
-  var gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(0.16, now + 0.04);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+  var noiseGain = ctx.createGain();
+  noiseGain.gain.setValueAtTime(0.0001, now);
+  noiseGain.gain.linearRampToValueAtTime(0.10, now + 0.03);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
 
-  // A touch of stereo motion if available
+  // ── Component 2: Subtle pitched chime — gives the swipe a "musical landing" ─
+  var osc = ctx.createOscillator();
+  osc.type = 'sine';
+  // Different note for forward vs back
+  var chimeFreq = direction > 0 ? 880 : 660; // A5 up, E5 back
+  osc.frequency.setValueAtTime(chimeFreq, now + 0.05);
+  var oscGain = ctx.createGain();
+  oscGain.gain.setValueAtTime(0.0001, now);
+  oscGain.gain.linearRampToValueAtTime(0.04, now + 0.09);
+  oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.30);
+
+  // Optional stereo motion
   var pan = null;
   if(typeof ctx.createStereoPanner === 'function'){
     try {
       pan = ctx.createStereoPanner();
-      var pStart = direction > 0 ? -0.6 : 0.6;
-      var pEnd   = direction > 0 ?  0.6 : -0.6;
+      var pStart = direction > 0 ? -0.4 : 0.4;
+      var pEnd   = direction > 0 ?  0.4 : -0.4;
       pan.pan.setValueAtTime(pStart, now);
       pan.pan.linearRampToValueAtTime(pEnd, now + dur);
     } catch(e){ pan = null; }
   }
 
   if(pan){
-    noise.connect(bp).connect(gain).connect(pan).connect(ctx.destination);
+    noise.connect(lp).connect(noiseGain).connect(pan);
+    osc.connect(oscGain).connect(pan);
+    pan.connect(ctx.destination);
   } else {
-    noise.connect(bp).connect(gain).connect(ctx.destination);
+    noise.connect(lp).connect(noiseGain).connect(ctx.destination);
+    osc.connect(oscGain).connect(ctx.destination);
   }
   noise.start(now);
   noise.stop(now + dur + 0.05);
+  osc.start(now + 0.04);
+  osc.stop(now + 0.32);
 }
 
 function _pickMusicIcon(){
