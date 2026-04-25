@@ -208,6 +208,7 @@ body.light .mrav{color:#000 !important;}
     <a href="https://www.instagram.com/outoftimecoverband?igsh=NTc4MTIwNjQ2YQ==" target="_blank" style="display:flex;align-items:center;gap:5px;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:11px;font-family:Russo One,sans-serif;text-decoration:none;letter-spacing:1px;">&#128247; Instagram</a>
     <a href="https://www.facebook.com/profile.php?id=61565057075702&mibextid=ZbWKwL" target="_blank" style="display:flex;align-items:center;gap:5px;background:#1877f2;border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:11px;font-family:Russo One,sans-serif;text-decoration:none;letter-spacing:1px;">&#128100; Facebook</a>
   </div>
+  <div id="birthday-banner" style="display:none;"></div>
   <div id="next-gig-countdown" style="display:none;background:#060e1c;border-radius:12px;padding:12px 16px;margin-bottom:10px;text-align:center;border:1px solid rgba(245,197,24,.5);box-shadow:0 0 20px rgba(245,197,24,.15),inset 0 0 30px rgba(10,22,40,.8);">
     <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">
       <div style="height:1px;flex:1;background:linear-gradient(to right,transparent,rgba(245,197,24,.4));"></div>
@@ -261,6 +262,9 @@ body.light .mrav{color:#000 !important;}
     <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#f5c518;margin-right:4px;vertical-align:middle;"></span>Gig</span>
     <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#4a9eff;margin-right:4px;vertical-align:middle;"></span>Rehearsal</span>
     <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#ff4757;margin-right:4px;vertical-align:middle;"></span>Blackout</span>
+    <span style="font-size:10px;">&#127874; Birthday</span>
+    <span style="font-size:10px;">&#127482;&#127480; Holiday</span>
+    <span style="font-size:10px;color:#f5c518;">&#9733; Important</span>
   </div>
   <div class="cgrid" id="cgrid"></div>
   <div class="sh" style="display:flex;justify-content:space-between;align-items:center;">
@@ -268,6 +272,15 @@ body.light .mrav{color:#000 !important;}
     <button onclick="exportData('events')" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:2px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;">&#8679; Share</button>
   </div>
   <div id="evl"></div>
+
+  <div class="sh" style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;">
+    <span onclick="toggleCard('important-dates-list','idates-arrow')" style="cursor:pointer;display:flex;align-items:center;gap:6px;flex:1;font-size:12px;">IMPORTANT DATES <span id="idates-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span></span>
+    <button onclick="openImportantDateModal(null)" style="background:linear-gradient(135deg,#1a3a8a,#0d2050);border:1px solid #4a9eff;border-radius:18px;padding:4px 12px;color:#4a9eff;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;gap:5px;">
+      <span style="font-size:13px;line-height:1;">&#43;</span>
+      <span>NEW</span>
+    </button>
+  </div>
+  <div id="important-dates-list" style="display:none;"></div>
 
 </div>
 
@@ -576,6 +589,39 @@ body.light .mrav{color:#000 !important;}
     <input class="mi" id="mnam" placeholder="Name *">
     <input class="mi" id="mrol" placeholder="Role">
     <button class="sb" onclick="adMem()" style="width:100%">Add to Band</button>
+  </div>
+</div>
+
+<div class="ov" id="idate-modal">
+  <div class="mo">
+    <div class="moh"><span class="mot" id="idate-title">New Important Date</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('idate-modal')">&#10005;</button></div>
+    <div style="margin-bottom:12px;">
+      <div style="color:#aaa;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:5px;">TITLE</div>
+      <input id="idate-name" class="mi" style="width:100%;margin:0;" placeholder="e.g. Anniversary, Recording session">
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="color:#aaa;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:5px;">DATE</div>
+      <input id="idate-date" type="date" class="mi" style="width:100%;margin:0;">
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:10px 0;border-top:1px solid #0d1f3a;border-bottom:1px solid #0d1f3a;">
+      <div>
+        <div style="color:#e8f0ff;font-size:13px;">Repeats every year</div>
+        <div style="color:#4a6a9a;font-size:11px;margin-top:2px;">Anniversaries, recurring milestones</div>
+      </div>
+      <div id="idate-rec-toggle" onclick="toggleIDateRecurring()" style="width:36px;height:20px;border-radius:10px;background:#1a3a8a;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;">
+        <div id="idate-rec-knob" style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;"></div>
+      </div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <div style="color:#aaa;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:6px;">COLOR</div>
+      <div id="idate-color-row" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    </div>
+    <div id="idate-action-row" style="display:flex;gap:8px;">
+      <button id="idate-delete-btn" onclick="deleteImportantDate()" style="flex:1;background:#0a1628;border:1px solid #ff4757;border-radius:8px;padding:9px;color:#ff4757;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;display:none;align-items:center;justify-content:center;gap:6px;">
+        <span style="font-size:13px;line-height:1;">&#128465;</span>DELETE
+      </button>
+      <button onclick="saveImportantDate()" style="flex:1;background:#f5c518;border:none;border-radius:8px;padding:9px;color:#060e1c;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;">SAVE</button>
+    </div>
   </div>
 </div>
 
@@ -1594,6 +1640,7 @@ function initApp() {
   loadLastRead();
   listenAgendas();
   listenSuggestions();
+  listenImportantDates();
   loadTabOrder();
 
   // Notifications / tab activity
@@ -1661,9 +1708,275 @@ var pickedSongs = {};
 function dU(d){return Math.ceil((new Date(d+"T00:00:00")-new Date())/86400000);}
 function richGrad(color){
   // Build a layered radial gradient for avatars: highlight + base + darker edge.
-  // Uses #RRGGBB hex; appends alpha for darker stops.
   return 'radial-gradient(circle at 28% 22%, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 35%), '
        + 'radial-gradient(circle at 70% 78%, '+color+'66 0%, '+color+' 55%, '+color+'aa 100%)';
+}
+function openInMaps(address){
+  if(!address || !address.trim()) return;
+  var q = encodeURIComponent(address.trim());
+  // iOS gets Apple Maps for native UX; everything else gets Google Maps
+  var ua = navigator.userAgent || '';
+  var isIOS = /iPhone|iPad|iPod/.test(ua) && !window.MSStream;
+  var url = isIOS ? ('https://maps.apple.com/?q='+q) : ('https://www.google.com/maps/search/?api=1&query='+q);
+  window.open(url, '_blank');
+}
+function isBirthdayToday(bday){
+  if(!bday) return false;
+  // Accept YYYY-MM-DD; compare MM-DD only so year doesn't matter
+  var parts = String(bday).split('-');
+  if(parts.length<3) return false;
+  var t = new Date();
+  var todayMonth = t.getMonth()+1;
+  var todayDay = t.getDate();
+  return parseInt(parts[1],10)===todayMonth && parseInt(parts[2],10)===todayDay;
+}
+function isBirthdayOnDate(bday, ds){
+  if(!bday || !ds) return false;
+  var b = String(bday).split('-');
+  var d = String(ds).split('-');
+  if(b.length<3 || d.length<3) return false;
+  return parseInt(b[1],10)===parseInt(d[1],10) && parseInt(b[2],10)===parseInt(d[2],10);
+}
+function getMembersBornOn(ds){
+  return members.filter(function(m){ return isBirthdayOnDate(m.bday, ds); });
+}
+
+// US Federal Holidays
+function _nthDayOfMonth(year, month0, dayOfWeek, n){
+  // n-th occurrence of dayOfWeek (0=Sun..6=Sat) in month0 (0..11) of year
+  var first = new Date(year, month0, 1);
+  var offset = (dayOfWeek - first.getDay() + 7) % 7;
+  return 1 + offset + (n-1)*7;
+}
+function _lastDayOfMonth(year, month0, dayOfWeek){
+  var lastDate = new Date(year, month0+1, 0);
+  var diff = (lastDate.getDay() - dayOfWeek + 7) % 7;
+  return lastDate.getDate() - diff;
+}
+function _pad(n){ return n<10 ? '0'+n : ''+n; }
+function _fmt(year, month0, day){ return year + '-' + _pad(month0+1) + '-' + _pad(day); }
+
+function getUSFederalHolidays(year){
+  // Returns array of {date:'YYYY-MM-DD', name:'...'}
+  return [
+    {date: _fmt(year, 0, 1),  name: "New Year's Day"},
+    {date: _fmt(year, 0, _nthDayOfMonth(year, 0, 1, 3)),  name: 'Martin Luther King Jr. Day'},
+    {date: _fmt(year, 1, _nthDayOfMonth(year, 1, 1, 3)),  name: "Presidents' Day"},
+    {date: _fmt(year, 4, _lastDayOfMonth(year, 4, 1)),    name: 'Memorial Day'},
+    {date: _fmt(year, 5, 19), name: 'Juneteenth'},
+    {date: _fmt(year, 6, 4),  name: 'Independence Day'},
+    {date: _fmt(year, 8, _nthDayOfMonth(year, 8, 1, 1)),  name: 'Labor Day'},
+    {date: _fmt(year, 9, _nthDayOfMonth(year, 9, 1, 2)),  name: 'Columbus Day'},
+    {date: _fmt(year, 10, 11),name: 'Veterans Day'},
+    {date: _fmt(year, 10, _nthDayOfMonth(year, 10, 4, 4)),name: 'Thanksgiving'},
+    {date: _fmt(year, 11, 25),name: 'Christmas Day'}
+  ];
+}
+function getHolidayOn(ds){
+  if(!ds) return null;
+  var y = parseInt(ds.split('-')[0], 10);
+  if(isNaN(y)) return null;
+  var list = getUSFederalHolidays(y);
+  for(var i=0;i<list.length;i++){
+    if(list[i].date === ds) return list[i];
+  }
+  return null;
+}
+
+// Custom Important Dates (Firestore-backed, user-editable)
+var importantDates = [];   // [{id, date:'YYYY-MM-DD' or 'MM-DD' if recurring, title, recurring, color}]
+function listenImportantDates(){
+  db.collection('importantDates').onSnapshot(function(snap){
+    importantDates = [];
+    snap.forEach(function(doc){
+      importantDates.push(Object.assign({id:doc.id}, doc.data()));
+    });
+    // Re-render anything that uses them
+    if(document.getElementById('sc-cal') && document.getElementById('sc-cal').classList.contains('on')) rCal();
+    if(document.getElementById('important-dates-list')) rImportantDatesList();
+  });
+}
+function getImportantDatesOn(ds){
+  if(!ds) return [];
+  var d = ds.split('-');
+  if(d.length<3) return [];
+  var mm = d[1], dd = d[2];
+  return importantDates.filter(function(x){
+    if(!x.date) return false;
+    if(x.recurring){
+      // Stored as 'MM-DD' (recurring annually) or 'YYYY-MM-DD' (we still match MM-DD)
+      var p = String(x.date).split('-');
+      var xMM = p.length===2 ? p[0] : p[1];
+      var xDD = p.length===2 ? p[1] : p[2];
+      return xMM===mm && xDD===dd;
+    } else {
+      return x.date === ds;
+    }
+  });
+}
+
+// Important Date editor state
+var _editingIDateId = null;
+var _editingIDateRecurring = false;
+var _editingIDateColor = '#06d6a0';
+var IDATE_COLORS = ['#06d6a0','#f5c518','#4a9eff','#ff6b9d','#c084fc','#ffa500','#ff4757','#7ed4ff'];
+
+function _renderIDateColorRow(){
+  var host = document.getElementById('idate-color-row');
+  if(!host) return;
+  host.innerHTML = '';
+  IDATE_COLORS.forEach(function(c){
+    var sw = document.createElement('div');
+    var selected = c === _editingIDateColor;
+    sw.style.cssText = 'width:30px;height:30px;border-radius:50%;background:'+c+';cursor:pointer;border:'+(selected?'2px solid #fff':'2px solid transparent')+';box-shadow:0 0 '+(selected?'14':'6')+'px '+c+(selected?'aa':'40')+';transition:all .15s;';
+    sw.onclick = (function(col){ return function(){ _editingIDateColor = col; _renderIDateColorRow(); }; })(c);
+    host.appendChild(sw);
+  });
+}
+
+function toggleIDateRecurring(){
+  _editingIDateRecurring = !_editingIDateRecurring;
+  var t = document.getElementById('idate-rec-toggle');
+  var k = document.getElementById('idate-rec-knob');
+  if(t && k){
+    t.style.background = _editingIDateRecurring ? '#4a9eff' : '#1a3a8a';
+    k.style.left = _editingIDateRecurring ? '18px' : '2px';
+  }
+}
+
+function openImportantDateModal(idateOrId){
+  var existing = null;
+  if(idateOrId){
+    existing = (typeof idateOrId === 'string')
+      ? importantDates.find(function(x){return x.id===idateOrId;})
+      : idateOrId;
+  }
+  _editingIDateId = existing ? existing.id : null;
+  _editingIDateRecurring = existing ? !!existing.recurring : false;
+  _editingIDateColor = existing && existing.color ? existing.color : '#06d6a0';
+  document.getElementById('idate-title').textContent = existing ? 'Edit Important Date' : 'New Important Date';
+  document.getElementById('idate-name').value = existing ? (existing.title||'') : '';
+  // Hydrate date input — if recurring, normalize to current year so the date input renders
+  var d = existing && existing.date ? String(existing.date) : '';
+  var dateForInput = d;
+  if(d){
+    var parts = d.split('-');
+    if(parts.length===2){
+      // MM-DD recurring -> show with current year
+      dateForInput = (new Date().getFullYear()) + '-' + parts[0] + '-' + parts[1];
+    }
+  } else {
+    // default today
+    var now = new Date();
+    dateForInput = now.getFullYear()+'-'+_pad(now.getMonth()+1)+'-'+_pad(now.getDate());
+  }
+  document.getElementById('idate-date').value = dateForInput;
+  // Apply toggle visual
+  var t = document.getElementById('idate-rec-toggle');
+  var k = document.getElementById('idate-rec-knob');
+  if(t && k){
+    t.style.background = _editingIDateRecurring ? '#4a9eff' : '#1a3a8a';
+    k.style.left = _editingIDateRecurring ? '18px' : '2px';
+  }
+  // Show/hide delete based on edit vs create
+  var delBtn = document.getElementById('idate-delete-btn');
+  if(delBtn) delBtn.style.display = existing ? 'inline-flex' : 'none';
+  _renderIDateColorRow();
+  opM('idate-modal');
+}
+
+function saveImportantDate(){
+  var title = (document.getElementById('idate-name').value||'').trim();
+  var dateRaw = document.getElementById('idate-date').value;
+  if(!title){ toast('Title is required.', {tone:'error'}); return; }
+  if(!dateRaw){ toast('Pick a date.', {tone:'error'}); return; }
+  var dateToStore = _editingIDateRecurring
+    ? dateRaw.slice(5) // 'MM-DD' for annual
+    : dateRaw;
+  var data = {
+    title: title,
+    date: dateToStore,
+    recurring: _editingIDateRecurring,
+    color: _editingIDateColor,
+    updated: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  if(_editingIDateId){
+    db.collection('importantDates').doc(_editingIDateId).set(data, {merge:true})
+      .then(function(){ toast('Date updated', {tone:'success'}); }).catch(function(){});
+  } else {
+    db.collection('importantDates').add(data)
+      .then(function(){ toast('Date added', {tone:'success'}); }).catch(function(){});
+  }
+  clM('idate-modal');
+}
+
+function deleteImportantDate(){
+  if(!_editingIDateId) return;
+  var found = importantDates.find(function(x){return x.id===_editingIDateId;});
+  var t = found ? found.title : 'this date';
+  appConfirm({title:'Delete date?', message:'Remove "'+t+'" from important dates?'}).then(function(ok){
+    if(!ok) return;
+    db.collection('importantDates').doc(_editingIDateId).delete()
+      .then(function(){ toast('Date deleted', {tone:'success'}); }).catch(function(){});
+    clM('idate-modal');
+  });
+}
+
+function rImportantDatesList(){
+  var el = document.getElementById('important-dates-list');
+  if(!el) return;
+  if(!importantDates.length){
+    el.innerHTML = '<div style="color:#aaa;font-style:italic;padding:8px;font-size:13px;">No important dates yet. Tap NEW to add one.</div>';
+    return;
+  }
+  // Sort: recurring annual first, then by date
+  var sorted = importantDates.slice().sort(function(a,b){
+    return String(a.date).localeCompare(String(b.date));
+  });
+  el.innerHTML = '';
+  sorted.forEach(function(x){
+    var color = x.color || '#06d6a0';
+    var dateLabel = '';
+    if(x.recurring){
+      var p = String(x.date).split('-');
+      if(p.length===2) dateLabel = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(p[0],10)] + ' ' + parseInt(p[1],10);
+      else if(p.length===3) dateLabel = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(p[1],10)] + ' ' + parseInt(p[2],10);
+    } else {
+      dateLabel = x.date;
+    }
+    var row = document.createElement('div');
+    row.style.cssText = 'background:linear-gradient(135deg,'+color+'22 0%,'+color+'08 50%,#0a1628 100%);border:1px solid '+color+'55;border-left:4px solid '+color+';border-radius:10px;padding:10px 12px;margin-bottom:7px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:0 0 12px '+color+'22;';
+    row.innerHTML =
+      '<span style="color:'+color+';font-size:18px;line-height:1;">&#9733;</span>'+
+      '<div style="flex:1;min-width:0;">'+
+        '<div style="font-size:14px;font-weight:600;color:#fff;">'+(x.title||'Untitled')+'</div>'+
+        '<div style="font-size:11px;color:#aaa;margin-top:2px;">'+dateLabel+(x.recurring?' &middot; Annual':'')+'</div>'+
+      '</div>'+
+      '<div style="color:'+color+';font-size:18px;line-height:1;flex-shrink:0;opacity:.7;">&#8250;</div>';
+    row.onclick = (function(id){ return function(){ openImportantDateModal(id); }; })(x.id);
+    el.appendChild(row);
+  });
+}
+
+function fmtBirthday(bday){
+  if(!bday) return '';
+  var parts = String(bday).split('-');
+  if(parts.length<3) return '';
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var mi = parseInt(parts[1],10)-1;
+  if(mi<0||mi>11) return '';
+  return months[mi] + ' ' + parseInt(parts[2],10);
+}
+function daysUntilBirthday(bday){
+  if(!bday) return Infinity;
+  var parts = String(bday).split('-');
+  if(parts.length<3) return Infinity;
+  var now = new Date();
+  var thisYear = new Date(now.getFullYear(), parseInt(parts[1],10)-1, parseInt(parts[2],10));
+  if(thisYear < new Date(now.getFullYear(), now.getMonth(), now.getDate())){
+    thisYear.setFullYear(now.getFullYear()+1);
+  }
+  return Math.round((thisYear - new Date(now.getFullYear(), now.getMonth(), now.getDate()))/86400000);
 }
 function gM(id){return members.find(function(m){return m.id==id;})||{name:"?",av:"?",color:"#555"};}
 function fD(y,m,d){return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");}
@@ -1833,6 +2146,7 @@ function listenMembers(){
         if(d.ph!==undefined) m.ph = d.ph;
         if(d.em!==undefined) m.em = d.em;
         if(d.addr!==undefined) m.addr = d.addr;
+        if(d.bday!==undefined) m.bday = d.bday;
         seenIds[m.id] = true;
       }
     });
@@ -1909,6 +2223,38 @@ function rHome() {
     document.getElementById(id).style.display = cardStates[id] ? 'none' : 'block';
   });
   updateCountdown();
+  // Birthday banner
+  var bbEl = document.getElementById('birthday-banner');
+  if(bbEl){
+    var birthdayToday = members.filter(function(mm){ return isBirthdayToday(mm.bday); });
+    var upcoming = members.filter(function(mm){ return mm.bday && !isBirthdayToday(mm.bday); })
+      .map(function(mm){ return {name:mm.name, color:mm.color, bday:mm.bday, days:daysUntilBirthday(mm.bday)}; })
+      .filter(function(x){ return x.days <= 14; })
+      .sort(function(a,b){ return a.days - b.days; });
+    if(birthdayToday.length){
+      bbEl.style.display = 'block';
+      bbEl.innerHTML = birthdayToday.map(function(mm){
+        return '<div style="background:linear-gradient(135deg,rgba(245,197,24,.28) 0%,rgba(245,197,24,.08) 50%,#0a1628 100%);border:1px solid rgba(245,197,24,.5);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;box-shadow:0 0 22px rgba(245,197,24,.22);">'+
+          '<span style="font-size:24px;line-height:1;">&#127874;</span>'+
+          '<div style="flex:1;">'+
+            '<div style="font-family:\'Russo One\',sans-serif;font-size:11px;color:#f5c518;letter-spacing:2px;">HAPPY BIRTHDAY</div>'+
+            '<div style="font-size:14px;color:#fff;font-weight:600;margin-top:2px;">'+mm.name+'</div>'+
+          '</div>'+
+        '</div>';
+      }).join('');
+    } else if(upcoming.length){
+      var u = upcoming[0];
+      bbEl.style.display = 'block';
+      bbEl.innerHTML =
+        '<div style="background:#0a1628;border:1px solid #1a3a8a;border-radius:10px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:10px;font-size:12px;color:#8aa8d6;">'+
+          '<span style="font-size:16px;line-height:1;">&#127874;</span>'+
+          '<span><span style="color:#fff;font-weight:600;">'+u.name.split(' ')[0]+'</span>\'s birthday in '+u.days+' day'+(u.days===1?'':'s')+' &middot; '+fmtBirthday(u.bday)+'</span>'+
+        '</div>';
+    } else {
+      bbEl.style.display = 'none';
+      bbEl.innerHTML = '';
+    }
+  }
   var wi = document.getElementById('who-am-i');
   if (wi && myName) {
     var m = gM(ME);
@@ -2077,7 +2423,14 @@ function rCal() {
       var badge=count>1?'<span style="position:absolute;top:-4px;right:-4px;background:#fff;color:#000;font-size:6px;font-weight:700;border-radius:50%;width:9px;height:9px;display:flex;align-items:center;justify-content:center;line-height:1;">'+count+'</span>':'';
       return '<div style="position:relative;display:inline-flex;"><div class="pip" style="background:'+EC[t]+';cursor:pointer;width:'+pipSize+';height:'+pipSize+';" onclick="event.stopPropagation();oDy('+d+')"></div>'+badge+'</div>';
     }).join('');;
-    h+='<div class="dc'+(td?' td':'')+'" onclick="oDy('+d+')"><span class="dn">'+d+'</span><div class="pips">'+pp+'</div></div>';
+    // Special-day badges
+    var bdayMembers = getMembersBornOn(ds);
+    var holiday = getHolidayOn(ds);
+    var impDates = getImportantDatesOn(ds);
+    var cake = bdayMembers.length ? '<span style="position:absolute;top:1px;right:3px;font-size:10px;line-height:1;pointer-events:none;text-shadow:0 0 6px rgba(245,197,24,.6);" title="Birthday">&#127874;</span>' : '';
+    var flag  = holiday ? '<span style="position:absolute;top:1px;left:3px;font-size:9px;line-height:1;pointer-events:none;" title="'+holiday.name+'">&#127482;&#127480;</span>' : '';
+    var star  = impDates.length ? '<span style="position:absolute;'+(holiday?'top:14px;':'top:1px;')+'left:3px;font-size:10px;line-height:1;pointer-events:none;color:#f5c518;text-shadow:0 0 6px rgba(245,197,24,.5);" title="Important date">&#9733;</span>' : '';
+    h+='<div class="dc'+(td?' td':'')+'" style="position:relative;" onclick="oDy('+d+')">'+flag+star+cake+'<span class="dn">'+d+'</span><div class="pips">'+pp+'</div></div>';
   }
   document.getElementById('cgrid').innerHTML = h;
   rEvL();
@@ -2095,11 +2448,19 @@ function rEvL() {
   if(!events.length){ el.innerHTML='<div style="color:#aaa;font-style:italic;padding:8px">No events. Tap a day to add.</div>'; return; }
   var sorted = events.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
   el.innerHTML = sorted.map(function(e){
+    var d = dU(e.date);
+    var pill = '';
+    if(d >= 0 && d <= 60){
+      var label = d===0 ? 'TODAY' : (d===1 ? 'TOMORROW' : (d <= 14 ? d+' DAYS' : d+'d'));
+      var pillColor = EC[e.type];
+      pill = '<div style="font-family:Russo One,sans-serif;font-size:9px;letter-spacing:.5px;color:'+pillColor+';background:'+pillColor+'1a;border:1px solid '+pillColor+'55;border-radius:10px;padding:3px 8px;flex-shrink:0;margin-right:6px;white-space:nowrap;">'+label+'</div>';
+    }
     return '<div class="er" data-evid="' + e.id + '" style="cursor:pointer;">' +
       '<div class="ebdg" style="background:' + EC[e.type] + '22;color:' + EC[e.type] + '">' + e.type + '</div>' +
       '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:#fff">' + e.title + '</div>' +
       '<div style="font-size:11px;color:#aaa;margin-top:2px">' + e.date + ' - ' + e.note + '</div></div>' +
-      '<div style="color:' + EC[e.type] + ';font-size:20px;line-height:1;flex-shrink:0;margin-left:8px;opacity:.7;">&#8250;</div>' +
+      pill +
+      '<div style="color:' + EC[e.type] + ';font-size:20px;line-height:1;flex-shrink:0;margin-left:0;opacity:.7;">&#8250;</div>' +
     '</div>';
   }).join('');
 
@@ -2130,11 +2491,56 @@ function oDy(day) {
   }
 }
 
+function _renderSpecialDayNotes(eexEl, ds){
+  var bdayMembers = getMembersBornOn(ds);
+  var holiday = getHolidayOn(ds);
+  var impDates = getImportantDatesOn(ds);
+  if(!bdayMembers.length && !holiday && !impDates.length) return;
+  bdayMembers.forEach(function(mm){
+    var card = document.createElement('div');
+    card.style.cssText = 'padding:8px 12px;background:linear-gradient(135deg,rgba(245,197,24,.22) 0%,rgba(245,197,24,.06) 50%,#0a1628 100%);border:1px solid rgba(245,197,24,.4);border-radius:8px;margin-bottom:6px;display:flex;align-items:center;gap:8px;';
+    card.innerHTML = '<span style="font-size:18px;line-height:1;">&#127874;</span>'+
+      '<div style="flex:1;">'+
+        '<div style="font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1.5px;color:#f5c518;">BIRTHDAY</div>'+
+        '<div style="font-size:13px;color:#fff;font-weight:600;margin-top:1px;">'+mm.name+'</div>'+
+      '</div>';
+    eexEl.appendChild(card);
+  });
+  if(holiday){
+    var hCard = document.createElement('div');
+    hCard.style.cssText = 'padding:8px 12px;background:linear-gradient(135deg,rgba(74,158,255,.18) 0%,rgba(74,158,255,.04) 50%,#0a1628 100%);border:1px solid rgba(74,158,255,.4);border-radius:8px;margin-bottom:6px;display:flex;align-items:center;gap:8px;';
+    hCard.innerHTML = '<span style="font-size:14px;line-height:1;">&#127482;&#127480;</span>'+
+      '<div style="flex:1;">'+
+        '<div style="font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1.5px;color:#4a9eff;">US HOLIDAY</div>'+
+        '<div style="font-size:13px;color:#fff;font-weight:600;margin-top:1px;">'+holiday.name+'</div>'+
+      '</div>';
+    eexEl.appendChild(hCard);
+  }
+  impDates.forEach(function(idate){
+    var color = idate.color || '#06d6a0';
+    var dCard = document.createElement('div');
+    dCard.style.cssText = 'padding:8px 12px;background:linear-gradient(135deg,'+color+'2e 0%,'+color+'0d 50%,#0a1628 100%);border:1px solid '+color+'66;border-radius:8px;margin-bottom:6px;display:flex;align-items:center;gap:8px;';
+    dCard.innerHTML = '<span style="color:'+color+';font-size:16px;line-height:1;">&#9733;</span>'+
+      '<div style="flex:1;">'+
+        '<div style="font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1.5px;color:'+color+';">'+(idate.recurring?'ANNUAL · ':'')+'IMPORTANT DATE</div>'+
+        '<div style="font-size:13px;color:#fff;font-weight:600;margin-top:1px;">'+(idate.title||'')+'</div>'+
+      '</div>';
+    eexEl.appendChild(dCard);
+  });
+  // Visual separator before events
+  var sep = document.createElement('div');
+  sep.style.cssText = 'height:1px;background:#0d1f3a;margin:8px 0 10px;';
+  eexEl.appendChild(sep);
+}
+
 function showDayOptions(day, de){
   // Build a clean choice modal
   document.getElementById('emtit').textContent = MO[CM] + ' ' + day;
   var eex = document.getElementById('eex');
   eex.innerHTML = '';
+
+  // Special-day notes (birthdays, holidays, important dates)
+  _renderSpecialDayNotes(eex, fD(CY,CM,day));
 
   // Show existing events
   de.forEach(function(e){
@@ -2218,6 +2624,8 @@ function openNewEventModal(day){
   document.getElementById('emtit').textContent = MO[CM] + ' ' + day;
   var eex = document.getElementById('eex');
   eex.innerHTML = '';
+  // Special-day notes (birthdays, holidays, important dates)
+  _renderSpecialDayNotes(eex, fD(CY,CM,day));
   // Clear form
   document.getElementById('etit').value = '';
   document.getElementById('enot').value = '';
@@ -2301,7 +2709,19 @@ function openGigSheet(ev){
   }
 
   b.appendChild(makeField('GIG NAME','gd-name', ev ? ev.title : '','e.g. Trip, Venice Beach Festival','text'));
-  b.appendChild(makeField('VENUE / ADDRESS','gd-venue',det.venue,'Venue name and address','text'));
+  var venueField = makeField('VENUE / ADDRESS','gd-venue',det.venue,'Venue name and address','text');
+  b.appendChild(venueField);
+  // Map button — opens venue/address in Apple/Google Maps
+  var mapBtn = document.createElement('button');
+  mapBtn.type = 'button';
+  mapBtn.style.cssText = 'background:#0a1628;border:1px solid #4a9eff;border-radius:8px;padding:6px 12px;color:#4a9eff;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin-top:-2px;margin-bottom:10px;';
+  mapBtn.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" focusable="false"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" fill="#4a9eff"/></svg><span>OPEN IN MAPS</span>';
+  mapBtn.onclick = function(){
+    var v = (document.getElementById('gd-venue')||{value:''}).value;
+    if(!v.trim()){ toast('Add a venue or address first', {tone:'error'}); return; }
+    openInMaps(v);
+  };
+  b.appendChild(mapBtn);
 
   var row1 = document.createElement('div');
   row1.style.cssText = 'display:flex;gap:8px;';
@@ -2928,8 +3348,8 @@ function rEd() {
       var songArtist = libSong ? (libSong.artist||'') : '';
       textDiv.innerHTML =
         '<div style="font-weight:600;">' +
-          '<span style="font-size:16px;background:linear-gradient(135deg,#f5c518,#ffd84a);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;">' + songTitle + '</span>' +
-          (songArtist ? '<span style="color:#4a6a9a;font-size:14px;"> &nbsp;–&nbsp; </span><span style="font-size:14px;background:linear-gradient(135deg,#4a9eff,#6bbcff);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;">' + songArtist + '</span>' : '') +
+          '<span style="font-size:16px;font-weight:700;background:linear-gradient(135deg,#ffb800 0%,#ffd84a 45%,#fff39a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 18px rgba(255,184,0,.25);">' + songTitle + '</span>' +
+          (songArtist ? '<span style="color:#4a6a9a;font-size:14px;"> &nbsp;–&nbsp; </span><span style="font-size:14px;background:linear-gradient(135deg,#2563d6 0%,#4a9eff 50%,#7ed4ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;">' + songArtist + '</span>' : '') +
         '</div>';
       // Tap a song row (when not reordering) to open the song detail sheet
       if(libSong){
@@ -3533,10 +3953,15 @@ function rBand() {
     // Single-line header: avatar | name · instrument | caret
     var header = document.createElement('div');
     header.style.cssText = 'display:flex;align-items:center;gap:10px;padding:11px 12px;cursor:pointer;';
+    var bdayToday = isBirthdayToday(m.bday);
+    var bdayBadge = bdayToday
+      ? '<span title="Birthday today!" style="font-size:14px;flex-shrink:0;text-shadow:0 0 8px rgba(245,197,24,.6);">&#127874;</span>'
+      : '';
     header.innerHTML =
       '<div class="avmd" style="background:'+richGrad(m.color)+';width:34px;height:34px;font-size:12px;flex-shrink:0;box-shadow:0 0 14px '+m.color+'55, inset 0 -2px 6px rgba(0,0,0,.2);font-family:Russo One,sans-serif;">'+m.av+'</div>'+
       '<div style="flex:1;min-width:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+
         '<span style="font-size:14px;font-weight:600;color:#e8f0ff;">'+m.name+'</span>'+
+        bdayBadge+
         '<span style="display:inline-block;width:3px;height:3px;border-radius:50%;background:#4a6a9a;flex-shrink:0;"></span>'+
         '<span style="font-size:12px;color:#4a9eff;font-family:Russo One,sans-serif;letter-spacing:.5px;">'+m.inst+'</span>'+
       '</div>'+
@@ -3625,6 +4050,7 @@ function rBand() {
       detail.appendChild(makeRow('PH','tel',m.ph,'(555) 555-5555','ph'));
       detail.appendChild(makeRow('EM','email',m.em,'email@example.com','em'));
       detail.appendChild(makeRow('AD','text',m.addr,'City, State','addr'));
+      detail.appendChild(makeRow('BD','date',m.bday,'','bday'));
 
       // ── Remove member ────────────────────────────────────────────
       var delRow = document.createElement('div');
@@ -3664,7 +4090,7 @@ function renameMember(id, oldName, newName, newInst){
   m.inst = newInst || m.inst;
   m.av = newAv;
   // Persist: write doc under new name, then delete old doc if name changed
-  var data = { id:m.id, name:m.name, inst:m.inst, av:m.av, color:m.color, ph:m.ph||'', em:m.em||'', addr:m.addr||'' };
+  var data = { id:m.id, name:m.name, inst:m.inst, av:m.av, color:m.color, ph:m.ph||'', em:m.em||'', addr:m.addr||'', bday:m.bday||'' };
   db.collection('members').doc(m.name).set(data, {merge:true}).then(function(){
     if(oldName && oldName !== m.name){
       db.collection('members').doc(oldName).delete().catch(function(){});
@@ -3942,7 +4368,7 @@ function rLib() {
     row.style.cssText='display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid #0d1f3a;';
     var titleDiv=document.createElement('div');
     titleDiv.style.cssText='flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;';
-    titleDiv.innerHTML='<span style="font-size:16px;font-weight:600;background:linear-gradient(135deg,#f5c518,#ffd84a);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;">'+s.title+'</span>'+(s.artist?'<span style="font-size:14px;background:linear-gradient(135deg,#4a9eff,#6bbcff);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;"> - '+s.artist+'</span>':'')+'';
+    titleDiv.innerHTML='<span style="font-size:16px;font-weight:700;background:linear-gradient(135deg,#ffb800 0%,#ffd84a 45%,#fff39a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 18px rgba(255,184,0,.25);">'+s.title+'</span>'+(s.artist?'<span style="font-size:14px;background:linear-gradient(135deg,#2563d6 0%,#4a9eff 50%,#7ed4ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;"> - '+s.artist+'</span>':'')+'';
     titleDiv.onclick=(function(song){ return function(){ showSongInfo(song.id); }; })(s);
     var playBtn=document.createElement('button');
     playBtn.style.cssText='background:none;border:none;cursor:pointer;flex-shrink:0;padding:4px 6px;display:flex;align-items:center;line-height:1;';
