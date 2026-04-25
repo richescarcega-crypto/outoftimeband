@@ -2726,7 +2726,7 @@ function showDayOptions(day, de){
   addBtn.textContent = '+ Add Another Event on This Day';
   addBtn.onclick = function(){
     eex.innerHTML = '';
-    showNewEventForm();
+    _renderEventTypeChooser(eex);
   };
   eex.appendChild(addBtn);
 
@@ -2765,19 +2765,51 @@ function showNewEventForm(){
 
 function openNewEventModal(day){
   sDay=day;
-  // Show type selector first
   document.getElementById('emtit').textContent = MO[CM] + ' ' + day;
+  // Hide the legacy form fields — we use a clean chooser instead
+  hideNewEventForm();
   var eex = document.getElementById('eex');
   eex.innerHTML = '';
   // Special-day notes (birthdays, holidays, important dates)
   _renderSpecialDayNotes(eex, fD(CY,CM,day));
-  // Clear form
-  document.getElementById('etit').value = '';
-  document.getElementById('enot').value = '';
-  if(document.getElementById('eend')) document.getElementById('eend').value = '';
-  if(document.getElementById('estart')) document.getElementById('estart').value = '';
-  showNewEventForm();
+  // Render the type chooser
+  _renderEventTypeChooser(eex);
   opM('evm');
+}
+
+function _renderEventTypeChooser(host){
+  var prompt = document.createElement('div');
+  prompt.style.cssText = 'font-family:Russo One,sans-serif;font-size:10px;letter-spacing:2px;color:#8aa8d6;margin:4px 0 10px;text-align:center;';
+  prompt.textContent = 'WHAT KIND OF EVENT?';
+  host.appendChild(prompt);
+  var types = [
+    {key:'gig',       icon:'\uD83C\uDFB8', label:'GIG',       sub:'Show, performance, paid event',     color:'#f5c518', open:function(){ openGigSheet(null); }},
+    {key:'rehearsal', icon:'\uD83C\uDFB5', label:'REHEARSAL', sub:'Practice, run-through, prep',       color:'#4a9eff', open:function(){ openRehearsalSheet(null); }},
+    {key:'blackout',  icon:'\uD83D\uDEAB', label:'BLACKOUT',  sub:'Unavailable date or date range',    color:'#ff4757', open:function(){ openBlackoutSheet(null); }}
+  ];
+  types.forEach(function(t){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.style.cssText = 'display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;margin-bottom:8px;'+
+      'background:linear-gradient(135deg,'+t.color+'22 0%,'+t.color+'08 50%,#0a1628 100%);'+
+      'border:1px solid '+t.color+'55;border-left:4px solid '+t.color+';border-radius:10px;'+
+      'cursor:pointer;color:#fff;font-family:\'Exo 2\',sans-serif;'+
+      'box-shadow:0 0 14px '+t.color+'18;transition:transform .12s,box-shadow .12s;';
+    btn.innerHTML =
+      '<span style="font-size:22px;line-height:1;flex-shrink:0;">'+t.icon+'</span>'+
+      '<div style="flex:1;min-width:0;">'+
+        '<div style="font-family:\'Russo One\',sans-serif;font-size:13px;letter-spacing:1.5px;color:'+t.color+';">'+t.label+'</div>'+
+        '<div style="font-size:11px;color:#aaa;margin-top:2px;">'+t.sub+'</div>'+
+      '</div>'+
+      '<div style="color:'+t.color+';font-size:18px;line-height:1;flex-shrink:0;opacity:.7;">&#8250;</div>';
+    btn.onmouseover = function(){ this.style.transform = 'translateX(2px)'; this.style.boxShadow = '0 0 22px '+t.color+'33'; };
+    btn.onmouseout = function(){ this.style.transform = ''; this.style.boxShadow = '0 0 14px '+t.color+'18'; };
+    btn.onclick = (function(opener){ return function(){
+      clM('evm');
+      opener();
+    }; })(t.open);
+    host.appendChild(btn);
+  });
 }
 
 
