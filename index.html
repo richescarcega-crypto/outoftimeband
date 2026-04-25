@@ -500,7 +500,7 @@ body.light .mrav{color:#000 !important;}
   <div class="mo">
     <div class="moh" style="position:sticky;top:-18px;background:var(--n2);z-index:5;margin:-18px -14px 12px -14px;padding:14px 14px 10px 14px;border-bottom:1px solid var(--n3);align-items:flex-start;">
       <div style="flex:1;min-width:0;">
-        <div class="mot" id="si-title" style="white-space:normal;line-height:1.15;">Song Info</div>
+        <div class="mot" id="si-title" style="white-space:normal;line-height:1.15;background:linear-gradient(135deg,#67e8f9 0%,#ffffff 50%,#67e8f9 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 18px rgba(103,232,249,.55), 0 0 6px rgba(103,232,249,.85);">Song Info</div>
         <div id="si-artist-display" style="font-size:14px;color:#f5c518;margin-top:4px;font-family:'Exo 2',sans-serif;font-weight:400;"></div>
       </div>
       <button style="background:none;border:none;color:#aaa;font-size:18px;cursor:pointer;padding:2px 6px;flex-shrink:0;line-height:1;" onclick="clM('song-info-modal')">&#10005;</button>
@@ -1888,15 +1888,19 @@ var pickedSongs = {};
 
 function dU(d){return Math.ceil((new Date(d+"T00:00:00")-new Date())/86400000);}
 function richGrad(color){
-  // Build a layered radial gradient for avatars: highlight + base + darker edge.
-  return 'radial-gradient(circle at 28% 22%, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 35%), '
-       + 'radial-gradient(circle at 70% 78%, '+color+'66 0%, '+color+' 55%, '+color+'aa 100%)';
+  // Glossy 3D bead — bright top-left highlight, color body, deep shadow at bottom-right.
+  // Layers: small specular dot (white) + larger soft sheen (white→transparent) + radial color base.
+  return 'radial-gradient(circle at 32% 26%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.55) 6%, rgba(255,255,255,0) 18%), '
+       + 'radial-gradient(circle at 35% 30%, rgba(255,255,255,.4) 0%, rgba(255,255,255,0) 45%), '
+       + 'radial-gradient(circle at 70% 80%, '+color+'33 0%, '+color+' 50%, '+color+'b3 100%)';
 }
 function nameGradStyle(color){
   // Returns a CSS style snippet that paints text with a member-color → bright-tint gradient
-  return 'background:linear-gradient(135deg,'+color+' 0%,#ffffff 100%);'
+  return 'background:linear-gradient(135deg,'+color+' 0%,#ffffff 50%,'+color+' 100%);'
+       + 'background-size:200% 100%;background-position:0% 50%;'
        + '-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;'
-       + 'text-shadow:0 0 14px '+color+'55;';
+       + 'text-shadow:0 0 18px '+color+'77, 0 0 6px '+color+'aa;'
+       + 'font-weight:700;';
 }
 function openInMaps(address){
   if(!address || !address.trim()) return;
@@ -3819,7 +3823,7 @@ function rEd() {
       var songArtist = libSong ? (libSong.artist||'') : '';
       textDiv.innerHTML =
         '<div style="font-weight:600;">' +
-          '<span style="font-size:16px;font-weight:700;background:linear-gradient(135deg,#67e8f9 0%,#a5f3fc 50%,#cffafe 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 18px rgba(103,232,249,.3);">' + songTitle + '</span>' +
+          '<span style="font-size:16px;font-weight:700;background:linear-gradient(135deg,#67e8f9 0%,#ffffff 50%,#67e8f9 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 18px rgba(103,232,249,.55), 0 0 6px rgba(103,232,249,.85);">' + songTitle + '</span>' +
           (songArtist ? '<span style="color:#4a6a9a;font-size:14px;"> &nbsp;–&nbsp; </span><span style="font-size:14px;background:linear-gradient(135deg,#2563d6 0%,#4a9eff 50%,#7ed4ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;">' + songArtist + '</span>' : '') +
         '</div>';
       // Tap a song row (when not reordering) to open the song detail sheet
@@ -4184,12 +4188,13 @@ function openThread(id){
     subEl.textContent='Private conversation';
   }
   // Apply the same name gradient used on the chat list — paint inline so it overrides the markup color
-  nameEl.style.background = 'linear-gradient(135deg,'+threadColor+' 0%,#ffffff 100%)';
+  nameEl.style.background = 'linear-gradient(135deg,'+threadColor+' 0%,#ffffff 50%,'+threadColor+' 100%)';
   nameEl.style.webkitBackgroundClip = 'text';
   nameEl.style.backgroundClip = 'text';
   nameEl.style.color = 'transparent';
   nameEl.style.webkitTextFillColor = 'transparent';
-  nameEl.style.textShadow = '0 0 14px '+threadColor+'55';
+  nameEl.style.textShadow = '0 0 18px '+threadColor+'77, 0 0 6px '+threadColor+'aa';
+  nameEl.style.fontWeight = '700';
   // Avatar shadow + thread screen tint based on the thread color
   avEl.style.boxShadow = '0 0 18px '+threadColor+'66, inset 0 -3px 8px rgba(0,0,0,.18)';
   var threadScreen = document.getElementById('chat-thread-screen');
@@ -4856,7 +4861,7 @@ function rLib() {
     row.style.cssText='display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid #0d1f3a;';
     var titleDiv=document.createElement('div');
     titleDiv.style.cssText='flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;';
-    titleDiv.innerHTML='<span style="font-size:16px;font-weight:700;background:linear-gradient(135deg,#67e8f9 0%,#a5f3fc 50%,#cffafe 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 18px rgba(103,232,249,.3);">'+s.title+'</span>'+(s.artist?'<span style="font-size:14px;background:linear-gradient(135deg,#2563d6 0%,#4a9eff 50%,#7ed4ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;"> - '+s.artist+'</span>':'')+'';
+    titleDiv.innerHTML='<span style="font-size:16px;font-weight:700;background:linear-gradient(135deg,#67e8f9 0%,#ffffff 50%,#67e8f9 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 18px rgba(103,232,249,.55), 0 0 6px rgba(103,232,249,.85);">'+s.title+'</span>'+(s.artist?'<span style="font-size:14px;background:linear-gradient(135deg,#2563d6 0%,#4a9eff 50%,#7ed4ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;"> - '+s.artist+'</span>':'')+'';
     titleDiv.onclick=(function(song){ return function(){ showSongInfo(song.id); }; })(s);
     var playBtn=document.createElement('button');
     playBtn.style.cssText='background:none;border:none;cursor:pointer;flex-shrink:0;padding:4px 6px;display:flex;align-items:center;line-height:1;';
