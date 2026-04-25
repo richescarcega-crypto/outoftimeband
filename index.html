@@ -628,6 +628,171 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
 
+// ── CUSTOM CONFIRM DIALOG + TOAST ─────────────────────────────────────────
+function appConfirm(opts){
+  opts = opts || {};
+  return new Promise(function(resolve){
+    var ov = document.getElementById('app-confirm');
+    var card = document.getElementById('app-confirm-card');
+    var titleEl = document.getElementById('app-confirm-title');
+    var msgEl = document.getElementById('app-confirm-message');
+    var okBtn = document.getElementById('app-confirm-ok');
+    var cancelBtn = document.getElementById('app-confirm-cancel');
+    var iconWrap = document.getElementById('app-confirm-icon');
+    if(!ov || !okBtn || !cancelBtn) { resolve(window.confirm(opts.message || 'Are you sure?')); return; }
+
+    var isDestructive = opts.destructive !== false; // default true
+    titleEl.textContent = opts.title || 'Confirm';
+    msgEl.textContent = opts.message || 'Are you sure?';
+    okBtn.textContent = opts.okLabel || (isDestructive ? 'DELETE' : 'CONFIRM');
+    cancelBtn.textContent = opts.cancelLabel || 'CANCEL';
+    if(isDestructive){
+      okBtn.style.background = '#ff4757';
+      okBtn.style.borderColor = '#ff4757';
+      okBtn.style.color = '#fff';
+      iconWrap.style.background = 'rgba(255,71,87,.12)';
+      iconWrap.firstElementChild && iconWrap.firstElementChild.querySelector('path') && iconWrap.firstElementChild.querySelector('path').setAttribute('fill', '#ff4757');
+    } else {
+      okBtn.style.background = '#4a9eff';
+      okBtn.style.borderColor = '#4a9eff';
+      okBtn.style.color = '#060e1c';
+      iconWrap.style.background = 'rgba(74,158,255,.12)';
+      iconWrap.firstElementChild && iconWrap.firstElementChild.querySelector('path') && iconWrap.firstElementChild.querySelector('path').setAttribute('fill', '#4a9eff');
+    }
+
+    function close(result){
+      card.style.opacity = '0';
+      card.style.transform = 'scale(.95)';
+      setTimeout(function(){
+        ov.style.display = 'none';
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
+        ov.onclick = null;
+        document.removeEventListener('keydown', keyHandler);
+        resolve(result);
+      }, 180);
+    }
+    function keyHandler(e){
+      if(e.key === 'Escape') close(false);
+      else if(e.key === 'Enter') close(true);
+    }
+
+    okBtn.onclick = function(){ close(true); };
+    cancelBtn.onclick = function(){ close(false); };
+    ov.onclick = function(e){ if(e.target === ov) close(false); };
+    document.addEventListener('keydown', keyHandler);
+
+    ov.style.display = 'flex';
+    // next frame: animate in
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        card.style.opacity = '1';
+        card.style.transform = 'scale(1)';
+      });
+    });
+  });
+}
+
+var _toastTimer = null;
+function toast(message, opts){
+  opts = opts || {};
+  var el = document.getElementById('app-toast');
+  if(!el) return;
+  el.textContent = message;
+  // Tone variants
+  var tone = opts.tone || 'info'; // info | success | error
+  if(tone === 'success'){
+    el.style.borderColor = '#06d6a0';
+    el.style.color = '#06d6a0';
+  } else if(tone === 'error'){
+    el.style.borderColor = '#ff4757';
+    el.style.color = '#ff4757';
+  } else {
+    el.style.borderColor = '#1a3a8a';
+    el.style.color = '#e8f0ff';
+  }
+  el.style.display = 'block';
+  requestAnimationFrame(function(){
+    el.style.opacity = '1';
+    el.style.transform = 'translateX(-50%) translateY(0)';
+  });
+  if(_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function(){
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-50%) translateY(80px)';
+    setTimeout(function(){ el.style.display = 'none'; }, 280);
+  }, opts.duration || 2500);
+}
+
+function appPrompt(opts){
+  opts = opts || {};
+  return new Promise(function(resolve){
+    var ov = document.getElementById('app-prompt');
+    var card = document.getElementById('app-prompt-card');
+    var titleEl = document.getElementById('app-prompt-title');
+    var msgEl = document.getElementById('app-prompt-message');
+    var inputEl = document.getElementById('app-prompt-input');
+    var okBtn = document.getElementById('app-prompt-ok');
+    var cancelBtn = document.getElementById('app-prompt-cancel');
+    if(!ov || !okBtn || !cancelBtn || !inputEl){ resolve(window.prompt(opts.message||'', opts.defaultValue||'')); return; }
+
+    titleEl.textContent = opts.title || 'Edit';
+    if(opts.message){ msgEl.textContent = opts.message; msgEl.style.display = ''; }
+    else { msgEl.textContent = ''; msgEl.style.display = 'none'; }
+    inputEl.value = opts.defaultValue || '';
+    inputEl.placeholder = opts.placeholder || '';
+    okBtn.textContent = opts.okLabel || 'SAVE';
+    cancelBtn.textContent = opts.cancelLabel || 'CANCEL';
+
+    function close(result){
+      card.style.opacity = '0';
+      card.style.transform = 'scale(.95)';
+      setTimeout(function(){
+        ov.style.display = 'none';
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
+        ov.onclick = null;
+        inputEl.onkeydown = null;
+        document.removeEventListener('keydown', keyHandler);
+        resolve(result);
+      }, 180);
+    }
+    function submit(){
+      var val = inputEl.value;
+      if(opts.required && !val.trim()){
+        inputEl.style.borderColor = '#ff4757';
+        setTimeout(function(){ inputEl.style.borderColor = ''; }, 1200);
+        return;
+      }
+      close(val);
+    }
+    function keyHandler(e){
+      if(e.key === 'Escape') close(null);
+    }
+    inputEl.onkeydown = function(e){
+      if(e.key === 'Enter'){ e.preventDefault(); submit(); }
+    };
+
+    okBtn.onclick = submit;
+    cancelBtn.onclick = function(){ close(null); };
+    ov.onclick = function(e){ if(e.target === ov) close(null); };
+    document.addEventListener('keydown', keyHandler);
+
+    ov.style.display = 'flex';
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        card.style.opacity = '1';
+        card.style.transform = 'scale(1)';
+        // Focus + select after the animation kicks off
+        try {
+          inputEl.focus();
+          inputEl.select();
+        } catch(e){}
+      });
+    });
+  });
+}
+
 // ── PUSH NOTIFICATIONS ─────────────────────────────────────────────────────
 var PUSH_WORKER_URL = 'https://oot-push.rich-escarcega.workers.dev';
 var VAPID_PUBLIC_KEY = 'BEvv_vWeNGpGx0wJqwvyNHEIDyMjmFh2L1z-Rlu8CXOiYLAf2In6W8VbxIQ0oZfLpLJ4YMdehJbTLqPUo93QqOI';
@@ -1144,7 +1309,7 @@ function rVotes(){
       del.style.cssText='background:none;border:none;color:#4a6a9a;font-size:11px;cursor:pointer;margin-top:6px;display:block;font-family:Russo One,sans-serif;';
       del.textContent='Remove suggestion';
       del.onclick=(function(id){ return function(){
-        if(confirm('Remove this song suggestion?')) db.collection('suggestions').doc(id).delete();
+        appConfirm({title:'Remove suggestion?', message:'This will delete the song suggestion and all of its votes.'}).then(function(ok){ if(ok) db.collection('suggestions').doc(id).delete(); });
       }; })(s.id);
       card.appendChild(del);
     }
@@ -1409,7 +1574,7 @@ function updateCountdown(){
     countdownInterval = setInterval(tick, 30000);
   }
 }
-function whoAmITap() { alert("You are logged in as: " + myName + ". To change, clear browser data."); }
+function whoAmITap() { toast('Logged in as ' + myName + '. To switch, clear browser data.', {duration:4000}); }
 
 function initApp() {
   rHome();
@@ -1823,26 +1988,33 @@ function memTap(e, id) {
   e.stopPropagation();
   var m = gM(id);
   if (!m) return;
-  var choice = confirm(m.name + ' - OK=Chat, Cancel=Contact Info');
-  if (choice) {
-    chatTo = id;
-    document.querySelectorAll('.sc').forEach(function(s){s.classList.remove('on');});
-    document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('on');});
-    document.getElementById('sc-chat').classList.add('on');
-    document.querySelectorAll('.tb').forEach(function(b){if(b.textContent.trim().indexOf('Chat')>=0)b.classList.add('on');});
-    rChatTo(); rChat();
-  } else {
-    document.querySelectorAll('.sc').forEach(function(s){s.classList.remove('on');});
-    document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('on');});
-    document.getElementById('sc-band').classList.add('on');
-    document.querySelectorAll('.tb').forEach(function(b){if(b.textContent.trim().indexOf('Band')>=0)b.classList.add('on');});
-    rBand(); rContacts();
+  appConfirm({
+    title: m.name,
+    message: 'Open a chat with ' + (m.name||'').split(' ')[0] + ' or view their contact info?',
+    okLabel: 'CHAT',
+    cancelLabel: 'CONTACT INFO',
+    destructive: false
+  }).then(function(choice){
+    if (choice) {
+      chatTo = id;
+      document.querySelectorAll('.sc').forEach(function(s){s.classList.remove('on');});
+      document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('on');});
+      document.getElementById('sc-chat').classList.add('on');
+      document.querySelectorAll('.tb').forEach(function(b){if(b.textContent.trim().indexOf('Chat')>=0)b.classList.add('on');});
+      rChatTo(); rChat();
+    } else {
+      document.querySelectorAll('.sc').forEach(function(s){s.classList.remove('on');});
+      document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('on');});
+      document.getElementById('sc-band').classList.add('on');
+      document.querySelectorAll('.tb').forEach(function(b){if(b.textContent.trim().indexOf('Band')>=0)b.classList.add('on');});
+      rBand(); rContacts();
     setTimeout(function(){
       var idx = members.findIndex(function(x){return x.id===id;});
       var cards = document.querySelectorAll('#ml .mc');
       if(cards[idx]) cards[idx].scrollIntoView({behavior:'smooth'});
     }, 100);
-  }
+    }
+  });
 }
 
 // CALENDAR
@@ -1937,7 +2109,9 @@ function showDayOptions(day, de){
     delBtn.style.cssText = 'background:none;border:1px solid #ff4757;border-radius:6px;padding:3px 8px;color:#ff4757;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;';
     delBtn.textContent = 'Remove';
     delBtn.onclick = (function(ev){ return function(){
-      if(confirm('Remove "' + ev.title + '"?')){ dEv(ev.id); clM('evm'); }
+      appConfirm({title:'Remove event?', message:'Delete "' + ev.title + '"? This cannot be undone.'}).then(function(ok){
+        if(ok){ dEv(ev.id); clM('evm'); toast('Event deleted', {tone:'success'}); }
+      });
     }; })(e);
     btnRow.appendChild(editBtn);
     btnRow.appendChild(delBtn);
@@ -2105,7 +2279,7 @@ function openGigSheet(ev){
     delBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:8px;padding:8px 12px;color:#ff4757;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;width:100%;margin-top:4px;margin-bottom:4px;display:inline-flex;align-items:center;justify-content:center;gap:6px;';
     delBtn.innerHTML = '<span style="font-size:13px;line-height:1;">&#128465;</span><span>DELETE EVENT</span>';
     delBtn.onclick = (function(eid, title){ return function(){
-      if(confirm('Delete "' + title + '"? This cannot be undone.')){ dEv(eid); clM('gig-detail-modal'); }
+      appConfirm({title:'Delete event?', message:'Delete "' + title + '"? This cannot be undone.'}).then(function(ok){ if(ok){ dEv(eid); clM('gig-detail-modal'); toast('Event deleted', {tone:'success'}); } });
     }; })(ev.id, ev.title || 'this event');
     b.appendChild(delBtn);
   }
@@ -2122,7 +2296,7 @@ function openGigSheet(ev){
 
 function saveGigSheet(evId, isNew){
   var name = document.getElementById('gd-name').value.trim();
-  if(!name){ alert('Gig name is required.'); return; }
+  if(!name){ toast('Gig name is required.', {tone:'error'}); return; }
   var dateStr = isNew ? (document.getElementById('gd-date') ? document.getElementById('gd-date').value : fD(CY,CM,sDay)) : events.find(function(e){return e.id==evId;}).date;
   var det = {
     venue: document.getElementById('gd-venue').value,
@@ -2239,7 +2413,7 @@ function openRehearsalSheet(ev){
     delBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:8px;padding:8px 12px;color:#ff4757;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;width:100%;margin-bottom:4px;display:inline-flex;align-items:center;justify-content:center;gap:6px;';
     delBtn.innerHTML = '<span style="font-size:13px;line-height:1;">&#128465;</span><span>DELETE EVENT</span>';
     delBtn.onclick = (function(eid, title){ return function(){
-      if(confirm('Delete "' + title + '"? This cannot be undone.')){ dEv(eid); clM('gig-detail-modal'); }
+      appConfirm({title:'Delete event?', message:'Delete "' + title + '"? This cannot be undone.'}).then(function(ok){ if(ok){ dEv(eid); clM('gig-detail-modal'); toast('Event deleted', {tone:'success'}); } });
     }; })(ev.id, ev.title || 'this rehearsal');
     b.appendChild(delBtn);
   }
@@ -2343,7 +2517,7 @@ function openBlackoutSheet(ev){
     delBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:8px;padding:8px 12px;color:#ff4757;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;width:100%;margin-bottom:4px;display:inline-flex;align-items:center;justify-content:center;gap:6px;';
     delBtn.innerHTML = '<span style="font-size:13px;line-height:1;">&#128465;</span><span>DELETE BLACKOUT</span>';
     delBtn.onclick = (function(eid, title){ return function(){
-      if(confirm('Delete "' + title + '"? This cannot be undone.')){ dEv(eid); clM('gig-detail-modal'); }
+      appConfirm({title:'Delete event?', message:'Delete "' + title + '"? This cannot be undone.'}).then(function(ok){ if(ok){ dEv(eid); clM('gig-detail-modal'); toast('Event deleted', {tone:'success'}); } });
     }; })(ev.id, ev.title || 'this blackout');
     b.appendChild(delBtn);
   }
@@ -2451,7 +2625,7 @@ function rAvailability() {
     html2 += '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#e8f0ff;">'+a.name+'</div>';
     html2 += '<div style="font-size:11px;color:#ff4757;">'+a.date+(a.note?' - '+a.note:'')+'</div></div>';
     if(a.who===ME){
-      html2 += '<button onclick="if(confirm(\'Remove unavailability?\'))delAvail(\''+a.id+'\')" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;">&#10005;</button>';
+      html2 += '<button onclick="appConfirm({title:\'Remove unavailability?\', message:\'You\\\'ll be available again on this date.\'}).then(function(ok){if(ok){delAvail(\''+a.id+'\');toast(\'Unavailability removed\',{tone:\'success\'});}})" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;">&#10005;</button>';
     }
     html2 += '</div>';
   });
@@ -2612,15 +2786,25 @@ function rSets() {
   });
 }
 function nwSL() {
-  var name=prompt('Setlist name:', 'New Setlist');
-  if(!name)return;
-  var n={id:Date.now(),name:name,gd:"",songs:[],created:Date.now()};
-  saveSet(n);
-  setTimeout(function(){
-    var sl=sets.find(function(s){return s.name===name;});
-    if(sl) opSL(sl.id);
-    else setTimeout(function(){var sl2=sets[sets.length-1];if(sl2)opSL(sl2.id);},500);
-  },800);
+  appPrompt({
+    title: 'New Setlist',
+    message: 'Give it a name.',
+    defaultValue: '',
+    placeholder: 'e.g. Friday Night Set 1',
+    required: true,
+    okLabel: 'CREATE'
+  }).then(function(name){
+    if(!name) return;
+    name = name.trim();
+    if(!name) return;
+    var n={id:Date.now(),name:name,gd:"",songs:[],created:Date.now()};
+    saveSet(n);
+    setTimeout(function(){
+      var sl=sets.find(function(s){return s.name===name;});
+      if(sl) opSL(sl.id);
+      else setTimeout(function(){var sl2=sets[sets.length-1];if(sl2)opSL(sl2.id);},500);
+    },800);
+  });
 }
 function opSL(id){aSL=id;setsViewState='edit';document.getElementById('si').style.display='none';document.getElementById('se').style.display='block';rEd();}
 function clEd(){setsViewState='list';document.getElementById('si').style.display='block';document.getElementById('se').style.display='none';eSID=null;rSets();}
@@ -2677,7 +2861,7 @@ function rEd() {
       editDelBtn.textContent = 'Remove';
       editDelBtn.onclick = (function(id, title){ return function(e){
         e.stopPropagation();
-        if(confirm('Remove "'+title+'" from this setlist?')) rmS(id);
+        appConfirm({title:'Remove from setlist?', message:'Take "'+title+'" out of this setlist?'}).then(function(ok){ if(ok){ rmS(id); toast('Removed from setlist',{tone:'success'}); } });
       }; })(sg.id, sg.t);
       div.appendChild(doneBtn);
       div.appendChild(editDelBtn);
@@ -2700,8 +2884,8 @@ function rEd() {
       var songArtist = libSong ? (libSong.artist||'') : '';
       textDiv.innerHTML =
         '<div style="font-weight:600;">' +
-          '<span style="color:#f5c518;font-size:16px;">' + songTitle + '</span>' +
-          (songArtist ? '<span style="color:#4a6a9a;font-size:14px;"> &nbsp;–&nbsp; </span><span style="color:#4a9eff;font-size:14px;">' + songArtist + '</span>' : '') +
+          '<span style="font-size:16px;background:linear-gradient(135deg,#f5c518,#ffd84a);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;">' + songTitle + '</span>' +
+          (songArtist ? '<span style="color:#4a6a9a;font-size:14px;"> &nbsp;–&nbsp; </span><span style="font-size:14px;background:linear-gradient(135deg,#4a9eff,#6bbcff);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;">' + songArtist + '</span>' : '') +
         '</div>';
       // Tap a song row (when not reordering) to open the song detail sheet
       if(libSong){
@@ -2718,7 +2902,7 @@ function rEd() {
       rmBtn.innerHTML = '&#128465;';
       rmBtn.onclick = (function(id, title){ return function(e){
         e.stopPropagation();
-        if(confirm('Remove "'+title+'" from this setlist?')) rmS(id);
+        appConfirm({title:'Remove from setlist?', message:'Take "'+title+'" out of this setlist?'}).then(function(ok){ if(ok){ rmS(id); toast('Removed from setlist',{tone:'success'}); } });
       }; })(sg.id, sg.t);
 
       div.appendChild(grip);
@@ -2857,12 +3041,23 @@ function toggleSLEdit(){
   if(!s) return;
   if(!reorderMode){
     reorderMode = true;
-    var name = prompt('Rename setlist (or cancel to just reorder):', s.name);
-    if(name && name !== s.name){ s.name=name; saveSet(s); }
+    rEd();
+    appPrompt({
+      title: 'Rename setlist',
+      message: 'Update the name, or cancel to just reorder songs.',
+      defaultValue: s.name,
+      placeholder: 'Setlist name'
+    }).then(function(name){
+      if(name && name.trim() && name.trim() !== s.name){
+        s.name = name.trim();
+        saveSet(s);
+        rEd();
+      }
+    });
   } else {
     reorderMode = false;
+    rEd();
   }
-  rEd();
 }
 function edS(id){eSID=(eSID===id?null:id);rEd();}
 function svEd(id){
@@ -2939,7 +3134,7 @@ function exportData(type){
     navigator.share({title:filename, text:text});
   } else {
     navigator.clipboard.writeText(text).then(function(){
-      alert('Copied to clipboard!');
+      toast('Copied to clipboard', {tone:'success'});
     }).catch(function(){
       var w=window.open('','_blank');
       w.document.write('<pre style="font-family:monospace;padding:20px;white-space:pre-wrap;">'+text+'</pre>');
@@ -2968,7 +3163,7 @@ function printSL(){
     navigator.share({title: 'Out of Time - '+s.name, text: text});
   } else {
     navigator.clipboard.writeText(text).then(function(){
-      alert('Setlist copied to clipboard!');
+      toast('Setlist copied to clipboard', {tone:'success'});
     }).catch(function(){
       // Fallback - open in new window
       var w=window.open('','_blank');
@@ -2979,9 +3174,17 @@ function printSL(){
 function renSL(){
   var s=sets.find(function(x){return x.id==aSL;});
   if(!s)return;
-  var name=prompt('Rename setlist:',s.name);
-  if(name){s.name=name;saveSet(s);}
-  rEd();
+  appPrompt({
+    title: 'Rename setlist',
+    defaultValue: s.name,
+    placeholder: 'Setlist name'
+  }).then(function(name){
+    if(name && name.trim()){
+      s.name = name.trim();
+      saveSet(s);
+    }
+    rEd();
+  });
 }
 function showPicker(){
   pickedSongs={};
@@ -3305,7 +3508,7 @@ function rBand() {
       saveNameBtn.onclick = (function(mem){ return function(){
         var newName = nameInp.value.trim();
         var newInst = instInp.value.trim();
-        if(!newName){ alert('Name cannot be empty.'); return; }
+        if(!newName){ toast('Name cannot be empty.', {tone:'error'}); return; }
         renameMember(mem.id, mem.name, newName, newInst);
       }; })(m);
       nameRow.appendChild(nameInp);
@@ -3355,12 +3558,18 @@ function rBand() {
       delBtn.innerHTML = '<span style="font-size:13px;line-height:1;">&#128465;</span><span>REMOVE MEMBER</span>';
       delBtn.onclick = (function(mem){ return function(){
         if(mem.id===ME){
-          alert("You can't remove yourself. Have another member do it.");
+          toast("Can't remove yourself — ask another member.", {tone:'error', duration:3500});
           return;
         }
-        if(confirm('Remove '+mem.name+' from the band?\n\nThis only affects the roster shown in the app. Their messages and contributions stay.')){
-          deleteMember(mem.id, mem.name);
-        }
+        appConfirm({
+          title: 'Remove ' + mem.name + '?',
+          message: 'They\'ll come off the roster shown in the app. Their messages and contributions stay.'
+        }).then(function(ok){
+          if(ok){
+            deleteMember(mem.id, mem.name);
+            toast(mem.name + ' removed', {tone:'success'});
+          }
+        });
       }; })(m);
       delRow.appendChild(delBtn);
       detail.appendChild(delRow);
@@ -3482,11 +3691,16 @@ function rContacts() {
       }; })(c);
       detail.appendChild(editBtn);
       var delBtn=document.createElement('button');
-      delBtn.style.cssText='background:none;border:none;color:#4a6a9a;font-size:11px;cursor:pointer;margin-top:10px;display:block;font-family:Russo One,sans-serif;';
-      delBtn.textContent='Delete contact';
+      delBtn.style.cssText='background:#0a1628;border:1px solid #ff4757;border-radius:8px;padding:7px 12px;color:#ff4757;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;margin-top:10px;display:inline-flex;align-items:center;gap:6px;';
+      delBtn.innerHTML='<span style="font-size:13px;line-height:1;">&#128465;</span><span>DELETE CONTACT</span>';
       delBtn.setAttribute('data-cid', c.id);
+      delBtn.setAttribute('data-cname', c.name||'this contact');
       delBtn.onclick=function(){
-        if(confirm('Delete this contact?')) db.collection('contacts').doc(String(this.getAttribute('data-cid'))).delete();
+        var cid = this.getAttribute('data-cid');
+        var cname = this.getAttribute('data-cname');
+        appConfirm({title:'Delete contact?', message:'Remove "'+cname+'" from the contacts list?'}).then(function(ok){
+          if(ok){ db.collection('contacts').doc(String(cid)).delete(); toast('Contact deleted', {tone:'success'}); }
+        });
       };
       detail.appendChild(delBtn);
       card.appendChild(detail);
@@ -3652,7 +3866,7 @@ function rLib() {
     row.style.cssText='display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid #0d1f3a;';
     var titleDiv=document.createElement('div');
     titleDiv.style.cssText='flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;';
-    titleDiv.innerHTML='<span style="font-size:16px;font-weight:600;color:#4a9eff;">'+s.title+'</span>'+(s.artist?'<span style="font-size:14px;color:#f5c518;"> - '+s.artist+'</span>':'')+'';
+    titleDiv.innerHTML='<span style="font-size:16px;font-weight:600;background:linear-gradient(135deg,#f5c518,#ffd84a);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;">'+s.title+'</span>'+(s.artist?'<span style="font-size:14px;background:linear-gradient(135deg,#4a9eff,#6bbcff);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;"> - '+s.artist+'</span>':'')+'';
     titleDiv.onclick=(function(song){ return function(){ showSongInfo(song.id); }; })(s);
     var playBtn=document.createElement('button');
     playBtn.style.cssText='background:none;border:none;cursor:pointer;flex-shrink:0;padding:4px 6px;display:flex;align-items:center;line-height:1;';
@@ -3709,7 +3923,11 @@ function showAddSongForm(){
 }
 function clearSearch(){document.getElementById('song-search').value='';rLib();}
 function playYT(query){window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(query),'_blank');}
-function cnfDel(id){if(confirm('Remove this song from the library?'))dlLib(id);}
+function cnfDel(id){
+  appConfirm({title:'Delete from library?', message:'Remove this song from the library?'}).then(function(ok){
+    if(ok){ dlLib(id); toast('Song removed', {tone:'success'}); }
+  });
+}
 function dlLib(id){library=library.filter(function(s){return s.id!==id;});rLib();}
 function adLibSong(){
   var t=document.getElementById('lib-title').value.trim();if(!t)return;
@@ -3855,7 +4073,7 @@ function clearYTLink(){
 }
 function saveSongInfo(){
   var newTitle = document.getElementById('si-title-edit').value.trim();
-  if(!newTitle){ alert('Song title is required.'); return; }
+  if(!newTitle){ toast('Song title is required.', {tone:'error'}); return; }
 
   // ADD mode - create new song
   if(!editingSongId){
@@ -4020,12 +4238,18 @@ function showSongInfo(id) {
   var dBtn = document.getElementById('si-delete-btn');
   if(dBtn){
     dBtn.style.display = '';
-    dBtn.onclick = (function(songId){ return function(){
-      if(confirm('Remove this song from the library?')){
-        dlLib(songId);
-        clM('song-info-modal');
-      }
-    }; })(id);
+    dBtn.onclick = (function(songId, songTitle){ return function(){
+      appConfirm({
+        title: 'Delete from library?',
+        message: 'Remove "' + songTitle + '" from the library? It will also be removed from any setlists.'
+      }).then(function(ok){
+        if(ok){
+          dlLib(songId);
+          clM('song-info-modal');
+          toast('Song removed', {tone:'success'});
+        }
+      });
+    }; })(id, s.title || 'this song');
   }
 
   // Populate edit fields
@@ -4084,12 +4308,6 @@ document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',
 
 // INIT
 // Prevent accidental close / back button
-window.addEventListener('beforeunload', function(e){
-  e.preventDefault();
-  e.returnValue = '';
-  return '';
-});
-
 // Trap Android back button - keep app open
 // Push multiple states so back button has to work harder
 window.history.pushState(null, '', window.location.href);
@@ -4133,5 +4351,40 @@ if(savedName&&savedId){
     <button class="sb" onclick="saveTabOrder();clM('reorder-modal')" style="width:100%;margin-top:14px;">Done</button>
   </div>
 </div>
+
+<!-- CUSTOM CONFIRM DIALOG -->
+<div id="app-confirm" style="position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:9000;display:none;align-items:center;justify-content:center;padding:20px;">
+  <div id="app-confirm-card" style="background:var(--n2);border:1px solid var(--n3);border-radius:14px;padding:20px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.6);transform:scale(.95);opacity:0;transition:transform .18s ease-out,opacity .18s ease-out;">
+    <div id="app-confirm-icon" style="display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:rgba(255,71,87,.12);margin-bottom:14px;">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M3 6h18v2H3V6zm3 3h12l-1 12H7L6 9zm3-6h6v2H9V3z" fill="#ff4757"/></svg>
+    </div>
+    <div id="app-confirm-title" style="font-family:'Russo One',sans-serif;font-size:16px;color:#fff;letter-spacing:.5px;margin-bottom:8px;">Confirm</div>
+    <div id="app-confirm-message" style="font-size:13px;color:#aaa;line-height:1.5;margin-bottom:18px;">Are you sure?</div>
+    <div style="display:flex;gap:10px;">
+      <button id="app-confirm-cancel" style="flex:1;background:transparent;border:1px solid #1a3a8a;border-radius:8px;padding:10px;color:#8aa8d6;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;">CANCEL</button>
+      <button id="app-confirm-ok" style="flex:1;background:#ff4757;border:1px solid #ff4757;border-radius:8px;padding:10px;color:#fff;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;">CONFIRM</button>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOM PROMPT DIALOG -->
+<div id="app-prompt" style="position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:9050;display:none;align-items:center;justify-content:center;padding:20px;">
+  <div id="app-prompt-card" style="background:var(--n2);border:1px solid var(--n3);border-radius:14px;padding:20px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.6);transform:scale(.95);opacity:0;transition:transform .18s ease-out,opacity .18s ease-out;">
+    <div id="app-prompt-icon" style="display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:rgba(74,158,255,.12);margin-bottom:14px;">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="#4a9eff"/></svg>
+    </div>
+    <div id="app-prompt-title" style="font-family:'Russo One',sans-serif;font-size:16px;color:#fff;letter-spacing:.5px;margin-bottom:8px;">Edit</div>
+    <div id="app-prompt-message" style="font-size:13px;color:#aaa;line-height:1.5;margin-bottom:14px;"></div>
+    <input id="app-prompt-input" class="mi" style="width:100%;margin:0 0 18px 0;font-size:14px;" placeholder="">
+    <div style="display:flex;gap:10px;">
+      <button id="app-prompt-cancel" style="flex:1;background:transparent;border:1px solid #1a3a8a;border-radius:8px;padding:10px;color:#8aa8d6;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;">CANCEL</button>
+      <button id="app-prompt-ok" style="flex:1;background:#4a9eff;border:1px solid #4a9eff;border-radius:8px;padding:10px;color:#060e1c;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;">SAVE</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="app-toast" style="position:fixed;left:50%;bottom:80px;transform:translateX(-50%) translateY(80px);z-index:9100;display:none;background:#101e34;border:1px solid #1a3a8a;border-radius:24px;padding:10px 18px;box-shadow:0 8px 30px rgba(0,0,0,.5);font-family:'Exo 2',sans-serif;font-size:13px;color:#e8f0ff;max-width:80vw;text-align:center;opacity:0;transition:opacity .25s ease-out,transform .25s ease-out;pointer-events:none;"></div>
+
 </body>
 </html>
