@@ -1659,6 +1659,12 @@ var reorderMode = false; // "list" or "edit"
 var pickedSongs = {};
 
 function dU(d){return Math.ceil((new Date(d+"T00:00:00")-new Date())/86400000);}
+function richGrad(color){
+  // Build a layered radial gradient for avatars: highlight + base + darker edge.
+  // Uses #RRGGBB hex; appends alpha for darker stops.
+  return 'radial-gradient(circle at 28% 22%, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 35%), '
+       + 'radial-gradient(circle at 70% 78%, '+color+'66 0%, '+color+' 55%, '+color+'aa 100%)';
+}
 function gM(id){return members.find(function(m){return m.id==id;})||{name:"?",av:"?",color:"#555"};}
 function fD(y,m,d){return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");}
 function tD(ss){var x=ss.reduce(function(a,s){var p=(s.d||"0:00").split(":");return a+parseInt(p[0])*60+(parseInt(p[1])||0);},0);return Math.floor(x/60)+"m "+x%60+"s";}
@@ -1909,10 +1915,39 @@ function rHome() {
     wi.innerHTML = '<span style="color:#4a6a9a">You: </span><span style="color:' + (m?m.color:'#4a9eff') + ';font-weight:600">' + myName + '</span>';
   }
   var gg = events.filter(function(e){return e.type==='gig'&&dU(e.date)>=0;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,3);
-  document.getElementById('hg').innerHTML = gg.length ? gg.map(function(e){var d=dU(e.date);return '<div class="gi"><div class="git">'+e.title+'</div><div class="gim">'+e.date+' - '+e.note+'</div><div class="gid">'+(d===0?'TONIGHT':d===1?'TOMORROW':d+' DAYS AWAY')+'</div></div>';}).join('') : '<div class="none">NONE</div>';
+  document.getElementById('hg').innerHTML = gg.length ? gg.map(function(e){
+    var d=dU(e.date);
+    return '<div class="gi" data-evid="'+e.id+'" style="cursor:pointer;display:flex;align-items:center;gap:8px;">'+
+      '<div style="flex:1;min-width:0;">'+
+        '<div class="git">'+e.title+'</div>'+
+        '<div class="gim">'+e.date+' - '+e.note+'</div>'+
+        '<div class="gid">'+(d===0?'TONIGHT':d===1?'TOMORROW':d+' DAYS AWAY')+'</div>'+
+      '</div>'+
+      '<div style="color:#f5c518;font-size:20px;line-height:1;flex-shrink:0;opacity:.7;">&#8250;</div>'+
+    '</div>';
+  }).join('') : '<div class="none">NONE</div>';
   var rr = events.filter(function(e){return e.type==='rehearsal'&&dU(e.date)>=0;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,3);
-  document.getElementById('hr').innerHTML = rr.length ? rr.map(function(e){var d=dU(e.date);return '<div class="ri"><div class="git">'+e.title+'</div><div class="gim" style="color:#aaa">'+e.date+' - '+e.note+(d<=7?' <b style="color:#4a9eff">'+(d===0?'TODAY':d===1?'TOMORROW':d+'d')+'</b>':'')+' </div></div>';}).join('') : '<div class="none">NONE</div>';
+  document.getElementById('hr').innerHTML = rr.length ? rr.map(function(e){
+    var d=dU(e.date);
+    return '<div class="ri" data-evid="'+e.id+'" style="cursor:pointer;display:flex;align-items:center;gap:8px;">'+
+      '<div style="flex:1;min-width:0;">'+
+        '<div class="git">'+e.title+'</div>'+
+        '<div class="gim" style="color:#aaa">'+e.date+' - '+e.note+(d<=7?' <b style="color:#4a9eff">'+(d===0?'TODAY':d===1?'TOMORROW':d+'d')+'</b>':'')+' </div>'+
+      '</div>'+
+      '<div style="color:#4a9eff;font-size:20px;line-height:1;flex-shrink:0;opacity:.7;">&#8250;</div>'+
+    '</div>';
+  }).join('') : '<div class="none">NONE</div>';
   rBlackout();
+  // Wire single-tap open for home upcoming rows
+  ['hg','hr'].forEach(function(containerId){
+    var rows = document.querySelectorAll('#'+containerId+' [data-evid]');
+    rows.forEach(function(row){
+      row.addEventListener('click', function(){
+        var id = this.getAttribute('data-evid');
+        if(id) editEv(id);
+      });
+    });
+  });
     }
 
 var memsOpen = false;
@@ -1939,7 +1974,12 @@ function rBlackout(){
     boGroups[names[0]].events.forEach(function(e){
       var row=document.createElement('div');
       row.className='ri'; row.style.borderLeftColor='#ff4757';
-      row.innerHTML='<div class="git">'+e.date+(e.note?' · '+e.note:'')+'</div>';
+      row.style.cursor='pointer';
+      row.style.display='flex';
+      row.style.alignItems='center';
+      row.style.gap='8px';
+      row.innerHTML='<div style="flex:1;min-width:0;"><div class="git">'+e.date+(e.note?' · '+e.note:'')+'</div></div><div style="color:#ff4757;font-size:20px;line-height:1;flex-shrink:0;opacity:.7;">&#8250;</div>';
+      row.onclick = (function(eid){ return function(){ editEv(eid); }; })(e.id);
       boEl.appendChild(row);
     });
   } else {
@@ -1968,8 +2008,9 @@ function rBlackout(){
         list.style.cssText='padding:4px 0 2px 14px;';
         group.events.forEach(function(ev){
           var row=document.createElement('div');
-          row.style.cssText='font-size:11px;color:#ff4757;padding:3px 8px;border-left:1px solid rgba(255,71,87,.3);margin-bottom:2px;';
-          row.textContent=ev.date+(ev.note?' · '+ev.note:'');
+          row.style.cssText='font-size:11px;color:#ff4757;padding:3px 8px;border-left:1px solid rgba(255,71,87,.3);margin-bottom:2px;cursor:pointer;display:flex;align-items:center;gap:8px;';
+          row.innerHTML = '<span style="flex:1;">'+(ev.date+(ev.note?' · '+ev.note:''))+'</span><span style="color:#ff4757;font-size:14px;line-height:1;opacity:.7;">&#8250;</span>';
+          row.onclick = (function(eid){ return function(e){ e.stopPropagation(); editEv(eid); }; })(ev.id);
           list.appendChild(row);
         });
         wrapper.appendChild(list);
@@ -3233,17 +3274,40 @@ function openThread(id){
   var avEl = document.getElementById('thread-av');
   var nameEl = document.getElementById('thread-name');
   var subEl = document.getElementById('thread-sub');
+  var threadColor;
   if(id==='band'){
-    avEl.style.background='#f5c518';
+    threadColor = '#f5c518';
+    avEl.style.background = richGrad(threadColor);
     avEl.textContent='ALL';
     nameEl.textContent='Band Chat';
     subEl.textContent='Visible to all members';
   } else {
     var m=gM(id);
-    avEl.style.background=m.color;
+    threadColor = m.color || '#4a9eff';
+    avEl.style.background = richGrad(threadColor);
     avEl.textContent=m.av;
     nameEl.textContent=m.name;
     subEl.textContent='Private conversation';
+  }
+  // Avatar shadow + thread screen tint based on the thread color
+  avEl.style.boxShadow = '0 0 18px '+threadColor+'66, inset 0 -3px 8px rgba(0,0,0,.18)';
+  var threadScreen = document.getElementById('chat-thread-screen');
+  if(threadScreen){
+    threadScreen.style.background = 'linear-gradient(180deg, '+threadColor+'14 0%, rgba(8,15,30,0) 30%, rgba(8,15,30,0) 100%)';
+  }
+  var msgsEl = document.getElementById('cmsgs');
+  if(msgsEl){
+    msgsEl.style.background = 'linear-gradient(180deg, #11203c 0%, #0c1a30 60%, #0a1628 100%)';
+  }
+  // Header bar gets a hint of the thread color
+  var headerBar = threadScreen ? threadScreen.querySelector('div') : null;
+  if(headerBar){
+    headerBar.style.background = 'linear-gradient(135deg, '+threadColor+'1a 0%, #080f1e 70%)';
+  }
+  // Input bar tint to match
+  var inputBar = threadScreen ? threadScreen.children[2] : null;
+  if(inputBar){
+    inputBar.style.background = 'linear-gradient(135deg, '+threadColor+'12 0%, #080f1e 70%)';
   }
   var threadId = id==='band'?'band':[String(ME),String(id)].sort().join('-');
   markThreadRead(threadId);
@@ -3290,7 +3354,7 @@ function rChatThreads(){
     row.onclick=(function(tid){ return function(){ openThread(tid); }; })(t.id);
 
     var av=document.createElement('div');
-    av.style.cssText='width:48px;height:48px;border-radius:50%;background:radial-gradient(circle at 30% 30%, '+t.color+', '+t.color+'cc);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#000;flex-shrink:0;position:relative;font-family:Russo One,sans-serif;letter-spacing:.5px;box-shadow:0 0 14px '+t.color+'33;';
+    av.style.cssText='width:48px;height:48px;border-radius:50%;background:'+richGrad(t.color)+';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#000;flex-shrink:0;position:relative;font-family:Russo One,sans-serif;letter-spacing:.5px;box-shadow:0 0 18px '+t.color+'44, inset 0 -3px 8px rgba(0,0,0,.18);';
     av.textContent=t.av;
     if(unread>0){
       var badge=document.createElement('div');
@@ -3359,7 +3423,7 @@ function rChat() {
     row.id='msg-'+m.id;
     if(!isMe){
       var av=document.createElement('div');
-      av.style.cssText='width:28px;height:28px;border-radius:50%;background:'+sender.color+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;flex-shrink:0;margin-bottom:2px;';
+      av.style.cssText='width:30px;height:30px;border-radius:50%;background:'+richGrad(sender.color)+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;flex-shrink:0;margin-bottom:2px;font-family:Russo One,sans-serif;box-shadow:0 0 8px '+sender.color+'40, inset 0 -2px 5px rgba(0,0,0,.18);';
       av.textContent=sender.av;
       row.appendChild(av);
     }
@@ -3367,12 +3431,21 @@ function rChat() {
     wrap.style.cssText='display:flex;flex-direction:column;max-width:72%;'+(isMe?'align-items:flex-end;':'align-items:flex-start;');
     if(!isMe&&chatTo==='band'){
       var nm=document.createElement('div');
-      nm.style.cssText='font-size:10px;font-weight:700;color:'+sender.color+';margin-bottom:2px;padding-left:4px;';
+      nm.style.cssText='font-size:10px;font-weight:700;color:'+sender.color+';margin-bottom:2px;padding-left:4px;letter-spacing:.5px;font-family:Russo One,sans-serif;';
       nm.textContent=sender.name?sender.name.split(' ')[0]:'';
       wrap.appendChild(nm);
     }
     var bub=document.createElement('div');
-    bub.style.cssText='padding:9px 13px;border-radius:'+(isMe?'18px 18px 4px 18px':'18px 18px 18px 4px')+';background:'+(isMe?'#1a3a8a':'#0d1f3a')+';cursor:pointer;';
+    var bubBg = isMe
+      ? 'linear-gradient(135deg, #2563d6 0%, #1a3a8a 100%)'
+      : 'linear-gradient(135deg, #16294a 0%, #0d1f3a 100%)';
+    var bubBorder = isMe
+      ? '1px solid rgba(74,158,255,.35)'
+      : '1px solid rgba(74,158,255,.12)';
+    var bubShadow = isMe
+      ? '0 2px 12px rgba(37,99,214,.25)'
+      : '0 2px 10px rgba(0,0,0,.25)';
+    bub.style.cssText='padding:9px 13px;border-radius:'+(isMe?'18px 18px 4px 18px':'18px 18px 18px 4px')+';background:'+bubBg+';border:'+bubBorder+';box-shadow:'+bubShadow+';cursor:pointer;';
     var txt=document.createElement('div');
     txt.style.cssText='font-size:14px;color:#fff;line-height:1.4;';
     txt.textContent=m.txt;
