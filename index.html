@@ -92,6 +92,9 @@ body.light button.sb{color:#060e1c !important;}
 body.light .avmd{color:#000 !important;}
 body.light .mrav{color:#000 !important;}
 .sh{font-family:"Russo One",sans-serif;font-size:10px;letter-spacing:3px;color:#fff;margin:12px 0 7px;padding-bottom:5px;border-bottom:1px solid var(--n3);}
+.tt-gold{background:linear-gradient(135deg,#ffb800 0%,#ffd84a 45%,#fff39a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:700;text-shadow:0 0 18px rgba(255,184,0,.25);}
+.tt-blue{background:linear-gradient(135deg,#2563d6 0%,#4a9eff 50%,#7ed4ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:700;text-shadow:0 0 18px rgba(74,158,255,.3);}
+.pill-action{background:linear-gradient(135deg,#1a3a8a,#0d2050);border:1px solid #4a9eff;border-radius:18px;padding:6px 14px;color:#4a9eff;font-family:"Russo One",sans-serif;font-size:10px;letter-spacing:1.5px;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 0 12px rgba(74,158,255,.15);touch-action:manipulation;line-height:1;}
 .card{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:12px;margin-bottom:10px;}
 .card-lbl{font-family:"Russo One",sans-serif;font-size:12px;letter-spacing:3px;color:#fff;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
 .none{font-size:13px;color:#aaa;font-style:italic;}
@@ -110,14 +113,41 @@ body.light .mrav{color:#000 !important;}
 .mr{display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--n2);border-radius:6px;margin-bottom:3px;}
 .mrav{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;flex-shrink:0;}
 .cnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;background:linear-gradient(135deg,#0d2b6b,#1a56c4);border-radius:14px;padding:8px 8px;border:1px solid rgba(74,158,255,.25);box-shadow:0 0 22px rgba(74,158,255,.12);}
-.cnav button{background:rgba(10,22,40,.6);border:1px solid rgba(74,158,255,.4);border-radius:50%;width:34px;height:34px;color:#f5c518;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;cursor:pointer;touch-action:manipulation;transition:all .15s;}
-.cnav button:hover{background:rgba(74,158,255,.18);border-color:#4a9eff;}
-.cnav button:active{transform:scale(.92);}
-.mlbl{flex:1;text-align:center;font-family:"Russo One",sans-serif;font-size:24px;letter-spacing:3.5px;background:linear-gradient(135deg,#ffb800 0%,#ffd84a 45%,#fff39a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 22px rgba(245,197,24,.45);position:relative;}
+.cnav-icon{background:rgba(10,22,40,.6);border:1px solid rgba(74,158,255,.4);border-radius:50%;width:38px;height:38px;font-size:20px;display:flex;align-items:center;justify-content:center;line-height:1;cursor:pointer;touch-action:manipulation;transition:all .25s;flex-shrink:0;user-select:none;-webkit-user-select:none;}
+.cnav-icon:hover{background:rgba(74,158,255,.18);border-color:#4a9eff;transform:scale(1.05);}
+.cnav-icon:active{transform:scale(.9);}
+.cnav-today{background:linear-gradient(135deg,#ffb800 0%,#ffd84a 50%,#fff39a 100%);border:1px solid #f5c518;border-radius:20px;padding:0 14px;height:38px;color:#060e1c;font-family:"Russo One",sans-serif;font-size:11px;letter-spacing:1.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;line-height:1;flex-shrink:0;box-shadow:0 0 16px rgba(245,197,24,.45);animation:todayBtnPulse 2.4s ease-in-out infinite;touch-action:manipulation;user-select:none;-webkit-user-select:none;}
+.cnav-today:hover{transform:scale(1.04);}
+.cnav-today:active{transform:scale(.94);}
+@keyframes todayBtnPulse{
+  0%,100%{box-shadow:0 0 14px rgba(245,197,24,.4);}
+  50%{box-shadow:0 0 24px rgba(245,197,24,.7);}
+}
+.mlbl{flex:1;text-align:center;font-family:"Russo One",sans-serif;font-size:24px;letter-spacing:3.5px;background:linear-gradient(135deg,#ffb800 0%,#ffd84a 45%,#fff39a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 22px rgba(245,197,24,.45);position:relative;transition:transform .35s cubic-bezier(.2,.8,.3,1.1),opacity .25s;}
 .mlbl::before,.mlbl::after{content:"";position:absolute;top:50%;width:18%;height:1px;background:linear-gradient(to right,transparent,rgba(245,197,24,.5));}
 .mlbl::before{left:8%;}
 .mlbl::after{right:8%;background:linear-gradient(to left,transparent,rgba(245,197,24,.5));}
-.cgrid{position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:3px;background:radial-gradient(circle at 50% 30%,rgba(74,158,255,.18) 0%,rgba(13,43,107,.85) 50%,#0a1628 100%),linear-gradient(135deg,#0d2b6b,#1a56c4);border:1px solid rgba(74,158,255,.3);border-radius:14px;padding:10px 7px;margin-bottom:12px;box-shadow:0 0 26px rgba(74,158,255,.18),inset 0 1px 0 rgba(255,255,255,.04);}
+
+/* Calendar swipe + slide animation */
+.cgrid-wrap{position:relative;overflow:hidden;border-radius:14px;margin-bottom:12px;}
+.cgrid-wrap.no-trans .cgrid{transition:none !important;}
+.cgrid-trail{position:absolute;top:0;left:0;right:0;pointer-events:none;opacity:0;}
+.cgrid-trail.show{opacity:.4;}
+@keyframes slideOutLeft{ from{transform:translateX(0);opacity:1;} to{transform:translateX(-110%);opacity:0;} }
+@keyframes slideOutRight{ from{transform:translateX(0);opacity:1;} to{transform:translateX(110%);opacity:0;} }
+@keyframes slideInLeft{ 0%{transform:translateX(110%);opacity:0;} 60%{transform:translateX(-3%);opacity:1;} 100%{transform:translateX(0);opacity:1;} }
+@keyframes slideInRight{ 0%{transform:translateX(-110%);opacity:0;} 60%{transform:translateX(3%);opacity:1;} 100%{transform:translateX(0);opacity:1;} }
+@keyframes trailFade{ 0%{opacity:.4;transform:translateX(0) scale(1);filter:blur(0);} 100%{opacity:0;transform:translateX(var(--trail-x,-50%)) scale(.96);filter:blur(2px);} }
+.cgrid.slide-out-left{animation:slideOutLeft .28s ease-in forwards;}
+.cgrid.slide-out-right{animation:slideOutRight .28s ease-in forwards;}
+.cgrid.slide-in-left{animation:slideInLeft .42s cubic-bezier(.2,.7,.25,1.1) forwards;}
+.cgrid.slide-in-right{animation:slideInRight .42s cubic-bezier(.2,.7,.25,1.1) forwards;}
+.cgrid-trail.trail-left{animation:trailFade .55s ease-out forwards;--trail-x:-60%;}
+.cgrid-trail.trail-right{animation:trailFade .55s ease-out forwards;--trail-x:60%;}
+@keyframes mlblFlip{ 0%{transform:translateY(0);opacity:1;} 35%{transform:translateY(-6px);opacity:0;} 65%{transform:translateY(8px);opacity:0;} 100%{transform:translateY(0);opacity:1;} }
+.mlbl.flip{animation:mlblFlip .45s ease-out;}
+
+.cgrid{position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:3px;background:radial-gradient(circle at 50% 30%,rgba(74,158,255,.18) 0%,rgba(13,43,107,.85) 50%,#0a1628 100%),linear-gradient(135deg,#0d2b6b,#1a56c4);border:1px solid rgba(74,158,255,.3);border-radius:14px;padding:10px 7px;box-shadow:0 0 26px rgba(74,158,255,.18),inset 0 1px 0 rgba(255,255,255,.04);will-change:transform,opacity;}
 .dhdr{text-align:center;font-size:13px;font-weight:700;color:#bcd5ff;font-family:"Russo One",sans-serif;padding-bottom:7px;margin-bottom:4px;border-bottom:1px solid rgba(74,158,255,.35);letter-spacing:.5px;text-shadow:0 0 8px rgba(188,213,255,.25);}
 .dc{min-height:60px;background:rgba(10,22,40,.85);border-radius:7px;padding:5px 2px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;cursor:pointer;transition:all .15s;border:1px solid rgba(74,158,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.04);}
 .dc:hover{background:#132040;border-color:rgba(74,158,255,.5);transform:scale(1.05);}
@@ -275,7 +305,11 @@ body.light .mrav{color:#000 !important;}
 </div>
 
 <div id="sc-cal" class="sc">
-  <div class="cnav"><button onclick="pMo()">&#8249;</button><span class="mlbl" id="mlbl"></span><button onclick="nMo()">&#8250;</button></div>
+  <div class="cnav">
+    <span class="cnav-icon" id="cnav-left" onclick="navMonth(-1)" title="Previous month"></span>
+    <span class="mlbl" id="mlbl"></span>
+    <span id="cnav-right-slot" style="display:flex;align-items:center;justify-content:flex-end;width:38px;height:38px;flex-shrink:0;"></span>
+  </div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:#aaa;margin-bottom:10px;">
     <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#f5c518;margin-right:4px;vertical-align:middle;"></span>Gig</span>
     <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#4a9eff;margin-right:4px;vertical-align:middle;"></span>Rehearsal</span>
@@ -284,17 +318,19 @@ body.light .mrav{color:#000 !important;}
     <span style="font-size:10px;">&#127482;&#127480; Holiday</span>
     <span style="font-size:10px;color:#f5c518;">&#9733; Important</span>
   </div>
-  <div class="cgrid" id="cgrid"></div>
+  <div class="cgrid-wrap" id="cgrid-wrap">
+    <div class="cgrid" id="cgrid"></div>
+  </div>
   <div class="sh" style="display:flex;justify-content:space-between;align-items:center;">
-    <span onclick="toggleCard('evl','evl-arrow')" style="cursor:pointer;display:flex;align-items:center;gap:6px;flex:1;font-size:12px;">ALL EVENTS <span id="evl-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span></span>
-    <button onclick="exportData('events')" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:2px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;">&#8679; Share</button>
+    <span onclick="toggleCard('evl','evl-arrow')" style="cursor:pointer;display:flex;align-items:center;gap:6px;flex:1;"><span class="tt-gold" style="font-size:12px;letter-spacing:2px;font-family:'Russo One',sans-serif;">ALL EVENTS</span><span id="evl-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span></span>
+    <button onclick="exportData('events')" class="pill-action"><span style="font-size:11px;line-height:1;">&#8679;</span><span>SHARE</span></button>
   </div>
   <div id="evl"></div>
 
   <div class="sh" style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;">
-    <span onclick="toggleCard('important-dates-list','idates-arrow')" style="cursor:pointer;display:flex;align-items:center;gap:6px;flex:1;font-size:12px;">IMPORTANT DATES <span id="idates-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span></span>
-    <button onclick="openImportantDateModal(null)" style="background:linear-gradient(135deg,#1a3a8a,#0d2050);border:1px solid #4a9eff;border-radius:18px;padding:4px 12px;color:#4a9eff;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;gap:5px;">
-      <span style="font-size:13px;line-height:1;">&#43;</span>
+    <span onclick="toggleCard('important-dates-list','idates-arrow')" style="cursor:pointer;display:flex;align-items:center;gap:6px;flex:1;"><span class="tt-gold" style="font-size:12px;letter-spacing:2px;font-family:'Russo One',sans-serif;">IMPORTANT DATES</span><span id="idates-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span></span>
+    <button onclick="openImportantDateModal(null)" class="pill-action">
+      <span style="font-size:14px;line-height:1;">&#43;</span>
       <span>NEW</span>
     </button>
   </div>
@@ -306,10 +342,10 @@ body.light .mrav{color:#000 !important;}
   <div id="si">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
       <div>
-        <span style="font-family:'Russo One',sans-serif;font-size:12px;letter-spacing:2px;color:#fff;">SETLISTS</span>
+        <span class="tt-gold" style="font-family:'Russo One',sans-serif;font-size:12px;letter-spacing:2px;">SETLISTS</span>
         <span id="sl-count" style="font-size:10px;color:#4a9eff;margin-left:8px;font-family:'Exo 2',sans-serif;"></span>
       </div>
-      <button onclick="nwSL()" style="background:linear-gradient(135deg,#1a3a8a,#0d2050);border:1px solid #4a9eff;border-radius:20px;padding:6px 14px;color:#4a9eff;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:1.5px;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 0 12px rgba(74,158,255,.15);touch-action:manipulation;">
+      <button onclick="nwSL()" class="pill-action">
         <span style="font-size:14px;line-height:1;">&#43;</span>
         <span>NEW</span>
       </button>
@@ -337,7 +373,7 @@ body.light .mrav{color:#000 !important;}
   <!-- Screen 1: Conversations List -->
   <div id="chat-list-screen" style="flex:1;display:flex;flex-direction:column;">
     <div style="padding:14px 16px 10px;background:#080f1e;border-bottom:1px solid #0d1f3a;flex-shrink:0;display:flex;align-items:baseline;gap:10px;">
-      <div style="font-family:'Russo One',sans-serif;font-size:18px;color:#fff;letter-spacing:1.5px;">Messages</div>
+      <div class="tt-gold" style="font-family:'Russo One',sans-serif;font-size:18px;letter-spacing:1.5px;">Messages</div>
       <span id="chat-count" style="font-size:11px;color:#4a6a9a;font-family:'Exo 2',sans-serif;"></span>
     </div>
     <div id="chat-threads" style="flex:1;overflow-y:auto;"></div>
@@ -368,17 +404,17 @@ body.light .mrav{color:#000 !important;}
 <div id="sc-band" class="sc">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
     <div>
-      <span style="font-family:'Russo One',sans-serif;font-size:12px;letter-spacing:2px;color:#fff;">BAND ROSTER</span>
+      <span class="tt-gold" style="font-family:'Russo One',sans-serif;font-size:12px;letter-spacing:2px;">BAND ROSTER</span>
       <span id="ml-count" style="font-size:10px;color:#4a9eff;margin-left:8px;font-family:'Exo 2',sans-serif;"></span>
     </div>
-    <button onclick="opM('mm')" style="background:linear-gradient(135deg,#1a3a8a,#0d2050);border:1px solid #4a9eff;border-radius:20px;padding:6px 14px;color:#4a9eff;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:1.5px;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 0 12px rgba(74,158,255,.15);touch-action:manipulation;">
+    <button onclick="opM('mm')" class="pill-action">
       <span style="font-size:14px;line-height:1;">&#43;</span>
       <span>NEW</span>
     </button>
   </div>
   <div id="ml"></div>
-  <div class="sh" onclick="toggleCard('contacts-list','contacts-arrow')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-top:16px;font-size:12px;letter-spacing:2px;">
-    <span>CONTACTS</span><span id="contacts-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span>
+  <div class="sh" onclick="toggleCard('contacts-list','contacts-arrow')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-top:16px;letter-spacing:2px;">
+    <span class="tt-blue" style="font-family:'Russo One',sans-serif;font-size:12px;letter-spacing:2px;">CONTACTS</span><span id="contacts-arrow" style="color:#4a9eff;font-size:14px;">&#8964;</span>
   </div>
   <div id="contacts-list"></div>
   <div id="contacts-add-btn"><button class="ab" onclick="opM('contact-modal')">+ Add Contact</button></div>
@@ -387,7 +423,7 @@ body.light .mrav{color:#000 !important;}
 <div id="sc-songs" class="sc">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
   <div>
-    <span style="font-family:'Russo One',sans-serif;font-size:12px;letter-spacing:2px;color:#fff;">SONG LIBRARY</span>
+    <span class="tt-gold" style="font-family:'Russo One',sans-serif;font-size:12px;letter-spacing:2px;">SONG LIBRARY</span>
     <span id="lib-count" style="font-size:10px;color:#4a9eff;margin-left:8px;font-family:'Exo 2',sans-serif;"></span>
   </div>
 </div>
@@ -1856,6 +1892,12 @@ function richGrad(color){
   return 'radial-gradient(circle at 28% 22%, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 35%), '
        + 'radial-gradient(circle at 70% 78%, '+color+'66 0%, '+color+' 55%, '+color+'aa 100%)';
 }
+function nameGradStyle(color){
+  // Returns a CSS style snippet that paints text with a member-color → bright-tint gradient
+  return 'background:linear-gradient(135deg,'+color+' 0%,#ffffff 100%);'
+       + '-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;'
+       + 'text-shadow:0 0 14px '+color+'55;';
+}
 function openInMaps(address){
   if(!address || !address.trim()) return;
   var q = encodeURIComponent(address.trim());
@@ -2554,6 +2596,7 @@ function memTap(e, id) {
 
 // CALENDAR
 function rCal() {
+  if(cardStates['important-dates-list'] === undefined) cardStates['important-dates-list'] = true;
   document.getElementById('mlbl').textContent = MO[CM].toUpperCase() + ' ' + CY;
   var fd = new Date(CY,CM,1).getDay(), dim = new Date(CY,CM+1,0).getDate();
   var h = DW.map(function(d){return '<div class="dhdr">'+d+'</div>';}).join('');
@@ -2578,11 +2621,208 @@ function rCal() {
     h+='<div class="dc'+(td?' td':'')+'" style="position:relative;" onclick="oDy('+d+')">'+flag+star+cake+'<span class="dn">'+d+'</span><div class="pips">'+pp+'</div></div>';
   }
   document.getElementById('cgrid').innerHTML = h;
+  // Initial population for left icon and right slot if not already set
+  var leftEl = document.getElementById('cnav-left');
+  if(leftEl && !leftEl.textContent) leftEl.textContent = _cnavLeftIcon;
+  _refreshRightSlot();
+  // Wire swipe gestures on first render
+  _wireCalSwipe();
   rEvL();
   rAvailability();
 }
-function pMo(){CM--;if(CM<0){CM=11;CY--;}rCal();}
-function nMo(){CM++;if(CM>11){CM=0;CY++;}rCal();}
+function pMo(){ navMonth(-1); }
+function nMo(){ navMonth(1); }
+
+// ── Calendar navigation: swipe + animated month transition + audio ─────
+var MUSIC_ICONS = ['\uD83C\uDFB8','\uD83C\uDFA4','\uD83E\uDD41','\uD83C\uDFB7','\uD83C\uDFBA','\uD83C\uDFB9','\uD83C\uDFBB'];
+var _cnavLeftIcon = '\uD83C\uDFB8';
+var _audioCtx = null;
+var _navAnimating = false;
+
+function _ensureAudio(){
+  if(_audioCtx) return _audioCtx;
+  try {
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if(!Ctx) return null;
+    _audioCtx = new Ctx();
+  } catch(e){ _audioCtx = null; }
+  return _audioCtx;
+}
+
+function _swooshSound(direction){
+  var ctx = _ensureAudio();
+  if(!ctx) return;
+  // Resume if browser suspended it before user gesture
+  if(ctx.state === 'suspended'){ try{ ctx.resume(); }catch(e){} }
+  var now = ctx.currentTime;
+  var osc = ctx.createOscillator();
+  var gain = ctx.createGain();
+  // Forward = pitch glides up; back = pitch glides down
+  var startFreq = direction > 0 ? 380 : 720;
+  var endFreq   = direction > 0 ? 720 : 380;
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(startFreq, now);
+  osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.18);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.08, now + 0.04);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.25);
+}
+
+function _pickMusicIcon(){
+  return MUSIC_ICONS[Math.floor(Math.random()*MUSIC_ICONS.length)];
+}
+
+function _refreshLeftIcon(){
+  var leftEl = document.getElementById('cnav-left');
+  if(!leftEl) return;
+  // Pick a different icon than the current one when possible
+  var next;
+  do { next = _pickMusicIcon(); } while(next === _cnavLeftIcon && MUSIC_ICONS.length > 1);
+  _cnavLeftIcon = next;
+  leftEl.textContent = next;
+}
+
+function _refreshRightSlot(){
+  var slot = document.getElementById('cnav-right-slot');
+  if(!slot) return;
+  var now = new Date();
+  var atToday = (CY === now.getFullYear() && CM === now.getMonth());
+  if(atToday){
+    // Show another music icon (different from the left one)
+    var pick;
+    do { pick = _pickMusicIcon(); } while(pick === _cnavLeftIcon && MUSIC_ICONS.length > 1);
+    slot.innerHTML = '';
+    var ic = document.createElement('span');
+    ic.className = 'cnav-icon';
+    ic.title = 'Music';
+    ic.style.cursor = 'default';
+    ic.textContent = pick;
+    slot.appendChild(ic);
+    slot.style.width = '38px';
+  } else {
+    slot.innerHTML = '';
+    var btn = document.createElement('span');
+    btn.className = 'cnav-today';
+    btn.title = 'Jump to today';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" focusable="false"><path d="M7 3v2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2V3h-2v2H9V3H7zm-2 6h14v10H5V9z" fill="#060e1c"/></svg><span>TODAY</span>';
+    btn.onclick = function(){
+      var n = new Date();
+      var diff = (n.getFullYear()*12 + n.getMonth()) - (CY*12 + CM);
+      navMonth(diff);
+    };
+    slot.appendChild(btn);
+    slot.style.width = 'auto';
+  }
+}
+
+function navMonth(deltaMonths){
+  if(_navAnimating || !deltaMonths) return;
+  _navAnimating = true;
+  var direction = deltaMonths > 0 ? 1 : -1; // 1 = forward, -1 = back
+  _swooshSound(direction);
+  // Snapshot current grid as a trail before changing
+  var wrap = document.getElementById('cgrid-wrap');
+  var oldGrid = document.getElementById('cgrid');
+  if(!wrap || !oldGrid){
+    // Fallback: no animation, just change
+    CM += deltaMonths;
+    while(CM > 11){ CM -= 12; CY++; }
+    while(CM < 0){ CM += 12; CY--; }
+    rCal();
+    _refreshLeftIcon();
+    _refreshRightSlot();
+    _navAnimating = false;
+    return;
+  }
+  // Build a trail clone (faded duplicate)
+  var trail = oldGrid.cloneNode(true);
+  trail.id = '';
+  trail.classList.add('cgrid-trail');
+  trail.classList.add('show');
+  trail.classList.add(direction > 0 ? 'trail-left' : 'trail-right');
+  wrap.appendChild(trail);
+  // Slide the actual grid out
+  oldGrid.classList.add(direction > 0 ? 'slide-out-left' : 'slide-out-right');
+
+  // Animate the title flip too
+  var mlblEl = document.getElementById('mlbl');
+  if(mlblEl){
+    mlblEl.classList.remove('flip');
+    void mlblEl.offsetWidth; // restart
+    mlblEl.classList.add('flip');
+  }
+
+  // After the slide-out finishes, update the month and slide the new grid in
+  setTimeout(function(){
+    CM += deltaMonths;
+    while(CM > 11){ CM -= 12; CY++; }
+    while(CM < 0){ CM += 12; CY--; }
+    rCal(); // rebuilds the grid contents in place
+    var newGrid = document.getElementById('cgrid');
+    if(newGrid){
+      newGrid.classList.remove('slide-out-left','slide-out-right','slide-in-left','slide-in-right');
+      void newGrid.offsetWidth;
+      newGrid.classList.add(direction > 0 ? 'slide-in-left' : 'slide-in-right');
+    }
+    _refreshLeftIcon();
+    _refreshRightSlot();
+    // Cleanup trail and animation lock after the in-anim runs
+    setTimeout(function(){
+      if(trail && trail.parentNode) trail.parentNode.removeChild(trail);
+      if(newGrid){
+        newGrid.classList.remove('slide-in-left','slide-in-right');
+      }
+      _navAnimating = false;
+    }, 460);
+  }, 280);
+}
+
+// Swipe detection on the grid wrapper
+function _wireCalSwipe(){
+  var wrap = document.getElementById('cgrid-wrap');
+  if(!wrap || wrap._swipeWired) return;
+  wrap._swipeWired = true;
+  var startX = 0, startY = 0, startT = 0, tracking = false;
+  wrap.addEventListener('touchstart', function(e){
+    if(!e.touches || !e.touches[0]) return;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    startT = Date.now();
+    tracking = true;
+  }, {passive:true});
+  wrap.addEventListener('touchend', function(e){
+    if(!tracking) return;
+    tracking = false;
+    var t = (e.changedTouches && e.changedTouches[0]) || null;
+    if(!t) return;
+    var dx = t.clientX - startX;
+    var dy = t.clientY - startY;
+    var adx = Math.abs(dx), ady = Math.abs(dy);
+    var dt = Date.now() - startT;
+    if(adx < 50) return;            // not enough horizontal motion
+    if(ady > adx * 0.7) return;     // too vertical, treat as scroll
+    if(dt > 600) return;             // too slow, treat as drag
+    if(dx < 0) navMonth(1); else navMonth(-1);
+  }, {passive:true});
+  // Mouse equivalents (desktop testing)
+  var mDown = false, mX = 0, mY = 0, mT = 0;
+  wrap.addEventListener('mousedown', function(e){
+    mDown = true; mX = e.clientX; mY = e.clientY; mT = Date.now();
+  });
+  wrap.addEventListener('mouseup', function(e){
+    if(!mDown) return; mDown = false;
+    var dx = e.clientX - mX, dy = e.clientY - mY;
+    var adx = Math.abs(dx), ady = Math.abs(dy);
+    if(adx < 50) return;
+    if(ady > adx * 0.7) return;
+    if(Date.now() - mT > 600) return;
+    if(dx < 0) navMonth(1); else navMonth(-1);
+  });
+  wrap.addEventListener('mouseleave', function(){ mDown = false; });
+}
 function rEvL() {
   if(cardStates['evl'] === undefined) cardStates['evl'] = true; // collapsed by default
   var evlEl = document.getElementById('evl');
@@ -3974,7 +4214,7 @@ function rChatThreads(){
     }
     info.innerHTML=
       '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;">'+
-        '<span style="font-size:15px;font-weight:'+(unread?'700':'600')+';color:#fff;font-family:Russo One,sans-serif;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+t.name+'</span>'+
+        '<span style="font-size:15px;font-weight:'+(unread?'700':'600')+';font-family:Russo One,sans-serif;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'+nameGradStyle(t.color)+'">'+t.name+'</span>'+
         (lastMsg?'<span style="font-size:10px;color:#4a6a9a;flex-shrink:0;">'+lastMsg.time+'</span>':'')+
       '</div>'+
       '<div style="font-size:12px;color:'+(unread?'#e8f0ff':'#4a6a9a')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;'+(lastMsg?'':'font-style:italic;')+'">'+
@@ -4031,7 +4271,7 @@ function rChat() {
     wrap.style.cssText='display:flex;flex-direction:column;max-width:72%;'+(isMe?'align-items:flex-end;':'align-items:flex-start;');
     if(!isMe&&chatTo==='band'){
       var nm=document.createElement('div');
-      nm.style.cssText='font-size:10px;font-weight:700;color:'+sender.color+';margin-bottom:2px;padding-left:4px;letter-spacing:.5px;font-family:Russo One,sans-serif;';
+      nm.style.cssText='font-size:10px;font-weight:700;margin-bottom:2px;padding-left:4px;letter-spacing:.5px;font-family:Russo One,sans-serif;'+nameGradStyle(sender.color);
       nm.textContent=sender.name?sender.name.split(' ')[0]:'';
       wrap.appendChild(nm);
     }
@@ -4137,7 +4377,7 @@ function rBand() {
     header.innerHTML =
       '<div class="avmd" style="background:'+richGrad(m.color)+';width:34px;height:34px;font-size:12px;flex-shrink:0;box-shadow:0 0 14px '+m.color+'55, inset 0 -2px 6px rgba(0,0,0,.2);font-family:Russo One,sans-serif;">'+m.av+'</div>'+
       '<div style="flex:1;min-width:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+
-        '<span style="font-size:14px;font-weight:600;color:#e8f0ff;">'+m.name+'</span>'+
+        '<span style="font-size:14px;font-weight:700;'+nameGradStyle(m.color)+'">'+m.name+'</span>'+
         bdayBadge+
         '<span style="display:inline-block;width:3px;height:3px;border-radius:50%;background:#4a6a9a;flex-shrink:0;"></span>'+
         '<span style="font-size:12px;color:#4a9eff;font-family:Russo One,sans-serif;letter-spacing:.5px;">'+m.inst+'</span>'+
