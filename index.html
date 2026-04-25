@@ -264,7 +264,7 @@ body.light .mrav{color:#000 !important;}
   </div>
   <div class="cgrid" id="cgrid"></div>
   <div class="sh" style="display:flex;justify-content:space-between;align-items:center;">
-    <span onclick="toggleCard('evl','evl-arrow')" style="cursor:pointer;display:flex;align-items:center;gap:6px;flex:1;">ALL EVENTS <span id="evl-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span></span>
+    <span onclick="toggleCard('evl','evl-arrow')" style="cursor:pointer;display:flex;align-items:center;gap:6px;flex:1;font-size:12px;">ALL EVENTS <span id="evl-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span></span>
     <button onclick="exportData('events')" style="background:none;border:1px solid #1a3a8a;border-radius:6px;padding:2px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;">&#8679; Share</button>
   </div>
   <div id="evl"></div>
@@ -1149,13 +1149,22 @@ function submitSuggestion(){
   document.getElementById('suggest-form').style.display='none';
 }
 // ── REHEARSAL AGENDA ───────────────────────────────────────────────────────
-var agendas = {}; // eventId -> [songs]
+var agendas = {}; // eventId -> {songs:[], notes:'', startTime:'', endTime:'', focus:''}
 var editingAgendaId = null;
 
 function listenAgendas(){
   db.collection('agendas').onSnapshot(function(snap){
     agendas={};
-    snap.forEach(function(doc){ agendas[doc.id]=doc.data().songs||[]; });
+    snap.forEach(function(doc){
+      var d = doc.data() || {};
+      agendas[doc.id] = {
+        songs: Array.isArray(d.songs) ? d.songs : [],
+        notes: d.notes || '',
+        startTime: d.startTime || '',
+        endTime: d.endTime || '',
+        focus: d.focus || ''
+      };
+    });
     if(document.getElementById('sc-cal').classList.contains('on')) rEvL();
   });
 }
@@ -1166,9 +1175,16 @@ function openAgenda(evId){
   rAgendaList();
   opM('agenda-modal');
 }
+function _getAgenda(eid){
+  var k = String(eid);
+  if(!agendas[k]) agendas[k] = {songs:[], notes:'', startTime:'', endTime:'', focus:''};
+  if(!Array.isArray(agendas[k].songs)) agendas[k].songs = [];
+  return agendas[k];
+}
 function rAgendaList(){
   var el=document.getElementById('agenda-list');
-  var songs=agendas[String(editingAgendaId)]||[];
+  var ag=_getAgenda(editingAgendaId);
+  var songs=ag.songs;
   if(!songs.length){ el.innerHTML='<div style="color:#aaa;font-style:italic;font-size:13px;">No songs added yet.</div>'; return; }
   el.innerHTML='';
   songs.forEach(function(song,i){
@@ -1179,10 +1195,9 @@ function rAgendaList(){
     del.style.cssText='background:none;border:none;color:#4a6a9a;font-size:13px;cursor:pointer;';
     del.innerHTML='&#10005;';
     del.onclick=(function(idx){ return function(){
-      var songs2=agendas[String(editingAgendaId)]||[];
-      songs2.splice(idx,1);
-      agendas[String(editingAgendaId)]=songs2;
-      db.collection('agendas').doc(String(editingAgendaId)).set({songs:songs2});
+      var ag2=_getAgenda(editingAgendaId);
+      ag2.songs.splice(idx,1);
+      db.collection('agendas').doc(String(editingAgendaId)).set(ag2);
       rAgendaList();
     }; })(i);
     row.appendChild(del);
@@ -1193,10 +1208,9 @@ function addAgendaItem(){
   var inp=document.getElementById('agenda-song-input');
   var val=inp.value.trim();
   if(!val)return;
-  var songs=agendas[String(editingAgendaId)]||[];
-  songs.push(val);
-  agendas[String(editingAgendaId)]=songs;
-  db.collection('agendas').doc(String(editingAgendaId)).set({songs:songs});
+  var ag=_getAgenda(editingAgendaId);
+  ag.songs.push(val);
+  db.collection('agendas').doc(String(editingAgendaId)).set(ag);
   inp.value='';
   rAgendaList();
 }
@@ -1788,16 +1802,52 @@ function rEvL() {
   if(!events.length){ el.innerHTML='<div style="color:#aaa;font-style:italic;padding:8px">No events. Tap a day to add.</div>'; return; }
   var sorted = events.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
   el.innerHTML = sorted.map(function(e){
-    var del = '<button style="background:none;border:none;color:#aaa;font-size:14px;cursor:pointer;" onclick="dEv(\'' + e.id + '\')">&#10005;</button>';
-    var edit = '';
-    var info = e.type==='gig' ? '<button style="background:none;border:1px solid #1a3a8a;border-radius:4px;padding:1px 5px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;margin-right:4px;" onclick="showGigDetail(\'' + e.id + '\')">INFO</button>' :
-               e.type==='rehearsal' ? '<button style="background:none;border:1px solid #06d6a0;border-radius:4px;padding:1px 5px;color:#06d6a0;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;margin-right:4px;" onclick="openAgenda(\'' + e.id + '\')">AGENDA</button>' : '';
-    return '<div class="er">' +
+    var safeTitle = String(e.title||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    var del = '<button data-evdel="' + e.id + '" data-evtitle="' + safeTitle + '" style="background:none;border:none;color:#aaa;font-size:14px;cursor:pointer;">&#10005;</button>';
+    return '<div class="er" data-evid="' + e.id + '" style="cursor:pointer;">' +
       '<div class="ebdg" style="background:' + EC[e.type] + '22;color:' + EC[e.type] + '">' + e.type + '</div>' +
       '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:#fff">' + e.title + '</div>' +
       '<div style="font-size:11px;color:#aaa;margin-top:2px">' + e.date + ' - ' + e.note + '</div></div>' +
-      edit + info + del + '</div>';
+      del + '</div>';
   }).join('');
+
+  // Wire double-tap to open detail sheet, and confirm-delete for the X button.
+  var rows = el.querySelectorAll('.er');
+  rows.forEach(function(row){
+    var lastTap = 0;
+    var openDetail = function(){
+      var id = row.getAttribute('data-evid');
+      if(id) editEv(id);
+    };
+    // Double-click for desktop
+    row.addEventListener('dblclick', function(ev){
+      if(ev.target && ev.target.hasAttribute && ev.target.hasAttribute('data-evdel')) return;
+      openDetail();
+    });
+    // Double-tap for touch
+    row.addEventListener('touchend', function(ev){
+      if(ev.target && ev.target.hasAttribute && ev.target.hasAttribute('data-evdel')) return;
+      var now = Date.now();
+      if(now - lastTap < 400){
+        ev.preventDefault();
+        lastTap = 0;
+        openDetail();
+      } else {
+        lastTap = now;
+      }
+    });
+  });
+  var dels = el.querySelectorAll('button[data-evdel]');
+  dels.forEach(function(btn){
+    btn.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      var id = btn.getAttribute('data-evdel');
+      var title = btn.getAttribute('data-evtitle') || 'this event';
+      if(confirm('Delete "' + title + '"? This cannot be undone.')){
+        dEv(id);
+      }
+    });
+  });
 }
 function oDy(day) {
   sDay=day;
@@ -1968,6 +2018,7 @@ function openGigSheet(ev){
     inp.placeholder = placeholder;
     if(type==='textarea'){inp.rows=2;inp.style.resize='none';}
     if(type==='date'){inp.type='date';}
+    if(type==='time'){inp.type='time';}
     d.appendChild(lbl);
     d.appendChild(inp);
     return d;
@@ -2066,6 +2117,7 @@ function openRehearsalSheet(ev){
     inp.placeholder = placeholder;
     if(type==='textarea'){inp.rows=2;inp.style.resize='none';}
     if(type==='date'){inp.type='date';}
+    if(type==='time'){inp.type='time';}
     d.appendChild(lbl);
     d.appendChild(inp);
     return d;
@@ -2076,6 +2128,21 @@ function openRehearsalSheet(ev){
 
   b.appendChild(makeField('TITLE','rh-title', ev ? ev.title : 'Rehearsal','e.g. Pre-show prep, Full run-through','text'));
   b.appendChild(makeField('LOCATION','rh-loc', ev ? ev.note : '','Studio, rehearsal space, etc.','text'));
+
+  // Start / End time row
+  var rhAgInit = ev ? _getAgenda(ev.id) : {songs:[], notes:'', startTime:'', endTime:'', focus:''};
+  var timeRow = document.createElement('div');
+  timeRow.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;';
+  timeRow.appendChild(makeField('START TIME','rh-start', rhAgInit.startTime, '', 'time'));
+  timeRow.appendChild(makeField('END TIME','rh-end', rhAgInit.endTime, '', 'time'));
+  // makeField wraps each input in a div with margin-bottom:8px; flex them to share the row
+  timeRow.children[0].style.flex = '1';
+  timeRow.children[0].style.marginBottom = '0';
+  timeRow.children[1].style.flex = '1';
+  timeRow.children[1].style.marginBottom = '0';
+  b.appendChild(timeRow);
+
+  b.appendChild(makeField('FOCUS / GOALS','rh-focus', rhAgInit.focus, 'What to nail down this rehearsal','textarea'));
 
   // Agenda section
   var agLbl = document.createElement('div');
@@ -2104,9 +2171,9 @@ function openRehearsalSheet(ev){
     if(!v) return;
     var evId = ev ? ev.id : null;
     if(evId){
-      var songs = (agendas[String(evId)]||[]).concat([v]);
-      agendas[String(evId)] = songs;
-      db.collection('agendas').doc(String(evId)).set({songs:songs});
+      var ag = _getAgenda(evId);
+      ag.songs.push(v);
+      db.collection('agendas').doc(String(evId)).set(ag);
     }
     agInp.value='';
     renderRhAgenda(evId);
@@ -2116,6 +2183,9 @@ function openRehearsalSheet(ev){
   b.appendChild(agRow);
 
   renderRhAgenda(ev ? ev.id : null);
+
+  // Notes
+  b.appendChild(makeField('NOTES','rh-notes', rhAgInit.notes, 'Anything else worth noting','textarea'));
 
   if(!isNew){
     var delBtn = document.createElement('button');
@@ -2140,7 +2210,7 @@ function openRehearsalSheet(ev){
 function renderRhAgenda(evId){
   var el = document.getElementById('rh-agenda-list');
   if(!el) return;
-  var songs = evId ? (agendas[String(evId)]||[]) : [];
+  var songs = evId ? _getAgenda(evId).songs : [];
   el.innerHTML = '';
   songs.forEach(function(song, i){
     var row = document.createElement('div');
@@ -2150,10 +2220,9 @@ function renderRhAgenda(evId){
     del.style.cssText = 'background:none;border:none;color:#4a6a9a;font-size:11px;cursor:pointer;';
     del.innerHTML = '&#10005;';
     del.onclick = (function(idx, eid){ return function(){
-      var s = (agendas[String(eid)]||[]);
-      s.splice(idx,1);
-      agendas[String(eid)] = s;
-      db.collection('agendas').doc(String(eid)).set({songs:s});
+      var ag = _getAgenda(eid);
+      ag.songs.splice(idx,1);
+      db.collection('agendas').doc(String(eid)).set(ag);
       renderRhAgenda(eid);
     }; })(i, evId);
     row.appendChild(del);
@@ -2167,6 +2236,19 @@ function saveRehearsalSheet(evId, isNew){
   var dateStr = isNew ? (document.getElementById('rh-date') ? document.getElementById('rh-date').value : fD(CY,CM,sDay)) : events.find(function(e){return e.id==evId;}).date;
   var id = evId || Date.now();
   saveEvent({id:id, date:dateStr, type:'rehearsal', title:title, note:loc});
+
+  // Persist agenda metadata (songs already saved live; merge with current values from inputs)
+  var startEl = document.getElementById('rh-start');
+  var endEl = document.getElementById('rh-end');
+  var focusEl = document.getElementById('rh-focus');
+  var notesEl = document.getElementById('rh-notes');
+  var ag = _getAgenda(id);
+  ag.startTime = startEl ? startEl.value : '';
+  ag.endTime = endEl ? endEl.value : '';
+  ag.focus = focusEl ? focusEl.value : '';
+  ag.notes = notesEl ? notesEl.value : '';
+  db.collection('agendas').doc(String(id)).set(ag).catch(function(){});
+
   clM('gig-detail-modal');
   var prettyDate = fmtGigDateForNotif(dateStr);
   var msgTail = prettyDate + (loc ? ' — ' + loc : '');
