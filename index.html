@@ -394,7 +394,7 @@ body.light .mrav{color:#000 !important;}
     <!-- Input -->
     <div style="padding:10px 12px;background:#080f1e;border-top:1px solid #0d1f3a;display:flex;gap:10px;align-items:center;flex-shrink:0;">
       <input id="cin" placeholder="Message..." onkeydown="if(event.key==='Enter')sMsg()" oninput="updateSendBtn()" style="flex:1;background:#0d1f3a;border:1px solid #1a3a8a;border-radius:22px;padding:10px 16px;color:#e8f0ff;font-size:14px;font-family:'Exo 2',sans-serif;outline:none;">
-      <button id="send-btn" onclick="sMsg()" style="background:linear-gradient(135deg,#1a3a8a,#0d2050);border:1px solid #1a3a8a;border-radius:50%;width:42px;height:42px;color:#4a6a9a;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;touch-action:manipulation;transition:all .2s;">
+      <button id="send-btn" onclick="sMsg()" style="background:radial-gradient(circle at 30% 25%,#ff8ab8 0%,#ff4d8a 55%,#c2185b 100%);border:1px solid #ffb6cf;border-radius:50%;width:42px;height:42px;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;touch-action:manipulation;transition:all .2s;box-shadow:0 0 18px rgba(255,77,138,.6), 0 2px 8px rgba(0,0,0,.4), inset 0 -2px 6px rgba(0,0,0,.22);">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M2 12l20-9-9 20-2-9-9-2z" fill="currentColor"/></svg>
       </button>
     </div>
@@ -1863,12 +1863,12 @@ function go(id, btn) {
 
 // DATA
 var members = [
-  {id:1, name:"Jim Locherie",        inst:"Lead Guitar", av:"JL", color:"#4a9eff", ph:"", em:"", addr:""},
+  {id:1, name:"Jim Locherie",        inst:"Lead Guitar", av:"JL", color:"#ff6b6b", ph:"", em:"", addr:""},
   {id:2, name:"Amy Eisenberg Ritz",  inst:"Bass Guitar", av:"AR", color:"#06d6a0", ph:"", em:"", addr:""},
-  {id:3, name:"Rich Escarcega",      inst:"Drums",       av:"RE", color:"#ff6b6b", ph:"", em:"", addr:""},
-  {id:4, name:"Ed Escarcega",        inst:"Lead Guitar", av:"EE", color:"#f5c518", ph:"", em:"", addr:""},
+  {id:3, name:"Rich Escarcega",      inst:"Drums",       av:"RE", color:"#4a9eff", ph:"", em:"", addr:""},
+  {id:4, name:"Ed Escarcega",        inst:"Lead Guitar", av:"EE", color:"#ff8a3c", ph:"", em:"", addr:""},
   {id:5, name:"Rachel Cervantes",    inst:"Vocals",      av:"RC", color:"#ff9ef5", ph:"", em:"", addr:""},
-  {id:6, name:"Zach Dennert",        inst:"Keyboards",   av:"ZD", color:"#c084fc", ph:"", em:"", addr:""}
+  {id:6, name:"Zach Dennert",        inst:"Keyboards",   av:"ZD", color:"#00d4d4", ph:"", em:"", addr:""}
 ];
 var events = [], msgs = [], sets = [], pay = [], contacts = [], announcements = [], availability = [];
 var gigDetails = {};
@@ -2317,9 +2317,14 @@ function listenPay(){
     if(document.getElementById('sc-pay').classList.contains('on'))rPay();
   });
 }
+var _colorMigrationDone = false;
+// Expected colors per member id — keep in sync with the hardcoded defaults above.
+var EXPECTED_MEMBER_COLORS = {1:'#ff6b6b', 2:'#06d6a0', 3:'#4a9eff', 4:'#ff8a3c', 5:'#ff9ef5', 6:'#00d4d4'};
+
 function listenMembers(){
   db.collection('members').onSnapshot(function(snap){
     var seenIds = {};
+    var docsToMigrate = [];
     snap.forEach(function(doc){
       var d = doc.data() || {};
       // Match by stored id if present, otherwise by name (legacy docs keyed by name)
@@ -2335,8 +2340,21 @@ function listenMembers(){
         if(d.addr!==undefined) m.addr = d.addr;
         if(d.bday!==undefined) m.bday = d.bday;
         seenIds[m.id] = true;
+        // Flag for color migration if Firestore color is stale
+        var expected = EXPECTED_MEMBER_COLORS[m.id];
+        if(expected && d.color && d.color.toLowerCase() !== expected.toLowerCase()){
+          docsToMigrate.push({docId: doc.id, mem: m, newColor: expected});
+        }
       }
     });
+    // One-time color migration — push new palette to Firestore so all devices update
+    if(!_colorMigrationDone && docsToMigrate.length){
+      _colorMigrationDone = true;
+      docsToMigrate.forEach(function(x){
+        x.mem.color = x.newColor;
+        db.collection('members').doc(x.docId).set({color: x.newColor}, {merge:true}).catch(function(){});
+      });
+    }
     // Mark members not in Firestore for potential seeding (only if collection is empty)
     if(snap.empty){
       // Seed Firestore from the hardcoded defaults so future edits persist
@@ -2654,13 +2672,12 @@ function _swooshSound(direction){
   if(!ctx) return;
   if(ctx.state === 'suspended'){ try{ ctx.resume(); }catch(e){} }
   var now = ctx.currentTime;
-  var dur = 0.28;
+  var dur = 0.22;
 
-  // ── Component 1: Soft "whoosh" — pink-ish noise low-passed and swept ─
+  // Pink noise for warmth
   var bufSize = Math.floor(ctx.sampleRate * dur);
   var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
   var data = buf.getChannelData(0);
-  // Generate softer noise (averaged samples = pink-ish)
   var b0=0,b1=0,b2=0;
   for(var i=0; i<bufSize; i++){
     var w = Math.random()*2-1;
@@ -2672,55 +2689,40 @@ function _swooshSound(direction){
   var noise = ctx.createBufferSource();
   noise.buffer = buf;
 
-  // Low-pass that sweeps to give a "papery" feel rather than hissy
+  // Low-pass sweep — wind moving past
   var lp = ctx.createBiquadFilter();
   lp.type = 'lowpass';
-  lp.Q.value = 0.7;
-  var fStart = direction > 0 ? 600 : 3500;
-  var fEnd   = direction > 0 ? 3500 : 600;
+  lp.Q.value = 0.5;
+  var fStart = direction > 0 ? 500 : 2200;
+  var fEnd   = direction > 0 ? 2200 : 500;
   lp.frequency.setValueAtTime(fStart, now);
   lp.frequency.exponentialRampToValueAtTime(fEnd, now + dur);
 
-  var noiseGain = ctx.createGain();
-  noiseGain.gain.setValueAtTime(0.0001, now);
-  noiseGain.gain.linearRampToValueAtTime(0.10, now + 0.03);
-  noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
-
-  // ── Component 2: Subtle pitched chime — gives the swipe a "musical landing" ─
-  var osc = ctx.createOscillator();
-  osc.type = 'sine';
-  // Different note for forward vs back
-  var chimeFreq = direction > 0 ? 880 : 660; // A5 up, E5 back
-  osc.frequency.setValueAtTime(chimeFreq, now + 0.05);
-  var oscGain = ctx.createGain();
-  oscGain.gain.setValueAtTime(0.0001, now);
-  oscGain.gain.linearRampToValueAtTime(0.04, now + 0.09);
-  oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.30);
+  // Subtle envelope
+  var gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(0.05, now + 0.04);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
 
   // Optional stereo motion
   var pan = null;
   if(typeof ctx.createStereoPanner === 'function'){
     try {
       pan = ctx.createStereoPanner();
-      var pStart = direction > 0 ? -0.4 : 0.4;
-      var pEnd   = direction > 0 ?  0.4 : -0.4;
+      var pStart = direction > 0 ? -0.3 : 0.3;
+      var pEnd   = direction > 0 ?  0.3 : -0.3;
       pan.pan.setValueAtTime(pStart, now);
       pan.pan.linearRampToValueAtTime(pEnd, now + dur);
     } catch(e){ pan = null; }
   }
 
   if(pan){
-    noise.connect(lp).connect(noiseGain).connect(pan);
-    osc.connect(oscGain).connect(pan);
-    pan.connect(ctx.destination);
+    noise.connect(lp).connect(gain).connect(pan).connect(ctx.destination);
   } else {
-    noise.connect(lp).connect(noiseGain).connect(ctx.destination);
-    osc.connect(oscGain).connect(ctx.destination);
+    noise.connect(lp).connect(gain).connect(ctx.destination);
   }
   noise.start(now);
   noise.stop(now + dur + 0.05);
-  osc.start(now + 0.04);
-  osc.stop(now + 0.32);
 }
 
 function _pickMusicIcon(){
@@ -4196,27 +4198,28 @@ function openThread(id){
   }
   var msgsEl = document.getElementById('cmsgs');
   if(msgsEl){
-    // Spectacular lighter gradient — radial halo from the thread color + raised navy base, way lighter than before
+    // Spectacular brighter gradient — radial halo from the thread color + raised navy base, much lighter than before
     msgsEl.style.background =
-      'radial-gradient(circle at 50% 0%, '+threadColor+'2e 0%, '+threadColor+'12 28%, transparent 60%),' +
-      'radial-gradient(circle at 18% 110%, '+threadColor+'1f 0%, transparent 50%),' +
-      'radial-gradient(circle at 82% 110%, '+threadColor+'1f 0%, transparent 50%),' +
-      'linear-gradient(180deg, #1a3266 0%, #1a2d56 40%, #162548 100%)';
+      'radial-gradient(circle at 50% 0%, '+threadColor+'4d 0%, '+threadColor+'22 30%, transparent 65%),' +
+      'radial-gradient(circle at 18% 110%, '+threadColor+'30 0%, transparent 50%),' +
+      'radial-gradient(circle at 82% 110%, '+threadColor+'30 0%, transparent 50%),' +
+      'linear-gradient(180deg, #3a5da8 0%, #355498 45%, #2c4682 100%)';
   }
   // Header bar gets a stronger tint of the thread color to feel cohesive with the lighter body
   var headerBar = threadScreen ? threadScreen.querySelector('div') : null;
   if(headerBar){
-    headerBar.style.background = 'linear-gradient(135deg, '+threadColor+'33 0%, #0d1f3a 75%)';
+    headerBar.style.background = 'linear-gradient(135deg, '+threadColor+'40 0%, #1f3a6e 75%)';
   }
   // Input bar tint to match
   var inputBar = threadScreen ? threadScreen.children[2] : null;
   if(inputBar){
-    inputBar.style.background = 'linear-gradient(135deg, '+threadColor+'22 0%, #0d1f3a 75%)';
+    inputBar.style.background = 'linear-gradient(135deg, '+threadColor+'2e 0%, #1f3a6e 75%)';
   }
   var threadId = id==='band'?'band':[String(ME),String(id)].sort().join('-');
   markThreadRead(threadId);
   rChat();
   rChatThreads();
+  updateSendBtn();
 }
 
 function rChatTo(){
@@ -4404,15 +4407,19 @@ function updateSendBtn(){
   if(!inp || !btn) return;
   var hasText = !!inp.value.trim();
   if(hasText){
-    btn.style.background = 'linear-gradient(135deg,#f5c518,#d9a800)';
-    btn.style.borderColor = '#f5c518';
+    // Active: electric yellow, glowing, ready to fire
+    btn.style.background = 'linear-gradient(135deg,#fff39a 0%,#ffd84a 35%,#ffb800 100%)';
+    btn.style.borderColor = '#fff39a';
     btn.style.color = '#060e1c';
-    btn.style.boxShadow = '0 0 14px rgba(245,197,24,.35)';
+    btn.style.boxShadow = '0 0 28px rgba(255,216,74,.85), 0 0 12px rgba(255,184,0,.5), 0 2px 8px rgba(0,0,0,.4), inset 0 -2px 6px rgba(0,0,0,.18)';
+    btn.style.transform = 'scale(1.06)';
   } else {
-    btn.style.background = 'linear-gradient(135deg,#1a3a8a,#0d2050)';
-    btn.style.borderColor = '#1a3a8a';
-    btn.style.color = '#4a6a9a';
-    btn.style.boxShadow = '';
+    // Idle: deep indigo with a bright magenta/pink ring — pops hard against the blue background
+    btn.style.background = 'radial-gradient(circle at 30% 25%,#ff8ab8 0%,#ff4d8a 55%,#c2185b 100%)';
+    btn.style.borderColor = '#ffb6cf';
+    btn.style.color = '#fff';
+    btn.style.boxShadow = '0 0 18px rgba(255,77,138,.6), 0 2px 8px rgba(0,0,0,.4), inset 0 -2px 6px rgba(0,0,0,.22)';
+    btn.style.transform = '';
   }
 }
 
