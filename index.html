@@ -95,12 +95,13 @@ body.light .mrav{color:#000 !important;}
 .card{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:12px;margin-bottom:10px;}
 .card-lbl{font-family:"Russo One",sans-serif;font-size:12px;letter-spacing:3px;color:#fff;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
 .none{font-size:13px;color:#aaa;font-style:italic;}
-.hero{display:grid;grid-template-columns:1fr 1fr;height:185px;border-radius:12px;overflow:hidden;border:1px solid rgba(245,197,24,.2);margin-bottom:2px;}
+.hero{position:relative;display:grid;grid-template-columns:1fr 1fr;height:130px;border-radius:12px;overflow:hidden;border:1px solid rgba(245,197,24,.2);margin-bottom:10px;}
 .hero-l{background:linear-gradient(135deg,#0d2050,#0a1628);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;}
 .hero-l img{width:90%;object-fit:contain;filter:drop-shadow(0 0 10px rgba(245,197,24,.4));}
 .htag{font-family:"Russo One",sans-serif;font-size:7px;color:var(--g);letter-spacing:1.5px;text-align:center;margin-top:7px;line-height:1.8;}
-.hero-r{overflow:hidden;}
-.hero-r img{width:100%;height:185px;object-fit:cover;object-position:top;}
+.hero-r{overflow:hidden;position:relative;}
+.hero-r img{width:100%;height:130px;object-fit:cover;object-position:top;}
+.hero-tagline{position:absolute;left:0;right:0;bottom:0;padding:5px 10px 6px;text-align:center;font-family:"Russo One",sans-serif;font-size:9px;color:#f5c518;letter-spacing:1.5px;text-shadow:0 0 10px rgba(245,197,24,.9),0 1px 3px rgba(0,0,0,.9);font-style:italic;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.4) 70%,transparent 100%);pointer-events:none;}
 .gi{position:relative;padding:10px 12px;background:linear-gradient(135deg,rgba(245,197,24,.22) 0%,rgba(245,197,24,.06) 45%,#0a1628 100%);border-radius:10px;margin-bottom:7px;border-left:4px solid #f5c518;box-shadow:0 0 18px rgba(245,197,24,.18),inset 0 0 22px rgba(245,197,24,.06);}
 .git{font-size:14px;font-weight:600;color:#fff;}
 .gim{font-size:11px;color:var(--b);margin-top:2px;}
@@ -201,12 +202,10 @@ body.light .mrav{color:#000 !important;}
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><button onclick="openReorder()" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;padding:0;" title="Arrange tabs">&#9776;</button><div id="who-am-i" onclick="whoAmITap()" style="font-size:11px;cursor:pointer;"></div></div>
   <div class="hero">
     <div class="hero-l" style="padding:0;overflow:hidden;"><img src="logo.jpg" alt="OOT" style="width:100%;height:100%;object-fit:cover;"></div>
-    <div class="hero-r"><img src="band.jpg" alt="Band"></div>
-  </div>
-  <div style="text-align:center;font-family:'Russo One',sans-serif;font-size:10px;color:#f5c518;letter-spacing:2px;padding:2px 0 0;margin-top:-4px;text-shadow:0 0 12px rgba(245,197,24,.6);font-style:italic;">Where Rock &amp; Roll Meets the Dance Floor</div>
-  <div style="display:flex;justify-content:center;gap:12px;padding:12px 0 12px;">
-    <a href="https://www.instagram.com/outoftimecoverband?igsh=NTc4MTIwNjQ2YQ==" target="_blank" style="display:flex;align-items:center;gap:5px;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:11px;font-family:Russo One,sans-serif;text-decoration:none;letter-spacing:1px;">&#128247; Instagram</a>
-    <a href="https://www.facebook.com/profile.php?id=61565057075702&mibextid=ZbWKwL" target="_blank" style="display:flex;align-items:center;gap:5px;background:#1877f2;border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:11px;font-family:Russo One,sans-serif;text-decoration:none;letter-spacing:1px;">&#128100; Facebook</a>
+    <div class="hero-r">
+      <img src="band.jpg" alt="Band">
+      <div class="hero-tagline">Where Rock &amp; Roll Meets the Dance Floor</div>
+    </div>
   </div>
   <div id="birthday-banner" style="display:none;"></div>
   <div id="next-gig-countdown" style="display:none;background:#060e1c;border-radius:12px;padding:12px 16px;margin-bottom:10px;text-align:center;border:1px solid rgba(245,197,24,.5);box-shadow:0 0 20px rgba(245,197,24,.15),inset 0 0 30px rgba(10,22,40,.8);">
@@ -237,13 +236,13 @@ body.light .mrav{color:#000 !important;}
   </div>
   <div class="card gc">
     <div class="card-lbl" onclick="toggleCard('hg','ga')">
-      <span style='color:#f5c518;'>UPCOMING GIGS</span><span id="ga">&#8964;</span>
+      <span style='color:#f5c518;'>UPCOMING GIGS</span><span id="ga" style="color:#f5c518;">&#8964;</span>
     </div>
     <div id="hg" style="display:none;"></div>
   </div>
   <div class="card">
     <div class="card-lbl" onclick="toggleCard('hr','ra')" style="color:#fff;">
-      <span style='color:#4a9eff;'>UPCOMING REHEARSALS</span><span id="ra">&#8964;</span>
+      <span style='color:#4a9eff;'>UPCOMING REHEARSALS</span><span id="ra" style="color:#4a9eff;">&#8964;</span>
     </div>
     <div id="hr" style="display:none;"></div>
   </div>
@@ -252,6 +251,14 @@ body.light .mrav{color:#000 !important;}
       <span>BLACKOUT DATES</span><span id="ba">&#8964;</span>
     </div>
     <div id="hbo" style="display:none;"></div>
+  </div>
+  <div style="display:flex;justify-content:center;gap:14px;padding:16px 0 8px;margin-top:6px;">
+    <a href="https://www.instagram.com/outoftimecoverband?igsh=NTc4MTIwNjQ2YQ==" target="_blank" title="Instagram" aria-label="Instagram" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);text-decoration:none;box-shadow:0 0 12px rgba(220,39,67,.3);">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M12 2.2c3.2 0 3.6 0 4.85.07 1.17.05 1.8.25 2.23.42.56.22.96.48 1.38.9.42.42.68.82.9 1.38.17.42.37 1.06.42 2.23.06 1.25.07 1.65.07 4.85s0 3.6-.07 4.85c-.05 1.17-.25 1.8-.42 2.23a3.7 3.7 0 0 1-.9 1.38c-.42.42-.82.68-1.38.9-.42.17-1.06.37-2.23.42-1.25.06-1.65.07-4.85.07s-3.6 0-4.85-.07c-1.17-.05-1.8-.25-2.23-.42a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.17-.42-.37-1.06-.42-2.23-.06-1.25-.07-1.65-.07-4.85s0-3.6.07-4.85c.05-1.17.25-1.8.42-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.17 1.06-.37 2.23-.42C8.4 2.2 8.8 2.2 12 2.2zm0 1.95c-3.15 0-3.52 0-4.75.07-1.07.05-1.65.23-2.04.38-.51.2-.88.44-1.27.83-.39.39-.63.76-.83 1.27-.15.39-.33.97-.38 2.04-.07 1.23-.07 1.6-.07 4.75s0 3.52.07 4.75c.05 1.07.23 1.65.38 2.04.2.51.44.88.83 1.27.39.39.76.63 1.27.83.39.15.97.33 2.04.38 1.23.07 1.6.07 4.75.07s3.52 0 4.75-.07c1.07-.05 1.65-.23 2.04-.38.51-.2.88-.44 1.27-.83.39-.39.63-.76.83-1.27.15-.39.33-.97.38-2.04.07-1.23.07-1.6.07-4.75s0-3.52-.07-4.75c-.05-1.07-.23-1.65-.38-2.04a3.4 3.4 0 0 0-.83-1.27 3.4 3.4 0 0 0-1.27-.83c-.39-.15-.97-.33-2.04-.38-1.23-.07-1.6-.07-4.75-.07zm0 3.32a4.53 4.53 0 1 1 0 9.06 4.53 4.53 0 0 1 0-9.06zm0 1.95a2.58 2.58 0 1 0 0 5.16 2.58 2.58 0 0 0 0-5.16zm5.78-2.16a1.06 1.06 0 1 1-2.12 0 1.06 1.06 0 0 1 2.12 0z" fill="#fff"/></svg>
+    </a>
+    <a href="https://www.facebook.com/profile.php?id=61565057075702&mibextid=ZbWKwL" target="_blank" title="Facebook" aria-label="Facebook" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#1877f2;text-decoration:none;box-shadow:0 0 12px rgba(24,119,242,.3);">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M13.5 21v-7.5h2.55l.38-2.94h-2.93V8.7c0-.85.24-1.43 1.46-1.43h1.55V4.66c-.27-.04-1.19-.12-2.27-.12-2.24 0-3.78 1.37-3.78 3.88v2.16H7.92v2.94h2.54V21h3.04z" fill="#fff"/></svg>
+    </a>
   </div>
 
 </div>
@@ -437,7 +444,7 @@ body.light .mrav{color:#000 !important;}
 
 <div class="ov" id="gig-detail-modal">
   <div class="mo">
-    <div class="moh"><span class="mot" id="gd-title">Gig Details</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('gig-detail-modal')">&#10005;</button></div>
+    <div class="moh" style="position:sticky;top:-18px;background:var(--n2);z-index:5;margin:-18px -14px 12px -14px;padding:14px 14px 10px 14px;border-bottom:1px solid var(--n3);"><span class="mot" id="gd-title">Gig Details</span><button style="background:none;border:none;color:#aaa;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="clM('gig-detail-modal')">&#10005;</button></div>
     <div id="gd-body"></div>
   </div>
 </div>
