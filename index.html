@@ -5607,29 +5607,62 @@ function rBand() {
       detail.appendChild(makeRow('AD','text',m.addr,'City, State','addr'));
       detail.appendChild(makeRow('BD','date',m.bday,'','bday'));
 
-      // ── Remove member ────────────────────────────────────────────
-      var delRow = document.createElement('div');
-      delRow.style.cssText = 'margin-top:14px;display:flex;justify-content:flex-end;';
-      var delBtn = document.createElement('button');
-      delBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:8px;padding:6px 12px;color:#ff4757;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;';
-      delBtn.innerHTML = '<span style="font-size:13px;line-height:1;">&#128465;</span><span>REMOVE MEMBER</span>';
-      delBtn.onclick = (function(mem){ return function(){
-        if(mem.id===ME){
-          toast("Can't remove yourself — ask another member.", {tone:'error', duration:3500});
-          return;
-        }
-        appConfirm({
-          title: 'Remove ' + mem.name + '?',
-          message: 'They\'ll come off the roster shown in the app. Their messages and contributions stay.'
-        }).then(function(ok){
-          if(ok){
-            deleteMember(mem.id, mem.name);
-            toast(mem.name + ' removed', {tone:'success'});
+      // ── Member options (kebab) ────────────────────────────────
+      var optsRow = document.createElement('div');
+      optsRow.style.cssText = 'margin-top:10px;display:flex;justify-content:flex-end;position:relative;';
+      var kebab = document.createElement('button');
+      kebab.type = 'button';
+      kebab.title = 'More options';
+      kebab.style.cssText = 'background:transparent;border:none;color:#4a6a9a;font-size:18px;cursor:pointer;padding:4px 8px;line-height:1;border-radius:6px;touch-action:manipulation;';
+      kebab.innerHTML = '&#8942;'; // ⋮
+      kebab.onclick = (function(mem, anchorEl){ return function(ev){
+        ev.stopPropagation();
+        // Close any existing menu
+        var existing = document.getElementById('member-opts-popup');
+        if(existing){ existing.remove(); return; }
+        var pop = document.createElement('div');
+        pop.id = 'member-opts-popup';
+        pop.style.cssText = 'position:absolute;right:0;top:32px;background:#0a1628;border:1px solid #1a3a8a;border-radius:8px;padding:4px;min-width:180px;box-shadow:0 8px 20px rgba(0,0,0,.55);z-index:5;';
+        var rm = document.createElement('button');
+        rm.type = 'button';
+        rm.style.cssText = 'display:flex;align-items:center;gap:8px;background:transparent;border:none;color:#ff8a99;font-size:12px;padding:8px 12px;width:100%;text-align:left;border-radius:6px;cursor:pointer;font-family:\'Exo 2\',sans-serif;touch-action:manipulation;';
+        rm.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#ff8a99" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path></svg><span>Remove from band</span>';
+        rm.onmouseover = function(){ this.style.background = 'rgba(255,71,87,.10)'; };
+        rm.onmouseout = function(){ this.style.background = 'transparent'; };
+        rm.onclick = function(ev2){
+          ev2.stopPropagation();
+          pop.remove();
+          if(mem.id===ME){
+            toast("Can't remove yourself — ask another member.", {tone:'error', duration:3500});
+            return;
           }
-        });
-      }; })(m);
-      delRow.appendChild(delBtn);
-      detail.appendChild(delRow);
+          appConfirm({
+            title: 'Remove ' + mem.name + '?',
+            message: 'They\'ll come off the roster shown in the app. Their messages and contributions stay.'
+          }).then(function(ok){
+            if(ok){
+              deleteMember(mem.id, mem.name);
+              toast(mem.name + ' removed', {tone:'success'});
+            }
+          });
+        };
+        pop.appendChild(rm);
+        anchorEl.parentNode.appendChild(pop);
+        // Click-away to close
+        setTimeout(function(){
+          var dismiss = function(e){
+            if(!pop.contains(e.target)){
+              pop.remove();
+              document.removeEventListener('click', dismiss, true);
+              document.removeEventListener('touchstart', dismiss, true);
+            }
+          };
+          document.addEventListener('click', dismiss, true);
+          document.addEventListener('touchstart', dismiss, true);
+        }, 0);
+      }; })(m, kebab);
+      optsRow.appendChild(kebab);
+      detail.appendChild(optsRow);
 
       card.appendChild(detail);
     }
