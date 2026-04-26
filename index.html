@@ -5307,16 +5307,14 @@ function rChatThreads(){
     if(!isBand){
       var memberObj = members.find(function(mm){ return String(mm.id)===String(t.id); });
       if(memberObj){
-        threadInstrIcon = '<span style="display:inline-flex;align-items:center;flex-shrink:0;">'+instrumentIconSvg(memberObj)+'</span>';
+        threadInstrIcon = '<span style="display:inline-flex;align-items:center;flex-shrink:0;margin-left:14px;">'+instrumentIconSvg(memberObj)+'</span>';
       }
     }
     info.innerHTML=
       '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">'+
-        '<span style="display:inline-flex;align-items:center;gap:6px;min-width:0;flex:1;">'+
-          '<span style="font-size:15px;font-weight:'+(unread?'700':'600')+';font-family:Russo One,sans-serif;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'+nameGradStyle(t.color)+'">'+t.name+'</span>'+
-          threadInstrIcon+
-        '</span>'+
-        (lastMsg?'<span style="font-size:10px;color:#4a6a9a;flex-shrink:0;">'+lastMsg.time+'</span>':'')+
+        '<span style="font-size:15px;font-weight:'+(unread?'700':'600')+';font-family:Russo One,sans-serif;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;'+nameGradStyle(t.color)+'">'+t.name+'</span>'+
+        threadInstrIcon+
+        (lastMsg?'<span style="font-size:10px;color:#4a6a9a;flex-shrink:0;margin-left:10px;">'+lastMsg.time+'</span>':'')+
       '</div>'+
       '<div style="font-size:12px;color:'+(unread?'#e8f0ff':'#4a6a9a')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;'+(lastMsg?'':'font-style:italic;')+'">'+
         preview+
@@ -5565,12 +5563,11 @@ function rBand() {
       : '';
     header.innerHTML =
       '<div class="avmd" style="background:'+richGrad(m.color)+';width:34px;height:34px;font-size:12px;flex-shrink:0;box-shadow:0 0 14px '+m.color+'55, inset 0 -2px 6px rgba(0,0,0,.2);font-family:Russo One,sans-serif;">'+m.av+'</div>'+
-      '<div style="flex:1;min-width:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+
-        '<span style="font-size:14px;font-weight:700;'+nameGradStyle(m.color)+'">'+m.name+'</span>'+
+      '<div style="flex:1;min-width:0;display:flex;align-items:center;gap:6px;">'+
+        '<span style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'+nameGradStyle(m.color)+'">'+m.name+'</span>'+
         bdayBadge+
-        '<span style="display:inline-block;width:3px;height:3px;border-radius:50%;background:#4a6a9a;flex-shrink:0;"></span>'+
-        '<span style="display:inline-flex;align-items:center;gap:6px;flex-shrink:0;">'+instrumentIconSvg(m)+'<span style="font-size:12px;color:#4a9eff;font-family:Russo One,sans-serif;letter-spacing:.5px;">'+m.inst+'</span></span>'+
       '</div>'+
+      '<span style="display:inline-flex;align-items:center;gap:6px;flex-shrink:0;margin-left:14px;margin-right:10px;">'+instrumentIconSvg(m)+'<span style="font-size:12px;color:#4a9eff;font-family:Russo One,sans-serif;letter-spacing:.5px;">'+m.inst+'</span></span>'+
       '<span style="color:#4a9eff;font-size:14px;flex-shrink:0;">'+(isOpen?'&#8963;':'&#8964;')+'</span>';
     header.setAttribute('data-mid', m.id);
     header.onclick = function(){
