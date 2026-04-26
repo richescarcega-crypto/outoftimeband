@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "e06e94e9-9159-4218-a2e0-50a9ea8d9138",
+      });
+    });
+  </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1084,96 +1093,92 @@ function _subDocId(memberName, endpoint){
 }
 
 function registerServiceWorker(){
-  if(!('serviceWorker' in navigator)) return Promise.reject(new Error('no sw'));
-  return navigator.serviceWorker.register('sw.js');
+  // OneSignal SDK registers its own service worker (OneSignalSDKWorker.js)
+  return Promise.resolve();
 }
 
  function subscribeForPush(){
       if(!pushSupported()) return Promise.reject(new Error('push not supported'));
-      return Notification.requestPermission().then(function(perm){
-        if(perm !== 'granted') throw new Error('permission denied');
-        return navigator.serviceWorker.ready;
-      }).then(function(reg){
-        return reg.pushManager.getSubscription().then(function(existing){
-          if(existing) return existing;
-          return reg.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlB64ToUint8Array(VAPID_PUBLIC_KEY)
+      return new Promise(function(resolve, reject){
+        try {
+          window.OneSignalDeferred = window.OneSignalDeferred || [];
+          window.OneSignalDeferred.push(async function(OneSignal){
+            try {
+              // Show OneSignal's permission prompt
+              await OneSignal.Notifications.requestPermission();
+              var permGranted = OneSignal.Notifications.permission;
+              if(!permGranted){
+                reject(new Error('permission denied'));
+                return;
+              }
+              // Tag this subscription with our member id so we can target DMs
+              if(myName){
+                try { await OneSignal.login(String(ME)); } catch(e){}
+                try { await OneSignal.User.addAlias('external_id', String(ME)); } catch(e){}
+                try { await OneSignal.User.addTag('member_id', String(ME)); } catch(e){}
+                try { await OneSignal.User.addTag('member_name', myName); } catch(e){}
+              }
+              try { localStorage.setItem('oot_push_subscribed','1'); } catch(e){}
+              resolve(true);
+            } catch(err){
+              reject(err);
+            }
           });
-        });
-      }).then(function(sub){
-        var subJson = _subToJSON(sub);
-        return _subDocId(myName, subJson.endpoint).then(function(docId){
-          return db.collection('pushsubs').doc(docId).set({
-            member: myName,
-            memberId: ME,
-            endpoint: subJson.endpoint,
-            keys: subJson.keys,
-            updated: firebase.firestore.FieldValue.serverTimestamp()
-          }).then(function(){
-            try { localStorage.setItem('oot_push_subscribed','1'); } catch(e){}
-            return sub;
-          });
-        });
+        } catch(e){ reject(e); }
       });
     }
 
     function unsubscribeFromPush(){
-      if(!('serviceWorker' in navigator)) return Promise.resolve();
-      return navigator.serviceWorker.ready.then(function(reg){
-        return reg.pushManager.getSubscription();
-      }).then(function(sub){
-        if(!sub) { try{ localStorage.setItem('oot_push_subscribed','0'); }catch(e){} return; }
-        var endpoint = sub.endpoint;
-        return sub.unsubscribe().then(function(){
-          return _subDocId(myName, endpoint).then(function(docId){
-            return db.collection('pushsubs').doc(docId).delete().catch(function(){});
+      return new Promise(function(resolve){
+        try {
+          window.OneSignalDeferred = window.OneSignalDeferred || [];
+          window.OneSignalDeferred.push(async function(OneSignal){
+            try { await OneSignal.User.PushSubscription.optOut(); } catch(e){}
+            try { localStorage.setItem('oot_push_subscribed','0'); } catch(e){}
+            resolve();
           });
-        });
-      }).then(function(){
-        try { localStorage.setItem('oot_push_subscribed','0'); } catch(e){}
-      }).catch(function(){});
+        } catch(e){
+          try { localStorage.setItem('oot_push_subscribed','0'); } catch(e2){}
+          resolve();
+        }
+      });
     } 
 
 function notifyBand(category, title, message, url, opts){
   try {
     opts = opts || {};
     // Non-blocking; all errors swallowed.
-    Promise.all([
-      db.collection('pushsubs').get(),
-      db.collection('notifprefs').get()
-    ]).then(function(res){
-      var subsSnap = res[0], prefsSnap = res[1];
+    db.collection('notifprefs').get().then(function(prefsSnap){
       var prefsByMember = {};
       prefsSnap.forEach(function(d){ prefsByMember[d.id] = d.data() || {}; });
-      var subs = [];
-      subsSnap.forEach(function(d){
-        var data = d.data() || {};
-        var member = data.member;
-        if(!member) return;
-        // Exclude sender
-        if(member === myName) return;
-        // DM: only notify the targeted member
-        if(opts.targetMemberId){
-          var target = gM(opts.targetMemberId);
-          if(!target || target.id !== data.memberId) return;
-        }
-        // Respect per-category opt-out; default true if no prefs doc
-        var p = prefsByMember[member];
+      var payload = {
+        title: title,
+        message: message,
+        url: url || 'https://richescarcega-crypto.github.io/outoftimeband/'
+      };
+      if(opts.targetMemberId){
+        // DM: notify only the targeted member, if not opted out
+        var target = gM(opts.targetMemberId);
+        if(!target) return;
+        var p = prefsByMember[target.name];
         if(p && p[category] === false) return;
-if(!data.endpoint || !data.keys) return;
-        subs.push({ endpoint: data.endpoint, keys: data.keys });
-      });
-      if(!subs.length) return;
+        payload.targetExternalIds = [String(target.id)];
+      } else {
+        // Broadcast: build allow-list of members who haven't opted out (excluding sender)
+        var allowedIds = [];
+        members.forEach(function(m){
+          if(m.id === ME) return;
+          var p = prefsByMember[m.name];
+          if(p && p[category] === false) return;
+          allowedIds.push(String(m.id));
+        });
+        if(!allowedIds.length) return;
+        payload.targetExternalIds = allowedIds;
+      }
       return fetch(PUSH_WORKER_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-subscriptions: subs,
-          title: title,
-          message: message,
-          url: url || '/'
-        })
+        body: JSON.stringify(payload)
       });
     }).catch(function(){});
   } catch(e){}
@@ -1830,15 +1835,27 @@ function initApp() {
   listenNotifPrefs();
   rTabBadges();
   if(pushSupported()){
-    registerServiceWorker().then(function(){
-      var subscribedFlag = localStorage.getItem('oot_push_subscribed');
-      if(subscribedFlag === '1' && typeof Notification !== 'undefined' && Notification.permission === 'granted'){
-        // Re-sync in case the browser dropped the subscription
-        subscribeForPush().catch(function(){});
-      } else if(Notification.permission === 'default' && !localStorage.getItem('oot_push_prompted')){
-        setTimeout(showSoftPushPrompt, 2500);
-      }
-    }).catch(function(){});
+    // OneSignal init: tag returning subscribers with their member id
+    try {
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      window.OneSignalDeferred.push(async function(OneSignal){
+        try {
+          var optedIn = false;
+          try { optedIn = !!(OneSignal.User && OneSignal.User.PushSubscription && OneSignal.User.PushSubscription.optedIn); } catch(e){}
+          if(optedIn){
+            try { await OneSignal.login(String(ME)); } catch(e){}
+            try { await OneSignal.User.addTag('member_id', String(ME)); } catch(e){}
+            try { await OneSignal.User.addTag('member_name', myName); } catch(e){}
+            try { localStorage.setItem('oot_push_subscribed','1'); } catch(e){}
+          } else {
+            try { localStorage.setItem('oot_push_subscribed','0'); } catch(e){}
+            if(typeof Notification !== 'undefined' && Notification.permission === 'default' && !localStorage.getItem('oot_push_prompted')){
+              setTimeout(showSoftPushPrompt, 2500);
+            }
+          }
+        } catch(e){}
+      });
+    } catch(e){}
   }
 }
 
