@@ -336,7 +336,7 @@ body.light .mrav{color:#000 !important;}
     <span onclick="toggleCard('evl','evl-arrow')" style="cursor:pointer;display:flex;align-items:center;gap:6px;flex:1;"><span class="tt-gold" style="font-size:12px;letter-spacing:2px;font-family:'Russo One',sans-serif;">ALL EVENTS</span><span id="evl-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span></span>
     <button onclick="exportData('events')" class="pill-action"><span style="font-size:11px;line-height:1;">&#8679;</span><span>SHARE</span></button>
   </div>
-  <div id="evl-filter-row" style="display:none;flex-wrap:wrap;gap:6px;margin:6px 0 8px;"></div>
+  <div id="evl-filter-row" style="display:none;margin:6px 0 8px;"></div>
   <div id="evl"></div>
 
 
@@ -2848,6 +2848,10 @@ function toggleCard(contentId, arrowId) {
     var addBtn = document.getElementById('contacts-add-btn');
     if(addBtn) addBtn.style.display = cardStates[contentId] ? 'none' : 'block';
   }
+  // Special case - All Events: re-render so filter row updates correctly on expand/collapse
+  if(contentId === 'evl' && typeof rEvL === 'function'){
+    rEvL();
+  }
 }
 
 // HOME
@@ -3334,26 +3338,130 @@ var EVL_FILTER_LABELS = [
   {key:'custom',    label:'Custom',     color:'#06d6a0'}
 ];
 
+// Tracks whether the filter dropdown panel is open
+var _evlFilterOpen = false;
+
+function _evlActiveCount(){
+  var n = 0;
+  EVL_FILTER_LABELS.forEach(function(x){ if(_evlFilters[x.key]) n++; });
+  return n;
+}
+
+function _toggleEvlFilterDropdown(){
+  _evlFilterOpen = !_evlFilterOpen;
+  _renderEvlFilterRow();
+}
+
+function _closeEvlFilterDropdown(){
+  if(_evlFilterOpen){
+    _evlFilterOpen = false;
+    _renderEvlFilterRow();
+  }
+}
+
+// Outside-click handler installed once
+if(typeof _evlOutsideHandlerInstalled === 'undefined'){
+  var _evlOutsideHandlerInstalled = true;
+  document.addEventListener('click', function(ev){
+    if(!_evlFilterOpen) return;
+    var host = document.getElementById('evl-filter-row');
+    if(!host) return;
+    if(host.contains(ev.target)) return;
+    _closeEvlFilterDropdown();
+  });
+}
+
 function _renderEvlFilterRow(){
   var host = document.getElementById('evl-filter-row');
   if(!host) return;
   host.innerHTML = '';
+  host.style.position = 'relative';
+
+  var activeCount = _evlActiveCount();
+  var totalCount = EVL_FILTER_LABELS.length;
+  var allOn = activeCount === totalCount;
+
+  // The FILTER pill button
+  var pill = document.createElement('button');
+  pill.type = 'button';
+  var pillBg = _evlFilterOpen ? 'rgba(74,158,255,.15)' : (allOn ? 'transparent' : 'rgba(245,197,24,.10)');
+  var pillBorder = _evlFilterOpen ? '#4a9eff' : (allOn ? '#1a3a8a' : '#f5c518');
+  var pillColor = _evlFilterOpen ? '#4a9eff' : (allOn ? '#4a9eff' : '#f5c518');
+  pill.style.cssText = 'background:'+pillBg+';border:1px solid '+pillBorder+';border-radius:14px;padding:5px 12px;color:'+pillColor+';font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation;';
+  var caret = _evlFilterOpen ? '&#9652;' : '&#9662;';
+  var countLabel = allOn ? '' : ' ('+activeCount+'/'+totalCount+')';
+  pill.innerHTML = '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="'+pillColor+'" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>'+
+    '<span>FILTER'+countLabel+'</span>'+
+    '<span style="font-size:11px;color:'+pillColor+';">'+caret+'</span>';
+  pill.onclick = function(ev){ ev.stopPropagation(); _toggleEvlFilterDropdown(); };
+  host.appendChild(pill);
+
+  if(!_evlFilterOpen) return;
+
+  // Dropdown panel
+  var panel = document.createElement('div');
+  panel.style.cssText = 'position:absolute;top:100%;left:0;margin-top:6px;background:#0a1628;border:1px solid #1a3a8a;border-radius:10px;padding:8px;min-width:200px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.5);';
+  panel.onclick = function(ev){ ev.stopPropagation(); };
+
+  // Select All / Clear row
+  var actions = document.createElement('div');
+  actions.style.cssText = 'display:flex;gap:6px;padding-bottom:6px;border-bottom:1px solid #0d1f3a;margin-bottom:6px;';
+  var selAll = document.createElement('button');
+  selAll.type = 'button';
+  selAll.style.cssText = 'flex:1;background:transparent;border:1px solid #1a3a8a;border-radius:6px;padding:5px 6px;color:#4a9eff;font-family:\'Russo One\',sans-serif;font-size:8px;letter-spacing:.8px;cursor:pointer;touch-action:manipulation;';
+  selAll.textContent = 'SELECT ALL';
+  selAll.onclick = function(){
+    EVL_FILTER_LABELS.forEach(function(f){ _evlFilters[f.key] = true; });
+    _renderEvlFilterRow();
+    rEvL();
+  };
+  var clr = document.createElement('button');
+  clr.type = 'button';
+  clr.style.cssText = 'flex:1;background:transparent;border:1px solid #1a3a8a;border-radius:6px;padding:5px 6px;color:#8aa8d6;font-family:\'Russo One\',sans-serif;font-size:8px;letter-spacing:.8px;cursor:pointer;touch-action:manipulation;';
+  clr.textContent = 'CLEAR';
+  clr.onclick = function(){
+    // Turn all off, but force the first one back on so the list isn't empty
+    EVL_FILTER_LABELS.forEach(function(f){ _evlFilters[f.key] = false; });
+    _evlFilters[EVL_FILTER_LABELS[0].key] = true;
+    _renderEvlFilterRow();
+    rEvL();
+  };
+  actions.appendChild(selAll);
+  actions.appendChild(clr);
+  panel.appendChild(actions);
+
+  // Checkbox rows
   EVL_FILTER_LABELS.forEach(function(f){
     var on = !!_evlFilters[f.key];
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.style.cssText = 'background:'+(on?f.color+'22':'transparent')+';border:1px solid '+(on?f.color:'#1a3a8a')+';border-radius:14px;padding:4px 10px;color:'+(on?f.color:'#4a6a9a')+';font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;touch-action:manipulation;';
-    btn.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+f.color+';opacity:'+(on?'1':'.5')+';"></span>'+f.label.toUpperCase();
-    btn.onclick = (function(k){ return function(){
+    var row = document.createElement('label');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 4px;cursor:pointer;touch-action:manipulation;';
+    var box = document.createElement('span');
+    box.style.cssText = 'width:16px;height:16px;border:1.5px solid '+(on?f.color:'#1a3a8a')+';border-radius:3px;background:'+(on?f.color:'transparent')+';display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;';
+    if(on){
+      box.innerHTML = '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#060e1c" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+    }
+    var dot = document.createElement('span');
+    dot.style.cssText = 'width:8px;height:8px;border-radius:50%;background:'+f.color+';opacity:'+(on?'1':'.4')+';flex-shrink:0;';
+    var lbl = document.createElement('span');
+    lbl.style.cssText = 'font-size:13px;color:'+(on?'#e8f0ff':'#8aa8d6')+';';
+    lbl.textContent = f.label;
+    row.appendChild(box);
+    row.appendChild(dot);
+    row.appendChild(lbl);
+    row.onclick = (function(k){ return function(ev){
+      ev.preventDefault();
       _evlFilters[k] = !_evlFilters[k];
-      // If user turns everything off, turn the clicked one back on so list isn't empty
+      // If user turns everything off, turn this one back on so list isn't empty
       var anyOn = false;
       EVL_FILTER_LABELS.forEach(function(x){ if(_evlFilters[x.key]) anyOn = true; });
       if(!anyOn) _evlFilters[k] = true;
+      _renderEvlFilterRow();
       rEvL();
     }; })(f.key);
-    host.appendChild(btn);
+    panel.appendChild(row);
   });
+
+  host.appendChild(panel);
 }
 
 function _customEntriesAsRows(){
@@ -3406,7 +3514,7 @@ function rEvL(){
   var filterRow = document.getElementById('evl-filter-row');
   var collapsed = !!cardStates['evl'];
   if(evlEl) evlEl.style.display = collapsed ? 'none' : 'block';
-  if(filterRow) filterRow.style.display = collapsed ? 'none' : 'flex';
+  if(filterRow) filterRow.style.display = collapsed ? 'none' : 'block';
   if(evlAr) evlAr.innerHTML = '&#8964;';
   if(!collapsed) _renderEvlFilterRow();
 
