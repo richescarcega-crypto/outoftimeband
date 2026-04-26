@@ -2576,6 +2576,16 @@ function showEmojiPicker(msgId){
       deleteChatMessage(msgId);
     };
     picker.appendChild(del);
+    // SELECT button — enters multi-select mode with this message pre-selected
+    var sel = document.createElement('button');
+    sel.style.cssText = 'background:none;border:none;color:#4a9eff;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:2px 4px;';
+    sel.innerHTML = '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#4a9eff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span>SELECT</span>';
+    sel.setAttribute('title','Select multiple to delete');
+    sel.onclick = function(){
+      picker.remove();
+      _enterSelectMode(msgId);
+    };
+    picker.appendChild(sel);
   }
   var msgEl = document.getElementById('msg-'+msgId);
   if(msgEl) msgEl.appendChild(picker);
@@ -5235,7 +5245,7 @@ function rChat() {
   while(el.firstChild) el.removeChild(el.firstChild);
   if(!filtered.length){
     var empty=document.createElement('div');
-    empty.style.cssText='text-align:center;color:#4a6a9a;font-size:13px;padding:30px 0;';
+    empty.style.cssText='text-align:center;color:#8aa8d6;font-size:13px;padding:30px 0;';
     empty.textContent=chatTo==='band'?'No band messages yet. Say something! 🎸':'No messages yet. Start the conversation!';
     el.appendChild(empty);
     return;
