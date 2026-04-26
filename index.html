@@ -2564,31 +2564,89 @@ function showEmojiPicker(msgId){
     btn.onclick=function(){ toggleReaction(msgId,e); picker.remove(); };
     picker.appendChild(btn);
   });
+  // Always add separator + actions row
+  var sep = document.createElement('span');
+  sep.style.cssText = 'width:1px;align-self:stretch;background:#1a3a8a;margin:0 2px;';
+  picker.appendChild(sep);
   if(canDelete){
-    var sep = document.createElement('span');
-    sep.style.cssText = 'width:1px;align-self:stretch;background:#1a3a8a;margin:0 2px;';
-    picker.appendChild(sep);
+    // Own message → DELETE (for everyone)
     var del = document.createElement('button');
     del.style.cssText = 'background:none;border:none;color:#ff4757;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:2px 4px;';
     del.innerHTML = '<span style="font-size:13px;line-height:1;">&#128465;</span><span>DELETE</span>';
+    del.setAttribute('title','Delete for everyone');
     del.onclick = function(){
       picker.remove();
       deleteChatMessage(msgId);
     };
     picker.appendChild(del);
-    // SELECT button — enters multi-select mode with this message pre-selected
-    var sel = document.createElement('button');
-    sel.style.cssText = 'background:none;border:none;color:#4a9eff;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:2px 4px;';
-    sel.innerHTML = '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#4a9eff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span>SELECT</span>';
-    sel.setAttribute('title','Select multiple to delete');
-    sel.onclick = function(){
+  } else {
+    // Others' message → HIDE (for me only)
+    var hide = document.createElement('button');
+    hide.style.cssText = 'background:none;border:none;color:#ffa500;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:2px 4px;';
+    hide.innerHTML = '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#ffa500" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg><span>HIDE</span>';
+    hide.setAttribute('title','Hide this message from your view only');
+    hide.onclick = function(){
       picker.remove();
-      _enterSelectMode(msgId);
+      appConfirm({
+        title: 'Hide this message?',
+        message: 'It will be removed from your view only. Other band members will still see it.'
+      }).then(function(ok){
+        if(!ok) return;
+        _hideMsgForMe(msgId);
+        toast('Message hidden', {tone:'success'});
+        rChat();
+      });
     };
-    picker.appendChild(sel);
+    picker.appendChild(hide);
   }
+  // SELECT button — works for both own and others' messages
+  var sel = document.createElement('button');
+  sel.style.cssText = 'background:none;border:none;color:#4a9eff;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:2px 4px;';
+  sel.innerHTML = '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#4a9eff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span>SELECT</span>';
+  sel.setAttribute('title','Select multiple to delete or hide');
+  sel.onclick = function(){
+    picker.remove();
+    _enterSelectMode(msgId);
+  };
+  picker.appendChild(sel);
   var msgEl = document.getElementById('msg-'+msgId);
   if(msgEl) msgEl.appendChild(picker);
+}
+
+// ── Hide messages for me only (local-only "delete for me") ──────────
+// Stores message IDs hidden by this user in localStorage. Does not affect
+// other users' views. Cleared only via localStorage; not synced across devices.
+var _hiddenMsgs = (function(){
+  try {
+    var raw = localStorage.getItem('oot_hidden_msgs');
+    if(!raw) return {};
+    var arr = JSON.parse(raw);
+    if(!Array.isArray(arr)) return {};
+    var m = {};
+    arr.forEach(function(id){ m[String(id)] = true; });
+    return m;
+  } catch(e){ return {}; }
+})();
+
+function _isHiddenForMe(msgId){
+  return !!_hiddenMsgs[String(msgId)];
+}
+
+function _saveHiddenMsgs(){
+  try {
+    var arr = Object.keys(_hiddenMsgs);
+    localStorage.setItem('oot_hidden_msgs', JSON.stringify(arr));
+  } catch(e){}
+}
+
+function _hideMsgForMe(msgId){
+  _hiddenMsgs[String(msgId)] = true;
+  _saveHiddenMsgs();
+}
+
+function _hideMsgsForMe(ids){
+  ids.forEach(function(id){ _hiddenMsgs[String(id)] = true; });
+  _saveHiddenMsgs();
 }
 
 // ── Chat selection mode ──────────────────────────────────────────────
@@ -2629,10 +2687,10 @@ function _exitSelectMode(){
 function _toggleSelected(msgId){
   if(!_chatSelectMode) return;
   var msg = msgs.find(function(m){ return String(m.id) === String(msgId); });
-  if(!msg || msg.who !== ME) return; // can only select your own
+  if(!msg) return;
+  // Allow selecting any message — own = delete for everyone, others = hide for me
   var k = String(msgId);
   if(_chatSelected[k]) delete _chatSelected[k]; else _chatSelected[k] = true;
-  // If we just deselected the last one, exit selection mode entirely
   if(Object.keys(_chatSelected).length === 0){
     _exitSelectMode();
     return;
@@ -2659,24 +2717,52 @@ function _selectAllMine(){
 function _deleteSelected(){
   var ids = Object.keys(_chatSelected);
   if(!ids.length) return;
+  // Split selected by ownership
+  var mineIds = [], othersIds = [];
+  ids.forEach(function(id){
+    var msg = msgs.find(function(m){ return String(m.id) === String(id); });
+    if(!msg) return;
+    if(msg.who === ME) mineIds.push(id); else othersIds.push(id);
+  });
+  // Build a confirmation message that matches the action
+  var lines = [];
+  if(mineIds.length){
+    lines.push(mineIds.length + ' message' + (mineIds.length===1?'':'s') + ' will be deleted for everyone.');
+  }
+  if(othersIds.length){
+    lines.push(othersIds.length + ' message' + (othersIds.length===1?'':'s') + ' from others will be hidden for you only.');
+  }
   appConfirm({
-    title: 'Delete '+ids.length+' message'+(ids.length===1?'':'s')+'?',
-    message: 'They will be removed for everyone in the band. This cannot be undone.'
+    title: 'Confirm action?',
+    message: lines.join(' ')
   }).then(function(ok){
     if(!ok) return;
-    var batch = db.batch();
-    ids.forEach(function(id){
-      batch.delete(db.collection('messages').doc(String(id)));
-      batch.delete(db.collection('reactions').doc(String(id)));
-    });
-    batch.commit()
-      .then(function(){
-        toast(ids.length+' message'+(ids.length===1?'':'s')+' deleted', {tone:'success'});
-        _exitSelectMode();
-      })
-      .catch(function(){
-        toast('Could not delete messages', {tone:'error'});
+    // Hide others-locally (no db calls)
+    if(othersIds.length){
+      _hideMsgsForMe(othersIds);
+    }
+    // Delete own-from-db (batch)
+    if(mineIds.length){
+      var batch = db.batch();
+      mineIds.forEach(function(id){
+        batch.delete(db.collection('messages').doc(String(id)));
+        batch.delete(db.collection('reactions').doc(String(id)));
       });
+      batch.commit()
+        .then(function(){
+          var msg = '';
+          if(mineIds.length) msg += mineIds.length+' deleted';
+          if(othersIds.length) msg += (msg?' · ':'')+othersIds.length+' hidden';
+          toast(msg, {tone:'success'});
+          _exitSelectMode();
+        })
+        .catch(function(){
+          toast('Could not delete messages', {tone:'error'});
+        });
+    } else {
+      toast(othersIds.length+' message'+(othersIds.length===1?'':'s')+' hidden', {tone:'success'});
+      _exitSelectMode();
+    }
   });
 }
 
@@ -2710,6 +2796,31 @@ function _renderChatSelectionHeader(){
     var c = document.getElementById('chat-sel-count');
     if(c) c.textContent = n + ' SELECTED';
     selHdr.style.display = 'flex';
+    // Update DELETE/HIDE/REMOVE button label based on selection composition
+    var dBtn = document.getElementById('chat-sel-delete');
+    if(dBtn){
+      var hasMine = false, hasOthers = false;
+      Object.keys(_chatSelected).forEach(function(id){
+        var msg = msgs.find(function(m){ return String(m.id) === String(id); });
+        if(!msg) return;
+        if(msg.who === ME) hasMine = true; else hasOthers = true;
+      });
+      var label, fg, bg, bd, iconStroke;
+      if(hasMine && !hasOthers){
+        label = 'DELETE'; fg = '#ff4757'; bg = 'rgba(255,71,87,.18)'; bd = '#ff4757'; iconStroke = '#ff4757';
+      } else if(!hasMine && hasOthers){
+        label = 'HIDE'; fg = '#ffa500'; bg = 'rgba(255,165,0,.18)'; bd = '#ffa500'; iconStroke = '#ffa500';
+      } else {
+        label = 'REMOVE'; fg = '#ff4757'; bg = 'rgba(255,71,87,.18)'; bd = '#ff4757'; iconStroke = '#ff4757';
+      }
+      dBtn.style.background = bg;
+      dBtn.style.borderColor = bd;
+      dBtn.style.color = fg;
+      var iconSvg = (label === 'HIDE')
+        ? '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="'+iconStroke+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
+        : '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="'+iconStroke+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path></svg>';
+      dBtn.innerHTML = iconSvg + '<span>'+label+'</span>';
+    }
   } else {
     if(normalHdr) normalHdr.style.display = 'flex';
     if(selHdr) selHdr.style.display = 'none';
@@ -2718,7 +2829,7 @@ function _renderChatSelectionHeader(){
 
 // Long-press detection helpers
 function _bindLongPress(el, msgId, isMe){
-  if(!isMe) return; // only long-press on own messages
+  // Long-press works on any message (own → delete, others → hide-for-me)
   var startX, startY;
   var onStart = function(ev){
     _longPressMoved = false;
@@ -5238,6 +5349,7 @@ function rChat() {
   var el=document.getElementById('cmsgs');
   if(!el) return;
   var filtered = msgs.filter(function(m){
+    if(_isHiddenForMe(m.id)) return false;
     var mWho=String(m.who), mTo=String(m.to||'band'), meStr=String(ME), toStr=String(chatTo);
     if(chatTo==='band') return mTo==='band'||mTo==='undefined'||mTo==='null'||!m.to;
     return (mWho===meStr&&mTo===toStr)||(mWho===toStr&&mTo===meStr);
@@ -5321,20 +5433,23 @@ function rChat() {
       }
       showEmojiPicker(m.id);
     };
-    // Long-press to enter selection mode (own messages only)
-    if(isMe){ _bindLongPress(bub, m.id, true); }
-    // In selection mode, highlight selected own bubbles
-    if(_chatSelectMode && isMe && _chatSelected[String(m.id)]){
-      bub.style.border = '2px solid #ff4757';
-      bub.style.boxShadow = '0 0 14px rgba(255,71,87,.45)';
+    // Long-press to enter selection mode (any message — own → delete, others → hide)
+    _bindLongPress(bub, m.id, true);
+    // In selection mode, highlight selected bubbles (red for own, orange for others)
+    if(_chatSelectMode && _chatSelected[String(m.id)]){
+      var glowColor = isMe ? '#ff4757' : '#ffa500';
+      var glowRgba = isMe ? 'rgba(255,71,87,.45)' : 'rgba(255,165,0,.45)';
+      bub.style.border = '2px solid '+glowColor;
+      bub.style.boxShadow = '0 0 14px '+glowRgba;
     }
-    // In selection mode, attach a checkbox affordance for own messages
-    if(_chatSelectMode && isMe){
+    // In selection mode, attach a checkbox affordance for ALL messages
+    if(_chatSelectMode){
       var cbWrap = document.createElement('div');
       cbWrap.style.cssText = 'display:flex;align-items:center;'+(isMe?'flex-direction:row-reverse;':'')+'gap:8px;width:100%;';
       var cb = document.createElement('div');
       var checked = !!_chatSelected[String(m.id)];
-      cb.style.cssText = 'width:22px;height:22px;border-radius:50%;border:2px solid #ff4757;background:'+(checked?'#ff4757':'transparent')+';display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;align-self:center;';
+      var cbColor = isMe ? '#ff4757' : '#ffa500';
+      cb.style.cssText = 'width:22px;height:22px;border-radius:50%;border:2px solid '+cbColor+';background:'+(checked?cbColor:'transparent')+';display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;align-self:center;';
       if(checked){
         cb.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
       }
