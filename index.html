@@ -2702,11 +2702,28 @@ function _toggleSelected(msgId){
 function _selectAllMine(){
   if(!_chatSelectMode) return;
   msgs.forEach(function(m){
+    if(_isHiddenForMe(m.id)) return;
     var mWho=String(m.who), mTo=String(m.to||'band'), meStr=String(ME), toStr=String(chatTo);
     var inThread = (chatTo==='band')
       ? (mTo==='band'||mTo==='undefined'||mTo==='null'||!m.to)
       : ((mWho===meStr&&mTo===toStr)||(mWho===toStr&&mTo===meStr));
     if(inThread && m.who === ME){
+      _chatSelected[String(m.id)] = true;
+    }
+  });
+  _renderChatSelectionHeader();
+  rChat();
+}
+
+function _selectAll(){
+  if(!_chatSelectMode) return;
+  msgs.forEach(function(m){
+    if(_isHiddenForMe(m.id)) return;
+    var mWho=String(m.who), mTo=String(m.to||'band'), meStr=String(ME), toStr=String(chatTo);
+    var inThread = (chatTo==='band')
+      ? (mTo==='band'||mTo==='undefined'||mTo==='null'||!m.to)
+      : ((mWho===meStr&&mTo===toStr)||(mWho===toStr&&mTo===meStr));
+    if(inThread){
       _chatSelected[String(m.id)] = true;
     }
   });
@@ -2781,15 +2798,17 @@ function _renderChatSelectionHeader(){
       selHdr.id = 'chat-sel-header';
       selHdr.style.cssText = 'padding:10px 12px;background:linear-gradient(135deg,#ff475740 0%,#1f3a6e 75%);border-bottom:1px solid #0d1f3a;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;';
       selHdr.innerHTML =
-        '<button id="chat-sel-cancel" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:5px 11px;color:#e8f0ff;font-family:\'Russo One\',sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;touch-action:manipulation;">CANCEL</button>'+
-        '<span id="chat-sel-count" style="flex:1;font-family:\'Russo One\',sans-serif;font-size:12px;color:#fff;letter-spacing:1px;text-align:center;">0 SELECTED</span>'+
-        '<button id="chat-sel-mine" style="background:transparent;border:1px solid #4a9eff;border-radius:14px;padding:5px 10px;color:#4a9eff;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;touch-action:manipulation;">SELECT MINE</button>'+
-        '<button id="chat-sel-delete" style="background:rgba(255,71,87,.18);border:1.5px solid #ff4757;border-radius:14px;padding:5px 12px;color:#ff4757;font-family:\'Russo One\',sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;touch-action:manipulation;"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#ff4757" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path></svg><span>DELETE</span></button>'+
-        '<div id="chat-sel-helper" style="width:100%;font-size:11px;color:#e8f0ff;text-align:center;opacity:1;transition:opacity .5s;font-style:italic;">Tap your messages to add them</div>';
+        '<button id="chat-sel-cancel" title="Cancel" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.5);border-radius:14px;padding:5px 11px;color:#e8f0ff;font-family:\'Russo One\',sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;touch-action:manipulation;">CANCEL</button>'+
+        '<span id="chat-sel-count" style="flex:1;font-family:\'Russo One\',sans-serif;font-size:12px;color:#fff;letter-spacing:1px;text-align:center;min-width:80px;">0 SELECTED</span>'+
+        '<button id="chat-sel-all" title="Select every message" style="background:transparent;border:1px solid #4a9eff;border-radius:14px;padding:5px 9px;color:#4a9eff;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;touch-action:manipulation;">ALL</button>'+
+        '<button id="chat-sel-mine" title="Select your messages" style="background:transparent;border:1px solid #4a9eff;border-radius:14px;padding:5px 9px;color:#4a9eff;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;touch-action:manipulation;">MINE</button>'+
+        '<button id="chat-sel-delete" title="Delete or hide selected" style="background:rgba(255,71,87,.18);border:1.5px solid #ff4757;border-radius:50%;width:32px;height:32px;color:#ff4757;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;touch-action:manipulation;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#ff4757" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path></svg></button>'+
+        '<div id="chat-sel-helper" style="width:100%;font-size:11px;color:#e8f0ff;text-align:center;opacity:1;transition:opacity .5s;font-style:italic;">Tap a message to select · tap its check to deselect</div>';
       // Insert as first child of threadScreen
       threadScreen.insertBefore(selHdr, threadScreen.firstChild);
       document.getElementById('chat-sel-cancel').onclick = _exitSelectMode;
       document.getElementById('chat-sel-mine').onclick = _selectAllMine;
+      document.getElementById('chat-sel-all').onclick = _selectAll;
       document.getElementById('chat-sel-delete').onclick = _deleteSelected;
     }
     var n = Object.keys(_chatSelected).length;
@@ -2805,21 +2824,25 @@ function _renderChatSelectionHeader(){
         if(!msg) return;
         if(msg.who === ME) hasMine = true; else hasOthers = true;
       });
-      var label, fg, bg, bd, iconStroke;
+      var fg, bg, bd, iconStroke, tooltip;
       if(hasMine && !hasOthers){
-        label = 'DELETE'; fg = '#ff4757'; bg = 'rgba(255,71,87,.18)'; bd = '#ff4757'; iconStroke = '#ff4757';
+        fg = '#ff4757'; bg = 'rgba(255,71,87,.18)'; bd = '#ff4757'; iconStroke = '#ff4757';
+        tooltip = 'Delete selected (for everyone)';
       } else if(!hasMine && hasOthers){
-        label = 'HIDE'; fg = '#ffa500'; bg = 'rgba(255,165,0,.18)'; bd = '#ffa500'; iconStroke = '#ffa500';
+        fg = '#ffa500'; bg = 'rgba(255,165,0,.18)'; bd = '#ffa500'; iconStroke = '#ffa500';
+        tooltip = 'Hide selected (for me only)';
       } else {
-        label = 'REMOVE'; fg = '#ff4757'; bg = 'rgba(255,71,87,.18)'; bd = '#ff4757'; iconStroke = '#ff4757';
+        fg = '#ff4757'; bg = 'rgba(255,71,87,.18)'; bd = '#ff4757'; iconStroke = '#ff4757';
+        tooltip = 'Delete mine + hide others';
       }
       dBtn.style.background = bg;
       dBtn.style.borderColor = bd;
       dBtn.style.color = fg;
-      var iconSvg = (label === 'HIDE')
-        ? '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="'+iconStroke+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
-        : '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="'+iconStroke+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path></svg>';
-      dBtn.innerHTML = iconSvg + '<span>'+label+'</span>';
+      dBtn.setAttribute('title', tooltip);
+      var iconSvg = (!hasMine && hasOthers)
+        ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="'+iconStroke+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
+        : '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="'+iconStroke+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path></svg>';
+      dBtn.innerHTML = iconSvg;
     }
   } else {
     if(normalHdr) normalHdr.style.display = 'flex';
@@ -5288,60 +5311,12 @@ function rChatThreads(){
         preview+
       '</div>';
 
-    // 3-dot menu for thread actions (delete)
-    var menu = document.createElement('button');
-    menu.type = 'button';
-    menu.title = 'Conversation options';
-    menu.style.cssText = 'background:transparent;border:none;color:#4a6a9a;font-size:18px;cursor:pointer;padding:6px 8px;flex-shrink:0;line-height:1;border-radius:6px;touch-action:manipulation;';
-    menu.innerHTML = '&#8942;'; // ⋮
-    menu.onclick = (function(tid){ return function(e){
-      e.stopPropagation();
-      showThreadMenu(tid, this);
-    }; })(t.id);
-
     row.appendChild(av);
     row.appendChild(info);
-    row.appendChild(menu);
     el.appendChild(row);
   });
 }
 
-function showThreadMenu(threadId, anchor){
-  // Remove any existing menu
-  var existing = document.getElementById('thread-menu-popup');
-  if(existing){ existing.remove(); return; }
-  var pop = document.createElement('div');
-  pop.id = 'thread-menu-popup';
-  pop.style.cssText = 'position:fixed;background:#101e34;border:1px solid #1a3a8a;border-radius:8px;box-shadow:0 12px 32px rgba(0,0,0,.55);padding:6px;z-index:9000;min-width:180px;';
-  var rect = anchor.getBoundingClientRect();
-  // Position to the left of the menu button so it doesn't fall off the right edge
-  pop.style.top = (rect.bottom + 4) + 'px';
-  pop.style.right = (window.innerWidth - rect.right) + 'px';
-  var del = document.createElement('button');
-  del.type = 'button';
-  del.style.cssText = 'display:flex;align-items:center;gap:8px;background:transparent;border:none;color:#ff4757;font-family:\'Russo One\',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;padding:8px 12px;width:100%;text-align:left;border-radius:6px;';
-  del.innerHTML = '<span style="font-size:14px;line-height:1;">&#128465;</span><span>DELETE CONVERSATION</span>';
-  del.onmouseover = function(){ this.style.background = 'rgba(255,71,87,.1)'; };
-  del.onmouseout = function(){ this.style.background = 'transparent'; };
-  del.onclick = function(){
-    pop.remove();
-    deleteThread(threadId);
-  };
-  pop.appendChild(del);
-  document.body.appendChild(pop);
-  // Click-away to close
-  setTimeout(function(){
-    var dismiss = function(e){
-      if(!pop.contains(e.target)){
-        pop.remove();
-        document.removeEventListener('click', dismiss, true);
-        document.removeEventListener('touchstart', dismiss, true);
-      }
-    };
-    document.addEventListener('click', dismiss, true);
-    document.addEventListener('touchstart', dismiss, true);
-  }, 0);
-}
 
 function setChatTo(id){ openThread(id); }
 
@@ -5449,10 +5424,15 @@ function rChat() {
       var cb = document.createElement('div');
       var checked = !!_chatSelected[String(m.id)];
       var cbColor = isMe ? '#ff4757' : '#ffa500';
-      cb.style.cssText = 'width:22px;height:22px;border-radius:50%;border:2px solid '+cbColor+';background:'+(checked?cbColor:'transparent')+';display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;align-self:center;';
+      cb.style.cssText = 'width:24px;height:24px;border-radius:50%;border:2px solid '+cbColor+';background:'+(checked?cbColor:'transparent')+';display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;align-self:center;cursor:pointer;touch-action:manipulation;';
+      cb.setAttribute('title', checked ? 'Tap to deselect' : 'Tap to select');
       if(checked){
-        cb.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        cb.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
       }
+      cb.onclick = (function(mid){ return function(ev){
+        ev.stopPropagation();
+        _toggleSelected(mid);
+      }; })(m.id);
       // We'll wrap bub + ti inside cbWrap, then put the checkbox inline
       var bubCol = document.createElement('div');
       bubCol.style.cssText = 'display:flex;flex-direction:column;'+(isMe?'align-items:flex-end;':'align-items:flex-start;')+'min-width:0;';
