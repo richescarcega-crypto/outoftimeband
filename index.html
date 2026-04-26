@@ -241,14 +241,16 @@ body.light .mrav{color:#000 !important;}
 <div id="cnt">
 
 <div id="sc-home" class="sc on">
-  <div id="announce-card" style="display:none;background:#0a1628;border:1px solid rgba(245,197,24,.4);border-radius:10px;padding:10px 14px;margin-bottom:10px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <span style="font-family:Russo One,sans-serif;font-size:10px;letter-spacing:2px;color:#f5c518;">&#128226; ANNOUNCEMENTS</span>
-      <button onclick="opM('announce-modal')" style="background:none;border:1px solid #f5c518;border-radius:5px;padding:2px 8px;color:#f5c518;font-size:10px;cursor:pointer;">+ POST</button>
-    </div>
-    <div id="announce-list"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:10px;">
+    <button onclick="openReorder()" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;padding:0;" title="Arrange tabs">&#9776;</button>
+    <button id="ann-bell" onclick="openAnnouncementsModal()" title="Announcements" style="background:transparent;border:1px solid #1a3a8a;border-radius:18px;padding:4px 10px;color:#f5c518;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;position:relative;line-height:1;touch-action:manipulation;">
+      <span style="font-size:13px;line-height:1;">🔔</span>
+      <span id="ann-bell-count" style="font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:1px;">0</span>
+      <span id="ann-bell-badge" style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#ff4757;color:#fff;font-size:9px;font-weight:700;font-family:'Russo One',sans-serif;display:none;align-items:center;justify-content:center;border:2px solid #060e1c;line-height:1;"></span>
+    </button>
+    <div id="who-am-i" onclick="whoAmITap()" style="font-size:11px;cursor:pointer;flex:1;text-align:right;"></div>
   </div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><button onclick="openReorder()" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;padding:0;" title="Arrange tabs">&#9776;</button><div id="who-am-i" onclick="whoAmITap()" style="font-size:11px;cursor:pointer;"></div></div>
+  <div id="announce-card" style="display:none;"></div>
   <div class="hero">
     <div class="hero-l" style="padding:0;overflow:hidden;"><img src="logo.jpg" alt="OOT" style="width:100%;height:100%;object-fit:cover;"></div>
     <div class="hero-r">
@@ -315,7 +317,7 @@ body.light .mrav{color:#000 !important;}
 
 <div id="sc-cal" class="sc">
   <div class="cnav">
-    <span class="cnav-icon" id="cnav-left" style="cursor:default;" title="Music"></span>
+    <span class="cnav-icon" id="cnav-left" style="cursor:pointer;user-select:none;" title="Previous month" onclick="navMonth(-1)"></span>
     <span class="mlbl" id="mlbl"></span>
     <span id="cnav-right-slot" style="display:flex;align-items:center;justify-content:flex-end;width:38px;height:38px;flex-shrink:0;"></span>
   </div>
@@ -627,10 +629,13 @@ body.light .mrav{color:#000 !important;}
 </div>
 
 <div class="ov" id="announce-modal">
-  <div class="mo">
-    <div class="moh"><span class="mot">Post Announcement</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('announce-modal')">&#10005;</button></div>
-    <textarea class="mi" id="ann-txt" placeholder="Type your announcement..." rows="4" style="resize:none;"></textarea>
-    <button class="sb" onclick="postAnnounce()" style="width:100%">Post to Band</button>
+  <div class="mo" style="max-height:85vh;display:flex;flex-direction:column;">
+    <div class="moh" style="flex-shrink:0;"><span class="mot">📢 Announcements</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('announce-modal')">&#10005;</button></div>
+    <div id="ann-list" style="flex:1;overflow-y:auto;margin-bottom:10px;min-height:80px;"></div>
+    <div style="flex-shrink:0;border-top:1px solid #0d1f3a;padding-top:10px;">
+      <textarea class="mi" id="ann-txt" placeholder="Post a new announcement..." rows="3" style="resize:none;margin-bottom:8px;"></textarea>
+      <button class="sb" onclick="postAnnounce()" style="width:100%">Post to Band</button>
+    </div>
   </div>
 </div>
 
@@ -2245,19 +2250,176 @@ function gM(id){return members.find(function(m){return m.id==id;})||{name:"?",av
 function fD(y,m,d){return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");}
 function tD(ss){var x=ss.reduce(function(a,s){var p=(s.d||"0:00").split(":");return a+parseInt(p[0])*60+(parseInt(p[1])||0);},0);return Math.floor(x/60)+"m "+x%60+"s";}
 
+// ── IN-APP NOTIFICATION BANNER ─────────────────────────────────────────────
+// Shows a brief slide-down banner at the top of the screen when something
+// noteworthy happens while the app is open. Driven entirely off our existing
+// Firestore listeners, so it works regardless of push notification state.
+//
+// Critical: we DON'T fire banners during the initial Firestore hydration.
+// Each listener flips its "_hasInit" flag to true after the first snapshot.
+
+var _bannerTimer = null;
+
+function showAppBanner(opts){
+  opts = opts || {};
+  var el = document.getElementById('app-banner');
+  if(!el) return;
+  var titleEl = document.getElementById('app-banner-title');
+  var msgEl = document.getElementById('app-banner-msg');
+  var avEl = document.getElementById('app-banner-av');
+  var closeBtn = document.getElementById('app-banner-close');
+  if(!titleEl || !msgEl) return;
+
+  titleEl.textContent = opts.title || 'Out of Time';
+  msgEl.textContent = opts.message || '';
+
+  // Avatar: member color + initials if a member is provided, otherwise an emoji
+  if(opts.member){
+    var m = opts.member;
+    avEl.style.background = richGrad(m.color || '#4a9eff');
+    avEl.style.boxShadow = '0 0 14px '+(m.color||'#4a9eff')+'66, inset 0 -2px 6px rgba(0,0,0,.2)';
+    avEl.style.color = '#000';
+    avEl.style.fontSize = '12px';
+    avEl.style.fontFamily = '"Russo One",sans-serif';
+    avEl.textContent = m.av || '?';
+  } else {
+    avEl.style.background = 'radial-gradient(circle at 30% 25%,#4a9eff66 0%,#4a9eff 55%,#4a9effaa 100%)';
+    avEl.style.boxShadow = '0 0 12px rgba(74,158,255,.45),inset 0 -2px 6px rgba(0,0,0,.18)';
+    avEl.style.color = '#fff';
+    avEl.style.fontSize = '14px';
+    avEl.style.fontFamily = "'Exo 2',sans-serif";
+    avEl.textContent = opts.icon || '🔔';
+  }
+
+  el.style.display = 'block';
+  // Animate in
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      el.style.opacity = '1';
+      el.style.transform = 'translateX(-50%) translateY(0)';
+    });
+  });
+
+  // Auto-dismiss after 5s
+  if(_bannerTimer) clearTimeout(_bannerTimer);
+  _bannerTimer = setTimeout(hideAppBanner, 5000);
+
+  // Wire interactions (idempotent — replace handlers)
+  el.onclick = function(e){
+    if(e.target === closeBtn) return; // close handler does its own thing
+    if(opts.onTap) try { opts.onTap(); } catch(err){}
+    hideAppBanner();
+  };
+  closeBtn.onclick = function(e){
+    e.stopPropagation();
+    hideAppBanner();
+  };
+}
+
+function hideAppBanner(){
+  var el = document.getElementById('app-banner');
+  if(!el) return;
+  el.style.opacity = '0';
+  el.style.transform = 'translateX(-50%) translateY(-140%)';
+  if(_bannerTimer){ clearTimeout(_bannerTimer); _bannerTimer = null; }
+  setTimeout(function(){
+    if(el.style.opacity === '0') el.style.display = 'none';
+  }, 380);
+}
+
+// Helper to switch tabs programmatically (used by banner taps)
+function _gotoTab(id){
+  var btn = document.getElementById('tb-' + id);
+  if(typeof go === 'function') go(id, btn);
+}
+
 // FIREBASE LISTENERS
+var _eventsHasInit = false;
+var _knownEventIds = {};
 function listenEvents(){
   db.collection('events').orderBy('date').onSnapshot(function(snap){
+    var newDocs = [];
     events=[];
-    snap.forEach(function(doc){events.push(Object.assign({id:doc.id},doc.data()));});
+    snap.forEach(function(doc){
+      var data = Object.assign({id:doc.id},doc.data());
+      events.push(data);
+      if(_eventsHasInit && !_knownEventIds[doc.id]){
+        newDocs.push(data);
+      }
+      _knownEventIds[doc.id] = true;
+    });
+    if(_eventsHasInit && newDocs.length){
+      // Show banner for events not created by me
+      newDocs.forEach(function(ev){
+        // We don't track event creator, so use sender-side notifyBand to dedupe.
+        // Simple heuristic: skip silent if title contains my first name (blackout)
+        var typeLabels = { gig: 'New gig', rehearsal: 'New rehearsal', blackout: 'Blackout posted' };
+        var icons = { gig: '🎸', rehearsal: '🎤', blackout: '🚫' };
+        var label = typeLabels[ev.type] || 'New event';
+        var icon = icons[ev.type] || '📅';
+        // Format date nicely
+        var d = ev.date;
+        try {
+          var dt = new Date(ev.date + 'T00:00:00');
+          d = dt.toLocaleDateString(undefined, {weekday:'short', month:'short', day:'numeric'});
+        } catch(e){}
+        var msg = (ev.title || '') + (ev.note ? ' — ' + ev.note : '') + ' · ' + d;
+        showAppBanner({
+          title: label,
+          message: msg,
+          icon: icon,
+          onTap: function(){ _gotoTab('cal'); }
+        });
+      });
+    }
+    _eventsHasInit = true;
     rHome();
     if(document.getElementById('sc-cal').classList.contains('on'))rCal();
   });
 }
+var _msgsHasInit = false;
+var _knownMsgIds = {};
 function listenMsgs(){
   db.collection('messages').orderBy('ts').limitToLast(100).onSnapshot(function(snap){
+    var newMsgs = [];
     msgs=[];
-    snap.forEach(function(doc){msgs.push(Object.assign({id:doc.id},doc.data()));});
+    snap.forEach(function(doc){
+      var data = Object.assign({id:doc.id},doc.data());
+      msgs.push(data);
+      if(_msgsHasInit && !_knownMsgIds[doc.id]){
+        newMsgs.push(data);
+      }
+      _knownMsgIds[doc.id] = true;
+    });
+    if(_msgsHasInit && newMsgs.length){
+      newMsgs.forEach(function(m){
+        if(m.who === ME) return; // don't banner my own messages
+        // For DMs, only show if I'm the recipient
+        if(m.to && m.to !== 'band' && String(m.to) !== String(ME)) return;
+        // Don't banner if the user is currently looking at this exact thread
+        var currentlyOnChat = document.getElementById('sc-chat') && document.getElementById('sc-chat').classList.contains('on');
+        var inThreadView = document.getElementById('chat-thread-screen') && document.getElementById('chat-thread-screen').style.display !== 'none';
+        if(currentlyOnChat && inThreadView){
+          var threadId = (!m.to || m.to === 'band') ? 'band' : [String(m.who), String(m.to)].sort().join('-');
+          var currentThreadId = (!chatTo || chatTo === 'band') ? 'band' : [String(ME), String(chatTo)].sort().join('-');
+          if(threadId === currentThreadId) return;
+        }
+        var sender = gM(m.who);
+        var isBand = (!m.to || m.to === 'band');
+        var title = (sender.name || 'Member').split(' ')[0] + (isBand ? ' · band chat' : '');
+        showAppBanner({
+          title: title,
+          message: m.txt || '',
+          member: sender,
+          onTap: function(){
+            _gotoTab('chat');
+            // Open the right thread
+            setTimeout(function(){ if(typeof openThread === 'function') openThread(isBand ? 'band' : m.who); }, 50);
+          }
+        });
+      });
+    }
+    _msgsHasInit = true;
     calcUnread();
     if(document.getElementById('sc-chat').classList.contains('on')){
       rChatThreads();
@@ -2446,24 +2608,102 @@ function listenMembers(){
     if(document.getElementById('sc-band').classList.contains('on'))rBand();
   });
 }
+var _annHasInit = false;
+var _knownAnnIds = {};
 function listenAnnouncements(){
   db.collection('announcements').orderBy('id','desc').limit(5).onSnapshot(function(snap){
+    var newAnns = [];
     announcements=[];
-    snap.forEach(function(doc){announcements.push(Object.assign({id:doc.id},doc.data()));});
+    snap.forEach(function(doc){
+      var data = Object.assign({id:doc.id},doc.data());
+      announcements.push(data);
+      if(_annHasInit && !_knownAnnIds[doc.id]){
+        newAnns.push(data);
+      }
+      _knownAnnIds[doc.id] = true;
+    });
+    if(_annHasInit && newAnns.length){
+      newAnns.forEach(function(a){
+        if(a.who === ME) return; // not my own posts
+        var sender = gM(a.who);
+        showAppBanner({
+          title: 'Announcement · ' + (sender.name || 'Member').split(' ')[0],
+          message: a.txt || '',
+          member: sender,
+          onTap: function(){ _gotoTab('home'); }
+        });
+      });
+    }
+    _annHasInit = true;
     rAnnouncements();
   });
 }
+var _contactsHasInit = false;
+var _knownContactIds = {};
 function listenContacts(){
   db.collection('contacts').onSnapshot(function(snap){
+    var newOnes = [];
     contacts=[];
-    snap.forEach(function(doc){contacts.push(Object.assign({id:doc.id},doc.data()));});
+    snap.forEach(function(doc){
+      var data = Object.assign({id:doc.id},doc.data());
+      contacts.push(data);
+      if(_contactsHasInit && !_knownContactIds[doc.id]){
+        newOnes.push(data);
+      }
+      _knownContactIds[doc.id] = true;
+    });
+    if(_contactsHasInit && newOnes.length){
+      newOnes.forEach(function(c){
+        showAppBanner({
+          title: 'New contact added',
+          message: (c.name || '') + (c.role ? ' — ' + c.role : ''),
+          icon: '📇',
+          onTap: function(){ _gotoTab('band'); }
+        });
+      });
+    }
+    _contactsHasInit = true;
     if(document.getElementById('sc-band').classList.contains('on'))rContacts();
   });
 }
+var _availHasInit = false;
+var _knownAvailIds = {};
 function listenAvailability(){
   db.collection('availability').orderBy('date').onSnapshot(function(snap){
+    var newAvail = [];
     availability=[];
-    snap.forEach(function(doc){availability.push(Object.assign({id:doc.id},doc.data()));});
+    snap.forEach(function(doc){
+      var data = Object.assign({id:doc.id},doc.data());
+      availability.push(data);
+      if(_availHasInit && !_knownAvailIds[doc.id]){
+        newAvail.push(data);
+      }
+      _knownAvailIds[doc.id] = true;
+    });
+    if(_availHasInit && newAvail.length){
+      newAvail.forEach(function(a){
+        if(a.who === ME) return;
+        var sender = gM(a.who);
+        var dateLabel = a.startDate || a.date || '';
+        try {
+          if(dateLabel){
+            var dt = new Date(dateLabel + 'T00:00:00');
+            dateLabel = dt.toLocaleDateString(undefined, {weekday:'short', month:'short', day:'numeric'});
+            if(a.endDate && a.endDate !== a.startDate){
+              var dt2 = new Date(a.endDate + 'T00:00:00');
+              dateLabel += ' – ' + dt2.toLocaleDateString(undefined, {month:'short', day:'numeric'});
+            }
+          }
+        } catch(e){}
+        showAppBanner({
+          title: (sender.name || 'Member').split(' ')[0] + ' marked unavailable',
+          message: dateLabel + (a.note ? ' · ' + a.note : ''),
+          member: sender,
+          onTap: function(){ _gotoTab('cal'); }
+        });
+      });
+    }
+    _availHasInit = true;
     if(document.getElementById('sc-cal').classList.contains('on'))rAvailability();
   });
 }
@@ -2821,19 +3061,33 @@ function _refreshRightSlot(){
   var now = new Date();
   var atToday = (CY === now.getFullYear() && CM === now.getMonth());
   if(atToday){
-    // Show another music icon (different from the left one)
+    // Show another music icon — clickable for next month
     var pick;
     do { pick = _pickMusicIcon(); } while(pick === _cnavLeftIcon && MUSIC_ICONS.length > 1);
     slot.innerHTML = '';
     var ic = document.createElement('span');
     ic.className = 'cnav-icon';
-    ic.title = 'Music';
-    ic.style.cursor = 'default';
+    ic.title = 'Next month';
+    ic.style.cursor = 'pointer';
+    ic.style.userSelect = 'none';
     ic.textContent = pick;
+    ic.onclick = function(){ navMonth(1); };
     slot.appendChild(ic);
     slot.style.width = '38px';
   } else {
     slot.innerHTML = '';
+    // Container holds a subtle next-month arrow + the TODAY button so non-touch
+    // users can advance the calendar even when off the current month.
+    var wrap = document.createElement('span');
+    wrap.style.cssText = 'display:inline-flex;align-items:center;gap:6px;';
+    var nextBtn = document.createElement('span');
+    nextBtn.className = 'cnav-icon';
+    nextBtn.title = 'Next month';
+    nextBtn.style.cursor = 'pointer';
+    nextBtn.style.userSelect = 'none';
+    nextBtn.textContent = _pickMusicIcon();
+    nextBtn.onclick = function(){ navMonth(1); };
+    wrap.appendChild(nextBtn);
     var btn = document.createElement('span');
     btn.className = 'cnav-today';
     btn.title = 'Jump to today';
@@ -2843,7 +3097,8 @@ function _refreshRightSlot(){
       var diff = (n.getFullYear()*12 + n.getMonth()) - (CY*12 + CM);
       navMonth(diff);
     };
-    slot.appendChild(btn);
+    wrap.appendChild(btn);
+    slot.appendChild(wrap);
     slot.style.width = 'auto';
   }
 }
@@ -4790,43 +5045,140 @@ function addContact(){
 }
 
 // ANNOUNCEMENTS
-function rAnnouncements() {
-  var card=document.getElementById('announce-card');
-  var list=document.getElementById('announce-list');
-  if(!card||!list)return;
-  if(!announcements.length){ card.style.display='none'; return; }
-  card.style.display='block';
-  list.innerHTML='';
+// Bell-with-badge UX: announcements live in a modal, not a permanent card.
+// Read state is stored per-user in localStorage.
+function _annLastReadKey(){ return 'oot_ann_last_read_' + (myName || 'anon'); }
+function _annGetLastRead(){
+  try { return parseInt(localStorage.getItem(_annLastReadKey()) || '0', 10) || 0; }
+  catch(e){ return 0; }
+}
+function _annSetLastReadNow(){
+  try { localStorage.setItem(_annLastReadKey(), String(Date.now())); } catch(e){}
+}
+function _annTimeOf(a){
+  // Announcements have a numeric id (Date.now()) we can use as a timestamp
+  if(a && typeof a.id === 'number') return a.id;
+  if(a && a.id && /^\d+$/.test(String(a.id))) return parseInt(a.id, 10);
+  return 0;
+}
+
+function rAnnouncements(){
+  // Update the bell badge based on unread count
+  var lastRead = _annGetLastRead();
+  var unread = 0;
   announcements.forEach(function(a){
-    var m=gM(a.who);
-    var div=document.createElement('div');
-    div.style.cssText='padding:8px;background:#060e1c;border-radius:8px;margin-bottom:6px;border-left:3px solid #f5c518;';
-    var header=document.createElement('div');
-    header.style.cssText='display:flex;align-items:center;gap:6px;margin-bottom:4px;';
-    header.innerHTML='<div style="width:20px;height:20px;border-radius:50%;background:'+richGrad(m.color)+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;font-family:Russo One,sans-serif;box-shadow:0 0 6px '+m.color+'40, inset 0 -1px 2px rgba(0,0,0,.18);">'+m.av+'</div><span style="font-size:11px;color:#4a9eff;font-weight:600;">'+a.name+'</span><span style="font-size:10px;color:#4a6a9a;margin-left:auto;">'+a.time+'</span>';
-    if(a.who===ME){
-      var delBtn=document.createElement('button');
-      delBtn.style.cssText='background:none;border:none;color:#4a6a9a;font-size:11px;cursor:pointer;';
-      delBtn.innerHTML='&#10005;';
-      delBtn.setAttribute('data-aid',a.id);
-      delBtn.onclick=function(){ db.collection('announcements').doc(this.getAttribute('data-aid')).delete(); };
-      header.appendChild(delBtn);
+    if(a.who === ME) return; // never count my own
+    if(_annTimeOf(a) > lastRead) unread++;
+  });
+  var bell = document.getElementById('ann-bell');
+  var countEl = document.getElementById('ann-bell-count');
+  var badge = document.getElementById('ann-bell-badge');
+  if(countEl) countEl.textContent = String(announcements.length);
+  if(bell){
+    if(announcements.length === 0){
+      bell.style.opacity = '.45';
+      bell.style.borderColor = '#1a3a8a';
+    } else {
+      bell.style.opacity = '1';
+      bell.style.borderColor = unread > 0 ? '#f5c518' : '#1a3a8a';
+      bell.style.boxShadow = unread > 0 ? '0 0 14px rgba(245,197,24,.35)' : '';
     }
+  }
+  if(badge){
+    if(unread > 0){
+      badge.textContent = unread > 9 ? '9+' : String(unread);
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+  // If the modal is open, refresh its contents too
+  var modal = document.getElementById('announce-modal');
+  if(modal && modal.classList.contains('on')) renderAnnouncementsList();
+}
+
+function openAnnouncementsModal(){
+  renderAnnouncementsList();
+  opM('announce-modal');
+  // Mark as read after a short delay so the badge clear feels deliberate
+  setTimeout(function(){
+    _annSetLastReadNow();
+    rAnnouncements();
+  }, 400);
+  // Focus the input
+  setTimeout(function(){
+    var t = document.getElementById('ann-txt');
+    if(t) try { t.focus(); } catch(e){}
+  }, 200);
+}
+
+function renderAnnouncementsList(){
+  var list = document.getElementById('ann-list');
+  if(!list) return;
+  list.innerHTML = '';
+  if(!announcements.length){
+    list.innerHTML = '<div style="text-align:center;color:#4a6a9a;font-style:italic;font-size:13px;padding:18px 8px;">No announcements yet. Post the first one below!</div>';
+    return;
+  }
+  var lastRead = _annGetLastRead();
+  announcements.forEach(function(a){
+    var m = gM(a.who);
+    var isUnread = (a.who !== ME) && (_annTimeOf(a) > lastRead);
+    var div = document.createElement('div');
+    div.style.cssText = 'padding:10px 12px;background:'+(isUnread?'rgba(245,197,24,.08)':'#060e1c')+';border-radius:8px;margin-bottom:6px;border-left:3px solid '+(isUnread?'#f5c518':'#1a3a8a')+';';
+    var header = document.createElement('div');
+    header.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:6px;';
+    header.innerHTML = '<div style="width:24px;height:24px;border-radius:50%;background:'+richGrad(m.color)+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;font-family:\'Russo One\',sans-serif;box-shadow:0 0 6px '+m.color+'40, inset 0 -1px 2px rgba(0,0,0,.18);flex-shrink:0;">'+m.av+'</div>'+
+      '<span style="font-size:12px;font-weight:600;'+nameGradStyle(m.color)+'">'+a.name+'</span>'+
+      (isUnread ? '<span style="font-family:\'Russo One\',sans-serif;font-size:8px;letter-spacing:1px;color:#f5c518;background:rgba(245,197,24,.15);border:1px solid rgba(245,197,24,.4);border-radius:6px;padding:1px 5px;">NEW</span>' : '')+
+      '<span style="font-size:10px;color:#4a6a9a;margin-left:auto;">'+(a.time||'')+(a.date?' · '+a.date:'')+'</span>';
     div.appendChild(header);
-    var txt=document.createElement('div');
-    txt.style.cssText='font-size:13px;color:#e8f0ff;';
-    txt.textContent=a.txt;
+    var txt = document.createElement('div');
+    txt.style.cssText = 'font-size:13px;color:#e8f0ff;line-height:1.4;white-space:pre-wrap;';
+    txt.textContent = a.txt;
     div.appendChild(txt);
+    if(a.who === ME){
+      var actions = document.createElement('div');
+      actions.style.cssText = 'display:flex;justify-content:flex-end;margin-top:6px;';
+      var del = document.createElement('button');
+      del.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:6px;padding:4px 10px;color:#ff4757;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;';
+      del.innerHTML = '<span style="font-size:11px;line-height:1;">&#128465;</span><span>DELETE</span>';
+      del.setAttribute('data-aid', a.id);
+      del.onclick = function(){
+        var aid = this.getAttribute('data-aid');
+        appConfirm({title:'Delete announcement?', message:'Remove this post? This cannot be undone.'}).then(function(ok){
+          if(ok){
+            db.collection('announcements').doc(aid).delete()
+              .then(function(){ toast('Announcement deleted', {tone:'success'}); })
+              .catch(function(){});
+          }
+        });
+      };
+      actions.appendChild(del);
+      div.appendChild(actions);
+    }
     list.appendChild(div);
   });
 }
+
 function postAnnounce(){
-  var txt=document.getElementById('ann-txt').value.trim();if(!txt)return;
-  var ann={id:Date.now(),who:ME,name:myName,txt:txt,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),date:new Date().toLocaleDateString()};
+  var txt = document.getElementById('ann-txt').value.trim();
+  if(!txt) return;
+  var ann = {
+    id: Date.now(),
+    who: ME,
+    name: myName,
+    txt: txt,
+    time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+    date: new Date().toLocaleDateString()
+  };
   db.collection('announcements').add(ann);
-  document.getElementById('ann-txt').value='';
-  clM('announce-modal');
+  document.getElementById('ann-txt').value = '';
+  // Don't close the modal — let the user see their post appear in the list.
+  toast('Announcement posted', {tone:'success'});
   notifyBand('announcements', 'Announcement from ' + myName, txt);
+  // Mark as read so the badge doesn't immediately count this back
+  setTimeout(function(){ _annSetLastReadNow(); rAnnouncements(); }, 200);
 }
 
 // SONGS
@@ -5373,6 +5725,30 @@ function opM(id){document.getElementById(id).classList.add('on');}
 function clM(id){document.getElementById(id).classList.remove('on');}
 document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});});
 
+// ── CALENDAR KEYBOARD NAVIGATION (desktop convenience) ─────────────────────
+document.addEventListener('keydown', function(e){
+  // Only when calendar tab is visible
+  var calSc = document.getElementById('sc-cal');
+  if(!calSc || !calSc.classList.contains('on')) return;
+  // Don't hijack while user is typing in a field
+  var t = e.target;
+  if(t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
+  // Don't fire if a modal is open (any .ov.on)
+  if(document.querySelector('.ov.on')) return;
+  if(e.key === 'ArrowLeft' || e.key === 'PageUp'){
+    e.preventDefault();
+    if(typeof navMonth === 'function') navMonth(-1);
+  } else if(e.key === 'ArrowRight' || e.key === 'PageDown'){
+    e.preventDefault();
+    if(typeof navMonth === 'function') navMonth(1);
+  } else if(e.key === 'Home' || (e.key === 't' && !e.ctrlKey && !e.metaKey)){
+    e.preventDefault();
+    var n = new Date();
+    var diff = (n.getFullYear()*12 + n.getMonth()) - (CY*12 + CM);
+    if(diff !== 0 && typeof navMonth === 'function') navMonth(diff);
+  }
+});
+
 // INIT
 // Prevent accidental close / back button
 // Trap Android back button - keep app open
@@ -5447,6 +5823,18 @@ if(savedName&&savedId){
       <button id="app-prompt-cancel" style="flex:1;background:transparent;border:1px solid #1a3a8a;border-radius:8px;padding:10px;color:#8aa8d6;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;">CANCEL</button>
       <button id="app-prompt-ok" style="flex:1;background:#4a9eff;border:1px solid #4a9eff;border-radius:8px;padding:10px;color:#060e1c;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;">SAVE</button>
     </div>
+  </div>
+</div>
+
+<!-- IN-APP NOTIFICATION BANNER -->
+<div id="app-banner" style="position:fixed;left:50%;top:8px;transform:translateX(-50%) translateY(-140%);z-index:9200;display:none;width:calc(100% - 16px);max-width:440px;background:linear-gradient(135deg,#101e34 0%,#0d1f3a 100%);border:1px solid #1a3a8a;border-radius:14px;padding:10px 14px;box-shadow:0 12px 36px rgba(0,0,0,.55), 0 0 0 1px rgba(74,158,255,.15) inset;color:#e8f0ff;font-family:'Exo 2',sans-serif;cursor:pointer;transition:transform .35s cubic-bezier(.2,.8,.3,1.1),opacity .25s;opacity:0;-webkit-tap-highlight-color:rgba(245,197,24,.2);">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div id="app-banner-av" style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#4a9eff66 0%,#4a9eff 55%,#4a9effaa 100%);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:#fff;font-family:'Russo One',sans-serif;box-shadow:0 0 12px rgba(74,158,255,.45),inset 0 -2px 6px rgba(0,0,0,.18);">🔔</div>
+    <div style="flex:1;min-width:0;">
+      <div id="app-banner-title" style="font-family:'Russo One',sans-serif;font-size:12px;letter-spacing:.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+      <div id="app-banner-msg" style="font-size:12px;color:#bcd5ff;margin-top:2px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;"></div>
+    </div>
+    <button id="app-banner-close" type="button" style="background:transparent;border:none;color:#8aa8d6;font-size:18px;line-height:1;cursor:pointer;padding:4px 6px;flex-shrink:0;">&#10005;</button>
   </div>
 </div>
 
