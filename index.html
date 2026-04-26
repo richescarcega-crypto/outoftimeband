@@ -988,7 +988,7 @@ function renderNotifSettings(){
   var masterRow = document.createElement('div');
   masterRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:4px 0 10px;';
   var masterLbl = document.createElement('div');
-  masterLbl.innerHTML = '<div style="font-family:\'Russo One\',sans-serif;font-size:11px;color:#e8f0ff;letter-spacing:1px;">PUSH NOTIFICATIONS</div>'+
+  masterLbl.innerHTML = '<div style="font-family:\'Russo One\',sans-serif;font-size:11px;color:#4a9eff;letter-spacing:1px;">PUSH NOTIFICATIONS</div>'+
                        '<div style="font-size:11px;color:#8aa8d6;margin-top:2px;">'+(pushSupported()?(masterOn?'On for this device':'Off'):'Not supported in this browser')+'</div>';
   masterRow.appendChild(masterLbl);
   if(pushSupported()){
@@ -1012,7 +1012,7 @@ function renderNotifSettings(){
     var row = document.createElement('div');
     row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:6px 0;opacity:'+(masterOn?'1':'0.5')+';';
     var lbl = document.createElement('span');
-    lbl.style.cssText = 'font-size:13px;color:#e8f0ff;';
+    lbl.style.cssText = 'font-size:13px;color:#8aa8d6;';
     lbl.textContent = label;
     row.appendChild(lbl);
     var cur = notifPrefs[key] !== false;
@@ -1620,16 +1620,16 @@ function rReorderList(){
     if(!def) return;
     var row = document.createElement('div');
     row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 8px;background:#101e34;border-radius:8px;margin-bottom:6px;';
-    row.innerHTML = '<span style="font-size:18px;">'+def.icon+'</span><span style="flex:1;font-size:14px;font-weight:600;color:#e8f0ff;">'+def.label+'</span>';
+    row.innerHTML = '<span style="font-size:18px;">'+def.icon+'</span><span style="flex:1;font-size:14px;font-weight:600;color:#4a9eff;">'+def.label+'</span>';
     var btnUp = document.createElement('button');
-    btnUp.style.cssText = 'background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;padding:6px 10px;color:#4a9eff;font-size:14px;cursor:pointer;';
-    btnUp.innerHTML = '&#8593;';
+    btnUp.style.cssText = 'background:rgba(74,224,180,.14);border:1.5px solid rgba(74,224,180,.55);border-radius:50%;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;padding:0;cursor:pointer;flex-shrink:0;';
+    btnUp.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#4ae0b4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="6"></line><polyline points="6 12 12 6 18 12"></polyline></svg>';
     btnUp.disabled = i===0;
     btnUp.style.opacity = i===0?'0.3':'1';
     btnUp.onclick = (function(idx){ return function(){ moveTab(idx,-1); }; })(i);
     var btnDn = document.createElement('button');
-    btnDn.style.cssText = 'background:#0a1628;border:1px solid #1a3a8a;border-radius:6px;padding:6px 10px;color:#4a9eff;font-size:14px;cursor:pointer;';
-    btnDn.innerHTML = '&#8595;';
+    btnDn.style.cssText = 'background:rgba(74,224,180,.14);border:1.5px solid rgba(74,224,180,.55);border-radius:50%;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;padding:0;cursor:pointer;flex-shrink:0;';
+    btnDn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#4ae0b4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="18"></line><polyline points="18 12 12 18 6 12"></polyline></svg>';
     btnDn.disabled = i===tabOrder.length-1;
     btnDn.style.opacity = i===tabOrder.length-1?'0.3':'1';
     btnDn.onclick = (function(idx){ return function(){ moveTab(idx,1); }; })(i);
@@ -6205,19 +6205,19 @@ if(savedName&&savedId){
 <div class="ov" id="reorder-modal">
   <div class="mo">
     <div class="moh">
-      <span class="mot">Arrange Tabs</span>
+      <span class="mot" style="color:#f5c518;">Arrange Tabs</span>
       <button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('reorder-modal')">&#10005;</button>
     </div>
     <p style="font-size:12px;color:#4a6a9a;margin-bottom:14px;">Tap the arrows to reorder your tabs. Changes apply to your phone only.</p>
     <div id="reorder-list"></div>
     <div style="height:1px;background:#0d1f3a;margin:14px 0 12px;"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;">
-      <span style="font-size:13px;color:#e8f0ff;">Display Mode</span>
+      <span style="font-family:'Russo One',sans-serif;font-size:11px;color:#f5c518;letter-spacing:2px;">DISPLAY MODE</span>
       <button onclick="toggleDarkMode()" id="mode-btn" style="background:#101e34;border:1px solid #1a3a8a;border-radius:20px;padding:5px 14px;color:#4a9eff;font-size:12px;font-family:Russo One,sans-serif;cursor:pointer;">&#9788; Light</button>
     </div>
     <div style="height:1px;background:#0d1f3a;margin:14px 0 10px;"></div>
     <div id="notif-settings-header" onclick="toggleNotifSettings()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:4px 0;">
-      <span style="font-family:'Russo One',sans-serif;font-size:11px;color:#e8f0ff;letter-spacing:2px;">NOTIFICATIONS</span>
+      <span style="font-family:'Russo One',sans-serif;font-size:11px;color:#f5c518;letter-spacing:2px;">NOTIFICATIONS</span>
       <span id="notif-settings-caret" style="color:#4a9eff;font-size:14px;">&#8964;</span>
     </div>
     <div id="notif-settings-body" style="display:none;margin-top:6px;"></div>
