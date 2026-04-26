@@ -624,7 +624,7 @@ body.light .mrav{color:#000 !important;}
 
 <div class="ov" id="announce-modal">
   <div class="mo" style="max-height:85vh;display:flex;flex-direction:column;">
-    <div class="moh" style="flex-shrink:0;"><span class="mot">📢 Announcements</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('announce-modal')">&#10005;</button></div>
+    <div class="moh" style="flex-shrink:0;"><span class="mot" style="color:#f5c518;">📢 Announcements</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('announce-modal')">&#10005;</button></div>
     <div id="ann-view-toggle" style="display:flex;background:#0a1628;border:1px solid #1a3a8a;border-radius:8px;overflow:hidden;margin-bottom:10px;flex-shrink:0;">
       <button type="button" id="ann-tab-active" onclick="setAnnView('active')" style="flex:1;background:#1a3a8a;border:none;color:#fff;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:1px;padding:7px 10px;cursor:pointer;">ACTIVE <span id="ann-tab-active-count" style="opacity:.7;font-size:9px;"></span></button>
       <button type="button" id="ann-tab-dismissed" onclick="setAnnView('dismissed')" style="flex:1;background:transparent;border:none;color:#8aa8d6;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:1px;padding:7px 10px;cursor:pointer;">DISMISSED <span id="ann-tab-dismissed-count" style="opacity:.7;font-size:9px;"></span></button>
@@ -2579,6 +2579,174 @@ function showEmojiPicker(msgId){
   }
   var msgEl = document.getElementById('msg-'+msgId);
   if(msgEl) msgEl.appendChild(picker);
+}
+
+// ── Chat selection mode ──────────────────────────────────────────────
+// Long-press your own message → enter selection mode. Header transforms.
+// Selected messages glow red; only your own can be selected.
+var _chatSelectMode = false;
+var _chatSelected = {}; // map of msgId(string) → true
+var _chatHelperTimeout = null;
+var _longPressTimer = null;
+var _longPressMoved = false;
+
+function _enterSelectMode(initialMsgId){
+  if(_chatSelectMode) return;
+  _chatSelectMode = true;
+  _chatSelected = {};
+  if(initialMsgId !== undefined && initialMsgId !== null){
+    _chatSelected[String(initialMsgId)] = true;
+  }
+  _renderChatSelectionHeader();
+  rChat();
+  // helper text auto-fades after 3s
+  if(_chatHelperTimeout) clearTimeout(_chatHelperTimeout);
+  _chatHelperTimeout = setTimeout(function(){
+    var h = document.getElementById('chat-sel-helper');
+    if(h) h.style.opacity = '0';
+  }, 3000);
+}
+
+function _exitSelectMode(){
+  if(!_chatSelectMode) return;
+  _chatSelectMode = false;
+  _chatSelected = {};
+  if(_chatHelperTimeout){ clearTimeout(_chatHelperTimeout); _chatHelperTimeout = null; }
+  _renderChatSelectionHeader();
+  rChat();
+}
+
+function _toggleSelected(msgId){
+  if(!_chatSelectMode) return;
+  var msg = msgs.find(function(m){ return String(m.id) === String(msgId); });
+  if(!msg || msg.who !== ME) return; // can only select your own
+  var k = String(msgId);
+  if(_chatSelected[k]) delete _chatSelected[k]; else _chatSelected[k] = true;
+  // If we just deselected the last one, exit selection mode entirely
+  if(Object.keys(_chatSelected).length === 0){
+    _exitSelectMode();
+    return;
+  }
+  _renderChatSelectionHeader();
+  rChat();
+}
+
+function _selectAllMine(){
+  if(!_chatSelectMode) return;
+  msgs.forEach(function(m){
+    var mWho=String(m.who), mTo=String(m.to||'band'), meStr=String(ME), toStr=String(chatTo);
+    var inThread = (chatTo==='band')
+      ? (mTo==='band'||mTo==='undefined'||mTo==='null'||!m.to)
+      : ((mWho===meStr&&mTo===toStr)||(mWho===toStr&&mTo===meStr));
+    if(inThread && m.who === ME){
+      _chatSelected[String(m.id)] = true;
+    }
+  });
+  _renderChatSelectionHeader();
+  rChat();
+}
+
+function _deleteSelected(){
+  var ids = Object.keys(_chatSelected);
+  if(!ids.length) return;
+  appConfirm({
+    title: 'Delete '+ids.length+' message'+(ids.length===1?'':'s')+'?',
+    message: 'They will be removed for everyone in the band. This cannot be undone.'
+  }).then(function(ok){
+    if(!ok) return;
+    var batch = db.batch();
+    ids.forEach(function(id){
+      batch.delete(db.collection('messages').doc(String(id)));
+      batch.delete(db.collection('reactions').doc(String(id)));
+    });
+    batch.commit()
+      .then(function(){
+        toast(ids.length+' message'+(ids.length===1?'':'s')+' deleted', {tone:'success'});
+        _exitSelectMode();
+      })
+      .catch(function(){
+        toast('Could not delete messages', {tone:'error'});
+      });
+  });
+}
+
+function _renderChatSelectionHeader(){
+  // The chat thread header has the back button + avatar + name.
+  // In selection mode, we hide that and show a selection bar.
+  var threadScreen = document.getElementById('chat-thread-screen');
+  if(!threadScreen) return;
+  var normalHdr = threadScreen.querySelector('div'); // first div is the header
+  var selHdr = document.getElementById('chat-sel-header');
+
+  if(_chatSelectMode){
+    if(normalHdr) normalHdr.style.display = 'none';
+    if(!selHdr){
+      selHdr = document.createElement('div');
+      selHdr.id = 'chat-sel-header';
+      selHdr.style.cssText = 'padding:10px 12px;background:linear-gradient(135deg,#ff475740 0%,#1f3a6e 75%);border-bottom:1px solid #0d1f3a;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;';
+      selHdr.innerHTML =
+        '<button id="chat-sel-cancel" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:5px 11px;color:#e8f0ff;font-family:\'Russo One\',sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;touch-action:manipulation;">CANCEL</button>'+
+        '<span id="chat-sel-count" style="flex:1;font-family:\'Russo One\',sans-serif;font-size:12px;color:#fff;letter-spacing:1px;text-align:center;">0 SELECTED</span>'+
+        '<button id="chat-sel-mine" style="background:transparent;border:1px solid #4a9eff;border-radius:14px;padding:5px 10px;color:#4a9eff;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;touch-action:manipulation;">SELECT MINE</button>'+
+        '<button id="chat-sel-delete" style="background:rgba(255,71,87,.18);border:1.5px solid #ff4757;border-radius:14px;padding:5px 12px;color:#ff4757;font-family:\'Russo One\',sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;touch-action:manipulation;"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#ff4757" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path></svg><span>DELETE</span></button>'+
+        '<div id="chat-sel-helper" style="width:100%;font-size:11px;color:#e8f0ff;text-align:center;opacity:1;transition:opacity .5s;font-style:italic;">Tap your messages to add them</div>';
+      // Insert as first child of threadScreen
+      threadScreen.insertBefore(selHdr, threadScreen.firstChild);
+      document.getElementById('chat-sel-cancel').onclick = _exitSelectMode;
+      document.getElementById('chat-sel-mine').onclick = _selectAllMine;
+      document.getElementById('chat-sel-delete').onclick = _deleteSelected;
+    }
+    var n = Object.keys(_chatSelected).length;
+    var c = document.getElementById('chat-sel-count');
+    if(c) c.textContent = n + ' SELECTED';
+    selHdr.style.display = 'flex';
+  } else {
+    if(normalHdr) normalHdr.style.display = 'flex';
+    if(selHdr) selHdr.style.display = 'none';
+  }
+}
+
+// Long-press detection helpers
+function _bindLongPress(el, msgId, isMe){
+  if(!isMe) return; // only long-press on own messages
+  var startX, startY;
+  var onStart = function(ev){
+    _longPressMoved = false;
+    var t = ev.touches ? ev.touches[0] : ev;
+    startX = t.clientX; startY = t.clientY;
+    if(_longPressTimer) clearTimeout(_longPressTimer);
+    _longPressTimer = setTimeout(function(){
+      _longPressTimer = null;
+      if(_longPressMoved) return;
+      // trigger selection mode
+      if(navigator.vibrate){ try { navigator.vibrate(15); } catch(_){} }
+      _enterSelectMode(msgId);
+    }, 500);
+  };
+  var onMove = function(ev){
+    if(!_longPressTimer) return;
+    var t = ev.touches ? ev.touches[0] : ev;
+    if(Math.abs(t.clientX - startX) > 10 || Math.abs(t.clientY - startY) > 10){
+      _longPressMoved = true;
+      clearTimeout(_longPressTimer); _longPressTimer = null;
+    }
+  };
+  var onEnd = function(){
+    if(_longPressTimer){ clearTimeout(_longPressTimer); _longPressTimer = null; }
+  };
+  el.addEventListener('touchstart', onStart, {passive:true});
+  el.addEventListener('touchmove', onMove, {passive:true});
+  el.addEventListener('touchend', onEnd, {passive:true});
+  el.addEventListener('touchcancel', onEnd, {passive:true});
+  el.addEventListener('mousedown', onStart);
+  el.addEventListener('mousemove', onMove);
+  el.addEventListener('mouseup', onEnd);
+  el.addEventListener('mouseleave', onEnd);
+  // Right-click as desktop alternative
+  el.addEventListener('contextmenu', function(ev){
+    ev.preventDefault();
+    _enterSelectMode(msgId);
+  });
 }
 
 function deleteChatMessage(msgId){
@@ -4852,12 +5020,25 @@ function addPickedSongs(){
 
 // CHAT
 function showChatList(){
+  if(typeof _chatSelectMode !== 'undefined' && _chatSelectMode){ _exitSelectMode(); return; }
+
   document.getElementById('chat-list-screen').style.display='flex';
   document.getElementById('chat-thread-screen').style.display='none';
   rChatThreads();
 }
 
 function openThread(id){
+  // Exit any selection mode from a previous thread
+  if(typeof _chatSelectMode !== 'undefined' && _chatSelectMode){
+    _chatSelectMode = false; _chatSelected = {};
+    var existingSelHdr = document.getElementById('chat-sel-header');
+    if(existingSelHdr) existingSelHdr.style.display = 'none';
+    var threadScreen0 = document.getElementById('chat-thread-screen');
+    if(threadScreen0){
+      var hdr0 = threadScreen0.querySelector('div');
+      if(hdr0 && hdr0.id !== 'chat-sel-header') hdr0.style.display = 'flex';
+    }
+  }
   chatTo = id;
   document.getElementById('chat-list-screen').style.display='none';
   document.getElementById('chat-thread-screen').style.display='flex';
@@ -5122,9 +5303,43 @@ function rChat() {
     var ti=document.createElement('div');
     ti.style.cssText='font-size:10px;color:rgba(255,255,255,.3);margin-top:3px;padding:0 4px;';
     ti.textContent=m.time||'';
-    bub.onclick=function(){showEmojiPicker(m.id);};
-    wrap.appendChild(bub);
-    wrap.appendChild(ti);
+    bub.onclick=function(ev){
+      if(_chatSelectMode){
+        ev.stopPropagation();
+        _toggleSelected(m.id);
+        return;
+      }
+      showEmojiPicker(m.id);
+    };
+    // Long-press to enter selection mode (own messages only)
+    if(isMe){ _bindLongPress(bub, m.id, true); }
+    // In selection mode, highlight selected own bubbles
+    if(_chatSelectMode && isMe && _chatSelected[String(m.id)]){
+      bub.style.border = '2px solid #ff4757';
+      bub.style.boxShadow = '0 0 14px rgba(255,71,87,.45)';
+    }
+    // In selection mode, attach a checkbox affordance for own messages
+    if(_chatSelectMode && isMe){
+      var cbWrap = document.createElement('div');
+      cbWrap.style.cssText = 'display:flex;align-items:center;'+(isMe?'flex-direction:row-reverse;':'')+'gap:8px;width:100%;';
+      var cb = document.createElement('div');
+      var checked = !!_chatSelected[String(m.id)];
+      cb.style.cssText = 'width:22px;height:22px;border-radius:50%;border:2px solid #ff4757;background:'+(checked?'#ff4757':'transparent')+';display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;align-self:center;';
+      if(checked){
+        cb.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      }
+      // We'll wrap bub + ti inside cbWrap, then put the checkbox inline
+      var bubCol = document.createElement('div');
+      bubCol.style.cssText = 'display:flex;flex-direction:column;'+(isMe?'align-items:flex-end;':'align-items:flex-start;')+'min-width:0;';
+      bubCol.appendChild(bub);
+      bubCol.appendChild(ti);
+      cbWrap.appendChild(cb);
+      cbWrap.appendChild(bubCol);
+      wrap.appendChild(cbWrap);
+    } else {
+      wrap.appendChild(bub);
+      wrap.appendChild(ti);
+    }
     row.appendChild(wrap);
     el.appendChild(row);
   });
@@ -5679,8 +5894,10 @@ function renderAnnouncementsList(){
       // Author can still hard-delete from history
       if(a.who === ME){
         var del = document.createElement('button');
-        del.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:6px;padding:4px 10px;color:#ff4757;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;';
-        del.innerHTML = '<span style="font-size:11px;line-height:1;">&#128465;</span><span>DELETE FOR ALL</span>';
+        del.style.cssText = 'background:transparent;border:1px solid #ff4757;border-radius:50%;width:28px;height:28px;color:#ff4757;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;';
+        del.setAttribute('title','Delete for everyone');
+        del.setAttribute('aria-label','Delete for everyone');
+        del.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#ff4757" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>';
         del.setAttribute('data-aid', a.id);
         del.onclick = function(){
           var aid = this.getAttribute('data-aid');
@@ -5698,8 +5915,10 @@ function renderAnnouncementsList(){
       if(a.who === ME){
         // Author: hard-delete
         var del = document.createElement('button');
-        del.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:6px;padding:4px 10px;color:#ff4757;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;';
-        del.innerHTML = '<span style="font-size:11px;line-height:1;">&#128465;</span><span>DELETE</span>';
+        del.style.cssText = 'background:transparent;border:1px solid #ff4757;border-radius:50%;width:28px;height:28px;color:#ff4757;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;';
+        del.setAttribute('title','Delete');
+        del.setAttribute('aria-label','Delete announcement');
+        del.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#ff4757" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>';
         del.setAttribute('data-aid', a.id);
         del.onclick = function(){
           var aid = this.getAttribute('data-aid');
