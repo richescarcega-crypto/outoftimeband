@@ -1270,6 +1270,61 @@ function rTabBadges(){
   });
 }
 
+
+// ── TIME INPUT AUTO-MASK ───────────────────────────────────────────────────
+// Lets users type 730 -> "7:30 PM", 7 -> "7:00 PM", 1145p -> "11:45 PM",
+// 8a -> "8:00 AM", noon -> "12:00 PM", 1930 -> "7:30 PM", etc.
+// Bare numbers default to PM since this is a band app and most times are evening.
+function formatTimeInput(raw){
+  if(!raw) return '';
+  var s = String(raw).trim().toLowerCase();
+  if(!s) return '';
+  if(s === 'noon') return '12:00 PM';
+  if(s === 'midnight') return '12:00 AM';
+  var ampm = null;
+  if(/p$|pm$|p\.m\.?$/.test(s)){ ampm = 'PM'; s = s.replace(/p\.?m?\.?$/, '').trim(); }
+  else if(/a$|am$|a\.m\.?$/.test(s)){ ampm = 'AM'; s = s.replace(/a\.?m?\.?$/, '').trim(); }
+  var hh, mm;
+  if(s.indexOf(':') >= 0){
+    var parts = s.split(':');
+    hh = parseInt(parts[0], 10);
+    mm = parseInt(parts[1] || '0', 10);
+  } else {
+    var digits = s.replace(/\D/g, '');
+    if(!digits) return '';
+    if(digits.length <= 2){ hh = parseInt(digits, 10); mm = 0; }
+    else if(digits.length === 3){ hh = parseInt(digits.slice(0,1), 10); mm = parseInt(digits.slice(1), 10); }
+    else if(digits.length === 4){ hh = parseInt(digits.slice(0,2), 10); mm = parseInt(digits.slice(2), 10); }
+    else { digits = digits.slice(-4); hh = parseInt(digits.slice(0,2), 10); mm = parseInt(digits.slice(2), 10); }
+  }
+  if(isNaN(hh) || isNaN(mm)) return '';
+  if(mm < 0 || mm > 59) return '';
+  if(hh >= 13 && hh <= 23){ hh = hh - 12; if(!ampm) ampm = 'PM'; }
+  else if(hh === 0){ hh = 12; if(!ampm) ampm = 'AM'; }
+  else if(hh === 24){ hh = 12; ampm = 'AM'; }
+  if(hh < 1 || hh > 12) return '';
+  if(!ampm) ampm = 'PM';
+  return hh + ':' + (mm < 10 ? '0' + mm : mm) + ' ' + ampm;
+}
+
+function attachTimeMask(inp){
+  if(!inp || inp._timeMaskAttached) return;
+  inp._timeMaskAttached = true;
+  inp.setAttribute('inputmode', 'numeric');
+  inp.setAttribute('autocomplete', 'off');
+  inp.setAttribute('autocapitalize', 'off');
+  inp.addEventListener('blur', function(){
+    var formatted = formatTimeInput(this.value);
+    if(formatted) this.value = formatted;
+  });
+  inp.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      var formatted = formatTimeInput(this.value);
+      if(formatted) this.value = formatted;
+    }
+  });
+}
+
 // IDENTITY
 var ME = null, myName = null;
 var memberNames = ["Jim Locherie","Amy Eisenberg Ritz","Rich Escarcega","Ed Escarcega","Rachel Cervantes","Zach Dennert"];
@@ -3183,7 +3238,7 @@ function openGigSheet(ev){
     inp.placeholder = placeholder;
     if(type==='textarea'){inp.rows=2;inp.style.resize='none';}
     if(type==='date'){inp.type='date';}
-    if(type==='time'){inp.type='time';}
+    if(type==='time'){ attachTimeMask(inp); }
     d.appendChild(lbl);
     d.appendChild(inp);
     return d;
@@ -3217,13 +3272,13 @@ function openGigSheet(ev){
 
   var row1 = document.createElement('div');
   row1.style.cssText = 'display:flex;gap:8px;';
-  row1.appendChild(makeField('LOAD-IN','gd-loadin',det.loadin,'5:30 PM','text'));
-  row1.appendChild(makeField('SOUND CHECK','gd-sc',det.sc,'6:30 PM','text'));
+  row1.appendChild(makeField('LOAD-IN','gd-loadin',det.loadin,'e.g. 530 → 5:30 PM','time'));
+  row1.appendChild(makeField('SOUND CHECK','gd-sc',det.sc,'e.g. 630 → 6:30 PM','time'));
   b.appendChild(row1);
 
   var row2 = document.createElement('div');
   row2.style.cssText = 'display:flex;gap:8px;';
-  row2.appendChild(makeField('SET TIME','gd-settime',det.settime,'8:00 PM','text'));
+  row2.appendChild(makeField('SET TIME','gd-settime',det.settime,'e.g. 8 → 8:00 PM','time'));
   row2.appendChild(makeField('CONTACT','gd-contact',det.contact,'Venue contact','text'));
   b.appendChild(row2);
 
@@ -3294,7 +3349,7 @@ function openRehearsalSheet(ev){
     inp.placeholder = placeholder;
     if(type==='textarea'){inp.rows=2;inp.style.resize='none';}
     if(type==='date'){inp.type='date';}
-    if(type==='time'){inp.type='time';}
+    if(type==='time'){ attachTimeMask(inp); }
     d.appendChild(lbl);
     d.appendChild(inp);
     return d;
@@ -3310,8 +3365,8 @@ function openRehearsalSheet(ev){
   var rhAgInit = ev ? _getAgenda(ev.id) : {songs:[], notes:'', startTime:'', endTime:'', focus:''};
   var timeRow = document.createElement('div');
   timeRow.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;';
-  timeRow.appendChild(makeField('START TIME','rh-start', rhAgInit.startTime, '', 'time'));
-  timeRow.appendChild(makeField('END TIME','rh-end', rhAgInit.endTime, '', 'time'));
+  timeRow.appendChild(makeField('START TIME','rh-start', rhAgInit.startTime, 'e.g. 7 → 7:00 PM', 'time'));
+  timeRow.appendChild(makeField('END TIME','rh-end', rhAgInit.endTime, 'e.g. 930 → 9:30 PM', 'time'));
   // makeField wraps each input in a div with margin-bottom:8px; flex them to share the row
   timeRow.children[0].style.flex = '1';
   timeRow.children[0].style.marginBottom = '0';
