@@ -4346,6 +4346,36 @@ function saveGigDetail(evId) {
 }
 
 // SETLISTS
+// Setlist palette — stripe colors + matching 3-stop title gradients + title glows.
+// Order: blue, gold, green, pink, orange, purple. Cycles after 6.
+var _SL_STRIPE_COLORS = ['#4a9eff', '#f5c518', '#06d6a0', '#ff6b9d', '#ffa500', '#b08bff'];
+var _SL_TITLE_GRADIENTS = [
+  'linear-gradient(135deg,#1f5fb5 0%,#4a9eff 45%,#a3d2ff 100%)',
+  'linear-gradient(135deg,#ffb800 0%,#ffd84a 45%,#fff39a 100%)',
+  'linear-gradient(135deg,#04a87b 0%,#06d6a0 45%,#7df5cf 100%)',
+  'linear-gradient(135deg,#d44078 0%,#ff6b9d 45%,#ffb6cf 100%)',
+  'linear-gradient(135deg,#cc7a00 0%,#ffa500 45%,#ffd07a 100%)',
+  'linear-gradient(135deg,#7d5acc 0%,#b08bff 45%,#dccaff 100%)'
+];
+var _SL_TITLE_GLOWS = [
+  'rgba(74,158,255,.25)',
+  'rgba(255,184,0,.25)',
+  'rgba(6,214,160,.25)',
+  'rgba(255,107,157,.25)',
+  'rgba(255,165,0,.25)',
+  'rgba(176,139,255,.25)'
+];
+
+function _slGradientForId(id){
+  var idx = sets.findIndex(function(x){ return x.id == id; });
+  if(idx < 0) idx = 0;
+  return {
+    stripe: _SL_STRIPE_COLORS[idx % _SL_STRIPE_COLORS.length],
+    gradient: _SL_TITLE_GRADIENTS[idx % _SL_TITLE_GRADIENTS.length],
+    glow: _SL_TITLE_GLOWS[idx % _SL_TITLE_GLOWS.length]
+  };
+}
+
 function rSets() {
   document.getElementById('si').style.display='block';
   document.getElementById('se').style.display='none';
@@ -4355,25 +4385,9 @@ function rSets() {
   if(!sets.length){ el.innerHTML='<div style="color:#aaa;font-style:italic;padding:8px">No setlists yet.</div>'; return; }
   el.innerHTML = '';
   // Cycle through a small palette so multiple setlists feel distinct
-  // Each setlist gets a stripe color and a matching 3-stop gradient for its title.
-  // Order: blue, gold, green, pink, orange, purple. Cycles after 6.
-  var stripeColors = ['#4a9eff', '#f5c518', '#06d6a0', '#ff6b9d', '#ffa500', '#b08bff'];
-  var titleGradients = [
-    'linear-gradient(135deg,#1f5fb5 0%,#4a9eff 45%,#a3d2ff 100%)',
-    'linear-gradient(135deg,#ffb800 0%,#ffd84a 45%,#fff39a 100%)',
-    'linear-gradient(135deg,#04a87b 0%,#06d6a0 45%,#7df5cf 100%)',
-    'linear-gradient(135deg,#d44078 0%,#ff6b9d 45%,#ffb6cf 100%)',
-    'linear-gradient(135deg,#cc7a00 0%,#ffa500 45%,#ffd07a 100%)',
-    'linear-gradient(135deg,#7d5acc 0%,#b08bff 45%,#dccaff 100%)'
-  ];
-  var titleGlows = [
-    'rgba(74,158,255,.25)',
-    'rgba(255,184,0,.25)',
-    'rgba(6,214,160,.25)',
-    'rgba(255,107,157,.25)',
-    'rgba(255,165,0,.25)',
-    'rgba(176,139,255,.25)'
-  ];
+  var stripeColors = _SL_STRIPE_COLORS;
+  var titleGradients = _SL_TITLE_GRADIENTS;
+  var titleGlows = _SL_TITLE_GLOWS;
   sets.forEach(function(s, idx){
     var totalSecs = getSetDuration(s.songs);
     var durStr = totalSecs > 0 ? formatDuration(totalSecs) : '';
@@ -4428,6 +4442,7 @@ function clEd(){setsViewState='list';document.getElementById('si').style.display
 function rEd() {
   var s=sets.find(function(x){return x.id==aSL;});
   if(!s)return;
+  var _slPal = _slGradientForId(s.id);
   var totalSecs=getSetDuration(s.songs);
   var durStr = totalSecs>0 ? ' · &#9201; '+formatDuration(totalSecs) : '';
   // Icon-based Edit & Share buttons
@@ -4441,7 +4456,7 @@ function rEd() {
   var shareIcon = '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" focusable="false"><path d="M12 3l-4 4h3v8h2V7h3l-4-4zm-7 12v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5h-2v5H7v-5H5z" fill="#4a9eff"/></svg>';
   document.getElementById('eh').innerHTML =
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap;">'+
-    '<span class="tt-gold" style="font-family:Russo One,sans-serif;font-size:17px;flex:1;min-width:120px;letter-spacing:1px;">'+s.name+'</span>'+
+    '<span style="background:'+_slPal.gradient+';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:700;text-shadow:0 0 18px '+_slPal.glow+';font-family:Russo One,sans-serif;font-size:17px;flex:1;min-width:120px;letter-spacing:1px;">'+s.name+'</span>'+
     '<button onclick="toggleSLEdit()" style="background:'+editBg+';border:1px solid '+editBorder+';border-radius:18px;padding:6px 12px;color:'+editColor+';font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;cursor:pointer;touch-action:manipulation;display:inline-flex;align-items:center;gap:5px;">'+editIcon+'<span>'+editLabel+'</span></button>'+
     '<button onclick="printSL()" style="background:transparent;border:1px solid #1a3a8a;border-radius:18px;padding:6px 12px;color:#4a9eff;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;cursor:pointer;touch-action:manipulation;display:inline-flex;align-items:center;gap:5px;">'+shareIcon+'<span>SHARE</span></button>'+
     '</div>'+
