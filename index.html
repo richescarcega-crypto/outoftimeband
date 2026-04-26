@@ -336,16 +336,10 @@ body.light .mrav{color:#000 !important;}
     <span onclick="toggleCard('evl','evl-arrow')" style="cursor:pointer;display:flex;align-items:center;gap:6px;flex:1;"><span class="tt-gold" style="font-size:12px;letter-spacing:2px;font-family:'Russo One',sans-serif;">ALL EVENTS</span><span id="evl-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span></span>
     <button onclick="exportData('events')" class="pill-action"><span style="font-size:11px;line-height:1;">&#8679;</span><span>SHARE</span></button>
   </div>
+  <div id="evl-filter-row" style="display:none;flex-wrap:wrap;gap:6px;margin:6px 0 8px;"></div>
   <div id="evl"></div>
 
-  <div class="sh" style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;">
-    <span onclick="toggleCard('important-dates-list','idates-arrow')" style="cursor:pointer;display:flex;align-items:center;gap:6px;flex:1;"><span class="tt-gold" style="font-size:12px;letter-spacing:2px;font-family:'Russo One',sans-serif;">IMPORTANT DATES</span><span id="idates-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span></span>
-    <button onclick="openImportantDateModal(null)" class="pill-action">
-      <span style="font-size:14px;line-height:1;">&#43;</span>
-      <span>NEW</span>
-    </button>
-  </div>
-  <div id="important-dates-list" style="display:none;"></div>
+
 
 </div>
 
@@ -631,8 +625,12 @@ body.light .mrav{color:#000 !important;}
 <div class="ov" id="announce-modal">
   <div class="mo" style="max-height:85vh;display:flex;flex-direction:column;">
     <div class="moh" style="flex-shrink:0;"><span class="mot">📢 Announcements</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('announce-modal')">&#10005;</button></div>
+    <div id="ann-view-toggle" style="display:flex;background:#0a1628;border:1px solid #1a3a8a;border-radius:8px;overflow:hidden;margin-bottom:10px;flex-shrink:0;">
+      <button type="button" id="ann-tab-active" onclick="setAnnView('active')" style="flex:1;background:#1a3a8a;border:none;color:#fff;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:1px;padding:7px 10px;cursor:pointer;">ACTIVE <span id="ann-tab-active-count" style="opacity:.7;font-size:9px;"></span></button>
+      <button type="button" id="ann-tab-dismissed" onclick="setAnnView('dismissed')" style="flex:1;background:transparent;border:none;color:#8aa8d6;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:1px;padding:7px 10px;cursor:pointer;">DISMISSED <span id="ann-tab-dismissed-count" style="opacity:.7;font-size:9px;"></span></button>
+    </div>
     <div id="ann-list" style="flex:1;overflow-y:auto;margin-bottom:10px;min-height:80px;"></div>
-    <div style="flex-shrink:0;border-top:1px solid #0d1f3a;padding-top:10px;">
+    <div id="ann-compose" style="flex-shrink:0;border-top:1px solid #0d1f3a;padding-top:10px;">
       <textarea class="mi" id="ann-txt" placeholder="Post a new announcement..." rows="3" style="resize:none;margin-bottom:8px;"></textarea>
       <button class="sb" onclick="postAnnounce()" style="width:100%">Post to Band</button>
     </div>
@@ -2053,13 +2051,32 @@ function getHolidayOn(ds){
 
 // Custom Important Dates (Firestore-backed, user-editable)
 var importantDates = [];   // [{id, date:'YYYY-MM-DD' or 'MM-DD' if recurring, title, recurring, color}]
+var _idatesHasInit = false;
+var _knownIdateIds = {};
 function listenImportantDates(){
   db.collection('importantDates').onSnapshot(function(snap){
+    var newOnes = [];
     importantDates = [];
     snap.forEach(function(doc){
-      importantDates.push(Object.assign({id:doc.id}, doc.data()));
+      var data = Object.assign({id:doc.id}, doc.data());
+      importantDates.push(data);
+      if(_idatesHasInit && !_knownIdateIds[doc.id]){
+        newOnes.push(data);
+      }
+      _knownIdateIds[doc.id] = true;
     });
-    // Re-render anything that uses them
+    if(_idatesHasInit && newOnes.length){
+      newOnes.forEach(function(idate){
+        var dateLabel = idate.recurring ? ('Annual · ' + (idate.date||'')) : (idate.date||'');
+        showAppBanner({
+          title: 'New important date',
+          message: (idate.title||'Untitled') + ' · ' + dateLabel,
+          icon: '⭐',
+          onTap: function(){ _gotoTab('cal'); }
+        });
+      });
+    }
+    _idatesHasInit = true;
     if(document.getElementById('sc-cal') && document.getElementById('sc-cal').classList.contains('on')) rCal();
     if(document.getElementById('important-dates-list')) rImportantDatesList();
   });
@@ -2168,12 +2185,21 @@ function saveImportantDate(){
     color: _editingIDateColor,
     updated: firebase.firestore.FieldValue.serverTimestamp()
   };
-  if(_editingIDateId){
+  var wasEdit = !!_editingIDateId;
+  if(wasEdit){
     db.collection('importantDates').doc(_editingIDateId).set(data, {merge:true})
-      .then(function(){ toast('Date updated', {tone:'success'}); }).catch(function(){});
+      .then(function(){
+        toast('Date updated', {tone:'success'});
+        var prettyDate = _editingIDateRecurring ? ('Annual · ' + dateRaw) : dateRaw;
+        notifyBand('gigs', 'Important date updated: ' + title, prettyDate);
+      }).catch(function(){});
   } else {
     db.collection('importantDates').add(data)
-      .then(function(){ toast('Date added', {tone:'success'}); }).catch(function(){});
+      .then(function(){
+        toast('Date added', {tone:'success'});
+        var prettyDate = _editingIDateRecurring ? ('Annual · ' + dateRaw.slice(5)) : dateRaw;
+        notifyBand('gigs', 'New important date: ' + title, prettyDate);
+      }).catch(function(){});
   }
   clM('idate-modal');
 }
@@ -2524,9 +2550,13 @@ var EMOJIS = ['👍','❤️','😂','🔥','🎸','👏'];
 function showEmojiPicker(msgId){
   var existing = document.getElementById('emoji-picker-'+msgId);
   if(existing){ existing.remove(); return; }
+  // Find the message to know if I'm allowed to delete it
+  var msg = msgs.find(function(m){ return String(m.id) === String(msgId); });
+  var canDelete = !!(msg && msg.who === ME);
+
   var picker = document.createElement('div');
   picker.id = 'emoji-picker-'+msgId;
-  picker.style.cssText='display:flex;gap:6px;padding:6px 10px;background:#0a1628;border:1px solid #1a3a8a;border-radius:20px;margin-top:4px;flex-wrap:wrap;';
+  picker.style.cssText='display:flex;align-items:center;gap:6px;padding:6px 10px;background:#0a1628;border:1px solid #1a3a8a;border-radius:20px;margin-top:4px;flex-wrap:wrap;';
   EMOJIS.forEach(function(e){
     var btn=document.createElement('button');
     btn.style.cssText='background:none;border:none;font-size:18px;cursor:pointer;padding:2px;';
@@ -2534,8 +2564,92 @@ function showEmojiPicker(msgId){
     btn.onclick=function(){ toggleReaction(msgId,e); picker.remove(); };
     picker.appendChild(btn);
   });
+  if(canDelete){
+    var sep = document.createElement('span');
+    sep.style.cssText = 'width:1px;align-self:stretch;background:#1a3a8a;margin:0 2px;';
+    picker.appendChild(sep);
+    var del = document.createElement('button');
+    del.style.cssText = 'background:none;border:none;color:#ff4757;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:2px 4px;';
+    del.innerHTML = '<span style="font-size:13px;line-height:1;">&#128465;</span><span>DELETE</span>';
+    del.onclick = function(){
+      picker.remove();
+      deleteChatMessage(msgId);
+    };
+    picker.appendChild(del);
+  }
   var msgEl = document.getElementById('msg-'+msgId);
   if(msgEl) msgEl.appendChild(picker);
+}
+
+function deleteChatMessage(msgId){
+  var msg = msgs.find(function(m){ return String(m.id) === String(msgId); });
+  if(!msg) return;
+  if(msg.who !== ME){
+    toast("You can only delete your own messages.", {tone:'error'});
+    return;
+  }
+  appConfirm({
+    title: 'Delete this message?',
+    message: 'It will be removed for everyone in the band. This cannot be undone.'
+  }).then(function(ok){
+    if(!ok) return;
+    db.collection('messages').doc(String(msgId)).delete()
+      .then(function(){
+        // Also remove any reactions doc for it
+        db.collection('reactions').doc(String(msgId)).delete().catch(function(){});
+        toast('Message deleted', {tone:'success'});
+      })
+      .catch(function(){ toast('Could not delete message', {tone:'error'}); });
+  });
+}
+
+function deleteThread(threadId){
+  // threadId is either 'band' or a member id (number)
+  // Wipe ALL messages in that thread for everyone.
+  var label, isBand = threadId === 'band';
+  if(isBand){
+    label = 'band chat';
+  } else {
+    var m = gM(threadId);
+    label = 'conversation with ' + ((m && m.name) ? m.name.split(' ')[0] : 'member');
+  }
+  appConfirm({
+    title: isBand ? 'Delete ALL band chat?' : 'Delete this conversation?',
+    message: isBand
+      ? 'This will permanently remove every message in the band chat for everyone in the band. This cannot be undone.'
+      : 'This will permanently delete every message in your ' + label + ' for both of you. This cannot be undone.',
+    okLabel: 'DELETE'
+  }).then(function(ok){
+    if(!ok) return;
+    // Compute which message ids belong to this thread
+    var toDelete = msgs.filter(function(mm){
+      if(isBand) return !mm.to || mm.to === 'band';
+      return (String(mm.who) === String(ME) && String(mm.to) === String(threadId)) ||
+             (String(mm.who) === String(threadId) && (mm.to === ME || String(mm.to) === String(ME)));
+    });
+    if(!toDelete.length){
+      toast('Nothing to delete', {tone:'info'});
+      return;
+    }
+    // Use a batch for efficiency (Firestore limits batches to 500 ops)
+    var chunks = [];
+    for(var i = 0; i < toDelete.length; i += 400) chunks.push(toDelete.slice(i, i + 400));
+    var promises = chunks.map(function(chunk){
+      var batch = db.batch();
+      chunk.forEach(function(mm){
+        batch.delete(db.collection('messages').doc(String(mm.id)));
+        batch.delete(db.collection('reactions').doc(String(mm.id)));
+      });
+      return batch.commit().catch(function(){});
+    });
+    Promise.all(promises).then(function(){
+      toast(toDelete.length + ' message' + (toDelete.length===1?'':'s') + ' deleted', {tone:'success'});
+      // If we were viewing this thread, bounce back to the chat list
+      if(String(chatTo) === String(threadId) || (isBand && chatTo === 'band')){
+        showChatList();
+      }
+    });
+  });
 }
 
 function listenSets(){
@@ -3208,39 +3322,138 @@ function _wireCalSwipe(){
   });
   wrap.addEventListener('mouseleave', function(){ mDown = false; });
 }
-function rEvL() {
-  if(cardStates['evl'] === undefined) cardStates['evl'] = true; // collapsed by default
+// All Events list now includes Important Dates as type 'custom'.
+// Filter is persisted across renders.
+var _evlFilters = { gig:true, rehearsal:true, blackout:true, custom:true };
+
+function _eventColor(type){ return EC[type] || '#06d6a0'; }
+var EVL_FILTER_LABELS = [
+  {key:'gig',       label:'Gigs',       color:'#f5c518'},
+  {key:'rehearsal', label:'Rehearsals', color:'#4a9eff'},
+  {key:'blackout',  label:'Blackouts',  color:'#ff4757'},
+  {key:'custom',    label:'Custom',     color:'#06d6a0'}
+];
+
+function _renderEvlFilterRow(){
+  var host = document.getElementById('evl-filter-row');
+  if(!host) return;
+  host.innerHTML = '';
+  EVL_FILTER_LABELS.forEach(function(f){
+    var on = !!_evlFilters[f.key];
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.style.cssText = 'background:'+(on?f.color+'22':'transparent')+';border:1px solid '+(on?f.color:'#1a3a8a')+';border-radius:14px;padding:4px 10px;color:'+(on?f.color:'#4a6a9a')+';font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;touch-action:manipulation;';
+    btn.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+f.color+';opacity:'+(on?'1':'.5')+';"></span>'+f.label.toUpperCase();
+    btn.onclick = (function(k){ return function(){
+      _evlFilters[k] = !_evlFilters[k];
+      // If user turns everything off, turn the clicked one back on so list isn't empty
+      var anyOn = false;
+      EVL_FILTER_LABELS.forEach(function(x){ if(_evlFilters[x.key]) anyOn = true; });
+      if(!anyOn) _evlFilters[k] = true;
+      rEvL();
+    }; })(f.key);
+    host.appendChild(btn);
+  });
+}
+
+function _customEntriesAsRows(){
+  // Convert importantDates to event-row shape with type 'custom'
+  // For recurring (annual) entries, materialize "this year" and "next year" upcoming occurrences
+  var out = [];
+  var todayY = new Date().getFullYear();
+  importantDates.forEach(function(x){
+    if(!x || !x.date) return;
+    var color = x.color || '#06d6a0';
+    if(x.recurring){
+      var p = String(x.date).split('-');
+      var mm, dd;
+      if(p.length === 2){ mm = p[0]; dd = p[1]; }
+      else if(p.length === 3){ mm = p[1]; dd = p[2]; }
+      else return;
+      [todayY, todayY+1].forEach(function(yr){
+        var ds = yr + '-' + mm + '-' + dd;
+        out.push({
+          id: 'idate-' + x.id + '-' + yr,
+          date: ds,
+          type: 'custom',
+          title: x.title || 'Untitled',
+          note: 'Annual',
+          _customColor: color,
+          _customSourceId: x.id,
+          _customRecurring: true
+        });
+      });
+    } else {
+      out.push({
+        id: 'idate-' + x.id,
+        date: x.date,
+        type: 'custom',
+        title: x.title || 'Untitled',
+        note: '',
+        _customColor: color,
+        _customSourceId: x.id,
+        _customRecurring: false
+      });
+    }
+  });
+  return out;
+}
+
+function rEvL(){
+  if(cardStates['evl'] === undefined) cardStates['evl'] = true;
   var evlEl = document.getElementById('evl');
   var evlAr = document.getElementById('evl-arrow');
-  if(evlEl) evlEl.style.display = cardStates['evl'] ? 'none' : 'block';
+  var filterRow = document.getElementById('evl-filter-row');
+  var collapsed = !!cardStates['evl'];
+  if(evlEl) evlEl.style.display = collapsed ? 'none' : 'block';
+  if(filterRow) filterRow.style.display = collapsed ? 'none' : 'flex';
   if(evlAr) evlAr.innerHTML = '&#8964;';
+  if(!collapsed) _renderEvlFilterRow();
+
   var el = document.getElementById('evl');
-  if(!events.length){ el.innerHTML='<div style="color:#aaa;font-style:italic;padding:8px">No events. Tap a day to add.</div>'; return; }
-  var sorted = events.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
-  el.innerHTML = sorted.map(function(e){
+  if(!el) return;
+
+  // Combine real events with important dates
+  var combined = events.slice().concat(_customEntriesAsRows());
+
+  // Apply filter
+  var filtered = combined.filter(function(e){ return _evlFilters[e.type]; });
+  // Sort by date ascending
+  filtered.sort(function(a,b){ return a.date.localeCompare(b.date); });
+
+  if(!filtered.length){
+    var any = combined.length > 0;
+    el.innerHTML = '<div style="color:#aaa;font-style:italic;padding:8px;">'+
+      (any ? 'No events match the current filter.' : 'No events. Tap a day to add.')+'</div>';
+    return;
+  }
+
+  el.innerHTML = '';
+  filtered.forEach(function(e){
+    var color = e.type === 'custom' ? (e._customColor || '#06d6a0') : _eventColor(e.type);
     var d = dU(e.date);
     var pill = '';
     if(d >= 0 && d <= 60){
       var label = d===0 ? 'TODAY' : (d===1 ? 'TOMORROW' : (d <= 14 ? d+' DAYS' : d+'d'));
-      var pillColor = EC[e.type];
-      pill = '<div style="font-family:Russo One,sans-serif;font-size:9px;letter-spacing:.5px;color:'+pillColor+';background:'+pillColor+'1a;border:1px solid '+pillColor+'55;border-radius:10px;padding:3px 8px;flex-shrink:0;margin-right:6px;white-space:nowrap;">'+label+'</div>';
+      pill = '<div style="font-family:Russo One,sans-serif;font-size:9px;letter-spacing:.5px;color:'+color+';background:'+color+'1a;border:1px solid '+color+'55;border-radius:10px;padding:3px 8px;flex-shrink:0;margin-right:6px;white-space:nowrap;">'+label+'</div>';
     }
-    return '<div class="er" data-evid="' + e.id + '" style="cursor:pointer;">' +
-      '<div class="ebdg" style="background:' + EC[e.type] + '22;color:' + EC[e.type] + '">' + e.type + '</div>' +
-      '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:#fff">' + e.title + '</div>' +
-      '<div style="font-size:11px;color:#aaa;margin-top:2px">' + e.date + ' - ' + e.note + '</div></div>' +
-      pill +
-      '<div style="color:' + EC[e.type] + ';font-size:20px;line-height:1;flex-shrink:0;margin-left:0;opacity:.7;">&#8250;</div>' +
-    '</div>';
-  }).join('');
-
-  // Single tap opens the detail sheet
-  var rows = el.querySelectorAll('.er');
-  rows.forEach(function(row){
-    row.addEventListener('click', function(){
-      var id = row.getAttribute('data-evid');
-      if(id) editEv(id);
-    });
+    var typeLabel = e.type === 'custom' ? 'custom' : e.type;
+    var icon = e.type === 'custom' ? '<span style="color:'+color+';font-size:11px;line-height:1;margin-right:1px;">&#9733;</span>' : '';
+    var row = document.createElement('div');
+    row.className = 'er';
+    row.style.cursor = 'pointer';
+    row.innerHTML =
+      '<div class="ebdg" style="background:'+color+'22;color:'+color+';">'+icon+typeLabel+'</div>'+
+      '<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:#fff;">'+(e.title||'')+'</div>'+
+      '<div style="font-size:11px;color:#aaa;margin-top:2px;">'+e.date+(e.note?' - '+e.note:'')+'</div></div>'+
+      pill+
+      '<div style="color:'+color+';font-size:20px;line-height:1;flex-shrink:0;opacity:.7;">&#8250;</div>';
+    if(e.type === 'custom'){
+      row.onclick = (function(srcId){ return function(){ openImportantDateModal(srcId); }; })(e._customSourceId);
+    } else {
+      row.onclick = (function(eid){ return function(){ editEv(eid); }; })(e.id);
+    }
+    el.appendChild(row);
   });
 }
 function oDy(day) {
@@ -3410,7 +3623,17 @@ function _renderEventTypeChooser(host){
   var types = [
     {key:'gig',       icon:'\uD83C\uDFB8', label:'GIG',       sub:'Show, performance, paid event',     color:'#f5c518', open:function(){ openGigSheet(null); }},
     {key:'rehearsal', icon:'\uD83C\uDFA4', label:'REHEARSAL', sub:'Practice, run-through, prep',       color:'#4a9eff', open:function(){ openRehearsalSheet(null); }},
-    {key:'blackout',  icon:'\uD83D\uDEAB', label:'BLACKOUT',  sub:'Unavailable date or date range',    color:'#ff4757', open:function(){ openBlackoutSheet(null); }}
+    {key:'blackout',  icon:'\uD83D\uDEAB', label:'BLACKOUT',  sub:'Unavailable date or date range',    color:'#ff4757', open:function(){ openBlackoutSheet(null); }},
+    {key:'custom',    icon:'\u2B50',         label:'CUSTOM',    sub:'Anniversary, milestone, anything', color:'#06d6a0', open:function(){
+      // Pre-seed the important date modal with the chosen date
+      var preDate = fD(CY, CM, sDay);
+      openImportantDateModal(null);
+      // Override the default date input value after the modal opens
+      setTimeout(function(){
+        var di = document.getElementById('idate-date');
+        if(di) di.value = preDate;
+      }, 50);
+    }}
   ];
   types.forEach(function(t){
     var btn = document.createElement('button');
@@ -4620,10 +4843,59 @@ function rChatThreads(){
         preview+
       '</div>';
 
+    // 3-dot menu for thread actions (delete)
+    var menu = document.createElement('button');
+    menu.type = 'button';
+    menu.title = 'Conversation options';
+    menu.style.cssText = 'background:transparent;border:none;color:#4a6a9a;font-size:18px;cursor:pointer;padding:6px 8px;flex-shrink:0;line-height:1;border-radius:6px;touch-action:manipulation;';
+    menu.innerHTML = '&#8942;'; // ⋮
+    menu.onclick = (function(tid){ return function(e){
+      e.stopPropagation();
+      showThreadMenu(tid, this);
+    }; })(t.id);
+
     row.appendChild(av);
     row.appendChild(info);
+    row.appendChild(menu);
     el.appendChild(row);
   });
+}
+
+function showThreadMenu(threadId, anchor){
+  // Remove any existing menu
+  var existing = document.getElementById('thread-menu-popup');
+  if(existing){ existing.remove(); return; }
+  var pop = document.createElement('div');
+  pop.id = 'thread-menu-popup';
+  pop.style.cssText = 'position:fixed;background:#101e34;border:1px solid #1a3a8a;border-radius:8px;box-shadow:0 12px 32px rgba(0,0,0,.55);padding:6px;z-index:9000;min-width:180px;';
+  var rect = anchor.getBoundingClientRect();
+  // Position to the left of the menu button so it doesn't fall off the right edge
+  pop.style.top = (rect.bottom + 4) + 'px';
+  pop.style.right = (window.innerWidth - rect.right) + 'px';
+  var del = document.createElement('button');
+  del.type = 'button';
+  del.style.cssText = 'display:flex;align-items:center;gap:8px;background:transparent;border:none;color:#ff4757;font-family:\'Russo One\',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;padding:8px 12px;width:100%;text-align:left;border-radius:6px;';
+  del.innerHTML = '<span style="font-size:14px;line-height:1;">&#128465;</span><span>DELETE CONVERSATION</span>';
+  del.onmouseover = function(){ this.style.background = 'rgba(255,71,87,.1)'; };
+  del.onmouseout = function(){ this.style.background = 'transparent'; };
+  del.onclick = function(){
+    pop.remove();
+    deleteThread(threadId);
+  };
+  pop.appendChild(del);
+  document.body.appendChild(pop);
+  // Click-away to close
+  setTimeout(function(){
+    var dismiss = function(e){
+      if(!pop.contains(e.target)){
+        pop.remove();
+        document.removeEventListener('click', dismiss, true);
+        document.removeEventListener('touchstart', dismiss, true);
+      }
+    };
+    document.addEventListener('click', dismiss, true);
+    document.addEventListener('touchstart', dismiss, true);
+  }, 0);
 }
 
 function setChatTo(id){ openThread(id); }
@@ -5045,8 +5317,19 @@ function addContact(){
 }
 
 // ANNOUNCEMENTS
-// Bell-with-badge UX: announcements live in a modal, not a permanent card.
-// Read state is stored per-user in localStorage.
+// Bell-with-badge UX with per-user dismiss support.
+// - Author can hard-delete (removes for everyone) at any time
+// - Non-authors can dismiss only after 24 hours have passed since post
+// - Each user's dismissed list is stored on the announcement doc itself in Firestore
+//   (dismissedBy: array of member ids), so it syncs across devices
+// - "Dismissed" view recalls each user's own hidden announcements; un-dismiss restores
+// - Auto-purge: announcements dismissed by EVERY band member older than 90 days
+//   are deleted entirely (best-effort cleanup at modal-open time)
+
+var ANN_DISMISS_GATE_MS = 24 * 60 * 60 * 1000;     // 24 hours
+var ANN_PURGE_AGE_MS    = 90 * 24 * 60 * 60 * 1000; // 90 days
+var _annView = 'active'; // 'active' | 'dismissed'
+
 function _annLastReadKey(){ return 'oot_ann_last_read_' + (myName || 'anon'); }
 function _annGetLastRead(){
   try { return parseInt(localStorage.getItem(_annLastReadKey()) || '0', 10) || 0; }
@@ -5056,28 +5339,90 @@ function _annSetLastReadNow(){
   try { localStorage.setItem(_annLastReadKey(), String(Date.now())); } catch(e){}
 }
 function _annTimeOf(a){
-  // Announcements have a numeric id (Date.now()) we can use as a timestamp
   if(a && typeof a.id === 'number') return a.id;
   if(a && a.id && /^\d+$/.test(String(a.id))) return parseInt(a.id, 10);
   return 0;
 }
+function _annDismissedByMe(a){
+  if(!a || !Array.isArray(a.dismissedBy)) return false;
+  return a.dismissedBy.indexOf(ME) >= 0;
+}
+function _annCanDismissNow(a){
+  // Author can dismiss/delete anytime; non-authors must wait 24h
+  if(!a) return false;
+  if(a.who === ME) return true;
+  return (Date.now() - _annTimeOf(a)) >= ANN_DISMISS_GATE_MS;
+}
+function _annDismissCountdown(a){
+  // Returns a friendly "available in Nh Nm" string, or null if already available
+  var elapsed = Date.now() - _annTimeOf(a);
+  var remaining = ANN_DISMISS_GATE_MS - elapsed;
+  if(remaining <= 0) return null;
+  var hrs = Math.floor(remaining / (60*60*1000));
+  var mins = Math.floor((remaining % (60*60*1000)) / (60*1000));
+  if(hrs > 0) return hrs + 'h ' + mins + 'm';
+  return mins + 'm';
+}
+
+function _annPurgeIfFullyDismissed(){
+  // Best-effort: any announcement older than 90 days where every band member
+  // has dismissed it is hard-deleted. Runs on demand (e.g. when modal opens).
+  try {
+    var bandIds = members.map(function(m){ return m.id; });
+    announcements.forEach(function(a){
+      if(!a.dismissedBy || !Array.isArray(a.dismissedBy)) return;
+      var ageMs = Date.now() - _annTimeOf(a);
+      if(ageMs < ANN_PURGE_AGE_MS) return;
+      // Every band member must be in dismissedBy
+      var allDismissed = bandIds.every(function(id){ return a.dismissedBy.indexOf(id) >= 0; });
+      if(allDismissed){
+        db.collection('announcements').doc(String(a.id)).delete().catch(function(){});
+      }
+    });
+  } catch(e){}
+}
+
+function setAnnView(view){
+  _annView = (view === 'dismissed') ? 'dismissed' : 'active';
+  // Update tab styles
+  var ta = document.getElementById('ann-tab-active');
+  var td = document.getElementById('ann-tab-dismissed');
+  if(ta && td){
+    if(_annView === 'active'){
+      ta.style.background = '#1a3a8a'; ta.style.color = '#fff';
+      td.style.background = 'transparent'; td.style.color = '#8aa8d6';
+    } else {
+      td.style.background = '#1a3a8a'; td.style.color = '#fff';
+      ta.style.background = 'transparent'; ta.style.color = '#8aa8d6';
+    }
+  }
+  // Hide compose box on Dismissed view (it's a history)
+  var compose = document.getElementById('ann-compose');
+  if(compose) compose.style.display = (_annView === 'dismissed') ? 'none' : 'block';
+  renderAnnouncementsList();
+}
 
 function rAnnouncements(){
-  // Update the bell badge based on unread count
+  // Bell badge counts: ACTIVE (not dismissed by me, not authored by me, unread)
   var lastRead = _annGetLastRead();
   var unread = 0;
+  var activeCount = 0;
+  var dismissedCount = 0;
   announcements.forEach(function(a){
-    if(a.who === ME) return; // never count my own
+    if(_annDismissedByMe(a)){ dismissedCount++; return; }
+    activeCount++;
+    if(a.who === ME) return;
     if(_annTimeOf(a) > lastRead) unread++;
   });
   var bell = document.getElementById('ann-bell');
   var countEl = document.getElementById('ann-bell-count');
   var badge = document.getElementById('ann-bell-badge');
-  if(countEl) countEl.textContent = String(announcements.length);
+  if(countEl) countEl.textContent = String(activeCount);
   if(bell){
-    if(announcements.length === 0){
+    if(activeCount === 0){
       bell.style.opacity = '.45';
       bell.style.borderColor = '#1a3a8a';
+      bell.style.boxShadow = '';
     } else {
       bell.style.opacity = '1';
       bell.style.borderColor = unread > 0 ? '#f5c518' : '#1a3a8a';
@@ -5092,14 +5437,22 @@ function rAnnouncements(){
       badge.style.display = 'none';
     }
   }
+  // Update tab counts in modal
+  var taCount = document.getElementById('ann-tab-active-count');
+  var tdCount = document.getElementById('ann-tab-dismissed-count');
+  if(taCount) taCount.textContent = activeCount > 0 ? '· ' + activeCount : '';
+  if(tdCount) tdCount.textContent = dismissedCount > 0 ? '· ' + dismissedCount : '';
   // If the modal is open, refresh its contents too
   var modal = document.getElementById('announce-modal');
   if(modal && modal.classList.contains('on')) renderAnnouncementsList();
 }
 
 function openAnnouncementsModal(){
-  renderAnnouncementsList();
+  _annView = 'active';
+  setAnnView('active'); // also calls renderAnnouncementsList
   opM('announce-modal');
+  // Best-effort cleanup
+  _annPurgeIfFullyDismissed();
   // Mark as read after a short delay so the badge clear feels deliberate
   setTimeout(function(){
     _annSetLastReadNow();
@@ -5108,26 +5461,56 @@ function openAnnouncementsModal(){
   // Focus the input
   setTimeout(function(){
     var t = document.getElementById('ann-txt');
-    if(t) try { t.focus(); } catch(e){}
+    if(t && _annView === 'active') try { t.focus(); } catch(e){}
   }, 200);
+}
+
+function _dismissAnnouncement(aid){
+  var ref = db.collection('announcements').doc(String(aid));
+  ref.set({
+    dismissedBy: firebase.firestore.FieldValue.arrayUnion(ME)
+  }, {merge:true}).then(function(){
+    toast('Dismissed', {tone:'success'});
+  }).catch(function(){});
+}
+
+function _undismissAnnouncement(aid){
+  var ref = db.collection('announcements').doc(String(aid));
+  ref.set({
+    dismissedBy: firebase.firestore.FieldValue.arrayRemove(ME)
+  }, {merge:true}).then(function(){
+    toast('Restored', {tone:'success'});
+  }).catch(function(){});
 }
 
 function renderAnnouncementsList(){
   var list = document.getElementById('ann-list');
   if(!list) return;
   list.innerHTML = '';
-  if(!announcements.length){
-    list.innerHTML = '<div style="text-align:center;color:#4a6a9a;font-style:italic;font-size:13px;padding:18px 8px;">No announcements yet. Post the first one below!</div>';
+
+  var pool = announcements.filter(function(a){
+    var dis = _annDismissedByMe(a);
+    return _annView === 'dismissed' ? dis : !dis;
+  });
+
+  if(!pool.length){
+    var emptyMsg = _annView === 'dismissed'
+      ? 'Nothing here yet. Dismissed announcements will appear here for your reference.'
+      : 'No announcements yet. Post the first one below!';
+    list.innerHTML = '<div style="text-align:center;color:#4a6a9a;font-style:italic;font-size:13px;padding:18px 8px;">'+emptyMsg+'</div>';
     return;
   }
+  // Newest first
+  pool = pool.slice().sort(function(a,b){ return _annTimeOf(b) - _annTimeOf(a); });
+
   var lastRead = _annGetLastRead();
-  announcements.forEach(function(a){
+  pool.forEach(function(a){
     var m = gM(a.who);
-    var isUnread = (a.who !== ME) && (_annTimeOf(a) > lastRead);
+    var isUnread = (_annView === 'active') && (a.who !== ME) && (_annTimeOf(a) > lastRead);
     var div = document.createElement('div');
-    div.style.cssText = 'padding:10px 12px;background:'+(isUnread?'rgba(245,197,24,.08)':'#060e1c')+';border-radius:8px;margin-bottom:6px;border-left:3px solid '+(isUnread?'#f5c518':'#1a3a8a')+';';
+    div.style.cssText = 'padding:10px 12px;background:'+(isUnread?'rgba(245,197,24,.08)':'#060e1c')+';border-radius:8px;margin-bottom:6px;border-left:3px solid '+(isUnread?'#f5c518':(_annView==='dismissed'?'#4a6a9a':'#1a3a8a'))+';opacity:'+(_annView==='dismissed'?'.85':'1')+';';
     var header = document.createElement('div');
-    header.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:6px;';
+    header.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;';
     header.innerHTML = '<div style="width:24px;height:24px;border-radius:50%;background:'+richGrad(m.color)+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;font-family:\'Russo One\',sans-serif;box-shadow:0 0 6px '+m.color+'40, inset 0 -1px 2px rgba(0,0,0,.18);flex-shrink:0;">'+m.av+'</div>'+
       '<span style="font-size:12px;font-weight:600;'+nameGradStyle(m.color)+'">'+a.name+'</span>'+
       (isUnread ? '<span style="font-family:\'Russo One\',sans-serif;font-size:8px;letter-spacing:1px;color:#f5c518;background:rgba(245,197,24,.15);border:1px solid rgba(245,197,24,.4);border-radius:6px;padding:1px 5px;">NEW</span>' : '')+
@@ -5137,26 +5520,74 @@ function renderAnnouncementsList(){
     txt.style.cssText = 'font-size:13px;color:#e8f0ff;line-height:1.4;white-space:pre-wrap;';
     txt.textContent = a.txt;
     div.appendChild(txt);
-    if(a.who === ME){
-      var actions = document.createElement('div');
-      actions.style.cssText = 'display:flex;justify-content:flex-end;margin-top:6px;';
-      var del = document.createElement('button');
-      del.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:6px;padding:4px 10px;color:#ff4757;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;';
-      del.innerHTML = '<span style="font-size:11px;line-height:1;">&#128465;</span><span>DELETE</span>';
-      del.setAttribute('data-aid', a.id);
-      del.onclick = function(){
-        var aid = this.getAttribute('data-aid');
-        appConfirm({title:'Delete announcement?', message:'Remove this post? This cannot be undone.'}).then(function(ok){
-          if(ok){
-            db.collection('announcements').doc(aid).delete()
-              .then(function(){ toast('Announcement deleted', {tone:'success'}); })
-              .catch(function(){});
-          }
-        });
-      };
-      actions.appendChild(del);
-      div.appendChild(actions);
+
+    // Action row varies by view + author
+    var actions = document.createElement('div');
+    actions.style.cssText = 'display:flex;justify-content:flex-end;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center;';
+
+    if(_annView === 'dismissed'){
+      // Restore button
+      var restore = document.createElement('button');
+      restore.style.cssText = 'background:#0a1628;border:1px solid #4a9eff;border-radius:6px;padding:4px 10px;color:#4a9eff;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;';
+      restore.innerHTML = '<span style="font-size:11px;line-height:1;">&#8634;</span><span>RESTORE</span>';
+      restore.setAttribute('data-aid', a.id);
+      restore.onclick = function(){ _undismissAnnouncement(this.getAttribute('data-aid')); };
+      actions.appendChild(restore);
+      // Author can still hard-delete from history
+      if(a.who === ME){
+        var del = document.createElement('button');
+        del.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:6px;padding:4px 10px;color:#ff4757;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;';
+        del.innerHTML = '<span style="font-size:11px;line-height:1;">&#128465;</span><span>DELETE FOR ALL</span>';
+        del.setAttribute('data-aid', a.id);
+        del.onclick = function(){
+          var aid = this.getAttribute('data-aid');
+          appConfirm({title:'Delete for everyone?', message:'This removes the announcement from every band member\'s view permanently.'}).then(function(ok){
+            if(ok){
+              db.collection('announcements').doc(aid).delete()
+                .then(function(){ toast('Announcement deleted', {tone:'success'}); }).catch(function(){});
+            }
+          });
+        };
+        actions.appendChild(del);
+      }
+    } else {
+      // Active view
+      if(a.who === ME){
+        // Author: hard-delete
+        var del = document.createElement('button');
+        del.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:6px;padding:4px 10px;color:#ff4757;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;';
+        del.innerHTML = '<span style="font-size:11px;line-height:1;">&#128465;</span><span>DELETE</span>';
+        del.setAttribute('data-aid', a.id);
+        del.onclick = function(){
+          var aid = this.getAttribute('data-aid');
+          appConfirm({title:'Delete announcement?', message:'Remove this post for everyone? This cannot be undone.'}).then(function(ok){
+            if(ok){
+              db.collection('announcements').doc(aid).delete()
+                .then(function(){ toast('Announcement deleted', {tone:'success'}); }).catch(function(){});
+            }
+          });
+        };
+        actions.appendChild(del);
+      } else {
+        // Non-author: dismiss (with 24h gate)
+        var canDismiss = _annCanDismissNow(a);
+        var dismissBtn = document.createElement('button');
+        dismissBtn.setAttribute('data-aid', a.id);
+        if(canDismiss){
+          dismissBtn.style.cssText = 'background:#0a1628;border:1px solid #4a6a9a;border-radius:6px;padding:4px 10px;color:#8aa8d6;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;';
+          dismissBtn.innerHTML = '<span style="font-size:11px;line-height:1;">&#10005;</span><span>DISMISS</span>';
+          dismissBtn.onclick = function(){ _dismissAnnouncement(this.getAttribute('data-aid')); };
+        } else {
+          var countdown = _annDismissCountdown(a);
+          dismissBtn.disabled = true;
+          dismissBtn.style.cssText = 'background:transparent;border:1px solid #1a3a8a;border-radius:6px;padding:4px 10px;color:#4a6a9a;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:not-allowed;display:inline-flex;align-items:center;gap:5px;opacity:.6;';
+          dismissBtn.innerHTML = '<span style="font-size:11px;line-height:1;">&#9201;</span><span>DISMISS IN ' + (countdown || '') + '</span>';
+          dismissBtn.title = 'Dismiss available 24 hours after posting';
+        }
+        actions.appendChild(dismissBtn);
+      }
     }
+    div.appendChild(actions);
     list.appendChild(div);
   });
 }
@@ -5170,14 +5601,13 @@ function postAnnounce(){
     name: myName,
     txt: txt,
     time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
-    date: new Date().toLocaleDateString()
+    date: new Date().toLocaleDateString(),
+    dismissedBy: []
   };
   db.collection('announcements').add(ann);
   document.getElementById('ann-txt').value = '';
-  // Don't close the modal — let the user see their post appear in the list.
   toast('Announcement posted', {tone:'success'});
   notifyBand('announcements', 'Announcement from ' + myName, txt);
-  // Mark as read so the badge doesn't immediately count this back
   setTimeout(function(){ _annSetLastReadNow(); rAnnouncements(); }, 200);
 }
 
