@@ -374,7 +374,7 @@ body.light .mrav{color:#000 !important;}
   </div>
 </div>
 
-<div id="sc-chat" class="sc" style="padding:0;display:flex;flex-direction:column;">
+<div id="sc-chat" class="sc" style="padding:0;display:flex;flex-direction:column;overflow:hidden;">
   <!-- Screen 1: Conversations List -->
   <div id="chat-list-screen" style="flex:1;display:flex;flex-direction:column;">
     <div style="padding:14px 16px 10px;background:#080f1e;border-bottom:1px solid #0d1f3a;flex-shrink:0;display:flex;align-items:baseline;gap:10px;">
@@ -387,7 +387,7 @@ body.light .mrav{color:#000 !important;}
   <div id="chat-thread-screen" style="flex:1;display:none;flex-direction:column;">
     <!-- Thread header -->
     <div style="padding:11px 12px;background:#080f1e;border-bottom:1px solid #0d1f3a;display:flex;align-items:center;gap:10px;flex-shrink:0;">
-      <button onclick="showChatList()" style="background:none;border:none;color:#4a9eff;font-size:22px;cursor:pointer;padding:0 6px;line-height:1;">&#8592;</button>
+      <button onclick="showChatList()" aria-label="Back" style="background:none;border:none;cursor:pointer;padding:0 6px;line-height:1;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#4a9eff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
       <div id="thread-av" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#000;flex-shrink:0;box-shadow:0 0 12px rgba(74,158,255,.2);"></div>
       <div style="flex:1;min-width:0;">
         <div id="thread-name" style="font-size:16px;font-weight:600;color:#fff;font-family:'Russo One',sans-serif;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
