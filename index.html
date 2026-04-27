@@ -262,7 +262,7 @@ body.light .mrav{color:#000 !important;}
     </div>
   </div>
   <div id="birthday-banner" style="display:none;"></div>
-  <div id="next-gig-countdown" style="display:none;background:#060e1c;border-radius:12px;padding:12px 16px;margin-bottom:10px;text-align:center;border:1px solid rgba(245,197,24,.5);box-shadow:0 0 20px rgba(245,197,24,.15),inset 0 0 30px rgba(10,22,40,.8);">
+  <div id="next-gig-countdown" style="display:none;background:#060e1c;border-radius:12px;padding:9px 14px;margin-bottom:8px;text-align:center;border:1px solid rgba(245,197,24,.5);box-shadow:0 0 20px rgba(245,197,24,.15),inset 0 0 30px rgba(10,22,40,.8);">
     <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">
       <div style="height:1px;flex:1;background:linear-gradient(to right,transparent,rgba(245,197,24,.4));"></div>
       <div style="font-family:'Russo One',sans-serif;font-size:14px;letter-spacing:4px;color:#f5c518;opacity:.8;">NEXT GIG</div>
@@ -3624,7 +3624,7 @@ function _ensureHomeBandBackdrop(){
   if(typeof INSTR_IMG === 'undefined' || !INSTR_IMG['band-group']) return;
   var bg = document.createElement('div');
   bg.className = 'home-band-backdrop';
-  bg.style.cssText = 'position:absolute;inset:0;background-image:url("'+INSTR_IMG['band-group']+'");background-size:cover;background-position:center;opacity:0.30;pointer-events:none;z-index:0;border-radius:12px;';
+  bg.style.cssText = 'position:absolute;inset:0;background-image:url("'+INSTR_IMG['band-group']+'");background-size:cover;background-position:top center;opacity:0.50;pointer-events:none;z-index:0;border-radius:12px;';
   row.insertBefore(bg, row.firstChild);
   // Ensure social icons render above the backdrop
   Array.prototype.forEach.call(row.querySelectorAll('a'), function(a){
