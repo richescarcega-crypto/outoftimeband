@@ -2602,6 +2602,7 @@ function initApp() {
   listenAvailability();
   listenProposals();
   listenGigDetails();
+  listenGigDebriefs();
   listenSongDetails();
   listenPersonalNotes();
   listenReactions();
@@ -3953,6 +3954,47 @@ function listenAvailability(){
     _availHasInit = true;
     if(document.getElementById('sc-cal').classList.contains('on'))rAvailability();
   });
+}
+
+// ── GIG DEBRIEFS (post-show notes) ─────────────────────────────────────────
+// Single shared debrief per gig. Captured AFTER the gig date.
+// Schema: { vibe: '', well: '', poorly: '', payment: '', audience: '',
+//           lastEditedBy: <memberId>, lastEditedAt: <ms> }
+var gigDebriefs = {}; // eventId -> debrief object
+
+function listenGigDebriefs(){
+  db.collection('gigdebriefs').onSnapshot(function(snap){
+    gigDebriefs = {};
+    snap.forEach(function(doc){
+      gigDebriefs[doc.id] = doc.data() || {};
+    });
+  });
+}
+
+function _getDebrief(eid){
+  var k = String(eid);
+  if(!gigDebriefs[k]) gigDebriefs[k] = {vibe:'', well:'', poorly:'', payment:'', audience:'', lastEditedBy:null, lastEditedAt:0};
+  return gigDebriefs[k];
+}
+
+function _saveDebriefField(eid, field, value){
+  var k = String(eid);
+  var current = _getDebrief(k);
+  current[field] = value;
+  current.lastEditedBy = ME;
+  current.lastEditedAt = Date.now();
+  db.collection('gigdebriefs').doc(k).set(current).catch(function(){});
+}
+
+// True if the gig date has already passed (debrief makes sense).
+function _isPastGig(ev){
+  if(!ev || !ev.date) return false;
+  // Compare YYYY-MM-DD strings — robust against timezones.
+  var today = new Date();
+  var tStr = today.getFullYear() + '-' +
+    String(today.getMonth()+1).padStart(2,'0') + '-' +
+    String(today.getDate()).padStart(2,'0');
+  return ev.date < tStr; // strictly before today; same-day = not yet
 }
 
 // ── REHEARSAL PROPOSALS ────────────────────────────────────────────────────
@@ -5606,6 +5648,111 @@ function openGigSheet(ev){
 
   // Delete button for existing
   if(!isNew){
+    // GIG DEBRIEF — only for past gigs
+    if(_isPastGig(ev)){
+      var dbf = _getDebrief(evId);
+      var sect = document.createElement('div');
+      sect.style.cssText = 'border-top:1px solid var(--n3);margin-top:14px;padding-top:14px;';
+      var sectTitle = document.createElement('div');
+      sectTitle.style.cssText = 'font-family:Russo One,sans-serif;font-size:11px;letter-spacing:2px;color:#f5c518;margin-bottom:10px;';
+      sectTitle.textContent = 'GIG DEBRIEF';
+      sect.appendChild(sectTitle);
+
+      // Vibe row
+      var vibeWrap = document.createElement('div');
+      vibeWrap.style.cssText = 'margin-bottom:10px;';
+      var vibeLbl = document.createElement('div');
+      vibeLbl.style.cssText = 'font-size:10px;color:#aaa;letter-spacing:1px;font-family:Russo One,sans-serif;margin-bottom:5px;';
+      vibeLbl.textContent = 'VIBE';
+      vibeWrap.appendChild(vibeLbl);
+      var vibes = [
+        {key:'down',  emoji:'\uD83D\uDC4E', label:'Down'},
+        {key:'meh',   emoji:'\uD83D\uDC4C', label:'Meh'},
+        {key:'good',  emoji:'\uD83D\uDC4D', label:'Good'},
+        {key:'fire',  emoji:'\uD83D\uDD25', label:'Fire'}
+      ];
+      var vibeRow = document.createElement('div');
+      vibeRow.style.cssText = 'display:flex;gap:6px;';
+      vibes.forEach(function(v){
+        var b2 = document.createElement('button');
+        var active = dbf.vibe === v.key;
+        b2.type = 'button';
+        b2.style.cssText = 'flex:1;background:'+(active?'rgba(245,197,24,.15)':'transparent')+';border:1px solid '+(active?'#f5c518':'#1a3a8a')+';border-radius:8px;padding:8px;font-size:18px;cursor:pointer;touch-action:manipulation;display:flex;flex-direction:column;align-items:center;gap:2px;';
+        b2.innerHTML = '<span style="line-height:1;">'+v.emoji+'</span><span style="font-size:9px;color:'+(active?'#f5c518':'#8aa8d6')+';font-family:Russo One,sans-serif;letter-spacing:.5px;">'+v.label.toUpperCase()+'</span>';
+        b2.onclick = (function(key){ return function(){
+          var newVal = (dbf.vibe === key) ? '' : key; // toggle off if same
+          _saveDebriefField(evId, 'vibe', newVal);
+          // Refresh just this section by re-opening (simplest)
+          openGigSheet(ev);
+        };})(v.key);
+        vibeRow.appendChild(b2);
+      });
+      vibeWrap.appendChild(vibeRow);
+      sect.appendChild(vibeWrap);
+
+      // Audience size
+      var audWrap = document.createElement('div');
+      audWrap.style.cssText = 'margin-bottom:10px;';
+      var audLbl = document.createElement('div');
+      audLbl.style.cssText = 'font-size:10px;color:#aaa;letter-spacing:1px;font-family:Russo One,sans-serif;margin-bottom:5px;';
+      audLbl.textContent = 'AUDIENCE';
+      audWrap.appendChild(audLbl);
+      var audSel = document.createElement('select');
+      audSel.className = 'mi';
+      audSel.style.cssText = 'width:100%;margin:0;';
+      ['','small','medium','large','packed'].forEach(function(opt){
+        var o = document.createElement('option');
+        o.value = opt;
+        o.textContent = opt ? (opt.charAt(0).toUpperCase()+opt.slice(1)) : '— Select —';
+        if(dbf.audience === opt) o.selected = true;
+        audSel.appendChild(o);
+      });
+      audSel.onchange = function(){ _saveDebriefField(evId, 'audience', audSel.value); };
+      audWrap.appendChild(audSel);
+      sect.appendChild(audWrap);
+
+      // Free-text fields: well, poorly, payment
+      function debriefField(label, fieldKey, placeholder, height){
+        var wrap = document.createElement('div');
+        wrap.style.cssText = 'margin-bottom:10px;';
+        var lb = document.createElement('div');
+        lb.style.cssText = 'font-size:10px;color:#aaa;letter-spacing:1px;font-family:Russo One,sans-serif;margin-bottom:5px;';
+        lb.textContent = label;
+        var ta = document.createElement('textarea');
+        ta.className = 'mi';
+        ta.style.cssText = 'width:100%;margin:0;resize:vertical;min-height:'+(height||'48px')+';font-family:Exo 2,sans-serif;';
+        ta.placeholder = placeholder;
+        ta.value = dbf[fieldKey] || '';
+        ta.rows = 2;
+        ta.onblur = function(){
+          if(ta.value !== (_getDebrief(evId)[fieldKey]||'')){
+            _saveDebriefField(evId, fieldKey, ta.value);
+          }
+        };
+        wrap.appendChild(lb);
+        wrap.appendChild(ta);
+        return wrap;
+      }
+      sect.appendChild(debriefField('WHAT WENT WELL', 'well', 'Songs that landed, audience reactions, etc.'));
+      sect.appendChild(debriefField('WHAT DIDN’T', 'poorly', 'Sound issues, set list problems, etc.'));
+      sect.appendChild(debriefField('PAYMENT NOTES', 'payment', 'Paid same night cash, check pending, etc.'));
+
+      // Footer: last edited by
+      if(dbf.lastEditedBy){
+        var sender = gM(dbf.lastEditedBy);
+        var when = '';
+        if(dbf.lastEditedAt){
+          try { when = ' · ' + _formatRelativeTime(Date.now() - dbf.lastEditedAt); } catch(e){}
+        }
+        var ft = document.createElement('div');
+        ft.style.cssText = 'font-size:10px;color:#8aa8d6;font-style:italic;text-align:right;margin-top:-4px;margin-bottom:6px;';
+        ft.textContent = 'Last edited by ' + (sender.name||'').split(' ')[0] + when;
+        sect.appendChild(ft);
+      }
+
+      b.appendChild(sect);
+    }
+
     var delBtn = document.createElement('button');
     delBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:8px;padding:8px 12px;color:#ff4757;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;width:100%;margin-top:4px;margin-bottom:4px;display:inline-flex;align-items:center;justify-content:center;gap:6px;';
     delBtn.innerHTML = '<span style="font-size:13px;line-height:1;">&#128465;</span><span>DELETE EVENT</span>';
@@ -5938,7 +6085,14 @@ function adEv() {
   clM('evm');
 }
 
-function dEv(id){db.collection('events').doc(String(id)).delete();}
+function dEv(id){
+  var k = String(id);
+  db.collection('events').doc(k).delete();
+  // Best-effort cleanup of attached docs (ignored if missing)
+  db.collection('gigdetails').doc(k).delete().catch(function(){});
+  db.collection('gigdebriefs').doc(k).delete().catch(function(){});
+  db.collection('agendas').doc(k).delete().catch(function(){});
+}
 
 // AVAILABILITY
 function rAvailability() {
