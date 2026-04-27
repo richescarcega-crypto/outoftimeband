@@ -100,6 +100,10 @@ body.light .ov [style*="color:#aaa;font-size:9px"][style*="Russo One"]{color:#1a
 body.light .ov [style*="color:#aaa;letter-spacing:2px"][style*="Russo One"]{color:#1a3a8a !important;}
 body.light .mot[style*="color:#f5c518"],
 body.light .moh .mot[style*="color:#f5c518"]{color:#b8860b !important;}
+/* Drawer event cards have a dark navy background ("island") even in light mode — preserve white/gray text on them */
+body.light #cal-drawer > div[style*="background:#060e1c"]{color:#fff;}
+body.light #cal-drawer > div[style*="background:#060e1c"] [style*="color:#fff"]{color:#fff !important;}
+body.light #cal-drawer > div[style*="background:#060e1c"] [style*="color:#aaa"]{color:#aaa !important;}
 body.light #cal-legend-panel{background:#fff !important;border-color:#c8d4e8 !important;color:#1a2a4a !important;}
 body.light .mb.me div{color:#fff;}
 body.light #tabs{background:#1a3a8a;}
