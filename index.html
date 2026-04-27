@@ -3056,7 +3056,11 @@ function listenAnnouncements(){
     var newAnns = [];
     announcements=[];
     snap.forEach(function(doc){
-      var data = Object.assign({id:doc.id},doc.data());
+      // doc.id is the real Firestore document id — must come LAST so it wins
+      // over any stored `id` field from doc.data() (which used to be a timestamp).
+      // Without this, deletes target the wrong id and silently succeed without
+      // actually deleting.
+      var data = Object.assign({}, doc.data(), {id: doc.id});
       announcements.push(data);
       if(_annHasInit && !_knownAnnIds[doc.id]){
         newAnns.push(data);
@@ -6215,7 +6219,8 @@ function renderAnnouncementsList(){
           appConfirm({title:title, message:msg, allowHtml:useHtml}).then(function(ok){
             if(ok){
               db.collection('announcements').doc(aid).delete()
-                .then(function(){ toast('Announcement deleted', {tone:'success'}); }).catch(function(){});
+                .then(function(){ toast('Announcement deleted', {tone:'success'}); })
+                .catch(function(err){ toast('Could not delete: ' + (err && err.message ? err.message : 'unknown error'), {tone:'error', duration:5000}); console.error('Announcement delete failed', err); });
             }
           });
         };
@@ -6251,7 +6256,8 @@ function renderAnnouncementsList(){
           appConfirm({title:title, message:msg, allowHtml:useHtml}).then(function(ok){
             if(ok){
               db.collection('announcements').doc(aid).delete()
-                .then(function(){ toast('Announcement deleted', {tone:'success'}); }).catch(function(){});
+                .then(function(){ toast('Announcement deleted', {tone:'success'}); })
+                .catch(function(err){ toast('Could not delete: ' + (err && err.message ? err.message : 'unknown error'), {tone:'error', duration:5000}); console.error('Announcement delete failed', err); });
             }
           });
         };
@@ -6915,16 +6921,16 @@ if(savedName&&savedId){
 </div>
 
 <!-- CUSTOM CONFIRM DIALOG -->
-<div id="app-confirm" style="position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:9000;display:none;align-items:center;justify-content:center;padding:20px;">
-  <div id="app-confirm-card" style="background:var(--n2);border:1px solid var(--n3);border-radius:14px;padding:20px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.6);transform:scale(.95);opacity:0;transition:transform .18s ease-out,opacity .18s ease-out;">
-    <div id="app-confirm-icon" style="display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:rgba(255,71,87,.12);margin-bottom:14px;">
-      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M3 6h18v2H3V6zm3 3h12l-1 12H7L6 9zm3-6h6v2H9V3z" fill="#ff4757"/></svg>
+<div id="app-confirm" style="position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:rgba(0,0,0,.82);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);z-index:9000;display:none;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">
+  <div id="app-confirm-card" style="background:var(--n2);border:1px solid #4a9eff;border-radius:16px;padding:26px 24px;max-width:420px;width:100%;margin:auto;box-shadow:0 24px 80px rgba(0,0,0,.75),0 0 0 1px rgba(74,158,255,.18);transform:scale(.92);opacity:0;transition:transform .2s ease-out,opacity .2s ease-out;">
+    <div id="app-confirm-icon" style="display:flex;align-items:center;justify-content:center;width:60px;height:60px;border-radius:50%;background:rgba(255,71,87,.16);margin-bottom:18px;box-shadow:0 0 24px rgba(255,71,87,.25);">
+      <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" focusable="false"><path d="M3 6h18v2H3V6zm3 3h12l-1 12H7L6 9zm3-6h6v2H9V3z" fill="#ff4757"/></svg>
     </div>
-    <div id="app-confirm-title" style="font-family:'Russo One',sans-serif;font-size:16px;color:#fff;letter-spacing:.5px;margin-bottom:8px;">Confirm</div>
-    <div id="app-confirm-message" style="font-size:13px;color:#aaa;line-height:1.5;margin-bottom:18px;">Are you sure?</div>
-    <div style="display:flex;gap:10px;">
-      <button id="app-confirm-cancel" style="flex:1;background:transparent;border:1px solid #1a3a8a;border-radius:8px;padding:10px;color:#8aa8d6;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;">CANCEL</button>
-      <button id="app-confirm-ok" style="flex:1;background:#ff4757;border:1px solid #ff4757;border-radius:8px;padding:10px;color:#fff;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;">CONFIRM</button>
+    <div id="app-confirm-title" style="font-family:'Russo One',sans-serif;font-size:20px;color:#fff;letter-spacing:.6px;margin-bottom:12px;line-height:1.3;">Confirm</div>
+    <div id="app-confirm-message" style="font-size:15px;color:#c8d4e6;line-height:1.55;margin-bottom:24px;">Are you sure?</div>
+    <div style="display:flex;gap:12px;">
+      <button id="app-confirm-cancel" style="flex:1;background:transparent;border:1.5px solid #1a3a8a;border-radius:10px;padding:13px;color:#8aa8d6;font-family:'Russo One',sans-serif;font-size:12px;letter-spacing:1px;cursor:pointer;touch-action:manipulation;">CANCEL</button>
+      <button id="app-confirm-ok" style="flex:1;background:#ff4757;border:1.5px solid #ff4757;border-radius:10px;padding:13px;color:#fff;font-family:'Russo One',sans-serif;font-size:12px;letter-spacing:1px;cursor:pointer;touch-action:manipulation;box-shadow:0 6px 18px rgba(255,71,87,.4);">CONFIRM</button>
     </div>
   </div>
 </div>
