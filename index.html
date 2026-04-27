@@ -2618,8 +2618,29 @@ function richGrad(color){
        + 'radial-gradient(circle at 35% 30%, rgba(255,255,255,.4) 0%, rgba(255,255,255,0) 45%), '
        + 'radial-gradient(circle at 70% 80%, '+color+'33 0%, '+color+' 50%, '+color+'b3 100%)';
 }
+// Map known dark-mode member colors to their light-mode equivalents (deep, saturated)
+var _LIGHT_MEMBER_COLORS = {
+  '#ff6b6b': '#c0392b', // Jim — red
+  '#06d6a0': '#0a7a5a', // Amy — teal
+  '#4a9eff': '#1565c0', // Rich — blue
+  '#ff8a3c': '#c25a00', // Ed — orange
+  '#ff9ef5': '#a02890', // Rachel — pink/magenta
+  '#00d4d4': '#0a7a8a', // Zach — cyan
+  '#f5c518': '#b8860b'  // Band Chat — gold
+};
+function _lightModeMemberColor(color){
+  if(!color) return '#1a3a8a';
+  var lc = String(color).toLowerCase();
+  if(_LIGHT_MEMBER_COLORS[lc]) return _LIGHT_MEMBER_COLORS[lc];
+  return color; // fallback — caller's color used as-is
+}
+
 function nameGradStyle(color){
-  // Returns a CSS style snippet that paints text with a member-color → bright-tint gradient
+  // Light mode: solid darkened member color, no gradient, no glow.
+  if(document.body.classList.contains('light')){
+    return 'color:'+_lightModeMemberColor(color)+';font-weight:700;';
+  }
+  // Dark mode: member-color → bright-tint gradient with glow (original)
   return 'background:linear-gradient(135deg,'+color+' 0%,#ffffff 50%,'+color+' 100%);'
        + 'background-size:200% 100%;background-position:0% 50%;'
        + '-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;'
@@ -6590,7 +6611,7 @@ function rChatThreads(){
       var senderLabel = lastMsg.who===ME ? 'You' : (gM(lastMsg.who).name || '').split(' ')[0];
       preview = (isBand && senderLabel ? senderLabel + ': ' : (lastMsg.who===ME ? 'You: ' : '')) + (lastMsg.txt||'');
     } else {
-      preview = t.sub;
+      preview = isBand ? 'Group · all members' : 'No messages yet';
     }
     // Build instrument icon for non-band threads
     var threadInstrIcon = '';
@@ -6605,9 +6626,14 @@ function rChatThreads(){
         threadInstrIcon = '<span class="thread-instr-cluster" data-bandgroup="1" title="Tap to enlarge" style="display:inline-flex;align-items:center;flex-shrink:0;margin-left:14px;cursor:pointer;padding:4px;border-radius:8px;transition:background .15s;"><img src="'+INSTR_IMG['band-group']+'" alt="" style="width:36px;height:auto;max-height:28px;object-fit:contain;display:block;flex-shrink:0;"/></span>';
       }
     }
+    var nameAndInstr =
+      '<span style="display:inline-flex;align-items:baseline;gap:6px;flex:1;min-width:0;overflow:hidden;">'+
+        '<span style="font-size:15px;font-weight:'+(unread?'700':'600')+';font-family:Russo One,sans-serif;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;'+nameGradStyle(t.color)+'">'+t.name+'</span>'+
+        (!isBand && t.sub ? '<span style="font-size:11px;color:#8aa8d6;font-weight:500;white-space:nowrap;flex-shrink:0;letter-spacing:.2px;">· '+t.sub+'</span>' : '')+
+      '</span>';
     info.innerHTML=
       '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">'+
-        '<span style="font-size:15px;font-weight:'+(unread?'700':'600')+';font-family:Russo One,sans-serif;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;'+nameGradStyle(t.color)+'">'+t.name+'</span>'+
+        nameAndInstr+
         threadInstrIcon+
         (lastMsg?'<span style="font-size:10px;color:#4a6a9a;flex-shrink:0;margin-left:10px;">'+lastMsg.time+'</span>':'')+
       '</div>'+
