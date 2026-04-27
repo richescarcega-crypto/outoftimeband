@@ -451,7 +451,11 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
   <div id="evl-filter-row" style="display:none;margin:6px 0 8px;"></div>
   <div id="evl"></div>
 
-
+  <div class="sh" style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;">
+    <span onclick="toggleCard('proposals-list','proposals-arrow')" style="cursor:pointer;display:flex;align-items:center;gap:6px;flex:1;"><span class="tt-gold" style="font-size:12px;letter-spacing:2px;font-family:'Russo One',sans-serif;">REHEARSAL PROPOSALS</span><span id="proposals-count" style="font-size:10px;color:#4a9eff;font-family:'Exo 2',sans-serif;"></span><span id="proposals-arrow" style="color:#f5c518;font-size:14px;margin-left:auto;">&#8964;</span></span>
+  </div>
+  <div id="proposals-list"></div>
+  <button class="ab" onclick="openNewProposalModal()" id="propose-btn" style="margin-top:6px;">+ Propose Rehearsal</button>
 
 </div>
 
@@ -795,6 +799,36 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
       </button>
       <button onclick="saveImportantDate()" style="flex:1;background:#f5c518;border:none;border-radius:8px;padding:9px;color:#060e1c;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;">Save</button>
     </div>
+  </div>
+</div>
+
+<!-- REHEARSAL PROPOSAL MODAL -->
+<div class="ov" id="proposal-modal">
+  <div class="mo">
+    <div class="moh"><span class="mot" id="proposal-modal-title">Propose Rehearsal</span><button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="clM('proposal-modal')">&#10005;</button></div>
+    <div style="margin-bottom:10px;">
+      <div style="color:#aaa;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:5px;">DATE</div>
+      <input id="prop-date" type="date" class="mi" style="width:100%;margin:0;">
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <div style="flex:1;">
+        <div style="color:#aaa;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:5px;">START TIME</div>
+        <input id="prop-start" class="mi" style="width:100%;margin:0;" placeholder="7 → 7:00 PM · 7a → 7:00 AM">
+      </div>
+      <div style="flex:1;">
+        <div style="color:#aaa;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:5px;">END TIME</div>
+        <input id="prop-end" class="mi" style="width:100%;margin:0;" placeholder="930 → 9:30 PM · 930a → 9:30 AM">
+      </div>
+    </div>
+    <div style="margin-bottom:10px;">
+      <div style="color:#aaa;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:5px;">LOCATION</div>
+      <input id="prop-loc" class="mi" style="width:100%;margin:0;" placeholder="Studio, rehearsal space, etc.">
+    </div>
+    <div style="margin-bottom:14px;">
+      <div style="color:#aaa;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:5px;">NOTE (OPTIONAL)</div>
+      <input id="prop-note" class="mi" style="width:100%;margin:0;" placeholder="What to focus on">
+    </div>
+    <button class="sb" onclick="submitProposal()" style="width:100%;">Post Proposal</button>
   </div>
 </div>
 
@@ -2566,6 +2600,7 @@ function initApp() {
   listenAnnouncements();
   listenContacts();
   listenAvailability();
+  listenProposals();
   listenGigDetails();
   listenSongDetails();
   listenPersonalNotes();
@@ -2645,7 +2680,7 @@ var members = [
   {id:5, name:"Rachel Cervantes",    inst:"Vocals",      av:"RC", color:"#ff9ef5", ph:"", em:"", addr:""},
   {id:6, name:"Zach Dennert",        inst:"Keyboards",   av:"ZD", color:"#00d4d4", ph:"", em:"", addr:""}
 ];
-var events = [], msgs = [], sets = [], pay = [], contacts = [], announcements = [], availability = [];
+var events = [], msgs = [], sets = [], pay = [], contacts = [], announcements = [], availability = [], proposals = [];
 var gigDetails = {};
 var CY=2026, CM=3, sDay=null, cET="gig", aSL=null, eSID=null;
 var MO=["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -3919,6 +3954,370 @@ function listenAvailability(){
     if(document.getElementById('sc-cal').classList.contains('on'))rAvailability();
   });
 }
+
+// ── REHEARSAL PROPOSALS ────────────────────────────────────────────────────
+// Members propose a date/time; everyone votes Yes/Maybe/No. Proposer can confirm
+// when all-yes — confirmation creates a real rehearsal event on the calendar.
+var _proposalsHasInit = false;
+var _knownPropIds = {};
+function listenProposals(){
+  db.collection('proposals').orderBy('proposedAt','desc').onSnapshot(function(snap){
+    var newOnes = [];
+    proposals = [];
+    snap.forEach(function(doc){
+      var data = Object.assign({}, doc.data(), {id: doc.id});
+      proposals.push(data);
+      if(_proposalsHasInit && !_knownPropIds[doc.id]){
+        newOnes.push(data);
+      }
+      _knownPropIds[doc.id] = true;
+    });
+    if(_proposalsHasInit && newOnes.length){
+      newOnes.forEach(function(p){
+        if(p.proposedBy === ME) return; // not my own
+        if(p.status !== 'open') return; // skip already-closed
+        var sender = gM(p.proposedBy);
+        showAppBanner({
+          title: (sender.name || 'Member').split(' ')[0] + ' proposed a rehearsal',
+          message: _propPrettyDate(p.date) + (p.startTime ? ' at ' + p.startTime : ''),
+          member: sender,
+          onTap: function(){ _gotoTab('cal'); }
+        });
+      });
+    }
+    _proposalsHasInit = true;
+    if(document.getElementById('sc-cal').classList.contains('on')) rProposals();
+  });
+}
+
+function _propPrettyDate(ds){
+  if(!ds) return '';
+  try {
+    var d = new Date(ds + 'T00:00:00');
+    if(isNaN(d.getTime())) return ds;
+    return d.toLocaleDateString(undefined, {weekday:'short', month:'short', day:'numeric'});
+  } catch(e){ return ds; }
+}
+
+// Derive proposal status from votes: 'open' / 'all-yes' / 'blocked' / 'pending'
+// Open = the underlying record status (not closed by confirm/cancel)
+// all-yes = every member has voted yes
+// blocked = at least one member has voted no
+// pending = still waiting on votes (no nos, not all yes yet)
+function _propStatus(p){
+  if(p.status && p.status !== 'open') return p.status; // confirmed / cancelled / superseded
+  var responses = p.responses || {};
+  var hasNo = false;
+  var allYes = true;
+  members.forEach(function(m){
+    var v = responses[String(m.id)];
+    if(v === 'no') hasNo = true;
+    if(v !== 'yes') allYes = false;
+  });
+  if(hasNo) return 'blocked';
+  if(allYes) return 'all-yes';
+  return 'pending';
+}
+
+function rProposals(){
+  if(cardStates['proposals-list'] === undefined) cardStates['proposals-list'] = true;
+  var collapsed = !!cardStates['proposals-list'];
+  var el = document.getElementById('proposals-list');
+  var ar = document.getElementById('proposals-arrow');
+  var btn = document.getElementById('propose-btn');
+  if(!el) return;
+  if(ar) ar.innerHTML = '&#8964;';
+  el.style.display = collapsed ? 'none' : 'block';
+  if(btn) btn.style.display = collapsed ? 'none' : 'block';
+  // Show only non-cancelled / non-superseded; hide confirmed older than 24h
+  var now = Date.now();
+  var visible = proposals.filter(function(p){
+    if(p.status === 'cancelled' || p.status === 'superseded') return false;
+    if(p.status === 'confirmed' && p.confirmedAt && (now - p.confirmedAt > 24*3600*1000)) return false;
+    return true;
+  });
+  // Update count
+  var openCount = visible.filter(function(p){ return !p.status || p.status === 'open'; }).length;
+  var countEl = document.getElementById('proposals-count');
+  if(countEl) countEl.textContent = openCount ? ' — ' + openCount + ' open' : '';
+  if(collapsed) return; // skip rendering cards when collapsed
+  if(!visible.length){
+    el.innerHTML = '<div style="color:#aaa;font-style:italic;padding:8px;font-size:13px;">No active proposals. Tap below to propose a rehearsal.</div>';
+    return;
+  }
+  el.innerHTML = '';
+  visible.forEach(function(p){
+    var status = _propStatus(p);
+    var card = document.createElement('div');
+    var borderColor = status === 'all-yes' ? '#06d6a0' : (status === 'blocked' ? '#ff4757' : (status === 'confirmed' ? '#06d6a0' : '#4a9eff'));
+    var bg = status === 'confirmed' ? 'rgba(6,214,160,.08)' : (status === 'blocked' ? 'rgba(255,71,87,.06)' : 'rgba(74,158,255,.06)');
+    card.style.cssText = 'background:'+bg+';border:1px solid '+borderColor+'66;border-left:3px solid '+borderColor+';border-radius:10px;padding:12px;margin-bottom:8px;';
+    var sender = gM(p.proposedBy);
+    var byLine = '<span style="font-size:11px;color:#8aa8d6;">Proposed by ' + (sender.name || '').split(' ')[0] + '</span>';
+    var dateLine = _propPrettyDate(p.date);
+    if(p.startTime) dateLine += ' · ' + p.startTime + (p.endTime ? '–' + p.endTime : '');
+    var locLine = p.location ? '<div style="font-size:12px;color:#c5cee0;margin-top:3px;">'+p.location+'</div>' : '';
+    var noteLine = p.note ? '<div style="font-size:11px;color:#8aa8d6;margin-top:2px;font-style:italic;">'+p.note+'</div>' : '';
+    var statusBadge = '';
+    if(status === 'confirmed'){
+      statusBadge = '<span style="font-size:9px;color:#06d6a0;font-family:Russo One,sans-serif;letter-spacing:1px;border:1px solid #06d6a0;border-radius:4px;padding:2px 6px;">CONFIRMED</span>';
+    } else if(status === 'all-yes'){
+      statusBadge = '<span style="font-size:9px;color:#06d6a0;font-family:Russo One,sans-serif;letter-spacing:1px;border:1px solid #06d6a0;border-radius:4px;padding:2px 6px;">ALL YES</span>';
+    } else if(status === 'blocked'){
+      statusBadge = '<span style="font-size:9px;color:#ff4757;font-family:Russo One,sans-serif;letter-spacing:1px;border:1px solid #ff4757;border-radius:4px;padding:2px 6px;">BLOCKED</span>';
+    }
+    // Header line: date + status + by
+    card.innerHTML =
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">'+
+        '<div style="flex:1;min-width:0;">'+
+          '<div style="font-family:Russo One,sans-serif;font-size:14px;color:'+borderColor+';letter-spacing:.5px;">'+dateLine+'</div>'+
+          locLine + noteLine +
+          '<div style="margin-top:6px;">'+byLine+'</div>'+
+        '</div>'+
+        (statusBadge?'<div style="flex-shrink:0;">'+statusBadge+'</div>':'')+
+      '</div>';
+
+    // Vote tally + buttons (skip if already confirmed/closed)
+    var responses = p.responses || {};
+    var yes = 0, maybe = 0, no = 0, pending = 0;
+    members.forEach(function(m){
+      var v = responses[String(m.id)];
+      if(v === 'yes') yes++;
+      else if(v === 'maybe') maybe++;
+      else if(v === 'no') no++;
+      else pending++;
+    });
+    var tallyRow = document.createElement('div');
+    tallyRow.style.cssText = 'display:flex;gap:8px;margin-top:10px;font-size:11px;color:#c5cee0;flex-wrap:wrap;';
+    tallyRow.innerHTML =
+      '<span style="display:inline-flex;align-items:center;gap:4px;"><span style="color:#06d6a0;font-weight:700;">'+yes+'</span> yes</span>'+
+      '<span style="display:inline-flex;align-items:center;gap:4px;"><span style="color:#f5c518;font-weight:700;">'+maybe+'</span> maybe</span>'+
+      '<span style="display:inline-flex;align-items:center;gap:4px;"><span style="color:#ff4757;font-weight:700;">'+no+'</span> no</span>'+
+      (pending?'<span style="display:inline-flex;align-items:center;gap:4px;color:#8aa8d6;">'+pending+' pending</span>':'');
+    card.appendChild(tallyRow);
+
+    // Show who voted what (small avatar row, color-tinted by their vote)
+    var whoRow = document.createElement('div');
+    whoRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;';
+    members.forEach(function(m){
+      var v = responses[String(m.id)];
+      var voteColor = v === 'yes' ? '#06d6a0' : (v === 'maybe' ? '#f5c518' : (v === 'no' ? '#ff4757' : '#1a3a8a'));
+      var av = document.createElement('div');
+      av.title = m.name + (v ? ': ' + v : ': not voted');
+      av.style.cssText = 'width:22px;height:22px;border-radius:50%;background:'+richGrad(m.color)+';border:2px solid '+voteColor+';display:flex;align-items:center;justify-content:center;font-family:Russo One,sans-serif;font-size:7px;font-weight:700;color:#000;flex-shrink:0;'+(v?'':'opacity:.45;');
+      av.textContent = m.av;
+      whoRow.appendChild(av);
+    });
+    card.appendChild(whoRow);
+
+    // Vote buttons (skip if confirmed)
+    if(!p.status || p.status === 'open'){
+      var myVote = responses[String(ME)] || '';
+      var voteRow = document.createElement('div');
+      voteRow.style.cssText = 'display:flex;gap:6px;margin-top:10px;';
+      function voteBtn(label, val, color){
+        var b = document.createElement('button');
+        var active = myVote === val;
+        b.style.cssText = 'flex:1;background:'+(active?color:'transparent')+';border:1px solid '+color+';border-radius:7px;padding:7px;color:'+(active?'#060e1c':color)+';font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;font-weight:'+(active?'700':'500')+';touch-action:manipulation;';
+        b.textContent = label;
+        b.onclick = function(){ voteOnProposal(p.id, val); };
+        return b;
+      }
+      voteRow.appendChild(voteBtn('YES', 'yes', '#06d6a0'));
+      voteRow.appendChild(voteBtn('MAYBE', 'maybe', '#f5c518'));
+      voteRow.appendChild(voteBtn('NO', 'no', '#ff4757'));
+      card.appendChild(voteRow);
+
+      // Action row: Confirm (proposer/admin only, when all-yes) + Cancel (proposer/admin)
+      var actRow = document.createElement('div');
+      actRow.style.cssText = 'display:flex;gap:6px;margin-top:8px;';
+      var iAmProposerOrAdmin = (p.proposedBy === ME) || _isAdmin();
+      if(status === 'all-yes' && iAmProposerOrAdmin){
+        var confirmBtn = document.createElement('button');
+        confirmBtn.style.cssText = 'flex:2;background:#06d6a0;border:none;border-radius:7px;padding:9px;color:#062021;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;font-weight:700;touch-action:manipulation;';
+        confirmBtn.textContent = '✓ CONFIRM — ADD TO CALENDAR';
+        confirmBtn.onclick = function(){ confirmProposal(p.id); };
+        actRow.appendChild(confirmBtn);
+      }
+      if(iAmProposerOrAdmin){
+        var cancelBtn = document.createElement('button');
+        cancelBtn.style.cssText = 'flex:1;background:transparent;border:1px solid #ff4757;border-radius:7px;padding:9px;color:#ff4757;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;touch-action:manipulation;';
+        cancelBtn.textContent = 'CANCEL';
+        cancelBtn.onclick = function(){ cancelProposal(p.id); };
+        actRow.appendChild(cancelBtn);
+      }
+      if(actRow.children.length) card.appendChild(actRow);
+    } else if(p.status === 'confirmed'){
+      var confInfo = document.createElement('div');
+      confInfo.style.cssText = 'margin-top:10px;padding:8px;background:rgba(6,214,160,.12);border-radius:6px;font-size:11px;color:#06d6a0;';
+      confInfo.textContent = '✓ Confirmed — added to calendar';
+      card.appendChild(confInfo);
+    }
+
+    el.appendChild(card);
+  });
+}
+
+function _isAdmin(){
+  // Defensive: read from current user's member doc — flag set in Firestore Console
+  var m = gM(ME);
+  return !!(m && m.admin);
+}
+
+function openNewProposalModal(){
+  // reset fields
+  var d = new Date();
+  d.setDate(d.getDate() + 3); // default 3 days from now
+  var iso = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  document.getElementById('prop-date').value = iso;
+  document.getElementById('prop-start').value = '';
+  document.getElementById('prop-end').value = '';
+  document.getElementById('prop-loc').value = '';
+  document.getElementById('prop-note').value = '';
+  // Wire time mask to start/end fields
+  if(typeof attachTimeMask === 'function'){
+    attachTimeMask(document.getElementById('prop-start'));
+    attachTimeMask(document.getElementById('prop-end'));
+  }
+  opM('proposal-modal');
+}
+
+function submitProposal(){
+  var date = document.getElementById('prop-date').value;
+  if(!date){ toast('Pick a date', {tone:'error'}); return; }
+  // Apply time mask formatting before reading values
+  var startEl = document.getElementById('prop-start');
+  var endEl = document.getElementById('prop-end');
+  if(startEl && typeof formatTimeInput === 'function'){
+    var fs = formatTimeInput(startEl.value);
+    if(fs) startEl.value = fs;
+  }
+  if(endEl && typeof formatTimeInput === 'function'){
+    var fe = formatTimeInput(endEl.value);
+    if(fe) endEl.value = fe;
+  }
+  var prop = {
+    id: String(Date.now()),
+    type: 'rehearsal',
+    date: date,
+    startTime: startEl ? startEl.value.trim() : '',
+    endTime: endEl ? endEl.value.trim() : '',
+    location: document.getElementById('prop-loc').value.trim(),
+    note: document.getElementById('prop-note').value.trim(),
+    proposedBy: ME,
+    proposedAt: Date.now(),
+    status: 'open',
+    responses: {}
+  };
+  // Auto-Yes for proposer
+  prop.responses[String(ME)] = 'yes';
+  db.collection('proposals').doc(prop.id).set(prop).then(function(){
+    toast('Proposal posted', {tone:'success'});
+    clM('proposal-modal');
+    notifyBand('rehearsal-proposal',
+      myName.split(' ')[0] + ' proposed a rehearsal',
+      _propPrettyDate(prop.date) + (prop.startTime ? ' at ' + prop.startTime : '') + (prop.location ? ' · ' + prop.location : '')
+    );
+  }).catch(function(err){
+    toast('Failed to post: ' + (err && err.message ? err.message : 'unknown'), {tone:'error'});
+  });
+}
+
+function voteOnProposal(propId, vote){
+  var p = proposals.find(function(x){return x.id === propId;});
+  if(!p) return;
+  var responses = Object.assign({}, p.responses || {});
+  var current = responses[String(ME)];
+  // Toggle: tap your own current vote to clear it
+  if(current === vote) {
+    delete responses[String(ME)];
+  } else {
+    responses[String(ME)] = vote;
+  }
+  db.collection('proposals').doc(p.id).update({responses: responses}).catch(function(){});
+}
+
+function confirmProposal(propId){
+  var p = proposals.find(function(x){return x.id === propId;});
+  if(!p) return;
+  appConfirm({
+    title: 'Confirm rehearsal?',
+    message: 'This will add a rehearsal event to the calendar for ' + _propPrettyDate(p.date) + (p.startTime ? ' at ' + p.startTime : '') + ' and notify everyone.',
+    okLabel: 'CONFIRM',
+    destructive: false
+  }).then(function(ok){
+    if(!ok) return;
+    // Build the rehearsal event
+    var newEventId = Date.now();
+    var ev = {
+      id: newEventId,
+      type: 'rehearsal',
+      date: p.date,
+      title: 'Rehearsal',
+      note: p.location || ''
+    };
+    db.collection('events').doc(String(newEventId)).set(ev).then(function(){
+      // Also store agenda with start/end/focus
+      var agenda = {
+        songs: [],
+        notes: '',
+        startTime: p.startTime || '',
+        endTime: p.endTime || '',
+        focus: p.note || ''
+      };
+      db.collection('agendas').doc(String(newEventId)).set(agenda).catch(function(){});
+      // Mark proposal as confirmed
+      db.collection('proposals').doc(p.id).update({
+        status: 'confirmed',
+        confirmedAt: Date.now(),
+        confirmedEventId: String(newEventId)
+      }).catch(function(){});
+      toast('Rehearsal confirmed', {tone:'success'});
+      notifyBand('rehearsal-proposal',
+        'Rehearsal confirmed',
+        _propPrettyDate(p.date) + (p.startTime ? ' at ' + p.startTime : '') + (p.location ? ' · ' + p.location : '')
+      );
+    }).catch(function(err){
+      toast('Failed: ' + (err && err.message ? err.message : 'unknown'), {tone:'error'});
+    });
+  });
+}
+
+function cancelProposal(propId){
+  var p = proposals.find(function(x){return x.id === propId;});
+  if(!p) return;
+  appConfirm({
+    title: 'Cancel proposal?',
+    message: 'This will remove the proposal. Members who voted Yes will be notified.',
+    okLabel: 'CANCEL PROPOSAL',
+    destructive: true
+  }).then(function(ok){
+    if(!ok) return;
+    db.collection('proposals').doc(p.id).update({
+      status: 'cancelled',
+      cancelledAt: Date.now(),
+      cancelledBy: ME
+    }).then(function(){
+      toast('Proposal cancelled', {tone:'success'});
+      // Notify those who voted Yes
+      var yesIds = [];
+      var responses = p.responses || {};
+      members.forEach(function(m){
+        if(m.id === ME) return;
+        if(responses[String(m.id)] === 'yes') yesIds.push(m.id);
+      });
+      yesIds.forEach(function(mid){
+        notifyBand('rehearsal-proposal',
+          'Rehearsal proposal cancelled',
+          _propPrettyDate(p.date) + (p.startTime ? ' at ' + p.startTime : ''),
+          '/',
+          {targetMemberId: mid}
+        );
+      });
+    });
+  });
+}
+
 function listenGigDetails(){
   db.collection('gigdetails').onSnapshot(function(snap){
     snap.forEach(function(doc){gigDetails[doc.id]=doc.data();});
@@ -3962,6 +4361,10 @@ function toggleCard(contentId, arrowId) {
   // Special case - All Events: re-render so filter row updates correctly on expand/collapse
   if(contentId === 'evl' && typeof rEvL === 'function'){
     rEvL();
+  }
+  // Special case - Proposals: re-render so card content + button visibility update
+  if(contentId === 'proposals-list' && typeof rProposals === 'function'){
+    rProposals();
   }
 }
 
@@ -4214,6 +4617,7 @@ function rCal() {
   _wireCalSwipe();
   rEvL();
   rAvailability();
+  if(typeof rProposals === 'function') rProposals();
   // Drawer maintenance — if month changed, close; if same month and drawer open, refresh contents
   if(_drawerDay != null){
     if(prevRendered !== rCal._lastRendered){
