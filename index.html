@@ -80,6 +80,8 @@ body.light #setlists-menu-btn,
 body.light #band-roster-menu-btn,
 body.light #songs-menu-btn,
 body.light #reorder-menu-btn{border-color:#1a3a8a !important;color:#1a3a8a !important;}
+body.light .ab{background:#fff !important;border:1.5px dashed #1a3a8a !important;color:#1a3a8a !important;}
+body.light #sl-back-btn{color:#1a3a8a !important;}
 body.light .mb.me div{color:#fff;}
 body.light #tabs{background:#1a3a8a;}
 body.light .grip{color:#888;}
@@ -435,7 +437,7 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
     <div id="sll"></div>
   </div>
   <div id="se" style="display:none">
-    <button style="background:none;border:none;color:#4a9eff;font-size:13px;margin-bottom:8px;cursor:pointer;" onclick="clEd()">&#8592; Back</button>
+    <button id="sl-back-btn" style="background:none;border:none;color:#4a9eff;font-size:13px;margin-bottom:8px;cursor:pointer;" onclick="clEd()">&#8592; Back</button>
     <div id="eh"></div>
     <div id="ssl"></div>
     <button class="ab" onclick="showPicker()">+ Add Songs from Library</button>
@@ -4678,8 +4680,30 @@ function showDayOptions(day, de){
     var card = document.createElement('div');
     card.style.cssText = 'padding:8px 10px;background:#060e1c;border-radius:8px;margin-bottom:6px;border-left:3px solid ' + EC[e.type] + ';display:flex;align-items:center;justify-content:space-between;';
     var info = document.createElement('div');
+    info.style.cssText = 'flex:1;min-width:0;';
+
+    // Build a one-line detail summary based on event type
+    var detailLine = '';
+    if(e.type === 'rehearsal'){
+      var ag = _getAgenda(e.id);
+      var parts = [];
+      if(ag.startTime){
+        parts.push(ag.endTime ? (ag.startTime + ' – ' + ag.endTime) : ag.startTime);
+      }
+      if(ag.focus) parts.push(ag.focus);
+      detailLine = parts.join(' · ');
+    } else if(e.type === 'gig'){
+      var det = gigDetails[String(e.id)] || {};
+      var gparts = [];
+      if(det.settime) gparts.push('Set ' + det.settime);
+      if(det.loadin) gparts.push('Load-in ' + det.loadin);
+      if(det.sc) gparts.push('Sound check ' + det.sc);
+      detailLine = gparts.join(' · ');
+    }
+
     info.innerHTML = '<div style="font-size:13px;font-weight:600;color:#fff;">' + e.title + '</div>' +
-      (e.note?'<div style="font-size:11px;color:#aaa;margin-top:1px;">'+e.note+'</div>':'');
+      (detailLine?'<div style="font-size:11px;color:#f5c518;margin-top:2px;font-family:Russo One,sans-serif;letter-spacing:.3px;">'+detailLine+'</div>':'') +
+      (e.note?'<div style="font-size:11px;color:#aaa;margin-top:2px;">'+e.note+'</div>':'');
     var btnRow = document.createElement('div');
     btnRow.style.cssText = 'display:flex;gap:4px;flex-shrink:0;margin-left:8px;';
     var editBtn = document.createElement('button');
@@ -5405,14 +5429,33 @@ var _SL_TITLE_GLOWS = [
   'rgba(255,165,0,.25)',
   'rgba(176,139,255,.25)'
 ];
+// Light-mode palette — darker, saturated stops so titles read on white. No glow.
+var _SL_TITLE_GRADIENTS_LIGHT = [
+  'linear-gradient(135deg,#0c447c 0%,#185fa5 45%,#1f5fb5 100%)',
+  'linear-gradient(135deg,#854f0b 0%,#b8860b 45%,#d4a017 100%)',
+  'linear-gradient(135deg,#085041 0%,#0f6e56 45%,#04a87b 100%)',
+  'linear-gradient(135deg,#72243e 0%,#993556 45%,#d4537e 100%)',
+  'linear-gradient(135deg,#712b13 0%,#993c1d 45%,#cc7a00 100%)',
+  'linear-gradient(135deg,#3c3489 0%,#534ab7 45%,#7d5acc 100%)'
+];
+function _slIsLight(){ return document.body.classList.contains('light'); }
+function _slGradientAt(idx){
+  var pal = _slIsLight() ? _SL_TITLE_GRADIENTS_LIGHT : _SL_TITLE_GRADIENTS;
+  return pal[idx % pal.length];
+}
+function _slGlowAt(idx){
+  // No glow in light mode — glows wash out the dark text on white
+  if(_slIsLight()) return 'transparent';
+  return _SL_TITLE_GLOWS[idx % _SL_TITLE_GLOWS.length];
+}
 
 function _slGradientForId(id){
   var idx = sets.findIndex(function(x){ return x.id == id; });
   if(idx < 0) idx = 0;
   return {
     stripe: _SL_STRIPE_COLORS[idx % _SL_STRIPE_COLORS.length],
-    gradient: _SL_TITLE_GRADIENTS[idx % _SL_TITLE_GRADIENTS.length],
-    glow: _SL_TITLE_GLOWS[idx % _SL_TITLE_GLOWS.length]
+    gradient: _slGradientAt(idx),
+    glow: _slGlowAt(idx)
   };
 }
 
@@ -5644,14 +5687,12 @@ function rSets() {
   el.innerHTML = '';
   // Cycle through a small palette so multiple setlists feel distinct
   var stripeColors = _SL_STRIPE_COLORS;
-  var titleGradients = _SL_TITLE_GRADIENTS;
-  var titleGlows = _SL_TITLE_GLOWS;
   sets.forEach(function(s, idx){
     var totalSecs = getSetDuration(s.songs);
     var durStr = totalSecs > 0 ? formatDuration(totalSecs) : '';
     var stripe = stripeColors[idx % stripeColors.length];
-    var titleGrad = titleGradients[idx % titleGradients.length];
-    var titleGlow = titleGlows[idx % titleGlows.length];
+    var titleGrad = _slGradientAt(idx);
+    var titleGlow = _slGlowAt(idx);
     var div = document.createElement('div');
     div.className = 'slc';
     div.style.cssText = 'position:relative;background:var(--n4);border:1px solid var(--n3);border-left:4px solid '+stripe+';border-radius:10px;padding:14px 14px 14px 14px;margin-bottom:10px;display:flex;align-items:center;touch-action:manipulation;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s;';
@@ -5704,19 +5745,22 @@ function rEd() {
   var totalSecs=getSetDuration(s.songs);
   var durStr = totalSecs>0 ? ' · &#9201; '+formatDuration(totalSecs) : '';
   // Icon-based Edit & Share buttons
+  var _slLight = _slIsLight();
   var editBg = reorderMode ? 'linear-gradient(135deg,#1a3a8a,#0d2050)' : 'transparent';
   var editBorder = reorderMode ? '#f5c518' : '#1a3a8a';
-  var editColor = reorderMode ? '#f5c518' : '#4a9eff';
+  var editColor = reorderMode ? '#f5c518' : (_slLight ? '#1a3a8a' : '#4a9eff');
+  var shareBorder = _slLight ? '#1a3a8a' : '#1a3a8a';
+  var shareColor = _slLight ? '#1a3a8a' : '#4a9eff';
   var editIcon = reorderMode
-    ? '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" focusable="false"><polyline points="4,12 10,18 20,6" fill="none" stroke="'+editColor+'" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-    : '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="'+editColor+'"/></svg>';
+    ? '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" focusable="false"><polyline points="4,12 10,18 20,6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    : '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor"/></svg>';
   var editLabel = reorderMode ? 'DONE' : 'EDIT';
-  var shareIcon = '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" focusable="false"><path d="M12 3l-4 4h3v8h2V7h3l-4-4zm-7 12v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5h-2v5H7v-5H5z" fill="#4a9eff"/></svg>';
+  var shareIcon = '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" focusable="false"><path d="M12 3l-4 4h3v8h2V7h3l-4-4zm-7 12v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5h-2v5H7v-5H5z" fill="currentColor"/></svg>';
   document.getElementById('eh').innerHTML =
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap;">'+
     '<span style="background:'+_slPal.gradient+';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:700;text-shadow:0 0 18px '+_slPal.glow+';font-family:Russo One,sans-serif;font-size:17px;flex:1;min-width:120px;letter-spacing:1px;">'+s.name+'</span>'+
-    '<button onclick="toggleSLEdit()" style="background:'+editBg+';border:1px solid '+editBorder+';border-radius:18px;padding:6px 12px;color:'+editColor+';font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;cursor:pointer;touch-action:manipulation;display:inline-flex;align-items:center;gap:5px;">'+editIcon+'<span>'+editLabel+'</span></button>'+
-    '<button onclick="printSL()" style="background:transparent;border:1px solid #1a3a8a;border-radius:18px;padding:6px 12px;color:#4a9eff;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;cursor:pointer;touch-action:manipulation;display:inline-flex;align-items:center;gap:5px;">'+shareIcon+'<span>SHARE</span></button>'+
+    '<button id="sl-edit-btn" onclick="toggleSLEdit()" style="background:'+editBg+';border:1px solid '+editBorder+';border-radius:18px;padding:6px 12px;color:'+editColor+';font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;cursor:pointer;touch-action:manipulation;display:inline-flex;align-items:center;gap:5px;">'+editIcon+'<span>'+editLabel+'</span></button>'+
+    '<button id="sl-share-btn" onclick="printSL()" style="background:transparent;border:1px solid '+shareBorder+';border-radius:18px;padding:6px 12px;color:'+shareColor+';font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;cursor:pointer;touch-action:manipulation;display:inline-flex;align-items:center;gap:5px;">'+shareIcon+'<span>SHARE</span></button>'+
     '</div>'+
     '<div style="font-size:12px;color:#aaa;margin-bottom:4px;">'+s.songs.length+' songs'+durStr+'</div>'+
     '<div style="font-size:10px;color:'+(reorderMode?'#f5c518':'transparent')+';margin-bottom:10px;">Hold ≡ and drag to reorder · tap Done to finish</div>';
@@ -5772,10 +5816,20 @@ function rEd() {
       var libSong = sg.libId ? library.find(function(l){return l.id===sg.libId;}) : null;
       var songTitle = libSong ? libSong.title : sg.t;
       var songArtist = libSong ? (libSong.artist||'') : '';
+      var _isLight = _slIsLight();
+      var _titleGrad = _isLight
+        ? 'linear-gradient(135deg,#0d2050 0%,#1a3a8a 50%,#2563d6 100%)'
+        : 'linear-gradient(135deg,#67e8f9 0%,#ffffff 50%,#67e8f9 100%)';
+      var _titleShadow = _isLight
+        ? 'none'
+        : '0 0 18px rgba(103,232,249,.55), 0 0 6px rgba(103,232,249,.85)';
+      var _artistGrad = _isLight
+        ? 'linear-gradient(135deg,#0c447c 0%,#185fa5 50%,#1f5fb5 100%)'
+        : 'linear-gradient(135deg,#2563d6 0%,#4a9eff 50%,#7ed4ff 100%)';
       textDiv.innerHTML =
         '<div style="font-weight:600;">' +
-          '<span style="font-size:16px;font-weight:700;background:linear-gradient(135deg,#67e8f9 0%,#ffffff 50%,#67e8f9 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 18px rgba(103,232,249,.55), 0 0 6px rgba(103,232,249,.85);">' + songTitle + '</span>' +
-          (songArtist ? '<span style="color:#4a6a9a;font-size:14px;"> &nbsp;–&nbsp; </span><span style="font-size:14px;background:linear-gradient(135deg,#2563d6 0%,#4a9eff 50%,#7ed4ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;">' + songArtist + '</span>' : '') +
+          '<span style="font-size:16px;font-weight:700;background:'+_titleGrad+';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:'+_titleShadow+';">' + songTitle + '</span>' +
+          (songArtist ? '<span style="color:#4a6a9a;font-size:14px;"> &nbsp;–&nbsp; </span><span style="font-size:14px;background:'+_artistGrad+';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;">' + songArtist + '</span>' : '') +
         '</div>';
       // Tap a song row (when not reordering) to open the song detail sheet
       if(libSong){
