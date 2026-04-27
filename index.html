@@ -3018,6 +3018,8 @@ function listenMembers(){
         if(d.em!==undefined) m.em = d.em;
         if(d.addr!==undefined) m.addr = d.addr;
         if(d.bday!==undefined) m.bday = d.bday;
+        // Admin flag — used by isMeAdmin() for permission overrides
+        if(d.admin!==undefined) m.admin = d.admin;
         seenIds[m.id] = true;
         // Flag for color migration if Firestore color is stale
         var expected = EXPECTED_MEMBER_COLORS[m.id];
@@ -6263,21 +6265,40 @@ function renderAnnouncementsList(){
         };
         actions.appendChild(del);
       }
-      if(a.who !== ME){
-        // Non-author: dismiss (with 24h gate)
+      // Non-author, NON-admin: orange trash for hide-for-me (with 24h gate)
+      // Admins already get the red trash above (delete-for-everyone), so skip this.
+      if(a.who !== ME && !isMeAdmin()){
         var canDismiss = _annCanDismissNow(a);
         var dismissBtn = document.createElement('button');
+        dismissBtn.type = 'button';
         dismissBtn.setAttribute('data-aid', a.id);
         if(canDismiss){
-          dismissBtn.style.cssText = 'background:#0a1628;border:1px solid #4a6a9a;border-radius:6px;padding:4px 10px;color:#8aa8d6;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;';
-          dismissBtn.innerHTML = '<span style="font-size:11px;line-height:1;">&#10005;</span><span>DISMISS</span>';
-          dismissBtn.onclick = function(){ _dismissAnnouncement(this.getAttribute('data-aid')); };
+          // Available — orange trash icon (matches chat HIDE pattern)
+          dismissBtn.style.cssText = 'background:transparent;border:1px solid #ffa500;border-radius:50%;width:28px;height:28px;color:#ffa500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;';
+          dismissBtn.setAttribute('title','Hide from your view (others still see it)');
+          dismissBtn.setAttribute('aria-label','Hide announcement from your view');
+          dismissBtn.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#ffa500" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>';
+          dismissBtn.setAttribute('data-author', a.who);
+          dismissBtn.onclick = function(){
+            var aid = this.getAttribute('data-aid');
+            var author = parseInt(this.getAttribute('data-author'),10);
+            var authorName = gM(author).name || 'someone';
+            appConfirm({
+              title: 'Hide this announcement?',
+              message: 'Posted by <b>'+authorName+'</b>. It will be hidden from your view only — other band members will still see it.',
+              allowHtml: true
+            }).then(function(ok){
+              if(ok) _dismissAnnouncement(aid);
+            });
+          };
         } else {
+          // Pre-24h — disabled clock icon, countdown in tooltip
           var countdown = _annDismissCountdown(a);
           dismissBtn.disabled = true;
-          dismissBtn.style.cssText = 'background:transparent;border:1px solid #1a3a8a;border-radius:6px;padding:4px 10px;color:#4a6a9a;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:not-allowed;display:inline-flex;align-items:center;gap:5px;opacity:.6;';
-          dismissBtn.innerHTML = '<span style="font-size:11px;line-height:1;">&#9201;</span><span>DISMISS IN ' + (countdown || '') + '</span>';
-          dismissBtn.title = 'Dismiss available 24 hours after posting';
+          dismissBtn.style.cssText = 'background:transparent;border:1px solid #1a3a8a;border-radius:50%;width:28px;height:28px;color:#4a6a9a;cursor:not-allowed;display:inline-flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;opacity:.6;';
+          dismissBtn.setAttribute('title', 'Hide available in ' + (countdown || '24 hours'));
+          dismissBtn.setAttribute('aria-label', 'Hide available in ' + (countdown || '24 hours'));
+          dismissBtn.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#4a6a9a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>';
         }
         actions.appendChild(dismissBtn);
       }
