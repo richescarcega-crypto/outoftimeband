@@ -7333,15 +7333,9 @@ function rAnnouncements(){
   var badge = document.getElementById('ann-bell-badge');
   if(countEl) countEl.textContent = String(activeCount);
   if(bell){
-    if(activeCount === 0){
-      bell.style.opacity = '.45';
-      bell.style.borderColor = '#1a3a8a';
-      bell.style.boxShadow = '';
-    } else {
-      bell.style.opacity = '1';
-      bell.style.borderColor = unread > 0 ? '#f5c518' : '#1a3a8a';
-      bell.style.boxShadow = unread > 0 ? '0 0 14px rgba(245,197,24,.35)' : '';
-    }
+    bell.style.opacity = activeCount === 0 ? '.7' : '1';
+    bell.style.borderColor = unread > 0 ? '#f5c518' : '#c99a00';
+    bell.style.boxShadow = unread > 0 ? '0 0 14px rgba(245,197,24,.45)' : '';
   }
   if(badge){
     if(unread > 0){
