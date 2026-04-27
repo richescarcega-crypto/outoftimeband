@@ -350,10 +350,9 @@ body.light .mrav{color:#000 !important;}
         <span class="tt-gold" style="font-family:'Russo One',sans-serif;font-size:12px;letter-spacing:2px;">SETLISTS</span>
         <span id="sl-count" style="font-size:10px;color:#4a9eff;margin-left:8px;font-family:'Exo 2',sans-serif;"></span>
       </div>
-      <button onclick="nwSL()" class="pill-action">
-        <span style="font-size:14px;line-height:1;">&#43;</span>
-        <span>NEW</span>
-      </button>
+      <div style="position:relative;">
+        <button id="setlists-menu-btn" type="button" title="Setlist options" style="background:transparent;border:1px solid rgba(74,158,255,.4);border-radius:50%;width:32px;height:32px;color:#8aa8d6;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;font-size:18px;line-height:1;transition:all .15s;touch-action:manipulation;" onclick="toggleSetlistsMenu(event)">&#8942;</button>
+      </div>
     </div>
     <div id="sll"></div>
   </div>
@@ -430,14 +429,11 @@ body.light .mrav{color:#000 !important;}
     <span class="tt-gold" style="font-family:'Russo One',sans-serif;font-size:12px;letter-spacing:2px;">SONG LIBRARY</span>
     <span id="lib-count" style="font-size:10px;color:#4a9eff;margin-left:8px;font-family:'Exo 2',sans-serif;"></span>
   </div>
+  <div style="position:relative;">
+    <button id="songs-menu-btn" type="button" title="Library options" style="background:transparent;border:1px solid rgba(74,158,255,.4);border-radius:50%;width:32px;height:32px;color:#8aa8d6;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;font-size:18px;line-height:1;transition:all .15s;touch-action:manipulation;position:relative;" onclick="toggleSongsMenu(event)">&#8942;<span id="songs-menu-dot" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:#ff4757;border:1.5px solid #060e1c;"></span></button>
+  </div>
 </div>
-<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
-  <button onclick="showAddSongForm()" style="flex:1;min-width:0;background:#101e34;border:1px solid #06d6a0;border-radius:8px;padding:7px 6px;color:#06d6a0;font-size:11px;font-family:'Russo One',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;touch-action:manipulation;">&#43; Add</button>
-  <button onclick="opM('votes-modal')" style="flex:1;min-width:0;position:relative;background:#101e34;border:1px solid #f5c518;border-radius:8px;padding:7px 6px;color:#f5c518;font-size:11px;font-family:'Russo One',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;touch-action:manipulation;">
-    &#128123; Vote<span id="vote-badge" style="display:none;background:#ff4757;color:#fff;font-size:9px;font-weight:700;border-radius:50%;width:14px;height:14px;align-items:center;justify-content:center;font-family:'Russo One',sans-serif;margin-left:2px;"></span>
-  </button>
-  <button onclick="exportData('songs')" style="flex:1;min-width:0;background:#101e34;border:1px solid #4a9eff;border-radius:8px;padding:7px 6px;color:#4a9eff;font-size:11px;font-family:'Russo One',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;touch-action:manipulation;">&#8679; Share</button>
-</div>
+<div style="display:none;"><span id="vote-badge"></span></div>
   <input id="song-search" class="fi2" placeholder="🔍  Search songs..." oninput="rLib()" style="width:100%;margin-bottom:8px;">
   <div id="library-list"></div>
 
@@ -1539,19 +1535,21 @@ function rVotes(){
 }
 
 function updateVoteBadge(){
-  var badge = document.getElementById('vote-badge');
-  if(!badge) return;
   var unvoted = suggestions.filter(function(s){
     var yv = s.yesVoters||[];
     var nv = s.noVoters||[];
     return yv.indexOf(ME)<0 && nv.indexOf(ME)<0;
   }).length;
-  if(unvoted > 0){
-    badge.textContent = unvoted > 9 ? '9+' : String(unvoted);
-    badge.style.display = 'flex';
-  } else {
-    badge.style.display = 'none';
+  // Legacy badge (now hidden but keep updated in case re-enabled)
+  var badge = document.getElementById('vote-badge');
+  if(badge){
+    if(unvoted > 0){
+      badge.textContent = unvoted > 9 ? '9+' : String(unvoted);
+    }
   }
+  // Kebab indicator dot — visible whenever there are pending votes
+  var dot = document.getElementById('songs-menu-dot');
+  if(dot) dot.style.display = unvoted > 0 ? 'block' : 'none';
 }
 
 function castVote(id, voteType){
@@ -4795,6 +4793,224 @@ function _slGradientForId(id){
     gradient: _SL_TITLE_GRADIENTS[idx % _SL_TITLE_GRADIENTS.length],
     glow: _SL_TITLE_GLOWS[idx % _SL_TITLE_GLOWS.length]
   };
+}
+
+
+// ── Setlists tab kebab menu ────────────────────────────────────────
+function toggleSetlistsMenu(ev){
+  if(ev) ev.stopPropagation();
+  var existing = document.getElementById('setlists-menu-popup');
+  if(existing){ existing.remove(); return; }
+  var btn = document.getElementById('setlists-menu-btn');
+  if(!btn) return;
+  var pop = document.createElement('div');
+  pop.id = 'setlists-menu-popup';
+  pop.style.cssText = 'position:absolute;right:0;top:38px;background:#0a1628;border:1px solid #1a3a8a;border-radius:10px;padding:5px;min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,.55);z-index:50;';
+  function mk(label, iconSvg, onClick){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.style.cssText = 'display:flex;align-items:center;gap:10px;background:transparent;border:none;color:#e8f0ff;font-size:13px;padding:9px 12px;width:100%;text-align:left;border-radius:7px;cursor:pointer;font-family:\'Exo 2\',sans-serif;touch-action:manipulation;';
+    b.innerHTML = iconSvg + '<span>'+label+'</span>';
+    b.onmouseover = function(){ this.style.background = 'rgba(74,158,255,.08)'; };
+    b.onmouseout = function(){ this.style.background = 'transparent'; };
+    b.onclick = function(ev2){ ev2.stopPropagation(); pop.remove(); onClick(); };
+    return b;
+  }
+  pop.appendChild(mk('Add Setlist',
+    '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#06d6a0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>',
+    function(){ if(typeof nwSL === 'function') nwSL(); }
+  ));
+  pop.appendChild(mk('Export All Setlists',
+    '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f5c518" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>',
+    function(){ exportAllSetlistsTxt(); }
+  ));
+  btn.parentNode.appendChild(pop);
+  setTimeout(function(){
+    var dismiss = function(e){
+      if(pop.contains(e.target) || e.target === btn) return;
+      pop.remove();
+      document.removeEventListener('click', dismiss, true);
+      document.removeEventListener('touchstart', dismiss, true);
+    };
+    document.addEventListener('click', dismiss, true);
+    document.addEventListener('touchstart', dismiss, true);
+  }, 0);
+}
+
+function exportAllSetlistsTxt(){
+  if(typeof sets === 'undefined' || !sets || !sets.length){
+    toast('No setlists to export', {tone:'error'});
+    return;
+  }
+  var lines = ['OUT OF TIME — ALL SETLISTS', '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501', ''];
+  sets.forEach(function(s, idx){
+    lines.push('SETLIST ' + (idx+1) + ': ' + (s.name || 'Untitled'));
+    var totalSecs = (typeof getSetDuration === 'function') ? getSetDuration(s.songs||[]) : 0;
+    if(totalSecs > 0){
+      var mm = Math.floor(totalSecs/60), ss = totalSecs%60;
+      lines.push('  Duration: ' + mm + ':' + (ss<10?'0':'') + ss);
+    }
+    lines.push('  Songs: ' + (s.songs ? s.songs.length : 0));
+    lines.push('');
+    if(s.songs && s.songs.length){
+      s.songs.forEach(function(sid, i){
+        var lib = (typeof library !== 'undefined') ? library.find(function(x){return x.id == sid;}) : null;
+        if(lib){
+          lines.push('    ' + (i+1) + '. ' + lib.title + (lib.artist ? ' — ' + lib.artist : ''));
+        }
+      });
+    }
+    lines.push('');
+    lines.push('');
+  });
+  try {
+    var blob = new Blob([lines.join('\r\n')], {type:'text/plain;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'OOT-AllSetlists.txt';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+    toast('Exported ' + sets.length + ' setlist' + (sets.length===1?'':'s'), {tone:'success'});
+  } catch(err){
+    toast('Export failed: ' + (err && err.message ? err.message : 'unknown'), {tone:'error', duration:4500});
+  }
+}
+
+// ── Songs tab kebab menu ───────────────────────────────────────────
+function toggleSongsMenu(ev){
+  if(ev) ev.stopPropagation();
+  var existing = document.getElementById('songs-menu-popup');
+  if(existing){ existing.remove(); return; }
+  var btn = document.getElementById('songs-menu-btn');
+  if(!btn) return;
+  var pop = document.createElement('div');
+  pop.id = 'songs-menu-popup';
+  pop.style.cssText = 'position:absolute;right:0;top:38px;background:#0a1628;border:1px solid #1a3a8a;border-radius:10px;padding:5px;min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,.55);z-index:50;';
+  function mk(label, iconSvg, onClick, badge){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.style.cssText = 'display:flex;align-items:center;gap:10px;background:transparent;border:none;color:#e8f0ff;font-size:13px;padding:9px 12px;width:100%;text-align:left;border-radius:7px;cursor:pointer;font-family:\'Exo 2\',sans-serif;touch-action:manipulation;';
+    var badgeHtml = badge ? '<span style="margin-left:auto;background:#ff4757;color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 7px;font-family:\'Russo One\',sans-serif;">'+badge+'</span>' : '';
+    b.innerHTML = iconSvg + '<span style="flex:1;">'+label+'</span>' + badgeHtml;
+    b.onmouseover = function(){ this.style.background = 'rgba(74,158,255,.08)'; };
+    b.onmouseout = function(){ this.style.background = 'transparent'; };
+    b.onclick = function(ev2){ ev2.stopPropagation(); pop.remove(); onClick(); };
+    return b;
+  }
+  pop.appendChild(mk('Add Song',
+    '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#06d6a0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>',
+    function(){ if(typeof showAddSongForm === 'function') showAddSongForm(); }
+  ));
+  // Vote with badge
+  var unvoted = (typeof suggestions !== 'undefined' && suggestions) ? suggestions.filter(function(s){
+    var yv = s.yesVoters||[]; var nv = s.noVoters||[];
+    return yv.indexOf(ME)<0 && nv.indexOf(ME)<0;
+  }).length : 0;
+  pop.appendChild(mk('Vote',
+    '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f5c518" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>',
+    function(){ if(typeof opM === 'function') opM('votes-modal'); },
+    unvoted > 0 ? (unvoted > 9 ? '9+' : String(unvoted)) : null
+  ));
+  pop.appendChild(mk('Import Songs',
+    '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#b08bff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>',
+    function(){ openImportSongsModal(); }
+  ));
+  pop.appendChild(mk('Share Library',
+    '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#4a9eff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"></line><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"></line></svg>',
+    function(){ if(typeof exportData === 'function') exportData('songs'); }
+  ));
+  btn.parentNode.appendChild(pop);
+  setTimeout(function(){
+    var dismiss = function(e){
+      if(pop.contains(e.target) || e.target === btn) return;
+      pop.remove();
+      document.removeEventListener('click', dismiss, true);
+      document.removeEventListener('touchstart', dismiss, true);
+    };
+    document.addEventListener('click', dismiss, true);
+    document.addEventListener('touchstart', dismiss, true);
+  }, 0);
+}
+
+// ── Import Songs (bulk paste) ──────────────────────────────────────
+function openImportSongsModal(){
+  // Build modal on demand if not present
+  var ov = document.getElementById('import-songs-modal');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id = 'import-songs-modal';
+    ov.className = 'ov';
+    ov.innerHTML =
+      '<div class="mo">'+
+        '<div class="moh"><span class="mot" style="color:#f5c518;">Import Songs</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="closeImportSongsModal()">&#10005;</button></div>'+
+        '<p style="font-size:12px;color:#8aa8d6;margin-bottom:10px;line-height:1.4;">Paste one song per line. Use <b>Title - Artist</b> format (the dash is optional). Imports apply to your current session only.</p>'+
+        '<textarea id="import-songs-textarea" placeholder="Free Bird - Lynyrd Skynyrd&#10;Hotel California - Eagles&#10;Sweet Child O Mine - Guns N Roses" style="width:100%;min-height:180px;background:#060e1c;border:1px solid #1a3a8a;border-radius:8px;padding:10px;color:#e8f0ff;font-family:\'Exo 2\',sans-serif;font-size:13px;outline:none;resize:vertical;box-sizing:border-box;"></textarea>'+
+        '<div id="import-songs-preview" style="margin-top:8px;font-size:11px;color:#4a9eff;min-height:14px;"></div>'+
+        '<div style="display:flex;gap:8px;margin-top:10px;">'+
+          '<button class="cb" onclick="closeImportSongsModal()" style="flex:1;">Cancel</button>'+
+          '<button class="sb" onclick="commitImportSongs()" style="flex:1;">Import</button>'+
+        '</div>'+
+      '</div>';
+    document.body.appendChild(ov);
+    var ta = document.getElementById('import-songs-textarea');
+    ta.oninput = function(){
+      var lines = this.value.split('\n').map(function(l){return l.trim();}).filter(function(l){return l.length;});
+      var prev = document.getElementById('import-songs-preview');
+      if(prev){
+        if(lines.length === 0) prev.textContent = '';
+        else prev.textContent = lines.length + ' song' + (lines.length===1?'':'s') + ' to import';
+      }
+    };
+  }
+  ov.style.display = 'flex';
+  var ta = document.getElementById('import-songs-textarea');
+  if(ta){ ta.value = ''; setTimeout(function(){ ta.focus(); }, 50); }
+  var prev = document.getElementById('import-songs-preview');
+  if(prev) prev.textContent = '';
+}
+function closeImportSongsModal(){
+  var ov = document.getElementById('import-songs-modal');
+  if(ov) ov.style.display = 'none';
+}
+function commitImportSongs(){
+  var ta = document.getElementById('import-songs-textarea');
+  if(!ta) return;
+  var lines = ta.value.split('\n').map(function(l){return l.trim();}).filter(function(l){return l.length;});
+  if(!lines.length){ toast('Nothing to import', {tone:'error'}); return; }
+  var added = 0, skipped = 0;
+  lines.forEach(function(line){
+    // Parse "Title - Artist" — try a few delimiters: " - ", " – ", " — ", or just title
+    var title = line, artist = '';
+    var delimMatch = line.match(/^(.+?)\s+[-\u2013\u2014]\s+(.+)$/);
+    if(delimMatch){
+      title = delimMatch[1].trim();
+      artist = delimMatch[2].trim();
+    }
+    if(!title){ skipped++; return; }
+    // Avoid duplicates by title+artist (case-insensitive)
+    var dup = library.find(function(s){
+      return String(s.title||'').toLowerCase() === title.toLowerCase()
+          && String(s.artist||'').toLowerCase() === artist.toLowerCase();
+    });
+    if(dup){ skipped++; return; }
+    var newSong = {
+      id: Date.now() + Math.floor(Math.random()*1000) + added,
+      title: title,
+      artist: artist,
+      key: '',
+      dur: '',
+      addedBy: ME
+    };
+    library.push(newSong);
+    added++;
+  });
+  closeImportSongsModal();
+  if(typeof rLib === 'function') rLib();
+  var msg = 'Imported ' + added + ' song' + (added===1?'':'s');
+  if(skipped > 0) msg += ' (' + skipped + ' duplicate' + (skipped===1?'':'s') + ' skipped)';
+  toast(msg, {tone:'success', duration:4000});
 }
 
 function rSets() {
