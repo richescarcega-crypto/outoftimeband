@@ -53,7 +53,7 @@ body.light .sr{background:#fff;}
 body.light .mo{background:#e8eef8;}
 body.light .mi{background:#fff;border-color:#c8d4e8;color:#1a2a4a;}
 body.light .fi2{background:#fff;border-color:#c8d4e8;color:#1a2a4a;}
-body.light #cin{background:#fff;border-color:#c8d4e8;color:#1a2a4a;}
+body.light #cin{background:#fff !important;border-color:#c8d4e8 !important;color:#1a2a4a !important;}
 body.light .mb.them{background:#dce4f5;}
 body.light .mb.me{background:#1a3a8a;}
 body.light .slc{background:#fff;border-color:#c8d4e8;}
@@ -1074,6 +1074,9 @@ function reorderShowView(view){
     if(dispView) dispView.style.display = 'block';
     titleEl.textContent = 'Display Mode';
     if(backBtn) backBtn.style.display = 'inline-flex';
+    // Sync the toggle label to the actual current mode
+    var _modeBtn = document.getElementById('mode-btn');
+    if(_modeBtn) _modeBtn.innerHTML = isDarkMode ? '&#9788; Light' : '&#9790; Dark';
   } else if(view === 'notif'){
     if(notifView) notifView.style.display = 'block';
     titleEl.textContent = 'Notifications';
@@ -6493,37 +6496,71 @@ function openThread(id){
     subEl.textContent='Private conversation';
   }
   // Apply the same name gradient used on the chat list — paint inline so it overrides the markup color
-  nameEl.style.background = 'linear-gradient(135deg,'+threadColor+' 0%,#ffffff 50%,'+threadColor+' 100%)';
-  nameEl.style.webkitBackgroundClip = 'text';
-  nameEl.style.backgroundClip = 'text';
-  nameEl.style.color = 'transparent';
-  nameEl.style.webkitTextFillColor = 'transparent';
-  nameEl.style.textShadow = '0 0 18px '+threadColor+'77, 0 0 6px '+threadColor+'aa';
-  nameEl.style.fontWeight = '700';
+  var _isLight = document.body.classList.contains('light');
+  if(_isLight){
+    // Solid darkened color, no gradient/glow, matches chat list treatment
+    var _lightCol = (typeof _lightModeMemberColor === 'function') ? _lightModeMemberColor(threadColor) : threadColor;
+    nameEl.style.background = '';
+    nameEl.style.webkitBackgroundClip = '';
+    nameEl.style.backgroundClip = '';
+    nameEl.style.color = _lightCol;
+    nameEl.style.webkitTextFillColor = _lightCol;
+    nameEl.style.textShadow = 'none';
+    nameEl.style.fontWeight = '700';
+  } else {
+    nameEl.style.background = 'linear-gradient(135deg,'+threadColor+' 0%,#ffffff 50%,'+threadColor+' 100%)';
+    nameEl.style.webkitBackgroundClip = 'text';
+    nameEl.style.backgroundClip = 'text';
+    nameEl.style.color = 'transparent';
+    nameEl.style.webkitTextFillColor = 'transparent';
+    nameEl.style.textShadow = '0 0 18px '+threadColor+'77, 0 0 6px '+threadColor+'aa';
+    nameEl.style.fontWeight = '700';
+  }
   // Avatar shadow + thread screen tint based on the thread color
-  avEl.style.boxShadow = '0 0 18px '+threadColor+'66, inset 0 -3px 8px rgba(0,0,0,.18)';
+  avEl.style.boxShadow = _isLight
+    ? '0 0 0 1px rgba(0,0,0,.06), inset 0 -3px 8px rgba(0,0,0,.10)'
+    : '0 0 18px '+threadColor+'66, inset 0 -3px 8px rgba(0,0,0,.18)';
   var threadScreen = document.getElementById('chat-thread-screen');
   if(threadScreen){
-    threadScreen.style.background = 'linear-gradient(180deg, '+threadColor+'1c 0%, rgba(20,40,80,0) 35%, rgba(20,40,80,0) 100%)';
+    threadScreen.style.background = _isLight
+      ? '#f0f4ff'
+      : 'linear-gradient(180deg, '+threadColor+'1c 0%, rgba(20,40,80,0) 35%, rgba(20,40,80,0) 100%)';
   }
   var msgsEl = document.getElementById('cmsgs');
   if(msgsEl){
-    // Spectacular brighter gradient — radial halo from the thread color + raised navy base, much lighter than before
-    msgsEl.style.background =
-      'radial-gradient(circle at 50% 0%, '+threadColor+'4d 0%, '+threadColor+'22 30%, transparent 65%),' +
-      'radial-gradient(circle at 18% 110%, '+threadColor+'30 0%, transparent 50%),' +
-      'radial-gradient(circle at 82% 110%, '+threadColor+'30 0%, transparent 50%),' +
-      'linear-gradient(180deg, #3a5da8 0%, #355498 45%, #2c4682 100%)';
+    if(_isLight){
+      // Clean white surface with a faint accent strip from the member color at the top
+      msgsEl.style.background =
+        'linear-gradient(180deg, '+threadColor+'14 0%, transparent 80px),' +
+        '#ffffff';
+    } else {
+      // Spectacular brighter gradient — radial halo from the thread color + raised navy base, much lighter than before
+      msgsEl.style.background =
+        'radial-gradient(circle at 50% 0%, '+threadColor+'4d 0%, '+threadColor+'22 30%, transparent 65%),' +
+        'radial-gradient(circle at 18% 110%, '+threadColor+'30 0%, transparent 50%),' +
+        'radial-gradient(circle at 82% 110%, '+threadColor+'30 0%, transparent 50%),' +
+        'linear-gradient(180deg, #3a5da8 0%, #355498 45%, #2c4682 100%)';
+    }
   }
   // Header bar gets a stronger tint of the thread color to feel cohesive with the lighter body
   var headerBar = threadScreen ? threadScreen.querySelector('div') : null;
   if(headerBar){
-    headerBar.style.background = 'linear-gradient(135deg, '+threadColor+'40 0%, #1f3a6e 75%)';
+    headerBar.style.background = _isLight
+      ? '#ffffff'
+      : 'linear-gradient(135deg, '+threadColor+'40 0%, #1f3a6e 75%)';
+    headerBar.style.borderBottom = _isLight
+      ? '1px solid #d0daf0'
+      : '1px solid #0d1f3a';
   }
   // Input bar tint to match
   var inputBar = threadScreen ? threadScreen.children[2] : null;
   if(inputBar){
-    inputBar.style.background = 'linear-gradient(135deg, '+threadColor+'2e 0%, #1f3a6e 75%)';
+    inputBar.style.background = _isLight
+      ? '#ffffff'
+      : 'linear-gradient(135deg, '+threadColor+'2e 0%, #1f3a6e 75%)';
+    inputBar.style.borderTop = _isLight
+      ? '1px solid #d0daf0'
+      : '1px solid #0d1f3a';
   }
   var threadId = id==='band'?'band':[String(ME),String(id)].sort().join('-');
   markThreadRead(threadId);
@@ -6626,10 +6663,13 @@ function rChatThreads(){
         threadInstrIcon = '<span class="thread-instr-cluster" data-bandgroup="1" title="Tap to enlarge" style="display:inline-flex;align-items:center;flex-shrink:0;margin-left:14px;cursor:pointer;padding:4px;border-radius:8px;transition:background .15s;"><img src="'+INSTR_IMG['band-group']+'" alt="" style="width:36px;height:auto;max-height:28px;object-fit:contain;display:block;flex-shrink:0;"/></span>';
       }
     }
+    var _isLightChat = document.body.classList.contains('light');
+    var _instrColor = _isLightChat ? '#1a3a8a' : '#8aa8d6';
+    var _previewColor = unread ? (_isLightChat ? '#1a2a4a' : '#e8f0ff') : (_isLightChat ? '#8a98b4' : '#4a6a9a');
     var nameAndInstr =
       '<span style="display:inline-flex;align-items:baseline;gap:6px;flex:1;min-width:0;overflow:hidden;">'+
         '<span style="font-size:15px;font-weight:'+(unread?'700':'600')+';font-family:Russo One,sans-serif;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;'+nameGradStyle(t.color)+'">'+t.name+'</span>'+
-        (!isBand && t.sub ? '<span style="font-size:11px;color:#8aa8d6;font-weight:500;white-space:nowrap;flex-shrink:0;letter-spacing:.2px;">· '+t.sub+'</span>' : '')+
+        (!isBand && t.sub ? '<span style="font-size:11px;color:'+_instrColor+';font-weight:500;white-space:nowrap;flex-shrink:0;letter-spacing:.2px;">· '+t.sub+'</span>' : '')+
       '</span>';
     info.innerHTML=
       '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">'+
@@ -6637,7 +6677,7 @@ function rChatThreads(){
         threadInstrIcon+
         (lastMsg?'<span style="font-size:10px;color:#4a6a9a;flex-shrink:0;margin-left:10px;">'+lastMsg.time+'</span>':'')+
       '</div>'+
-      '<div style="font-size:12px;color:'+(unread?'#e8f0ff':'#4a6a9a')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;'+(lastMsg?'':'font-style:italic;')+'">'+
+      '<div style="font-size:12px;color:'+_previewColor+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;'+(lastMsg?'':'font-style:italic;')+'">'+
         preview+
       '</div>';
 
@@ -6686,7 +6726,7 @@ function rChat() {
   while(el.firstChild) el.removeChild(el.firstChild);
   if(!filtered.length){
     var empty=document.createElement('div');
-    empty.style.cssText='text-align:center;color:#8aa8d6;font-size:13px;padding:30px 0;';
+    empty.style.cssText='text-align:center;color:'+(document.body.classList.contains('light')?'#5a6a85':'#8aa8d6')+';font-size:13px;padding:30px 0;';
     empty.textContent=chatTo==='band'?'No band messages yet. Say something! 🎸':'No messages yet. Start the conversation!';
     el.appendChild(empty);
     return;
