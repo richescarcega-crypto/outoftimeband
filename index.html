@@ -1528,7 +1528,14 @@ function notifyBand(category, title, message, url, opts){
         url: url || 'https://richescarcega-crypto.github.io/outoftimeband/'
       };
       if(opts.targetMemberId){
-        // DM: notify only the targeted member, if not opted out
+        // DM: notify only the targeted member, if not opted out.
+        // Defensive: never DM yourself (root-cause unknown phantom-notification bug).
+        if(String(opts.targetMemberId) === String(ME)){
+          if(typeof console !== 'undefined' && console.warn){
+            console.warn('[notifyBand] suppressed self-DM', {category:category, title:title, ME:ME});
+          }
+          return;
+        }
         var target = gM(opts.targetMemberId);
         if(!target) return;
         var p = prefsByMember[target.name];
@@ -1546,6 +1553,17 @@ function notifyBand(category, title, message, url, opts){
         if(!allowedIds.length) return;
         payload.targetExternalIds = allowedIds;
       }
+      // Defensive belt-and-suspenders: filter out ME from final target list.
+      // Should never matter given the guards above, but if it does, we want to know.
+      var meStr = String(ME);
+      var filtered = payload.targetExternalIds.filter(function(id){ return id !== meStr; });
+      if(filtered.length !== payload.targetExternalIds.length){
+        if(typeof console !== 'undefined' && console.warn){
+          console.warn('[notifyBand] removed ME from targets — investigate', {category:category, title:title, original:payload.targetExternalIds, filtered:filtered});
+        }
+        payload.targetExternalIds = filtered;
+      }
+      if(!payload.targetExternalIds.length) return;
       return fetch(PUSH_WORKER_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -6802,6 +6820,14 @@ function _renderSeenIndicator(m){
 }
 
 function openThread(id){
+  // Defensive: shouldn't ever be called with ME (chat list filters self out),
+  // but if some path leaks it, fall back to band chat instead of opening self-thread.
+  if(id !== 'band' && String(id) === String(ME)){
+    if(typeof console !== 'undefined' && console.warn){
+      console.warn('[openThread] called with ME — falling back to band chat', {id:id, ME:ME});
+    }
+    id = 'band';
+  }
   // Exit any selection mode from a previous thread
   if(typeof _chatSelectMode !== 'undefined' && _chatSelectMode){
     _chatSelectMode = false; _chatSelected = {};
@@ -7211,6 +7237,11 @@ function sMsg(){
   var preview = txt.length > 100 ? txt.slice(0,100) + '…' : txt;
   if(chatTo === 'band'){
     notifyBand('chat', myName + ' (band chat)', preview);
+  } else if(String(chatTo) === String(ME)){
+    // Defensive: should never happen — chat list filters ME out — but log if it does.
+    if(typeof console !== 'undefined' && console.warn){
+      console.warn('[sMsg] chatTo === ME — self-DM suppressed', {chatTo:chatTo, ME:ME});
+    }
   } else {
     notifyBand('chat', myName + ' sent you a message', preview, '/', { targetMemberId: chatTo });
   }
