@@ -1568,7 +1568,18 @@ function launchWelcomeFlow(){
       '<div id="welcome-flow-done" style="display:none;text-align:center;">'+
         '<div style="font-family:\'Russo One\',sans-serif;font-size:22px;color:#06d6a0;letter-spacing:.5px;margin-bottom:10px;">You\'re all set!</div>'+
         '<div style="font-size:14px;color:#e8f0ff;margin-bottom:20px;">Welcome to Out of Time.</div>'+
-        '<button id="welcome-close-btn" class="sb" style="width:100%;">Let\'s go</button>'+
+        '<button id="welcome-next-to-msg-btn" class="sb" style="width:100%;">Continue</button>'+
+      '</div>'+
+      '<div id="welcome-flow-message" style="display:none;">'+
+        '<div style="font-family:\'Russo One\',sans-serif;font-size:18px;color:#f5c518;letter-spacing:.5px;margin-bottom:14px;">A note from Rich</div>'+
+        '<div style="font-size:14px;color:#e8f0ff;line-height:1.6;margin-bottom:18px;">'+
+          '<p style="margin:0 0 12px;">Welcome, <span id="welcome-msg-name">there</span>,</p>'+
+          '<p style="margin:0 0 12px;">This is the new band app — calendar, song list, setlists, chat and more, all in one place. Replaces our Google Sheet.</p>'+
+          '<p style="margin:0 0 12px;">Please fill in your contact info on the Band tab, then explore. Lots to see.</p>'+
+          '<p style="margin:0 0 12px;">Would really like some feedback on any bugs, or suggestions on how to improve. Send feedback using the built-in chat feature.</p>'+
+          '<p style="margin:0;color:#8aa8d6;font-style:italic;">— Rich</p>'+
+        '</div>'+
+        '<button id="welcome-close-btn" class="sb" style="width:100%;">Got it</button>'+
       '</div>';
     ov.appendChild(card);
     document.body.appendChild(ov);
@@ -1608,6 +1619,19 @@ function launchWelcomeFlow(){
   document.getElementById('welcome-finish-btn').onclick = function(){
     _showWelcomeStep('done');
   };
+  // After "You're all set!", advance to the welcome message (skip for Rich himself)
+  var nextMsgBtn = document.getElementById('welcome-next-to-msg-btn');
+  if(nextMsgBtn){
+    nextMsgBtn.onclick = function(){
+      if(ME === 3){
+        // Rich is the author of the welcome message — no point showing it to himself
+        closeWelcomeFlow();
+      } else {
+        _showWelcomeStep('message');
+      }
+    };
+  }
+  // "Got it" button on the welcome message screen
   document.getElementById('welcome-close-btn').onclick = function(){
     closeWelcomeFlow();
   };
@@ -1617,11 +1641,17 @@ function _showWelcomeStep(step){
   var s1 = document.getElementById('welcome-flow-step1');
   var s2 = document.getElementById('welcome-flow-step2');
   var sd = document.getElementById('welcome-flow-done');
+  var sm = document.getElementById('welcome-flow-message');
   if(s1) s1.style.display = step === 1 ? 'block' : 'none';
   if(s2) s2.style.display = step === 2 ? 'block' : 'none';
   if(sd) sd.style.display = step === 'done' ? 'block' : 'none';
+  if(sm) sm.style.display = step === 'message' ? 'block' : 'none';
   if(step === 2){
     _populateInstallContent();
+  }
+  if(step === 'message'){
+    var nm = document.getElementById('welcome-msg-name');
+    if(nm && myName) nm.textContent = (myName.split(' ')[0] || myName);
   }
 }
 
