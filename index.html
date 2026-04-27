@@ -1614,33 +1614,43 @@ function _trackFirstPick(){
   // Write firstPickAt + deviceType to the member's Firestore doc, but ONLY if
   // firstPickAt isn't already set (so re-picks via Sign Out don't overwrite).
   if(typeof db === 'undefined' || !db || !db.collection) return;
-  if(typeof myName === 'undefined' || !myName) return;
-  var docRef = db.collection('members').doc(myName);
-  docRef.get().then(function(snap){
-    if(!snap.exists) return;
-    var data = snap.data() || {};
+  if(typeof ME === 'undefined' || !ME) return;
+  // Find the member's doc by querying for id field — works even if doc id != name
+  db.collection('members').where('id','==',ME).limit(1).get().then(function(qs){
+    if(qs.empty){
+      // Fall back to writing by name (creates new doc if needed)
+      if(!myName) return;
+      db.collection('members').doc(myName).set({
+        id: ME, name: myName, firstPickAt: Date.now(), deviceType: _detectDeviceType()
+      }, {merge:true}).catch(function(){});
+      return;
+    }
+    var doc = qs.docs[0];
+    var data = doc.data() || {};
     var update = {};
     if(!data.firstPickAt){
       update.firstPickAt = Date.now();
       update.deviceType = _detectDeviceType();
     }
     if(Object.keys(update).length > 0){
-      docRef.set(update, {merge:true}).catch(function(){});
+      doc.ref.set(update, {merge:true}).catch(function(){});
     }
   }).catch(function(){});
 }
 
 function _trackLastSeen(){
-  // Update lastSeenAt on every initApp boot. Cheap, infrequent (once per
-  // app launch, not per page interaction).
   if(typeof db === 'undefined' || !db || !db.collection) return;
-  if(typeof myName === 'undefined' || !myName) return;
-  // Throttle: only write if last write was >5 minutes ago locally
+  if(typeof ME === 'undefined' || !ME) return;
   var lastLocal = parseInt(localStorage.getItem('oot_last_seen_local') || '0', 10);
   var now = Date.now();
   if(lastLocal && (now - lastLocal) < 5*60*1000) return;
   localStorage.setItem('oot_last_seen_local', String(now));
-  db.collection('members').doc(myName).set({lastSeenAt: now}, {merge:true}).catch(function(){});
+  // Find by id field, not name — handles renamed members
+  db.collection('members').where('id','==',ME).limit(1).get().then(function(qs){
+    if(!qs.empty){
+      qs.docs[0].ref.set({lastSeenAt: now}, {merge:true}).catch(function(){});
+    }
+  }).catch(function(){});
 }
 
 function pickName(idx) {
