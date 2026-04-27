@@ -697,6 +697,24 @@ body.light .mrav{color:#000 !important;}
 
 <script>
 "use strict";
+// Capture Android Chrome's install prompt event so we can fire it later
+var _deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  _deferredInstallPrompt = e;
+});
+function _isStandalonePWA(){
+  try {
+    if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
+    if(window.navigator && window.navigator.standalone) return true; // iOS
+  } catch(e){}
+  return false;
+}
+function _isIOS(){
+  try {
+    return /iphone|ipad|ipod/i.test(navigator.userAgent || '') && !/CriOS|FxiOS/i.test(navigator.userAgent || '');
+  } catch(e){ return false; }
+}
 
 // FIREBASE
 const firebaseConfig = {
@@ -1495,6 +1513,195 @@ function pickName(idx) {
   localStorage.setItem('oot_me_id', String(ME));
   document.getElementById('name-picker-overlay').style.display = 'none';
   initApp();
+  // Welcome flow runs only once per device (until force-repick clears the flag)
+  try {
+    var seen = localStorage.getItem('oot_welcome_seen');
+    if(!seen){
+      // Notify admin (Rich = id 3) that this member just joined
+      // — but not if Rich himself is picking
+      if(ME !== 3){
+        try {
+          notifyBand('joins',
+            myName + ' just joined Out of Time',
+            'Welcome them in band chat!',
+            'https://richescarcega-crypto.github.io/outoftimeband/',
+            { targetMemberId: 3 }
+          );
+        } catch(e){}
+      }
+      // Show the welcome flow after a tiny delay so initApp UI settles
+      setTimeout(launchWelcomeFlow, 500);
+    }
+  } catch(e){}
+}
+
+function launchWelcomeFlow(){
+  // Build modal on demand
+  var ov = document.getElementById('welcome-flow-overlay');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id = 'welcome-flow-overlay';
+    ov.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;opacity:0;transition:opacity .25s ease-out;';
+    var card = document.createElement('div');
+    card.id = 'welcome-flow-card';
+    card.style.cssText = 'background:var(--n2);border:1px solid #4a9eff;border-radius:18px;padding:26px 22px;max-width:420px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.75),0 0 0 1px rgba(74,158,255,.18);transform:scale(.92);opacity:0;transition:transform .22s ease-out,opacity .22s ease-out;';
+    card.innerHTML =
+      '<div id="welcome-flow-step1" style="display:none;">'+
+        '<div style="font-family:\'Russo One\',sans-serif;font-size:22px;color:#f5c518;letter-spacing:.5px;margin-bottom:6px;">Welcome, <span id="welcome-name">there</span>!</div>'+
+        '<div style="font-size:14px;color:#8aa8d6;margin-bottom:18px;">A couple quick things to get you set up.</div>'+
+        '<div style="margin-bottom:18px;padding:14px;background:rgba(74,158,255,.08);border:1px solid rgba(74,158,255,.3);border-radius:12px;">'+
+          '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'+
+            '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#f5c518" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>'+
+            '<span style="font-family:\'Russo One\',sans-serif;font-size:14px;color:#fff;letter-spacing:1px;">STEP 1 OF 2 · NOTIFICATIONS</span>'+
+          '</div>'+
+          '<div style="font-size:13px;color:#e8f0ff;line-height:1.5;">Get notified about gigs, rehearsals, announcements, and band chat. You can change this anytime.</div>'+
+        '</div>'+
+        '<button id="welcome-allow-notif" class="sb" style="width:100%;margin-bottom:8px;">Allow notifications</button>'+
+        '<button id="welcome-skip-notif" style="width:100%;background:transparent;border:none;color:#8aa8d6;font-size:12px;font-family:\'Russo One\',sans-serif;letter-spacing:1px;padding:8px;cursor:pointer;">MAYBE LATER &raquo;</button>'+
+      '</div>'+
+      '<div id="welcome-flow-step2" style="display:none;">'+
+        '<div style="font-family:\'Russo One\',sans-serif;font-size:22px;color:#f5c518;letter-spacing:.5px;margin-bottom:6px;">Almost done!</div>'+
+        '<div style="font-size:14px;color:#8aa8d6;margin-bottom:18px;">Add the app to your home screen for quick access.</div>'+
+        '<div id="welcome-install-content" style="margin-bottom:18px;"></div>'+
+        '<button id="welcome-finish-btn" class="sb" style="width:100%;">Done</button>'+
+      '</div>'+
+      '<div id="welcome-flow-done" style="display:none;text-align:center;">'+
+        '<div style="font-family:\'Russo One\',sans-serif;font-size:22px;color:#06d6a0;letter-spacing:.5px;margin-bottom:10px;">You\'re all set!</div>'+
+        '<div style="font-size:14px;color:#e8f0ff;margin-bottom:20px;">Welcome to Out of Time.</div>'+
+        '<button id="welcome-close-btn" class="sb" style="width:100%;">Let\'s go</button>'+
+      '</div>';
+    ov.appendChild(card);
+    document.body.appendChild(ov);
+  }
+  // Set name
+  var nameSpan = document.getElementById('welcome-name');
+  if(nameSpan && myName) nameSpan.textContent = (myName.split(' ')[0] || myName);
+  // Show Step 1
+  _showWelcomeStep(1);
+  // Animate in
+  ov.style.display = 'flex';
+  requestAnimationFrame(function(){
+    ov.style.opacity = '1';
+    var card = document.getElementById('welcome-flow-card');
+    if(card){ card.style.transform = 'scale(1)'; card.style.opacity = '1'; }
+  });
+  // Wire buttons
+  document.getElementById('welcome-allow-notif').onclick = function(){
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Requesting...';
+    try {
+      subscribeForPush().then(function(){
+        toast('Notifications enabled', {tone:'success'});
+        _showWelcomeStep(2);
+      }).catch(function(){
+        toast('Notifications not enabled — you can turn them on later in settings', {tone:'info', duration:4500});
+        _showWelcomeStep(2);
+      });
+    } catch(e){
+      _showWelcomeStep(2);
+    }
+  };
+  document.getElementById('welcome-skip-notif').onclick = function(){
+    _showWelcomeStep(2);
+  };
+  document.getElementById('welcome-finish-btn').onclick = function(){
+    _showWelcomeStep('done');
+  };
+  document.getElementById('welcome-close-btn').onclick = function(){
+    closeWelcomeFlow();
+  };
+}
+
+function _showWelcomeStep(step){
+  var s1 = document.getElementById('welcome-flow-step1');
+  var s2 = document.getElementById('welcome-flow-step2');
+  var sd = document.getElementById('welcome-flow-done');
+  if(s1) s1.style.display = step === 1 ? 'block' : 'none';
+  if(s2) s2.style.display = step === 2 ? 'block' : 'none';
+  if(sd) sd.style.display = step === 'done' ? 'block' : 'none';
+  if(step === 2){
+    _populateInstallContent();
+  }
+}
+
+function _populateInstallContent(){
+  var host = document.getElementById('welcome-install-content');
+  if(!host) return;
+  // Already running as PWA?
+  if(_isStandalonePWA()){
+    host.innerHTML =
+      '<div style="padding:14px;background:rgba(6,214,160,.08);border:1px solid rgba(6,214,160,.3);border-radius:12px;color:#06d6a0;font-size:13px;text-align:center;">'+
+        '<div style="font-family:\'Russo One\',sans-serif;font-size:13px;letter-spacing:1px;margin-bottom:6px;">ALREADY INSTALLED</div>'+
+        '<div style="font-size:12px;color:#8aa8d6;">You\'re running the app from your home screen.</div>'+
+      '</div>';
+    return;
+  }
+  // Android Chrome — real install button
+  if(_deferredInstallPrompt){
+    host.innerHTML =
+      '<div style="margin-bottom:12px;padding:14px;background:rgba(74,158,255,.08);border:1px solid rgba(74,158,255,.3);border-radius:12px;">'+
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'+
+          '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#f5c518" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"></rect><line x1="12" y1="18" x2="12" y2="18"></line></svg>'+
+          '<span style="font-family:\'Russo One\',sans-serif;font-size:14px;color:#fff;letter-spacing:1px;">STEP 2 OF 2 · INSTALL</span>'+
+        '</div>'+
+        '<div style="font-size:13px;color:#e8f0ff;line-height:1.5;">Tap below to add Out of Time to your home screen.</div>'+
+      '</div>'+
+      '<button id="welcome-install-btn" style="width:100%;background:linear-gradient(135deg,#ffd84a 0%,#f5c518 50%,#cc9c00 100%);border:none;border-radius:10px;padding:14px;color:#060e1c;font-family:\'Russo One\',sans-serif;font-size:13px;letter-spacing:1.5px;cursor:pointer;box-shadow:0 6px 18px rgba(245,197,24,.4);margin-bottom:8px;">INSTALL APP</button>';
+    var btn = document.getElementById('welcome-install-btn');
+    if(btn){
+      btn.onclick = function(){
+        if(!_deferredInstallPrompt) return;
+        var prompt = _deferredInstallPrompt;
+        _deferredInstallPrompt = null;
+        prompt.prompt();
+        prompt.userChoice.then(function(choice){
+          if(choice.outcome === 'accepted'){
+            toast('App installed!', {tone:'success'});
+            _showWelcomeStep('done');
+          } else {
+            toast('You can install it later anytime', {tone:'info'});
+          }
+        }).catch(function(){});
+      };
+    }
+    return;
+  }
+  // iOS Safari — manual instructions
+  if(_isIOS()){
+    host.innerHTML =
+      '<div style="padding:14px;background:rgba(74,158,255,.08);border:1px solid rgba(74,158,255,.3);border-radius:12px;">'+
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'+
+          '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#f5c518" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"></rect></svg>'+
+          '<span style="font-family:\'Russo One\',sans-serif;font-size:14px;color:#fff;letter-spacing:1px;">STEP 2 OF 2 · INSTALL</span>'+
+        '</div>'+
+        '<ol style="margin:0;padding-left:20px;font-size:13px;color:#e8f0ff;line-height:1.7;">'+
+          '<li>Tap the <b>Share</b> button at the bottom of Safari <span style="display:inline-block;font-size:14px;vertical-align:-2px;">&#x1F5D2;</span></li>'+
+          '<li>Scroll down and tap <b>Add to Home Screen</b></li>'+
+          '<li>Tap <b>Add</b> in the top right</li>'+
+        '</ol>'+
+        '<div style="font-size:11px;color:#8aa8d6;margin-top:10px;font-style:italic;">Out of Time will appear on your home screen as its own app.</div>'+
+      '</div>';
+    return;
+  }
+  // Other browsers — generic
+  host.innerHTML =
+    '<div style="padding:14px;background:rgba(74,158,255,.08);border:1px solid rgba(74,158,255,.3);border-radius:12px;">'+
+      '<div style="font-family:\'Russo One\',sans-serif;font-size:14px;color:#fff;letter-spacing:1px;margin-bottom:8px;">STEP 2 OF 2 · INSTALL</div>'+
+      '<div style="font-size:13px;color:#e8f0ff;line-height:1.5;">Look for an "Install" or "Add to Home Screen" option in your browser menu (often in the address bar or three-dot menu).</div>'+
+    '</div>';
+}
+
+function closeWelcomeFlow(){
+  try { localStorage.setItem('oot_welcome_seen', '1'); } catch(e){}
+  var ov = document.getElementById('welcome-flow-overlay');
+  if(!ov) return;
+  ov.style.opacity = '0';
+  var card = document.getElementById('welcome-flow-card');
+  if(card){ card.style.transform = 'scale(.92)'; card.style.opacity = '0'; }
+  setTimeout(function(){
+    if(ov) ov.style.display = 'none';
+  }, 220);
 }
 
 
