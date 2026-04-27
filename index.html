@@ -619,7 +619,7 @@ body.light .mrav{color:#000 !important;}
 
 <div class="ov" id="announce-modal">
   <div class="mo" style="max-height:85vh;display:flex;flex-direction:column;">
-    <div class="moh" style="flex-shrink:0;"><span class="mot" style="color:#f5c518;">📢 Announcements</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('announce-modal')">&#10005;</button></div>
+    <div class="moh" style="flex-shrink:0;position:sticky;top:0;background:var(--n2);z-index:5;padding-bottom:8px;"><span class="mot" style="color:#f5c518;">📢 Announcements</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('announce-modal')">&#10005;</button></div>
     <div id="ann-view-toggle" style="display:flex;background:#0a1628;border:1px solid #1a3a8a;border-radius:8px;overflow:hidden;margin-bottom:10px;flex-shrink:0;">
       <button type="button" id="ann-tab-active" onclick="setAnnView('active')" style="flex:1;background:#1a3a8a;border:none;color:#fff;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:1px;padding:7px 10px;cursor:pointer;">ACTIVE <span id="ann-tab-active-count" style="opacity:.7;font-size:9px;"></span></button>
       <button type="button" id="ann-tab-dismissed" onclick="setAnnView('dismissed')" style="flex:1;background:transparent;border:none;color:#8aa8d6;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:1px;padding:7px 10px;cursor:pointer;">DISMISSED <span id="ann-tab-dismissed-count" style="opacity:.7;font-size:9px;"></span></button>
@@ -944,6 +944,110 @@ function toggleNotifSettings(){
     body.style.display = 'none';
     if(caret) caret.innerHTML = '&#8964;';
   }
+}
+
+
+function reorderShowView(view){
+  var titleEl = document.getElementById('reorder-modal-title');
+  var defView = document.getElementById('reorder-default-view');
+  var dispView = document.getElementById('reorder-display-view');
+  var notifView = document.getElementById('reorder-notif-view');
+  var privView = document.getElementById('reorder-privacy-view');
+  var backBtn = document.getElementById('reorder-back-btn');
+  if(!titleEl) return;
+  // Hide all sub-views
+  if(defView) defView.style.display = 'none';
+  if(dispView) dispView.style.display = 'none';
+  if(notifView) notifView.style.display = 'none';
+  if(privView) privView.style.display = 'none';
+  if(view === 'display'){
+    if(dispView) dispView.style.display = 'block';
+    titleEl.textContent = 'Display Mode';
+    if(backBtn) backBtn.style.display = 'inline-flex';
+  } else if(view === 'notif'){
+    if(notifView) notifView.style.display = 'block';
+    titleEl.textContent = 'Notifications';
+    if(backBtn) backBtn.style.display = 'inline-flex';
+    if(typeof renderNotifSettings === 'function') renderNotifSettings();
+  } else if(view === 'privacy'){
+    if(privView) privView.style.display = 'block';
+    titleEl.textContent = 'Privacy & Data';
+    if(backBtn) backBtn.style.display = 'inline-flex';
+    if(typeof renderPrivacySettings === 'function') renderPrivacySettings();
+  } else {
+    if(defView) defView.style.display = 'block';
+    titleEl.textContent = 'Arrange Tabs';
+    if(backBtn) backBtn.style.display = 'none';
+  }
+}
+
+function toggleReorderMenu(ev){
+  if(ev) ev.stopPropagation();
+  var existing = document.getElementById('reorder-menu-popup');
+  if(existing){ existing.remove(); return; }
+  var btn = document.getElementById('reorder-menu-btn');
+  if(!btn) return;
+  var pop = document.createElement('div');
+  pop.id = 'reorder-menu-popup';
+  pop.style.cssText = 'position:absolute;right:0;bottom:48px;background:#0a1628;border:1px solid #1a3a8a;border-radius:10px;padding:5px;min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,.55);z-index:50;';
+  function mk(label, iconSvg, color, onClick, divider){
+    var b = document.createElement('button');
+    b.type = 'button';
+    var col = color || '#e8f0ff';
+    b.style.cssText = 'display:flex;align-items:center;gap:10px;background:transparent;border:none;color:'+col+';font-size:13px;padding:9px 12px;width:100%;text-align:left;border-radius:7px;cursor:pointer;font-family:\'Exo 2\',sans-serif;touch-action:manipulation;'+(divider?'border-top:1px solid #1a3a8a;border-radius:0 0 7px 7px;margin-top:4px;padding-top:11px;':'');
+    b.innerHTML = iconSvg + '<span>'+label+'</span>';
+    b.onmouseover = function(){ this.style.background = 'rgba(74,158,255,.08)'; };
+    b.onmouseout = function(){ this.style.background = 'transparent'; };
+    b.onclick = function(ev2){ ev2.stopPropagation(); pop.remove(); onClick(); };
+    return b;
+  }
+  pop.appendChild(mk('Display Mode',
+    '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#4a9eff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2 M12 20v2 M2 12h2 M20 12h2 M4.93 4.93l1.41 1.41 M17.66 17.66l1.41 1.41 M4.93 19.07l1.41-1.41 M17.66 6.34l1.41-1.41"></path></svg>',
+    null,
+    function(){ reorderShowView('display'); }
+  ));
+  pop.appendChild(mk('Notifications',
+    '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f5c518" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>',
+    null,
+    function(){ reorderShowView('notif'); }
+  ));
+  pop.appendChild(mk('Privacy & Data',
+    '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#06d6a0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>',
+    null,
+    function(){ reorderShowView('privacy'); }
+  ));
+  pop.appendChild(mk('Sign Out',
+    '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#ff8a99" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>',
+    '#ff8a99',
+    function(){ confirmSignOut(); },
+    true /* divider */
+  ));
+  btn.parentNode.appendChild(pop);
+  setTimeout(function(){
+    var dismiss = function(e){
+      if(pop.contains(e.target) || e.target === btn) return;
+      pop.remove();
+      document.removeEventListener('click', dismiss, true);
+      document.removeEventListener('touchstart', dismiss, true);
+    };
+    document.addEventListener('click', dismiss, true);
+    document.addEventListener('touchstart', dismiss, true);
+  }, 0);
+}
+
+function confirmSignOut(){
+  appConfirm({
+    title: 'Sign out?',
+    message: 'You\'ll be returned to the WHO ARE YOU? screen and need to pick your name again. Your band data is unaffected — this only signs out this device.',
+    allowHtml: false
+  }).then(function(ok){
+    if(!ok) return;
+    try {
+      localStorage.removeItem('oot_me');
+      localStorage.removeItem('oot_me_id');
+    } catch(e){}
+    location.reload();
+  });
 }
 
 function togglePrivacySettings(){
@@ -1663,7 +1767,7 @@ var tabOrder = ['home','cal','sets','chat','band','songs','pay'];
 
 function openReorder(){
   rReorderList();
-  opM('reorder-modal');
+  (typeof reorderShowView==='function'?reorderShowView('default'):0,opM('reorder-modal'));
 }
 
 function rReorderList(){
@@ -6653,11 +6757,9 @@ function openAnnouncementsModal(){
     _annSetLastReadNow();
     rAnnouncements();
   }, 400);
-  // Focus the input
-  setTimeout(function(){
-    var t = document.getElementById('ann-txt');
-    if(t && _annView === 'active') try { t.focus(); } catch(e){}
-  }, 200);
+  // No auto-focus — users typically open this modal to READ announcements,
+  // not to compose. They can tap the textarea themselves when they want to post.
+  // (Auto-focus was popping the keyboard up and hiding the close X.)
 }
 
 // ── Soft-delete (24h grace period) ──────────────────────────────────
@@ -7538,30 +7640,42 @@ if(savedName&&savedId){
 
 <div class="ov" id="reorder-modal">
   <div class="mo">
-    <div class="moh">
-      <span class="mot" style="color:#f5c518;">Arrange Tabs</span>
+    <div class="moh" style="position:sticky;top:0;background:var(--n2);z-index:5;padding-bottom:8px;">
+      <span id="reorder-modal-title" class="mot" style="color:#f5c518;">Arrange Tabs</span>
       <button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('reorder-modal')">&#10005;</button>
     </div>
-    <p style="font-size:12px;color:#4a6a9a;margin-bottom:14px;">Tap the arrows to reorder your tabs. Changes apply to your phone only.</p>
-    <div id="reorder-list"></div>
-    <div style="height:1px;background:#0d1f3a;margin:14px 0 12px;"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;">
-      <span style="font-family:'Russo One',sans-serif;font-size:11px;color:#f5c518;letter-spacing:2px;">DISPLAY MODE</span>
-      <button onclick="toggleDarkMode()" id="mode-btn" style="background:#101e34;border:1px solid #1a3a8a;border-radius:20px;padding:5px 14px;color:#4a9eff;font-size:12px;font-family:Russo One,sans-serif;cursor:pointer;">&#9788; Light</button>
+
+    <!-- Default view: tab list -->
+    <div id="reorder-default-view">
+      <p style="font-size:12px;color:#4a6a9a;margin-bottom:14px;">Tap the arrows to reorder your tabs. Changes apply to your phone only.</p>
+      <div id="reorder-list"></div>
     </div>
-    <div style="height:1px;background:#0d1f3a;margin:14px 0 10px;"></div>
-    <div id="notif-settings-header" onclick="toggleNotifSettings()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:4px 0;">
-      <span style="font-family:'Russo One',sans-serif;font-size:11px;color:#f5c518;letter-spacing:2px;">NOTIFICATIONS</span>
-      <span id="notif-settings-caret" style="color:#4a9eff;font-size:14px;">&#8964;</span>
+
+    <!-- Sub-views (one shown at a time when selected from kebab) -->
+    <div id="reorder-display-view" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;">
+        <span style="font-family:'Russo One',sans-serif;font-size:11px;color:#f5c518;letter-spacing:2px;">DISPLAY MODE</span>
+        <button onclick="toggleDarkMode()" id="mode-btn" style="background:#101e34;border:1px solid #1a3a8a;border-radius:20px;padding:5px 14px;color:#4a9eff;font-size:12px;font-family:Russo One,sans-serif;cursor:pointer;">&#9788; Light</button>
+      </div>
+      <p style="font-size:11px;color:#4a6a9a;margin-top:6px;line-height:1.5;">Choose between dark mode (default) and light mode. Affects this device only.</p>
     </div>
-    <div id="notif-settings-body" style="display:none;margin-top:6px;"></div>
-    <div style="height:1px;background:#0d1f3a;margin:14px 0 10px;"></div>
-    <div id="privacy-settings-header" onclick="togglePrivacySettings()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:4px 0;">
-      <span style="font-family:'Russo One',sans-serif;font-size:11px;color:#f5c518;letter-spacing:2px;">PRIVACY &amp; DATA</span>
-      <span id="privacy-settings-caret" style="color:#4a9eff;font-size:14px;">&#8964;</span>
+    <div id="reorder-notif-view" style="display:none;">
+      <div style="font-family:'Russo One',sans-serif;font-size:11px;color:#f5c518;letter-spacing:2px;padding:6px 0;">NOTIFICATIONS</div>
+      <div id="notif-settings-body"></div>
     </div>
-    <div id="privacy-settings-body" style="display:none;margin-top:6px;"></div>
-    <button class="sb" onclick="saveTabOrder();clM('reorder-modal')" style="width:100%;margin-top:14px;">Done</button>
+    <div id="reorder-privacy-view" style="display:none;">
+      <div style="font-family:'Russo One',sans-serif;font-size:11px;color:#f5c518;letter-spacing:2px;padding:6px 0;">PRIVACY &amp; DATA</div>
+      <div id="privacy-settings-body"></div>
+    </div>
+
+    <!-- Footer: Back button (when in sub-view), kebab menu, Done -->
+    <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
+      <button id="reorder-back-btn" onclick="reorderShowView('default')" style="display:none;background:transparent;border:1px solid #1a3a8a;border-radius:8px;padding:9px 14px;color:#4a9eff;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;">&#8592; BACK</button>
+      <button class="sb" onclick="saveTabOrder();clM('reorder-modal')" style="flex:1;">Done</button>
+      <div style="position:relative;">
+        <button id="reorder-menu-btn" type="button" title="More options" onclick="toggleReorderMenu(event)" style="background:transparent;border:1px solid rgba(74,158,255,.4);border-radius:50%;width:38px;height:38px;color:#8aa8d6;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;font-size:20px;line-height:1;flex-shrink:0;touch-action:manipulation;">&#8942;</button>
+      </div>
+    </div>
   </div>
 </div>
 
