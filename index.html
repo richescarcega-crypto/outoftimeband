@@ -3082,6 +3082,8 @@ function listenAnnouncements(){
       });
     }
     _annHasInit = true;
+    // Best-effort auto-purge of expired soft-deletes
+    _purgeExpiredPendingDeletes();
     rAnnouncements();
   });
 }
@@ -6124,6 +6126,62 @@ function openAnnouncementsModal(){
   }, 200);
 }
 
+// ── Soft-delete (24h grace period) ──────────────────────────────────
+// Soft-deleted announcements have pendingDelete:true. They're hidden from the
+// active view, shown in the DELETER'S dismissed tab as "PENDING DELETE" with a
+// RESTORE button and countdown. After 24h, any client auto-purges them.
+var SOFT_DELETE_GRACE_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+function _softDeleteAnnouncement(aid){
+  var ref = db.collection('announcements').doc(String(aid));
+  ref.set({
+    pendingDelete: true,
+    pendingDeleteAt: Date.now(),
+    pendingDeleteBy: ME
+  }, {merge:true}).then(function(){
+    toast('Deleted — restorable for 24h', {tone:'success', duration:4500});
+  }).catch(function(err){
+    toast('Could not delete: ' + (err && err.message ? err.message : 'unknown'), {tone:'error', duration:5000});
+    console.error('Soft-delete failed', err);
+  });
+}
+
+function _restoreAnnouncement(aid){
+  var ref = db.collection('announcements').doc(String(aid));
+  ref.set({
+    pendingDelete: firebase.firestore.FieldValue.delete(),
+    pendingDeleteAt: firebase.firestore.FieldValue.delete(),
+    pendingDeleteBy: firebase.firestore.FieldValue.delete()
+  }, {merge:true}).then(function(){
+    toast('Restored', {tone:'success'});
+  }).catch(function(err){
+    toast('Could not restore: ' + (err && err.message ? err.message : 'unknown'), {tone:'error', duration:5000});
+  });
+}
+
+function _purgeExpiredPendingDeletes(){
+  // Hard-delete any soft-deleted announcement whose grace period has expired.
+  // Best-effort — any client can do this; the operation is idempotent.
+  if(!announcements || !announcements.length) return;
+  var now = Date.now();
+  announcements.forEach(function(a){
+    if(a && a.pendingDelete === true && a.pendingDeleteAt && (now - a.pendingDeleteAt) > SOFT_DELETE_GRACE_MS){
+      db.collection('announcements').doc(String(a.id)).delete().catch(function(){});
+    }
+  });
+}
+
+function _pendingDeleteCountdown(a){
+  if(!a || !a.pendingDeleteAt) return null;
+  var elapsed = Date.now() - a.pendingDeleteAt;
+  var remaining = SOFT_DELETE_GRACE_MS - elapsed;
+  if(remaining <= 0) return 'expiring now';
+  var hrs = Math.floor(remaining / (60*60*1000));
+  var mins = Math.floor((remaining % (60*60*1000)) / (60*1000));
+  if(hrs > 0) return hrs + 'h ' + mins + 'm';
+  return mins + 'm';
+}
+
 function _dismissAnnouncement(aid){
   var ref = db.collection('announcements').doc(String(aid));
   ref.set({
@@ -6147,14 +6205,25 @@ function renderAnnouncementsList(){
   if(!list) return;
   list.innerHTML = '';
 
-  var pool = announcements.filter(function(a){
-    var dis = _annDismissedByMe(a);
-    return _annView === 'dismissed' ? dis : !dis;
-  });
+  // Active: exclude soft-deleted + dismissed-by-me
+  // Dismissed: include either (a) soft-deleted by me OR (b) hidden by me
+  var pool;
+  if(_annView === 'dismissed'){
+    pool = announcements.filter(function(a){
+      var pendingMine = (a.pendingDelete === true && a.pendingDeleteBy === ME);
+      var hiddenByMe = !a.pendingDelete && _annDismissedByMe(a);
+      return pendingMine || hiddenByMe;
+    });
+  } else {
+    pool = announcements.filter(function(a){
+      if(a.pendingDelete === true) return false; // soft-deleted: hidden from everyone
+      return !_annDismissedByMe(a);
+    });
+  }
 
   if(!pool.length){
     var emptyMsg = _annView === 'dismissed'
-      ? 'Nothing here yet. Dismissed announcements will appear here for your reference.'
+      ? 'Nothing here yet. Hidden or recently deleted announcements appear here for restore.'
       : 'No announcements yet. Post the first one below!';
     list.innerHTML = '<div style="text-align:center;color:#4a6a9a;font-style:italic;font-size:13px;padding:18px 8px;">'+emptyMsg+'</div>';
     return;
@@ -6185,15 +6254,28 @@ function renderAnnouncementsList(){
     actions.style.cssText = 'display:flex;justify-content:flex-end;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center;';
 
     if(_annView === 'dismissed'){
-      // Restore button
+      var pendingMine = (a.pendingDelete === true && a.pendingDeleteBy === ME);
+      // Restore action — works for both "pending delete by me" and "hidden by me"
       var restore = document.createElement('button');
       restore.style.cssText = 'background:#0a1628;border:1px solid #4a9eff;border-radius:6px;padding:4px 10px;color:#4a9eff;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;';
       restore.innerHTML = '<span style="font-size:11px;line-height:1;">&#8634;</span><span>RESTORE</span>';
       restore.setAttribute('data-aid', a.id);
-      restore.onclick = function(){ _undismissAnnouncement(this.getAttribute('data-aid')); };
+      if(pendingMine){
+        restore.onclick = function(){ _restoreAnnouncement(this.getAttribute('data-aid')); };
+        // Add a small countdown indicator next to the restore button
+        var cd = document.createElement('span');
+        var cdText = _pendingDeleteCountdown(a) || '';
+        cd.style.cssText = 'font-size:10px;color:#ffa500;font-style:italic;align-self:center;margin-right:4px;';
+        cd.textContent = 'Purges in ' + cdText;
+        actions.appendChild(cd);
+      } else {
+        restore.onclick = function(){ _undismissAnnouncement(this.getAttribute('data-aid')); };
+      }
       actions.appendChild(restore);
-      // Author OR admin can hard-delete from history
-      var canDelDismissed = (a.who === ME) || isMeAdmin();
+      // Author OR admin can immediately hard-delete from history (skip grace)
+      // — but only show this for pending-delete entries (i.e. soft-deleted),
+      // not for hidden-by-me which has its own restore-only flow.
+      var canDelDismissed = pendingMine && ((a.who === ME) || isMeAdmin());
       if(canDelDismissed){
         var del = document.createElement('button');
         del.style.cssText = 'background:transparent;border:1px solid #ff4757;border-radius:50%;width:28px;height:28px;color:#ff4757;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;';
@@ -6229,13 +6311,13 @@ function renderAnnouncementsList(){
         actions.appendChild(del);
       }
     } else {
-      // Active view — author OR admin can hard-delete
+      // Active view — author OR admin can soft-delete (24h grace, recoverable)
       var canDelActive = (a.who === ME) || isMeAdmin();
       if(canDelActive){
         var del = document.createElement('button');
         del.style.cssText = 'background:transparent;border:1px solid #ff4757;border-radius:50%;width:28px;height:28px;color:#ff4757;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;';
-        del.setAttribute('title', a.who === ME ? 'Delete' : 'Delete (admin)');
-        del.setAttribute('aria-label','Delete announcement');
+        del.setAttribute('title', a.who === ME ? 'Delete (everyone)' : 'Delete (admin · everyone)');
+        del.setAttribute('aria-label','Delete announcement for everyone');
         del.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#ff4757" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>';
         del.setAttribute('data-aid', a.id);
         del.setAttribute('data-author', a.who);
@@ -6244,62 +6326,47 @@ function renderAnnouncementsList(){
           var aid = this.getAttribute('data-aid');
           var author = parseInt(this.getAttribute('data-author'),10);
           var when = this.getAttribute('data-when');
-          var title, msg, useHtml = false;
+          var title, msg;
           if(author === ME){
-            title = 'Delete announcement?';
-            msg = 'Remove this post for everyone? This cannot be undone.';
+            title = 'Delete announcement for everyone?';
+            msg = 'It will <b>immediately disappear from every band member\'s view</b>.<br><br>You\'ll have <b>24 hours</b> to restore it from the DISMISSED tab. After that, it\'s permanently deleted.';
           } else {
             var authorName = gM(author).name || 'someone';
             var dateStr = _formatAnnDate(when);
-            title = 'Delete announcement?';
-            msg = 'This announcement was posted by <b>'+authorName+'</b>'+(dateStr?' on '+dateStr:'')+'. As an admin, you can remove it for everyone. This cannot be undone.';
-            useHtml = true;
+            title = 'Delete announcement for everyone?';
+            msg = 'This announcement was posted by <b>'+authorName+'</b>'+(dateStr?' on '+dateStr:'')+'.<br><br>As an admin, you can remove it for everyone. It will <b>immediately disappear from every member\'s view</b>.<br><br>You\'ll have <b>24 hours</b> to restore it from your DISMISSED tab. After that, it\'s permanently deleted.';
           }
-          appConfirm({title:title, message:msg, allowHtml:useHtml}).then(function(ok){
+          appConfirm({title:title, message:msg, allowHtml:true}).then(function(ok){
             if(ok){
-              db.collection('announcements').doc(aid).delete()
-                .then(function(){ toast('Announcement deleted', {tone:'success'}); })
-                .catch(function(err){ toast('Could not delete: ' + (err && err.message ? err.message : 'unknown error'), {tone:'error', duration:5000}); console.error('Announcement delete failed', err); });
+              _softDeleteAnnouncement(aid);
             }
           });
         };
         actions.appendChild(del);
       }
-      // Non-author, NON-admin: orange trash for hide-for-me (with 24h gate)
-      // Admins already get the red trash above (delete-for-everyone), so skip this.
-      if(a.who !== ME && !isMeAdmin()){
-        var canDismiss = _annCanDismissNow(a);
+      // Anyone (including admin) viewing someone else's post can hide-for-me — no 24h gate
+      if(a.who !== ME){
+        // No 24h gate — anyone can hide others' posts from their own view, anytime
         var dismissBtn = document.createElement('button');
         dismissBtn.type = 'button';
         dismissBtn.setAttribute('data-aid', a.id);
-        if(canDismiss){
-          // Available — orange trash icon (matches chat HIDE pattern)
-          dismissBtn.style.cssText = 'background:transparent;border:1px solid #ffa500;border-radius:50%;width:28px;height:28px;color:#ffa500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;';
-          dismissBtn.setAttribute('title','Hide from your view (others still see it)');
-          dismissBtn.setAttribute('aria-label','Hide announcement from your view');
-          dismissBtn.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#ffa500" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>';
-          dismissBtn.setAttribute('data-author', a.who);
-          dismissBtn.onclick = function(){
-            var aid = this.getAttribute('data-aid');
-            var author = parseInt(this.getAttribute('data-author'),10);
-            var authorName = gM(author).name || 'someone';
-            appConfirm({
-              title: 'Hide this announcement?',
-              message: 'Posted by <b>'+authorName+'</b>. It will be hidden from your view only — other band members will still see it.',
-              allowHtml: true
-            }).then(function(ok){
-              if(ok) _dismissAnnouncement(aid);
-            });
-          };
-        } else {
-          // Pre-24h — disabled clock icon, countdown in tooltip
-          var countdown = _annDismissCountdown(a);
-          dismissBtn.disabled = true;
-          dismissBtn.style.cssText = 'background:transparent;border:1px solid #1a3a8a;border-radius:50%;width:28px;height:28px;color:#4a6a9a;cursor:not-allowed;display:inline-flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;opacity:.6;';
-          dismissBtn.setAttribute('title', 'Hide available in ' + (countdown || '24 hours'));
-          dismissBtn.setAttribute('aria-label', 'Hide available in ' + (countdown || '24 hours'));
-          dismissBtn.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#4a6a9a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>';
-        }
+        dismissBtn.setAttribute('data-author', a.who);
+        dismissBtn.style.cssText = 'background:transparent;border:1px solid #ffa500;border-radius:50%;width:28px;height:28px;color:#ffa500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;';
+        dismissBtn.setAttribute('title','Hide from your view (others still see it)');
+        dismissBtn.setAttribute('aria-label','Hide announcement from your view');
+        dismissBtn.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#ffa500" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>';
+        dismissBtn.onclick = function(){
+          var aid = this.getAttribute('data-aid');
+          var author = parseInt(this.getAttribute('data-author'),10);
+          var authorName = gM(author).name || 'someone';
+          appConfirm({
+            title: 'Hide this announcement?',
+            message: 'Posted by <b>'+authorName+'</b>. It will be hidden from <b>your view only</b> — other band members will still see it. You can restore it from the DISMISSED tab.',
+            allowHtml: true
+          }).then(function(ok){
+            if(ok) _dismissAnnouncement(aid);
+          });
+        };
         actions.appendChild(dismissBtn);
       }
     }
