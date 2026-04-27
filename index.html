@@ -971,6 +971,7 @@ function reorderShowView(view){
   var dispView = document.getElementById('reorder-display-view');
   var notifView = document.getElementById('reorder-notif-view');
   var privView = document.getElementById('reorder-privacy-view');
+  var actView = document.getElementById('reorder-activity-view');
   var backBtn = document.getElementById('reorder-back-btn');
   if(!titleEl) return;
   // Hide all sub-views
@@ -978,6 +979,7 @@ function reorderShowView(view){
   if(dispView) dispView.style.display = 'none';
   if(notifView) notifView.style.display = 'none';
   if(privView) privView.style.display = 'none';
+  if(actView) actView.style.display = 'none';
   if(view === 'display'){
     if(dispView) dispView.style.display = 'block';
     titleEl.textContent = 'Display Mode';
@@ -992,11 +994,94 @@ function reorderShowView(view){
     titleEl.textContent = 'Privacy & Data';
     if(backBtn) backBtn.style.display = 'inline-flex';
     if(typeof renderPrivacySettings === 'function') renderPrivacySettings();
+  } else if(view === 'activity'){
+    if(actView) actView.style.display = 'block';
+    titleEl.textContent = 'Member Activity';
+    if(backBtn) backBtn.style.display = 'inline-flex';
+    if(typeof renderMemberActivity === 'function') renderMemberActivity();
   } else {
     if(defView) defView.style.display = 'block';
     titleEl.textContent = 'Arrange Tabs';
     if(backBtn) backBtn.style.display = 'none';
   }
+}
+
+function _formatRelativeTime(ms){
+  if(!ms) return '';
+  var diff = Date.now() - ms;
+  if(diff < 0) return 'just now';
+  if(diff < 60*1000) return 'just now';
+  if(diff < 60*60*1000) return Math.floor(diff/(60*1000)) + 'm ago';
+  if(diff < 24*60*60*1000) return Math.floor(diff/(60*60*1000)) + 'h ago';
+  if(diff < 7*24*60*60*1000) return Math.floor(diff/(24*60*60*1000)) + 'd ago';
+  // Fall back to date for older
+  try {
+    var d = new Date(ms);
+    return d.toLocaleDateString(undefined, {month:'short', day:'numeric'});
+  } catch(e){ return ''; }
+}
+
+function _formatJoinDate(ms){
+  if(!ms) return '';
+  try {
+    var d = new Date(ms);
+    return d.toLocaleDateString(undefined, {month:'short', day:'numeric'});
+  } catch(e){ return ''; }
+}
+
+function renderMemberActivity(){
+  var host = document.getElementById('reorder-activity-view');
+  if(!host) return;
+  host.innerHTML = '';
+  var head = document.createElement('div');
+  head.style.cssText = 'font-size:11px;color:#8aa8d6;margin-bottom:10px;line-height:1.5;';
+  head.innerHTML = 'Track who has joined the app and how recently they\'ve used it. <span style="color:#06d6a0;">●</span> joined &nbsp; <span style="color:#ffa500;">●</span> not joined yet';
+  host.appendChild(head);
+  if(typeof members === 'undefined' || !members.length){
+    var empty = document.createElement('div');
+    empty.style.cssText = 'color:#8aa8d6;font-style:italic;text-align:center;padding:18px 0;';
+    empty.textContent = 'No member data loaded yet.';
+    host.appendChild(empty);
+    return;
+  }
+  members.forEach(function(m){
+    var row = document.createElement('div');
+    var joined = !!m.firstPickAt;
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px;background:#101e34;border-radius:8px;margin-bottom:6px;border-left:3px solid '+(joined?'#06d6a0':'#ffa500')+';';
+    // Avatar
+    var av = document.createElement('div');
+    av.style.cssText = 'width:32px;height:32px;border-radius:50%;background:'+(typeof richGrad==='function'?richGrad(m.color):m.color)+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#000;flex-shrink:0;font-family:Russo One,sans-serif;';
+    av.textContent = m.av;
+    row.appendChild(av);
+    // Info column
+    var info = document.createElement('div');
+    info.style.cssText = 'flex:1;min-width:0;';
+    var nameLine = '<div style="font-size:13px;font-weight:600;color:#e8f0ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+m.name+'</div>';
+    var statusLine;
+    if(joined){
+      var bits = [];
+      bits.push('Joined ' + _formatJoinDate(m.firstPickAt));
+      if(m.lastSeenAt) bits.push('Active ' + _formatRelativeTime(m.lastSeenAt));
+      if(m.deviceType) bits.push(m.deviceType);
+      statusLine = '<div style="font-size:11px;color:#8aa8d6;margin-top:2px;">'+bits.join(' · ')+'</div>';
+    } else {
+      statusLine = '<div style="font-size:11px;color:#ffa500;margin-top:2px;font-style:italic;">Not joined yet</div>';
+    }
+    info.innerHTML = nameLine + statusLine;
+    row.appendChild(info);
+    // Status badge
+    var badge = document.createElement('div');
+    badge.style.cssText = 'flex-shrink:0;font-size:18px;color:'+(joined?'#06d6a0':'#ffa500')+';';
+    badge.innerHTML = joined ? '&#10003;' : '&#8987;'; // ✓ or ⌛
+    row.appendChild(badge);
+    host.appendChild(row);
+  });
+  // Summary at bottom
+  var joinedCount = members.filter(function(m){return !!m.firstPickAt;}).length;
+  var summary = document.createElement('div');
+  summary.style.cssText = 'margin-top:12px;padding:10px;background:rgba(74,158,255,.08);border:1px solid rgba(74,158,255,.3);border-radius:8px;text-align:center;font-size:12px;color:#e8f0ff;';
+  summary.innerHTML = '<span style="font-family:Russo One,sans-serif;font-size:14px;color:#4a9eff;">'+joinedCount+' / '+members.length+'</span> &nbsp;members joined';
+  host.appendChild(summary);
 }
 
 function toggleReorderMenu(ev){
@@ -1034,6 +1119,14 @@ function toggleReorderMenu(ev){
     null,
     function(){ reorderShowView('privacy'); }
   ));
+  // Admin-only: Member Activity
+  if(typeof isMeAdmin === 'function' && isMeAdmin()){
+    pop.appendChild(mk('Member Activity',
+      '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#06d6a0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path><path d="M16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"></path><path d="M16 21v-2a4 4 0 0 0-3-3.87"></path></svg>',
+      null,
+      function(){ reorderShowView('activity'); }
+    ));
+  }
   pop.appendChild(mk('Sign Out',
     '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#ff8a99" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>',
     '#ff8a99',
@@ -1506,6 +1599,50 @@ function renderNamePicker(){
   });
 }
 
+function _detectDeviceType(){
+  try {
+    var ua = (navigator.userAgent || '').toLowerCase();
+    if(/iphone|ipad|ipod/.test(ua)) return 'iOS';
+    if(/android/.test(ua)) return 'Android';
+    // Phones in general (broad catch — some report just "Mobile")
+    if(/mobile/.test(ua)) return 'Mobile';
+    return 'Desktop';
+  } catch(e){ return 'Other'; }
+}
+
+function _trackFirstPick(){
+  // Write firstPickAt + deviceType to the member's Firestore doc, but ONLY if
+  // firstPickAt isn't already set (so re-picks via Sign Out don't overwrite).
+  if(typeof db === 'undefined' || !db || !db.collection) return;
+  if(typeof myName === 'undefined' || !myName) return;
+  var docRef = db.collection('members').doc(myName);
+  docRef.get().then(function(snap){
+    if(!snap.exists) return;
+    var data = snap.data() || {};
+    var update = {};
+    if(!data.firstPickAt){
+      update.firstPickAt = Date.now();
+      update.deviceType = _detectDeviceType();
+    }
+    if(Object.keys(update).length > 0){
+      docRef.set(update, {merge:true}).catch(function(){});
+    }
+  }).catch(function(){});
+}
+
+function _trackLastSeen(){
+  // Update lastSeenAt on every initApp boot. Cheap, infrequent (once per
+  // app launch, not per page interaction).
+  if(typeof db === 'undefined' || !db || !db.collection) return;
+  if(typeof myName === 'undefined' || !myName) return;
+  // Throttle: only write if last write was >5 minutes ago locally
+  var lastLocal = parseInt(localStorage.getItem('oot_last_seen_local') || '0', 10);
+  var now = Date.now();
+  if(lastLocal && (now - lastLocal) < 5*60*1000) return;
+  localStorage.setItem('oot_last_seen_local', String(now));
+  db.collection('members').doc(myName).set({lastSeenAt: now}, {merge:true}).catch(function(){});
+}
+
 function pickName(idx) {
   ME = idx + 1;
   myName = memberNames[idx];
@@ -1513,6 +1650,8 @@ function pickName(idx) {
   localStorage.setItem('oot_me_id', String(ME));
   document.getElementById('name-picker-overlay').style.display = 'none';
   initApp();
+  // Rollout tracking — write firstPickAt + deviceType once
+  setTimeout(_trackFirstPick, 1500);
   // Welcome flow runs only once per device (until force-repick clears the flag)
   try {
     var seen = localStorage.getItem('oot_welcome_seen');
@@ -2262,6 +2401,9 @@ function renderNoGigsCard(){
 function whoAmITap() { toast('Logged in as ' + myName + '. To switch, clear browser data.', {duration:4000}); }
 
 function initApp() {
+  // Rollout tracking — bump lastSeenAt (throttled to once per 5 min)
+  setTimeout(function(){ try { _trackLastSeen(); } catch(e){} }, 2000);
+
   rHome();
   listenEvents();
   listenMsgs();
@@ -3435,6 +3577,10 @@ function listenMembers(){
         if(d.bday!==undefined) m.bday = d.bday;
         // Admin flag — used by isMeAdmin() for permission overrides
         if(d.admin!==undefined) m.admin = d.admin;
+        // Rollout tracking
+        if(d.firstPickAt!==undefined) m.firstPickAt = d.firstPickAt;
+        if(d.lastSeenAt!==undefined) m.lastSeenAt = d.lastSeenAt;
+        if(d.deviceType!==undefined) m.deviceType = d.deviceType;
         seenIds[m.id] = true;
         // Flag for color migration if Firestore color is stale
         var expected = EXPECTED_MEMBER_COLORS[m.id];
@@ -7929,6 +8075,9 @@ if(savedName&&savedId){
     <div id="reorder-privacy-view" style="display:none;">
       <div style="font-family:'Russo One',sans-serif;font-size:11px;color:#f5c518;letter-spacing:2px;padding:6px 0;">PRIVACY &amp; DATA</div>
       <div id="privacy-settings-body"></div>
+    </div>
+    <div id="reorder-activity-view" style="display:none;">
+      <div style="font-family:'Russo One',sans-serif;font-size:11px;color:#f5c518;letter-spacing:2px;padding:6px 0;">MEMBER ACTIVITY</div>
     </div>
 
     <!-- Footer: Back button (when in sub-view), kebab menu, Done -->
