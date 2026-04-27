@@ -76,6 +76,10 @@ body.light .dc{background:#e8eef8;}
 body.light .dc:hover{background:#d0daf0;}
 body.light .dc.td{background:#0d2050 !important;border:2px solid #f5c518 !important;}
 body.light #cal-legend-important{color:#1a3a8a !important;}
+body.light #setlists-menu-btn,
+body.light #band-roster-menu-btn,
+body.light #songs-menu-btn,
+body.light #reorder-menu-btn{border-color:#1a3a8a !important;color:#1a3a8a !important;}
 body.light .mb.me div{color:#fff;}
 body.light #tabs{background:#1a3a8a;}
 body.light .grip{color:#888;}
@@ -1640,9 +1644,11 @@ function formatTimeInput(raw){
 function attachTimeMask(inp){
   if(!inp || inp._timeMaskAttached) return;
   inp._timeMaskAttached = true;
-  inp.setAttribute('inputmode', 'numeric');
+  inp.setAttribute('inputmode', 'text');
   inp.setAttribute('autocomplete', 'off');
   inp.setAttribute('autocapitalize', 'off');
+  inp.setAttribute('autocorrect', 'off');
+  inp.setAttribute('spellcheck', 'false');
   inp.addEventListener('blur', function(){
     var formatted = formatTimeInput(this.value);
     if(formatted) this.value = formatted;
@@ -4892,13 +4898,13 @@ function openGigSheet(ev){
 
   var row1 = document.createElement('div');
   row1.style.cssText = 'display:flex;gap:8px;';
-  row1.appendChild(makeField('LOAD-IN','gd-loadin',det.loadin,'e.g. 530 → 5:30 PM','time'));
-  row1.appendChild(makeField('SOUND CHECK','gd-sc',det.sc,'e.g. 630 → 6:30 PM','time'));
+  row1.appendChild(makeField('LOAD-IN','gd-loadin',det.loadin,'530 → 5:30 PM · 530a → 5:30 AM','time'));
+  row1.appendChild(makeField('SOUND CHECK','gd-sc',det.sc,'630 → 6:30 PM · 630a → 6:30 AM','time'));
   b.appendChild(row1);
 
   var row2 = document.createElement('div');
   row2.style.cssText = 'display:flex;gap:8px;';
-  row2.appendChild(makeField('SET TIME','gd-settime',det.settime,'e.g. 8 → 8:00 PM','time'));
+  row2.appendChild(makeField('SET TIME','gd-settime',det.settime,'8 → 8:00 PM · 8a → 8:00 AM','time'));
   row2.appendChild(makeField('CONTACT','gd-contact',det.contact,'Venue contact','text'));
   b.appendChild(row2);
 
@@ -4985,8 +4991,8 @@ function openRehearsalSheet(ev){
   var rhAgInit = ev ? _getAgenda(ev.id) : {songs:[], notes:'', startTime:'', endTime:'', focus:''};
   var timeRow = document.createElement('div');
   timeRow.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;';
-  timeRow.appendChild(makeField('START TIME','rh-start', rhAgInit.startTime, 'e.g. 7 → 7:00 PM', 'time'));
-  timeRow.appendChild(makeField('END TIME','rh-end', rhAgInit.endTime, 'e.g. 930 → 9:30 PM', 'time'));
+  timeRow.appendChild(makeField('START TIME','rh-start', rhAgInit.startTime, '7 → 7:00 PM · 7a → 7:00 AM', 'time'));
+  timeRow.appendChild(makeField('END TIME','rh-end', rhAgInit.endTime, '930 → 9:30 PM · 930a → 9:30 AM', 'time'));
   // makeField wraps each input in a div with margin-bottom:8px; flex them to share the row
   timeRow.children[0].style.flex = '1';
   timeRow.children[0].style.marginBottom = '0';
