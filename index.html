@@ -755,7 +755,7 @@ function appConfirm(opts){
 
     var isDestructive = opts.destructive !== false; // default true
     titleEl.textContent = opts.title || 'Confirm';
-    msgEl.textContent = opts.message || 'Are you sure?';
+    if(opts.allowHtml){ msgEl.innerHTML = opts.message || 'Are you sure?'; } else { msgEl.textContent = opts.message || 'Are you sure?'; };
     okBtn.textContent = opts.okLabel || (isDestructive ? 'DELETE' : 'CONFIRM');
     cancelBtn.textContent = opts.cancelLabel || 'CANCEL';
     if(isDestructive){
@@ -2273,6 +2273,21 @@ function daysUntilBirthday(bday){
   return Math.round((thisYear - new Date(now.getFullYear(), now.getMonth(), now.getDate()))/86400000);
 }
 function gM(id){return members.find(function(m){return m.id==id;})||{name:"?",av:"?",color:"#555"};}
+// Returns true if the current user (ME) has admin privileges on their member doc.
+// Set Firestore: members/{ME}.admin = true to grant admin powers.
+function isMeAdmin(){
+  var me = members.find(function(m){return m.id==ME;});
+  return !!(me && me.admin === true);
+}
+// Format a date for confirm dialogs
+function _formatAnnDate(t){
+  if(!t) return '';
+  try {
+    var d = (typeof t === 'number') ? new Date(t) : new Date(t);
+    if(isNaN(d.getTime())) return '';
+    return d.toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'});
+  } catch(e){ return ''; }
+}
 function fD(y,m,d){return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");}
 function tD(ss){var x=ss.reduce(function(a,s){var p=(s.d||"0:00").split(":");return a+parseInt(p[0])*60+(parseInt(p[1])||0);},0);return Math.floor(x/60)+"m "+x%60+"s";}
 
@@ -3662,6 +3677,26 @@ function _evlActiveCount(){
 function _toggleEvlFilterDropdown(){
   _evlFilterOpen = !_evlFilterOpen;
   _renderEvlFilterRow();
+  // When opening, scroll the filter row near the top so the dropdown panel
+  // (which expands below it) fits within the visible area.
+  if(_evlFilterOpen){
+    setTimeout(function(){
+      var host = document.getElementById('evl-filter-row');
+      if(!host) return;
+      // Prefer scrolling the calendar's own scroll container (.sc) rather than the
+      // whole page, since .sc is the container that actually scrolls.
+      var sc = document.getElementById('sc-cal');
+      if(sc && typeof sc.scrollTo === 'function'){
+        var scRect = sc.getBoundingClientRect();
+        var hostRect = host.getBoundingClientRect();
+        // Target: filter row sits ~60px below the top of the scroll container
+        var delta = (hostRect.top - scRect.top) - 60;
+        sc.scrollBy({top: delta, behavior: 'smooth'});
+      } else if(host.scrollIntoView){
+        host.scrollIntoView({block:'start', behavior:'smooth'});
+      }
+    }, 30); // tiny delay so the panel is in DOM and measurable
+  }
 }
 
 function _closeEvlFilterDropdown(){
@@ -6151,17 +6186,33 @@ function renderAnnouncementsList(){
       restore.setAttribute('data-aid', a.id);
       restore.onclick = function(){ _undismissAnnouncement(this.getAttribute('data-aid')); };
       actions.appendChild(restore);
-      // Author can still hard-delete from history
-      if(a.who === ME){
+      // Author OR admin can hard-delete from history
+      var canDelDismissed = (a.who === ME) || isMeAdmin();
+      if(canDelDismissed){
         var del = document.createElement('button');
         del.style.cssText = 'background:transparent;border:1px solid #ff4757;border-radius:50%;width:28px;height:28px;color:#ff4757;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;';
-        del.setAttribute('title','Delete for everyone');
+        del.setAttribute('title', a.who === ME ? 'Delete for everyone' : 'Delete for everyone (admin)');
         del.setAttribute('aria-label','Delete for everyone');
         del.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#ff4757" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>';
         del.setAttribute('data-aid', a.id);
+        del.setAttribute('data-author', a.who);
+        del.setAttribute('data-when', a.t || '');
         del.onclick = function(){
           var aid = this.getAttribute('data-aid');
-          appConfirm({title:'Delete for everyone?', message:'This removes the announcement from every band member\'s view permanently.'}).then(function(ok){
+          var author = parseInt(this.getAttribute('data-author'),10);
+          var when = this.getAttribute('data-when');
+          var title, msg, useHtml = false;
+          if(author === ME){
+            title = 'Delete for everyone?';
+            msg = 'This removes the announcement from every band member\'s view permanently.';
+          } else {
+            var authorName = gM(author).name || 'someone';
+            var dateStr = _formatAnnDate(when);
+            title = 'Delete for everyone?';
+            msg = 'This announcement was posted by <b>'+authorName+'</b>'+(dateStr?' on '+dateStr:'')+'. As an admin, you can remove it from every band member\'s view permanently. This cannot be undone.';
+            useHtml = true;
+          }
+          appConfirm({title:title, message:msg, allowHtml:useHtml}).then(function(ok){
             if(ok){
               db.collection('announcements').doc(aid).delete()
                 .then(function(){ toast('Announcement deleted', {tone:'success'}); }).catch(function(){});
@@ -6171,18 +6222,33 @@ function renderAnnouncementsList(){
         actions.appendChild(del);
       }
     } else {
-      // Active view
-      if(a.who === ME){
-        // Author: hard-delete
+      // Active view — author OR admin can hard-delete
+      var canDelActive = (a.who === ME) || isMeAdmin();
+      if(canDelActive){
         var del = document.createElement('button');
         del.style.cssText = 'background:transparent;border:1px solid #ff4757;border-radius:50%;width:28px;height:28px;color:#ff4757;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;';
-        del.setAttribute('title','Delete');
+        del.setAttribute('title', a.who === ME ? 'Delete' : 'Delete (admin)');
         del.setAttribute('aria-label','Delete announcement');
         del.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#ff4757" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>';
         del.setAttribute('data-aid', a.id);
+        del.setAttribute('data-author', a.who);
+        del.setAttribute('data-when', a.t || '');
         del.onclick = function(){
           var aid = this.getAttribute('data-aid');
-          appConfirm({title:'Delete announcement?', message:'Remove this post for everyone? This cannot be undone.'}).then(function(ok){
+          var author = parseInt(this.getAttribute('data-author'),10);
+          var when = this.getAttribute('data-when');
+          var title, msg, useHtml = false;
+          if(author === ME){
+            title = 'Delete announcement?';
+            msg = 'Remove this post for everyone? This cannot be undone.';
+          } else {
+            var authorName = gM(author).name || 'someone';
+            var dateStr = _formatAnnDate(when);
+            title = 'Delete announcement?';
+            msg = 'This announcement was posted by <b>'+authorName+'</b>'+(dateStr?' on '+dateStr:'')+'. As an admin, you can remove it for everyone. This cannot be undone.';
+            useHtml = true;
+          }
+          appConfirm({title:title, message:msg, allowHtml:useHtml}).then(function(ok){
             if(ok){
               db.collection('announcements').doc(aid).delete()
                 .then(function(){ toast('Announcement deleted', {tone:'success'}); }).catch(function(){});
@@ -6190,7 +6256,8 @@ function renderAnnouncementsList(){
           });
         };
         actions.appendChild(del);
-      } else {
+      }
+      if(a.who !== ME){
         // Non-author: dismiss (with 24h gate)
         var canDismiss = _annCanDismissNow(a);
         var dismissBtn = document.createElement('button');
