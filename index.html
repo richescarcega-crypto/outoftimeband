@@ -82,6 +82,7 @@ body.light #songs-menu-btn,
 body.light #reorder-menu-btn{border-color:#1a3a8a !important;color:#1a3a8a !important;}
 body.light .ab{background:#fff !important;border:1.5px dashed #1a3a8a !important;color:#1a3a8a !important;}
 body.light #sl-back-btn{color:#1a3a8a !important;}
+body.light #cal-drawer{background:#fff !important;border-color:#c8d4e8 !important;}
 body.light .mb.me div{color:#fff;}
 body.light #tabs{background:#1a3a8a;}
 body.light .grip{color:#888;}
@@ -412,6 +413,7 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
   <div class="cgrid-wrap" id="cgrid-wrap">
     <div class="cgrid" id="cgrid"></div>
   </div>
+  <div id="cal-drawer" style="display:none;background:#0a1628;border:1px solid #1a3a8a;border-radius:10px;padding:10px 12px;margin-bottom:12px;"></div>
   <div class="sh" style="display:flex;justify-content:space-between;align-items:center;">
     <span onclick="toggleCard('evl','evl-arrow')" style="cursor:pointer;display:flex;align-items:center;gap:6px;flex:1;"><span class="tt-gold" style="font-size:12px;letter-spacing:2px;font-family:'Russo One',sans-serif;">ALL EVENTS</span><span id="evl-arrow" style="color:#f5c518;font-size:14px;">&#8964;</span></span>
     <button onclick="exportData('events')" class="pill-action"><span style="font-size:11px;line-height:1;">&#8679;</span><span>SHARE</span></button>
@@ -4071,6 +4073,9 @@ function memTap(e, id) {
 // CALENDAR
 function rCal() {
   if(cardStates['important-dates-list'] === undefined) cardStates['important-dates-list'] = true;
+  // Track current rendered (year,month) to detect month changes for drawer
+  var prevRendered = rCal._lastRendered;
+  rCal._lastRendered = CY + '-' + CM;
   document.getElementById('mlbl').textContent = MO[CM].toUpperCase() + ' ' + CY;
   var fd = new Date(CY,CM,1).getDay(), dim = new Date(CY,CM+1,0).getDate();
   var h = DW.map(function(d){return '<div class="dhdr">'+d+'</div>';}).join('');
@@ -4103,6 +4108,20 @@ function rCal() {
   _wireCalSwipe();
   rEvL();
   rAvailability();
+  // Drawer maintenance — if month changed, close; if same month and drawer open, refresh contents
+  if(_drawerDay != null){
+    if(prevRendered !== rCal._lastRendered){
+      closeDayDrawer();
+    } else {
+      var ds2 = fD(CY,CM,_drawerDay);
+      var de2 = events.filter(function(e){return e.date===ds2;});
+      if(de2.length){
+        openDayDrawer(_drawerDay, de2, {skipScroll:true});
+      } else {
+        closeDayDrawer();
+      }
+    }
+  }
 }
 function pMo(){ navMonth(-1); }
 function nMo(){ navMonth(1); }
@@ -4607,6 +4626,11 @@ function rEvL(){
   });
 }
 function oDy(day) {
+  // Toggle: tap same day twice = collapse drawer
+  if(_drawerDay === day){
+    closeDayDrawer();
+    return;
+  }
   sDay=day;
   document.querySelectorAll('.dc').forEach(function(d){d.classList.remove('sel');});
   document.querySelectorAll('.dc').forEach(function(d){
@@ -4616,10 +4640,11 @@ function oDy(day) {
   var de=events.filter(function(e){return e.date===ds;});
 
   if(de.length){
-    // Existing events on this date - ask what they want to do
-    showDayOptions(day, de);
+    // Existing events on this date — show inline drawer
+    openDayDrawer(day, de);
   } else {
-    // No events - go straight to new event form
+    // No events — close drawer if open and go straight to creation modal
+    closeDayDrawer();
     openNewEventModal(day);
   }
 }
@@ -4746,6 +4771,108 @@ function showDayOptions(day, de){
   if(document.getElementById('eend')) document.getElementById('eend').value = '';
   document.getElementById('etit').closest('div') && hideNewEventForm();
   opM('evm');
+}
+
+// ── Inline date drawer (replaces showDayOptions modal for days with events) ──
+var _drawerDay = null; // currently expanded day number, or null
+
+function closeDayDrawer(){
+  _drawerDay = null;
+  var d = document.getElementById('cal-drawer');
+  if(d){ d.style.display = 'none'; d.innerHTML = ''; }
+}
+
+function openDayDrawer(day, de, opts){
+  opts = opts || {};
+  _drawerDay = day;
+  var d = document.getElementById('cal-drawer');
+  if(!d) return;
+  var ds = fD(CY,CM,day);
+  d.innerHTML = '';
+
+  // Header — date + close button
+  var head = document.createElement('div');
+  head.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;';
+  var title = document.createElement('div');
+  title.style.cssText = 'font-family:Russo One,sans-serif;font-size:11px;letter-spacing:2px;color:#4a9eff;';
+  title.textContent = (MO[CM] + ' ' + day).toUpperCase();
+  var closeBtn = document.createElement('button');
+  closeBtn.style.cssText = 'background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;';
+  closeBtn.innerHTML = '&times;';
+  closeBtn.title = 'Close';
+  closeBtn.onclick = function(e){ e.stopPropagation(); closeDayDrawer(); };
+  head.appendChild(title);
+  head.appendChild(closeBtn);
+  d.appendChild(head);
+
+  // Special-day notes (birthdays, holidays, important dates)
+  _renderSpecialDayNotes(d, ds);
+
+  // Existing events
+  de.forEach(function(e){
+    var card = document.createElement('div');
+    card.style.cssText = 'padding:8px 10px;background:#060e1c;border-radius:8px;margin-bottom:6px;border-left:3px solid ' + EC[e.type] + ';display:flex;align-items:center;justify-content:space-between;';
+    var info = document.createElement('div');
+    info.style.cssText = 'flex:1;min-width:0;';
+
+    var detailLine = '';
+    if(e.type === 'rehearsal'){
+      var ag = _getAgenda(e.id);
+      var parts = [];
+      if(ag.startTime){
+        parts.push(ag.endTime ? (ag.startTime + ' – ' + ag.endTime) : ag.startTime);
+      }
+      if(ag.focus) parts.push(ag.focus);
+      detailLine = parts.join(' · ');
+    } else if(e.type === 'gig'){
+      var det = gigDetails[String(e.id)] || {};
+      var gparts = [];
+      if(det.settime) gparts.push('Set ' + det.settime);
+      if(det.loadin) gparts.push('Load-in ' + det.loadin);
+      if(det.sc) gparts.push('Sound check ' + det.sc);
+      detailLine = gparts.join(' · ');
+    }
+
+    info.innerHTML = '<div style="font-size:13px;font-weight:600;color:#fff;">' + e.title + '</div>' +
+      (detailLine?'<div style="font-size:11px;color:#f5c518;margin-top:2px;font-family:Russo One,sans-serif;letter-spacing:.3px;">'+detailLine+'</div>':'') +
+      (e.note?'<div style="font-size:11px;color:#aaa;margin-top:2px;">'+e.note+'</div>':'');
+
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:4px;flex-shrink:0;margin-left:8px;';
+    var editBtn = document.createElement('button');
+    editBtn.style.cssText = 'background:none;border:1px solid #4a9eff;border-radius:6px;padding:3px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;';
+    editBtn.textContent = 'Edit';
+    editBtn.onclick = (function(ev){ return function(evt){ evt.stopPropagation(); editEv(ev.id); }; })(e);
+    var delBtn = document.createElement('button');
+    delBtn.style.cssText = 'background:none;border:1px solid #ff4757;border-radius:6px;padding:3px 8px;color:#ff4757;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;';
+    delBtn.textContent = 'Remove';
+    delBtn.onclick = (function(ev){ return function(evt){
+      evt.stopPropagation();
+      appConfirm({title:'Remove event?', message:'Delete "' + ev.title + '"? This cannot be undone.'}).then(function(ok){
+        if(ok){ dEv(ev.id); toast('Event deleted', {tone:'success'}); var de2 = events.filter(function(x){return x.date===ds;}); if(de2.length){ openDayDrawer(day, de2, {skipScroll:true}); } else { closeDayDrawer(); } }
+      });
+    }; })(e);
+    btnRow.appendChild(editBtn);
+    btnRow.appendChild(delBtn);
+    card.appendChild(info);
+    card.appendChild(btnRow);
+    d.appendChild(card);
+  });
+
+  // Add another event button — opens the existing creation modal
+  var addBtn = document.createElement('button');
+  addBtn.style.cssText = 'width:100%;background:transparent;border:1px dashed #4a9eff;border-radius:6px;padding:8px;color:#4a9eff;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;cursor:pointer;margin-top:4px;touch-action:manipulation;';
+  addBtn.textContent = '+ ADD ANOTHER EVENT';
+  addBtn.onclick = function(evt){ evt.stopPropagation(); openNewEventModal(day); };
+  d.appendChild(addBtn);
+
+  d.style.display = 'block';
+  // Smooth scroll into view so user sees expansion (skip on background refreshes)
+  if(!opts.skipScroll){
+    setTimeout(function(){
+      try{ d.scrollIntoView({behavior:'smooth', block:'nearest'}); }catch(e){}
+    }, 50);
+  }
 }
 
 function hideNewEventForm(){
