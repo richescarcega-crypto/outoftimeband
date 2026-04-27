@@ -697,6 +697,14 @@ body.light .mrav{color:#000 !important;}
 
 <script>
 "use strict";
+// ── Read Receipts feature flag ────────────────────────────────────────
+// Set READ_RECEIPTS_ENABLED to true and READ_RECEIPTS_ENABLED_AT to Date.now()
+// to flip the feature on. Eyeball indicator only shows on messages posted
+// AFTER the timestamp — pre-existing messages remain unmarked.
+// Data tracking (seenBy on messages) runs always, regardless of this flag.
+var READ_RECEIPTS_ENABLED = false;
+var READ_RECEIPTS_ENABLED_AT = 0;
+
 // Capture Android Chrome's install prompt event so we can fire it later
 var _deferredInstallPrompt = null;
 window.addEventListener('beforeinstallprompt', function(e){
@@ -6029,6 +6037,107 @@ function showChatList(){
   rChatThreads();
 }
 
+// Mark all received messages in this thread as seen by ME.
+// Always runs regardless of READ_RECEIPTS_ENABLED — captures data either way.
+// Click handler for band-chat seen-eye → show who has/hasn't seen
+document.addEventListener('click', function(ev){
+  var el = ev.target.closest && ev.target.closest('.seen-eye');
+  if(!el) return;
+  var mid = el.getAttribute('data-mid');
+  if(!mid || typeof msgs === 'undefined') return;
+  var m = msgs.find(function(x){ return String(x.id) === String(mid); });
+  if(!m) return;
+  if(String(m.to||'band') !== 'band') return; // DMs don't need a list
+  ev.stopPropagation();
+  var seenBy = m.seenBy || [];
+  var seenNames = [], unseenNames = [];
+  if(typeof members !== 'undefined'){
+    members.forEach(function(mm){
+      if(mm.id === m.who) return; // sender
+      if(seenBy.indexOf(mm.id) >= 0) seenNames.push(mm.name);
+      else unseenNames.push(mm.name);
+    });
+  }
+  var msg = '';
+  if(seenNames.length){
+    msg += '<b style="color:#06d6a0;">Seen by:</b><br>' + seenNames.join(', ') + '<br><br>';
+  }
+  if(unseenNames.length){
+    msg += '<b style="color:#8aa8d6;">Not yet:</b><br>' + unseenNames.join(', ');
+  }
+  if(!msg) msg = 'No data yet.';
+  if(typeof appConfirm === 'function'){
+    appConfirm({title:'Read by', message:msg, allowHtml:true}).catch(function(){});
+  }
+}, false);
+
+function _markThreadSeen(threadKey){
+  if(typeof db === 'undefined' || !db || !db.collection) return;
+  if(typeof ME === 'undefined' || !ME) return;
+  if(typeof msgs === 'undefined' || !msgs) return;
+  if(!firebase || !firebase.firestore || !firebase.firestore.FieldValue) return;
+  var meStr = String(ME);
+  var batch = db.batch();
+  var count = 0;
+  msgs.forEach(function(m){
+    if(!m.id) return;
+    var mWho = String(m.who), mTo = String(m.to||'band'), toStr = String(threadKey);
+    var inThread;
+    if(threadKey === 'band'){
+      inThread = (mTo==='band' || mTo==='undefined' || mTo==='null' || !m.to);
+    } else {
+      inThread = (mWho===meStr&&mTo===toStr) || (mWho===toStr&&mTo===meStr);
+    }
+    if(!inThread) return;
+    if(mWho === meStr) return; // skip own messages
+    var seenBy = m.seenBy || [];
+    if(seenBy.indexOf(ME) >= 0) return;
+    var docRef = db.collection('messages').doc(String(m.id));
+    batch.update(docRef, {seenBy: firebase.firestore.FieldValue.arrayUnion(ME)});
+    count++;
+    if(count >= 400) return;
+  });
+  if(count > 0){
+    batch.commit().catch(function(){});
+  }
+}
+
+// Build eyeball indicator HTML for a message — returns string or empty.
+// Only own messages get this. Returns '' if feature disabled or message
+// pre-dates the flip timestamp.
+function _renderSeenIndicator(m){
+  if(!READ_RECEIPTS_ENABLED) return '';
+  if(typeof ME === 'undefined' || !ME) return '';
+  if(String(m.who) !== String(ME)) return '';
+  // Resolve message timestamp — Firestore serverTimestamp lives in m.ts
+  var msgTime = 0;
+  if(m.ts){
+    if(typeof m.ts.toMillis === 'function') msgTime = m.ts.toMillis();
+    else if(m.ts.seconds) msgTime = m.ts.seconds * 1000;
+    else if(typeof m.ts === 'number') msgTime = m.ts;
+  }
+  if(msgTime && READ_RECEIPTS_ENABLED_AT && msgTime < READ_RECEIPTS_ENABLED_AT) return '';
+  var seenBy = m.seenBy || [];
+  // Determine recipients
+  var recipients = [];
+  if(String(m.to||'band') === 'band'){
+    // Band chat — everyone except the sender
+    if(typeof members !== 'undefined') {
+      members.forEach(function(mm){
+        if(mm.id !== m.who) recipients.push(mm.id);
+      });
+    }
+  } else {
+    recipients.push(parseInt(m.to, 10));
+  }
+  if(recipients.length === 0) return '';
+  var seenCount = recipients.filter(function(rid){ return seenBy.indexOf(rid) >= 0; }).length;
+  var hasAnyone = seenCount > 0;
+  var color = hasAnyone ? '#06d6a0' : 'rgba(255,255,255,.4)';
+  var eyeSvg = '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="'+color+'" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3" fill="'+(hasAnyone?'#06d6a0':'none')+'"></circle></svg>';
+  return '<span class="seen-eye" data-mid="'+m.id+'" style="display:inline-flex;align-items:center;margin-left:5px;cursor:'+(String(m.to||'band')==='band'?'pointer':'default')+';">'+eyeSvg+'</span>';
+}
+
 function openThread(id){
   // Exit any selection mode from a previous thread
   if(typeof _chatSelectMode !== 'undefined' && _chatSelectMode){
@@ -6106,6 +6215,8 @@ function openThread(id){
   rChat();
   rChatThreads();
   updateSendBtn();
+  // Mark thread as seen by ME (data tracking — always runs)
+  setTimeout(function(){ _markThreadSeen(id); }, 800);
 }
 
 function rChatTo(){
@@ -6321,8 +6432,9 @@ function rChat() {
       bub.appendChild(rRow);
     }
     var ti=document.createElement('div');
-    ti.style.cssText='font-size:10px;color:rgba(255,255,255,.3);margin-top:3px;padding:0 4px;';
-    ti.textContent=m.time||'';
+    ti.style.cssText='font-size:10px;color:rgba(255,255,255,.3);margin-top:3px;padding:0 4px;display:flex;align-items:center;'+(isMe?'justify-content:flex-end;':'')+'gap:0;';
+    var seenHtml = _renderSeenIndicator(m);
+    ti.innerHTML = (m.time||'') + seenHtml;
     bub.onclick=function(ev){
       if(_chatSelectMode){
         ev.stopPropagation();
