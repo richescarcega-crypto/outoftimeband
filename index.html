@@ -4113,13 +4113,7 @@ function rCal() {
     if(prevRendered !== rCal._lastRendered){
       closeDayDrawer();
     } else {
-      var ds2 = fD(CY,CM,_drawerDay);
-      var de2 = events.filter(function(e){return e.date===ds2;});
-      if(de2.length){
-        openDayDrawer(_drawerDay, de2, {skipScroll:true});
-      } else {
-        closeDayDrawer();
-      }
+      _refreshDrawerForCurrentDay(_drawerDay);
     }
   }
 }
@@ -4638,10 +4632,13 @@ function oDy(day) {
   });
   var ds=fD(CY,CM,day);
   var de=events.filter(function(e){return e.date===ds;});
+  // Pull in custom (Important Date) entries for this date so they show inline
+  var customForDay = _customEntriesAsRows().filter(function(e){return e.date===ds;});
+  var combined = de.concat(customForDay);
 
-  if(de.length){
+  if(combined.length){
     // Existing events on this date — show inline drawer
-    openDayDrawer(day, de);
+    openDayDrawer(day, combined);
   } else {
     // No events — close drawer if open and go straight to creation modal
     closeDayDrawer();
@@ -4649,10 +4646,11 @@ function oDy(day) {
   }
 }
 
-function _renderSpecialDayNotes(eexEl, ds){
+function _renderSpecialDayNotes(eexEl, ds, opts){
+  opts = opts || {};
   var bdayMembers = getMembersBornOn(ds);
   var holiday = getHolidayOn(ds);
-  var impDates = getImportantDatesOn(ds);
+  var impDates = opts.skipImportant ? [] : getImportantDatesOn(ds);
   if(!bdayMembers.length && !holiday && !impDates.length) return;
   bdayMembers.forEach(function(mm){
     var card = document.createElement('div');
@@ -4782,6 +4780,19 @@ function closeDayDrawer(){
   if(d){ d.style.display = 'none'; d.innerHTML = ''; }
 }
 
+function _refreshDrawerForCurrentDay(day){
+  // Recompute combined list (events + custom dates) and refresh, or close if empty
+  var ds = fD(CY,CM,day);
+  var de2 = events.filter(function(x){return x.date===ds;});
+  var custom2 = _customEntriesAsRows().filter(function(x){return x.date===ds;});
+  var combined = de2.concat(custom2);
+  if(combined.length){
+    openDayDrawer(day, combined, {skipScroll:true});
+  } else {
+    closeDayDrawer();
+  }
+}
+
 function openDayDrawer(day, de, opts){
   opts = opts || {};
   _drawerDay = day;
@@ -4805,13 +4816,15 @@ function openDayDrawer(day, de, opts){
   head.appendChild(closeBtn);
   d.appendChild(head);
 
-  // Special-day notes (birthdays, holidays, important dates)
-  _renderSpecialDayNotes(d, ds);
+  // Special-day notes — birthdays + holidays only.
+  // Custom (Important Date) entries are rendered below as first-class event cards.
+  _renderSpecialDayNotes(d, ds, {skipImportant:true});
 
   // Existing events
   de.forEach(function(e){
     var card = document.createElement('div');
-    card.style.cssText = 'padding:8px 10px;background:#060e1c;border-radius:8px;margin-bottom:6px;border-left:3px solid ' + EC[e.type] + ';display:flex;align-items:center;justify-content:space-between;';
+    var leftBorder = e.type === 'custom' ? (e._customColor || '#06d6a0') : EC[e.type];
+    card.style.cssText = 'padding:8px 10px;background:#060e1c;border-radius:8px;margin-bottom:6px;border-left:3px solid ' + leftBorder + ';display:flex;align-items:center;justify-content:space-between;';
     var info = document.createElement('div');
     info.style.cssText = 'flex:1;min-width:0;';
 
@@ -4831,26 +4844,46 @@ function openDayDrawer(day, de, opts){
       if(det.loadin) gparts.push('Load-in ' + det.loadin);
       if(det.sc) gparts.push('Sound check ' + det.sc);
       detailLine = gparts.join(' · ');
+    } else if(e.type === 'custom'){
+      // For custom: show "Annual" tag if recurring
+      if(e._customRecurring) detailLine = 'Annual';
     }
 
-    info.innerHTML = '<div style="font-size:13px;font-weight:600;color:#fff;">' + e.title + '</div>' +
-      (detailLine?'<div style="font-size:11px;color:#f5c518;margin-top:2px;font-family:Russo One,sans-serif;letter-spacing:.3px;">'+detailLine+'</div>':'') +
-      (e.note?'<div style="font-size:11px;color:#aaa;margin-top:2px;">'+e.note+'</div>':'');
+    var titleHtml = (e.type === 'custom'
+      ? '<span style="color:'+leftBorder+';margin-right:4px;font-size:13px;line-height:1;">&#9733;</span>'
+      : '');
+    titleHtml += e.title;
+    info.innerHTML = '<div style="font-size:13px;font-weight:600;color:#fff;">' + titleHtml + '</div>' +
+      (detailLine?'<div style="font-size:11px;color:'+(e.type==='custom'?leftBorder:'#f5c518')+';margin-top:2px;font-family:Russo One,sans-serif;letter-spacing:.3px;">'+detailLine+'</div>':'') +
+      (e.note && e.type !== 'custom' ?'<div style="font-size:11px;color:#aaa;margin-top:2px;">'+e.note+'</div>':'');
 
     var btnRow = document.createElement('div');
     btnRow.style.cssText = 'display:flex;gap:4px;flex-shrink:0;margin-left:8px;';
     var editBtn = document.createElement('button');
     editBtn.style.cssText = 'background:none;border:1px solid #4a9eff;border-radius:6px;padding:3px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;';
     editBtn.textContent = 'Edit';
-    editBtn.onclick = (function(ev){ return function(evt){ evt.stopPropagation(); editEv(ev.id); }; })(e);
+    if(e.type === 'custom'){
+      editBtn.onclick = (function(srcId){ return function(evt){ evt.stopPropagation(); openImportantDateModal(srcId); }; })(e._customSourceId);
+    } else {
+      editBtn.onclick = (function(ev){ return function(evt){ evt.stopPropagation(); editEv(ev.id); }; })(e);
+    }
     var delBtn = document.createElement('button');
     delBtn.style.cssText = 'background:none;border:1px solid #ff4757;border-radius:6px;padding:3px 8px;color:#ff4757;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;';
     delBtn.textContent = 'Remove';
     delBtn.onclick = (function(ev){ return function(evt){
       evt.stopPropagation();
-      appConfirm({title:'Remove event?', message:'Delete "' + ev.title + '"? This cannot be undone.'}).then(function(ok){
-        if(ok){ dEv(ev.id); toast('Event deleted', {tone:'success'}); var de2 = events.filter(function(x){return x.date===ds;}); if(de2.length){ openDayDrawer(day, de2, {skipScroll:true}); } else { closeDayDrawer(); } }
-      });
+      if(ev.type === 'custom'){
+        appConfirm({title:'Delete date?', message:'Remove "' + ev.title + '" from important dates?'}).then(function(ok){
+          if(!ok) return;
+          db.collection('importantDates').doc(ev._customSourceId).delete()
+            .then(function(){ toast('Date deleted', {tone:'success'}); _refreshDrawerForCurrentDay(day); })
+            .catch(function(){});
+        });
+      } else {
+        appConfirm({title:'Remove event?', message:'Delete "' + ev.title + '"? This cannot be undone.'}).then(function(ok){
+          if(ok){ dEv(ev.id); toast('Event deleted', {tone:'success'}); _refreshDrawerForCurrentDay(day); }
+        });
+      }
     }; })(e);
     btnRow.appendChild(editBtn);
     btnRow.appendChild(delBtn);
