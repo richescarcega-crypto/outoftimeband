@@ -7508,6 +7508,22 @@ window.addEventListener('popstate', function(e){
   window.history.pushState(null, '', window.location.href);
 });
 
+// ── Force-repick gate ─────────────────────────────────────────────
+// Bump this constant when rolling out an update that should make every
+// device re-show the WHO ARE YOU? picker (e.g. major UI overhaul). The
+// device's stored identity is wiped on next load if its saved version
+// doesn't match this string.
+var FORCE_REPICK_VERSION = 'v2-rollout-2026-04';
+try {
+  var seen = localStorage.getItem('oot_repick_version');
+  if(seen !== FORCE_REPICK_VERSION){
+    // Wipe identity so the picker shows
+    localStorage.removeItem('oot_me');
+    localStorage.removeItem('oot_me_id');
+    localStorage.setItem('oot_repick_version', FORCE_REPICK_VERSION);
+  }
+} catch(e){}
+
 var savedName=localStorage.getItem('oot_me');
 var savedId=localStorage.getItem('oot_me_id');
 if(savedName&&savedId){
