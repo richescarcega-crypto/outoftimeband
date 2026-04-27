@@ -166,9 +166,12 @@ body.light .htag{color:#1a2a4a !important;}
 body.light [style*="color:rgba(255,255,255"][style*="font-size:11px"],
 body.light .you-line{color:#3a4a6a !important;}
 
-/* Announcements bell pill — solid yellow fill + navy bell in light mode */
-body.light #ann-bell{background:#f5c518 !important;border-color:#c99a00 !important;color:#1a3a8a !important;}
-body.light #ann-bell-badge{border-color:#fff !important;}
+/* Home header row — dark strip in light mode so the gold bell pops, mirroring Book a Gig card */
+body.light #home-header-row{background:#0d2050;border:1px solid #1a3a8a;border-radius:10px;padding:6px 10px;margin-bottom:10px !important;}
+body.light #home-header-row > button[onclick="openReorder()"]{color:#a0b4d0 !important;}
+body.light #home-header-row #who-am-i{color:#a0b4d0 !important;}
+body.light #home-header-row #ann-bell{background:transparent !important;border-color:#1a3a8a !important;color:#f5c518 !important;}
+body.light #ann-bell-badge{border-color:#0d2050 !important;}
 .sh{font-family:"Russo One",sans-serif;font-size:10px;letter-spacing:3px;color:#fff;margin:12px 0 7px;padding-bottom:5px;border-bottom:1px solid var(--n3);}
 .tt-gold{background:linear-gradient(135deg,#ffb800 0%,#ffd84a 45%,#fff39a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:700;text-shadow:0 0 18px rgba(255,184,0,.25);}
 .tt-blue{background:linear-gradient(135deg,#2563d6 0%,#4a9eff 50%,#7ed4ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:700;text-shadow:0 0 18px rgba(74,158,255,.3);}
@@ -313,7 +316,7 @@ body.light #ann-bell-badge{border-color:#fff !important;}
 <div id="cnt">
 
 <div id="sc-home" class="sc on">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:10px;">
+  <div id="home-header-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:10px;">
     <button onclick="openReorder()" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;padding:0;" title="Arrange tabs">&#9776;</button>
     <button id="ann-bell" onclick="openAnnouncementsModal()" title="Announcements" style="background:transparent;border:1px solid #1a3a8a;border-radius:18px;padding:4px 10px;color:#f5c518;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;position:relative;line-height:1;touch-action:manipulation;">
       <span id="ann-bell-icon" style="display:inline-flex;align-items:center;line-height:1;"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22a2 2 0 002-2h-4a2 2 0 002 2zm6-6V11a6 6 0 00-5-5.91V4a1 1 0 00-2 0v1.09A6 6 0 006 11v5l-2 2v1h16v-1l-2-2z"/></svg></span>
