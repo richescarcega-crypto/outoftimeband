@@ -110,9 +110,9 @@ body.light .mrav{color:#000 !important;}
 .home-summary-card[data-open="1"] .card-lbl{margin-bottom:6px !important;}
 .card-lbl{font-family:"Russo One",sans-serif;font-size:12px;letter-spacing:3px;color:#fff;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
 .none{font-size:13px;color:#aaa;font-style:italic;}
-.hero{position:relative;display:grid;grid-template-columns:1fr 1fr;height:180px;border-radius:12px;overflow:hidden;border:1px solid rgba(245,197,24,.2);margin-bottom:10px;}
-.hero-l{background:linear-gradient(135deg,#0d2050,#0a1628);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;}
-.hero-l img{width:90%;object-fit:contain;filter:drop-shadow(0 0 10px rgba(245,197,24,.4));}
+.hero{position:relative;height:180px;border-radius:12px;overflow:hidden;border:1px solid rgba(245,197,24,.2);margin-bottom:10px;}
+.hero-l{background:linear-gradient(135deg,#0d2050,#0a1628);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;width:100%;height:100%;position:relative;}
+.hero-l img{max-width:80%;max-height:90%;object-fit:contain;filter:drop-shadow(0 0 14px rgba(245,197,24,.45));}
 .htag{font-family:"Russo One",sans-serif;font-size:7px;color:var(--g);letter-spacing:1.5px;text-align:center;margin-top:7px;line-height:1.8;}
 .hero-r{overflow:hidden;position:relative;}
 .hero-r img{width:100%;height:130px;object-fit:cover;object-position:top;}
@@ -255,11 +255,8 @@ body.light .mrav{color:#000 !important;}
   </div>
   <div id="announce-card" style="display:none;"></div>
   <div class="hero">
-    <div class="hero-l" style="padding:0;overflow:hidden;"><img src="logo.jpg" alt="OOT" style="width:100%;height:100%;object-fit:cover;"></div>
-    <div class="hero-r">
-      <img src="band.jpg" alt="Band">
-      <div class="hero-tagline">Where Rock &amp; Roll Meets the Dance Floor</div>
-    </div>
+    <div class="hero-l"><img src="logo.jpg" alt="OOT"></div>
+    <div class="hero-tagline">Where Rock &amp; Roll Meets the Dance Floor</div>
   </div>
   <div id="birthday-banner" style="display:none;"></div>
   <div id="next-gig-countdown" style="display:none;background:#060e1c;border-radius:12px;padding:7px 14px;margin-bottom:8px;text-align:center;border:1px solid rgba(245,197,24,.5);box-shadow:0 0 20px rgba(245,197,24,.15),inset 0 0 30px rgba(10,22,40,.8);">
