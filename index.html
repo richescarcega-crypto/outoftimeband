@@ -91,6 +91,15 @@ body.light #si-artist-display{color:#b8860b !important;}
 body.light #song-info-modal [style*="border-bottom:1px solid #0d1f3a"]{border-bottom-color:#d0daf0 !important;}
 body.light #library-list > div{border-bottom-color:#d0daf0 !important;}
 body.light [style*="color:#aaa;font-style:italic"]{color:#5a6a85 !important;}
+/* Modal sweep: light-mode overrides for inline dark colors found in modals */
+body.light .ov [style*="border-top:1px solid #0d1f3a"]{border-top-color:#d0daf0 !important;}
+body.light .ov [style*="border-bottom:1px solid #0d1f3a"]{border-bottom-color:#d0daf0 !important;}
+body.light #idate-modal [style*="color:#e8f0ff"]{color:#1a2a4a !important;}
+body.light .ov [style*="color:#aaa;font-size:11px"][style*="Russo One"]{color:#1a3a8a !important;}
+body.light .ov [style*="color:#aaa;font-size:9px"][style*="Russo One"]{color:#1a3a8a !important;}
+body.light .ov [style*="color:#aaa;letter-spacing:2px"][style*="Russo One"]{color:#1a3a8a !important;}
+body.light .mot[style*="color:#f5c518"],
+body.light .moh .mot[style*="color:#f5c518"]{color:#b8860b !important;}
 body.light #cal-legend-panel{background:#fff !important;border-color:#c8d4e8 !important;color:#1a2a4a !important;}
 body.light .mb.me div{color:#fff;}
 body.light #tabs{background:#1a3a8a;}
@@ -560,7 +569,7 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
 <!-- MODALS -->
 <div class="ov" id="evm">
   <div class="mo">
-    <div class="moh"><span class="mot" id="emtit">Add Event</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('evm')">&#10005;</button></div>
+    <div class="moh"><span class="mot" id="emtit">Add Event</span><button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="clM('evm')">&#10005;</button></div>
     <div id="eex"></div><div class="mdi"></div>
     <div style="font-size:10px;color:#aaa;letter-spacing:2px;font-family:Russo One,sans-serif;margin-bottom:8px;">ADD NEW EVENT</div>
     <div class="etr">
@@ -590,7 +599,7 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
 
 <div class="ov" id="gig-detail-modal">
   <div class="mo">
-    <div class="moh" style="position:sticky;top:-18px;background:var(--n2);z-index:5;margin:-18px -14px 12px -14px;padding:14px 14px 10px 14px;border-bottom:1px solid var(--n3);"><span class="mot" id="gd-title">Gig Details</span><button style="background:none;border:none;color:#aaa;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="clM('gig-detail-modal')">&#10005;</button></div>
+    <div class="moh" style="position:sticky;top:-18px;background:var(--n2);z-index:5;margin:-18px -14px 12px -14px;padding:14px 14px 10px 14px;border-bottom:1px solid var(--n3);"><span class="mot" id="gd-title">Gig Details</span><button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="clM('gig-detail-modal')">&#10005;</button></div>
     <div id="gd-body"></div>
   </div>
 </div>
@@ -602,7 +611,7 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
         <div class="mot" id="si-title" style="white-space:normal;line-height:1.15;">Song Info</div>
         <div id="si-artist-display" style="font-size:14px;color:#f5c518;margin-top:4px;font-family:'Exo 2',sans-serif;font-weight:400;"></div>
       </div>
-      <button style="background:none;border:none;color:#aaa;font-size:18px;cursor:pointer;padding:2px 6px;flex-shrink:0;line-height:1;" onclick="clM('song-info-modal')">&#10005;</button>
+      <button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;flex-shrink:0;line-height:1;" onclick="clM('song-info-modal')">&#10005;</button>
     </div>
     <div id="si-body"></div>
     <div class="mdi"></div>
@@ -684,7 +693,7 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
 
 <div class="ov" id="agenda-modal">
   <div class="mo">
-    <div class="moh"><span class="mot" id="agenda-title">Rehearsal Agenda</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('agenda-modal')">&#10005;</button></div>
+    <div class="moh"><span class="mot" id="agenda-title">Rehearsal Agenda</span><button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="clM('agenda-modal')">&#10005;</button></div>
     <p style="font-size:12px;color:#4a6a9a;margin-bottom:12px;">Songs to work on at this rehearsal</p>
     <div id="agenda-list" style="margin-bottom:12px;"></div>
     <div style="display:flex;gap:8px;margin-bottom:8px;">
@@ -699,7 +708,7 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
   <div class="mo" style="max-height:85vh;">
     <div class="moh">
       <span class="mot">🎸 Song Suggestions</span>
-      <button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('votes-modal')">&#10005;</button>
+      <button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="clM('votes-modal')">&#10005;</button>
     </div>
     <p style="font-size:12px;color:#4a6a9a;margin-bottom:12px;">Vote on songs to add to the repertoire. One vote per person.</p>
     <div id="votes-list" style="margin-bottom:12px;"></div>
@@ -718,7 +727,7 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
 
 <div class="ov" id="announce-modal">
   <div class="mo" style="max-height:85vh;display:flex;flex-direction:column;">
-    <div class="moh" style="flex-shrink:0;position:sticky;top:0;background:var(--n2);z-index:5;padding-bottom:8px;"><span class="mot" style="color:#f5c518;">📢 Announcements</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('announce-modal')">&#10005;</button></div>
+    <div class="moh" style="flex-shrink:0;position:sticky;top:0;background:var(--n2);z-index:5;padding-bottom:8px;"><span class="mot" style="color:#f5c518;">📢 Announcements</span><button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="clM('announce-modal')">&#10005;</button></div>
     <div id="ann-view-toggle" style="display:flex;background:#0a1628;border:1px solid #1a3a8a;border-radius:8px;overflow:hidden;margin-bottom:10px;flex-shrink:0;">
       <button type="button" id="ann-tab-active" onclick="setAnnView('active')" style="flex:1;background:#1a3a8a;border:none;color:#fff;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:1px;padding:7px 10px;cursor:pointer;">ACTIVE <span id="ann-tab-active-count" style="opacity:.7;font-size:9px;"></span></button>
       <button type="button" id="ann-tab-dismissed" onclick="setAnnView('dismissed')" style="flex:1;background:transparent;border:none;color:#8aa8d6;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:1px;padding:7px 10px;cursor:pointer;">DISMISSED <span id="ann-tab-dismissed-count" style="opacity:.7;font-size:9px;"></span></button>
@@ -733,7 +742,7 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
 
 <div class="ov" id="contact-modal">
   <div class="mo">
-    <div class="moh"><span class="mot" id="contact-modal-title">Add Contact</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('contact-modal')">&#10005;</button></div>
+    <div class="moh"><span class="mot" id="contact-modal-title">Add Contact</span><button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="clM('contact-modal')">&#10005;</button></div>
     <input class="mi" id="ct-name" placeholder="Name *">
     <input class="mi" id="ct-role" placeholder="Role (Venue, Sound Engineer, Promoter)">
     <input class="mi" id="ct-ph" placeholder="Phone">
@@ -745,7 +754,7 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
 
 <div class="ov" id="mm">
   <div class="mo">
-    <div class="moh"><span class="mot">Add Member</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('mm')">&#10005;</button></div>
+    <div class="moh"><span class="mot">Add Member</span><button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="clM('mm')">&#10005;</button></div>
     <input class="mi" id="mnam" placeholder="Name *">
     <input class="mi" id="mrol" placeholder="Role">
     <button class="sb" onclick="adMem()" style="width:100%">Add to Band</button>
@@ -754,7 +763,7 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
 
 <div class="ov" id="idate-modal">
   <div class="mo">
-    <div class="moh"><span class="mot" id="idate-title">New Important Date</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('idate-modal')">&#10005;</button></div>
+    <div class="moh"><span class="mot" id="idate-title">New Important Date</span><button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="clM('idate-modal')">&#10005;</button></div>
     <div style="margin-bottom:12px;">
       <div style="color:#aaa;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:5px;">TITLE</div>
       <input id="idate-name" class="mi" style="width:100%;margin:0;" placeholder="e.g. Anniversary, Recording session">
@@ -778,9 +787,9 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
     </div>
     <div id="idate-action-row" style="display:flex;gap:8px;">
       <button id="idate-delete-btn" onclick="deleteImportantDate()" style="flex:1;background:#0a1628;border:1px solid #ff4757;border-radius:8px;padding:9px;color:#ff4757;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;display:none;align-items:center;justify-content:center;gap:6px;">
-        <span style="font-size:13px;line-height:1;">&#128465;</span>DELETE
+        <span style="font-size:13px;line-height:1;">&#128465;</span>Delete
       </button>
-      <button onclick="saveImportantDate()" style="flex:1;background:#f5c518;border:none;border-radius:8px;padding:9px;color:#060e1c;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;">SAVE</button>
+      <button onclick="saveImportantDate()" style="flex:1;background:#f5c518;border:none;border-radius:8px;padding:9px;color:#060e1c;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;">Save</button>
     </div>
   </div>
 </div>
@@ -5843,7 +5852,7 @@ function openImportSongsModal(){
     ov.className = 'ov';
     ov.innerHTML =
       '<div class="mo">'+
-        '<div class="moh"><span class="mot" style="color:#f5c518;">Import Songs</span><button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="closeImportSongsModal()">&#10005;</button></div>'+
+        '<div class="moh"><span class="mot" style="color:#f5c518;">Import Songs</span><button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="closeImportSongsModal()">&#10005;</button></div>'+
         '<p style="font-size:12px;color:#8aa8d6;margin-bottom:10px;line-height:1.4;">Paste one song per line. Use <b>Title - Artist</b> format (the dash is optional). Imports apply to your current session only.</p>'+
         '<textarea id="import-songs-textarea" placeholder="Free Bird - Lynyrd Skynyrd&#10;Hotel California - Eagles&#10;Sweet Child O Mine - Guns N Roses" style="width:100%;min-height:180px;background:#060e1c;border:1px solid #1a3a8a;border-radius:8px;padding:10px;color:#e8f0ff;font-family:\'Exo 2\',sans-serif;font-size:13px;outline:none;resize:vertical;box-sizing:border-box;"></textarea>'+
         '<div id="import-songs-preview" style="margin-top:8px;font-size:11px;color:#4a9eff;min-height:14px;"></div>'+
@@ -8885,7 +8894,7 @@ if(savedName&&savedId){
   <div class="mo">
     <div class="moh" style="position:sticky;top:0;background:var(--n2);z-index:5;padding-bottom:8px;">
       <span id="reorder-modal-title" class="mot" style="color:#f5c518;">Arrange Tabs</span>
-      <button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;" onclick="clM('reorder-modal')">&#10005;</button>
+      <button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="clM('reorder-modal')">&#10005;</button>
     </div>
 
     <!-- Default view: tab list -->
