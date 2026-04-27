@@ -98,6 +98,10 @@ body.light #idate-modal [style*="color:#e8f0ff"]{color:#1a2a4a !important;}
 body.light .ov [style*="color:#aaa;font-size:11px"][style*="Russo One"]{color:#1a3a8a !important;}
 body.light .ov [style*="color:#aaa;font-size:9px"][style*="Russo One"]{color:#1a3a8a !important;}
 body.light .ov [style*="color:#aaa;letter-spacing:2px"][style*="Russo One"]{color:#1a3a8a !important;}
+body.light #whats-new-card{background:#fff !important;border-color:#1565c0 !important;}
+body.light #whats-new-card [style*="background:rgba(74,158,255,.08)"]{background:#f0f4ff !important;border-color:#c8d4e8 !important;}
+body.light #whats-new-card [style*="color:#c8d4e6"]{color:#1a2a4a !important;}
+body.light #whats-new-card [style*="color:#8aa8d6"]{color:#5a6a85 !important;}
 body.light .mot[style*="color:#f5c518"],
 body.light .moh .mot[style*="color:#f5c518"]{color:#b8860b !important;}
 /* Drawer event cards have a dark navy background ("island") even in light mode — preserve white/gray text on them */
@@ -569,6 +573,11 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
     <div class="r2"><button class="sb" onclick="adPay()">Add</button><button class="cb" onclick="document.getElementById('pf').style.display='none'">Cancel</button></div>
   </div>
   <button class="ab" onclick="document.getElementById('pf').style.display='flex';document.getElementById('pf').style.flexDirection='column'">+ Log Gig Pay</button>
+
+  <div class="sh" style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;">
+    <span onclick="toggleCard('gig-history-list','gig-history-arrow')" style="cursor:pointer;display:flex;align-items:center;gap:6px;flex:1;"><span class="tt-gold" style="font-size:12px;letter-spacing:2px;font-family:'Russo One',sans-serif;">GIG HISTORY</span><span id="gig-history-arrow" style="color:#f5c518;font-size:14px;font-weight:700;">&#8964;</span><span id="gig-history-count" style="font-size:10px;color:#4a9eff;font-family:'Exo 2',sans-serif;"></span></span>
+  </div>
+  <div id="gig-history-list"></div>
 </div>
 
 </div>
@@ -829,6 +838,19 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
       <input id="prop-note" class="mi" style="width:100%;margin:0;" placeholder="What to focus on">
     </div>
     <button class="sb" onclick="submitProposal()" style="width:100%;">Post Proposal</button>
+  </div>
+</div>
+
+<!-- WHAT'S NEW MODAL -->
+<div id="whats-new-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:9300;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;opacity:0;transition:opacity .18s ease-out;">
+  <div id="whats-new-card" style="background:var(--n2);border:1px solid #4a9eff;border-radius:16px;padding:24px 22px;max-width:440px;width:100%;margin:auto;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 0 1px rgba(74,158,255,.18);transform:scale(.92);opacity:0;transition:transform .2s ease-out,opacity .2s ease-out;">
+    <div style="display:flex;align-items:center;justify-content:center;width:60px;height:60px;border-radius:50%;background:rgba(74,158,255,.16);margin:0 auto 18px;box-shadow:0 0 24px rgba(74,158,255,.25);">
+      <span style="font-size:30px;line-height:1;">✨</span>
+    </div>
+    <div style="font-family:'Russo One',sans-serif;font-size:18px;color:#f5c518;letter-spacing:1.5px;margin-bottom:6px;text-align:center;">WHAT'S NEW</div>
+    <div id="whats-new-version-line" style="font-size:11px;color:#8aa8d6;text-align:center;margin-bottom:18px;font-style:italic;"></div>
+    <div id="whats-new-list" style="margin-bottom:20px;"></div>
+    <button onclick="dismissWhatsNew()" style="width:100%;background:#f5c518;border:none;border-radius:8px;padding:11px;color:#060e1c;font-family:Russo One,sans-serif;font-size:12px;letter-spacing:1.5px;cursor:pointer;font-weight:700;touch-action:manipulation;">GOT IT</button>
   </div>
 </div>
 
@@ -1857,6 +1879,13 @@ function pickName(idx) {
       }
       // Show the welcome flow after a tiny delay so initApp UI settles
       setTimeout(launchWelcomeFlow, 500);
+      // Brand-new members get the welcome flow; they don't also need the
+      // "What's New" modal — mark this version as seen on their behalf.
+      try {
+        if(typeof WHATS_NEW_VERSION !== 'undefined'){
+          localStorage.setItem('oot_whats_new_seen', WHATS_NEW_VERSION);
+        }
+      } catch(_e){}
     }
   } catch(e){}
 }
@@ -2641,6 +2670,8 @@ function initApp() {
       });
     } catch(e){}
   }
+  // Show "What's New" modal once per version
+  if(typeof maybeShowWhatsNew === 'function') maybeShowWhatsNew();
 }
 
 // TAB NAVIGATION
@@ -3201,6 +3232,7 @@ function listenEvents(){
     _eventsHasInit = true;
     rHome();
     if(document.getElementById('sc-cal').classList.contains('on'))rCal();
+    if(document.getElementById('sc-pay').classList.contains('on') && typeof rGigHistory === 'function') rGigHistory();
   });
 }
 var _msgsHasInit = false;
@@ -3968,6 +4000,7 @@ function listenGigDebriefs(){
     snap.forEach(function(doc){
       gigDebriefs[doc.id] = doc.data() || {};
     });
+    if(document.getElementById('sc-pay') && document.getElementById('sc-pay').classList.contains('on') && typeof rGigHistory === 'function') rGigHistory();
   });
 }
 
@@ -4407,6 +4440,10 @@ function toggleCard(contentId, arrowId) {
   // Special case - Proposals: re-render so card content + button visibility update
   if(contentId === 'proposals-list' && typeof rProposals === 'function'){
     rProposals();
+  }
+  // Special case - Gig History: re-render so card content updates after expand
+  if(contentId === 'gig-history-list' && typeof rGigHistory === 'function'){
+    rGigHistory();
   }
 }
 
@@ -9404,6 +9441,101 @@ function rPay(){
       '<div style="text-align:right;flex-shrink:0;"><div style="font-family:Russo One,sans-serif;font-size:15px;color:#f5c518;">$'+net.toLocaleString()+'</div><div style="font-size:10px;color:#4a9eff;">You: $'+(net/members.length).toFixed(2)+'</div></div>' +
       '</div>';
   }).join('') : '<div style="color:#aaa;font-style:italic;padding:8px;">No gigs logged yet.</div>';
+  if(typeof rGigHistory === 'function') rGigHistory();
+}
+
+// ── GIG HISTORY (read-only past gigs view) ─────────────────────────────────
+// Lists all past gigs with debrief vibe + audience + matched pay.
+// Tap a row → navigates to that day in the Calendar tab.
+function rGigHistory(){
+  if(cardStates['gig-history-list'] === undefined) cardStates['gig-history-list'] = true;
+  var collapsed = !!cardStates['gig-history-list'];
+  var el = document.getElementById('gig-history-list');
+  var ar = document.getElementById('gig-history-arrow');
+  var countEl = document.getElementById('gig-history-count');
+  if(!el) return;
+  if(ar) ar.innerHTML = '&#8964;';
+  el.style.display = collapsed ? 'none' : 'block';
+  // Filter past gigs
+  var pastGigs = events.filter(function(e){
+    return e.type === 'gig' && _isPastGig(e);
+  }).sort(function(a,b){
+    return b.date.localeCompare(a.date); // newest first
+  });
+  if(countEl) countEl.textContent = pastGigs.length ? ' — ' + pastGigs.length : '';
+  if(collapsed) return;
+  if(!pastGigs.length){
+    el.innerHTML = '<div style="color:#aaa;font-style:italic;padding:8px;font-size:13px;">No past gigs yet.</div>';
+    return;
+  }
+  el.innerHTML = '';
+  var vibeEmojis = {down:'\uD83D\uDC4E', meh:'\uD83D\uDC4C', good:'\uD83D\uDC4D', fire:'\uD83D\uDD25'};
+  var audLabels = {small:'Small', medium:'Medium', large:'Large', packed:'Packed'};
+  pastGigs.forEach(function(ev){
+    var dbf = (typeof gigDebriefs !== 'undefined' && gigDebriefs[String(ev.id)]) || {};
+    var det = (typeof gigDetails !== 'undefined' && gigDetails[String(ev.id)]) || {};
+    var venue = det.venue || ev.title || 'Untitled';
+    // Try to match a pay log entry by venue substring + date
+    var matchedPay = pay.find(function(p){
+      if(p.date !== ev.date) return false;
+      var pv = (p.venue||'').toLowerCase();
+      var ev_v = venue.toLowerCase();
+      return pv && ev_v && (pv.indexOf(ev_v) >= 0 || ev_v.indexOf(pv) >= 0);
+    });
+    var net = matchedPay ? ((matchedPay.gross||0) - (matchedPay.exp||0)) : null;
+    // Pretty date
+    var dateLabel = ev.date;
+    var dateObj = null;
+    try {
+      var dParsed = new Date(ev.date + 'T00:00:00');
+      if(!isNaN(dParsed.getTime())){
+        dateLabel = dParsed.toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'});
+        dateObj = dParsed;
+      }
+    } catch(e){}
+    var card = document.createElement('div');
+    card.style.cssText = 'background:#101e34;border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;cursor:pointer;border-left:3px solid #f5c518;touch-action:manipulation;';
+    var vibeIcon = dbf.vibe && vibeEmojis[dbf.vibe] ? vibeEmojis[dbf.vibe] : '';
+    var audLabel = dbf.audience && audLabels[dbf.audience] ? audLabels[dbf.audience] : '';
+    // Build sub-line from debrief metadata
+    var subBits = [];
+    if(audLabel) subBits.push(audLabel + ' crowd');
+    if(!dbf.vibe && !dbf.audience && !dbf.well && !dbf.poorly && !dbf.payment){
+      subBits.push('No notes yet');
+    }
+    var leftCol = '<div style="flex-shrink:0;width:36px;height:36px;border-radius:8px;background:rgba(245,197,24,.1);display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;">' +
+      (vibeIcon || '<span style="color:#f5c518;font-size:14px;font-family:Russo One,sans-serif;">' + (dateObj ? dateObj.getDate() : '?') + '</span>') +
+      '</div>';
+    var midCol = '<div style="flex:1;min-width:0;">' +
+      '<div style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + venue + '</div>' +
+      '<div style="font-size:11px;color:#8aa8d6;margin-top:2px;">' + dateLabel + (subBits.length ? ' · ' + subBits.join(' · ') : '') + '</div>' +
+    '</div>';
+    var rightCol = '<div style="text-align:right;flex-shrink:0;">' +
+      (net !== null ? '<div style="font-family:Russo One,sans-serif;font-size:13px;color:#f5c518;">$' + net.toLocaleString() + '</div>' : '') +
+      (net !== null ? '<div style="font-size:10px;color:#8aa8d6;">net</div>' : '<div style="font-size:10px;color:#8aa8d6;font-style:italic;">no pay</div>') +
+    '</div>';
+    card.innerHTML = leftCol + midCol + rightCol;
+    card.onclick = (function(date, evid){ return function(){
+      // Navigate to Calendar tab and open that day's drawer
+      _gotoTab('cal');
+      // Set view to that month if needed
+      try {
+        var dd = new Date(date + 'T00:00:00');
+        if(!isNaN(dd.getTime())){
+          if(typeof CY !== 'undefined' && typeof CM !== 'undefined'){
+            CY = dd.getFullYear();
+            CM = dd.getMonth();
+          }
+          if(typeof rCal === 'function') rCal();
+          // Open drawer
+          setTimeout(function(){
+            if(typeof oDy === 'function') oDy(dd.getDate());
+          }, 200);
+        }
+      } catch(e){}
+    };})(ev.date, ev.id);
+    el.appendChild(card);
+  });
 }
 function adPay(){
   var v=document.getElementById('pv').value.trim(),g=parseFloat(document.getElementById('pg').value)||0,e=parseFloat(document.getElementById('pe').value)||0;
@@ -9470,6 +9602,72 @@ try {
     localStorage.setItem('oot_repick_version', FORCE_REPICK_VERSION);
   }
 } catch(e){}
+
+// ── WHAT'S NEW BANNER ─────────────────────────────────────────────────────
+// Bump WHATS_NEW_VERSION when shipping notable features. Each device sees
+// the modal exactly once per version. Items are rendered as a bulleted list.
+var WHATS_NEW_VERSION = '2026-04-27-r1';
+var WHATS_NEW_ITEMS = [
+  {emoji:'🎤', title:'Propose rehearsals', body:'Calendar tab → tap "+ Propose Rehearsal." Vote Yes/Maybe/No on dates. Confirm to add to the calendar.'},
+  {emoji:'📝', title:'Post-show notes', body:'Tap any past gig in Calendar → add vibe, audience size, payment notes, what worked, what didn\'t.'},
+  {emoji:'📤', title:'Smarter sharing', body:'Calendar → .ics for your phone. Setlists → .csv for Excel or .rtf for Word. All Share buttons updated.'}
+];
+
+function showWhatsNew(){
+  var listEl = document.getElementById('whats-new-list');
+  var verEl = document.getElementById('whats-new-version-line');
+  var ov = document.getElementById('whats-new-overlay');
+  var card = document.getElementById('whats-new-card');
+  if(!listEl || !ov || !card) return;
+  if(verEl) verEl.textContent = 'Updated ' + WHATS_NEW_VERSION;
+  listEl.innerHTML = '';
+  WHATS_NEW_ITEMS.forEach(function(item){
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:12px;align-items:flex-start;padding:10px;background:rgba(74,158,255,.08);border:1px solid rgba(74,158,255,.18);border-radius:10px;margin-bottom:8px;';
+    row.innerHTML =
+      '<div style="font-size:22px;line-height:1;flex-shrink:0;margin-top:1px;">'+item.emoji+'</div>'+
+      '<div style="flex:1;min-width:0;">'+
+        '<div style="font-family:Russo One,sans-serif;font-size:12px;color:#f5c518;letter-spacing:1px;margin-bottom:4px;">'+item.title.toUpperCase()+'</div>'+
+        '<div style="font-size:13px;color:#c8d4e6;line-height:1.45;">'+item.body+'</div>'+
+      '</div>';
+    listEl.appendChild(row);
+  });
+  ov.style.display = 'flex';
+  // Animate in
+  requestAnimationFrame(function(){
+    ov.style.opacity = '1';
+    card.style.transform = 'scale(1)';
+    card.style.opacity = '1';
+  });
+}
+
+function dismissWhatsNew(){
+  var ov = document.getElementById('whats-new-overlay');
+  var card = document.getElementById('whats-new-card');
+  if(!ov) return;
+  ov.style.opacity = '0';
+  if(card){ card.style.transform = 'scale(.92)'; card.style.opacity = '0'; }
+  setTimeout(function(){ ov.style.display = 'none'; }, 200);
+  try { localStorage.setItem('oot_whats_new_seen', WHATS_NEW_VERSION); } catch(e){}
+}
+
+// Show banner if version differs from last seen.
+// Wait briefly so we don't compete with welcome flow / name picker / etc.
+function maybeShowWhatsNew(){
+  try {
+    var seenVer = localStorage.getItem('oot_whats_new_seen');
+    if(seenVer === WHATS_NEW_VERSION) return;
+    // Don't show if name picker is up
+    var picker = document.getElementById('name-picker-overlay');
+    if(picker && picker.style.display !== 'none' && picker.style.display !== '') return;
+    setTimeout(function(){
+      // Re-check picker on the delayed callback
+      var picker2 = document.getElementById('name-picker-overlay');
+      if(picker2 && picker2.style.display !== 'none' && picker2.style.display !== '') return;
+      showWhatsNew();
+    }, 1500);
+  } catch(e){}
+}
 
 var savedName=localStorage.getItem('oot_me');
 var savedId=localStorage.getItem('oot_me_id');
