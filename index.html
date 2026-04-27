@@ -5402,8 +5402,30 @@ function rChatThreads(){
     row.onclick=(function(tid){ return function(){ openThread(tid); }; })(t.id);
 
     var av=document.createElement('div');
-    av.style.cssText='width:48px;height:48px;border-radius:50%;background:'+richGrad(t.color)+';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#000;flex-shrink:0;position:relative;font-family:Russo One,sans-serif;letter-spacing:.5px;box-shadow:0 0 18px '+t.color+'44, inset 0 -3px 8px rgba(0,0,0,.18);';
-    av.textContent=t.av;
+    if(isBand){
+      // Band Chat avatar = 3x2 grid of 6 mini member character icons
+      av.style.cssText='width:48px;height:48px;border-radius:50%;background:'+richGrad(t.color)+';display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:1px;padding:4px;flex-shrink:0;position:relative;box-shadow:0 0 18px '+t.color+'44, inset 0 -3px 8px rgba(0,0,0,.18);overflow:hidden;';
+      // Grab up to 6 members (skip ME for ordering convenience? keep all 6)
+      var bandMembers = members.slice(0, 6);
+      bandMembers.forEach(function(bm){
+        var key = (typeof _instrIconKey === 'function') ? _instrIconKey(bm) : null;
+        if(key && INSTR_IMG[key]){
+          var mini = document.createElement('img');
+          mini.src = INSTR_IMG[key];
+          mini.alt = '';
+          mini.style.cssText = 'width:100%;height:100%;object-fit:contain;display:block;';
+          av.appendChild(mini);
+        } else {
+          // Placeholder dot if image missing
+          var ph = document.createElement('div');
+          ph.style.cssText = 'width:100%;height:100%;background:rgba(0,0,0,.2);';
+          av.appendChild(ph);
+        }
+      });
+    } else {
+      av.style.cssText='width:48px;height:48px;border-radius:50%;background:'+richGrad(t.color)+';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#000;flex-shrink:0;position:relative;font-family:Russo One,sans-serif;letter-spacing:.5px;box-shadow:0 0 18px '+t.color+'44, inset 0 -3px 8px rgba(0,0,0,.18);';
+      av.textContent=t.av;
+    }
     if(unread>0){
       var badge=document.createElement('div');
       badge.style.cssText='position:absolute;top:-3px;right:-3px;background:#ff4757;color:#fff;font-size:10px;font-weight:700;border-radius:50%;min-width:20px;height:20px;padding:0 5px;display:flex;align-items:center;justify-content:center;border:2px solid #060e1c;font-family:Russo One,sans-serif;';
@@ -5663,6 +5685,53 @@ function instrumentIconSvg(member){
 }
 
 
+
+// ── Member instrument lightbox ────────────────────────────────────
+var _memLightboxTimer = null;
+function showMemberLightbox(member){
+  if(!member) return;
+  var key = (typeof _instrIconKey === 'function') ? _instrIconKey(member) : null;
+  if(!key || !INSTR_IMG[key]) return;
+  var ov = document.getElementById('member-lightbox');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id = 'member-lightbox';
+    ov.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:rgba(0,0,0,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:9500;display:none;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;opacity:0;transition:opacity .18s ease-out;';
+    var card = document.createElement('div');
+    card.id = 'member-lightbox-card';
+    card.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:10px;transform:scale(.6);opacity:0;transition:transform .2s ease-out,opacity .2s ease-out;cursor:pointer;';
+    card.innerHTML =
+      '<img id="member-lightbox-img" src="" alt="" style="width:260px;height:260px;max-width:90vw;max-height:60vh;object-fit:contain;display:block;filter:drop-shadow(0 8px 28px rgba(0,0,0,.55));"/>'+
+      '<div id="member-lightbox-name" style="font-family:\'Russo One\',sans-serif;font-size:20px;color:#fff;letter-spacing:.5px;text-shadow:0 2px 8px rgba(0,0,0,.6);"></div>'+
+      '<div id="member-lightbox-inst" style="font-size:13px;color:#4a9eff;font-family:\'Russo One\',sans-serif;letter-spacing:1px;"></div>';
+    ov.appendChild(card);
+    ov.onclick = function(){ hideMemberLightbox(); };
+    document.body.appendChild(ov);
+  }
+  document.getElementById('member-lightbox-img').src = INSTR_IMG[key];
+  document.getElementById('member-lightbox-name').textContent = member.name || '';
+  document.getElementById('member-lightbox-inst').textContent = (member.inst || '').toUpperCase();
+  ov.style.display = 'flex';
+  // animate in
+  requestAnimationFrame(function(){
+    ov.style.opacity = '1';
+    var card = document.getElementById('member-lightbox-card');
+    if(card){ card.style.transform = 'scale(1)'; card.style.opacity = '1'; }
+  });
+  // 8s auto-close fallback
+  if(_memLightboxTimer) clearTimeout(_memLightboxTimer);
+  _memLightboxTimer = setTimeout(hideMemberLightbox, 8000);
+}
+function hideMemberLightbox(){
+  var ov = document.getElementById('member-lightbox');
+  if(!ov || ov.style.display === 'none') return;
+  if(_memLightboxTimer){ clearTimeout(_memLightboxTimer); _memLightboxTimer = null; }
+  var card = document.getElementById('member-lightbox-card');
+  ov.style.opacity = '0';
+  if(card){ card.style.transform = 'scale(.6)'; card.style.opacity = '0'; }
+  setTimeout(function(){ ov.style.display = 'none'; }, 200);
+}
+
 function rBand() {
   // Contacts open by default
   if(cardStates['contacts-list']===undefined) cardStates['contacts-list']=false;
@@ -5684,20 +5753,35 @@ function rBand() {
     var bdayBadge = bdayToday
       ? '<span title="Birthday today!" style="font-size:14px;flex-shrink:0;text-shadow:0 0 8px rgba(245,197,24,.6);">&#127874;</span>'
       : '';
+    // Build header in two parts: clickable expander zone (avatar+name) and
+    // the instrument cluster which has its own tap-to-enlarge handler.
     header.innerHTML =
       '<div class="avmd" style="background:'+richGrad(m.color)+';width:34px;height:34px;font-size:12px;flex-shrink:0;box-shadow:0 0 14px '+m.color+'55, inset 0 -2px 6px rgba(0,0,0,.2);font-family:Russo One,sans-serif;">'+m.av+'</div>'+
       '<div style="flex:1;min-width:0;display:flex;align-items:center;gap:6px;">'+
         '<span style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'+nameGradStyle(m.color)+'">'+m.name+'</span>'+
         bdayBadge+
       '</div>'+
-      '<span style="display:inline-flex;align-items:center;gap:6px;flex-shrink:0;margin-left:14px;margin-right:10px;">'+instrumentIconSvg(m)+'<span style="font-size:12px;color:#4a9eff;font-family:Russo One,sans-serif;letter-spacing:.5px;">'+m.inst+'</span></span>'+
-      '<span style="color:#4a9eff;font-size:14px;flex-shrink:0;">'+(isOpen?'&#8963;':'&#8964;')+'</span>';
+      '<span class="mem-instr-cluster" data-mid="'+m.id+'" title="Tap to enlarge" style="display:inline-flex;align-items:center;gap:6px;flex-shrink:0;margin-left:14px;margin-right:6px;cursor:pointer;padding:4px 6px;border-radius:8px;transition:background .15s;">'+instrumentIconSvg(m)+'<span style="font-size:12px;color:#4a9eff;font-family:Russo One,sans-serif;letter-spacing:.5px;">'+m.inst+'</span></span>';
     header.setAttribute('data-mid', m.id);
-    header.onclick = function(){
+    header.onclick = function(ev){
+      // If the click came from inside the instrument cluster, ignore (cluster handles it)
+      var clusterEl = ev.target.closest && ev.target.closest('.mem-instr-cluster');
+      if(clusterEl) return;
       var mid = this.getAttribute('data-mid');
       cardStates['mem_'+mid] = !cardStates['mem_'+mid];
       rBand();
     };
+    // Wire the instrument cluster tap → lightbox
+    var clusterEl = header.querySelector('.mem-instr-cluster');
+    if(clusterEl){
+      clusterEl.onclick = (function(memId){ return function(ev){
+        ev.stopPropagation();
+        var mem = members.find(function(x){ return x.id == memId; });
+        if(mem) showMemberLightbox(mem);
+      }; })(m.id);
+      clusterEl.onmouseover = function(){ this.style.background = 'rgba(74,158,255,.08)'; };
+      clusterEl.onmouseout = function(){ this.style.background = ''; };
+    }
     card.appendChild(header);
 
     // Detail section - shown when expanded
