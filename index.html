@@ -865,6 +865,17 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
 
 <script>
 "use strict";
+// ── KNOWN DEAD CODE (future cleanup) ──────────────────────────────────
+// As of 2026-04-27, a regex scan found ~28 functions with no apparent callers
+// (e.g. mvS, setChatTo, toggleNotifSettings, adLibSong, toggleMems, edS,
+// _subDocId, nMo, rChatTo, toggleReorderMode, addMyAvail, submitAvail,
+// clearSearch, urlB64ToUint8Array, saveEditEv, registerServiceWorker, pMo,
+// deleteThread, openAgenda, togglePrivacySettings, deleteEvent,
+// showNewEventForm, renSL, cnfDel, showGigDetail).
+// SOME may be called via dynamic patterns the scan can't see (string-built
+// onclick handlers, service-worker registration, etc). DO NOT mass-delete.
+// Each candidate needs individual verification before removal.
+
 // ── Read Receipts feature flag ────────────────────────────────────────
 // Set READ_RECEIPTS_ENABLED to true and READ_RECEIPTS_ENABLED_AT to Date.now()
 // to flip the feature on. Eyeball indicator only shows on messages posted
@@ -4625,39 +4636,6 @@ function toggleMems() {
   document.getElementById('mem-list').style.display = memsOpen ? 'block' : 'none';
   document.getElementById('mem-arrow').innerHTML = memsOpen ? '&#8963;' : '&#8964;';
 }
-function memTap(e, id) {
-  e.stopPropagation();
-  var m = gM(id);
-  if (!m) return;
-  appConfirm({
-    title: m.name,
-    message: 'Open a chat with ' + (m.name||'').split(' ')[0] + ' or view their contact info?',
-    okLabel: 'CHAT',
-    cancelLabel: 'CONTACT INFO',
-    destructive: false
-  }).then(function(choice){
-    if (choice) {
-      chatTo = id;
-      document.querySelectorAll('.sc').forEach(function(s){s.classList.remove('on');});
-      document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('on');});
-      document.getElementById('sc-chat').classList.add('on');
-      document.querySelectorAll('.tb').forEach(function(b){if(b.textContent.trim().indexOf('Chat')>=0)b.classList.add('on');});
-      rChatTo(); rChat();
-    } else {
-      document.querySelectorAll('.sc').forEach(function(s){s.classList.remove('on');});
-      document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('on');});
-      document.getElementById('sc-band').classList.add('on');
-      document.querySelectorAll('.tb').forEach(function(b){if(b.textContent.trim().indexOf('Band')>=0)b.classList.add('on');});
-      rBand(); rContacts();
-    setTimeout(function(){
-      var idx = members.findIndex(function(x){return x.id===id;});
-      var cards = document.querySelectorAll('#ml .mc');
-      if(cards[idx]) cards[idx].scrollIntoView({behavior:'smooth'});
-    }, 100);
-    }
-  });
-}
-
 // CALENDAR
 function rCal() {
   if(cardStates['important-dates-list'] === undefined) cardStates['important-dates-list'] = true;
