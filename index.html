@@ -1985,7 +1985,17 @@ function go(id, btn) {
     markTabSeen('chat');
     showChatList();
   }
-  else if (id === 'band') { cardStates['contacts-list'] = true; rBand(); rContacts(); }
+  else if (id === 'band') {
+    // Always collapse Contacts when entering the Band tab
+    cardStates['contacts-list'] = true;
+    rBand();
+    rContacts();
+    // Force the visible state to match (toggleCard isn't being called)
+    var _cl = document.getElementById('contacts-list');
+    if(_cl) _cl.style.display = 'none';
+    var _cab = document.getElementById('contacts-add-btn');
+    if(_cab) _cab.style.display = 'none';
+  }
   else if (id === 'songs') { markTabSeen('songs'); rLib(); rVotes(); updateVoteBadge(); }
   else if (id === 'pay') rPay();
 }
