@@ -86,6 +86,10 @@ body.light #cal-drawer{background:#fff !important;border-color:#c8d4e8 !importan
 body.light #cal-legend-btn{border-color:#1a3a8a !important;color:#1a3a8a !important;}
 body.light #cal-share-btn{border-color:#1a3a8a !important;color:#1a3a8a !important;}
 body.light #pay-share-btn{border-color:#1a3a8a !important;color:#1a3a8a !important;}
+body.light #si-edit-label{color:#1a3a8a !important;}
+body.light #si-artist-display{color:#b8860b !important;}
+body.light #song-info-modal [style*="border-bottom:1px solid #0d1f3a"]{border-bottom-color:#d0daf0 !important;}
+body.light #library-list > div{border-bottom-color:#d0daf0 !important;}
 body.light #cal-legend-panel{background:#fff !important;border-color:#c8d4e8 !important;color:#1a2a4a !important;}
 body.light .mb.me div{color:#fff;}
 body.light #tabs{background:#1a3a8a;}
@@ -594,14 +598,14 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
   <div class="mo">
     <div class="moh" style="position:sticky;top:-18px;background:var(--n2);z-index:5;margin:-18px -14px 12px -14px;padding:14px 14px 10px 14px;border-bottom:1px solid var(--n3);align-items:flex-start;">
       <div style="flex:1;min-width:0;">
-        <div class="mot" id="si-title" style="white-space:normal;line-height:1.15;background:linear-gradient(135deg,#67e8f9 0%,#ffffff 50%,#67e8f9 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 18px rgba(103,232,249,.55), 0 0 6px rgba(103,232,249,.85);">Song Info</div>
+        <div class="mot" id="si-title" style="white-space:normal;line-height:1.15;">Song Info</div>
         <div id="si-artist-display" style="font-size:14px;color:#f5c518;margin-top:4px;font-family:'Exo 2',sans-serif;font-weight:400;"></div>
       </div>
       <button style="background:none;border:none;color:#aaa;font-size:18px;cursor:pointer;padding:2px 6px;flex-shrink:0;line-height:1;" onclick="clM('song-info-modal')">&#10005;</button>
     </div>
     <div id="si-body"></div>
     <div class="mdi"></div>
-    <div style="font-family:Russo One,sans-serif;font-size:9px;letter-spacing:2px;color:#4a6a9a;margin-bottom:10px;">EDIT DETAILS</div>
+    <div id="si-edit-label" style="font-family:Russo One,sans-serif;font-size:9px;letter-spacing:2px;color:#4a6a9a;margin-bottom:10px;">EDIT DETAILS</div>
     <div style="padding:10px 0;border-bottom:1px solid #0d1f3a;">
       <div style="color:#aaa;font-size:13px;margin-bottom:6px;">Title</div>
       <input id="si-title-edit" class="mi" style="width:100%;margin:0;font-size:13px;" placeholder="Song title">
@@ -2671,6 +2675,34 @@ function openInMaps(address){
   var url = isIOS ? ('https://maps.apple.com/?q='+q) : ('https://www.google.com/maps/search/?api=1&query='+q);
   window.open(url, '_blank');
 }
+
+// Mode-aware style helpers for song title + artist text (used in library list and song-info modal)
+function _songTitleStyle(){
+  if(document.body.classList.contains('light')){
+    return 'background:linear-gradient(135deg,#0d2050 0%,#1a3a8a 50%,#2563d6 100%);'
+         + '-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;'
+         + 'font-weight:700;';
+  }
+  return 'background:linear-gradient(135deg,#67e8f9 0%,#ffffff 50%,#67e8f9 100%);'
+       + '-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;'
+       + 'text-shadow:0 0 18px rgba(103,232,249,.55), 0 0 6px rgba(103,232,249,.85);font-weight:700;';
+}
+function _songArtistStyle(){
+  if(document.body.classList.contains('light')){
+    return 'background:linear-gradient(135deg,#0c447c 0%,#185fa5 50%,#1f5fb5 100%);'
+         + '-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;';
+  }
+  return 'background:linear-gradient(135deg,#2563d6 0%,#4a9eff 50%,#7ed4ff 100%);'
+       + '-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;';
+}
+// Apply mode-aware gradient to the song-info modal title element.
+function _applySITitle(text){
+  var el = document.getElementById('si-title');
+  if(!el) return;
+  el.textContent = text;
+  el.style.cssText = 'white-space:normal;line-height:1.15;' + _songTitleStyle();
+}
+
 function isBirthdayToday(bday){
   if(!bday) return false;
   // Accept YYYY-MM-DD; compare MM-DD only so year doesn't matter
@@ -8344,7 +8376,7 @@ function rLib() {
     row.style.cssText='display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid #0d1f3a;';
     var titleDiv=document.createElement('div');
     titleDiv.style.cssText='flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;';
-    titleDiv.innerHTML='<span style="font-size:16px;font-weight:700;background:linear-gradient(135deg,#67e8f9 0%,#ffffff 50%,#67e8f9 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 18px rgba(103,232,249,.55), 0 0 6px rgba(103,232,249,.85);">'+s.title+'</span>'+(s.artist?'<span style="font-size:14px;background:linear-gradient(135deg,#2563d6 0%,#4a9eff 50%,#7ed4ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;"> - '+s.artist+'</span>':'')+'';
+    titleDiv.innerHTML='<span style="font-size:16px;'+_songTitleStyle()+'">'+s.title+'</span>'+(s.artist?'<span style="font-size:14px;'+_songArtistStyle()+'"> - '+s.artist+'</span>':'')+'';
     titleDiv.onclick=(function(song){ return function(){ showSongInfo(song.id); }; })(s);
     var playBtn=document.createElement('button');
     playBtn.style.cssText='background:none;border:none;cursor:pointer;flex-shrink:0;padding:4px 6px;display:flex;align-items:center;line-height:1;';
@@ -8369,7 +8401,7 @@ function showAddSongForm(){
   // Open the song info modal in "add" mode
   editingSongId = null;
   editingSongKeys = false;
-  document.getElementById('si-title').textContent = 'Add New Song';
+  _applySITitle('Add New Song');
   var artistEl = document.getElementById('si-artist-display');
   if(artistEl) artistEl.textContent = '';
   document.getElementById('si-body').innerHTML = '';
@@ -8624,7 +8656,7 @@ function saveSongInfo(){
     s.notes = newBandNotes;
   }
   // Update modal title display
-  document.getElementById('si-title').textContent = newTitle || s.title;
+  _applySITitle(newTitle || s.title);
   var artistDisp = document.getElementById('si-artist-display');
   if(artistDisp) artistDisp.textContent = newArtist || (s ? (s.artist||'') : '');
   db.collection('songdetails').doc(String(editingSongId)).set(det);
@@ -8679,7 +8711,7 @@ function showSongInfo(id) {
   var s=library.find(function(x){return x.id===id;});if(!s)return;
   editingSongId = id;
   var det = songDetails[String(id)] || {};
-  document.getElementById('si-title').textContent=s.title;
+  _applySITitle(s.title);
   var artistEl = document.getElementById('si-artist-display');
   if(artistEl) artistEl.textContent = s.artist || '';
   var b=document.getElementById('si-body');
