@@ -2814,6 +2814,44 @@ body.light #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-detai
   #sc-cal #calendar-hero-date-row .mlbl{font-size:20.8px !important;}
 }
 
+
+/* r242: Calendar header kebab fix. Scope: Calendar key dropdown only. */
+#sc-cal #calendar-hero{position:relative;}
+#sc-cal #cal-legend-panel.cal-legend-row{
+  position:absolute !important;
+  top:54px !important;
+  right:18px !important;
+  z-index:80 !important;
+  width:min(255px, calc(100% - 34px)) !important;
+  display:none !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+  justify-content:flex-start !important;
+  gap:7px !important;
+  padding:10px 11px !important;
+  margin:0 !important;
+  overflow:visible !important;
+  border-radius:16px !important;
+  background:linear-gradient(135deg,rgba(5,18,48,.98),rgba(9,31,78,.98)) !important;
+  border:1px solid rgba(74,158,255,.46) !important;
+  box-shadow:0 14px 30px rgba(0,0,0,.42),0 0 20px rgba(0,128,255,.22),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#sc-cal #cal-legend-panel.cal-legend-row.cal-legend-open{display:flex !important;}
+#sc-cal #cal-legend-panel.cal-legend-row .cal-legend-item{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:9px !important;
+  width:100% !important;
+  min-height:28px !important;
+  font-size:10px !important;
+  letter-spacing:1px !important;
+}
+#sc-cal #cal-legend-panel.cal-legend-row .cal-legend-ico{min-width:24px !important;}
+#sc-cal #calendar-hero-menu-btn[aria-expanded="true"]{color:#f5c518 !important;border-color:rgba(245,197,24,.64) !important;box-shadow:0 0 14px rgba(245,197,24,.22),inset 0 1px 0 rgba(255,255,255,.06) !important;}
+body.light #sc-cal #cal-legend-panel.cal-legend-row{background:#fff !important;border-color:#c8d4e8 !important;box-shadow:0 14px 30px rgba(20,40,80,.18) !important;}
+body.light #sc-cal #calendar-hero-menu-btn[aria-expanded="true"]{color:#b8860b !important;border-color:#d4a017 !important;}
+
 </style>
 </head>
 <body>
@@ -2880,7 +2918,7 @@ body.light #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-detai
 <div id="sc-cal" class="sc cal-header-fit">
   <div id="calendar-hero" class="oot-hero-tab cal-hero-tab" aria-label="Calendar header">
     <div class="oot-hero-actions">
-      <button id="calendar-hero-menu-btn" type="button" title="Calendar key" aria-label="Calendar key" onclick="toggleCalLegend()">&#8942;</button>
+      <button id="calendar-hero-menu-btn" type="button" title="Calendar key" aria-label="Calendar key" aria-controls="cal-legend-panel" aria-expanded="false" onclick="toggleCalLegend()">&#8942;</button>
     </div>
     <div class="oot-hero-inner">
       <img src="Logo.png?v=r235" class="oot-hero-logo" alt="Out of Time">
@@ -11387,9 +11425,10 @@ function saveMember(name,data){return db.collection('members').doc(name).set(dat
 // COLLAPSIBLE CARDS
 function toggleCalLegend(){
   var p = document.getElementById('cal-legend-panel');
-  var b = document.getElementById('cal-legend-btn');
+  var b = document.getElementById('calendar-hero-menu-btn') || document.getElementById('cal-legend-btn');
   if(!p) return;
-  var open = (p.style.display === 'none' || !p.style.display);
+  var open = !(p.classList && p.classList.contains('cal-legend-open'));
+  if(p.classList) p.classList.toggle('cal-legend-open', open);
   p.style.display = open ? 'flex' : 'none';
   if(b) b.setAttribute('aria-expanded', open ? 'true' : 'false');
 }
@@ -18667,7 +18706,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-calendar-month-year-size-no-arrows-r241';
+var WHATS_NEW_VERSION = '2026-05-05-calendar-kebab-key-fix-r242';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
