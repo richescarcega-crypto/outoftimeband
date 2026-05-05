@@ -3401,6 +3401,53 @@ body.light #sc-cal .dc.has-blackout .dn{
   box-shadow:none !important;
 }
 
+
+/* r254: Calendar month alignment/gold lock + return-icon horizontal placement.
+   Scope: Calendar header only. */
+#sc-cal #calendar-hero-today{
+  /* Same vertical position as r253; moved left to center between the key and the Calendar title's "r". */
+  right:76px !important;
+}
+#sc-cal #calendar-hero-date-row #calendar-hero-date-nav{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+#sc-cal #calendar-hero-date-row .calendar-hero-month-stack{
+  justify-content:center !important;
+  transform:translateY(-2px) !important;
+}
+#sc-cal #calendar-hero-date-row .mlbl{
+  font-size:clamp(29px,7.75vw,39px) !important;
+  letter-spacing:clamp(.35px,.16vw,1.05px) !important;
+  line-height:.95 !important;
+  background:none !important;
+  color:#f5c518 !important;
+  -webkit-text-fill-color:#f5c518 !important;
+  text-shadow:
+    0 1px 0 rgba(255,244,190,.16),
+    0 2px 4px rgba(0,0,0,.68),
+    0 0 15px rgba(245,197,24,.42) !important;
+}
+@media (max-width:420px){
+  #sc-cal #calendar-hero-today{
+    right:68px !important;
+  }
+  #sc-cal #calendar-hero-date-row .calendar-hero-month-stack{
+    transform:translateY(-1px) !important;
+  }
+  #sc-cal #calendar-hero-date-row .mlbl{
+    font-size:clamp(27.5px,7.25vw,36px) !important;
+    letter-spacing:clamp(.25px,.12vw,.80px) !important;
+  }
+}
+body.light #sc-cal #calendar-hero-date-row .mlbl{
+  background:none !important;
+  color:#a87400 !important;
+  -webkit-text-fill-color:#a87400 !important;
+  text-shadow:none !important;
+}
+
 </style>
 </head>
 <body>
