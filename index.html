@@ -2861,6 +2861,42 @@ body.light #sc-cal #calendar-hero-menu-btn[aria-expanded="true"]{color:#b8860b !
 #sc-cal #calendar-hero-menu-btn .calendar-key-img{width:18px !important;height:18px !important;object-fit:contain !important;display:block !important;transform:rotate(45deg) !important;transform-origin:center center !important;filter:drop-shadow(0 0 8px rgba(245,197,24,.54)) !important;pointer-events:none !important;user-select:none !important;-webkit-user-drag:none !important;}
 #sc-cal #calendar-hero-menu-btn[aria-expanded="true"]{background:transparent !important;border:0 !important;box-shadow:none !important;}
 #sc-cal #calendar-hero-menu-btn[aria-expanded="true"] .calendar-key-img{filter:drop-shadow(0 0 12px rgba(245,197,24,.85)) !important;}
+
+
+/* r248: Calendar Month/Today behavior only.
+   Current month: hide Today and vertically center enlarged Month/Year.
+   Non-current month: show a smaller Today pill and keep Month/Year in its prior stacked position. */
+#sc-cal #calendar-hero-today{
+  min-width:47px !important;
+  height:17px !important;
+  padding:0 7px !important;
+  font-size:8px !important;
+  letter-spacing:0 !important;
+  line-height:1 !important;
+}
+#sc-cal.cal-current-month #calendar-hero-today{
+  display:none !important;
+}
+#sc-cal.cal-current-month #calendar-hero-date-row .calendar-hero-month-stack{
+  gap:0 !important;
+  transform:none !important;
+  justify-content:center !important;
+}
+#sc-cal.cal-current-month #calendar-hero-date-row .mlbl{
+  font-size:26.9px !important;
+  line-height:1.1 !important;
+}
+@media (max-width:420px){
+  #sc-cal #calendar-hero-today{
+    min-width:44px !important;
+    height:15px !important;
+    padding:0 6px !important;
+    font-size:7px !important;
+  }
+  #sc-cal.cal-current-month #calendar-hero-date-row .mlbl{
+    font-size:23.9px !important;
+  }
+}
 body.light #sc-cal #calendar-hero-menu-btn{background:transparent !important;border:0 !important;box-shadow:none !important;}
 
 
@@ -11933,6 +11969,15 @@ function rCal() {
   var prevRendered = rCal._lastRendered;
   rCal._lastRendered = CY + '-' + CM;
   document.getElementById('mlbl').textContent = MO[CM].toUpperCase() + ' ' + CY;
+  var _r248Now = new Date();
+  var _r248IsCurrentMonth = (CY === _r248Now.getFullYear() && CM === _r248Now.getMonth());
+  var _r248Cal = document.getElementById('sc-cal');
+  if(_r248Cal) _r248Cal.classList.toggle('cal-current-month', _r248IsCurrentMonth);
+  var _r248Today = document.getElementById('calendar-hero-today');
+  if(_r248Today){
+    _r248Today.setAttribute('aria-hidden', _r248IsCurrentMonth ? 'true' : 'false');
+    _r248Today.tabIndex = _r248IsCurrentMonth ? -1 : 0;
+  }
   _calRenderStageSummary();
   _calRenderThisWeek();
   var fd = new Date(CY,CM,1).getDay(), dim = new Date(CY,CM+1,0).getDate();
@@ -18811,7 +18856,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-calendar-key-position-r247';
+var WHATS_NEW_VERSION = '2026-05-05-calendar-month-today-r248';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -19104,6 +19149,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-05-calendar-month-today-r248', date:'May 5, 2026', importance:'fix',
+    body:'Calendar Month/Today behavior: current month hides the Today pill and vertically centers an enlarged Month/Year label; non-current months restore a smaller Today button so users can jump back. No Calendar key, Next Up, grid, lower Calendar sections, or other tabs were intentionally changed.'},
   {version:'2026-05-05-calendar-key-position-r247', date:'May 5, 2026', importance:'fix',
     body:'Calendar key-only adjustment: kept the 45-degree rotation, reduced the key image from 30px to 18px, and moved the visible key up/right inside the transparent tap target. Calendar Month/Year, Today, Next Up, grid, lower Calendar sections, and other tabs were not intentionally changed.'},
   {version:'2026-05-05-calendar-key-position-r246', date:'May 5, 2026', importance:'fix',
