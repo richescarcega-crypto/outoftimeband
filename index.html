@@ -2791,6 +2791,28 @@ body.light #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-detai
   color:#ffd51b !important;
   -webkit-text-fill-color:#ffd51b !important;
 }
+/* r241: Calendar Month/Year +30% size, remove month-nav arrows only. */
+#sc-cal #calendar-hero-date-row .mlbl{
+  font-size:23.4px !important;
+  color:#ffd51b !important;
+  -webkit-text-fill-color:#ffd51b !important;
+}
+#sc-cal #calendar-hero-date-row #cnav-left,
+#sc-cal #calendar-hero-date-row #cnav-right-slot,
+#sc-cal #calendar-hero-date-row .calendar-hero-arrow,
+#sc-cal #calendar-hero-date-row #cnav-right-slot .calendar-hero-arrow{
+  display:none !important;
+  width:0 !important;
+  min-width:0 !important;
+  height:0 !important;
+  padding:0 !important;
+  margin:0 !important;
+  border:0 !important;
+  overflow:hidden !important;
+}
+@media (max-width:420px){
+  #sc-cal #calendar-hero-date-row .mlbl{font-size:20.8px !important;}
+}
 
 </style>
 </head>
@@ -18645,7 +18667,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-calendar-month-year-gold-r240';
+var WHATS_NEW_VERSION = '2026-05-05-calendar-month-year-size-no-arrows-r241';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -18938,6 +18960,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-05-calendar-month-year-size-no-arrows-r241', date:'May 5, 2026', importance:'fix',
+    body:'Calendar header micro-polish: increased the Month/Year font size by 30% and removed only the left/right month navigation arrows from the Month/Year pill. Next Up, Today, grid, lower Calendar sections, and other tabs unchanged.'},
   {version:'2026-05-05-calendar-month-year-gold-r240', date:'May 5, 2026', importance:'fix',
     body:'Calendar header micro-polish: Month/Year text color locked to gold only. No layout, Next Up, Today, grid, lower Calendar sections, or other tabs changed.'},
   {version:'2026-05-05-calendar-approved-header-r239', date:'May 5, 2026', importance:'fix',
