@@ -3069,6 +3069,110 @@ body.light #sc-cal #calendar-hero-today{
 }
 body.light #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-card{background:linear-gradient(135deg,#ffffff,#edf3ff) !important;border-color:rgba(21,101,192,.32) !important;box-shadow:none !important;}
 
+
+/* r250: Calendar header polish and blackout date-number emphasis.
+   Scope: Calendar header/date-row return icon, Next Up strip styling, month label sizing, blackout date numbers. */
+#sc-cal #calendar-hero-date-row .mlbl{
+  font-size:clamp(28px,7.4vw,37px) !important;
+  letter-spacing:clamp(1.1px,.46vw,2.7px) !important;
+  text-shadow:
+    0 2px 0 rgba(73,47,0,.9),
+    0 5px 8px rgba(0,0,0,.58),
+    0 0 17px rgba(245,197,24,.66),
+    0 0 32px rgba(0,128,255,.22) !important;
+}
+#sc-cal #calendar-hero-today{
+  top:52px !important;
+  right:86px !important;
+  width:31px !important;
+  height:31px !important;
+  min-width:31px !important;
+  padding:2px !important;
+  background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.95),rgba(222,244,255,.82) 35%,rgba(13,73,142,.92) 100%) !important;
+  border:1px solid rgba(245,197,24,.72) !important;
+  box-shadow:0 0 14px rgba(245,197,24,.42),0 0 13px rgba(0,154,255,.30),0 4px 9px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.55) !important;
+}
+#sc-cal #calendar-hero-today .calendar-return-img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  display:block !important;
+  border-radius:50% !important;
+  filter:drop-shadow(0 0 4px rgba(255,255,255,.35)) !important;
+  pointer-events:none !important;
+  user-select:none !important;
+  -webkit-user-drag:none !important;
+}
+#sc-cal #calendar-hero-today span{display:none !important;}
+#sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-card{
+  background:
+    linear-gradient(90deg,rgba(4,14,42,.98) 0%,rgba(7,30,74,.98) 48%,rgba(3,15,44,.99) 100%) !important;
+  border:1px solid rgba(245,197,24,.54) !important;
+  box-shadow:
+    0 0 15px rgba(0,145,255,.30),
+    0 0 10px rgba(245,197,24,.12),
+    inset 0 1px 0 rgba(255,255,255,.18),
+    inset 0 -1px 0 rgba(245,197,24,.18) !important;
+}
+#sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-card:before{
+  top:-28px !important;
+  right:-18px !important;
+  width:115px !important;
+  height:58px !important;
+  background:radial-gradient(circle,rgba(245,197,24,.22),transparent 64%) !important;
+}
+#sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-card:after{
+  content:"" !important;
+  position:absolute !important;
+  left:0 !important;
+  top:0 !important;
+  bottom:0 !important;
+  width:3px !important;
+  background:linear-gradient(180deg,#fff6a5,#f5c518,#118dff) !important;
+  display:block !important;
+  opacity:.95 !important;
+}
+#sc-cal #calendar-hero-date-row .cal-next-up-icon{
+  flex:0 0 22px !important;
+  width:22px !important;
+  height:22px !important;
+  filter:drop-shadow(0 0 6px rgba(245,197,24,.26)) drop-shadow(0 0 5px rgba(0,174,255,.28)) !important;
+}
+#sc-cal #calendar-hero-date-row .cal-next-up-img{
+  width:22px !important;
+  height:22px !important;
+  display:block !important;
+  object-fit:contain !important;
+  border-radius:4px !important;
+}
+#sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-kicker{
+  font-size:10.5px !important;
+  color:#ffe061 !important;
+  text-transform:none !important;
+  text-shadow:0 1px 3px rgba(0,0,0,.65),0 0 10px rgba(245,197,24,.38) !important;
+}
+#sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-detail{
+  font-size:10.2px !important;
+  color:#f4f8ff !important;
+  text-shadow:0 1px 3px rgba(0,0,0,.55) !important;
+}
+#sc-cal .dc.has-blackout .dn{
+  color:#ff4757 !important;
+  -webkit-text-fill-color:#ff4757 !important;
+  text-shadow:0 0 10px rgba(255,71,87,.70),0 1px 3px rgba(0,0,0,.65) !important;
+}
+@media (max-width:420px){
+  #sc-cal #calendar-hero-date-row .mlbl{font-size:clamp(25.5px,6.85vw,32px) !important;letter-spacing:clamp(.8px,.34vw,1.9px) !important;}
+  #sc-cal #calendar-hero-today{top:50px !important;right:76px !important;width:29px !important;height:29px !important;min-width:29px !important;}
+  #sc-cal #calendar-hero-date-row .cal-next-up-icon,
+  #sc-cal #calendar-hero-date-row .cal-next-up-img{width:20px !important;height:20px !important;flex-basis:20px !important;}
+  #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-kicker{font-size:9.6px !important;}
+  #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-detail{font-size:9.4px !important;}
+}
+body.light #sc-cal #calendar-hero-today .calendar-return-img{filter:none !important;}
+body.light #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-card{background:linear-gradient(135deg,#ffffff,#edf4ff) !important;border-color:rgba(180,130,0,.38) !important;box-shadow:0 4px 10px rgba(20,40,80,.10) !important;}
+body.light #sc-cal .dc.has-blackout .dn{color:#c72233 !important;-webkit-text-fill-color:#c72233 !important;text-shadow:none !important;}
+
 </style>
 </head>
 <body>
@@ -3137,7 +3241,7 @@ body.light #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-card{
     <div class="oot-hero-actions">
       <button id="calendar-hero-menu-btn" type="button" title="Calendar key" aria-label="Calendar key" aria-controls="cal-legend-panel" aria-expanded="false" onclick="toggleCalLegend()"><img src="calendar_key.png?v=r247" class="calendar-key-img" alt="" aria-hidden="true"></button>
     </div>
-    <button id="calendar-hero-today" type="button" title="Return to current month" aria-label="Return to current month" onclick="jumpToCurrentMonth()"><span aria-hidden="true">⟲</span></button>
+    <button id="calendar-hero-today" type="button" title="Return to current month" aria-label="Return to current month" onclick="jumpToCurrentMonth()"><img src="StepBackicon.png?v=r250" class="calendar-return-img" alt="" aria-hidden="true"></button>
     <div class="oot-hero-inner">
       <img src="Logo.png?v=r235" class="oot-hero-logo" alt="Out of Time">
       <div class="oot-hero-copy">
@@ -12077,7 +12181,7 @@ function _calOpenDate(dateStr){
 }
 
 function _calNextUpCalendarIcon(){
-  return '<span class="cal-next-up-icon" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="8" width="28" height="27" rx="5" stroke="currentColor" stroke-width="3"/><path d="M6 16H34" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M13 5V11" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M27 5V11" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="14" cy="22" r="2" fill="currentColor"/><circle cx="20" cy="22" r="2" fill="currentColor"/><circle cx="26" cy="22" r="2" fill="currentColor"/><circle cx="14" cy="29" r="2" fill="currentColor"/><circle cx="20" cy="29" r="2" fill="currentColor"/><circle cx="26" cy="29" r="2" fill="currentColor"/></svg></span>';
+  return '<span class="cal-next-up-icon" aria-hidden="true"><img src="Calendaricon.png?v=r250" class="cal-next-up-img" alt=""></span>';
 }
 
 function _calCompactDateLabel(dateStr){
@@ -12171,7 +12275,8 @@ function rCal() {
     var star  = impDates.length ? '<span style="position:absolute;top:1px;left:3px;font-size:10px;line-height:1;pointer-events:none;color:#f5c518;text-shadow:0 0 6px rgba(245,197,24,.5);" title="Important date">&#9733;</span>' : '';
     var busyCount = eventTypes.length + bdayMembers.length + (holiday?1:0) + impDates.length;
     var busyClass = busyCount >= 3 ? ' stage-busy-3' : (busyCount === 2 ? ' stage-busy-2' : (busyCount === 1 ? ' stage-busy' : ''));
-    h+='<div class="dc'+(td?' td':'')+busyClass+'" style="position:relative;" onclick="oDy('+d+')">'+flag+star+cake+'<span class="dn">'+d+'</span><div class="pips">'+pp+'</div></div>';
+    var blackoutClass = eventTypes.indexOf('blackout') >= 0 ? ' has-blackout' : '';
+    h+='<div class="dc'+(td?' td':'')+busyClass+blackoutClass+'" style="position:relative;" onclick="oDy('+d+')">'+flag+star+cake+'<span class="dn">'+d+'</span><div class="pips">'+pp+'</div></div>';
   }
   document.getElementById('cgrid').innerHTML = h;
   // Initial population for left icon and right slot if not already set
@@ -19025,7 +19130,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-calendar-date-row-redesign-r249';
+var WHATS_NEW_VERSION = '2026-05-05-calendar-header-polish-r250';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -19318,6 +19423,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-05-calendar-header-polish-r250', date:'May 5, 2026', importance:'fix',
+    body:'Calendar header polish: return-to-current-month uses the Step Back icon and shifts higher/right, Month/Year text is slightly larger, Next Up strip gets a more premium treatment with the supplied calendar icon, and blackout date numbers render red. Scope kept to Calendar header/date cells.'},
   {version:'2026-05-05-calendar-date-row-redesign-r249', date:'May 5, 2026', importance:'fix',
     body:'Calendar date-row redesign: long month names now use the full blue row width, Next Up is a compact one-line bottom strip, and the return-to-current-month control moves to the upper-right Calendar header area as an icon. Calendar grid, lower sections, key, and other tabs were not intentionally changed.'},
   {version:'2026-05-05-calendar-month-today-r248', date:'May 5, 2026', importance:'fix',
