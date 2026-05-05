@@ -11429,8 +11429,27 @@ function toggleCalLegend(){
   if(!p) return;
   var open = !(p.classList && p.classList.contains('cal-legend-open'));
   if(p.classList) p.classList.toggle('cal-legend-open', open);
-  p.style.display = open ? 'flex' : 'none';
   if(b) b.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+  // r243: force the Calendar Key above the Calendar header. The panel has
+  // legacy display:none rules with !important, so normal style.display was
+  // not strong enough on phone.
+  if(open){
+    p.style.setProperty('display','flex','important');
+    p.style.setProperty('position','fixed','important');
+    p.style.setProperty('z-index','99999','important');
+    p.style.setProperty('flex-direction','column','important');
+    p.style.setProperty('align-items','stretch','important');
+    var rect = b ? b.getBoundingClientRect() : null;
+    var top = rect ? Math.round(rect.bottom + 8) : 72;
+    var right = rect ? Math.max(12, Math.round(window.innerWidth - rect.right)) : 16;
+    p.style.setProperty('top', top + 'px', 'important');
+    p.style.setProperty('right', right + 'px', 'important');
+    p.style.setProperty('left', 'auto', 'important');
+    p.style.setProperty('width', 'min(255px, calc(100vw - 24px))', 'important');
+  } else {
+    p.style.setProperty('display','none','important');
+  }
 }
 
 function toggleCard(contentId, arrowId) {
@@ -18706,7 +18725,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-calendar-kebab-key-fix-r242';
+var WHATS_NEW_VERSION = '2026-05-05-calendar-kebab-key-fix-r243';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
