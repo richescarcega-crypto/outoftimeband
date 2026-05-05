@@ -2786,6 +2786,12 @@ body.light #sc-cal #calendar-hero-today{background:linear-gradient(180deg,#fffff
 body.light #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-card{background:linear-gradient(135deg,#ffffff,#edf3ff) !important;border-color:rgba(21,101,192,.32) !important;box-shadow:none !important;}
 body.light #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-detail{color:#1a2a4a !important;text-shadow:none !important;}
 
+/* r240: Calendar Month/Year gold lock. Scope: month/year text only. */
+#sc-cal #calendar-hero-date-row .mlbl{
+  color:#ffd51b !important;
+  -webkit-text-fill-color:#ffd51b !important;
+}
+
 </style>
 </head>
 <body>
@@ -18639,7 +18645,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-calendar-approved-header-r239';
+var WHATS_NEW_VERSION = '2026-05-05-calendar-month-year-gold-r240';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -18932,6 +18938,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-05-calendar-month-year-gold-r240', date:'May 5, 2026', importance:'fix',
+    body:'Calendar header micro-polish: Month/Year text color locked to gold only. No layout, Next Up, Today, grid, lower Calendar sections, or other tabs changed.'},
   {version:'2026-05-05-calendar-approved-header-r239', date:'May 5, 2026', importance:'fix',
     body:'Calendar header final polish: month/year is gold, the Today pill is smaller and lowered, and the approved header composition is locked.'},
   {version:'2026-05-05-calendar-approved-header-r238', date:'May 5, 2026', importance:'fix',
