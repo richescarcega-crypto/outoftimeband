@@ -2852,6 +2852,11 @@ body.light #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-detai
 body.light #sc-cal #cal-legend-panel.cal-legend-row{background:#fff !important;border-color:#c8d4e8 !important;box-shadow:0 14px 30px rgba(20,40,80,.18) !important;}
 body.light #sc-cal #calendar-hero-menu-btn[aria-expanded="true"]{color:#b8860b !important;border-color:#d4a017 !important;}
 
+/* r244: Calendar kebab tap-target hardening. Scope: Calendar key only. */
+#sc-cal .oot-hero-actions{z-index:200000 !important;pointer-events:auto !important;}
+#sc-cal .oot-hero-actions *{pointer-events:auto !important;}
+#sc-cal #calendar-hero-menu-btn{position:relative !important;z-index:200001 !important;pointer-events:auto !important;touch-action:manipulation !important;-webkit-tap-highlight-color:rgba(245,197,24,.28) !important;}
+
 </style>
 </head>
 <body>
@@ -11423,23 +11428,27 @@ function savePay(g){db.collection('pay').doc(String(g.id)).set(g);}
 function saveMember(name,data){return db.collection('members').doc(name).set(data,{merge:true});}
 
 // COLLAPSIBLE CARDS
-function toggleCalLegend(){
+function toggleCalLegend(forceOpen){
   var p = document.getElementById('cal-legend-panel');
   var b = document.getElementById('calendar-hero-menu-btn') || document.getElementById('cal-legend-btn');
-  if(!p) return;
-  var open = !(p.classList && p.classList.contains('cal-legend-open'));
+  if(!p) return false;
+  var isOpen = !!(p.classList && p.classList.contains('cal-legend-open'));
+  var open = (typeof forceOpen === 'boolean') ? forceOpen : !isOpen;
+
   if(p.classList) p.classList.toggle('cal-legend-open', open);
   if(b) b.setAttribute('aria-expanded', open ? 'true' : 'false');
 
-  // r243: force the Calendar Key above the Calendar header. The panel has
-  // legacy display:none rules with !important, so normal style.display was
-  // not strong enough on phone.
   if(open){
+    // Use inline !important values because older Calendar legend CSS also uses
+    // display:none !important. This is the actual visibility switch.
     p.style.setProperty('display','flex','important');
     p.style.setProperty('position','fixed','important');
     p.style.setProperty('z-index','99999','important');
     p.style.setProperty('flex-direction','column','important');
     p.style.setProperty('align-items','stretch','important');
+    p.style.setProperty('visibility','visible','important');
+    p.style.setProperty('opacity','1','important');
+    p.style.setProperty('pointer-events','auto','important');
     var rect = b ? b.getBoundingClientRect() : null;
     var top = rect ? Math.round(rect.bottom + 8) : 72;
     var right = rect ? Math.max(12, Math.round(window.innerWidth - rect.right)) : 16;
@@ -11449,8 +11458,78 @@ function toggleCalLegend(){
     p.style.setProperty('width', 'min(255px, calc(100vw - 24px))', 'important');
   } else {
     p.style.setProperty('display','none','important');
+    p.style.removeProperty('visibility');
+    p.style.removeProperty('opacity');
+    p.style.removeProperty('pointer-events');
+    if(p.classList) p.classList.remove('cal-legend-open');
   }
+  return open;
 }
+
+
+
+// r244: robust Calendar kebab binding. Do not rely only on inline onclick.
+(function(){
+  var lastHandledAt = 0;
+  function _pointFromEvent(ev){
+    if(ev && ev.changedTouches && ev.changedTouches.length){return {x:ev.changedTouches[0].clientX,y:ev.changedTouches[0].clientY};}
+    if(ev && ev.touches && ev.touches.length){return {x:ev.touches[0].clientX,y:ev.touches[0].clientY};}
+    return {x:ev ? ev.clientX : 0, y:ev ? ev.clientY : 0};
+  }
+  function _insideButton(ev){
+    var b = document.getElementById('calendar-hero-menu-btn');
+    if(!b || !ev) return false;
+    var pt = _pointFromEvent(ev);
+    var r = b.getBoundingClientRect();
+    return pt.x >= r.left && pt.x <= r.right && pt.y >= r.top && pt.y <= r.bottom;
+  }
+  function _handleCalendarKeyTap(ev){
+    if(!_insideButton(ev)) return;
+    var now = Date.now();
+    if(now - lastHandledAt < 350){
+      if(ev.preventDefault) ev.preventDefault();
+      if(ev.stopPropagation) ev.stopPropagation();
+      if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+      return;
+    }
+    lastHandledAt = now;
+    if(ev.preventDefault) ev.preventDefault();
+    if(ev.stopPropagation) ev.stopPropagation();
+    if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+    toggleCalLegend();
+  }
+  function _bindCalendarKey(){
+    var b = document.getElementById('calendar-hero-menu-btn');
+    if(!b || b.getAttribute('data-r244-bound') === '1') return;
+    b.setAttribute('data-r244-bound','1');
+    b.addEventListener('click', function(ev){
+      if(ev.preventDefault) ev.preventDefault();
+      if(ev.stopPropagation) ev.stopPropagation();
+      if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+      toggleCalLegend();
+    }, true);
+    b.addEventListener('touchend', function(ev){
+      if(ev.preventDefault) ev.preventDefault();
+      if(ev.stopPropagation) ev.stopPropagation();
+      if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+      var now = Date.now();
+      if(now - lastHandledAt >= 350){ lastHandledAt = now; toggleCalLegend(); }
+    }, {capture:true, passive:false});
+    b.addEventListener('pointerup', function(ev){
+      if(ev.preventDefault) ev.preventDefault();
+      if(ev.stopPropagation) ev.stopPropagation();
+      if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+      var now = Date.now();
+      if(now - lastHandledAt >= 350){ lastHandledAt = now; toggleCalLegend(); }
+    }, true);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _bindCalendarKey);
+  else _bindCalendarKey();
+  setTimeout(_bindCalendarKey, 250);
+  setTimeout(_bindCalendarKey, 1200);
+  document.addEventListener('touchend', _handleCalendarKeyTap, {capture:true, passive:false});
+  document.addEventListener('click', _handleCalendarKeyTap, true);
+})();
 
 function toggleCard(contentId, arrowId) {
   // r75: arrowId is optional because calendar accordions now use full-pill tap without caret.
@@ -18725,7 +18804,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-calendar-kebab-key-fix-r243';
+var WHATS_NEW_VERSION = '2026-05-05-calendar-kebab-binding-r244';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
