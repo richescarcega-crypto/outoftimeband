@@ -3347,6 +3347,60 @@ body.light #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-card{
   border-color:rgba(21,101,192,.36) !important;
   box-shadow:0 4px 10px rgba(20,40,80,.10) !important;
 }
+
+/* r253: Calendar header micro-polish + blackout-number cue adjustment.
+   Scope: Calendar header date-row/return icon and blackout day-number visual only. */
+#sc-cal #calendar-hero-today{
+  top:18px !important; /* moved up only; right/size unchanged from r251 */
+}
+#sc-cal #calendar-hero-date-row .mlbl{
+  font-size:clamp(28px,7.45vw,37px) !important;
+  letter-spacing:clamp(.55px,.25vw,1.55px) !important;
+  background:linear-gradient(180deg,#fff0a8 0%,#d4a017 42%,#b77706 78%,#8b5a00 100%) !important;
+  -webkit-background-clip:text !important;
+  background-clip:text !important;
+  color:transparent !important;
+  -webkit-text-fill-color:transparent !important;
+  text-shadow:
+    0 1px 0 rgba(255,244,190,.22),
+    0 2px 3px rgba(0,0,0,.62),
+    0 0 14px rgba(212,160,23,.42) !important;
+}
+#sc-cal .dc.has-blackout .dn{
+  color:#ff9aa2 !important;
+  -webkit-text-fill-color:#ff9aa2 !important;
+  text-shadow:
+    0 1px 3px rgba(0,0,0,.55),
+    0 0 7px rgba(255,92,105,.18) !important;
+  display:inline !important;
+  min-width:0 !important;
+  height:auto !important;
+  padding:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+@media (max-width:420px){
+  #sc-cal #calendar-hero-today{
+    top:16px !important; /* moved up only; right/size unchanged from r251 mobile */
+  }
+  #sc-cal #calendar-hero-date-row .mlbl{
+    font-size:clamp(26.5px,7.05vw,34px) !important;
+    letter-spacing:clamp(.45px,.20vw,1.25px) !important;
+  }
+}
+body.light #sc-cal #calendar-hero-date-row .mlbl{
+  background:none !important;
+  color:#a87400 !important;
+  -webkit-text-fill-color:#a87400 !important;
+  text-shadow:none !important;
+}
+body.light #sc-cal .dc.has-blackout .dn{
+  color:#c24a55 !important;
+  -webkit-text-fill-color:#c24a55 !important;
+  text-shadow:none !important;
+  box-shadow:none !important;
+}
+
 </style>
 </head>
 <body>
@@ -19304,7 +19358,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-calendar-blackout-inner-ring-r252';
+var WHATS_NEW_VERSION = '2026-05-05-calendar-polish-r253';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
