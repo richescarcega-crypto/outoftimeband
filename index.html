@@ -3503,6 +3503,28 @@ body.light #sc-cal #calendar-hero-date-row .mlbl{
   }
 }
 
+
+
+/* r258: Calendar vertical rebalance after r257.
+   Scope: Calendar only. Condense the over-extended calendar panel so the
+   lower pills rise back into view, while moving the date grid down visually
+   by increasing top padding and reducing excess bottom void. */
+#sc-cal.cal-header-fit .cgrid-wrap{
+  margin-bottom:6px !important;
+}
+#sc-cal.cal-header-fit .cgrid{
+  align-content:start !important;
+  padding:18px 6px 54px 6px !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit .cgrid-wrap{
+    margin-bottom:6px !important;
+  }
+  #sc-cal.cal-header-fit .cgrid{
+    padding:19px 6px 58px 6px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -19460,7 +19482,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-calendar-polish-r257';
+var WHATS_NEW_VERSION = '2026-05-05-calendar-polish-r258';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
