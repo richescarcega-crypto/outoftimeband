@@ -3525,6 +3525,47 @@ body.light #sc-cal #calendar-hero-date-row .mlbl{
   }
 }
 
+
+
+/* r259: Calendar fill correction after phone test.
+   Scope: Calendar only. Move the date tile rows down, extend the calendar enough
+   to push All Events/Rehearsal Proposals lower without clipping, and enrich the
+   Month/Year gold with bronze depth. */
+#sc-cal.cal-header-fit .cgrid-wrap{
+  margin-bottom:7px !important;
+}
+#sc-cal.cal-header-fit .cgrid{
+  align-content:start !important;
+  padding:32px 6px 92px 6px !important;
+}
+#sc-cal.cal-header-fit .dhdr{
+  padding-bottom:8px !important;
+  margin-bottom:7px !important;
+}
+#sc-cal #calendar-hero-date-row .mlbl{
+  background:linear-gradient(180deg,#fff0a3 0%,#ffd85a 28%,#d49a20 58%,#9b5a16 100%) !important;
+  -webkit-background-clip:text !important;
+  background-clip:text !important;
+  color:transparent !important;
+  -webkit-text-fill-color:transparent !important;
+  text-shadow:
+    0 2px 0 rgba(77,38,8,.70),
+    0 4px 8px rgba(45,20,5,.44),
+    0 0 18px rgba(217,145,32,.42) !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit .cgrid-wrap{
+    margin-bottom:7px !important;
+  }
+  #sc-cal.cal-header-fit .cgrid{
+    padding:34px 6px 104px 6px !important;
+  }
+  #sc-cal.cal-header-fit .dhdr{
+    padding-bottom:8px !important;
+    margin-bottom:8px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -19482,7 +19523,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-calendar-polish-r258';
+var WHATS_NEW_VERSION = '2026-05-05-calendar-polish-r259';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
