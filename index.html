@@ -2856,6 +2856,13 @@ body.light #sc-cal #calendar-hero-menu-btn[aria-expanded="true"]{color:#b8860b !
 #sc-cal .oot-hero-actions{z-index:200000 !important;pointer-events:auto !important;}
 #sc-cal .oot-hero-actions *{pointer-events:auto !important;}
 #sc-cal #calendar-hero-menu-btn{position:relative !important;z-index:200001 !important;pointer-events:auto !important;touch-action:manipulation !important;-webkit-tap-highlight-color:rgba(245,197,24,.28) !important;}
+/* r245: replace Calendar kebab glyph with external GitHub-hosted key image. */
+#sc-cal #calendar-hero-menu-btn{background:transparent !important;border:0 !important;box-shadow:none !important;width:44px !important;height:44px !important;padding:0 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;overflow:visible !important;}
+#sc-cal #calendar-hero-menu-btn .calendar-key-img{width:30px !important;height:30px !important;object-fit:contain !important;display:block !important;transform:rotate(-45deg) !important;transform-origin:center center !important;filter:drop-shadow(0 0 8px rgba(245,197,24,.54)) !important;pointer-events:none !important;user-select:none !important;-webkit-user-drag:none !important;}
+#sc-cal #calendar-hero-menu-btn[aria-expanded="true"]{background:transparent !important;border:0 !important;box-shadow:none !important;}
+#sc-cal #calendar-hero-menu-btn[aria-expanded="true"] .calendar-key-img{filter:drop-shadow(0 0 12px rgba(245,197,24,.85)) !important;}
+body.light #sc-cal #calendar-hero-menu-btn{background:transparent !important;border:0 !important;box-shadow:none !important;}
+
 
 </style>
 </head>
@@ -2923,7 +2930,7 @@ body.light #sc-cal #calendar-hero-menu-btn[aria-expanded="true"]{color:#b8860b !
 <div id="sc-cal" class="sc cal-header-fit">
   <div id="calendar-hero" class="oot-hero-tab cal-hero-tab" aria-label="Calendar header">
     <div class="oot-hero-actions">
-      <button id="calendar-hero-menu-btn" type="button" title="Calendar key" aria-label="Calendar key" aria-controls="cal-legend-panel" aria-expanded="false" onclick="toggleCalLegend()">&#8942;</button>
+      <button id="calendar-hero-menu-btn" type="button" title="Calendar key" aria-label="Calendar key" aria-controls="cal-legend-panel" aria-expanded="false" onclick="toggleCalLegend()"><img src="calendar_key.png?v=r245" class="calendar-key-img" alt="" aria-hidden="true"></button>
     </div>
     <div class="oot-hero-inner">
       <img src="Logo.png?v=r235" class="oot-hero-logo" alt="Out of Time">
@@ -18804,7 +18811,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-calendar-kebab-binding-r244';
+var WHATS_NEW_VERSION = '2026-05-05-calendar-key-image-r245';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -19097,6 +19104,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-05-calendar-key-image-r245', date:'May 5, 2026', importance:'fix',
+    body:'Calendar header micro-polish: replaced the three-dot kebab glyph with the external calendar_key.png asset, rotated 45 degrees counter-clockwise. Calendar Key behavior preserved. No other tabs or Calendar lower sections changed.'},
   {version:'2026-05-05-calendar-month-year-size-no-arrows-r241', date:'May 5, 2026', importance:'fix',
     body:'Calendar header micro-polish: increased the Month/Year font size by 30% and removed only the left/right month navigation arrows from the Month/Year pill. Next Up, Today, grid, lower Calendar sections, and other tabs unchanged.'},
   {version:'2026-05-05-calendar-month-year-gold-r240', date:'May 5, 2026', importance:'fix',
