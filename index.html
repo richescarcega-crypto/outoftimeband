@@ -3479,6 +3479,30 @@ body.light #sc-cal #calendar-hero-date-row .mlbl{
   }
 }
 
+
+
+/* r257: specificity correction for r256 Calendar lower-fill.
+   Scope: Calendar only. This intentionally targets .cal-header-fit so it wins
+   over the older header-fit padding rule that blocked r256 from rendering. */
+#sc-cal.cal-header-fit #calendar-hero-date-row .calendar-hero-month-stack{
+  transform:translateY(5px) !important;
+}
+#sc-cal.cal-header-fit .cgrid-wrap{
+  margin-bottom:8px !important;
+}
+#sc-cal.cal-header-fit .cgrid{
+  align-content:start !important;
+  padding:7px 6px 118px 6px !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit #calendar-hero-date-row .calendar-hero-month-stack{
+    transform:translateY(6px) !important;
+  }
+  #sc-cal.cal-header-fit .cgrid{
+    padding:7px 6px 132px 6px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -19436,7 +19460,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-calendar-polish-r256';
+var WHATS_NEW_VERSION = '2026-05-05-calendar-polish-r257';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
