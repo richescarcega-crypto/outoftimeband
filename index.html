@@ -3449,6 +3449,36 @@ body.light #sc-cal #calendar-hero-date-row .mlbl{
   text-shadow:none !important;
 }
 
+
+
+/* r256: Calendar month vertical-centering + lower-calendar extension.
+   Scope: #sc-cal month/year vertical alignment, calendar panel depth, and resulting lower-pill position only. */
+#sc-cal #calendar-hero-date-row #calendar-hero-date-nav{
+  min-height:36px !important;
+}
+#sc-cal #calendar-hero-date-row .calendar-hero-month-stack{
+  min-height:36px !important;
+  transform:translateY(4px) !important;
+}
+#sc-cal #calendar-hero-date-row .mlbl{
+  line-height:.94 !important;
+}
+#sc-cal .cgrid-wrap{
+  margin-bottom:8px !important;
+}
+#sc-cal .cgrid{
+  align-content:start !important;
+  padding-bottom:102px !important;
+}
+@media (max-width:420px){
+  #sc-cal #calendar-hero-date-row .calendar-hero-month-stack{
+    transform:translateY(5px) !important;
+  }
+  #sc-cal .cgrid{
+    padding-bottom:118px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -19406,7 +19436,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-calendar-polish-r255';
+var WHATS_NEW_VERSION = '2026-05-05-calendar-polish-r256';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
