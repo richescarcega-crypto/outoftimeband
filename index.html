@@ -3675,6 +3675,84 @@ body.light #sc-cal.cal-header-fit .proposals-head{
   top:var(--oot-cal-proposals-top, auto) !important;
   bottom:auto !important;
 }
+
+
+/* r315: Calendar lower drawer overlay fix.
+   Scope: Calendar lower drawer content only.
+   Keeps the locked All Events/Rehearsal Proposals pill stack in place, but
+   makes the expanded All Events list, date event drawer, and Rehearsal
+   Proposals drawer deploy upward above that stack instead of being hidden
+   behind it. Calendar header, month banner, blue date panel, date tiles,
+   lower pill positions, bottom tabs, and other tabs are not moved. */
+:root{
+  --oot-cal-lower-drawer-bottom:calc(100vh - var(--oot-cal-stack-top, 0px) + 8px);
+  --oot-cal-lower-drawer-side:var(--oot-cal-stack-side, max(12px, calc((100vw - 480px) / 2 + 12px)));
+}
+#sc-cal.cal-header-fit #cal-drawer,
+#sc-cal.cal-header-fit #evl,
+#sc-cal.cal-header-fit #proposals-list,
+#sc-cal.cal-header-fit #evl-filter-row,
+#sc-cal.cal-header-fit #propose-btn{
+  left:var(--oot-cal-lower-drawer-side) !important;
+  right:var(--oot-cal-lower-drawer-side) !important;
+  z-index:875 !important;
+}
+#sc-cal.cal-header-fit #cal-drawer{
+  position:fixed !important;
+  bottom:var(--oot-cal-lower-drawer-bottom) !important;
+  max-height:min(42vh, 520px) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  margin:0 !important;
+  box-shadow:0 18px 42px rgba(0,0,0,.52), 0 0 24px rgba(74,158,255,.18) !important;
+}
+#sc-cal.cal-header-fit #evl-filter-row{
+  position:fixed !important;
+  bottom:var(--oot-cal-lower-drawer-bottom) !important;
+  margin:0 !important;
+  padding:8px 8px 6px !important;
+  border-radius:12px !important;
+  background:linear-gradient(135deg,rgba(7,17,42,.98),rgba(13,34,80,.96)) !important;
+  border:1px solid rgba(74,158,255,.25) !important;
+  box-shadow:0 12px 28px rgba(0,0,0,.38) !important;
+}
+#sc-cal.cal-header-fit #evl{
+  position:fixed !important;
+  bottom:calc(var(--oot-cal-lower-drawer-bottom) + 50px) !important;
+  max-height:min(34vh, 420px) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  margin:0 !important;
+  padding:8px !important;
+  border-radius:12px !important;
+  background:linear-gradient(145deg,rgba(7,17,42,.98),rgba(13,34,80,.96) 62%,rgba(3,8,18,.94)) !important;
+  border:1px solid rgba(74,158,255,.26) !important;
+  box-shadow:0 18px 42px rgba(0,0,0,.52), 0 0 24px rgba(74,158,255,.14) !important;
+}
+#sc-cal.cal-header-fit #propose-btn{
+  position:fixed !important;
+  bottom:var(--oot-cal-lower-drawer-bottom) !important;
+  margin:0 !important;
+  z-index:876 !important;
+}
+#sc-cal.cal-header-fit #proposals-list{
+  position:fixed !important;
+  bottom:calc(var(--oot-cal-lower-drawer-bottom) + 50px) !important;
+  max-height:min(38vh, 480px) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  margin:0 !important;
+  padding:8px !important;
+  border-radius:12px !important;
+  box-shadow:0 18px 42px rgba(0,0,0,.52), 0 0 24px rgba(162,103,255,.16) !important;
+}
+body.light #sc-cal.cal-header-fit #evl-filter-row,
+body.light #sc-cal.cal-header-fit #evl{
+  background:#fff !important;
+  border-color:#c8d4e8 !important;
+  box-shadow:0 14px 30px rgba(20,40,80,.18) !important;
+}
+
 </style>
 </head>
 <body>
@@ -20047,7 +20125,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-lower-stack-under-panel-r314';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-lower-drawers-overlay-r315';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20340,6 +20418,10 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-lower-drawers-overlay-r315', date:'May 6, 2026', importance:'fix',
+   title:'Calendar lower drawers open above locked pill stack',
+   body:'Keeps the Calendar lower pill stack locked while making expanded drawer content visible above it.',
+   bullets:['All Events expanded content now deploys above the locked lower stack instead of being hidden behind it.', 'Rehearsal Proposals expanded content and propose button now deploy above the locked lower stack.', 'Calendar header, month banner, blue date panel, date tiles, lower pill positions, bottom tabs, and other tabs were not moved.']},
   {version:'2026-05-06-calendar-lower-stack-under-panel-r314', date:'May 6, 2026', importance:'fix',
    title:'Calendar lower stack locked under panel',
    desc:'Moves the All Events / Rehearsal Proposals stack directly below the blue calendar panel and locks the stack there without moving the Calendar header, Month/Year banner, date tiles, bottom tabs, or other tabs.'},
