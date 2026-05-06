@@ -3624,6 +3624,16 @@ body.light #sc-cal #calendar-hero-date-row .mlbl{
 /* r286 emergency rollback: restores r284 after r285 phone-load failure caused by embedded thumb-drive image bloat. */
 
 /* r288 emergency rollback: restores r286 stable code after r287 phone-load failure. */
+
+
+/* r295: Chat tab header top alignment.
+   Scope: Chat tab only. Songs remains the top-placement reference.
+   Move the full Chat list screen upward with the header so spacing between
+   the Chat header and thread list stays intact. */
+#sc-chat{
+  padding-top:2px !important;
+}
+
 </style>
 </head>
 <body>
@@ -19983,7 +19993,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-setlist-reorder-top-breathing-r294';
+var WHATS_NEW_VERSION = '2026-05-05-chat-header-align-r295';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
