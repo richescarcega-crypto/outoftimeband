@@ -3622,6 +3622,8 @@ body.light #sc-cal #calendar-hero-date-row .mlbl{
 /* r270 emergency rollback: restores r268 app code after r269 phone-load failure. */
 
 /* r286 emergency rollback: restores r284 after r285 phone-load failure caused by embedded thumb-drive image bloat. */
+
+/* r288 emergency rollback: restores r286 stable code after r287 phone-load failure. */
 </style>
 </head>
 <body>
@@ -13405,6 +13407,1527 @@ function showDayOptions(day, de){
       (e.note?'<div style="font-size:11px;color:#aaa;margin-top:2px;">'+e.note+'</div>':'');
     var btnRow = document.createElement('div');
     btnRow.style.cssText = 'display:flex;gap:4px;flex-shrink:0;margin-left:8px;';
+    var editBtn = document.createElement('button');
+    editBtn.style.cssText = 'background:none;border:1px solid #4a9eff;border-radius:6px;padding:3px 8px;color:#4a9eff;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;';
+    editBtn.textContent = 'Edit';
+    editBtn.onclick = (function(ev){ return function(){ clM('evm'); editEv(ev.id); }; })(e);
+    var delBtn = document.createElement('button');
+    delBtn.style.cssText = 'background:none;border:1px solid #ff4757;border-radius:6px;padding:3px 8px;color:#ff4757;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;';
+    delBtn.textContent = 'Remove';
+    delBtn.onclick = (function(ev){ return function(){
+      appConfirm({title:'Remove event?', message:'Delete "' + ev.title + '"? This cannot be undone.'}).then(function(ok){
+        if(ok){ dEv(ev.id); clM('evm'); toast('Event deleted', {tone:'success'}); }
+      });
+    }; })(e);
+    btnRow.appendChild(editBtn);
+    btnRow.appendChild(delBtn);
+    card.appendChild(info);
+    card.appendChild(btnRow);
+    eex.appendChild(card);
+  });
+
+  // Add new event button
+  var divider = document.createElement('div');
+  divider.style.cssText = 'height:1px;background:#0d1f3a;margin:10px 0;';
+  eex.appendChild(divider);
+
+  var addBtn = document.createElement('button');
+  addBtn.className = 'ab';
+  addBtn.style.cssText = 'width:100%;margin-top:0;';
+  addBtn.textContent = '+ Add Another Event on This Day';
+  addBtn.onclick = function(){
+    eex.innerHTML = '';
+    _renderEventTypeChooser(eex);
+  };
+  eex.appendChild(addBtn);
+
+  // Hide the new event form fields initially
+  document.getElementById('etit').value = '';
+  document.getElementById('enot').value = '';
+  if(document.getElementById('eend')) document.getElementById('eend').value = '';
+  document.getElementById('etit').closest('div') && hideNewEventForm();
+  opM('evm');
+}
+
+// ── Inline date drawer (replaces showDayOptions modal for days with events) ──
+var _drawerDay = null; // currently expanded day number, or null
+
+function closeDayDrawer(){
+  _drawerDay = null;
+  var d = document.getElementById('cal-drawer');
+  if(d){ d.style.display = 'none'; d.innerHTML = ''; d.classList.remove('backstage-pass'); }
+}
+
+function _refreshDrawerForCurrentDay(day){
+  // Recompute combined list (events + custom dates) and refresh, or close if empty
+  var ds = fD(CY,CM,day);
+  var de2 = events.filter(function(x){return x.date===ds;});
+  var custom2 = _customEntriesAsRows().filter(function(x){return x.date===ds;});
+  var combined = de2.concat(custom2);
+  if(combined.length){
+    openDayDrawer(day, combined, {skipScroll:true});
+  } else {
+    closeDayDrawer();
+  }
+}
+
+function openDayDrawer(day, de, opts){
+  opts = opts || {};
+  _drawerDay = day;
+  var d = document.getElementById('cal-drawer');
+  if(!d) return;
+  var ds = fD(CY,CM,day);
+  d.innerHTML = '';
+  d.classList.add('backstage-pass');
+
+  // Header — date. r174 removes the X control; tap the header or selected date to close.
+  var head = document.createElement('div');
+  head.className = 'cal-drawer-head';
+  head.title = 'Tap to close';
+  head.onclick = function(e){ e.stopPropagation(); closeDayDrawer(); };
+  var title = document.createElement('div');
+  title.className = 'cal-drawer-title';
+  title.innerHTML = '<span class="cal-drawer-kicker">EVENT DETAILS</span>' + (MO[CM] + ' ' + day).toUpperCase();
+  head.appendChild(title);
+  d.appendChild(head);
+
+  // Special-day notes — birthdays + holidays only.
+  // Custom (Important Date) entries are rendered below as first-class event cards.
+  _renderSpecialDayNotes(d, ds, {skipImportant:true});
+
+  // Existing events
+  de.forEach(function(e){
+    var card = document.createElement('div');
+    card.className = 'cal-event-detail-card';
+    var leftBorder = e.type === 'custom' ? (e._customColor || '#06d6a0') : EC[e.type];
+    card.style.cssText = 'padding:9px 10px;background:rgba(6,14,28,.78);border-radius:10px;margin-bottom:7px;border-left:4px solid ' + leftBorder + ';display:flex;flex-direction:column;gap:8px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04);';
+    var topRow = document.createElement('div');
+    topRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;width:100%;';
+    var info = document.createElement('div');
+    info.style.cssText = 'flex:1;min-width:0;';
+
+    var detailLine = '';
+    if(e.type === 'rehearsal'){
+      detailLine = _rehearsalDrawerDetailLine(e);
+    } else if(e.type === 'gig'){
+      var det = gigDetails[String(e.id)] || {};
+      var gparts = [];
+      if(det.settime) gparts.push('Set ' + det.settime);
+      if(det.loadin) gparts.push('Load-in ' + det.loadin);
+      if(det.sc) gparts.push('Sound check ' + det.sc);
+      detailLine = gparts.join(' · ');
+    } else if(e.type === 'custom'){
+      // For custom: show "Annual" tag if recurring
+      if(e._customRecurring) detailLine = 'Annual';
+    }
+
+    var titleHtml = (e.type === 'custom'
+      ? '<span style="color:'+leftBorder+';margin-right:4px;font-size:13px;line-height:1;">&#9733;</span>'
+      : '');
+    titleHtml += e.title;
+    info.innerHTML = '<div class="cal-event-title" style="font-size:13px;font-weight:600;color:#fff;">' + titleHtml + '</div>' +
+      (detailLine?'<div class="cal-event-meta" style="font-size:11px;color:'+(e.type==='custom'?leftBorder:'#f5c518')+';margin-top:2px;font-family:Russo One,sans-serif;letter-spacing:.3px;">'+detailLine+'</div>':'') +
+      (e.note && e.type !== 'custom' ?'<div class="cal-event-note" style="font-size:11px;color:#aaa;margin-top:2px;">'+e.note+'</div>':'');
+
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:4px;flex-shrink:0;margin-left:8px;flex-wrap:wrap;justify-content:flex-end;';
+    // Flyer button — only for gigs
+    if(e.type === 'gig'){
+      var hasFlyer = !!(gigDetails[String(e.id)] && gigDetails[String(e.id)].flyerData);
+      var flyerBtn = document.createElement('button');
+      var fbg = hasFlyer ? 'rgba(6,214,160,.15)' : 'rgba(245,197,24,.12)';
+      var fbc = hasFlyer ? '#06d6a0' : '#f5c518';
+      flyerBtn.style.cssText = 'background:'+fbg+';border:1px solid '+fbc+';border-radius:6px;padding:3px 8px;color:'+fbc+';font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:4px;';
+      var iconSvg = hasFlyer
+        ? '<svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/></svg>'
+        : '<svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM5 5h14v9.59l-3.29-3.3a1 1 0 0 0-1.42 0L10 15.59l-2.29-2.3a1 1 0 0 0-1.42 0L5 14.59V5z" fill="currentColor"/></svg>';
+      flyerBtn.innerHTML = iconSvg + (hasFlyer ? 'Flyer ✓' : 'Flyer');
+      flyerBtn.onclick = (function(ev){ return function(evt){ evt.stopPropagation(); if(typeof openFlyerForGig === 'function') openFlyerForGig(ev); }; })(e);
+      btnRow.appendChild(flyerBtn);
+    }
+    function openThisEventForEdit(evt){
+      if(evt){
+        evt.preventDefault();
+        evt.stopPropagation();
+      }
+      if(e.type === 'custom'){
+        openImportantDateModal(e._customSourceId);
+      } else {
+        editEv(e.id);
+      }
+    }
+    card.title = 'Tap to edit';
+    card.setAttribute('aria-label', 'Event details. Tap to edit.');
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', function(evt){
+      try {
+        if(evt.target && evt.target.closest && evt.target.closest('button')) return;
+      } catch(_e){}
+      openThisEventForEdit(evt);
+    });
+
+    var delBtn = document.createElement('button');
+    delBtn.style.cssText = 'background:rgba(255,71,87,.10);border:1px solid rgba(255,71,87,.62);border-radius:8px;width:30px;height:30px;color:#ff4757;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation;';
+    delBtn.title = 'Delete event';
+    delBtn.setAttribute('aria-label', 'Delete event');
+    delBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg>';
+    delBtn.onclick = (function(ev){ return function(evt){
+      if(evt){
+        evt.preventDefault();
+        evt.stopPropagation();
+      }
+      if(ev.type === 'custom'){
+        appConfirm({title:'Delete date?', message:'Remove "' + ev.title + '" from important dates?'}).then(function(ok){
+          if(!ok) return;
+          db.collection('importantDates').doc(ev._customSourceId).delete()
+            .then(function(){ toast('Date deleted', {tone:'success'}); _refreshDrawerForCurrentDay(day); })
+            .catch(function(){});
+        });
+      } else {
+        appConfirm({title:'Delete event?', message:'Delete "' + ev.title + '"? This cannot be undone.'}).then(function(ok){
+          if(ok){ dEv(ev.id); toast('Event deleted', {tone:'success'}); _refreshDrawerForCurrentDay(day); }
+        });
+      }
+    }; })(e);
+    btnRow.appendChild(delBtn);
+    topRow.appendChild(info);
+    topRow.appendChild(btnRow);
+    card.appendChild(topRow);
+    // Saved flyer thumbnail (gigs only) — visible feedback that "yes, your flyer is saved here"
+    if(e.type === 'gig'){
+      var detailsForThumb = gigDetails[String(e.id)];
+      if(detailsForThumb && detailsForThumb.flyerData){
+        var thumbWrap = document.createElement('div');
+        thumbWrap.className = 'cal-flyer-thumb-wrap';
+        var thumbImg = document.createElement('img');
+        thumbImg.src = detailsForThumb.flyerData;
+        thumbImg.style.cssText = 'width:48px;height:48px;border-radius:4px;object-fit:cover;flex-shrink:0;background:#000;';
+        thumbImg.alt = 'Saved flyer';
+        var thumbInfo = document.createElement('div');
+        thumbInfo.style.cssText = 'flex:1;min-width:0;';
+        thumbInfo.innerHTML =
+          '<div class="cal-flyer-thumb-label">SAVED FLYER</div>' +
+          '<div class="cal-flyer-thumb-help">Tap to edit, share, or delete</div>';
+        thumbWrap.appendChild(thumbImg);
+        thumbWrap.appendChild(thumbInfo);
+        thumbWrap.onclick = (function(ev){ return function(evt){
+          evt.stopPropagation();
+          if(typeof openFlyerForGig === 'function') openFlyerForGig(ev);
+        }; })(e);
+        card.appendChild(thumbWrap);
+      }
+    }
+    d.appendChild(card);
+  });
+
+  // Add another event button — opens the existing creation modal
+  var addBtn = document.createElement('button');
+  addBtn.className = 'cal-drawer-add-btn';
+  addBtn.textContent = '+ ADD ANOTHER EVENT';
+  addBtn.onclick = function(evt){ evt.stopPropagation(); openNewEventModal(day); };
+  d.appendChild(addBtn);
+
+  d.style.display = 'block';
+  // Smooth scroll into view so user sees expansion (skip on background refreshes)
+  if(!opts.skipScroll){
+    setTimeout(function(){
+      try{ d.scrollIntoView({behavior:'smooth', block:'nearest'}); }catch(e){}
+    }, 50);
+  }
+}
+
+function hideNewEventForm(){
+  var etit = document.getElementById('etit');
+  var enot = document.getElementById('enot');
+  var eend = document.getElementById('blackout-range');
+  var saveBtn = document.querySelector('#evm .sb');
+  var etr = document.querySelector('#evm .etr');
+  if(etit) etit.style.display='none';
+  if(enot) enot.style.display='none';
+  if(eend) eend.style.display='none';
+  if(saveBtn) saveBtn.style.display='none';
+  if(etr) etr.style.display='none';
+}
+
+function showNewEventForm(){
+  var etit = document.getElementById('etit');
+  var enot = document.getElementById('enot');
+  var saveBtn = document.querySelector('#evm .sb');
+  var etr = document.querySelector('#evm .etr');
+  if(etit){ etit.style.display=''; etit.focus(); }
+  if(enot) enot.style.display='';
+  if(saveBtn){ saveBtn.style.display=''; saveBtn.textContent='Add to Calendar'; saveBtn.onclick=function(){adEv();}; }
+  if(etr) etr.style.display='';
+  sET('gig');
+}
+
+function openNewEventModal(day){
+  sDay=day;
+  document.getElementById('emtit').textContent = MO[CM] + ' ' + day;
+  // Hide the legacy form fields — we use a clean chooser instead
+  hideNewEventForm();
+  var eex = document.getElementById('eex');
+  eex.innerHTML = '';
+  // Special-day notes (birthdays, holidays, important dates)
+  _renderSpecialDayNotes(eex, fD(CY,CM,day));
+  // Render the type chooser
+  _renderEventTypeChooser(eex);
+  opM('evm');
+}
+
+function _renderEventTypeChooser(host){
+  var prompt = document.createElement('div');
+  prompt.style.cssText = 'font-family:Russo One,sans-serif;font-size:10px;letter-spacing:2px;color:#8aa8d6;margin:4px 0 10px;text-align:center;';
+  prompt.textContent = 'WHAT KIND OF EVENT?';
+  host.appendChild(prompt);
+  var types = [
+    {key:'gig',       icon:'\uD83C\uDFB8', label:'GIG',       sub:'Show, performance, paid event',     color:'#f5c518', open:function(){
+      _confirmBlackoutConflictBeforeOpen('gig', fD(CY, CM, sDay), function(){ clM('evm'); openGigSheet(null); });
+    }},
+    {key:'rehearsal', icon:'\uD83C\uDFA4', label:'REHEARSAL', sub:'Practice, run-through, prep',       color:'#4a9eff', open:function(){
+      _confirmBlackoutConflictBeforeOpen('rehearsal', fD(CY, CM, sDay), function(){ clM('evm'); openRehearsalSheet(null); });
+    }},
+    {key:'blackout',  icon:'\uD83D\uDEAB', label:'BLACKOUT',  sub:'Unavailable date or date range',    color:'#ff4757', open:function(){ clM('evm'); openBlackoutSheet(null); }},
+    {key:'custom',    icon:'\u2B50',         label:'CUSTOM',    sub:'Anniversary, milestone, anything', color:'#06d6a0', open:function(){
+      // Pre-seed the important date modal with the chosen date
+      var preDate = fD(CY, CM, sDay);
+      clM('evm');
+      openImportantDateModal(null);
+      // Override the default date input value after the modal opens
+      setTimeout(function(){
+        var di = document.getElementById('idate-date');
+        if(di) di.value = preDate;
+      }, 50);
+    }}
+  ];
+  types.forEach(function(t){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.style.cssText = 'display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;margin-bottom:8px;'+
+      'background:linear-gradient(135deg,'+t.color+'22 0%,'+t.color+'08 50%,#0a1628 100%);'+
+      'border:1px solid '+t.color+'55;border-left:4px solid '+t.color+';border-radius:10px;'+
+      'cursor:pointer;color:#fff;font-family:\'Exo 2\',sans-serif;'+
+      'box-shadow:0 0 14px '+t.color+'18;transition:transform .12s,box-shadow .12s;';
+    btn.innerHTML =
+      '<span style="font-size:22px;line-height:1;flex-shrink:0;">'+t.icon+'</span>'+
+      '<div style="flex:1;min-width:0;">'+
+        '<div style="font-family:\'Russo One\',sans-serif;font-size:13px;letter-spacing:1.5px;color:'+t.color+';">'+t.label+'</div>'+
+        '<div style="font-size:11px;color:#aaa;margin-top:2px;">'+t.sub+'</div>'+
+      '</div>'+
+      '<div style="color:'+t.color+';font-size:18px;line-height:1;flex-shrink:0;opacity:.7;">&#8250;</div>';
+    btn.onmouseover = function(){ this.style.transform = 'translateX(2px)'; this.style.boxShadow = '0 0 22px '+t.color+'33'; };
+    btn.onmouseout = function(){ this.style.transform = ''; this.style.boxShadow = '0 0 14px '+t.color+'18'; };
+    btn.onclick = (function(opener){ return function(){
+      opener();
+    }; })(t.open);
+    host.appendChild(btn);
+  });
+}
+
+
+function sET(t) {
+  cET=t;
+  ['gig','rehearsal','blackout'].forEach(function(k){
+    var b=document.getElementById('et-'+k);
+    if(!b) return;
+    b.style.background=k===t?EC[k]+'33':'transparent';
+    b.style.color=k===t?EC[k]:'#aaa';
+    b.style.borderColor=k===t?EC[k]:'#0d1f3a';
+  });
+  // Open the appropriate sheet
+  clM('evm');
+  if(t==='gig') openGigSheet(null);
+  else if(t==='rehearsal') openRehearsalSheet(null);
+  else openBlackoutSheet(null);
+}
+
+function editEv(id){
+  var ev = events.find(function(e){ return e.id==id; });
+  if(!ev) return;
+  sDay = parseInt(ev.date.split('-')[2]);
+  CM = parseInt(ev.date.split('-')[1]) - 1;
+  CY = parseInt(ev.date.split('-')[0]);
+
+  if(ev.type === 'gig'){
+    openGigSheet(ev);
+  } else if(ev.type === 'rehearsal'){
+    openRehearsalSheet(ev);
+  } else {
+    openBlackoutSheet(ev);
+  }
+}
+
+function openGigSheet(ev){
+  var evId = ev ? ev.id : null;
+  var det = evId ? (gigDetails[String(evId)] || {}) : {};
+  var isNew = !evId;
+  var dateStr = isNew ? fD(CY,CM,sDay) : ev.date;
+
+  document.getElementById('gd-title').textContent = isNew ? 'New Gig' : 'Edit Gig';
+  var b = document.getElementById('gd-body');
+  b.innerHTML = '';
+
+  function makeField(label, inputId, val, placeholder, type){
+    var d = document.createElement('div');
+    d.style.marginBottom = '8px';
+    var lbl = document.createElement('label');
+    lbl.style.cssText = 'font-size:10px;color:#aaa;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;letter-spacing:1px;';
+    lbl.textContent = label;
+    var inp = document.createElement(type==='textarea'?'textarea':'input');
+    inp.className = 'mi';
+    inp.id = inputId;
+    inp.value = val || '';
+    inp.placeholder = placeholder;
+    if(type==='textarea'){inp.rows=2;inp.style.resize='none';}
+    if(type==='date'){inp.type='date';}
+    if(type==='time'){ attachTimeMask(inp); }
+    d.appendChild(lbl);
+    d.appendChild(inp);
+    return d;
+  }
+
+  // If new, show date field
+  if(isNew){
+    var dateFld = makeField('DATE','gd-date',dateStr,'','date');
+    b.appendChild(dateFld);
+  } else {
+    var dateDisp = document.createElement('div');
+    dateDisp.style.cssText = 'font-size:12px;color:#4a6a9a;margin-bottom:10px;';
+    dateDisp.textContent = ev.date;
+    b.appendChild(dateDisp);
+  }
+
+  b.appendChild(makeField('GIG NAME','gd-name', ev ? ev.title : '','e.g. Trip, Venice Beach Festival','text'));
+  b.appendChild(makeField('VENUE','gd-venue',det.venue,'e.g. The Roxy Theater','text'));
+  // r37: split into Street + City. If migration hasn't run yet (or this is a
+  // legacy record with `address` but no split fields), parse on the fly.
+  var _addrParts_a = (det.street || det.city)
+    ? {street: det.street || '', city: det.city || ''}
+    : _splitGigAddress(det.address || '');
+  b.appendChild(makeField('STREET ADDRESS','gd-street',_addrParts_a.street,'e.g. 9009 Sunset Blvd','text'));
+  b.appendChild(makeField('CITY','gd-city',_addrParts_a.city,'e.g. West Hollywood','text'));
+  // Map button — opens address (or venue if blank) in Apple/Google Maps
+  var mapBtn = document.createElement('button');
+  mapBtn.type = 'button';
+  mapBtn.style.cssText = 'background:#0a1628;border:1px solid #4a9eff;border-radius:8px;padding:6px 12px;color:#4a9eff;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin-top:-2px;margin-bottom:10px;';
+  mapBtn.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" focusable="false"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" fill="#4a9eff"/></svg><span>OPEN IN MAPS</span>';
+  mapBtn.onclick = function(){
+    // r37: build combined address from new split fields
+    var _street = (document.getElementById('gd-street')||{value:''}).value;
+    var _city = (document.getElementById('gd-city')||{value:''}).value;
+    var addr = _combineGigAddress(_street, _city);
+    var ven = (document.getElementById('gd-venue')||{value:''}).value;
+    var q = (addr.trim() || ven.trim());
+    if(!q){ toast('Add a venue or address first', {tone:'error'}); return; }
+    openInMaps(q);
+  };
+  b.appendChild(mapBtn);
+
+  var row1 = document.createElement('div');
+  row1.style.cssText = 'display:flex;gap:8px;';
+  row1.appendChild(makeField('LOAD-IN','gd-loadin',det.loadin,'530 → 5:30 PM · 530a → 5:30 AM','time'));
+  row1.appendChild(makeField('SOUND CHECK','gd-sc',det.sc,'630 → 6:30 PM · 630a → 6:30 AM','time'));
+  b.appendChild(row1);
+
+  var row2 = document.createElement('div');
+  row2.style.cssText = 'display:flex;gap:8px;';
+  row2.appendChild(makeField('SET TIME','gd-settime',det.settime,'8 → 8:00 PM · 8a → 8:00 AM','time'));
+  row2.appendChild(makeField('CONTACT','gd-contact',det.contact,'Venue contact','text'));
+  b.appendChild(row2);
+
+  b.appendChild(makeField('NOTES','gd-notes',det.notes,'Parking, dress code...','textarea'));
+
+  // Delete button for existing
+  if(!isNew){
+    // GIG DEBRIEF — only for past gigs
+    if(_isPastGig(ev)){
+      var dbf = _getDebrief(evId);
+      var sect = document.createElement('div');
+      sect.style.cssText = 'border-top:1px solid var(--n3);margin-top:14px;padding-top:14px;';
+      var sectTitle = document.createElement('div');
+      sectTitle.style.cssText = 'font-family:Russo One,sans-serif;font-size:11px;letter-spacing:2px;color:#f5c518;margin-bottom:10px;';
+      sectTitle.textContent = 'GIG DEBRIEF';
+      sect.appendChild(sectTitle);
+
+      // Vibe row
+      var vibeWrap = document.createElement('div');
+      vibeWrap.style.cssText = 'margin-bottom:10px;';
+      var vibeLbl = document.createElement('div');
+      vibeLbl.style.cssText = 'font-size:10px;color:#aaa;letter-spacing:1px;font-family:Russo One,sans-serif;margin-bottom:5px;';
+      vibeLbl.textContent = 'VIBE';
+      vibeWrap.appendChild(vibeLbl);
+      var vibes = [
+        {key:'down',  emoji:'\uD83D\uDC4E', label:'Down'},
+        {key:'meh',   emoji:'\uD83D\uDC4C', label:'Meh'},
+        {key:'good',  emoji:'\uD83D\uDC4D', label:'Good'},
+        {key:'fire',  emoji:'\uD83D\uDD25', label:'Fire'}
+      ];
+      var vibeRow = document.createElement('div');
+      vibeRow.style.cssText = 'display:flex;gap:6px;';
+      vibes.forEach(function(v){
+        var b2 = document.createElement('button');
+        var active = dbf.vibe === v.key;
+        b2.type = 'button';
+        b2.style.cssText = 'flex:1;background:'+(active?'rgba(245,197,24,.15)':'transparent')+';border:1px solid '+(active?'#f5c518':'#1a3a8a')+';border-radius:8px;padding:8px;font-size:18px;cursor:pointer;touch-action:manipulation;display:flex;flex-direction:column;align-items:center;gap:2px;';
+        b2.innerHTML = '<span style="line-height:1;">'+v.emoji+'</span><span style="font-size:9px;color:'+(active?'#f5c518':'#8aa8d6')+';font-family:Russo One,sans-serif;letter-spacing:.5px;">'+v.label.toUpperCase()+'</span>';
+        b2.onclick = (function(key){ return function(){
+          var newVal = (dbf.vibe === key) ? '' : key; // toggle off if same
+          _saveDebriefField(evId, 'vibe', newVal);
+          // Refresh just this section by re-opening (simplest)
+          openGigSheet(ev);
+        };})(v.key);
+        vibeRow.appendChild(b2);
+      });
+      vibeWrap.appendChild(vibeRow);
+      sect.appendChild(vibeWrap);
+
+      // Audience size
+      var audWrap = document.createElement('div');
+      audWrap.style.cssText = 'margin-bottom:10px;';
+      var audLbl = document.createElement('div');
+      audLbl.style.cssText = 'font-size:10px;color:#aaa;letter-spacing:1px;font-family:Russo One,sans-serif;margin-bottom:5px;';
+      audLbl.textContent = 'AUDIENCE';
+      audWrap.appendChild(audLbl);
+      var audSel = document.createElement('select');
+      audSel.className = 'mi';
+      audSel.style.cssText = 'width:100%;margin:0;';
+      ['','small','medium','large','packed'].forEach(function(opt){
+        var o = document.createElement('option');
+        o.value = opt;
+        o.textContent = opt ? (opt.charAt(0).toUpperCase()+opt.slice(1)) : '— Select —';
+        if(dbf.audience === opt) o.selected = true;
+        audSel.appendChild(o);
+      });
+      audSel.onchange = function(){ _saveDebriefField(evId, 'audience', audSel.value); };
+      audWrap.appendChild(audSel);
+      sect.appendChild(audWrap);
+
+      // Free-text fields: well, poorly, payment
+      function debriefField(label, fieldKey, placeholder, height){
+        var wrap = document.createElement('div');
+        wrap.style.cssText = 'margin-bottom:10px;';
+        var lb = document.createElement('div');
+        lb.style.cssText = 'font-size:10px;color:#aaa;letter-spacing:1px;font-family:Russo One,sans-serif;margin-bottom:5px;';
+        lb.textContent = label;
+        var ta = document.createElement('textarea');
+        ta.className = 'mi';
+        ta.style.cssText = 'width:100%;margin:0;resize:vertical;min-height:'+(height||'48px')+';font-family:Exo 2,sans-serif;';
+        ta.placeholder = placeholder;
+        ta.value = dbf[fieldKey] || '';
+        ta.rows = 2;
+        ta.onblur = function(){
+          if(ta.value !== (_getDebrief(evId)[fieldKey]||'')){
+            _saveDebriefField(evId, fieldKey, ta.value);
+          }
+        };
+        wrap.appendChild(lb);
+        wrap.appendChild(ta);
+        return wrap;
+      }
+      sect.appendChild(debriefField('WHAT WENT WELL', 'well', 'Songs that landed, audience reactions, etc.'));
+      sect.appendChild(debriefField('WHAT DIDN’T', 'poorly', 'Sound issues, set list problems, etc.'));
+      sect.appendChild(debriefField('PAYMENT NOTES', 'payment', 'Paid same night cash, check pending, etc.'));
+
+      // Footer: last edited by
+      if(dbf.lastEditedBy){
+        var sender = gM(dbf.lastEditedBy);
+        var when = '';
+        if(dbf.lastEditedAt){
+          try { when = ' · ' + _formatRelativeTime(Date.now() - dbf.lastEditedAt); } catch(e){}
+        }
+        var ft = document.createElement('div');
+        ft.style.cssText = 'font-size:10px;color:#8aa8d6;font-style:italic;text-align:right;margin-top:-4px;margin-bottom:6px;';
+        ft.textContent = 'Last edited by ' + (sender.name||'').split(' ')[0] + when;
+        sect.appendChild(ft);
+      }
+
+      b.appendChild(sect);
+    }
+
+    // Saved-flyer thumbnail above the action button — visible confirmation
+    var detForFlyer = (typeof gigDetails !== 'undefined' && gigDetails[String(ev.id)]) || {};
+    var hasSavedFlyer = !!detForFlyer.flyerData;
+    if(hasSavedFlyer){
+      var thumbWrap = document.createElement('div');
+      thumbWrap.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px;background:rgba(6,214,160,.06);border:1px solid rgba(6,214,160,.3);border-radius:8px;margin-top:6px;cursor:pointer;touch-action:manipulation;';
+      var thumbImg = document.createElement('img');
+      thumbImg.src = detForFlyer.flyerData;
+      thumbImg.style.cssText = 'width:48px;height:48px;border-radius:4px;object-fit:cover;flex-shrink:0;background:#000;';
+      thumbImg.alt = 'Saved flyer';
+      var thumbInfo = document.createElement('div');
+      thumbInfo.style.cssText = 'flex:1;min-width:0;';
+      thumbInfo.innerHTML =
+        '<div style="font-family:Russo One,sans-serif;font-size:10px;color:#06d6a0;letter-spacing:1px;margin-bottom:2px;">SAVED FLYER</div>' +
+        '<div style="font-size:11px;color:#8aa8d6;">Tap below to edit, share, or delete</div>';
+      thumbWrap.appendChild(thumbImg);
+      thumbWrap.appendChild(thumbInfo);
+      thumbWrap.onclick = (function(_ev){ return function(){
+        clM('gig-detail-modal');
+        setTimeout(function(){ openFlyerForGig(_ev); }, 200);
+      }; })(ev);
+      b.appendChild(thumbWrap);
+    }
+
+    var flyerBtn = document.createElement('button');
+    var flyerBg = hasSavedFlyer ? 'rgba(6,214,160,.12)' : 'rgba(245,197,24,.12)';
+    var flyerColor = hasSavedFlyer ? '#06d6a0' : '#f5c518';
+    flyerBtn.style.cssText = 'background:'+flyerBg+';border:1px solid '+flyerColor+';border-radius:8px;padding:9px 12px;color:'+flyerColor+';font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;width:100%;margin-top:4px;margin-bottom:4px;display:inline-flex;align-items:center;justify-content:center;gap:8px;touch-action:manipulation;';
+    var flyerLabel = hasSavedFlyer ? 'EDIT FLYER' : 'MAKE FLYER';
+    flyerBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM5 5h14v9.59l-3.29-3.3a1 1 0 0 0-1.42 0L10 15.59l-2.29-2.3a1 1 0 0 0-1.42 0L5 14.59V5z" fill="currentColor"/></svg><span>'+flyerLabel+'</span>';
+    flyerBtn.onclick = (function(_ev){ return function(){
+      clM('gig-detail-modal');
+      setTimeout(function(){ openFlyerForGig(_ev); }, 200);
+    }; })(ev);
+    b.appendChild(flyerBtn);
+
+    var delBtn = document.createElement('button');
+    delBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:8px;padding:8px 12px;color:#ff4757;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;width:100%;margin-top:4px;margin-bottom:4px;display:inline-flex;align-items:center;justify-content:center;gap:6px;';
+    delBtn.innerHTML = '<span style="font-size:13px;line-height:1;">&#128465;</span><span>DELETE EVENT</span>';
+    delBtn.onclick = (function(eid, title){ return function(){
+      appConfirm({title:'Delete event?', message:'Delete "' + title + '"? This cannot be undone.'}).then(function(ok){ if(ok){ dEv(eid); clM('gig-detail-modal'); toast('Event deleted', {tone:'success'}); } });
+    }; })(ev.id, ev.title || 'this event');
+    b.appendChild(delBtn);
+  }
+
+  var saveBtn = document.createElement('button');
+  saveBtn.className = 'sb';
+  saveBtn.style.width = '100%';
+  saveBtn.textContent = isNew ? 'Add Gig' : 'Save Changes';
+  saveBtn.onclick = function(){ saveGigSheet(evId, isNew); };
+  b.appendChild(saveBtn);
+
+  opM('gig-detail-modal');
+}
+
+// r170/r171: Blackout conflict warning for schedule saves.
+// r171 adds structured blackout ownership: memberId/memberName are preferred;
+// legacy title parsing remains as a fallback for older blackout records.
+function _blackoutNameFromTitle(title){
+  var t = String(title || 'Unavailable').trim();
+  return t.replace(/\s+unavailable\s*$/i,'').trim() || t || 'Unavailable';
+}
+function _normMemberName(v){
+  return String(v || '').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+}
+function _memberByLooseName(name){
+  var n = _normMemberName(name);
+  if(!n) return null;
+  return (members || []).find(function(m){
+    var full = _normMemberName(m.name);
+    var first = _normMemberName(String(m.name || '').split(' ')[0]);
+    return full === n || first === n || full.indexOf(n) === 0;
+  }) || null;
+}
+function _blackoutMemberFromEvent(ev){
+  ev = ev || {};
+  if(ev.memberId !== undefined && ev.memberId !== null && ev.memberId !== ''){
+    var byId = gM(parseInt(ev.memberId,10));
+    if(byId && byId.name && byId.name !== '?') return {id:byId.id, name:byId.name};
+  }
+  if(ev.memberName){
+    var byName = _memberByLooseName(ev.memberName);
+    return {id: byName ? byName.id : null, name: String(ev.memberName).trim()};
+  }
+  var parsed = _blackoutNameFromTitle(ev.title);
+  var byTitle = _memberByLooseName(parsed);
+  return {id: byTitle ? byTitle.id : null, name: byTitle ? byTitle.name : parsed};
+}
+function _defaultBlackoutMember(){
+  var me = gM(ME);
+  return {id: ME, name: (me && me.name && me.name !== '?') ? me.name : (myName || 'Unavailable')};
+}
+function _blackoutMemberForForm(ev){
+  var info = ev ? _blackoutMemberFromEvent(ev) : _defaultBlackoutMember();
+  if(!info || !info.name) info = _defaultBlackoutMember();
+  return info;
+}
+function _canEditBlackoutForMember(memberInfo){
+  if(_isAdmin()) return true;
+  if(!memberInfo || !memberInfo.id) return true; // legacy/unknown owner: allow edit but save will assign structured data
+  return String(memberInfo.id) === String(ME);
+}
+function _makeBlackoutMemberSelector(ev){
+  var info = _blackoutMemberForForm(ev);
+  var admin = _isAdmin();
+  var d = document.createElement('div');
+  d.style.marginBottom = '8px';
+  var lbl = document.createElement('label');
+  lbl.style.cssText = 'font-size:10px;color:#ff4757;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;letter-spacing:1px;';
+  lbl.textContent = 'WHO IS UNAVAILABLE';
+  var sel = document.createElement('select');
+  sel.className = 'mi';
+  sel.id = 'bo-member';
+  sel.style.width = '100%';
+  var list = admin ? (members || []) : [];
+  if(!admin){
+    var chosen = info.id ? gM(info.id) : null;
+    if(!chosen || !chosen.name || chosen.name === '?') chosen = gM(ME);
+    list = [chosen];
+    sel.disabled = true;
+    sel.style.opacity = '.8';
+  }
+  list.forEach(function(m){
+    if(!m || !m.id) return;
+    var opt = document.createElement('option');
+    opt.value = String(m.id);
+    opt.textContent = m.name;
+    if(String(m.id) === String(info.id || ME)) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  if(!sel.options.length){
+    var fallback = document.createElement('option');
+    fallback.value = String(ME || '');
+    fallback.textContent = info.name || myName || 'Unavailable';
+    sel.appendChild(fallback);
+  }
+  var help = document.createElement('div');
+  help.style.cssText = 'font-size:10px;color:#4a6a9a;margin-top:4px;line-height:1.35;';
+  help.textContent = admin ? 'Admin can assign a blackout to any member.' : 'Members can enter blackout dates for themselves. Admin can assign another member.';
+  d.appendChild(lbl);
+  d.appendChild(sel);
+  d.appendChild(help);
+  return d;
+}
+function _selectedBlackoutMember(){
+  var sel = document.getElementById('bo-member');
+  var id = sel && sel.value ? parseInt(sel.value,10) : ME;
+  var m = gM(id);
+  return {id:id, name:(m && m.name && m.name !== '?') ? m.name : (myName || 'Unavailable')};
+}
+function _blackoutConflictsForDate(dateStr){
+  if(!dateStr) return [];
+  var seen = {};
+  return (events || []).filter(function(e){
+    return e && e.type === 'blackout' && e.date === dateStr;
+  }).map(function(e){
+    var member = _blackoutMemberFromEvent(e);
+    var person = (member && member.name) ? member.name : _blackoutNameFromTitle(e.title);
+    var note = String(e.note || '').trim();
+    var key = person + '|' + note;
+    if(seen[key]) return null;
+    seen[key] = true;
+    return {person:person, title:String(e.title || '').trim(), note:note, memberId:member ? member.id : null};
+  }).filter(Boolean);
+}
+var _blackoutConflictAck = {};
+function _blackoutConflictAckKey(kind, dateStr){ return String(kind || '') + '|' + String(dateStr || ''); }
+function _blackoutConflictWasAcked(kind, dateStr){ return !!_blackoutConflictAck[_blackoutConflictAckKey(kind, dateStr)]; }
+function _ackBlackoutConflict(kind, dateStr){ _blackoutConflictAck[_blackoutConflictAckKey(kind, dateStr)] = true; }
+function _blackoutConflictLine(conflicts){
+  var names = conflicts.map(function(c){ return c.person; }).filter(Boolean);
+  var unique = [];
+  var seen = {};
+  names.forEach(function(n){ if(!seen[n]){ seen[n]=true; unique.push(n); } });
+  var shown = unique.slice(0,6).join(', ');
+  if(unique.length > 6) shown += ' +' + (unique.length - 6) + ' more';
+  return unique.length === 1 ? (shown + ' is unavailable') : (shown + ' are unavailable');
+}
+function _blackoutConflictMessage(kind, dateStr, conflicts, mode){
+  var noun = String(kind || 'event');
+  var action = mode === 'open'
+    ? 'This is a scheduling conflict. Choose a different date unless you intentionally want to continue anyway.'
+    : 'This is a scheduling conflict. Choose a different date unless you intentionally want to save anyway.';
+  return 'Blackout conflict found for ' + dateStr + '.\n\n' + _blackoutConflictLine(conflicts) + '.\n\n' + action;
+}
+function _confirmBlackoutConflictBeforeOpen(kind, dateStr, onProceed){
+  var conflicts = _blackoutConflictsForDate(dateStr);
+  if(!conflicts.length){ onProceed(); return; }
+  appConfirm({
+    title:'Blackout conflict — choose another date',
+    message:_blackoutConflictMessage(kind, dateStr, conflicts, 'open'),
+    destructive:true,
+    preferCancel:true,
+    okLabel:'CONTINUE ANYWAY',
+    cancelLabel:'CHOOSE DIFFERENT DATE'
+  }).then(function(ok){
+    if(ok){ _ackBlackoutConflict(kind, dateStr); onProceed(); }
+  });
+}
+function _confirmBlackoutConflictBeforeSave(kind, dateStr, onProceed){
+  var conflicts = _blackoutConflictsForDate(dateStr);
+  if(!conflicts.length || _blackoutConflictWasAcked(kind, dateStr)){ onProceed(); return; }
+  appConfirm({
+    title:'Blackout conflict — choose another date',
+    message:_blackoutConflictMessage(kind, dateStr, conflicts, 'save'),
+    destructive:true,
+    preferCancel:true,
+    okLabel:'SAVE ANYWAY',
+    cancelLabel:'CHOOSE DIFFERENT DATE'
+  }).then(function(ok){
+    if(ok){ _ackBlackoutConflict(kind, dateStr); onProceed(); }
+    else { toast((kind.charAt(0).toUpperCase() + kind.slice(1)) + ' not saved', {tone:'info'}); }
+  });
+}
+
+function saveGigSheet(evId, isNew){
+  var name = document.getElementById('gd-name').value.trim();
+  if(!name){ toast('Gig name is required.', {tone:'error'}); return; }
+  try { _trackActivity('edit_gig', String(evId||'')); } catch(e){}  // r42
+  var dateStr = isNew ? (document.getElementById('gd-date') ? document.getElementById('gd-date').value : fD(CY,CM,sDay)) : events.find(function(e){return e.id==evId;}).date;
+  // r37: read new split fields, write all three (street, city, address combined)
+  var _gdStreet_a = (document.getElementById('gd-street')||{value:''}).value;
+  var _gdCity_a = (document.getElementById('gd-city')||{value:''}).value;
+  var det = {
+    venue: document.getElementById('gd-venue').value,
+    street: _gdStreet_a,
+    city: _gdCity_a,
+    address: _combineGigAddress(_gdStreet_a, _gdCity_a),
+    loadin: document.getElementById('gd-loadin').value,
+    sc: document.getElementById('gd-sc').value,
+    settime: document.getElementById('gd-settime').value,
+    contact: document.getElementById('gd-contact').value,
+    notes: document.getElementById('gd-notes').value
+  };
+  // Preserve existing flyer data if any (don't lose it on edit)
+  var existing = gigDetails[String(evId || '')] || {};
+  if(existing.flyerData)        det.flyerData = existing.flyerData;
+  if(existing.flyerTemplateKey) det.flyerTemplateKey = existing.flyerTemplateKey;
+  if(existing.flyerVenue)       det.flyerVenue = existing.flyerVenue;
+  if(existing.flyerAddress)     det.flyerAddress = existing.flyerAddress;
+  if(existing.flyerDate)        det.flyerDate = existing.flyerDate;
+  if(existing.flyerAnnouncement)det.flyerAnnouncement = existing.flyerAnnouncement;
+  var id = evId || Date.now();
+  function commitGigSave(){
+    saveEvent({id:id, date:dateStr, type:'gig', title:name, note:det.venue});
+    gigDetails[String(id)] = det;
+    db.collection('gigdetails').doc(String(id)).set(det);
+    clM('gig-detail-modal');
+    var prettyDate = fmtGigDateForNotif(dateStr);
+    var msgTail = prettyDate + (det.venue ? ' — ' + det.venue : '');
+    notifyBand('gigs',
+      (isNew ? 'New gig: ' : 'Gig updated: ') + name,
+      msgTail);
+  }
+  _confirmBlackoutConflictBeforeSave('gig', dateStr, commitGigSave);
+}
+
+function openRehearsalSheet(ev){
+  var isNew = !ev;
+  var dateStr = isNew ? fD(CY,CM,sDay) : ev.date;
+  document.getElementById('gd-title').textContent = isNew ? 'New Rehearsal' : 'Edit Rehearsal';
+  var b = document.getElementById('gd-body');
+  b.innerHTML = '';
+
+  var rhAgInit = ev ? _getAgenda(ev.id) : {songs:[], notes:'', startTime:'', endTime:'', focus:''};
+  var initial = {
+    date:      dateStr,
+    title:     ev ? (ev.title || 'Rehearsal') : 'Rehearsal',
+    location:  ev ? (ev.note || '') : '',
+    startTime: rhAgInit.startTime || (ev ? (ev.startTime || ev.start || '') : ''),
+    endTime:   rhAgInit.endTime || (ev ? (ev.endTime || ev.end || '') : ''),
+    focus:     rhAgInit.focus || (ev ? (ev.focus || '') : ''),
+    songs:     Array.isArray(rhAgInit.songs) ? rhAgInit.songs.slice() : [],
+    notes:     rhAgInit.notes || ''
+  };
+
+  _activeRehearsalForm = _renderRehearsalForm(b, initial, {
+    idPrefix: 'rh',
+    showDate: isNew,
+    staticDateLabel: isNew ? null : ev.date
+  });
+
+  // Save / Delete actions
+  if(!isNew && canEditThisBlackout){
+    var delBtn = document.createElement('button');
+    delBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:8px;padding:8px 12px;color:#ff4757;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;width:100%;margin-top:6px;margin-bottom:4px;display:inline-flex;align-items:center;justify-content:center;gap:6px;';
+    delBtn.innerHTML = '<span style="font-size:13px;line-height:1;">&#128465;</span><span>DELETE EVENT</span>';
+    delBtn.onclick = (function(eid, title){ return function(){
+      appConfirm({title:'Delete event?', message:'Delete "' + title + '"? This cannot be undone.'}).then(function(ok){ if(ok){ dEv(eid); clM('gig-detail-modal'); toast('Event deleted', {tone:'success'}); } });
+    }; })(ev.id, ev.title || 'this rehearsal');
+    b.appendChild(delBtn);
+  }
+
+  var saveBtn = document.createElement('button');
+  saveBtn.className = 'sb';
+  saveBtn.style.cssText = 'width:100%;margin-top:8px;';
+  saveBtn.textContent = isNew ? 'Add Rehearsal' : 'Save Changes';
+  saveBtn.onclick = function(){ saveRehearsalSheet(ev ? ev.id : null, isNew); };
+  b.appendChild(saveBtn);
+
+  opM('gig-detail-modal');
+}
+
+function renderRhAgenda(evId){
+  var el = document.getElementById('rh-agenda-list');
+  if(!el) return;
+  var songs = evId ? _getAgenda(evId).songs : [];
+  el.innerHTML = '';
+  songs.forEach(function(song, i){
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:6px;padding:4px 6px;background:#060e1c;border-radius:6px;margin-bottom:3px;';
+    row.innerHTML = '<span style="font-size:11px;color:#f5c518;width:14px;">'+(i+1)+'</span><span style="flex:1;font-size:12px;color:#e8f0ff;">'+song+'</span>';
+    var del = document.createElement('button');
+    del.style.cssText = 'background:none;border:none;color:#4a6a9a;font-size:11px;cursor:pointer;';
+    del.innerHTML = '&#10005;';
+    del.onclick = (function(idx, eid){ return function(){
+      var ag = _getAgenda(eid);
+      ag.songs.splice(idx,1);
+      db.collection('agendas').doc(String(eid)).set(ag);
+      renderRhAgenda(eid);
+    }; })(i, evId);
+    row.appendChild(del);
+    el.appendChild(row);
+  });
+}
+
+function saveRehearsalSheet(evId, isNew){
+  if(!_activeRehearsalForm){ toast('Form not ready', {tone:'error'}); return; }
+  var v = _activeRehearsalForm.getValues();
+  var dateStr = v.date || (isNew ? fD(CY,CM,sDay) : (events.find(function(e){return e.id==evId;}) || {}).date);
+  if(!dateStr){ toast('Pick a date', {tone:'error'}); return; }
+  var id = evId || Date.now();
+  function commitRehearsalSave(){
+    saveEvent({
+      id:id,
+      date:dateStr,
+      type:'rehearsal',
+      title:v.title,
+      note:v.location,
+      startTime:v.startTime || '',
+      endTime:v.endTime || '',
+      focus:v.focus || ''
+    });
+
+    // Persist agenda fields
+    var ag = _getAgenda(id);
+    ag.startTime = v.startTime;
+    ag.endTime   = v.endTime;
+    ag.focus     = v.focus;
+    ag.notes     = v.notes;
+    ag.songs     = v.songs;
+    db.collection('agendas').doc(String(id)).set(ag).catch(function(){});
+
+    clM('gig-detail-modal');
+    var prettyDate = fmtGigDateForNotif(dateStr);
+    var msgTail = prettyDate + (v.location ? ' — ' + v.location : '');
+    notifyBand('gigs',
+      (isNew ? 'New rehearsal: ' : 'Rehearsal updated: ') + v.title,
+      msgTail);
+  }
+  _confirmBlackoutConflictBeforeSave('rehearsal', dateStr, commitRehearsalSave);
+}
+
+function openBlackoutSheet(ev){
+  var isNew = !ev;
+  var dateStr = isNew ? fD(CY,CM,sDay) : ev.date;
+  document.getElementById('gd-title').textContent = isNew ? 'New Blackout Date' : 'Edit Blackout';
+  var b = document.getElementById('gd-body');
+  b.innerHTML = '';
+
+  function makeField(label, inputId, val, placeholder, type){
+    var d = document.createElement('div');
+    d.style.marginBottom = '8px';
+    var lbl = document.createElement('label');
+    lbl.style.cssText = 'font-size:10px;color:#ff4757;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;letter-spacing:1px;';
+    lbl.textContent = label;
+    var inp = document.createElement('input');
+    inp.className = 'mi';
+    inp.id = inputId;
+    inp.value = val || '';
+    inp.placeholder = placeholder;
+    if(type==='date') inp.type='date';
+    d.appendChild(lbl);
+    d.appendChild(inp);
+    return d;
+  }
+
+  var blackoutMemberInfo = _blackoutMemberForForm(ev);
+  var canEditThisBlackout = _canEditBlackoutForMember(blackoutMemberInfo);
+  b.appendChild(_makeBlackoutMemberSelector(ev));
+  if(!canEditThisBlackout){
+    var warn = document.createElement('div');
+    warn.style.cssText = 'background:rgba(255,71,87,.10);border:1px solid rgba(255,71,87,.45);border-radius:8px;padding:8px 10px;margin-bottom:8px;color:#ff9aa5;font-size:11px;line-height:1.35;';
+    warn.textContent = 'This blackout belongs to another member. Only admin can edit it.';
+    b.appendChild(warn);
+  }
+
+  var dateRow = document.createElement('div');
+  dateRow.style.cssText = 'display:flex;gap:8px;';
+  dateRow.appendChild(makeField('START DATE','bo-start', dateStr,'','date'));
+  dateRow.appendChild(makeField('END DATE (optional)','bo-end', isNew ? '' : ev.date,'','date'));
+  b.appendChild(dateRow);
+
+  b.appendChild(makeField('NOTE','bo-note', ev ? ev.note : '','Reason (vacation, work, etc.)','text'));
+
+  if(!isNew){
+    var delBtn = document.createElement('button');
+    delBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:8px;padding:8px 12px;color:#ff4757;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;width:100%;margin-bottom:4px;display:inline-flex;align-items:center;justify-content:center;gap:6px;';
+    delBtn.innerHTML = '<span style="font-size:13px;line-height:1;">&#128465;</span><span>DELETE BLACKOUT</span>';
+    delBtn.onclick = (function(eid, title){ return function(){
+      appConfirm({title:'Delete event?', message:'Delete "' + title + '"? This cannot be undone.'}).then(function(ok){ if(ok){ dEv(eid); clM('gig-detail-modal'); toast('Event deleted', {tone:'success'}); } });
+    }; })(ev.id, ev.title || 'this blackout');
+    b.appendChild(delBtn);
+  }
+
+  var saveBtn = document.createElement('button');
+  saveBtn.className = 'sb';
+  saveBtn.style.cssText = 'width:100%;background:rgba(255,71,87,.2);border:1px solid #ff4757;color:#ff4757;';
+  saveBtn.textContent = !canEditThisBlackout ? 'Admin Only' : (isNew ? 'Add Blackout' : 'Save Changes');
+  saveBtn.disabled = !canEditThisBlackout;
+  if(!canEditThisBlackout){ saveBtn.style.opacity = '.55'; saveBtn.style.cursor = 'not-allowed'; }
+  saveBtn.onclick = function(){ if(canEditThisBlackout) saveBlackoutSheet(ev ? ev.id : null, isNew); };
+  b.appendChild(saveBtn);
+
+  opM('gig-detail-modal');
+}
+
+function saveBlackoutSheet(evId, isNew){
+  var member = _selectedBlackoutMember();
+  if(!_isAdmin() && member.id && String(member.id) !== String(ME)){
+    toast('Only admin can save a blackout for another member.', {tone:'error'});
+    return;
+  }
+  var title = member.name + ' unavailable';
+  var start = document.getElementById('bo-start').value || fD(CY,CM,sDay);
+  var end = document.getElementById('bo-end').value;
+  var note = document.getElementById('bo-note').value.trim();
+
+  function blackoutPayload(id, dateStr){
+    return {
+      id:id, date:dateStr, type:'blackout', title:title, note:note,
+      memberId:member.id, memberName:member.name,
+      createdBy:ME, createdByName:myName || '',
+      updatedBy:ME, updatedByName:myName || '', updatedAt:Date.now()
+    };
+  }
+
+  if(!isNew){
+    // Just update the single event, preserving original creator where present.
+    var ev = events.find(function(e){return e.id==evId;});
+    if(ev){
+      ev.title=title; ev.note=note; ev.memberId=member.id; ev.memberName=member.name;
+      if(!ev.createdBy) ev.createdBy = ME;
+      if(!ev.createdByName) ev.createdByName = myName || '';
+      ev.updatedBy = ME; ev.updatedByName = myName || ''; ev.updatedAt = Date.now();
+      saveEvent(ev);
+    }
+    // r169: blackout edits are silent calendar intelligence; do not push/chime the band.
+    // r171: blackout ownership is structured by memberId/memberName.
+  } else if(end && end > start){
+    // Range
+    var cur=new Date(start+'T00:00:00'), endD=new Date(end+'T00:00:00'), day=0;
+    while(cur<=endD && day<60){
+      var ds=cur.toISOString().slice(0,10);
+      saveEvent(blackoutPayload(Date.now()+day, ds));
+      cur.setDate(cur.getDate()+1); day++;
+    }
+    // r169: blackout ranges are silent calendar intelligence; do not push/chime the band.
+    // Avoids notification storms when members enter many unavailable dates.
+  } else {
+    saveEvent(blackoutPayload(Date.now(), start));
+    // r169: single blackout dates are silent calendar intelligence; do not push/chime the band.
+  }
+  clM('gig-detail-modal');
+}
+
+function saveEditEv(id){
+  // Legacy - redirect to type-specific save
+  var ev = events.find(function(e){ return e.id==id; });
+  if(!ev) return;
+  if(ev.type==='gig') saveGigSheet(id, false);
+  else if(ev.type==='rehearsal') saveRehearsalSheet(id, false);
+  else saveBlackoutSheet(id, false);
+}
+
+
+function adEv() {
+  var t=document.getElementById('etit').value.trim();
+  if(!t)return;
+  var note=document.getElementById('enot').value.trim();
+  if(cET==='blackout'){
+    var estartEl=document.getElementById('estart');
+    var eendEl=document.getElementById('eend');
+    var startDate=estartEl&&estartEl.value ? estartEl.value : fD(CY,CM,sDay);
+    var endDate=eendEl&&eendEl.value ? eendEl.value : '';
+    if(endDate && endDate>=startDate){
+      // Range - create blackout for each day
+      var cur=new Date(startDate+'T00:00:00');
+      var end=new Date(endDate+'T00:00:00');
+      var day=0;
+      while(cur<=end && day<60){
+        var ds=cur.toISOString().slice(0,10);
+        saveEvent({id:Date.now()+day,date:ds,type:'blackout',title:t,note:note});
+        cur.setDate(cur.getDate()+1);
+        day++;
+      }
+    } else {
+      // Single day blackout
+      saveEvent({id:Date.now(),date:startDate,type:'blackout',title:t,note:note});
+    }
+    if(estartEl) estartEl.value='';
+    if(eendEl) eendEl.value='';
+  } else {
+    saveEvent({id:Date.now(),date:fD(CY,CM,sDay),type:cET,title:t,note:note});
+  }
+  clM('evm');
+}
+
+function dEv(id){
+  var k = String(id);
+  db.collection('events').doc(k).delete();
+  // Best-effort cleanup of attached docs (ignored if missing)
+  db.collection('gigdetails').doc(k).delete().catch(function(){});
+  db.collection('gigdebriefs').doc(k).delete().catch(function(){});
+  db.collection('agendas').doc(k).delete().catch(function(){});
+}
+
+// AVAILABILITY
+function rAvailability() {
+  var el=document.getElementById('avail-list');
+  if(!el)return;
+  if(!availability.length){
+    el.innerHTML='<div style="color:#aaa;font-style:italic;padding:8px;font-size:13px;">No unavailability marked.</div>';
+    return;
+  }
+  var html2='';
+  availability.forEach(function(a){
+    var m=gM(a.who);
+    html2 += '<div style="background:#101e34;border-radius:8px;padding:8px 11px;margin-bottom:6px;display:flex;align-items:center;gap:8px;">';
+    html2 += '<div style="width:24px;height:24px;border-radius:50%;background:'+richGrad(m.color)+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;flex-shrink:0;font-family:Russo One,sans-serif;box-shadow:0 0 8px '+m.color+'40, inset 0 -1px 3px rgba(0,0,0,.18);">'+m.av+'</div>';
+    html2 += '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#e8f0ff;">'+a.name+'</div>';
+    html2 += '<div style="font-size:11px;color:#ff4757;">'+a.date+(a.note?' - '+a.note:'')+'</div></div>';
+    if(a.who===ME){
+      html2 += '<button onclick="appConfirm({title:\'Remove unavailability?\', message:\'You\\\'ll be available again on this date.\'}).then(function(ok){if(ok){delAvail(\''+a.id+'\');toast(\'Unavailability removed\',{tone:\'success\'});}})" style="background:none;border:none;color:#4a6a9a;font-size:14px;cursor:pointer;">&#10005;</button>';
+    }
+    html2 += '</div>';
+  });
+  el.innerHTML=html2;
+}
+function delAvail(id){ db.collection('availability').doc(String(id)).delete(); }
+function addMyAvail() {
+  document.getElementById('avail-form').style.display='flex';
+  document.getElementById('avail-form').style.flexDirection='column';
+  // Set default start date to today
+  document.getElementById('avail-start').value = new Date().toISOString().slice(0,10);
+  document.getElementById('avail-end').value = '';
+  document.getElementById('avail-note').value = '';
+}
+
+function submitAvail(){
+  var start = document.getElementById('avail-start').value;
+  var end = document.getElementById('avail-end').value;
+  var note = document.getElementById('avail-note').value.trim();
+  if(!start) return;
+
+  // If no end date, single day
+  if(!end) end = start;
+
+  // Create availability entry
+  var av = {id:Date.now(), who:ME, name:myName, startDate:start, endDate:end, note:note};
+  db.collection('availability').doc(String(av.id)).set(av);
+
+  // Also post blackout events to calendar for each day in range
+  var cur = new Date(start + 'T00:00:00');
+  var endD = new Date(end + 'T00:00:00');
+  var memberFirst = myName.split(' ')[0];
+  var dayCount = 0;
+  while(cur <= endD && dayCount < 60){
+    var dateStr = cur.toISOString().slice(0,10);
+    var ev = {
+      id: Date.now() + dayCount,
+      date: dateStr,
+      type: 'blackout',
+      title: memberFirst + ' unavailable',
+      note: note,
+      availId: String(av.id) // link back to availability entry
+    };
+    saveEvent(ev);
+    cur.setDate(cur.getDate()+1);
+    dayCount++;
+  }
+
+  document.getElementById('avail-form').style.display='none';
+  document.getElementById('avail-start').value='';
+  document.getElementById('avail-end').value='';
+  document.getElementById('avail-note').value='';
+
+  var dateRange = (start === end) ? fmtGigDateForNotif(start)
+                                  : (fmtGigDateForNotif(start) + ' – ' + fmtGigDateForNotif(end));
+  notifyBand('availability',
+    myName + ' marked unavailable',
+    dateRange + (note ? ' — ' + note : ''));
+}
+
+// GIG DETAILS
+function showGigDetail(evId) {
+  var ev=events.find(function(e){return e.id==evId;});
+  if(!ev)return;
+  document.getElementById('gd-title').textContent = ev.title;
+  var det=gigDetails[evId]||{};
+  var b = document.getElementById('gd-body');
+  b.innerHTML = '';
+  
+  var dateDiv = document.createElement('div');
+  dateDiv.innerHTML = '<div style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;margin-bottom:3px;">DATE</div><div style="font-size:14px;color:#e8f0ff;">'+ev.date+'</div>';
+  b.appendChild(dateDiv);
+  
+  function makeField(labelText, inputId, val, placeholder, type) {
+    var d = document.createElement('div');
+    d.style.marginBottom = '8px';
+    var lbl = document.createElement('label');
+    lbl.style.cssText = 'font-size:10px;color:#aaa;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;';
+    lbl.textContent = labelText;
+    var inp = document.createElement(type==='textarea'?'textarea':'input');
+    inp.className = 'mi';
+    inp.id = inputId;
+    inp.value = val || '';
+    inp.placeholder = placeholder;
+    if(type==='textarea'){inp.rows=3;inp.style.resize='none';}
+    d.appendChild(lbl);
+    d.appendChild(inp);
+    return d;
+  }
+  
+  b.appendChild(makeField('VENUE','gd-venue',det.venue,'e.g. The Roxy Theater','text'));
+  // r37: split into Street + City (with on-the-fly parse for legacy records)
+  var _addrParts_b = (det.street || det.city)
+    ? {street: det.street || '', city: det.city || ''}
+    : _splitGigAddress(det.address || '');
+  b.appendChild(makeField('STREET ADDRESS','gd-street',_addrParts_b.street,'e.g. 9009 Sunset Blvd','text'));
+  b.appendChild(makeField('CITY','gd-city',_addrParts_b.city,'e.g. West Hollywood','text'));
+  
+  var row1 = document.createElement('div');
+  row1.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;';
+  row1.appendChild(makeField('LOAD-IN','gd-loadin',det.loadin,'e.g. 5:30 PM','text'));
+  row1.appendChild(makeField('SOUND CHECK','gd-sc',det.sc,'e.g. 6:30 PM','text'));
+  b.appendChild(row1);
+  
+  var row2 = document.createElement('div');
+  row2.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;';
+  row2.appendChild(makeField('SET TIME','gd-settime',det.settime,'e.g. 8:00 PM','text'));
+  row2.appendChild(makeField('CONTACT','gd-contact',det.contact,'Venue contact','text'));
+  b.appendChild(row2);
+  
+  b.appendChild(makeField('NOTES','gd-notes',det.notes,'Parking, dress code, special instructions...','textarea'));
+  
+  var btn = document.createElement('button');
+  btn.className = 'sb';
+  btn.style.width = '100%';
+  btn.textContent = 'Save Details';
+  btn.onclick = function(){ saveGigDetail(evId); };
+  b.appendChild(btn);
+  
+  opM('gig-detail-modal');
+}
+function saveGigDetail(evId) {
+  try { _trackActivity('edit_gig', String(evId||'')); } catch(e){}  // r42
+  // r37: read new split fields, write all three for back-compat
+  var _gdStreet_b = (document.getElementById('gd-street')||{value:''}).value;
+  var _gdCity_b = (document.getElementById('gd-city')||{value:''}).value;
+  var det={venue:document.getElementById('gd-venue').value,street:_gdStreet_b,city:_gdCity_b,address:_combineGigAddress(_gdStreet_b, _gdCity_b),loadin:document.getElementById('gd-loadin').value,sc:document.getElementById('gd-sc').value,settime:document.getElementById('gd-settime').value,contact:document.getElementById('gd-contact').value,notes:document.getElementById('gd-notes').value};
+  // Preserve existing flyer data
+  var existing = gigDetails[String(evId)] || {};
+  if(existing.flyerData)        det.flyerData = existing.flyerData;
+  if(existing.flyerTemplateKey) det.flyerTemplateKey = existing.flyerTemplateKey;
+  if(existing.flyerVenue)       det.flyerVenue = existing.flyerVenue;
+  if(existing.flyerAddress)     det.flyerAddress = existing.flyerAddress;
+  if(existing.flyerDate)        det.flyerDate = existing.flyerDate;
+  if(existing.flyerAnnouncement)det.flyerAnnouncement = existing.flyerAnnouncement;
+  gigDetails[evId]=det;
+  db.collection('gigdetails').doc(String(evId)).set(det);
+  clM('gig-detail-modal');
+}
+
+// SETLISTS
+// Setlist palette — stripe colors + matching 3-stop title gradients + title glows.
+// Order: blue, gold, green, pink, orange, purple. Cycles after 6.
+var _SL_STRIPE_COLORS = ['#ff6b9d', '#06d6a0', '#f5c518', '#b08bff', '#ffa500', '#4a9eff'];
+var _SL_CARD_GRADIENTS = [
+  'linear-gradient(135deg,rgba(32,13,62,.98) 0%,rgba(72,25,88,.98) 52%,rgba(128,40,93,.96) 100%)',
+  'linear-gradient(135deg,rgba(4,35,48,.98) 0%,rgba(4,76,72,.98) 52%,rgba(8,124,94,.95) 100%)',
+  'linear-gradient(135deg,rgba(54,33,8,.98) 0%,rgba(96,58,9,.98) 52%,rgba(151,91,14,.95) 100%)',
+  'linear-gradient(135deg,rgba(28,22,72,.98) 0%,rgba(60,46,112,.98) 52%,rgba(92,70,158,.95) 100%)',
+  'linear-gradient(135deg,rgba(64,25,10,.98) 0%,rgba(112,46,16,.98) 52%,rgba(172,82,20,.95) 100%)',
+  'linear-gradient(135deg,rgba(8,22,46,.98) 0%,rgba(12,44,88,.98) 52%,rgba(22,76,135,.95) 100%)'
+];
+var _SL_CARD_BORDERS = [
+  'rgba(255,107,157,.38)',
+  'rgba(6,214,160,.34)',
+  'rgba(245,197,24,.38)',
+  'rgba(176,139,255,.36)',
+  'rgba(255,165,0,.36)',
+  'rgba(74,158,255,.32)'
+];
+var _SL_TITLE_GRADIENTS = [
+  'linear-gradient(135deg,#c42d73 0%,#ff6b9d 48%,#ffd0df 100%)',
+  'linear-gradient(135deg,#04a87b 0%,#06d6a0 45%,#7df5cf 100%)',
+  'linear-gradient(135deg,#ffb800 0%,#ffd84a 45%,#fff39a 100%)',
+  'linear-gradient(135deg,#7d5acc 0%,#b08bff 45%,#dccaff 100%)',
+  'linear-gradient(135deg,#cc7a00 0%,#ffa500 45%,#ffd07a 100%)',
+  'linear-gradient(135deg,#1f5fb5 0%,#4a9eff 45%,#a3d2ff 100%)'
+];
+var _SL_TITLE_GLOWS = [
+  'rgba(255,107,157,.28)',
+  'rgba(6,214,160,.25)',
+  'rgba(255,184,0,.25)',
+  'rgba(176,139,255,.25)',
+  'rgba(255,165,0,.25)',
+  'rgba(74,158,255,.25)'
+];
+// Light-mode palette — darker, saturated stops so titles read on white. No glow.
+var _SL_TITLE_GRADIENTS_LIGHT = [
+  'linear-gradient(135deg,#72243e 0%,#993556 45%,#d4537e 100%)',
+  'linear-gradient(135deg,#085041 0%,#0f6e56 45%,#04a87b 100%)',
+  'linear-gradient(135deg,#854f0b 0%,#b8860b 45%,#d4a017 100%)',
+  'linear-gradient(135deg,#3c3489 0%,#534ab7 45%,#7d5acc 100%)',
+  'linear-gradient(135deg,#712b13 0%,#993c1d 45%,#cc7a00 100%)',
+  'linear-gradient(135deg,#0c447c 0%,#185fa5 45%,#1f5fb5 100%)'
+];
+function _slIsLight(){ return document.body.classList.contains('light'); }
+function _slGradientAt(idx){
+  var pal = _slIsLight() ? _SL_TITLE_GRADIENTS_LIGHT : _SL_TITLE_GRADIENTS;
+  return pal[idx % pal.length];
+}
+function _slGlowAt(idx){
+  // No glow in light mode — glows wash out the dark text on white
+  if(_slIsLight()) return 'transparent';
+  return _SL_TITLE_GLOWS[idx % _SL_TITLE_GLOWS.length];
+}
+function _slCardGradientAt(idx){
+  if(_slIsLight()) return 'linear-gradient(135deg,#ffffff 0%,#f8fbff 52%,#eef4ff 100%)';
+  return _SL_CARD_GRADIENTS[idx % _SL_CARD_GRADIENTS.length];
+}
+function _slCardBorderAt(idx){
+  if(_slIsLight()) return '#d8e0ee';
+  return _SL_CARD_BORDERS[idx % _SL_CARD_BORDERS.length];
+}
+
+function _slGradientForId(id){
+  var idx = sets.findIndex(function(x){ return x.id == id; });
+  if(idx < 0) idx = 0;
+  return {
+    stripe: _SL_STRIPE_COLORS[idx % _SL_STRIPE_COLORS.length],
+    gradient: _slGradientAt(idx),
+    glow: _slGlowAt(idx),
+    cardGradient: _slCardGradientAt(idx),
+    cardBorder: _slCardBorderAt(idx)
+  };
+}
+
+
+
+// ── Calendar All Events kebab menu ─────────────────────────────────
+function closeCalendarEventsMenu(){
+  var existing = document.getElementById('calendar-events-action-backdrop');
+  if(existing) existing.remove();
+}
+function toggleCalendarEventsMenu(ev){
+  if(ev) ev.stopPropagation();
+  var existing = document.getElementById('calendar-events-action-backdrop');
+  if(existing){ existing.remove(); return; }
+  var wrap = document.createElement('div');
+  wrap.id = 'calendar-events-action-backdrop';
+  wrap.className = 'oot-action-backdrop';
+  wrap.onclick = function(e){ if(e.target === wrap) closeCalendarEventsMenu(); };
+  var sheet = document.createElement('div');
+  sheet.id = 'calendar-events-action-sheet';
+  sheet.className = 'oot-action-sheet';
+  sheet.setAttribute('role','dialog');
+  sheet.setAttribute('aria-modal','true');
+  sheet.setAttribute('aria-label','All Events options');
+  sheet.onclick = function(e){ e.stopPropagation(); };
+  function icon(txt){ return '<span class="songs-sheet-btn-icon">' + txt + '</span>'; }
+  function btn(label, sub, ico, action){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'songs-sheet-btn';
+    b.innerHTML = icon(ico) + '<span style="flex:1;"><span class="songs-sheet-btn-label">' + label + '</span>' +
+      (sub ? '<span class="songs-sheet-btn-sub">' + sub + '</span>' : '') + '</span>';
+    b.onclick = function(e){ e.stopPropagation(); closeCalendarEventsMenu(); setTimeout(action, 0); };
+    return b;
+  }
+  sheet.innerHTML =
+    '<button type="button" class="songs-sheet-x" aria-label="Close All Events options" onclick="closeCalendarEventsMenu()">×</button>' +
+    '<div class="songs-sheet-head">' +
+      '<img src="Logo.png?v=r142" class="songs-sheet-logo" alt="Out of Time">' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div class="songs-sheet-title">ALL EVENTS OPTIONS</div>' +
+        '<div class="songs-sheet-sub">Share or export the calendar event list</div>' +
+      '</div>' +
+    '</div>';
+  sheet.appendChild(btn('Share All Events', 'Band Chat, member chat, text, or calendar file', '⇧', function(){ exportData('events'); }));
+  wrap.appendChild(sheet);
+  document.body.appendChild(wrap);
+}
+
+// ── Pay tab kebab menu ─────────────────────────────────────────────
+function closePayMenu(){
+  var existing = document.getElementById('pay-action-backdrop');
+  if(existing) existing.remove();
+}
+function togglePayMenu(ev){
+  if(ev) ev.stopPropagation();
+  try { closeCalLegend(); } catch(e){}
+  var existing = document.getElementById('pay-action-backdrop');
+  if(existing){ existing.remove(); return; }
+  var wrap = document.createElement('div');
+  wrap.id = 'pay-action-backdrop';
+  wrap.className = 'oot-action-backdrop';
+  wrap.onclick = function(e){ if(e.target === wrap) closePayMenu(); };
+  var sheet = document.createElement('div');
+  sheet.id = 'pay-action-sheet';
+  sheet.className = 'oot-action-sheet';
+  sheet.setAttribute('role','dialog');
+  sheet.setAttribute('aria-modal','true');
+  sheet.setAttribute('aria-label','Pay options');
+  sheet.onclick = function(e){ e.stopPropagation(); };
+  function icon(txt){ return '<span class="songs-sheet-btn-icon">' + txt + '</span>'; }
+  function btn(label, sub, ico, action){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'songs-sheet-btn';
+    b.innerHTML = icon(ico) + '<span style="flex:1;"><span class="songs-sheet-btn-label">' + label + '</span>' +
+      (sub ? '<span class="songs-sheet-btn-sub">' + sub + '</span>' : '') + '</span>';
+    b.onclick = function(e){ e.stopPropagation(); closePayMenu(); setTimeout(action, 0); };
+    return b;
+  }
+  sheet.innerHTML =
+    '<button type="button" class="songs-sheet-x" aria-label="Close pay options" onclick="closePayMenu()">×</button>' +
+    '<div class="songs-sheet-head">' +
+      '<img src="Logo.png?v=r142" class="songs-sheet-logo" alt="Out of Time">' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div class="songs-sheet-title">PAY OPTIONS</div>' +
+        '<div class="songs-sheet-sub">Share or export gig payout information</div>' +
+      '</div>' +
+    '</div>';
+  sheet.appendChild(btn('Share Pay Log', 'Band Chat, member chat, text, or spreadsheet', '⇧', function(){ exportData('pay'); }));
+  wrap.appendChild(sheet);
+  document.body.appendChild(wrap);
+}
+
+// ── Setlists tab kebab menu ────────────────────────────────────────
+function closeSetlistsMenu(){
+  var existing = document.getElementById('setlists-action-backdrop');
+  if(existing) existing.remove();
+  var legacy = document.getElementById('setlists-menu-popup');
+  if(legacy) legacy.remove();
+}
+
+function toggleSetlistsMenu(ev){
+  if(ev) ev.stopPropagation();
+  try { closeCalLegend(); } catch(e){}
+  var existing = document.getElementById('setlists-action-backdrop');
+  if(existing){ existing.remove(); return; }
+
+  var wrap = document.createElement('div');
+  wrap.id = 'setlists-action-backdrop';
+  wrap.className = 'oot-action-backdrop';
+  wrap.onclick = function(e){ if(e.target === wrap) closeSetlistsMenu(); };
+
+  var sheet = document.createElement('div');
+  sheet.id = 'setlists-action-sheet';
+  sheet.className = 'oot-action-sheet';
+  sheet.setAttribute('role','dialog');
+  sheet.setAttribute('aria-modal','true');
+  sheet.setAttribute('aria-label','Setlist options');
+  sheet.onclick = function(e){ e.stopPropagation(); };
+
+  function icon(txt){ return '<span class="songs-sheet-btn-icon">' + txt + '</span>'; }
+  function btn(label, sub, ico, action){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'songs-sheet-btn';
+    b.innerHTML = icon(ico) + '<span style="flex:1;"><span class="songs-sheet-btn-label">' + label + '</span>' +
+      (sub ? '<span class="songs-sheet-btn-sub">' + sub + '</span>' : '') + '</span>';
+    b.onclick = function(e){ e.stopPropagation(); closeSetlistsMenu(); setTimeout(action, 0); };
+    return b;
+  }
+
+  sheet.innerHTML =
+    '<button type="button" class="songs-sheet-x" aria-label="Close setlist options" onclick="closeSetlistsMenu()">×</button>' +
+    '<div class="songs-sheet-head">' +
+      '<img src="Logo.png?v=r142" class="songs-sheet-logo" alt="Out of Time">' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div class="songs-sheet-title">SETLIST OPTIONS</div>' +
+        '<div class="songs-sheet-sub">Create, manage, or share setlists</div>' +
+      '</div>' +
+    '</div>';
+
+  sheet.appendChild(btn('Add Setlist', 'Create a new setlist', '+', function(){ if(typeof nwSL === 'function') nwSL(); }));
+  sheet.appendChild(btn('Share All Setlists', 'Export every setlist as text', '⇧', function(){ exportAllSetlistsTxt(); }));
+
+  wrap.appendChild(sheet);
+  document.body.appendChild(wrap);
+}
+
+// r272: small per-setlist menu shown only on an expanded setlist card.
+function closeExpandedSetlistMenu(){
+  var existing = document.getElementById('setlist-expanded-action-backdrop');
+  if(existing) existing.remove();
+}
+function toggleExpandedSetlistMenu(ev, setId){
+  if(ev){
+    if(ev.preventDefault) ev.preventDefault();
+    if(ev.stopPropagation) ev.stopPropagation();
+  }
+  try { closeCalLegend(); } catch(e){}
+  var existing = document.getElementById('setlist-expanded-action-backdrop');
+  if(existing){ existing.remove(); return; }
+
+  var s = (typeof sets !== 'undefined' && sets) ? sets.find(function(x){ return String(x.id) === String(setId); }) : null;
+  if(!s){ toast('Setlist not found', {tone:'error'}); return; }
+
+  var wrap = document.createElement('div');
+  wrap.id = 'setlist-expanded-action-backdrop';
+  wrap.className = 'oot-action-backdrop';
+  wrap.onclick = function(e){ if(e.target === wrap) closeExpandedSetlistMenu(); };
+
+  var sheet = document.createElement('div');
+  sheet.id = 'setlist-expanded-action-sheet';
+  sheet.className = 'oot-action-sheet';
+  sheet.setAttribute('role','dialog');
+  sheet.setAttribute('aria-modal','true');
+  sheet.setAttribute('aria-label','Setlist actions');
+  sheet.onclick = function(e){ e.stopPropagation(); };
+
+  sheet.innerHTML =
+    '<button type="button" class="songs-sheet-x" aria-label="Close setlist actions" onclick="closeExpandedSetlistMenu()">×</button>' +
+    '<div class="songs-sheet-head">' +
+      '<img src="Logo.png?v=r142" class="songs-sheet-logo" alt="Out of Time">' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div class="songs-sheet-title">SETLIST ACTIONS</div>' +
+        '<div class="songs-sheet-sub">' + (s.name || 'Setlist') + '</div>' +
+      '</div>' +
+    '</div>';
+
+  var addBtn = document.createElement('button');
+  addBtn.type = 'button';
+  addBtn.className = 'songs-sheet-btn';
+  addBtn.innerHTML = '<span class="songs-sheet-btn-icon">+</span><span style="flex:1;"><span class="songs-sheet-btn-label">Add Song to Setlist</span><span class="songs-sheet-btn-sub">Open the song picker for this setlist</span></span>';
+  addBtn.onclick = function(e){
+    e.stopPropagation();
+    closeExpandedSetlistMenu();
+    setTimeout(function(){
+      aSL = s.id;
+      showPicker();
+    }, 0);
+  };
+  sheet.appendChild(addBtn);
+
+  var shareBtn = document.createElement('button');
+  shareBtn.type = 'button';
+  shareBtn.className = 'songs-sheet-btn';
+  shareBtn.innerHTML = '<span class="songs-sheet-btn-icon">⇧</span><span style="flex:1;"><span class="songs-sheet-btn-label">Share Setlist</span><span class="songs-sheet-btn-sub">Export or share this setlist</span></span>';
+  shareBtn.onclick = function(e){
+    e.stopPropagation();
+    closeExpandedSetlistMenu();
+    setTimeout(function(){
+      aSL = s.id;
+      printSL();
+    }, 0);
+  };
+  sheet.appendChild(shareBtn);
+
+  var editBtn = document.createElement('button');
+  editBtn.type = 'button';
+  editBtn.className = 'songs-sheet-btn';
+  editBtn.innerHTML = '<span class="songs-sheet-btn-icon">⚙</span><span style="flex:1;"><span class="songs-sheet-btn-label">Manage Setlist</span><span class="songs-sheet-btn-sub">Open deeper setlist edit tools</span></span>';
+  editBtn.onclick = function(e){
+    e.stopPropagation();
+    closeExpandedSetlistMenu();
+    setTimeout(function(){ opSL(s.id); }, 0);
+  };
+  sheet.appendChild(editBtn);
 
   var reorderBtn = document.createElement('button');
   reorderBtn.type = 'button';
@@ -14386,10 +15909,10 @@ function rEd() {
     '<div style="display:flex;align-items:center;gap:9px;margin-bottom:5px;flex-wrap:wrap;">'+
     '<img src="Logo.png?v=r142" class="setlist-title-logo" alt="Out of Time">'+
     '<span style="background:'+_slPal.gradient+';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:700;text-shadow:0 0 18px '+_slPal.glow+';font-family:Russo One,sans-serif;font-size:17px;flex:1;min-width:110px;letter-spacing:1px;">'+s.name+'</span>'+
-    (reorderMode ? '<button id="sl-save-order-icon" onclick="toggleSLEdit()" type="button" title="Save order" aria-label="Save order" style="background:transparent;border:none;border-radius:12px;width:40px;height:40px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation;flex-shrink:0;margin-right:40px;box-shadow:none;"><img src="thumbnail.png?v=r287" alt="" aria-hidden="true" style="width:34px;height:34px;display:block;border-radius:10px;object-fit:cover;filter:drop-shadow(0 0 6px rgba(68,208,255,.28));"/></button>' : '')+
+    (reorderMode ? '<button id="sl-save-order-icon" onclick="toggleSLEdit()" type="button" title="Save order" aria-label="Save order" style="background:linear-gradient(135deg,#00d9ff 0%,#755cff 48%,#ff4fd8 100%);border:1px solid rgba(245,197,24,.45);border-radius:50%;width:34px;height:34px;color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation;flex-shrink:0;box-shadow:0 0 16px rgba(117,92,255,.36),0 0 10px rgba(245,197,24,.18),inset 0 1px 0 rgba(255,255,255,.28);"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M5 3h11l3 3v15H5z" fill="rgba(5,13,28,.62)" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 3v6h7V3" fill="none" stroke="#f5c518" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 16h8" fill="none" stroke="#f5c518" stroke-width="2" stroke-linecap="round"/></svg></button>' : '')+
     '</div>'+
     '<div style="font-size:12px;color:#aaa;margin-bottom:4px;">'+s.songs.length+' songs'+durStr+'</div>'+
-    '<div style="font-size:10px;color:'+(reorderMode?'#f5c518':'#4a6a9a')+';margin-bottom:10px;">'+(reorderMode?'Hold ≡ and drag to reorder · tap the thumb-drive save icon to finish':'Use the expanded setlist ⋮ for add, share, manage, and reorder')+'</div>';
+    '<div style="font-size:10px;color:'+(reorderMode?'#f5c518':'#4a6a9a')+';margin-bottom:10px;">'+(reorderMode?'Hold ≡ and drag to reorder · tap the save icon to finish':'Use the expanded setlist ⋮ for add, share, manage, and reorder')+'</div>';
 
   var container = document.getElementById('ssl');
   container.innerHTML = '';
@@ -18376,7 +19899,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-setlist-prune-external-thumb-r287';
+var WHATS_NEW_VERSION = '2026-05-05-rollback-to-r286-r288';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
