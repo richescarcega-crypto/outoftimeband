@@ -6,6 +6,7 @@ GitHub web upload/processing below the apparent ~6.5 MB failure threshold.
 No runtime app code was removed.
 r305 adds scoped CSS-only non-Calendar header height normalization.
 -->
+<!-- r306: Calendar Month/Year text reset only. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -3360,6 +3361,31 @@ body.light #sc-cal #calendar-hero-date-row .mlbl{
     font-size:10px !important;
     letter-spacing:2.8px !important;
   }
+}
+
+
+
+/* r306: Calendar Month/Year text reset only.
+   Scope: #sc-cal #calendar-hero-date-row .mlbl only.
+   Purpose: remove gradient fill, special text fill, stroke, and shadow so Month/Year starts from a plain text-only baseline.
+   No layout, banner, grid, lower Calendar sections, or other tabs are changed. */
+#sc-cal #calendar-hero-date-row .mlbl{
+  background:none !important;
+  -webkit-background-clip:initial !important;
+  background-clip:initial !important;
+  color:#e8f0ff !important;
+  -webkit-text-fill-color:#e8f0ff !important;
+  -webkit-text-stroke:0 !important;
+  text-shadow:none !important;
+}
+body.light #sc-cal #calendar-hero-date-row .mlbl{
+  background:none !important;
+  -webkit-background-clip:initial !important;
+  background-clip:initial !important;
+  color:#1a2a4a !important;
+  -webkit-text-fill-color:#1a2a4a !important;
+  -webkit-text-stroke:0 !important;
+  text-shadow:none !important;
 }
 
 </style>
@@ -19726,7 +19752,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-header-height-normalization-r305';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-month-year-text-reset-r306';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20019,6 +20045,9 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-month-year-text-reset-r306', date:'May 6, 2026', importance:'fix',
+    title:'Calendar Month/Year text reset',
+    body:'Resets only the Calendar Month/Year text treatment by removing gradient fill, special text fill, stroke, and shadow. No Month/Year banner layout, Calendar grid, lower Calendar sections, or other tabs were changed.'},
   {version:'2026-05-06-header-height-normalization-r305', date:'May 6, 2026', importance:'fix',
     title:'Header height normalization',
     body:'Normalizes the hero/header height across Songs, Setlists, Chat, Band, and Pay using scoped CSS only. Calendar is intentionally excluded, and static tab DOM sections were not changed.'},
