@@ -6,7 +6,7 @@ GitHub web upload/processing below the apparent ~6.5 MB failure threshold.
 No runtime app code was removed.
 r305 adds scoped CSS-only non-Calendar header height normalization.
 -->
-<!-- r306: Calendar Month/Year text reset only. Upload as index.html after phone test. -->
+<!-- r307: Move Calendar Month/Year row out of header and attach it to calendar grid; preserve r306 plain text reset. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -3388,6 +3388,121 @@ body.light #sc-cal #calendar-hero-date-row .mlbl{
   text-shadow:none !important;
 }
 
+
+/* r307: Calendar Month/Year row placement correction.
+   Scope: Calendar Month/Year row + its immediate calendar-grid join only.
+   Purpose: visually remove Month/Year from the Calendar header and attach it to the top of the calendar grid/card.
+   Preserves r306 plain Month/Year text reset; hides Next Up from this row; does not affect other tabs. */
+#sc-cal #calendar-hero{
+  margin-bottom:8px !important;
+}
+#sc-cal > #calendar-hero-date-row{
+  position:relative !important;
+  z-index:2 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+  min-height:52px !important;
+  border-radius:14px 14px 0 0 !important;
+  background:linear-gradient(180deg,#079cff 0%,#0076ec 55%,#0064d8 100%) !important;
+  border:1px solid rgba(74,158,255,.55) !important;
+  border-bottom:0 !important;
+  box-shadow:0 0 24px rgba(74,158,255,.18), inset 0 1px 0 rgba(255,255,255,.16) !important;
+  overflow:hidden !important;
+}
+#sc-cal > #calendar-hero-date-row:before{
+  content:none !important;
+  display:none !important;
+}
+#sc-cal > #calendar-hero-date-row #calendar-hero-date-nav{
+  position:relative !important;
+  z-index:1 !important;
+  flex:1 1 100% !important;
+  min-width:0 !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:0 10px !important;
+  min-height:52px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+}
+#sc-cal > #calendar-hero-date-row .calendar-hero-month-stack{
+  flex:0 1 auto !important;
+  min-width:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:0 !important;
+  padding:0 !important;
+  transform:none !important;
+}
+#sc-cal > #calendar-hero-date-row .mlbl{
+  background:none !important;
+  -webkit-background-clip:initial !important;
+  background-clip:initial !important;
+  color:#e8f0ff !important;
+  -webkit-text-fill-color:#e8f0ff !important;
+  -webkit-text-stroke:0 !important;
+  text-shadow:none !important;
+  font-size:23.4px !important;
+  letter-spacing:1.8px !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+  text-align:center !important;
+}
+#sc-cal > #calendar-hero-date-row .mlbl:before,
+#sc-cal > #calendar-hero-date-row .mlbl:after{
+  content:none !important;
+  display:none !important;
+}
+#sc-cal > #calendar-hero-date-row #cal-stage-summary{
+  display:none !important;
+}
+#sc-cal > #calendar-hero-date-row #cnav-left,
+#sc-cal > #calendar-hero-date-row #cnav-right-slot,
+#sc-cal > #calendar-hero-date-row .calendar-hero-arrow,
+#sc-cal > #calendar-hero-date-row #cnav-right-slot .calendar-hero-arrow{
+  display:none !important;
+  width:0 !important;
+  min-width:0 !important;
+  height:0 !important;
+  padding:0 !important;
+  margin:0 !important;
+  border:0 !important;
+  overflow:hidden !important;
+}
+#sc-cal > #cgrid-wrap{
+  margin-top:0 !important;
+  border-radius:0 0 14px 14px !important;
+}
+#sc-cal > #cgrid-wrap > #cgrid{
+  border-top-left-radius:0 !important;
+  border-top-right-radius:0 !important;
+  border-top:0 !important;
+}
+body.light #sc-cal > #calendar-hero-date-row{
+  background:linear-gradient(135deg,#f8fbff,#dceaff) !important;
+  border-color:#d4a017 !important;
+  box-shadow:none !important;
+}
+body.light #sc-cal > #calendar-hero-date-row .mlbl{
+  background:none !important;
+  -webkit-background-clip:initial !important;
+  background-clip:initial !important;
+  color:#1a2a4a !important;
+  -webkit-text-fill-color:#1a2a4a !important;
+  -webkit-text-stroke:0 !important;
+  text-shadow:none !important;
+}
+
 </style>
 </head>
 <body>
@@ -3465,16 +3580,6 @@ body.light #sc-cal #calendar-hero-date-row .mlbl{
         <div class="oot-hero-rule"><span class="oot-hero-star">✦</span></div>
       </div>
     </div>
-    <div id="calendar-hero-date-row">
-      <div id="calendar-hero-date-nav" class="cnav">
-        <span class="cnav-icon calendar-hero-arrow" id="cnav-left" style="cursor:pointer;user-select:none;" title="Previous month" onclick="navMonth(-1)">&#8249;</span>
-        <span class="calendar-hero-month-stack">
-          <span class="mlbl" id="mlbl"></span>
-        </span>
-        <span id="cnav-right-slot" style="display:flex;align-items:center;justify-content:flex-end;width:34px;height:34px;flex-shrink:0;"></span>
-      </div>
-      <div id="cal-stage-summary"></div>
-    </div>
   </div>
   <div id="cal-legend-panel" class="cal-legend-row" style="display:none;">
     <span class="cal-legend-item"><span class="cal-legend-ico gig">&#127928;</span>Gig</span>
@@ -3485,6 +3590,17 @@ body.light #sc-cal #calendar-hero-date-row .mlbl{
     <span class="cal-legend-item"><span class="icon-cake" aria-hidden="true"></span>Birthday</span>
   </div>
   <div id="cal-this-week"></div>
+
+  <div id="calendar-hero-date-row">
+    <div id="calendar-hero-date-nav" class="cnav">
+      <span class="cnav-icon calendar-hero-arrow" id="cnav-left" style="cursor:pointer;user-select:none;" title="Previous month" onclick="navMonth(-1)">&#8249;</span>
+      <span class="calendar-hero-month-stack">
+        <span class="mlbl" id="mlbl"></span>
+      </span>
+      <span id="cnav-right-slot" style="display:flex;align-items:center;justify-content:flex-end;width:34px;height:34px;flex-shrink:0;"></span>
+    </div>
+    <div id="cal-stage-summary"></div>
+  </div>
   <div class="cgrid-wrap" id="cgrid-wrap">
     <div class="cgrid" id="cgrid"></div>
   </div>
@@ -19752,7 +19868,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-month-year-text-reset-r306';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-month-row-to-grid-r307';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20045,6 +20161,9 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-month-row-to-grid-r307', date:'May 6, 2026', importance:'fix',
+   title:'Calendar Month/Year row attached to grid',
+   detail:'Moves the Month/Year row out of the Calendar header and visually attaches it to the top of the calendar grid while preserving the plain r306 Month/Year text reset and hiding Next Up from that row.'},
   {version:'2026-05-06-calendar-month-year-text-reset-r306', date:'May 6, 2026', importance:'fix',
     title:'Calendar Month/Year text reset',
     body:'Resets only the Calendar Month/Year text treatment by removing gradient fill, special text fill, stroke, and shadow. No Month/Year banner layout, Calendar grid, lower Calendar sections, or other tabs were changed.'},
