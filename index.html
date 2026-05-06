@@ -15659,7 +15659,6 @@ function rSets() {
             '<button class="song-youtube-btn setlist-expanded-yt" type="button" aria-label="Play on YouTube" title="Play on YouTube" data-lib-id="'+_escAttr(resourceId)+'" data-title="'+_escAttr(songTitle)+'" data-artist="'+_escAttr(songArtist)+'" data-yt="'+_escAttr(ytSaved)+'"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="1.5" y="5" width="21" height="14" rx="3.5" fill="#ff0000"/><polygon points="10,9 16,12 10,15" fill="#fff"/></svg></button>'+
           '</div>';
         });
-        html += '<button type="button" class="setlist-inline-edit" data-set-id="'+s.id+'" style="margin-top:10px;width:100%;background:transparent;border:1px solid rgba(74,158,255,.38);border-radius:10px;padding:9px;color:#4a9eff;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;">EDIT SETLIST</button>';
         panel.innerHTML = html;
         Array.prototype.slice.call(panel.querySelectorAll('.setlist-expanded-song')).forEach(function(row){
           row.style.cursor = 'pointer';
@@ -15696,13 +15695,7 @@ function rSets() {
           };
         });
         if(typeof _hydrateSongArtwork === 'function') _hydrateSongArtwork();
-        var editBtn = panel.querySelector('.setlist-inline-edit');
-        if(editBtn){
-          editBtn.onclick = function(e){
-            e.stopPropagation();
-            opSL(this.getAttribute('data-set-id'));
-          };
-        }
+        /* r271: bottom EDIT SETLIST pill removed; edit access will be reintroduced through a safer scoped menu in a later build. */
       }
       el.appendChild(panel);
     }
@@ -19743,7 +19736,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-rollback-to-r268-r270';
+var WHATS_NEW_VERSION = '2026-05-05-setlist-remove-editpill-r271';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
