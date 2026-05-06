@@ -6,7 +6,7 @@ GitHub web upload/processing below the apparent ~6.5 MB failure threshold.
 No runtime app code was removed.
 r305 adds scoped CSS-only non-Calendar header height normalization.
 -->
-<!-- r310: Calendar bottom pill stack lock. Treats All Events + Rehearsal Proposals as a bottom-anchored control stack independent of calendar-grid height. Upload as index.html after phone test. -->
+<!-- r311: Calendar All Events/Rehearsal Proposals stack gap tightened. Keeps Rehearsal Proposals locked to the tab row and moves All Events closer to it. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -3532,16 +3532,18 @@ body.light #sc-cal > #calendar-hero-date-row .mlbl{
 }
 
 
-/* r310: Calendar bottom pill stack lock.
+/* r311: Calendar bottom pill stack gap adjustment.
    Scope: Calendar lower control pills only.
-   Treats All Events + Rehearsal Proposals as one bottom-anchored stack independent of the calendar grid.
-   The Rehearsal Proposals pill is locked immediately above the bottom tab row using the measured tab height.
+   Keeps All Events + Rehearsal Proposals as one bottom-anchored stack independent of the calendar grid.
+   Rehearsal Proposals stays locked immediately above the bottom tab row; All Events now sits close above it using measured proposal-pill height.
    Calendar header, month banner, date tiles, event markers, and other tabs are intentionally unchanged. */
 :root{
   --oot-tabs-h:72px;
   --oot-cal-stack-side:max(12px, calc((100vw - 480px) / 2 + 12px));
   --oot-cal-proposals-gap:0px;
-  --oot-cal-all-events-offset:68px;
+  --oot-cal-proposals-h:60px;
+  --oot-cal-stack-gap:6px;
+  --oot-cal-all-events-offset:calc(var(--oot-cal-proposals-h, 60px) + var(--oot-cal-stack-gap, 6px));
 }
 #sc-cal.cal-header-fit .evl-head,
 #sc-cal.cal-header-fit .proposals-head{
@@ -19934,7 +19936,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-bottom-pill-stack-lock-r310';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-pill-stack-gap-r311';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20227,6 +20229,9 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-pill-stack-gap-r311', date:'May 6, 2026', importance:'fix',
+   title:'Calendar lower pill spacing tightened',
+   desc:'Keeps Rehearsal Proposals locked above the tab row and moves the All Events pill closer to it as one bottom-anchored Calendar control stack.'},
   {version:'2026-05-06-calendar-bottom-pill-stack-lock-r310', date:'May 6, 2026', importance:'fix',
    title:'Calendar lower pills locked above tabs',
    desc:'Treats All Events and Rehearsal Proposals as a bottom-anchored Calendar control stack independent of the month grid, with Rehearsal Proposals locked directly above the bottom tab row.'},
@@ -21218,13 +21223,18 @@ if(savedName&&savedId){
 
 
 <script>
-/* r310: keep the Calendar lower pill stack locked to the top edge of the bottom tab row. */
+/* r311: keep the Calendar lower pill stack locked to the tab row and keep All Events close to Rehearsal Proposals. */
 (function(){
   function syncCalendarBottomStack(){
     var tabs = document.getElementById('tabs');
     if(!tabs) return;
     var h = Math.ceil(tabs.getBoundingClientRect().height || 72);
     document.documentElement.style.setProperty('--oot-tabs-h', h + 'px');
+    var proposal = document.querySelector('#sc-cal.cal-header-fit .proposals-head');
+    if(proposal){
+      var ph = Math.ceil(proposal.getBoundingClientRect().height || 60);
+      document.documentElement.style.setProperty('--oot-cal-proposals-h', ph + 'px');
+    }
   }
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', syncCalendarBottomStack);
