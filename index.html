@@ -14969,18 +14969,18 @@ function toggleSetlistEditMenu(ev){
       '</div>' +
     '</div>';
 
-  var manageBtn = document.createElement('button');
-  manageBtn.type = 'button';
-  manageBtn.className = 'songs-sheet-btn';
-  manageBtn.innerHTML = reorderMode
-    ? '<span class="songs-sheet-btn-icon">✓</span><span style="flex:1;"><span class="songs-sheet-btn-label">Save Order</span><span class="songs-sheet-btn-sub">Finish reorder mode</span></span>'
-    : '<span class="songs-sheet-btn-icon">✎</span><span style="flex:1;"><span class="songs-sheet-btn-label">Rename / Reorder</span><span class="songs-sheet-btn-sub">Rename the setlist or drag songs into a new order</span></span>';
-  manageBtn.onclick = function(e){
-    e.stopPropagation();
-    closeSetlistEditMenu();
-    setTimeout(function(){ toggleSLEdit(); }, 0);
-  };
-  sheet.appendChild(manageBtn);
+  if(!reorderMode){
+    var manageBtn = document.createElement('button');
+    manageBtn.type = 'button';
+    manageBtn.className = 'songs-sheet-btn';
+    manageBtn.innerHTML = '<span class="songs-sheet-btn-icon">✎</span><span style="flex:1;"><span class="songs-sheet-btn-label">Rename / Reorder</span><span class="songs-sheet-btn-sub">Rename the setlist or drag songs into a new order</span></span>';
+    manageBtn.onclick = function(e){
+      e.stopPropagation();
+      closeSetlistEditMenu();
+      setTimeout(function(){ toggleSLEdit(); }, 0);
+    };
+    sheet.appendChild(manageBtn);
+  }
 
   var shareBtn = document.createElement('button');
   shareBtn.type = 'button';
@@ -15909,11 +15909,11 @@ function rEd() {
     '<div style="display:flex;align-items:center;gap:9px;margin-bottom:5px;flex-wrap:wrap;">'+
     '<img src="Logo.png?v=r142" class="setlist-title-logo" alt="Out of Time">'+
     '<span style="background:'+_slPal.gradient+';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:700;text-shadow:0 0 18px '+_slPal.glow+';font-family:Russo One,sans-serif;font-size:17px;flex:1;min-width:110px;letter-spacing:1px;">'+s.name+'</span>'+
-
+    (reorderMode ? '<button id="sl-save-order-icon" onclick="toggleSLEdit()" type="button" title="Save order" aria-label="Save order" style="background:linear-gradient(135deg,rgba(8,18,37,.72),rgba(22,42,82,.88));border:1px solid rgba(245,197,24,.42);border-radius:50%;width:34px;height:34px;color:#f5c518;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:2px;touch-action:manipulation;flex-shrink:0;margin-right:10px;box-shadow:0 0 14px rgba(245,197,24,.25),0 0 10px rgba(74,158,255,.18),inset 0 1px 0 rgba(255,255,255,.08);overflow:hidden;"><img src="Thumbdrive.png" alt="" aria-hidden="true" style="width:24px;height:24px;object-fit:cover;border-radius:7px;display:block;filter:drop-shadow(0 0 5px rgba(245,197,24,.35));"></button>' : '')+
     '<button id="sl-edit-menu-btn" onclick="toggleSetlistEditMenu(event)" type="button" title="Setlist edit actions" aria-label="Setlist edit actions" style="background:transparent;border:1px solid '+(_slLight?'#1a3a8a':'rgba(245,197,24,.38)')+';border-radius:50%;width:32px;height:32px;color:'+(_slLight?'#1a3a8a':'#f5c518')+';cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation;flex-shrink:0;font-size:18px;line-height:1;">&#8942;</button>'+
     '</div>'+
     '<div style="font-size:12px;color:#aaa;margin-bottom:4px;">'+s.songs.length+' songs'+durStr+'</div>'+
-    '<div style="font-size:10px;color:'+(reorderMode?'#f5c518':'#4a6a9a')+';margin-bottom:10px;">'+(reorderMode?'Hold ≡ and drag to reorder · open ⋮ to Save Order':'Open ⋮ for Rename / Reorder and Share')+'</div>';
+    '<div style="font-size:10px;color:'+(reorderMode?'#f5c518':'#4a6a9a')+';margin-bottom:10px;">'+(reorderMode?'Hold ≡ and drag to reorder · tap the thumb-drive save icon to finish':'Open ⋮ for Rename / Reorder and Share')+'</div>';
 
   var container = document.getElementById('ssl');
   container.innerHTML = '';
@@ -19900,7 +19900,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-setlist-edit-manage-menu-r282';
+var WHATS_NEW_VERSION = '2026-05-05-setlist-reorder-thumbdrive-save-r283';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
