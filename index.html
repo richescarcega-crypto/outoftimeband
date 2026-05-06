@@ -7,7 +7,7 @@ No runtime app code was removed.
 r305 adds scoped CSS-only non-Calendar header height normalization.
 -->
 <!-- r311: Calendar All Events/Rehearsal Proposals stack gap tightened. Keeps Rehearsal Proposals locked to the tab row and moves All Events closer to it. Upload as index.html after phone test. -->
-<!-- r314: Calendar lower pill stack moved directly under blue calendar panel and locked there. Upload as index.html after phone test. -->
+<!-- r316: Calendar lower drawers restored to downward deployment with lower stack shift-up on open. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -3745,6 +3745,95 @@ body.light #sc-cal.cal-header-fit .proposals-head{
   padding:8px !important;
   border-radius:12px !important;
   box-shadow:0 18px 42px rgba(0,0,0,.52), 0 0 24px rgba(162,103,255,.16) !important;
+}
+body.light #sc-cal.cal-header-fit #evl-filter-row,
+body.light #sc-cal.cal-header-fit #evl{
+  background:#fff !important;
+  border-color:#c8d4e8 !important;
+  box-shadow:0 14px 30px rgba(20,40,80,.18) !important;
+}
+
+
+
+/* r316: Calendar lower drawers restored to downward deployment with stack shift.
+   Scope: Calendar lower stack/drawer behavior only.
+   All Events/Rehearsal Proposals remain one controlled lower display, but when
+   either drawer opens, the lower display shifts upward and the drawer content
+   opens DOWN from its pill instead of upward above the stack. Header, Month/Year,
+   blue date panel, date tiles, event markers, bottom tabs, and other tabs are not moved. */
+:root{
+  --oot-cal-open-gap:6px;
+  --oot-cal-open-bottom-gap:4px;
+  --oot-cal-filter-top:0px;
+  --oot-cal-evl-top:0px;
+  --oot-cal-evl-max-h:0px;
+  --oot-cal-proposals-list-top:0px;
+  --oot-cal-proposals-list-max-h:0px;
+  --oot-cal-propose-top:0px;
+  --oot-cal-day-drawer-top:0px;
+  --oot-cal-day-drawer-max-h:0px;
+}
+#sc-cal.cal-header-fit #evl-filter-row,
+#sc-cal.cal-header-fit #evl,
+#sc-cal.cal-header-fit #proposals-list,
+#sc-cal.cal-header-fit #propose-btn,
+#sc-cal.cal-header-fit #cal-drawer{
+  position:fixed !important;
+  left:var(--oot-cal-stack-side) !important;
+  right:var(--oot-cal-stack-side) !important;
+  bottom:auto !important;
+  z-index:875 !important;
+  margin-left:0 !important;
+  margin-right:0 !important;
+}
+#sc-cal.cal-header-fit #evl-filter-row{
+  top:var(--oot-cal-filter-top) !important;
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+  padding:8px 8px 6px !important;
+  border-radius:12px !important;
+  background:linear-gradient(135deg,rgba(7,17,42,.98),rgba(13,34,80,.96)) !important;
+  border:1px solid rgba(74,158,255,.25) !important;
+  box-shadow:0 12px 28px rgba(0,0,0,.38) !important;
+}
+#sc-cal.cal-header-fit #evl{
+  top:var(--oot-cal-evl-top) !important;
+  max-height:var(--oot-cal-evl-max-h) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+  padding:8px !important;
+  border-radius:12px !important;
+  background:linear-gradient(145deg,rgba(7,17,42,.98),rgba(13,34,80,.96) 62%,rgba(3,8,18,.94)) !important;
+  border:1px solid rgba(74,158,255,.26) !important;
+  box-shadow:0 18px 42px rgba(0,0,0,.52),0 0 24px rgba(74,158,255,.14) !important;
+}
+#sc-cal.cal-header-fit #proposals-list{
+  top:var(--oot-cal-proposals-list-top) !important;
+  max-height:var(--oot-cal-proposals-list-max-h) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+  padding:8px !important;
+  border-radius:12px !important;
+  box-shadow:0 18px 42px rgba(0,0,0,.52),0 0 24px rgba(162,103,255,.16) !important;
+}
+#sc-cal.cal-header-fit #propose-btn{
+  top:var(--oot-cal-propose-top) !important;
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+  z-index:876 !important;
+}
+#sc-cal.cal-header-fit #cal-drawer{
+  top:var(--oot-cal-day-drawer-top) !important;
+  max-height:var(--oot-cal-day-drawer-max-h) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+  box-shadow:0 18px 42px rgba(0,0,0,.52),0 0 24px rgba(74,158,255,.18) !important;
 }
 body.light #sc-cal.cal-header-fit #evl-filter-row,
 body.light #sc-cal.cal-header-fit #evl{
@@ -20125,7 +20214,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-lower-drawers-overlay-r315';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-drawers-down-shift-r316';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20418,9 +20507,9 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-06-calendar-lower-drawers-overlay-r315', date:'May 6, 2026', importance:'fix',
-   title:'Calendar lower drawers open above locked pill stack',
-   body:'Keeps the Calendar lower pill stack locked while making expanded drawer content visible above it.',
+  {version:'2026-05-06-calendar-drawers-down-shift-r316', date:'May 6, 2026', importance:'fix',
+   title:'Calendar lower drawers open downward with stack shift',
+   body:'Restores downward drawer deployment for All Events and Rehearsal Proposals; shifts the lower Calendar display upward only while a drawer is open so lists and controls remain visible.',
    bullets:['All Events expanded content now deploys above the locked lower stack instead of being hidden behind it.', 'Rehearsal Proposals expanded content and propose button now deploy above the locked lower stack.', 'Calendar header, month banner, blue date panel, date tiles, lower pill positions, bottom tabs, and other tabs were not moved.']},
   {version:'2026-05-06-calendar-lower-stack-under-panel-r314', date:'May 6, 2026', importance:'fix',
    title:'Calendar lower stack locked under panel',
@@ -21513,6 +21602,8 @@ if(savedName&&savedId){
     document.documentElement.style.setProperty('--oot-cal-proposals-top', proposalTop + 'px');
   }
 
+  window.__ootCalStackLockRefresh = _scheduleCalendarStackLock;
+
   function _attachCalendarStackLock(){
     _scheduleCalendarStackLock();
     var grid = document.getElementById('cgrid');
@@ -21550,6 +21641,173 @@ if(savedName&&savedId){
   }, {passive:true, capture:true});
   setTimeout(_scheduleCalendarStackLock, 300);
   setTimeout(_scheduleCalendarStackLock, 900);
+})();
+</script>
+
+
+
+<script>
+/* r316: when a lower Calendar drawer opens, shift the All Events/Rehearsal stack up
+   and deploy the drawer content DOWN from its pill. */
+(function(){
+  var _ootCalDrawerShiftScheduled = false;
+  function _isShown(el){
+    return !!(el && el.style && el.style.display !== 'none');
+  }
+  function _setVar(name, value){
+    document.documentElement.style.setProperty(name, Math.max(0, Math.round(value)) + 'px');
+  }
+  function _measureShownHeight(el, fallback){
+    if(!el) return fallback || 0;
+    var r = el.getBoundingClientRect();
+    var h = Math.ceil(r.height || el.scrollHeight || fallback || 0);
+    return h;
+  }
+  function _syncCalendarDrawerShift(){
+    var sc = document.getElementById('sc-cal');
+    if(!sc || !sc.classList.contains('cal-header-fit')) return;
+    var tabs = document.getElementById('tabs');
+    var evlHead = sc.querySelector('.evl-head');
+    var propHead = sc.querySelector('.proposals-head');
+    var filter = document.getElementById('evl-filter-row');
+    var evl = document.getElementById('evl');
+    var propList = document.getElementById('proposals-list');
+    var propBtn = document.getElementById('propose-btn');
+    var dayDrawer = document.getElementById('cal-drawer');
+    var wrap = document.getElementById('cgrid-wrap');
+    if(!evlHead || !propHead || !tabs) return;
+
+    var tabsTop = Math.floor(tabs.getBoundingClientRect().top || (window.innerHeight - 72));
+    var sideGap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--oot-cal-stack-gap')) || 6;
+    var openGap = 6;
+    var bottomGap = 4;
+    var evlH = _measureShownHeight(evlHead, 66);
+    var propH = _measureShownHeight(propHead, 60);
+    var filterOpen = _isShown(filter);
+    var evlOpen = _isShown(evl);
+    var propOpen = _isShown(propList);
+    var btnOpen = _isShown(propBtn);
+    var dayOpen = _isShown(dayDrawer);
+    var anyOpen = filterOpen || evlOpen || propOpen || btnOpen || dayOpen;
+
+    // Closed state: r314 owns the position directly under the blue calendar panel.
+    if(!anyOpen){
+      if(typeof window.__ootCalStackLockRefresh === 'function') window.__ootCalStackLockRefresh();
+      return;
+    }
+
+    var availableTop = 0;
+    var wrapRect = wrap ? wrap.getBoundingClientRect() : null;
+    if(wrapRect) availableTop = Math.round(wrapRect.bottom + 8);
+
+    var filterH = filterOpen ? Math.max(38, _measureShownHeight(filter, 46)) : 0;
+    var evlScrollH = evlOpen && evl ? Math.max(60, Math.ceil(evl.scrollHeight || evl.getBoundingClientRect().height || 160)) : 0;
+    var propScrollH = propOpen && propList ? Math.max(60, Math.ceil(propList.scrollHeight || propList.getBoundingClientRect().height || 160)) : 0;
+    var btnH = btnOpen ? Math.max(38, _measureShownHeight(propBtn, 42)) : 0;
+    var dayScrollH = dayOpen && dayDrawer ? Math.max(80, Math.ceil(dayDrawer.scrollHeight || dayDrawer.getBoundingClientRect().height || 170)) : 0;
+
+    // First pass desired heights. These are capped after available space is known.
+    var desiredEvlH = evlOpen ? Math.min(evlScrollH, Math.max(150, Math.floor(window.innerHeight * 0.30))) : 0;
+    var desiredPropH = propOpen ? Math.min(propScrollH, Math.max(150, Math.floor(window.innerHeight * 0.32))) : 0;
+    var desiredDayH = dayOpen ? Math.min(dayScrollH, Math.max(150, Math.floor(window.innerHeight * 0.32))) : 0;
+
+    function totalWith(listH, propListH, dayH){
+      var total = evlH;
+      if(dayOpen) total += openGap + dayH;
+      if(filterOpen) total += openGap + filterH;
+      if(evlOpen) total += openGap + listH;
+      total += sideGap + propH;
+      if(propOpen) total += openGap + propListH;
+      if(btnOpen) total += openGap + btnH;
+      return total;
+    }
+
+    var totalH = totalWith(desiredEvlH, desiredPropH, desiredDayH);
+    var maxTop = Math.max(0, tabsTop - bottomGap - totalH);
+    var startTop = Math.max(availableTop, maxTop);
+
+    // If the expanded display would run under the tabs, compress scrollable drawer areas.
+    var overflow = (startTop + totalH) - (tabsTop - bottomGap);
+    if(overflow > 0){
+      var compressible = (evlOpen ? desiredEvlH : 0) + (propOpen ? desiredPropH : 0) + (dayOpen ? desiredDayH : 0);
+      if(compressible > 0){
+        var evlShare = evlOpen ? desiredEvlH / compressible : 0;
+        var propShare = propOpen ? desiredPropH / compressible : 0;
+        var dayShare = dayOpen ? desiredDayH / compressible : 0;
+        desiredEvlH = evlOpen ? Math.max(84, desiredEvlH - overflow * evlShare) : 0;
+        desiredPropH = propOpen ? Math.max(84, desiredPropH - overflow * propShare) : 0;
+        desiredDayH = dayOpen ? Math.max(84, desiredDayH - overflow * dayShare) : 0;
+        totalH = totalWith(desiredEvlH, desiredPropH, desiredDayH);
+      }
+      startTop = Math.max(0, Math.min(startTop, tabsTop - bottomGap - totalH));
+    }
+
+    var y = startTop;
+    _setVar('--oot-cal-stack-top', y);
+    y += evlH;
+
+    if(dayOpen){
+      y += openGap;
+      _setVar('--oot-cal-day-drawer-top', y);
+      _setVar('--oot-cal-day-drawer-max-h', desiredDayH);
+      y += desiredDayH;
+    }
+    if(filterOpen){
+      y += openGap;
+      _setVar('--oot-cal-filter-top', y);
+      y += filterH;
+    }
+    if(evlOpen){
+      y += openGap;
+      _setVar('--oot-cal-evl-top', y);
+      _setVar('--oot-cal-evl-max-h', desiredEvlH);
+      y += desiredEvlH;
+    }
+
+    y += sideGap;
+    _setVar('--oot-cal-proposals-top', y);
+    y += propH;
+
+    if(propOpen){
+      y += openGap;
+      _setVar('--oot-cal-proposals-list-top', y);
+      _setVar('--oot-cal-proposals-list-max-h', desiredPropH);
+      y += desiredPropH;
+    }
+    if(btnOpen){
+      y += openGap;
+      _setVar('--oot-cal-propose-top', y);
+    }
+  }
+  function _scheduleCalendarDrawerShift(){
+    if(_ootCalDrawerShiftScheduled) return;
+    _ootCalDrawerShiftScheduled = true;
+    requestAnimationFrame(function(){
+      _ootCalDrawerShiftScheduled = false;
+      _syncCalendarDrawerShift();
+    });
+  }
+  window.__ootCalDrawerShiftRefresh = _scheduleCalendarDrawerShift;
+  function _attach(){
+    _scheduleCalendarDrawerShift();
+    var sc = document.getElementById('sc-cal');
+    if(sc && !sc.__ootCalDrawerShiftObserver){
+      var mo = new MutationObserver(_scheduleCalendarDrawerShift);
+      mo.observe(sc, {childList:true, subtree:true, attributes:true, attributeFilter:['style','class']});
+      sc.__ootCalDrawerShiftObserver = mo;
+    }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _attach);
+  else _attach();
+  window.addEventListener('resize', _scheduleCalendarDrawerShift, {passive:true});
+  window.addEventListener('orientationchange', function(){ setTimeout(_scheduleCalendarDrawerShift, 250); }, {passive:true});
+  document.addEventListener('click', function(e){
+    if(e && e.target && e.target.closest('#sc-cal')){
+      setTimeout(_scheduleCalendarDrawerShift, 60);
+      setTimeout(_scheduleCalendarDrawerShift, 220);
+      setTimeout(_scheduleCalendarDrawerShift, 520);
+    }
+  }, true);
 })();
 </script>
 
