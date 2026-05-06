@@ -6,7 +6,7 @@ GitHub web upload/processing below the apparent ~6.5 MB failure threshold.
 No runtime app code was removed.
 r305 adds scoped CSS-only non-Calendar header height normalization.
 -->
-<!-- r308: Calendar fixed 6-week grid. Adds invisible filler cells so all months use consistent calendar height. Upload as index.html after phone test. -->
+<!-- r309: Calendar bottom-clearance correction. Keeps fixed 6-week grid but reduces excess grid bottom padding so Rehearsal Proposals stays above the bottom tab bar. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -3510,6 +3510,25 @@ body.light #sc-cal > #calendar-hero-date-row .mlbl{
   -webkit-text-fill-color:#1a2a4a !important;
   -webkit-text-stroke:0 !important;
   text-shadow:none !important;
+}
+
+
+
+/* r309: Calendar bottom-clearance correction.
+   Scope: Calendar tab grid depth only.
+   Keeps the r308 fixed 6-week slot model but removes excess calendar-card bottom padding
+   that was pushing Rehearsal Proposals underneath the fixed bottom tab bar. */
+#sc-cal.cal-header-fit .cgrid-wrap{
+  margin-bottom:7px !important;
+}
+#sc-cal.cal-header-fit .cgrid{
+  align-content:start !important;
+  padding:34px 6px 48px 6px !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit .cgrid{
+    padding:34px 6px 48px 6px !important;
+  }
 }
 
 </style>
@@ -19884,7 +19903,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-fixed-six-week-grid-r308';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-bottom-clearance-r309';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20177,6 +20196,9 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-bottom-clearance-r309', date:'May 6, 2026', importance:'fix',
+   title:'Calendar bottom clearance corrected',
+   desc:'Keeps the fixed six-week Calendar grid from r308 but reduces the excess bottom void inside the Calendar card so All Events and Rehearsal Proposals sit fully above the bottom tab bar instead of sliding underneath it.'},
   {version:'2026-05-06-calendar-fixed-six-week-grid-r308', date:'May 6, 2026', importance:'fix',
    title:'Calendar month height normalized',
    desc:'Every month now reserves a fixed six-week grid height using invisible filler cells, so shorter months align All Events and Rehearsal Proposals consistently above the bottom tab bar.'},
