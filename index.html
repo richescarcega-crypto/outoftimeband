@@ -3762,7 +3762,7 @@ body.light #sc-cal #calendar-hero-date-row .mlbl{
     <button id="sl-back-btn" style="background:none;border:none;color:#4a9eff;font-size:13px;margin-bottom:8px;cursor:pointer;" onclick="clEd()">&#8592; Back</button>
     <div id="eh"></div>
     <div id="ssl"></div>
-    <button class="ab" onclick="showPicker()">+ Add Songs from Library</button>
+    <button class="ab" id="sl-add-songs-btn" onclick="showPicker()" style="display:none;">+ Add Songs from Library</button>
   </div>
   <div id="song-picker" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:600;flex-direction:column;padding:16px;max-width:480px;margin:0 auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -14845,6 +14845,63 @@ function toggleSetlistsMenu(ev){
   document.body.appendChild(wrap);
 }
 
+// r269: per-setlist menu for expanded setlist cards and edit screen.
+function closeSetlistInstanceMenu(){
+  var existing = document.getElementById('setlist-instance-action-backdrop');
+  if(existing) existing.remove();
+}
+function toggleSetlistInstanceMenu(ev, setId, context){
+  if(ev){ ev.preventDefault && ev.preventDefault(); ev.stopPropagation && ev.stopPropagation(); }
+  closeSetlistInstanceMenu();
+  var s = (typeof sets !== 'undefined' && sets) ? sets.find(function(x){ return String(x.id) === String(setId); }) : null;
+  if(!s){ toast('Setlist not found', {tone:'error'}); return; }
+  var wrap = document.createElement('div');
+  wrap.id = 'setlist-instance-action-backdrop';
+  wrap.className = 'oot-action-backdrop';
+  wrap.onclick = function(e){ if(e.target === wrap) closeSetlistInstanceMenu(); };
+
+  var sheet = document.createElement('div');
+  sheet.id = 'setlist-instance-action-sheet';
+  sheet.className = 'oot-action-sheet';
+  sheet.setAttribute('role','dialog');
+  sheet.setAttribute('aria-modal','true');
+  sheet.setAttribute('aria-label','Setlist actions');
+  sheet.onclick = function(e){ e.stopPropagation(); };
+
+  function icon(txt){ return '<span class="songs-sheet-btn-icon">' + txt + '</span>'; }
+  function btn(label, sub, ico, action){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'songs-sheet-btn';
+    b.innerHTML = icon(ico) + '<span style="flex:1;"><span class="songs-sheet-btn-label">' + label + '</span>' +
+      (sub ? '<span class="songs-sheet-btn-sub">' + sub + '</span>' : '') + '</span>';
+    b.onclick = function(e){ e.stopPropagation(); closeSetlistInstanceMenu(); setTimeout(action, 0); };
+    return b;
+  }
+
+  sheet.innerHTML =
+    '<button type="button" class="songs-sheet-x" aria-label="Close setlist actions" onclick="closeSetlistInstanceMenu()">×</button>' +
+    '<div class="songs-sheet-head">' +
+      '<img src="Logo.png?v=r142" class="songs-sheet-logo" alt="Out of Time">' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div class="songs-sheet-title">SETLIST ACTIONS</div>' +
+        '<div class="songs-sheet-sub">' + (s.name || 'Setlist') + '</div>' +
+      '</div>' +
+    '</div>';
+
+  if(context === 'edit'){
+    sheet.appendChild(btn('Add Songs from Library', 'Open picker and add songs to this setlist', '+', function(){ aSL = s.id; showPicker(); }));
+    sheet.appendChild(btn('Share Setlist', 'Export or share this setlist', '⇧', function(){ aSL = s.id; printSL(); }));
+    sheet.appendChild(btn(reorderMode ? 'Save Order' : 'Rename / Reorder', reorderMode ? 'Finish reorder mode' : 'Rename the setlist and enable drag reordering', reorderMode ? '✓' : '✎', function(){ aSL = s.id; toggleSLEdit(); }));
+  } else {
+    sheet.appendChild(btn('Edit Setlist', 'Open the edit screen for this setlist', '✎', function(){ opSL(s.id); }));
+    sheet.appendChild(btn('Share Setlist', 'Export or share this setlist', '⇧', function(){ aSL = s.id; printSL(); }));
+  }
+
+  wrap.appendChild(sheet);
+  document.body.appendChild(wrap);
+}
+
 function _buildAllSetlistsText(){
   var lines = ['OUT OF TIME — ALL SETLISTS', '━━━━━━━━━━━━━━━━━━━━━━', ''];
   (sets || []).forEach(function(s, idx){
@@ -15611,7 +15668,7 @@ function rSets() {
     div.innerHTML =
       '<img src="Logo.png?v=r142" class="setlist-title-logo" alt="Out of Time" style="width:38px !important;height:38px !important;">'+
       '<div style="flex:1;min-width:0;">'+
-        '<div style="background:'+titleGrad+';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:700;text-shadow:0 0 18px '+titleGlow+';font-family:\'Russo One\',sans-serif;font-size:17px;letter-spacing:.5px;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+s.name+'</div>'+
+        '<div style="background:'+titleGrad+';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:700;text-shadow:0 0 18px '+titleGlow+';font-family:'Russo One',sans-serif;font-size:17px;letter-spacing:.5px;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+s.name+'</div>'+
         '<div style="display:flex;align-items:center;gap:10px;font-size:11px;color:#8aa8d6;">'+
           '<span style="display:inline-flex;align-items:center;gap:4px;">'+
             '<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:'+stripe+';opacity:.8;"></span>'+
@@ -15619,7 +15676,8 @@ function rSets() {
           '</span>'+
           (durStr?'<span style="display:inline-flex;align-items:center;gap:4px;color:#aaa;"><span style="font-size:10px;">&#9201;</span>'+durStr+'</span>':'')+
         '</div>'+
-      '</div>';
+      '</div>'+
+      (isExpanded ? '<button type="button" class="setlist-card-kebab" title="Setlist actions" aria-label="Setlist actions" onclick="toggleSetlistInstanceMenu(event, '+s.id+', 'expanded')" style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(245,197,24,.34);background:rgba(8,18,37,.55);color:#f5c518;font-size:18px;line-height:1;display:inline-flex;align-items:center;justify-content:center;padding:0;cursor:pointer;touch-action:manipulation;flex-shrink:0;">&#8942;</button>' : '');
     div.setAttribute('data-id', s.id);
     div.onmouseover = function(){ this.style.transform = 'translateX(2px)'; this.style.boxShadow = '0 0 18px '+stripe+'22'; };
     div.onmouseout = function(){ this.style.transform = ''; this.style.boxShadow = ''; };
@@ -15657,7 +15715,6 @@ function rSets() {
             '<button class="song-youtube-btn setlist-expanded-yt" type="button" aria-label="Play on YouTube" title="Play on YouTube" data-lib-id="'+_escAttr(resourceId)+'" data-title="'+_escAttr(songTitle)+'" data-artist="'+_escAttr(songArtist)+'" data-yt="'+_escAttr(ytSaved)+'"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="1.5" y="5" width="21" height="14" rx="3.5" fill="#ff0000"/><polygon points="10,9 16,12 10,15" fill="#fff"/></svg></button>'+
           '</div>';
         });
-        html += '<button type="button" class="setlist-inline-edit" data-set-id="'+s.id+'" style="margin-top:10px;width:100%;background:transparent;border:1px solid rgba(74,158,255,.38);border-radius:10px;padding:9px;color:#4a9eff;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;">EDIT SETLIST</button>';
         panel.innerHTML = html;
         Array.prototype.slice.call(panel.querySelectorAll('.setlist-expanded-song')).forEach(function(row){
           row.style.cursor = 'pointer';
@@ -15667,13 +15724,16 @@ function rSets() {
             _openSetlistSongInfoFromRow(row);
           };
         });
-        Array.prototype.slice.call(panel.querySelectorAll('.setlist-expanded-song .song-cover-box')).forEach(function(art){
+        Array.prototype.slice.call(panel.querySelectorAll('.setlist-expanded-song .song-cover-box,.setlist-expanded-song .song-badge-box')).forEach(function(art){
           art.classList.add('song-art-tap');
-          art.title = 'Open song details';
+          art.title = 'Song resources';
+          art.setAttribute('aria-label','Song resources');
           art.onclick = function(e){
             e.stopPropagation();
             var row = art.closest('.setlist-expanded-song');
-            _openSetlistSongInfoFromRow(row);
+            var libId = row && row.getAttribute('data-lib-id');
+            if(libId) openSongResources(libId);
+            else _openSetlistSongInfoFromRow(row);
           };
         });
         Array.prototype.slice.call(panel.querySelectorAll('.setlist-expanded-info')).forEach(function(info){
@@ -15694,13 +15754,7 @@ function rSets() {
           };
         });
         if(typeof _hydrateSongArtwork === 'function') _hydrateSongArtwork();
-        var editBtn = panel.querySelector('.setlist-inline-edit');
-        if(editBtn){
-          editBtn.onclick = function(e){
-            e.stopPropagation();
-            opSL(this.getAttribute('data-set-id'));
-          };
-        }
+        
       }
       el.appendChild(panel);
     }
@@ -15735,27 +15789,14 @@ function rEd() {
   var _slPal = _slGradientForId(s.id);
   var totalSecs=getSetDuration(s.songs);
   var durStr = totalSecs>0 ? ' · &#9201; '+formatDuration(totalSecs) : '';
-  // Icon-based Edit & Share buttons
-  var _slLight = _slIsLight();
-  var editBg = reorderMode ? 'linear-gradient(135deg,#1a3a8a,#0d2050)' : 'transparent';
-  var editBorder = reorderMode ? '#f5c518' : '#1a3a8a';
-  var editColor = reorderMode ? '#f5c518' : (_slLight ? '#1a3a8a' : '#4a9eff');
-  var shareBorder = _slLight ? '#1a3a8a' : '#1a3a8a';
-  var shareColor = _slLight ? '#1a3a8a' : '#4a9eff';
-  var editIcon = reorderMode
-    ? '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" focusable="false"><polyline points="4,12 10,18 20,6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-    : '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor"/></svg>';
-  var editLabel = reorderMode ? 'SAVE' : 'EDIT';
-  var shareIcon = '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" focusable="false"><path d="M12 3l-4 4h3v8h2V7h3l-4-4zm-7 12v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5h-2v5H7v-5H5z" fill="currentColor"/></svg>';
   document.getElementById('eh').innerHTML =
     '<div style="display:flex;align-items:center;gap:9px;margin-bottom:5px;flex-wrap:wrap;">'+
     '<img src="Logo.png?v=r142" class="setlist-title-logo" alt="Out of Time">'+
     '<span style="background:'+_slPal.gradient+';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:700;text-shadow:0 0 18px '+_slPal.glow+';font-family:Russo One,sans-serif;font-size:17px;flex:1;min-width:110px;letter-spacing:1px;">'+s.name+'</span>'+
-    '<button id="sl-edit-btn" onclick="toggleSLEdit()" style="background:'+editBg+';border:1px solid '+editBorder+';border-radius:18px;padding:6px 12px;color:'+editColor+';font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;cursor:pointer;touch-action:manipulation;display:inline-flex;align-items:center;gap:5px;">'+editIcon+'<span>'+editLabel+'</span></button>'+
-    '<button id="sl-share-btn" onclick="printSL()" type="button" title="Share setlist" aria-label="Share setlist" style="background:transparent;border:1px solid '+shareBorder+';border-radius:50%;width:32px;height:32px;color:'+shareColor+';cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation;flex-shrink:0;"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path d="M12 3l-4 4h3v8h2V7h3l-4-4zm-7 12v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5h-2v5H7v-5H5z" fill="currentColor"/></svg></button>'+
+    '<button id="sl-edit-menu-btn" onclick="toggleSetlistInstanceMenu(event, '+s.id+', 'edit')" type="button" title="Setlist actions" aria-label="Setlist actions" style="background:transparent;border:1px solid '+(_slIsLight()?'#1a3a8a':'rgba(245,197,24,.38)')+';border-radius:50%;width:32px;height:32px;color:'+(_slIsLight()?'#1a3a8a':'#f5c518')+';cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation;flex-shrink:0;font-size:18px;line-height:1;">&#8942;</button>'+
     '</div>'+
     '<div style="font-size:12px;color:#aaa;margin-bottom:4px;">'+s.songs.length+' songs'+durStr+'</div>'+
-    '<div style="font-size:10px;color:'+(reorderMode?'#f5c518':'transparent')+';margin-bottom:10px;">Hold ≡ and drag to reorder · tap Save to finish</div>';
+    '<div style="font-size:10px;color:'+(reorderMode?'#f5c518':'#4a6a9a')+';margin-bottom:10px;">'+(reorderMode?'Hold ≡ and drag to reorder · open ⋮ to Save Order':'Open ⋮ for Add Songs, Share, Rename / Reorder')+'</div>';
 
   var container = document.getElementById('ssl');
   container.innerHTML = '';
@@ -19741,7 +19782,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-band-header-card-r268';
+var WHATS_NEW_VERSION = '2026-05-05-setlists-workflow-r269';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
