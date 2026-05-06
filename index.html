@@ -15734,13 +15734,19 @@ function rSets() {
             _openSetlistSongInfoFromRow(row);
           };
         });
-        Array.prototype.slice.call(panel.querySelectorAll('.setlist-expanded-song .song-cover-box')).forEach(function(art){
+        Array.prototype.slice.call(panel.querySelectorAll('.setlist-expanded-song .song-cover-box,.setlist-expanded-song .song-badge-box')).forEach(function(art){
           art.classList.add('song-art-tap');
-          art.title = 'Open song details';
+          art.title = 'Song resources';
+          art.setAttribute('aria-label','Song resources');
           art.onclick = function(e){
             e.stopPropagation();
             var row = art.closest('.setlist-expanded-song');
-            _openSetlistSongInfoFromRow(row);
+            var libId = row && row.getAttribute('data-lib-id');
+            if(libId && library.some(function(l){ return String(l.id) === String(libId); })){
+              openSongResources(libId);
+            } else {
+              _openSetlistSongInfoFromRow(row);
+            }
           };
         });
         Array.prototype.slice.call(panel.querySelectorAll('.setlist-expanded-info')).forEach(function(info){
@@ -19802,7 +19808,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-setlist-expanded-editmenu-r272';
+var WHATS_NEW_VERSION = '2026-05-05-setlist-art-resources-r273';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
