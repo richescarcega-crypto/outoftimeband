@@ -18965,7 +18965,8 @@ function openSongResources(id){
       var kind = btn.getAttribute('data-kind');
       if(kind === 'edit'){
         clM('song-resources-modal');
-        showSongInfo(id);
+        // r275: showSongInfo uses strict id matching, so pass the actual library id type.
+        showSongInfo(song.id);
         setTimeout(function(){
           var linkEl = document.getElementById('si-lyrics');
           if(linkEl && linkEl.scrollIntoView) linkEl.scrollIntoView({behavior:'smooth', block:'center'});
@@ -19814,7 +19815,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-setlist-songdetail-idfix-r274';
+var WHATS_NEW_VERSION = '2026-05-05-songresources-edit-idfix-r275';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
