@@ -8223,6 +8223,17 @@ function richGrad(color){
        + 'radial-gradient(circle at 35% 30%, rgba(255,255,255,.4) 0%, rgba(255,255,255,0) 45%), '
        + 'radial-gradient(circle at 70% 80%, '+color+'33 0%, '+color+' 50%, '+color+'b3 100%)';
 }
+function bandInfoGrad(color, pal){
+  // r300: lighter same-family shade for expanded Band member info section.
+  if(document.body.classList.contains('light')){
+    var lc = _lightModeMemberColor(color || '#1a3a8a');
+    return 'linear-gradient(135deg, '+lc+'18 0%, '+lc+'0d 100%)';
+  }
+  if(pal && pal.bg){
+    return 'linear-gradient(135deg, '+color+'44 0%, '+color+'2b 45%, rgba(255,255,255,.045) 100%)';
+  }
+  return 'linear-gradient(135deg, '+color+'55 0%, '+color+'33 100%)';
+}
 // Map known dark-mode member colors to their light-mode equivalents (deep, saturated)
 var _LIGHT_MEMBER_COLORS = {
   '#ff6b6b': '#c0392b', // Jim — red
@@ -18031,6 +18042,7 @@ function rBand() {
       '<div style="flex:1;min-width:0;display:flex;align-items:center;gap:7px;">'+
         '<span style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'+nameGradStyle(m.color)+'">'+m.name+'</span>'+
         bdayBadge+
+        '<span style="color:#fff;opacity:.95;font-size:13px;line-height:1;flex-shrink:0;">&bull;</span>'+
         '<span style="font-size:11px;color:'+_bandHdrInstColor+';font-family:Russo One,sans-serif;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+m.inst+'</span>'+
       '</div>';
     header.setAttribute('data-mid', m.id);
@@ -18055,7 +18067,7 @@ function rBand() {
     if(isOpen){
       var detail = document.createElement('div');
       var _detIsLight = document.body.classList.contains('light');
-      detail.style.cssText = 'padding:10px 12px 12px;border-top:1px solid '+(_detIsLight?'#d0daf0':'#0d1f3a')+';';
+      detail.style.cssText = 'padding:10px 12px 12px;border-top:1px solid '+(_detIsLight?'#d0daf0':'#0d1f3a')+';background:'+bandInfoGrad(m.color, _bandCardPal)+';';
 
       // Edit mode flag — defaults to read-only
       var editKey = 'edit_'+m.id;
@@ -18100,7 +18112,7 @@ function rBand() {
       var _bandEmptyColor = _isLightBand ? '#5a6a85' : '#4a6a9a';
       var _bandLabelColor = _isLightBand ? '#1a3a8a' : '#fff';
       var inp_style = 'background:'+(_isLightBand?'#fff':'#060e1c')+';border:1px solid '+(_isLightBand?'#c8d4e8':'#1a3a8a')+';border-radius:4px;padding:4px 7px;font-size:11px;color:'+_bandValColor+';outline:none;width:100%;font-family:Exo 2,sans-serif;box-sizing:border-box;';
-      var lbl_style = 'font-size:9px;color:'+_bandLabelColor+';letter-spacing:1px;font-family:Russo One,sans-serif;width:22px;flex-shrink:0;';
+      var lbl_style = 'font-size:9px;color:'+_bandLabelColor+';letter-spacing:1px;font-family:Russo One,sans-serif;width:66px;flex-shrink:0;';
 
       function makeRow(label, type, val, placeholder, field){
         var row = document.createElement('div');
@@ -18177,10 +18189,10 @@ function rBand() {
         row.appendChild(inp);
         return row;
       }
-      detail.appendChild(makeRow('PH','tel',m.ph,'(555) 555-5555','ph'));
-      detail.appendChild(makeRow('EM','email',m.em,'email@example.com','em'));
-      detail.appendChild(makeRow('AD','text',m.addr,'City, State','addr'));
-      detail.appendChild(makeRow('BD','date',m.bday,'','bday'));
+      detail.appendChild(makeRow('Phone:','tel',m.ph,'(555) 555-5555','ph'));
+      detail.appendChild(makeRow('Email:','email',m.em,'email@example.com','em'));
+      detail.appendChild(makeRow('Address:','text',m.addr,'City, State','addr'));
+      detail.appendChild(makeRow('Birthday:','date',m.bday,'','bday'));
 
       // ── Edit toggle + member options ───────────────────────
       var optsRow = document.createElement('div');
@@ -19978,7 +19990,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-rollback-to-r297-r299';
+var WHATS_NEW_VERSION = '2026-05-05-band-pill-info-tone-and-labels-r300';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
