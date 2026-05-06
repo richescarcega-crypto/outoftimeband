@@ -3646,33 +3646,6 @@ body.light #sc-cal #calendar-hero-date-row .mlbl{
   justify-content:center !important;
 }
 
-
-
-/* r301: Setlists header visibility hardening.
-   The Setlists header DOM exists in r300, but phone testing showed the header
-   not visible. Keep this scoped to Setlists only and force the existing
-   Songs-family header card to display above the setlist list. */
-#sc-sets #si{
-  display:block;
-}
-#sc-sets #sets-hero.oot-hero-tab{
-  display:block !important;
-  visibility:visible !important;
-  opacity:1 !important;
-  position:relative !important;
-  z-index:2 !important;
-  margin:0 0 14px !important;
-}
-#sc-sets #sets-hero .oot-hero-inner{
-  display:flex !important;
-}
-#sc-sets #sets-hero .oot-hero-title,
-#sc-sets #sets-hero .oot-hero-sub,
-#sc-sets #sets-hero .oot-hero-count{
-  visibility:visible !important;
-  opacity:1 !important;
-}
-
 </style>
 </head>
 <body>
@@ -8118,6 +8091,9 @@ function initApp() {
   loadTabOrder();
   _initTabEdit();  // r52: long-press tabs to enter rearrange mode
 
+  // r302: opening the app always lands on Home, regardless of last active tab.
+  setTimeout(function(){ _forceHomeDefaultView('init'); }, 0);
+
   // Notifications / tab activity
   loadNotifPrefs();
   loadTabActivitySeen();
@@ -8153,6 +8129,23 @@ function initApp() {
   }
   // Show "What's New" modal once per version
   if(typeof maybeShowWhatsNew === 'function') maybeShowWhatsNew();
+}
+
+// r302: Home is the default screen whenever the app starts or resumes.
+// This avoids reopening into the last active tab after the PWA/browser restores state.
+var _ootHiddenAt = 0;
+function _forceHomeDefaultView(reason){
+  try {
+    var hb = document.getElementById('tb-home');
+    if(typeof go === 'function') go('home', hb);
+    else {
+      document.querySelectorAll('.sc').forEach(function(s){ s.classList.remove('on'); });
+      document.querySelectorAll('.tb').forEach(function(b){ b.classList.remove('on'); });
+      var home = document.getElementById('sc-home');
+      if(home) home.classList.add('on');
+      if(hb) hb.classList.add('on');
+    }
+  } catch(e){}
 }
 
 // TAB NAVIGATION
@@ -20017,7 +20010,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-setlists-header-visibility-r301';
+var WHATS_NEW_VERSION = '2026-05-05-home-default-on-open-r302';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21139,6 +21132,22 @@ if(savedName&&savedId){
   if(typeof renderNamePicker === 'function') renderNamePicker();
   document.getElementById('name-picker-overlay').style.display='flex';
 }
+
+// r302: if mobile PWA/browser restores this page from background/cache,
+// reset to Home when it becomes visible again.
+(function(){
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'hidden'){
+      _ootHiddenAt = Date.now();
+    } else if(document.visibilityState === 'visible'){
+      var elapsed = _ootHiddenAt ? (Date.now() - _ootHiddenAt) : 0;
+      if(elapsed > 1000) setTimeout(function(){ _forceHomeDefaultView('resume'); }, 0);
+    }
+  });
+  window.addEventListener('pageshow', function(ev){
+    if(ev && ev.persisted) setTimeout(function(){ _forceHomeDefaultView('pageshow'); }, 0);
+  });
+})();
 </script>
 
 <div class="ov" id="reorder-modal">
