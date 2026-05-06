@@ -6,7 +6,7 @@ GitHub web upload/processing below the apparent ~6.5 MB failure threshold.
 No runtime app code was removed.
 r305 adds scoped CSS-only non-Calendar header height normalization.
 -->
-<!-- r309: Calendar bottom-clearance correction. Keeps fixed 6-week grid but reduces excess grid bottom padding so Rehearsal Proposals stays above the bottom tab bar. Upload as index.html after phone test. -->
+<!-- r310: Calendar bottom pill stack lock. Treats All Events + Rehearsal Proposals as a bottom-anchored control stack independent of calendar-grid height. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -3529,6 +3529,37 @@ body.light #sc-cal > #calendar-hero-date-row .mlbl{
   #sc-cal.cal-header-fit .cgrid{
     padding:34px 6px 48px 6px !important;
   }
+}
+
+
+/* r310: Calendar bottom pill stack lock.
+   Scope: Calendar lower control pills only.
+   Treats All Events + Rehearsal Proposals as one bottom-anchored stack independent of the calendar grid.
+   The Rehearsal Proposals pill is locked immediately above the bottom tab row using the measured tab height.
+   Calendar header, month banner, date tiles, event markers, and other tabs are intentionally unchanged. */
+:root{
+  --oot-tabs-h:72px;
+  --oot-cal-stack-side:max(12px, calc((100vw - 480px) / 2 + 12px));
+  --oot-cal-proposals-gap:0px;
+  --oot-cal-all-events-offset:68px;
+}
+#sc-cal.cal-header-fit .evl-head,
+#sc-cal.cal-header-fit .proposals-head{
+  position:fixed !important;
+  left:var(--oot-cal-stack-side) !important;
+  right:var(--oot-cal-stack-side) !important;
+  z-index:840 !important;
+  margin:0 !important;
+}
+#sc-cal.cal-header-fit .proposals-head{
+  bottom:calc(var(--oot-tabs-h, 72px) + var(--oot-cal-proposals-gap, 0px)) !important;
+}
+#sc-cal.cal-header-fit .evl-head{
+  bottom:calc(var(--oot-tabs-h, 72px) + var(--oot-cal-all-events-offset, 68px)) !important;
+}
+body.light #sc-cal.cal-header-fit .evl-head,
+body.light #sc-cal.cal-header-fit .proposals-head{
+  z-index:840 !important;
 }
 
 </style>
@@ -19903,7 +19934,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-bottom-clearance-r309';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-bottom-pill-stack-lock-r310';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20196,6 +20227,9 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-bottom-pill-stack-lock-r310', date:'May 6, 2026', importance:'fix',
+   title:'Calendar lower pills locked above tabs',
+   desc:'Treats All Events and Rehearsal Proposals as a bottom-anchored Calendar control stack independent of the month grid, with Rehearsal Proposals locked directly above the bottom tab row.'},
   {version:'2026-05-06-calendar-bottom-clearance-r309', date:'May 6, 2026', importance:'fix',
    title:'Calendar bottom clearance corrected',
    desc:'Keeps the fixed six-week Calendar grid from r308 but reduces the excess bottom void inside the Calendar card so All Events and Rehearsal Proposals sit fully above the bottom tab bar instead of sliding underneath it.'},
@@ -21181,6 +21215,26 @@ if(savedName&&savedId){
 
 <!-- TOAST -->
 <div id="app-toast" style="position:fixed;left:50%;bottom:132px;transform:translateX(-50%) translateY(80px);z-index:9100;display:none;background:#101e34;border:1px solid #1a3a8a;border-radius:24px;padding:12px 20px;box-shadow:0 8px 30px rgba(0,0,0,.5);font-family:'Exo 2',sans-serif;font-size:15px;font-weight:700;color:#e8f0ff;max-width:86vw;text-align:center;opacity:0;transition:opacity .25s ease-out,transform .25s ease-out;pointer-events:none;"></div>
+
+
+<script>
+/* r310: keep the Calendar lower pill stack locked to the top edge of the bottom tab row. */
+(function(){
+  function syncCalendarBottomStack(){
+    var tabs = document.getElementById('tabs');
+    if(!tabs) return;
+    var h = Math.ceil(tabs.getBoundingClientRect().height || 72);
+    document.documentElement.style.setProperty('--oot-tabs-h', h + 'px');
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', syncCalendarBottomStack);
+  }else{
+    syncCalendarBottomStack();
+  }
+  window.addEventListener('resize', syncCalendarBottomStack, {passive:true});
+  window.addEventListener('orientationchange', function(){ setTimeout(syncCalendarBottomStack, 250); }, {passive:true});
+})();
+</script>
 
 </body>
 </html>
