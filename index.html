@@ -14847,6 +14847,61 @@ function toggleSetlistsMenu(ev){
   document.body.appendChild(wrap);
 }
 
+// r272: small per-setlist menu shown only on an expanded setlist card.
+function closeExpandedSetlistMenu(){
+  var existing = document.getElementById('setlist-expanded-action-backdrop');
+  if(existing) existing.remove();
+}
+function toggleExpandedSetlistMenu(ev, setId){
+  if(ev){
+    if(ev.preventDefault) ev.preventDefault();
+    if(ev.stopPropagation) ev.stopPropagation();
+  }
+  try { closeCalLegend(); } catch(e){}
+  var existing = document.getElementById('setlist-expanded-action-backdrop');
+  if(existing){ existing.remove(); return; }
+
+  var s = (typeof sets !== 'undefined' && sets) ? sets.find(function(x){ return String(x.id) === String(setId); }) : null;
+  if(!s){ toast('Setlist not found', {tone:'error'}); return; }
+
+  var wrap = document.createElement('div');
+  wrap.id = 'setlist-expanded-action-backdrop';
+  wrap.className = 'oot-action-backdrop';
+  wrap.onclick = function(e){ if(e.target === wrap) closeExpandedSetlistMenu(); };
+
+  var sheet = document.createElement('div');
+  sheet.id = 'setlist-expanded-action-sheet';
+  sheet.className = 'oot-action-sheet';
+  sheet.setAttribute('role','dialog');
+  sheet.setAttribute('aria-modal','true');
+  sheet.setAttribute('aria-label','Setlist actions');
+  sheet.onclick = function(e){ e.stopPropagation(); };
+
+  sheet.innerHTML =
+    '<button type="button" class="songs-sheet-x" aria-label="Close setlist actions" onclick="closeExpandedSetlistMenu()">×</button>' +
+    '<div class="songs-sheet-head">' +
+      '<img src="Logo.png?v=r142" class="songs-sheet-logo" alt="Out of Time">' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div class="songs-sheet-title">SETLIST ACTIONS</div>' +
+        '<div class="songs-sheet-sub">' + (s.name || 'Setlist') + '</div>' +
+      '</div>' +
+    '</div>';
+
+  var editBtn = document.createElement('button');
+  editBtn.type = 'button';
+  editBtn.className = 'songs-sheet-btn';
+  editBtn.innerHTML = '<span class="songs-sheet-btn-icon">✎</span><span style="flex:1;"><span class="songs-sheet-btn-label">Edit Setlist</span><span class="songs-sheet-btn-sub">Open this setlist in edit mode</span></span>';
+  editBtn.onclick = function(e){
+    e.stopPropagation();
+    closeExpandedSetlistMenu();
+    setTimeout(function(){ opSL(s.id); }, 0);
+  };
+  sheet.appendChild(editBtn);
+
+  wrap.appendChild(sheet);
+  document.body.appendChild(wrap);
+}
+
 function _buildAllSetlistsText(){
   var lines = ['OUT OF TIME — ALL SETLISTS', '━━━━━━━━━━━━━━━━━━━━━━', ''];
   (sets || []).forEach(function(s, idx){
@@ -15623,6 +15678,17 @@ function rSets() {
         '</div>'+
       '</div>';
     div.setAttribute('data-id', s.id);
+    if(isExpanded){
+      var expMenuBtn = document.createElement('button');
+      expMenuBtn.type = 'button';
+      expMenuBtn.className = 'setlist-expanded-kebab';
+      expMenuBtn.setAttribute('aria-label','Setlist actions');
+      expMenuBtn.setAttribute('title','Setlist actions');
+      expMenuBtn.innerHTML = '&#8942;';
+      expMenuBtn.style.cssText = 'width:30px;height:30px;border-radius:50%;border:1px solid rgba(245,197,24,.36);background:rgba(8,18,37,.58);color:#f5c518;font-size:18px;line-height:1;display:inline-flex;align-items:center;justify-content:center;padding:0;cursor:pointer;touch-action:manipulation;flex-shrink:0;';
+      expMenuBtn.onclick = function(e){ toggleExpandedSetlistMenu(e, s.id); };
+      div.appendChild(expMenuBtn);
+    }
     div.onmouseover = function(){ this.style.transform = 'translateX(2px)'; this.style.boxShadow = '0 0 18px '+stripe+'22'; };
     div.onmouseout = function(){ this.style.transform = ''; this.style.boxShadow = ''; };
     div.onclick = function(){
@@ -19736,7 +19802,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-setlist-remove-editpill-r271';
+var WHATS_NEW_VERSION = '2026-05-05-setlist-expanded-editmenu-r272';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
