@@ -14969,6 +14969,19 @@ function toggleSetlistEditMenu(ev){
       '</div>' +
     '</div>';
 
+  var manageBtn = document.createElement('button');
+  manageBtn.type = 'button';
+  manageBtn.className = 'songs-sheet-btn';
+  manageBtn.innerHTML = reorderMode
+    ? '<span class="songs-sheet-btn-icon">✓</span><span style="flex:1;"><span class="songs-sheet-btn-label">Save Order</span><span class="songs-sheet-btn-sub">Finish reorder mode</span></span>'
+    : '<span class="songs-sheet-btn-icon">✎</span><span style="flex:1;"><span class="songs-sheet-btn-label">Rename / Reorder</span><span class="songs-sheet-btn-sub">Rename the setlist or drag songs into a new order</span></span>';
+  manageBtn.onclick = function(e){
+    e.stopPropagation();
+    closeSetlistEditMenu();
+    setTimeout(function(){ toggleSLEdit(); }, 0);
+  };
+  sheet.appendChild(manageBtn);
+
   var shareBtn = document.createElement('button');
   shareBtn.type = 'button';
   shareBtn.className = 'songs-sheet-btn';
@@ -15900,7 +15913,7 @@ function rEd() {
     '<button id="sl-edit-menu-btn" onclick="toggleSetlistEditMenu(event)" type="button" title="Setlist edit actions" aria-label="Setlist edit actions" style="background:transparent;border:1px solid '+(_slLight?'#1a3a8a':'rgba(245,197,24,.38)')+';border-radius:50%;width:32px;height:32px;color:'+(_slLight?'#1a3a8a':'#f5c518')+';cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation;flex-shrink:0;font-size:18px;line-height:1;">&#8942;</button>'+
     '</div>'+
     '<div style="font-size:12px;color:#aaa;margin-bottom:4px;">'+s.songs.length+' songs'+durStr+'</div>'+
-    '<div style="font-size:10px;color:'+(reorderMode?'#f5c518':'transparent')+';margin-bottom:10px;">Hold ≡ and drag to reorder · tap Save to finish</div>';
+    '<div style="font-size:10px;color:'+(reorderMode?'#f5c518':'#4a6a9a')+';margin-bottom:10px;">'+(reorderMode?'Hold ≡ and drag to reorder · open ⋮ to Save Order':'Open ⋮ for Rename / Reorder and Share')+'</div>';
 
   var container = document.getElementById('ssl');
   container.innerHTML = '';
@@ -19887,7 +19900,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-remove-edit-addsongs-button-r281';
+var WHATS_NEW_VERSION = '2026-05-05-setlist-edit-manage-menu-r282';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
