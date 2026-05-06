@@ -6,7 +6,7 @@ GitHub web upload/processing below the apparent ~6.5 MB failure threshold.
 No runtime app code was removed.
 r305 adds scoped CSS-only non-Calendar header height normalization.
 -->
-<!-- r307: Move Calendar Month/Year row out of header and attach it to calendar grid; preserve r306 plain text reset. Upload as index.html after phone test. -->
+<!-- r308: Calendar fixed 6-week grid. Adds invisible filler cells so all months use consistent calendar height. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -3388,6 +3388,15 @@ body.light #sc-cal #calendar-hero-date-row .mlbl{
   text-shadow:none !important;
 }
 
+
+
+/* r308: Calendar fixed six-week grid filler cells.
+   Invisible placeholders reserve height for months that only need 4 or 5 weeks. */
+#sc-cal #cgrid .cal-pad{
+  min-height:60px !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
 
 /* r307: Calendar Month/Year row placement correction.
    Scope: Calendar Month/Year row + its immediate calendar-grid join only.
@@ -12657,6 +12666,13 @@ function rCal() {
     var blackoutClass = eventTypes.indexOf('blackout') >= 0 ? ' has-blackout' : '';
     h+='<div class="dc'+(td?' td':'')+busyClass+blackoutClass+'" style="position:relative;" onclick="oDy('+d+')">'+flag+star+cake+'<span class="dn">'+d+'</span><div class="pips">'+pp+'</div></div>';
   }
+  // r308: keep every calendar month at a fixed 6-week height.
+  // The app always renders 42 day slots (7 days x 6 rows): actual leading blanks + dates + invisible trailing placeholders.
+  // This prevents shorter months from pulling All Events / Rehearsal Proposals upward and creating extra space above the tab bar.
+  var _r308RenderedSlots = fd + dim;
+  for(var _r308Pad = _r308RenderedSlots; _r308Pad < 42; _r308Pad++){
+    h += '<div class="cal-pad" aria-hidden="true"></div>';
+  }
   document.getElementById('cgrid').innerHTML = h;
   // Initial population for left icon and right slot if not already set
   var leftEl = document.getElementById('cnav-left');
@@ -19868,7 +19884,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-month-row-to-grid-r307';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-fixed-six-week-grid-r308';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20161,6 +20177,9 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-fixed-six-week-grid-r308', date:'May 6, 2026', importance:'fix',
+   title:'Calendar month height normalized',
+   desc:'Every month now reserves a fixed six-week grid height using invisible filler cells, so shorter months align All Events and Rehearsal Proposals consistently above the bottom tab bar.'},
   {version:'2026-05-06-calendar-month-row-to-grid-r307', date:'May 6, 2026', importance:'fix',
    title:'Calendar Month/Year row attached to grid',
    detail:'Moves the Month/Year row out of the Calendar header and visually attaches it to the top of the calendar grid while preserving the plain r306 Month/Year text reset and hiding Next Up from that row.'},
