@@ -14918,17 +14918,6 @@ function toggleExpandedSetlistMenu(ev, setId){
   };
   sheet.appendChild(shareBtn);
 
-  var editBtn = document.createElement('button');
-  editBtn.type = 'button';
-  editBtn.className = 'songs-sheet-btn';
-  editBtn.innerHTML = '<span class="songs-sheet-btn-icon">⚙</span><span style="flex:1;"><span class="songs-sheet-btn-label">Manage Setlist</span><span class="songs-sheet-btn-sub">Open deeper setlist edit tools</span></span>';
-  editBtn.onclick = function(e){
-    e.stopPropagation();
-    closeExpandedSetlistMenu();
-    setTimeout(function(){ opSL(s.id); }, 0);
-  };
-  sheet.appendChild(editBtn);
-
   var reorderBtn = document.createElement('button');
   reorderBtn.type = 'button';
   reorderBtn.className = 'songs-sheet-btn';
@@ -15909,10 +15898,10 @@ function rEd() {
     '<div style="display:flex;align-items:center;gap:9px;margin-bottom:5px;flex-wrap:wrap;">'+
     '<img src="Logo.png?v=r142" class="setlist-title-logo" alt="Out of Time">'+
     '<span style="background:'+_slPal.gradient+';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:700;text-shadow:0 0 18px '+_slPal.glow+';font-family:Russo One,sans-serif;font-size:17px;flex:1;min-width:110px;letter-spacing:1px;">'+s.name+'</span>'+
-    (reorderMode ? '<button id="sl-save-order-icon" onclick="toggleSLEdit()" type="button" title="Save order" aria-label="Save order" style="background:linear-gradient(135deg,#00d9ff 0%,#755cff 48%,#ff4fd8 100%);border:1px solid rgba(245,197,24,.45);border-radius:50%;width:34px;height:34px;color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation;flex-shrink:0;box-shadow:0 0 16px rgba(117,92,255,.36),0 0 10px rgba(245,197,24,.18),inset 0 1px 0 rgba(255,255,255,.28);"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M5 3h11l3 3v15H5z" fill="rgba(5,13,28,.62)" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 3v6h7V3" fill="none" stroke="#f5c518" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 16h8" fill="none" stroke="#f5c518" stroke-width="2" stroke-linecap="round"/></svg></button>' : '')+
+    (reorderMode ? '<button id="sl-save-order-icon" onclick="toggleSLEdit()" type="button" title="Save order" aria-label="Save order" style="background:transparent;border:none;border-radius:12px;width:40px;height:40px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation;flex-shrink:0;margin-right:40px;box-shadow:none;"><img src="thumbnail.png?v=r289" alt="" aria-hidden="true" style="width:34px;height:34px;display:block;border-radius:10px;object-fit:cover;filter:drop-shadow(0 0 6px rgba(68,208,255,.28));"/></button>' : '')+
     '</div>'+
     '<div style="font-size:12px;color:#aaa;margin-bottom:4px;">'+s.songs.length+' songs'+durStr+'</div>'+
-    '<div style="font-size:10px;color:'+(reorderMode?'#f5c518':'#4a6a9a')+';margin-bottom:10px;">'+(reorderMode?'Hold ≡ and drag to reorder · tap the save icon to finish':'Use the expanded setlist ⋮ for add, share, manage, and reorder')+'</div>';
+    '<div style="font-size:10px;color:'+(reorderMode?'#f5c518':'#4a6a9a')+';margin-bottom:10px;">'+(reorderMode?'Hold ≡ and drag to reorder · tap the thumb-drive save icon to finish':'Use the expanded setlist ⋮ for add, share, manage, and reorder')+'</div>';
 
   var container = document.getElementById('ssl');
   container.innerHTML = '';
@@ -19899,7 +19888,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-rollback-to-r286-r288';
+var WHATS_NEW_VERSION = '2026-05-05-setlist-clean-safe-r289';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
