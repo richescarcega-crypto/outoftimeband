@@ -14898,6 +14898,20 @@ function toggleExpandedSetlistMenu(ev, setId){
   };
   sheet.appendChild(editBtn);
 
+  var shareBtn = document.createElement('button');
+  shareBtn.type = 'button';
+  shareBtn.className = 'songs-sheet-btn';
+  shareBtn.innerHTML = '<span class="songs-sheet-btn-icon">⇧</span><span style="flex:1;"><span class="songs-sheet-btn-label">Share Setlist</span><span class="songs-sheet-btn-sub">Export or share this setlist</span></span>';
+  shareBtn.onclick = function(e){
+    e.stopPropagation();
+    closeExpandedSetlistMenu();
+    setTimeout(function(){
+      aSL = s.id;
+      printSL();
+    }, 0);
+  };
+  sheet.appendChild(shareBtn);
+
   wrap.appendChild(sheet);
   document.body.appendChild(wrap);
 }
@@ -19815,7 +19829,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-songresources-edit-idfix-r275';
+var WHATS_NEW_VERSION = '2026-05-05-expanded-setlist-share-r276';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
