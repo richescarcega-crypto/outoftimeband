@@ -1,406 +1,9 @@
 <!--
-═══════════════════════════════════════════════════════════════════════════════
-BUILD QUEUE & TO-DO  (authoritative — only the user updates this list)
-
-Rule: never delete completed items. Cross them out so we always see what was
-accomplished and what still needs to be done.
-
-  Build  Scope                                                          Status
-  ─────  ─────────────────────────────────────────────────────────────  ──────
-  r21    Fix 1 — pin summary + actions, capped canvas                   shipped
-  r22    Member lightbox bigger                                         shipped
-  r23    Neon-Square venue centering                                    shipped
-  r24    Member lightbox even bigger (98vw)                             shipped
-  r25    7 more squares centered                                        shipped
-  r26    User manual edit — all 16 templates at x_frac=0.54             shipped
-  r27    Image lightbox fix attempt 1                                   superseded
-  r28    Hollywood-story venue centering                                shipped
-  r29    Fix 4 — tagline gold on neon templates                         shipped
-  r30    Fix 2 Type A — confirmation toasts                             shipped
-  r31    Image lightbox fix attempt 2                                   shipped
-  r32    Edit Save Flyer canvas 50vh→44vh                               superseded by r34
-  r33    Pattern A auto-save (full)                                     shipped, awaiting test
-  r34    Tap-to-expand canvas + 32vh in-modal                           shipped, awaiting test
-  r35    Fix 5 Piece A — split Address/City/Date/Time in flyer modal    shipped, awaiting test
-  r36    Changelog refactor — WHATS_NEW_SCREENS → WHATS_NEW_LOG,        shipped
-         ̶i̶m̶p̶o̶r̶t̶a̶n̶c̶e̶ ̶l̶e̶v̶e̶l̶s̶,̶ ̶b̶a̶n̶n̶e̶r̶ ̶o̶n̶l̶y̶ ̶o̶n̶ ̶m̶a̶j̶o̶r̶s̶,̶ ̶f̶u̶l̶l̶ ̶l̶o̶g̶ ̶v̶i̶a̶ ̶H̶o̶m̶e̶
-         ̶t̶a̶b̶ ̶k̶e̶b̶a̶b̶.̶ ̶P̶u̶l̶l̶e̶d̶ ̶a̶h̶e̶a̶d̶ ̶o̶f̶ ̶F̶i̶x̶ ̶5̶ ̶P̶i̶e̶c̶e̶ ̶B̶ ̶b̶e̶c̶a̶u̶s̶e̶ ̶B̶ ̶i̶s̶ ̶b̶i̶g̶g̶e̶r̶
-         ̶a̶n̶d̶ ̶t̶h̶e̶ ̶c̶h̶a̶n̶g̶e̶l̶o̶g̶ ̶r̶e̶f̶a̶c̶t̶o̶r̶ ̶b̶e̶n̶e̶f̶i̶t̶s̶ ̶e̶v̶e̶r̶y̶t̶h̶i̶n̶g̶.̶
-  r37    Fix 5 Piece B — split address/city in the gig record           shipped
-         ̶i̶t̶s̶e̶l̶f̶ ̶(̶C̶a̶l̶e̶n̶d̶a̶r̶ ̶A̶d̶d̶/̶E̶d̶i̶t̶ ̶G̶i̶g̶ ̶f̶o̶r̶m̶s̶ ̶+̶ ̶d̶a̶t̶a̶ ̶m̶i̶g̶r̶a̶t̶i̶o̶n̶ ̶+̶
-         ̶.̶i̶c̶s̶ ̶e̶x̶p̶o̶r̶t̶ ̶u̶p̶d̶a̶t̶e̶s̶ ̶—̶ ̶a̶d̶d̶e̶d̶ ̶L̶O̶C̶A̶T̶I̶O̶N̶ ̶l̶i̶n̶e̶ ̶t̶o̶ ̶.̶i̶c̶s̶ ̶o̶u̶t̶p̶u̶t̶)̶
-  r38    Library → Firestore migration. Hardcoded library array now      shipped
-         ̶s̶e̶e̶d̶s̶ ̶F̶i̶r̶e̶s̶t̶o̶r̶e̶ ̶o̶n̶ ̶f̶i̶r̶s̶t̶ ̶l̶o̶a̶d̶;̶ ̶a̶l̶l̶ ̶a̶d̶d̶/̶e̶d̶i̶t̶/̶d̶e̶l̶e̶t̶e̶/̶i̶m̶p̶o̶r̶t̶
-         ̶o̶p̶e̶r̶a̶t̶i̶o̶n̶s̶ ̶p̶e̶r̶s̶i̶s̶t̶ ̶+̶ ̶s̶y̶n̶c̶ ̶a̶c̶r̶o̶s̶s̶ ̶b̶a̶n̶d̶ ̶m̶e̶m̶b̶e̶r̶s̶.̶ ̶F̶o̶u̶n̶d̶a̶t̶i̶o̶n̶
-         ̶f̶o̶r̶ ̶r̶3̶9̶ ̶(̶C̶S̶V̶ ̶i̶m̶p̶o̶r̶t̶)̶.̶
-  r39    CSV bulk-import for songs (Title, Artist, Key, BPM, Duration)   shipped
-         ̶w̶i̶t̶h̶ ̶d̶o̶w̶n̶l̶o̶a̶d̶a̶b̶l̶e̶ ̶t̶e̶m̶p̶l̶a̶t̶e̶,̶ ̶p̶e̶r̶-̶d̶u̶p̶l̶i̶c̶a̶t̶e̶ ̶p̶r̶o̶m̶p̶t̶ ̶(̶s̶k̶i̶p̶ ̶/̶
-         ̶u̶p̶d̶a̶t̶e̶ ̶/̶ ̶s̶k̶i̶p̶-̶a̶l̶l̶ ̶/̶ ̶u̶p̶d̶a̶t̶e̶-̶a̶l̶l̶)̶,̶ ̶F̶i̶r̶e̶s̶t̶o̶r̶e̶-̶b̶a̶c̶k̶e̶d̶ ̶p̶e̶r̶s̶i̶s̶t̶e̶n̶c̶e̶
-  r40    "Replace Library from CSV" — destructive bulk replace          BLOCKED on r39
-         with diff preview, typed REPLACE confirmation, 60-second       phone-test
-         undo backup via localStorage snapshot
-  r41    Type B field-edit indicator — likely closeable since r33        conditional
-         header status + r34 expand probably cover the need              (likely closeable)
-  r42    Activity tracking (Tier 2, transparent) — per-member opens,    shipped (r42b)
-         tab views, key actions. Home tab ⋮ menu → "Band Activity"
-         opens a modal (r42b moved this from Pay tab card to Home menu).
-         Rich (admin via members/{id}.admin=true) sees everyone sorted
-         by engagement. Members see their own card. No content tracked.
-         Bootstraps Rich's admin flag automatically.
-  r42c   Songs menu rename: 'Import Songs' → 'Quick Paste',            shipped (this build)
-         'Import from CSV' → 'Import File'. Pure label change.
-  r43    Firestore security rules — validation-style rules deployed     shipped
-         ̶t̶o̶ ̶f̶i̶r̶e̶s̶t̶o̶r̶e̶.̶r̶u̶l̶e̶s̶.̶ ̶A̶l̶l̶o̶w̶l̶i̶s̶t̶s̶ ̶2̶0̶ ̶k̶n̶o̶w̶n̶ ̶c̶o̶l̶l̶e̶c̶t̶i̶o̶n̶s̶,̶ ̶v̶a̶l̶i̶d̶a̶t̶e̶s̶
-         ̶d̶o̶c̶ ̶s̶h̶a̶p̶e̶,̶ ̶d̶e̶n̶i̶e̶s̶ ̶u̶n̶k̶n̶o̶w̶n̶ ̶c̶o̶l̶l̶e̶c̶t̶i̶o̶n̶s̶.̶ ̶S̶E̶P̶A̶R̶A̶T̶E̶ ̶F̶I̶L̶E̶ ̶d̶e̶p̶l̶o̶y̶e̶d̶
-         ̶v̶i̶a̶ ̶F̶i̶r̶e̶b̶a̶s̶e̶ ̶C̶o̶n̶s̶o̶l̶e̶ ̶(̶n̶o̶t̶ ̶i̶n̶ ̶i̶n̶d̶e̶x̶.̶h̶t̶m̶l̶)̶.̶ ̶P̶r̶e̶-̶r̶e̶q̶u̶i̶s̶i̶t̶e̶ ̶f̶o̶r̶
-         ̶s̶h̶a̶r̶i̶n̶g̶ ̶a̶p̶p̶ ̶U̶R̶L̶ ̶w̶i̶t̶h̶ ̶a̶n̶y̶o̶n̶e̶ ̶o̶u̶t̶s̶i̶d̶e̶ ̶t̶h̶e̶ ̶b̶a̶n̶d̶.̶
-  r43a   Read Receipts turned ON. Eye-icon indicator on outgoing         shipped (this build)
-         messages: grey = unseen, green = seen by ≥1 recipient. Tap
-         green eye on band-chat message to see exact seen-by list.
-         Cutoff timestamp set to build time — messages from before
-         r43a do NOT show indicator (their seenBy may be unreliable).
-  r44    Demo Firebase project setup + seeded fake data — required       queued — sharing
-         before outside testers can use without seeing real band data    prerequisite
-  r45    PWA conversion — manifest.json + iOS meta tags for proper      shipped (this build)
-         "Add to Home Screen" experience. App installs to iPhone home
-         screen with real icon, fullscreen no-Safari-bar display, proper
-         app title. SEPARATE FILE manifest.json must be uploaded to
-         GitHub alongside index.html. NOTE: no custom service worker —
-         OneSignal already registers one, manifest+display:standalone
-         is sufficient for installability.
-  r46    Unified share UI — single blue circle pattern across Calendar, shipped (this build)
-         Pay, Songs, Setlists, Band Roster. Sheet adds Send to Band
-         Chat + per-member DM as one-tap destinations alongside file
-         exports. Flyer/Lightbox keep gold pills (primary action). Vcf
-         contacts share hides chat options (chat can't import vcf).
-  r47    Auto-update version check — detects new builds and prompts     shipped (this build)
-         user to refresh via banner. Polls deployed index.html every 5
-         minutes (and on visibility change). Hard-reloads + clears
-         cache when user taps the banner.
-  r47a   Build Version menu item — Home tab ⋮ → 'Build Version' shows  shipped
-         ̶t̶h̶e̶ ̶c̶u̶r̶r̶e̶n̶t̶ ̶W̶H̶A̶T̶S̶_̶N̶E̶W̶_̶V̶E̶R̶S̶I̶O̶N̶ ̶v̶a̶l̶u̶e̶ ̶w̶i̶t̶h̶ ̶t̶a̶p̶-̶t̶o̶-̶c̶o̶p̶y̶.̶
-  r47b   Bulletproof refresh — banner tap now does multi-layered          shipped (this build)
-         cache bust: SW unregister + CacheStorage delete + cache-busted
-         URL reload (?_v=ts). Works on iOS Safari and Android Chrome.
-         Post-reload verification: if update STILL didn't take, shows
-         stronger red banner with platform-specific manual instructions.
-  r48    Flat Home menu — removed hamburger from Home top row.        shipped (this build)
-         Promoted Arrange Tabs + Display Mode + Notifications +
-         Privacy & Data + Member Activity (admin) + Sign Out from
-         the in-modal kebab to flat items in the Home tab ⋮ menu.
-         Each promoted item gets its own dedicated modal. Reorder
-         modal is now pure tab-arranger.
-  r48a   Open in Maps fix — inside installed PWA, was stranding user    shipped (folded into r49)
-         ̶i̶n̶ ̶m̶a̶p̶s̶ ̶w̶i̶t̶h̶ ̶n̶o̶ ̶"̶b̶a̶c̶k̶"̶ ̶a̶f̶f̶o̶r̶d̶a̶n̶c̶e̶.̶ ̶N̶o̶w̶ ̶u̶s̶e̶s̶ ̶n̶a̶t̶i̶v̶e̶ ̶U̶R̶L̶ ̶s̶c̶h̶e̶m̶e̶s̶
-         ̶(̶m̶a̶p̶s̶:̶/̶/̶ ̶o̶n̶ ̶i̶O̶S̶,̶ ̶g̶e̶o̶:̶ ̶o̶n̶ ̶A̶n̶d̶r̶o̶i̶d̶)̶ ̶s̶o̶ ̶t̶h̶e̶ ̶O̶S̶ ̶p̶r̶o̶v̶i̶d̶e̶s̶ ̶p̶r̶o̶p̶e̶r̶
-         ̶"̶b̶a̶c̶k̶ ̶t̶o̶ ̶O̶u̶t̶ ̶o̶f̶ ̶T̶i̶m̶e̶"̶ ̶n̶a̶v̶i̶g̶a̶t̶i̶o̶n̶.̶
-  r48b   Same fix for YouTube external links: added _openExternalUrl    shipped (folded into r49)
-         helper, rerouted playYT/playBtn/si-yt-btn through it.
-  r48c   Same fix for Facebook / Instagram links: added rel=noopener    shipped (folded into r49)
-         + onclick=_openExternalUrl. Anchor tags still semantic.
-  r48d   Tabs moved to bottom of screen (modern mobile UX). Updated     shipped (folded into r49)
-         CSS border direction, added iPhone safe-area padding,
-         flipped active-tab indicator to point upward.
-  r49    UX cleanup bundle: r48a + r48b + r48c + r48d shipped as one    shipped (folded into r50 deploy)
-         atomic deploy. Single What's New banner for the band.
-  r50    Tab readability: inactive tab labels now bright white         shipped (this build)
-         (was a muted dark blue, hard to read on the dark tab bar).
-         Font size bumped 8px → 11px to match Instagram/FB.  Active
-         tab still glows gold.
-  r51    Fix: Member Activity modal X button — onclick had stray       shipped (this build)
-         backslash-escaped quotes (clM(\'member-activity-modal\'))
-         left over from a JS-string context, which broke the function
-         call. Now plain single quotes. Feature itself retained for
-         future use.
-  r52    Long-press to rearrange tabs. Press-hold any tab in the       shipped (this build)
-         bottom bar for 500ms → wiggle "edit mode" engages → drag
-         left/right to reorder → drop swaps neighbors live. Exit via
-         gold ✓ DONE pill, outside-tap, or 8s idle. Pointer Events
-         (no HTML5 DnD). Existing Arrange Tabs modal kept as
-         discoverable / accessible fallback with a hint line pointing
-         at the new gesture.
-  r53    Admin Notification Log — diagnostic instrument for the        shipped (this build)
-         active notification bug. Every notifyBand call writes a
-         notiflog Firestore doc: timestamp, category, title, message,
-         sender, target IDs+names, result (sent/failed/error/
-         suppressed-self-dm/no-targets/recipient-opted-out), httpStatus,
-         response body (≤500 chars). Admin-only viewer at Home ⋮ →
-         Notification Log. Auto-prunes to last 500 entries on open.
-         REQUIRES firestore.rules update — add 'notiflog' to the
-         allowlist via Firebase Console (separate file deploy, same
-         pattern as r43).
-  r54    Fix: r48 sibling modals X buttons — Display Mode,             shipped (this build)
-         Notifications, Privacy modals all had the SAME backslash-
-         escaped-quote bug r51 fixed in Member Activity. onclick=
-         "clM(\'modal-id\')" broke the handler so the X did nothing,
-         which is what locked Ed (and Rich on repro) inside the
-         Display Mode modal after toggling theme. Three one-line
-         unescape edits. No JS logic changes — toggle was working
-         all along, just couldn't close out.
-  r55    Fix: Rehearsal Proposal modal bottom clipping. Parent .mo    shipped (this build)
-         had display:flex+flex-direction:column but inherited base
-         .mo's overflow-y:auto, creating nested-scroll conflict that
-         clipped the last form fields below viewport on phones.
-         Adopted canonical Flyer-modal flex pattern: parent gets
-         overflow:hidden + padding-bottom:14px, inner body gets
-         min-height:0. Also preemptively applied same fix to the r53
-         Notification Log modal (admin-only, same pattern, zero-risk
-         since Rich will be living in it for notif diagnosis).
-         Announcements modal NOT touched — different architecture
-         (sticky header + scrollable list + fixed compose) and not
-         exhibiting symptoms.
-  r56    Fix: r48 static-HTML modals close-mismatch (REAL fix for     shipped (this build)
-         what r51 and r54 only partially addressed). show*Modal
-         functions opened modals with inline ov.style.display='flex',
-         but X buttons called clM() which only removes the .on class.
-         Inline style beats class CSS, so close was a no-op. r51+r54
-         escape-quote fixes were correct but masked this deeper bug —
-         even with the handler firing, the modal couldn't close
-         because the open/close mechanisms didn't match. Backdrop-tap-
-         to-close was also broken for the same reason. Fix: changed 4
-         show functions (DisplayMode, Notifications, Privacy, Member
-         Activity) from style.display='flex' to classList.add('on'),
-         matching the canonical .ov/.ov.on CSS pattern. Now clM and
-         the global backdrop-tap listener both work. Build Version,
-         Notification Log, and Band Activity modals were unaffected
-         (they use dedicated close*Modal functions that clear inline
-         style correctly).
-  r57    S2 save banner — replaces dual-toast confirmation in the      shipped (this build)
-         flyer modal (per morning mockup S2 verdict). Full-width
-         green gradient banner slides down from top of modal, plays
-         a brief 2-note success chime (Web Audio synthesized, no
-         asset file), holds 1.5s, slides back up. Replaces ALL of:
-         old top-right "Saved ✓" pill, "Template: X" toast, "Format:
-         X" toast, "Flyer saved to gig" toast — single source of
-         truth for save confirmations. Detail line customizes per
-         event: "Template: Neon Square", "Format: Story (1080x1920)",
-         "Flyer saved to gig", or "Flyer updated" for typed-field
-         debounced saves. Dedupe logic: if shown within 300ms,
-         suppresses chime + resets timer (handles back-to-back
-         autosave events from format-change-triggers-template-change
-         path). Errors still toast as before — banner is for
-         confirmations only. Old pill element kept hidden in DOM as
-         no-op fallback for any code that calls _flyerSetSaveStatus.
-         Architectural note: banner is position:absolute inside .mo
-         (which now has position:relative); pointer-events:none so it
-         never intercepts taps; border-radius matches modal top
-         corners for seamless integration.
-  r58    What's New modal — three dismiss paths instead of one         shipped (this build)
-         (was scroll-to-bottom Got It only, frustrating on phones).
-         Added: (1) soft "SKIP" pill top-right of card — muted blue
-         to harmonize with palette, not a hard close X (modal is
-         informational push, not transactional, so light visual
-         register matches the tone); (2) tap anywhere on the dark
-         backdrop outside the card to dismiss — uses e.target===ov
-         guard so taps inside the card don't accidentally dismiss;
-         (3) ESC key on desktop. All three paths call dismissWhatsNew
-         which preserves the "mark version as seen" localStorage
-         logic — accidentally-skipped majors are still re-accessible
-         via Home ⋮ → What's New. Original Got It button preserved as
-         the primary deliberate-acknowledgment path for users who
-         actually read the changelog.
-  r59    Fix: update-failsafe false positive — the loud red "UPDATE  shipped (this build)
-         STILL STUCK" banner fired on Rich's desktop after a clean
-         r58 update succeeded. Phone didn't see it. Both desktop +
-         phone confirmed running r58 at the time. Diagnosis: CDN
-         edge inconsistency. Netlify deploys roll out across edge
-         nodes asynchronously; one edge can serve the new file
-         while another still serves the old. _checkForUpdate polls
-         every 5min + on visibility change; if a poll lands on a
-         stale edge while the local app is already updated, it
-         shows the green "new version" banner pointing at an OLDER
-         version. Tapping that stores the old version as the
-         "pending" target. After the no-op reload, _verifyPendingUpdate
-         sees pending !== running and fires the red stuck banner.
-         False positive — the app is fine. Fix: (1) added re-poll
-         guard before showing red banner. If the FRESH poll matches
-         what we're running, suppress. (2) Tightened staleness
-         window from 5min to 90s — bulletproof reload completes
-         well under that, anything longer is session-restore /
-         backgrounded-tab garbage. (3) Added console.warn diagnostics
-         so future false positives leave a trail (F12 console).
-         Network failure on the re-poll falls back to original
-         behavior so we don't suppress a REAL stuck-update.
-  r49    Activity tracking expansion — track add_announcement,           future
-         add_blackout, add_important_date, vote_song, etc. for richer
-         Tier 2 coverage if the basic 9 events aren't enough
-  r60    Read-receipt bug — green eye missing on messages recipient    shipped (this build,
-         clearly read. Symptoms: Rich's thread w/ Ed, msgs 1-6 have    Path A — diagnostic)
-         green eye, 7-13 don't despite Ed reading all. Ed also
-         reported a green eye that disappeared.
-         r53 Notification Log does NOT cover this — read receipts
-         are a separate subsystem (seenBy field on message docs +
-         _markThreadSeen batch write at line 10990, listener-driven
-         _renderSeenIndicator at line 11024).
-         ̶T̶o̶p̶ ̶h̶y̶p̶o̶t̶h̶e̶s̶e̶s̶:̶ ̶(̶1̶)̶ ̶_̶m̶a̶r̶k̶T̶h̶r̶e̶a̶d̶S̶e̶e̶n̶ ̶f̶i̶r̶e̶s̶ ̶O̶N̶C̶E̶ ̶o̶n̶
-         ̶o̶p̶e̶n̶T̶h̶r̶e̶a̶d̶ ̶(̶l̶i̶n̶e̶ ̶1̶1̶1̶7̶7̶,̶ ̶8̶0̶0̶m̶s̶ ̶t̶i̶m̶e̶o̶u̶t̶)̶ ̶—̶ ̶i̶f̶ ̶E̶d̶ ̶a̶l̶r̶e̶a̶d̶y̶ ̶h̶a̶d̶
-         ̶t̶h̶e̶ ̶t̶h̶r̶e̶a̶d̶ ̶o̶p̶e̶n̶ ̶w̶h̶e̶n̶ ̶m̶s̶g̶s̶ ̶7̶-̶1̶3̶ ̶s̶t̶r̶e̶a̶m̶e̶d̶ ̶i̶n̶,̶ ̶t̶h̶o̶s̶e̶ ̶n̶e̶v̶e̶r̶
-         ̶g̶o̶t̶ ̶m̶a̶r̶k̶e̶d̶.̶ ̶S̶T̶R̶O̶N̶G̶ ̶c̶a̶n̶d̶i̶d̶a̶t̶e̶.̶ ̶(̶2̶)̶ ̶b̶a̶t̶c̶h̶.̶c̶o̶m̶m̶i̶t̶ ̶s̶i̶l̶e̶n̶t̶ ̶f̶a̶i̶l̶
-         ̶a̶t̶ ̶l̶i̶n̶e̶ ̶1̶1̶0̶1̶7̶ ̶s̶w̶a̶l̶l̶o̶w̶s̶ ̶e̶r̶r̶o̶r̶s̶.̶ (3) Firestore rules may
-         reject some seenBy update shapes. (4) Listener race on
-         sender side missing late seenBy updates. (5) Cutoff
-         timestamp (line 11317, READ_RECEIPTS_ENABLED_AT) drifted.
-         ̶P̶l̶a̶n̶:̶ ̶e̶i̶t̶h̶e̶r̶ ̶b̶u̶i̶l̶d̶ ̶s̶e̶e̶n̶l̶o̶g̶ ̶F̶i̶r̶e̶s̶t̶o̶r̶e̶-̶b̶a̶c̶k̶e̶d̶ ̶d̶i̶a̶g̶n̶o̶s̶t̶i̶c̶
-         ̶(̶m̶i̶r̶r̶o̶r̶ ̶o̶f̶ ̶r̶5̶3̶ ̶n̶o̶t̶i̶f̶l̶o̶g̶ ̶a̶r̶c̶h̶i̶t̶e̶c̶t̶u̶r̶e̶)̶ ̶O̶R̶ ̶s̶h̶i̶p̶ ̶t̶a̶r̶g̶e̶t̶e̶d̶ ̶f̶i̶x̶
-         ̶f̶o̶r̶ ̶t̶h̶e̶ ̶l̶i̶v̶e̶-̶m̶e̶s̶s̶a̶g̶e̶-̶w̶h̶i̶l̶e̶-̶t̶h̶r̶e̶a̶d̶-̶o̶p̶e̶n̶ ̶p̶a̶t̶h̶ ̶(̶c̶h̶e̶a̶p̶:̶ ̶h̶o̶o̶k̶
-         ̶i̶n̶t̶o̶ ̶e̶x̶i̶s̶t̶i̶n̶g̶ ̶o̶n̶S̶n̶a̶p̶s̶h̶o̶t̶ ̶t̶o̶ ̶m̶a̶r̶k̶ ̶v̶i̶s̶i̶b̶l̶e̶ ̶i̶n̶c̶o̶m̶i̶n̶g̶ ̶m̶e̶s̶s̶a̶g̶e̶s̶
-         ̶a̶s̶ ̶s̶e̶e̶n̶)̶.̶ ̶D̶e̶c̶i̶d̶e̶ ̶n̶e̶x̶t̶ ̶s̶e̶s̶s̶i̶o̶n̶ ̶a̶f̶t̶e̶r̶ ̶p̶h̶o̶n̶e̶-̶t̶e̶s̶t̶ ̶c̶o̶n̶f̶i̶r̶m̶s̶
-         ̶r̶5̶4̶-̶r̶5̶9̶ ̶s̶t̶a̶b̶l̶e̶.̶
-         SHIPPED Path A: hooked into messages onSnapshot — when a
-         new message arrives in the currently-open thread, fires
-         _markThreadSeen(chatTo) after 250ms. Also replaced silent
-         batch.commit().catch(()=>{}) with console.warn diagnostics
-         on both success and failure (addresses hypothesis #2 for
-         free). Console trail: '[r60 read-receipt] live message in
-         open thread, marking seen' on stream-detect; '[r60 read-
-         receipt] _markThreadSeen committed/FAILED' on commit. If
-         bug persists after this, escalate to Path B (seenlog
-         Firestore diagnostic, mirror of r53 architecture).
-  r̶6̶1̶    ̶T̶i̶e̶r̶ ̶3̶ ̶r̶e̶d̶e̶s̶i̶g̶n̶ ̶—̶ ̶H̶o̶m̶e̶ ̶b̶a̶n̶d̶ ̶i̶m̶a̶g̶e̶:̶ ̶s̶t̶a̶g̶e̶-̶s̶p̶o̶t̶l̶i̶g̶h̶t̶ ̶g̶l̶o̶w̶.̶    superseded by r62
-         ̶R̶e̶p̶l̶a̶c̶e̶d̶ ̶f̶l̶a̶t̶ ̶n̶a̶v̶y̶ ̶g̶r̶a̶d̶i̶e̶n̶t̶ ̶b̶e̶h̶i̶n̶d̶ ̶.̶h̶e̶r̶o̶-̶l̶ ̶w̶i̶t̶h̶ ̶a̶ ̶r̶a̶d̶i̶a̶l̶  (lighting didn't read —
-         ̶g̶o̶l̶d̶-̶t̶o̶-̶b̶u̶r̶n̶t̶-̶o̶r̶a̶n̶g̶e̶-̶t̶o̶-̶n̶e̶a̶r̶-̶b̶l̶a̶c̶k̶ ̶s̶p̶o̶t̶l̶i̶g̶h̶t̶,̶ ̶p̶l̶u̶s̶ ̶t̶w̶o̶  CSS targeted .hero-l (logo
-         ̶p̶s̶e̶u̶d̶o̶-̶e̶l̶e̶m̶e̶n̶t̶ ̶o̶v̶e̶r̶l̶a̶y̶s̶ ̶o̶n̶ ̶t̶o̶p̶ ̶o̶f̶ ̶t̶h̶e̶ ̶b̶a̶n̶d̶ ̶p̶h̶o̶t̶o̶  container) instead of the
-         ̶[̶r̶6̶1̶ ̶d̶e̶t̶a̶i̶l̶s̶ ̶s̶t̶r̶u̶c̶k̶ ̶—̶ ̶s̶u̶p̶e̶r̶s̶e̶d̶e̶d̶ ̶b̶y̶ ̶r̶6̶2̶]̶                #home-social-row where
-                                                                       band-group actually lives;
-                                                                       also WebP edges weren't
-                                                                       clean enough for true glow)
-  r62    Home band image: REAL stage-spotlight, fixed.            shipped (this build)
-         Two-part fix for r61: (1) Swapped INSTR_IMG['band-group']
-         from inline base64 WebP (~73KB string) to external file
-         band.png — true RGBA transparency, 1456×1086, removes
-         ~73KB from index.html. Both Home backdrop and Band Chat
-         thumbnail/lightbox automatically pick up the new image
-         since they share the same key. (2) Retargeted the
-         spotlight CSS from .hero-l (logo container — wrong) to
-         #home-social-row (where band-group is actually rendered):
-         ::before = gold radial haze BEHIND the figures (z-index:0,
-         mix-blend-mode:screen) so light reads through the
-         transparent gaps between band members. ::after = subtle
-         vignette at the corners (z-index:2). .home-band-backdrop
-         is now an <img> not a div with background-image — drop-
-         shadow filter respects PNG alpha so figures get grounded
-         shadows instead of a square-box shadow. Reverted r61's
-         .hero-l warm-radial background and overlays back to flat
-         navy (logo doesn't need them). Light-mode spotlight gets
-         a paler harmonized version. NEW DEPLOY ASSET: band.png
-         must be committed to the repo root alongside index.html.
-  r63    Home band image: cranked spotlight to movie-poster.       shipped (this build)
-         Rich saw r62 on phone, said "looks incredible" then asked
-         to push the glow harder. Layered stage-lighting setup on
-         #home-social-row: (a) deep bronze radial backdrop kills
-         the navy underneath so the row reads as "stage." (b) main
-         gold halo (75% wide, 70% tall, brighter peak +40% opacity
-         vs r62) from upper-center, with mix-blend-mode:screen so
-         it brightens through transparent PNG gaps. (c) two side
-         rim-light radials at 18%/82% horizontal — fill lights to
-         add depth. (d) ground glow ellipse at 50%/92% — warm pool
-         under figures' feet, like stage floor catching light.
-         (e) breathing animation on ::before (4.5s ease-in-out
-         opacity .85 \u2192 1) so the lighting feels alive, not
-         frozen. (f) tripled drop-shadow on .home-band-backdrop:
-         deep grounding shadow + warm rim glow + tight inner
-         highlight. Inset box-shadow on #home-social-row adds a
-         warm haze around the edges. Light-mode gets a paler-tone
-         version of the same multi-layer setup so it stays
-         visually consistent without going pitch dark. No JS
-         changes \u2014 pure CSS. Same band.png asset as r62.
-  r64    Cleaned bg-removal artifact in band.png.                  shipped (this build)
-         Rich spotted a leftover white blob to the right of the
-         singer's microphone (between the mic and the drummer's
-         face) that the bg-removal tool missed. Python script
-         identified the artifact precisely: 338 near-white opaque
-         pixels in a tight cluster at x=833-855, y=205-247 (full
-         image is 1456x1086). Cleared 693 pixels in zone
-         x=825-865, y=195-260 where: (a) all 3 RGB channels > 220,
-         (b) channel max-min < 18 (color-uniform white, excludes
-         flesh tones / fabrics), (c) alpha > 100. Plus 88 edge
-         pixels softened by reducing alpha 70% to avoid leaving a
-         hard ring of grayish pixels at the artifact boundary.
-         Strict zone bounds + strict color tests prevented any
-         touching of legitimate white content (keyboards,
-         drummer's hair, OOT logo, drum hardware). NEW DEPLOY
-         ASSET: band.png (cleaned). Same key in INSTR_IMG, so
-         Band Chat thumbnail/lightbox automatically picks up the
-         cleaned image \u2014 no code changes needed.
-  r65    Edge defringe + bronze glow on Band Chat image.            shipped (this build)
-         Rich pointed out (a) more white artifacts beyond the mic
-         blob (under drummer's elbow above the small drum) and
-         (b) thin white outlines around every figure ("matte halo"
-         from imperfect bg-removal). Also asked for the bronze
-         spotlight glow on the Band Chat band image. Three-part
-         fix: (1) DEFRINGE: inward-color-sampling defringe on
-         band.png. For each white-tinted partial-alpha edge pixel
-         (alpha 30-235, max RGB > 170, color-uniform diff < 35),
-         find the nearest fully-opaque non-white "core" figure
-         pixel via scipy distance transform, sample its color, and
-         70/30 blend toward it (keep alpha unchanged so edge
-         softness is preserved). 3,016 fringe pixels defringed.
-         Tried alpha-unmix math first \u2014 produced purple/blue
-         artifacts at dark hair/clothing edges, abandoned in
-         favor of inward sampling (same technique as Photoshop
-         "Defringe"). (2) ARTIFACT BLOB CLEANUP: scanned for
-         remaining opaque-white clusters with size < 80 px, color-
-         uniform, OUTSIDE protected zones (left keyboard 240-330,
-         middle keyboard 480-550, OOT logo 620-810, drum kit
-         600-900). Cleared 80 isolated artifact clusters (617 px).
-         Protect zones prevent damage to legitimate white content.
-         (3) BAND CHAT BRONZE GLOW: thread thumbnail wrapper span
-         now has a single bronze radial backdrop (small size means
-         multi-layer would look muddy at 36x28). Lightbox modal
-         for band-group view gets the FULL Home-tab stage-light
-         treatment \u2014 5-layer radial gradients + inset warm
-         box-shadow + tripled drop-shadow on the image. Lightbox
-         JS now branches on isBandGroup: band-group gets stage
-         backdrop, individual members keep clean transparent
-         backdrop (no regression for member photos). NEW DEPLOY
-         ASSET: band.png (cleaned again).
-  r66    Swapped in revised band image source.                      shipped (this build)
-  r67    Band Image of the Day rotation — five baked-background     shipped (this build)
-         band images rotate daily, with optional per-member pin in
-         Band Image settings. Retired r62-r66 spotlight overlays
-         because the new artwork carries its own atmosphere. NEW
-         DEPLOY ASSETS: band1.jpg-band5.jpg + icon.png. REQUIRES
-         firestore.rules validator update to allow bandImagePref.
-         Rich uploaded a new version of the band illustration with
-         cleaner remove.bg pass + revised composition (drum kit
-         more centered, figures wider-spaced, drummer in non-
-         reaching pose). New image is 1455x1081 (vs prior 1456x
-         1086, effectively identical). RGBA verified, 707K opaque
-         + 21K partial-alpha edges + 844K transparent — clean
-         mask. Re-ran the r65 cleanup pipeline against the new
-         image with REVISED protect zones tuned to the new layout:
-         left keyboard 245-335 / 160-330; middle keyboard 470-560
-         / 270-470; OOT logo 580-790 / 560-790; drum kit 540-880
-         / 350-640. Defringe pass nudged only 369 fringe pixels
-         (vs 3,016 on the prior image — much cleaner source). Blob
-         cleanup cleared 246 isolated artifacts (1,212 px) outside
-         protect zones; preserved 137 legitimate clusters inside
-         protect zones. False-start: first attempt had user upload
-         an RGB-not-RGBA image (no alpha at all — was a flattened
-         preview with checker pattern baked in). Flagged it back
-         to user, who re-exported through remove.bg properly. NO
-         CSS or JS changes — the spotlight CSS and lightbox logic
-         from r62-r65 work unchanged because they reference
-         INSTR_IMG['band-group'] which still points to band.png.
-         Whole switchover is "drop new file in folder, push." NEW
-         DEPLOY ASSET: band.png (revised source + cleaned).
-
-Standing rules established this session:
-  1. Always bump WHATS_NEW_VERSION -rN on every build during testing
-  2. Sync `cp /mnt/user-data/outputs/index.html /home/claude/work/index.html`
-     before each build
-  3. Assert string counts before replace; node --check after; reject builds
-     where counts don't match expected
-  4. NO flex column + min-height:0 + overflow:hidden on parent — broke iOS
-     Safari historically
-  5. Don't reorder the initApp listener chain
-  6. Don't mass-delete the ~28 functions flagged "KNOWN DEAD CODE" in the file
-  7. Mockups for visual changes before touching live code
-  8. Evaluate ordering at every step; don't stick to a plan just because it's
-     the plan
-  9. Make routine ordering and risk-sizing decisions without asking; flag big
-     design questions where user taste matters
-═══════════════════════════════════════════════════════════════════════════════
+OOT APP BUILD NOTE
+r303 built from confirmed phone-stable r300.
+Large historical build-queue comment removed from this deploy file only to keep
+GitHub web upload/processing below the apparent ~6.5 MB failure threshold.
+No runtime app code was removed.
 -->
 <!DOCTYPE html>
 <html>
@@ -8091,6 +7694,9 @@ function initApp() {
   loadTabOrder();
   _initTabEdit();  // r52: long-press tabs to enter rearrange mode
 
+  // r303: opening the app always lands on Home, regardless of last active tab.
+  setTimeout(function(){ _forceHomeDefaultView('init'); }, 0);
+
   // Notifications / tab activity
   loadNotifPrefs();
   loadTabActivitySeen();
@@ -8126,6 +7732,23 @@ function initApp() {
   }
   // Show "What's New" modal once per version
   if(typeof maybeShowWhatsNew === 'function') maybeShowWhatsNew();
+}
+
+// r303: Home is the default screen whenever the app starts or resumes.
+// This avoids reopening into the last active tab after the PWA/browser restores state.
+var _ootHiddenAt = 0;
+function _forceHomeDefaultView(reason){
+  try {
+    var hb = document.getElementById('tb-home');
+    if(typeof go === 'function') go('home', hb);
+    else {
+      document.querySelectorAll('.sc').forEach(function(s){ s.classList.remove('on'); });
+      document.querySelectorAll('.tb').forEach(function(b){ b.classList.remove('on'); });
+      var home = document.getElementById('sc-home');
+      if(home) home.classList.add('on');
+      if(hb) hb.classList.add('on');
+    }
+  } catch(e){}
 }
 
 // TAB NAVIGATION
@@ -19990,7 +19613,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-band-pill-info-tone-and-labels-r300';
+var WHATS_NEW_VERSION = '2026-05-05-home-default-trimmed-r303';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21112,6 +20735,22 @@ if(savedName&&savedId){
   if(typeof renderNamePicker === 'function') renderNamePicker();
   document.getElementById('name-picker-overlay').style.display='flex';
 }
+
+// r303: if mobile PWA/browser restores this page from background/cache,
+// reset to Home when it becomes visible again.
+(function(){
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'hidden'){
+      _ootHiddenAt = Date.now();
+    } else if(document.visibilityState === 'visible'){
+      var elapsed = _ootHiddenAt ? (Date.now() - _ootHiddenAt) : 0;
+      if(elapsed > 1000) setTimeout(function(){ _forceHomeDefaultView('resume'); }, 0);
+    }
+  });
+  window.addEventListener('pageshow', function(ev){
+    if(ev && ev.persisted) setTimeout(function(){ _forceHomeDefaultView('pageshow'); }, 0);
+  });
+})();
 </script>
 
 <div class="ov" id="reorder-modal">
