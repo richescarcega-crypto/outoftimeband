@@ -7,7 +7,7 @@ No runtime app code was removed.
 r305 adds scoped CSS-only non-Calendar header height normalization.
 -->
 <!-- r311: Calendar All Events/Rehearsal Proposals stack gap tightened. Keeps Rehearsal Proposals locked to the tab row and moves All Events closer to it. Upload as index.html after phone test. -->
-<!-- r316: Calendar lower drawers restored to downward deployment with lower stack shift-up on open. Upload as index.html after phone test. -->
+<!-- r317: Calendar header dimension normalization; lower pill stack untouched. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -3842,6 +3842,86 @@ body.light #sc-cal.cal-header-fit #evl{
   box-shadow:0 14px 30px rgba(20,40,80,.18) !important;
 }
 
+
+
+/* r317: Calendar header dimensions normalized to match other hero tabs.
+   Scope: Calendar header only plus the flexible blue date panel compensation already handled by r313/r314 JS.
+   Lower pill stack and drawer behavior are intentionally untouched.
+   If this header consumes more vertical space, the blue calendar panel remains the flexible middle zone and its date rows stay proportional. */
+#sc-cal.cal-header-fit{
+  padding-top:2px !important;
+}
+#sc-cal.cal-header-fit #calendar-hero{
+  height:152px !important;
+  min-height:152px !important;
+  max-height:152px !important;
+  margin-top:0 !important;
+  margin-bottom:8px !important;
+  padding:18px 16px 16px !important;
+  border-radius:28px !important;
+  flex:0 0 152px !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .oot-hero-inner{
+  min-height:118px !important;
+  height:118px !important;
+  align-items:flex-start !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .oot-hero-logo{
+  width:94px !important;
+  height:94px !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .oot-hero-copy{
+  padding-top:2px !important;
+  padding-right:76px !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .oot-hero-title{
+  font-size:40px !important;
+  line-height:.96 !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .oot-hero-sub{
+  font-size:12px !important;
+  letter-spacing:3.6px !important;
+  margin-top:10px !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .oot-hero-rule{
+  margin-top:12px !important;
+}
+#sc-cal.cal-header-fit .oot-hero-actions{
+  top:14px !important;
+  right:14px !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit #calendar-hero{
+    height:142px !important;
+    min-height:142px !important;
+    max-height:142px !important;
+    flex-basis:142px !important;
+    padding:16px 14px 15px !important;
+    border-radius:24px !important;
+  }
+  #sc-cal.cal-header-fit #calendar-hero .oot-hero-inner{
+    min-height:111px !important;
+    height:111px !important;
+  }
+  #sc-cal.cal-header-fit #calendar-hero .oot-hero-logo{
+    width:84px !important;
+    height:84px !important;
+  }
+  #sc-cal.cal-header-fit #calendar-hero .oot-hero-copy{
+    padding-right:62px !important;
+  }
+  #sc-cal.cal-header-fit #calendar-hero .oot-hero-title{
+    font-size:35px !important;
+  }
+  #sc-cal.cal-header-fit #calendar-hero .oot-hero-sub{
+    font-size:10px !important;
+    letter-spacing:2.8px !important;
+  }
+  #sc-cal.cal-header-fit .oot-hero-actions{
+    top:12px !important;
+    right:12px !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -20214,7 +20294,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-drawers-down-shift-r316';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-header-dimensions-r317';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20507,6 +20587,10 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-header-dimensions-r317', date:'May 6, 2026', importance:'fix',
+   title:'Calendar header dimensions matched to other tabs',
+   body:'Normalizes the Calendar header dimensions to match the other main tab hero headers while leaving the locked All Events/Rehearsal Proposals stack and drawer behavior untouched. The blue calendar panel remains the only flexible compensation zone, with date rows staying proportional inside it.',
+   bullets:['Calendar header now uses the same hero height and internal logo/title sizing family as Songs, Setlists, Chat, Band, and Pay.', 'Lower pill stack placement and drawer behavior were not changed.', 'Any vertical compensation is limited to the blue calendar/date panel, preserving proportional date rows.']},
   {version:'2026-05-06-calendar-drawers-down-shift-r316', date:'May 6, 2026', importance:'fix',
    title:'Calendar lower drawers open downward with stack shift',
    body:'Restores downward drawer deployment for All Events and Rehearsal Proposals; shifts the lower Calendar display upward only while a drawer is open so lists and controls remain visible.',
