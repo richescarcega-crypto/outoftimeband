@@ -14855,6 +14855,74 @@ function closeExpandedSetlistMenu(){
   var existing = document.getElementById('setlist-expanded-action-backdrop');
   if(existing) existing.remove();
 }
+
+// r292: Remove a song from this setlist only. Does not delete from Songs library.
+function closeSetlistRemoveSongMenu(){
+  var existing = document.getElementById('setlist-remove-song-backdrop');
+  if(existing) existing.remove();
+}
+function openSetlistRemoveSongMenu(setId){
+  closeSetlistRemoveSongMenu();
+  var s = (typeof sets !== 'undefined' && sets) ? sets.find(function(x){ return String(x.id) === String(setId); }) : null;
+  if(!s){ toast('Setlist not found', {tone:'error'}); return; }
+  if(!s.songs || !s.songs.length){ toast('No songs in this setlist to remove', {tone:'info'}); return; }
+
+  var wrap = document.createElement('div');
+  wrap.id = 'setlist-remove-song-backdrop';
+  wrap.className = 'oot-action-backdrop';
+  wrap.onclick = function(e){ if(e.target === wrap) closeSetlistRemoveSongMenu(); };
+
+  var sheet = document.createElement('div');
+  sheet.id = 'setlist-remove-song-sheet';
+  sheet.className = 'oot-action-sheet';
+  sheet.setAttribute('role','dialog');
+  sheet.setAttribute('aria-modal','true');
+  sheet.setAttribute('aria-label','Remove song from setlist');
+  sheet.onclick = function(e){ e.stopPropagation(); };
+
+  sheet.innerHTML =
+    '<button type="button" class="songs-sheet-x" aria-label="Close remove song menu" onclick="closeSetlistRemoveSongMenu()">×</button>' +
+    '<div class="songs-sheet-head">' +
+      '<img src="Logo.png?v=r142" class="songs-sheet-logo" alt="Out of Time">' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div class="songs-sheet-title">REMOVE SONG</div>' +
+        '<div class="songs-sheet-sub">Remove from ' + (s.name || 'this setlist') + ' only</div>' +
+      '</div>' +
+    '</div>';
+
+  s.songs.forEach(function(sg, idx){
+    var lib = (sg && sg.libId && typeof library !== 'undefined') ? library.find(function(x){ return String(x.id) === String(sg.libId); }) : null;
+    var title = (lib && lib.title) || sg.t || sg.title || 'Untitled Song';
+    var artist = (lib && lib.artist) || sg.artist || '';
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'songs-sheet-btn';
+    b.innerHTML = '<span class="songs-sheet-btn-icon" style="color:#ff4757;">−</span><span style="flex:1;"><span class="songs-sheet-btn-label">' + title + '</span>' +
+      '<span class="songs-sheet-btn-sub">' + (artist ? artist + ' · ' : '') + 'Remove from setlist only</span></span>';
+    b.onclick = (function(songId, songTitle){
+      return function(e){
+        e.stopPropagation();
+        appConfirm({
+          title: 'Remove from setlist?',
+          message: 'Remove “' + songTitle + '” from this setlist? This will not delete it from the Songs library.'
+        }).then(function(ok){
+          if(!ok) return;
+          var cur = sets.find(function(x){ return String(x.id) === String(setId); });
+          if(!cur) return;
+          cur.songs = (cur.songs || []).filter(function(x){ return String(x.id) !== String(songId); });
+          saveSet(cur);
+          closeSetlistRemoveSongMenu();
+          if(typeof rSets === 'function') rSets();
+          toast('Removed from setlist', {tone:'success'});
+        });
+      };
+    })(sg.id, title);
+    sheet.appendChild(b);
+  });
+
+  wrap.appendChild(sheet);
+  document.body.appendChild(wrap);
+}
 function toggleExpandedSetlistMenu(ev, setId){
   if(ev){
     if(ev.preventDefault) ev.preventDefault();
@@ -14903,6 +14971,20 @@ function toggleExpandedSetlistMenu(ev, setId){
     }, 0);
   };
   sheet.appendChild(addBtn);
+
+  var removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'songs-sheet-btn';
+  removeBtn.innerHTML = '<span class="songs-sheet-btn-icon" style="color:#ff4757;">−</span><span style="flex:1;"><span class="songs-sheet-btn-label">Remove Song from Setlist</span><span class="songs-sheet-btn-sub">Remove a song from this setlist only</span></span>';
+  removeBtn.onclick = function(e){
+    e.stopPropagation();
+    closeExpandedSetlistMenu();
+    setTimeout(function(){
+      aSL = s.id;
+      openSetlistRemoveSongMenu(s.id);
+    }, 0);
+  };
+  sheet.appendChild(removeBtn);
 
   var shareBtn = document.createElement('button');
   shareBtn.type = 'button';
@@ -19893,7 +19975,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-inline-small-thumbdrive-r291';
+var WHATS_NEW_VERSION = '2026-05-05-setlist-remove-song-menu-r292';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
