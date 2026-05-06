@@ -14956,6 +14956,17 @@ function toggleSetlistEditMenu(ev){
       '</div>' +
     '</div>';
 
+  var addBtn = document.createElement('button');
+  addBtn.type = 'button';
+  addBtn.className = 'songs-sheet-btn';
+  addBtn.innerHTML = '<span class="songs-sheet-btn-icon">+</span><span style="flex:1;"><span class="songs-sheet-btn-label">Add Songs from Library</span><span class="songs-sheet-btn-sub">Open picker and add songs to this setlist</span></span>';
+  addBtn.onclick = function(e){
+    e.stopPropagation();
+    closeSetlistEditMenu();
+    setTimeout(function(){ showPicker(); }, 0);
+  };
+  sheet.appendChild(addBtn);
+
   var shareBtn = document.createElement('button');
   shareBtn.type = 'button';
   shareBtn.className = 'songs-sheet-btn';
@@ -19874,7 +19885,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-setlist-edit-sharemenu-r278';
+var WHATS_NEW_VERSION = '2026-05-05-setlist-edit-addsongs-menu-r279';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
