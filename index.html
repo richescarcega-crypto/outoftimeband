@@ -3646,6 +3646,33 @@ body.light #sc-cal #calendar-hero-date-row .mlbl{
   justify-content:center !important;
 }
 
+
+
+/* r301: Setlists header visibility hardening.
+   The Setlists header DOM exists in r300, but phone testing showed the header
+   not visible. Keep this scoped to Setlists only and force the existing
+   Songs-family header card to display above the setlist list. */
+#sc-sets #si{
+  display:block;
+}
+#sc-sets #sets-hero.oot-hero-tab{
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  position:relative !important;
+  z-index:2 !important;
+  margin:0 0 14px !important;
+}
+#sc-sets #sets-hero .oot-hero-inner{
+  display:flex !important;
+}
+#sc-sets #sets-hero .oot-hero-title,
+#sc-sets #sets-hero .oot-hero-sub,
+#sc-sets #sets-hero .oot-hero-count{
+  visibility:visible !important;
+  opacity:1 !important;
+}
+
 </style>
 </head>
 <body>
@@ -19990,7 +20017,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-band-pill-info-tone-and-labels-r300';
+var WHATS_NEW_VERSION = '2026-05-05-setlists-header-visibility-r301';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
