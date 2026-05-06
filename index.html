@@ -14928,7 +14928,12 @@ function toggleExpandedSetlistMenu(ev, setId){
     setTimeout(function(){
       aSL = s.id;
       opSL(s.id);
-      setTimeout(function(){ if(!reorderMode) toggleSLEdit(); }, 0);
+      // r290: enter reorder mode directly. Do not call toggleSLEdit(),
+      // because toggleSLEdit() opens the rename prompt on first entry.
+      if(!reorderMode){
+        reorderMode = true;
+        rEd();
+      }
     }, 0);
   };
   sheet.appendChild(reorderBtn);
@@ -15885,7 +15890,7 @@ function nwSL() {
   });
 }
 function opSL(id){aSL=id;setsViewState='edit';document.getElementById('si').style.display='none';document.getElementById('se').style.display='block';rEd();}
-function clEd(){setsViewState='list';document.getElementById('si').style.display='block';document.getElementById('se').style.display='none';eSID=null;rSets();}
+function clEd(){setsViewState='list';document.getElementById('si').style.display='block';document.getElementById('se').style.display='none';eSID=null;reorderMode=false;rSets();}
 function rEd() {
   var s=sets.find(function(x){return x.id==aSL;});
   if(!s)return;
@@ -19888,7 +19893,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-setlist-clean-safe-r289';
+var WHATS_NEW_VERSION = '2026-05-05-setlist-reorder-no-rename-r290';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
