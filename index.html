@@ -14887,10 +14887,24 @@ function toggleExpandedSetlistMenu(ev, setId){
       '</div>' +
     '</div>';
 
+  var addBtn = document.createElement('button');
+  addBtn.type = 'button';
+  addBtn.className = 'songs-sheet-btn';
+  addBtn.innerHTML = '<span class="songs-sheet-btn-icon">+</span><span style="flex:1;"><span class="songs-sheet-btn-label">Add Song to Setlist</span><span class="songs-sheet-btn-sub">Open the song picker for this setlist</span></span>';
+  addBtn.onclick = function(e){
+    e.stopPropagation();
+    closeExpandedSetlistMenu();
+    setTimeout(function(){
+      aSL = s.id;
+      showPicker();
+    }, 0);
+  };
+  sheet.appendChild(addBtn);
+
   var editBtn = document.createElement('button');
   editBtn.type = 'button';
   editBtn.className = 'songs-sheet-btn';
-  editBtn.innerHTML = '<span class="songs-sheet-btn-icon">✎</span><span style="flex:1;"><span class="songs-sheet-btn-label">Edit Setlist</span><span class="songs-sheet-btn-sub">Open this setlist in edit mode</span></span>';
+  editBtn.innerHTML = '<span class="songs-sheet-btn-icon">✎</span><span style="flex:1;"><span class="songs-sheet-btn-label">Manage Setlist</span><span class="songs-sheet-btn-sub">Open reorder, rename, and deeper edit tools</span></span>';
   editBtn.onclick = function(e){
     e.stopPropagation();
     closeExpandedSetlistMenu();
@@ -14955,17 +14969,6 @@ function toggleSetlistEditMenu(ev){
         '<div class="songs-sheet-sub">' + (s.name || 'Setlist') + '</div>' +
       '</div>' +
     '</div>';
-
-  var addBtn = document.createElement('button');
-  addBtn.type = 'button';
-  addBtn.className = 'songs-sheet-btn';
-  addBtn.innerHTML = '<span class="songs-sheet-btn-icon">+</span><span style="flex:1;"><span class="songs-sheet-btn-label">Add Songs from Library</span><span class="songs-sheet-btn-sub">Open picker and add songs to this setlist</span></span>';
-  addBtn.onclick = function(e){
-    e.stopPropagation();
-    closeSetlistEditMenu();
-    setTimeout(function(){ showPicker(); }, 0);
-  };
-  sheet.appendChild(addBtn);
 
   var shareBtn = document.createElement('button');
   shareBtn.type = 'button';
@@ -19885,7 +19888,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-setlist-edit-addsongs-menu-r279';
+var WHATS_NEW_VERSION = '2026-05-05-expanded-setlist-addsongs-r280';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
