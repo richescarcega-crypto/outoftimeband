@@ -15623,18 +15623,24 @@ function _csvExecuteImport(){
 function _openSetlistSongInfoFromRow(row){
   if(!row) return;
   var libId = row.getAttribute('data-lib-id') || '';
-  if(libId && library.some(function(l){ return String(l.id) === String(libId); })){
-    showSongInfo(libId);
-    return;
+  var match = null;
+
+  if(libId){
+    match = library.find(function(l){ return String(l.id) === String(libId); }) || null;
   }
-  var title = (row.getAttribute('data-title') || '').trim().toLowerCase();
-  var artist = (row.getAttribute('data-artist') || '').trim().toLowerCase();
-  var match = library.find(function(l){
-    var lt = String(l.title || '').trim().toLowerCase();
-    var la = String(l.artist || '').trim().toLowerCase();
-    return lt === title && (!artist || la === artist);
-  });
-  if(match && match.id){
+
+  if(!match){
+    var title = (row.getAttribute('data-title') || '').trim().toLowerCase();
+    var artist = (row.getAttribute('data-artist') || '').trim().toLowerCase();
+    match = library.find(function(l){
+      var lt = String(l.title || '').trim().toLowerCase();
+      var la = String(l.artist || '').trim().toLowerCase();
+      return lt === title && (!artist || la === artist);
+    }) || null;
+  }
+
+  if(match && match.id != null){
+    // showSongInfo uses strict id matching, so pass the library record's actual id type.
     showSongInfo(match.id);
   } else {
     toast('Save this setlist song to the library to edit song details', {tone:'info'});
@@ -19808,7 +19814,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-setlist-art-resources-r273';
+var WHATS_NEW_VERSION = '2026-05-05-setlist-songdetail-idfix-r274';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
