@@ -7870,33 +7870,18 @@ function _openCountdownGigBackstagePass(){
 
 function _wireGigCounterDoubleTap(){
   var card = document.getElementById('next-gig-countdown');
-  if(!card || card.__gigCounterDoubleTapBound) return;
-  card.__gigCounterDoubleTapBound = true;
-  card.title = 'Double-tap to open this gig in Calendar';
-  card.setAttribute('aria-label', 'Next gig countdown. Double tap to open this gig in Calendar.');
+  if(!card || card.__gigCounterSingleTapBound) return;
+  card.__gigCounterSingleTapBound = true;
+  card.title = 'Tap to open this gig in Calendar';
+  card.setAttribute('aria-label', 'Next gig countdown. Tap to open this gig in Calendar.');
 
-  card.addEventListener('dblclick', function(ev){
+  card.addEventListener('click', function(ev){
     try {
       ev.preventDefault();
       ev.stopPropagation();
       _openCountdownGigBackstagePass();
     } catch(e){}
   });
-
-  var lastTap = 0;
-  card.addEventListener('touchend', function(ev){
-    try {
-      var now = Date.now();
-      if(now - lastTap < 360){
-        ev.preventDefault();
-        ev.stopPropagation();
-        _openCountdownGigBackstagePass();
-        lastTap = 0;
-      } else {
-        lastTap = now;
-      }
-    } catch(e){}
-  }, {passive:false});
 }
 
 function updateCountdown(){
@@ -12475,30 +12460,18 @@ function _ensureHomeBandBackdrop(){
   bg.style.cssText = 'position:absolute;left:0;right:0;top:0;bottom:auto;margin:0 auto;width:100%;height:auto;max-width:100%;object-fit:contain;object-position:center top;pointer-events:none;z-index:1;border-radius:16px 16px 0 0;transform:none;transform-origin:center top;';
   bg.src = src;
 
-  // r104: double-tap the Home band image to open the Band Image selector.
-  if(!row.__bandImageDoubleTapBound){
-    row.__bandImageDoubleTapBound = true;
-    row.addEventListener('dblclick', function(ev){
+  // r297: single-tap the Home band image area to open the Band Image selector.
+  // Guard social links/buttons so Facebook/Instagram taps keep their original behavior.
+  if(!row.__bandImageSingleTapBound){
+    row.__bandImageSingleTapBound = true;
+    row.addEventListener('click', function(ev){
       try {
+        if(ev && ev.target && ev.target.closest && ev.target.closest('a,button')) return;
         ev.preventDefault();
         ev.stopPropagation();
         if(typeof showBandImageModal === 'function') showBandImageModal();
       } catch(e){}
     });
-    var _lastBandTap = 0;
-    row.addEventListener('touchend', function(ev){
-      try {
-        var now = Date.now();
-        if(now - _lastBandTap < 360){
-          ev.preventDefault();
-          ev.stopPropagation();
-          if(typeof showBandImageModal === 'function') showBandImageModal();
-          _lastBandTap = 0;
-        } else {
-          _lastBandTap = now;
-        }
-      } catch(e){}
-    }, {passive:false});
   }
 
   // Ensure social icons render above the baked image.
@@ -20005,7 +19978,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-05-chat-thread-stack-center-r296';
+var WHATS_NEW_VERSION = '2026-05-05-home-single-tap-actions-r297';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
