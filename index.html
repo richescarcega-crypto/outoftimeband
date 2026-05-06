@@ -7,6 +7,7 @@ No runtime app code was removed.
 r305 adds scoped CSS-only non-Calendar header height normalization.
 -->
 <!-- r311: Calendar All Events/Rehearsal Proposals stack gap tightened. Keeps Rehearsal Proposals locked to the tab row and moves All Events closer to it. Upload as index.html after phone test. -->
+<!-- r313: Calendar viewport lock. Keeps lower pill stack locked, disables Calendar page bounce, and dynamically sizes the blue date panel to the available space above All Events. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -3599,6 +3600,61 @@ body.light #sc-cal.cal-header-fit .proposals-head{
     min-height:50px !important;
   }
 }
+
+
+/* r313: Calendar viewport lock and dynamic blue date-panel fit.
+   Scope: Calendar tab only.
+   Keeps the All Events/Rehearsal Proposals stack locked from r310/r311,
+   disables Calendar-page bounce, and sizes the blue date panel to the available
+   space above All Events so the panel's rounded bottom edge is not hidden.
+   Header, Month/Year banner, lower pill stack, bottom tabs, and other tabs are
+   intentionally not moved. */
+#sc-cal.cal-header-fit{
+  overflow:hidden !important;
+  -webkit-overflow-scrolling:auto !important;
+  overscroll-behavior:none !important;
+  touch-action:pan-x pan-y !important;
+}
+#sc-cal.cal-header-fit #calendar-hero,
+#sc-cal.cal-header-fit #calendar-hero-date-row{
+  flex:0 0 auto !important;
+}
+#sc-cal.cal-header-fit #cgrid-wrap{
+  height:var(--oot-cal-grid-wrap-h, 58vh) !important;
+  max-height:var(--oot-cal-grid-wrap-h, 58vh) !important;
+  min-height:320px !important;
+  margin-bottom:0 !important;
+  overflow:hidden !important;
+}
+#sc-cal.cal-header-fit #cgrid{
+  height:100% !important;
+  min-height:0 !important;
+  box-sizing:border-box !important;
+  grid-template-rows:auto repeat(6, minmax(0, 1fr)) !important;
+  align-content:stretch !important;
+  gap:4px 4px !important;
+  padding:34px 6px 10px 6px !important;
+}
+#sc-cal.cal-header-fit #cgrid .dc,
+#sc-cal.cal-header-fit #cgrid .cal-pad{
+  min-height:0 !important;
+  height:100% !important;
+}
+#sc-cal.cal-header-fit #cgrid .cal-pad{
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit #cgrid-wrap{
+    min-height:300px !important;
+  }
+  #sc-cal.cal-header-fit #cgrid{
+    grid-template-rows:auto repeat(6, minmax(0, 1fr)) !important;
+    gap:4px 4px !important;
+    padding:34px 6px 10px 6px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -19971,7 +20027,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-date-grid-proportional-r312';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-viewport-lock-r313';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20264,6 +20320,9 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-viewport-lock-r313', date:'May 6, 2026', importance:'fix',
+   title:'Calendar viewport locked',
+   desc:'Locks the Calendar tab viewport so the header and blue date panel no longer bounce behind the bottom-anchored All Events/Rehearsal Proposals stack. The blue date panel now sizes to the available space above All Events while the lower stack remains fixed above the tab row.'},
   {version:'2026-05-06-calendar-date-grid-proportional-r312', date:'May 6, 2026', importance:'fix',
    title:'Calendar Date Grid Proportional Fill',
    desc:'Keeps the Calendar layout locked while making the date tiles distribute more evenly within the existing blue date panel. The grid now uses six proportional date rows so future blue-panel height changes can scale the date rows without moving the lower pills.'},
@@ -21281,6 +21340,99 @@ if(savedName&&savedId){
   }
   window.addEventListener('resize', syncCalendarBottomStack, {passive:true});
   window.addEventListener('orientationchange', function(){ setTimeout(syncCalendarBottomStack, 250); }, {passive:true});
+})();
+</script>
+
+
+
+<script>
+/* r313: lock Calendar viewport and fit blue date panel above the anchored lower pill stack. */
+(function(){
+  var _ootCalViewportLockScheduled = false;
+
+  function _scheduleCalendarViewportLock(){
+    if(_ootCalViewportLockScheduled) return;
+    _ootCalViewportLockScheduled = true;
+    requestAnimationFrame(function(){
+      _ootCalViewportLockScheduled = false;
+      _syncCalendarViewportLock();
+    });
+  }
+
+  function _syncCalendarViewportLock(){
+    var sc = document.getElementById('sc-cal');
+    if(!sc || !sc.classList.contains('cal-header-fit')) return;
+
+    var tabs = document.getElementById('tabs');
+    if(tabs){
+      var th = Math.ceil(tabs.getBoundingClientRect().height || 72);
+      document.documentElement.style.setProperty('--oot-tabs-h', th + 'px');
+    }
+
+    var proposal = sc.querySelector('.proposals-head');
+    if(proposal){
+      var ph = Math.ceil(proposal.getBoundingClientRect().height || 60);
+      document.documentElement.style.setProperty('--oot-cal-proposals-h', ph + 'px');
+    }
+
+    var wrap = document.getElementById('cgrid-wrap');
+    var evl = sc.querySelector('.evl-head');
+    if(!wrap || !evl) return;
+
+    var wrapRect = wrap.getBoundingClientRect();
+    var evlRect = evl.getBoundingClientRect();
+    if(!wrapRect.height && !wrapRect.top) return;
+
+    // Keep a clean visible gap between the blue Calendar panel and All Events.
+    // This does not move the lower pill stack; it only sizes the blue panel to
+    // stop beneath it.
+    var gap = 14;
+    var available = Math.floor(evlRect.top - wrapRect.top - gap);
+    var minH = (window.innerWidth <= 420) ? 300 : 320;
+    var maxH = Math.max(minH, Math.floor((sc.getBoundingClientRect().height || window.innerHeight) * 0.70));
+    var h = Math.max(minH, Math.min(available, maxH));
+    if(isFinite(h) && h > 0){
+      document.documentElement.style.setProperty('--oot-cal-grid-wrap-h', h + 'px');
+    }
+  }
+
+  function _attachCalendarViewportLock(){
+    _scheduleCalendarViewportLock();
+    var grid = document.getElementById('cgrid');
+    if(grid && !grid.__ootCalViewportLockObserver){
+      var mo = new MutationObserver(_scheduleCalendarViewportLock);
+      mo.observe(grid, {childList:true, subtree:true, attributes:true});
+      grid.__ootCalViewportLockObserver = mo;
+    }
+    var sc = document.getElementById('sc-cal');
+    if(sc && !sc.__ootCalViewportLockObserver){
+      var smo = new MutationObserver(_scheduleCalendarViewportLock);
+      smo.observe(sc, {attributes:true, attributeFilter:['class','style']});
+      sc.__ootCalViewportLockObserver = smo;
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', _attachCalendarViewportLock);
+  }else{
+    _attachCalendarViewportLock();
+  }
+  window.addEventListener('resize', _scheduleCalendarViewportLock, {passive:true});
+  window.addEventListener('orientationchange', function(){ setTimeout(_scheduleCalendarViewportLock, 250); }, {passive:true});
+  document.addEventListener('click', function(e){
+    if(e && e.target && (e.target.closest('#sc-cal') || e.target.closest('#tabs'))){
+      setTimeout(_scheduleCalendarViewportLock, 80);
+      setTimeout(_scheduleCalendarViewportLock, 280);
+    }
+  }, true);
+  document.addEventListener('touchend', function(e){
+    if(e && e.target && e.target.closest('#sc-cal')){
+      setTimeout(_scheduleCalendarViewportLock, 80);
+      setTimeout(_scheduleCalendarViewportLock, 320);
+    }
+  }, {passive:true, capture:true});
+  setTimeout(_scheduleCalendarViewportLock, 300);
+  setTimeout(_scheduleCalendarViewportLock, 900);
 })();
 </script>
 
