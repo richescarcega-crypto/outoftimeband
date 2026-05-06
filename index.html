@@ -3564,6 +3564,41 @@ body.light #sc-cal.cal-header-fit .proposals-head{
   z-index:840 !important;
 }
 
+
+
+/* r312: Calendar date-grid proportional fill.
+   Scope: the date grid inside the existing blue Calendar panel only.
+   Calendar header, Month/Year banner, All Events/Rehearsal Proposals stack,
+   bottom tabs, and other tabs are intentionally untouched.
+   The six date rows now use proportional grid rows, so if the blue panel is
+   later compressed or extended, the date tiles can scale with it instead of
+   remaining crowded near the top. */
+#sc-cal.cal-header-fit .cgrid{
+  grid-template-rows:auto repeat(6, minmax(50px, 1fr)) !important;
+  align-content:stretch !important;
+  gap:4px 4px !important;
+  padding:34px 6px 6px 6px !important;
+}
+#sc-cal.cal-header-fit .dc,
+#sc-cal.cal-header-fit .cal-pad{
+  min-height:50px !important;
+  height:100% !important;
+}
+#sc-cal.cal-header-fit .cal-pad{
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit .cgrid{
+    grid-template-rows:auto repeat(6, minmax(50px, 1fr)) !important;
+    gap:4px 4px !important;
+    padding:34px 6px 6px 6px !important;
+  }
+  #sc-cal.cal-header-fit .dc,
+  #sc-cal.cal-header-fit .cal-pad{
+    min-height:50px !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -19936,7 +19971,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-pill-stack-gap-r311';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-date-grid-proportional-r312';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20229,6 +20264,9 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-date-grid-proportional-r312', date:'May 6, 2026', importance:'fix',
+   title:'Calendar Date Grid Proportional Fill',
+   desc:'Keeps the Calendar layout locked while making the date tiles distribute more evenly within the existing blue date panel. The grid now uses six proportional date rows so future blue-panel height changes can scale the date rows without moving the lower pills.'},
   {version:'2026-05-06-calendar-pill-stack-gap-r311', date:'May 6, 2026', importance:'fix',
    title:'Calendar lower pill spacing tightened',
    desc:'Keeps Rehearsal Proposals locked above the tab row and moves the All Events pill closer to it as one bottom-anchored Calendar control stack.'},
