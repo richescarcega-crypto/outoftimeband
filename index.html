@@ -10,6 +10,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r317: Calendar header dimension normalization; lower pill stack untouched. Upload as index.html after phone test. -->
 <!-- r325: Calendar lower pill stack visibility scoped to active Calendar tab only. Upload as index.html after phone test. -->
 <!-- r326: Calendar All Events drawer opens higher. Fixes r323 allEventsMode ordering bug so expanded All Events can use the space below the Calendar header. Upload as index.html after phone test. -->
+<!-- r327: Calendar All Events filter dropdown visibility fix. Raises filter row above All Events list so dropdown is not hidden behind the event list. Upload as index.html after phone test. -->
 <!-- r321: Calendar header Next Gig widget vertical centering only. Centers the existing widget between the gold decorative line and the Calendar header bottom border; no horizontal movement, no size change, no other Calendar/app element changes. Upload as index.html after phone test. -->
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!DOCTYPE html>
@@ -4203,6 +4204,24 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
   visibility:visible !important;
   opacity:1 !important;
   pointer-events:auto !important;
+}
+
+
+/* r327: All Events filter dropdown visibility fix.
+   Scope: Calendar All Events filter row/dropdown only.
+   Problem: the fixed All Events list (#evl) shared/overlapped the same z-index as
+   #evl-filter-row, so the dropdown panel rendered under/behind the event list.
+   Keep existing positions/heights; only raise the filter layer above the list. */
+#sc-cal.cal-header-fit.on #evl-filter-row{
+  z-index:930 !important;
+  overflow:visible !important;
+  pointer-events:auto !important;
+}
+#sc-cal.cal-header-fit.on #evl-filter-row > div[style*="position:absolute"]{
+  z-index:940 !important;
+}
+#sc-cal.cal-header-fit.on #evl{
+  z-index:875 !important;
 }
 </style>
 </head>
@@ -20639,7 +20658,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-all-events-higher-r326';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-filter-drawer-visible-r327';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20932,6 +20951,10 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-filter-drawer-visible-r327', date:'May 6, 2026', importance:'fix',
+   title:'Calendar All Events Filter Drawer Visibility',
+   body:'Fixes the All Events filter dropdown so it appears above the events list instead of being hidden behind it.',
+   bullets:['Raises only the All Events filter row/dropdown layer above the All Events list.', 'Does not move or resize the Calendar header, widget, blue calendar panel, lower pill stack, drawers, tabs, or other tabs.']},
   {version:'2026-05-06-calendar-all-events-higher-r326', date:'May 6, 2026', importance:'fix',
    title:'Calendar All Events Opens Higher',
    body:'Moves the expanded All Events display higher on the Calendar so more events are visible at a glance without scrolling.',
