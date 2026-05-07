@@ -10,7 +10,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r317: Calendar header dimension normalization; lower pill stack untouched. Upload as index.html after phone test. -->
 <!-- r325: Calendar lower pill stack visibility scoped to active Calendar tab only. Upload as index.html after phone test. -->
 <!-- r326: Calendar All Events drawer opens higher. Fixes r323 allEventsMode ordering bug so expanded All Events can use the space below the Calendar header. Upload as index.html after phone test. -->
-<!-- r330: Calendar All Events filter drawer restored to premium pill selector style; access remains All Events kebab -> Filter Events. Upload as index.html after phone test. -->
+<!-- r331: Calendar All Events filter drawer restored to slim dot-list style; filter backdrop now covers event list so no event info shows behind/around the filter. Upload as index.html after phone test. -->
 <!-- r321: Calendar header Next Gig widget vertical centering only. Centers the existing widget between the gold decorative line and the Calendar header bottom border; no horizontal movement, no size change, no other Calendar/app element changes. Upload as index.html after phone test. -->
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!DOCTYPE html>
@@ -15402,68 +15402,102 @@ function closeCalendarEventsFilterDrawer(){
 function openCalendarEventsFilterDrawer(){
   closeCalendarEventsMenu();
   closeCalendarEventsFilterDrawer();
+
   var wrap = document.createElement('div');
   wrap.id = 'calendar-events-filter-backdrop';
-  wrap.className = 'oot-action-backdrop';
+  wrap.className = 'oot-action-backdrop cal-filter-dot-backdrop';
+  wrap.style.background = 'rgba(2,7,16,.92)';
+  wrap.style.backdropFilter = 'blur(2px)';
+  wrap.style.alignItems = 'center';
   wrap.onclick = function(e){ if(e.target === wrap) closeCalendarEventsFilterDrawer(); };
 
   var sheet = document.createElement('div');
   sheet.id = 'calendar-events-filter-sheet';
-  sheet.className = 'oot-action-sheet';
+  sheet.className = 'oot-action-sheet cal-filter-dot-sheet';
   sheet.setAttribute('role','dialog');
   sheet.setAttribute('aria-modal','true');
   sheet.setAttribute('aria-label','All Events filters');
   sheet.onclick = function(e){ e.stopPropagation(); };
+  sheet.style.cssText = [
+    'width:min(390px,calc(100vw - 28px))',
+    'max-height:min(72vh,520px)',
+    'overflow:hidden',
+    'border-radius:16px',
+    'padding:0',
+    'background:linear-gradient(180deg,rgba(7,20,48,.99),rgba(5,13,30,.99))',
+    'border:1px solid rgba(74,158,255,.32)',
+    'box-shadow:0 18px 44px rgba(0,0,0,.62),0 0 24px rgba(74,158,255,.12)'
+  ].join(';') + ';';
+
+  function _filterDotColor(key){
+    var found = EVL_FILTER_LABELS.find(function(x){ return x.key === key; });
+    return found && found.color ? found.color : '#e8f0ff';
+  }
+  function _row(label, dotColor, active, onClick){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.style.cssText = [
+      'width:100%',
+      'height:38px',
+      'display:flex',
+      'align-items:center',
+      'gap:10px',
+      'padding:0 13px',
+      'border:0',
+      'border-bottom:1px solid rgba(74,158,255,.10)',
+      'background:'+(active?'rgba(245,197,24,.08)':'transparent'),
+      'color:'+(active?'#ffffff':'#dbe8ff'),
+      'text-align:left',
+      'font-size:13px',
+      'font-weight:700',
+      'cursor:pointer',
+      'touch-action:manipulation'
+    ].join(';') + ';';
+    b.innerHTML = '<span style="width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0;background:'+dotColor+';box-shadow:'+(active?'0 0 8px '+dotColor:'none')+';opacity:'+(active?'1':'.5')+';"></span>'+
+                  '<span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+label+'</span>'+
+                  '<span style="color:#f5c518;font-size:13px;opacity:'+(active?'1':'0')+';">✓</span>';
+    b.onclick = function(e){ e.stopPropagation(); onClick(); };
+    return b;
+  }
 
   function _calFilterRefresh(){
-    sheet.innerHTML =
-      '<button type="button" class="songs-sheet-x" aria-label="Close All Events filters" onclick="closeCalendarEventsFilterDrawer()">×</button>' +
-      '<div class="songs-sheet-head" style="margin-bottom:10px;">' +
-        '<img src="Logo.png?v=r142" class="songs-sheet-logo" alt="Out of Time">' +
-        '<div style="flex:1;min-width:0;">' +
-          '<div class="songs-sheet-title">FILTER EVENTS</div>' +
-          '<div class="songs-sheet-sub">' + _calendarEventsMenuFilterSummary() + '</div>' +
-        '</div>' +
-      '</div>';
+    sheet.innerHTML = '';
 
-    var shell = document.createElement('div');
-    shell.style.cssText = 'border:1px solid rgba(74,158,255,.34);border-radius:18px;padding:12px;background:linear-gradient(135deg,rgba(7,22,55,.72),rgba(5,14,38,.56));box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 18px rgba(74,158,255,.10);';
+    var head = document.createElement('div');
+    head.style.cssText = 'height:38px;display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid rgba(74,158,255,.16);';
+    head.innerHTML = '<div style="flex:1;min-width:0;">'+
+      '<div style="font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1.8px;color:#f5c518;text-transform:uppercase;line-height:1;">Filter Events</div>'+
+      '<div style="font-size:10px;color:#9db5d8;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_calendarEventsMenuFilterSummary()+'</div>'+
+      '</div>'+
+      '<button type="button" aria-label="Close filters" style="width:28px;height:28px;border-radius:50%;border:1px solid rgba(245,197,24,.35);background:rgba(5,15,38,.75);color:#f5c518;font-size:18px;line-height:1;cursor:pointer;">×</button>';
+    head.querySelector('button').onclick = function(e){ e.stopPropagation(); closeCalendarEventsFilterDrawer(); };
+    sheet.appendChild(head);
 
-    var scopeLabel = document.createElement('div');
-    scopeLabel.style.cssText = 'font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1.8px;color:#8aa8d6;margin:0 0 8px;text-transform:uppercase;';
-    scopeLabel.textContent = 'Schedule View';
-    shell.appendChild(scopeLabel);
+    var scopeHead = document.createElement('div');
+    scopeHead.style.cssText = 'height:28px;display:flex;align-items:center;padding:0 12px;color:#8aa8d6;font-family:\'Russo One\',sans-serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid rgba(74,158,255,.08);';
+    scopeHead.textContent = 'Schedule View';
+    sheet.appendChild(scopeHead);
 
-    var scope = document.createElement('div');
-    scope.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;';
-    function scopeButton(value,label,sub){
-      var b = document.createElement('button');
-      b.type = 'button';
-      var on = (_evlScope === value);
-      b.style.cssText = 'border:1px solid '+(on?'rgba(245,197,24,.78)':'rgba(74,158,255,.30)')+';border-radius:14px;padding:10px 8px;background:'+(on?'linear-gradient(135deg,#f5c518,#d49a10)':'rgba(6,14,28,.42)')+';color:'+(on?'#06101f':'#c7d6f3')+';cursor:pointer;touch-action:manipulation;text-align:left;box-shadow:'+(on?'0 0 16px rgba(245,197,24,.20), inset 0 1px 0 rgba(255,255,255,.18)':'inset 0 1px 0 rgba(255,255,255,.04)')+';';
-      b.innerHTML = '<div style="font-family:\'Russo One\',sans-serif;font-size:10px;letter-spacing:1px;">'+label+'</div><div style="font-size:10px;margin-top:3px;opacity:.82;">'+sub+'</div>';
-      b.onclick = function(e){
-        e.stopPropagation();
-        _evlScope = value;
-        _evlFilterOpen = false;
-        rEvL();
-        if(typeof window.__ootCalDrawerShiftRefresh === 'function') setTimeout(window.__ootCalDrawerShiftRefresh, 30);
-        _calFilterRefresh();
-      };
-      return b;
-    }
-    scope.appendChild(scopeButton('upcoming','UPCOMING','Future only'));
-    scope.appendChild(scopeButton('all','ALL','Full history'));
-    shell.appendChild(scope);
+    sheet.appendChild(_row('Upcoming only', '#e8f0ff', _evlScope === 'upcoming', function(){
+      _evlScope = 'upcoming';
+      _evlFilterOpen = false;
+      rEvL();
+      if(typeof window.__ootCalDrawerShiftRefresh === 'function') setTimeout(window.__ootCalDrawerShiftRefresh, 30);
+      _calFilterRefresh();
+    }));
+    sheet.appendChild(_row('All events', '#8aa8d6', _evlScope === 'all', function(){
+      _evlScope = 'all';
+      _evlFilterOpen = false;
+      rEvL();
+      if(typeof window.__ootCalDrawerShiftRefresh === 'function') setTimeout(window.__ootCalDrawerShiftRefresh, 30);
+      _calFilterRefresh();
+    }));
 
     var typeHead = document.createElement('div');
-    typeHead.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 8px;';
-    typeHead.innerHTML = '<div style="font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1.8px;color:#8aa8d6;text-transform:uppercase;">Event Types</div>';
-    var allBtn = document.createElement('button');
-    allBtn.type = 'button';
-    allBtn.style.cssText = 'border:1px solid rgba(245,197,24,.38);border-radius:999px;background:rgba(245,197,24,.08);color:#f5c518;font-family:\'Russo One\',sans-serif;font-size:8px;letter-spacing:1px;padding:6px 10px;cursor:pointer;touch-action:manipulation;';
-    allBtn.textContent = 'SELECT ALL';
-    allBtn.onclick = function(e){
+    typeHead.style.cssText = 'height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-top:1px solid rgba(74,158,255,.08);border-bottom:1px solid rgba(74,158,255,.08);';
+    typeHead.innerHTML = '<span style="color:#8aa8d6;font-family:\'Russo One\',sans-serif;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;">Event Types</span>'+
+      '<button type="button" style="border:0;background:transparent;color:#f5c518;font-family:\'Russo One\',sans-serif;font-size:8px;letter-spacing:1px;cursor:pointer;">SELECT ALL</button>';
+    typeHead.querySelector('button').onclick = function(e){
       e.stopPropagation();
       EVL_FILTER_LABELS.forEach(function(x){ _evlFilters[x.key] = true; });
       _evlFilterOpen = false;
@@ -15471,19 +15505,10 @@ function openCalendarEventsFilterDrawer(){
       if(typeof window.__ootCalDrawerShiftRefresh === 'function') setTimeout(window.__ootCalDrawerShiftRefresh, 30);
       _calFilterRefresh();
     };
-    typeHead.appendChild(allBtn);
-    shell.appendChild(typeHead);
+    sheet.appendChild(typeHead);
 
-    var pills = document.createElement('div');
-    pills.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;';
     EVL_FILTER_LABELS.forEach(function(f){
-      var on = !!_evlFilters[f.key];
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.style.cssText = 'border:1px solid '+(on?f.color:'rgba(74,158,255,.24)')+';border-radius:999px;padding:9px 11px;background:'+(on?'linear-gradient(135deg,rgba(245,197,24,.12),rgba(74,158,255,.10))':'rgba(6,14,28,.36)')+';color:'+(on?'#ffffff':'#7186aa')+';font-family:\'Russo One\',sans-serif;font-size:10px;letter-spacing:.8px;cursor:pointer;touch-action:manipulation;display:inline-flex;align-items:center;gap:7px;box-shadow:'+(on?'0 0 12px rgba(74,158,255,.12), inset 0 1px 0 rgba(255,255,255,.07)':'none')+';';
-      b.innerHTML = '<span style="width:9px;height:9px;border-radius:50%;display:inline-block;background:'+f.color+';box-shadow:'+(on?'0 0 8px '+f.color:'none')+';opacity:'+(on?'1':'.38')+';"></span><span>'+f.label+'</span><span style="color:'+(on?'#f5c518':'#52657f')+';font-size:8px;">'+(on?'ON':'OFF')+'</span>';
-      b.onclick = function(e){
-        e.stopPropagation();
+      sheet.appendChild(_row(f.label, f.color || _filterDotColor(f.key), !!_evlFilters[f.key], function(){
         _evlFilters[f.key] = !_evlFilters[f.key];
         var anyOn = false;
         EVL_FILTER_LABELS.forEach(function(x){ if(_evlFilters[x.key]) anyOn = true; });
@@ -15492,17 +15517,15 @@ function openCalendarEventsFilterDrawer(){
         rEvL();
         if(typeof window.__ootCalDrawerShiftRefresh === 'function') setTimeout(window.__ootCalDrawerShiftRefresh, 30);
         _calFilterRefresh();
-      };
-      pills.appendChild(b);
+      }));
     });
-    shell.appendChild(pills);
 
     var foot = document.createElement('div');
-    foot.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:10px;border-top:1px solid rgba(74,158,255,.18);';
+    foot.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 12px 12px;background:rgba(3,9,22,.38);';
     var reset = document.createElement('button');
     reset.type = 'button';
-    reset.style.cssText = 'border:1px solid rgba(138,168,214,.32);border-radius:13px;padding:10px;background:rgba(6,14,28,.35);color:#8aa8d6;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;touch-action:manipulation;';
     reset.textContent = 'RESET';
+    reset.style.cssText = 'height:36px;border-radius:12px;border:1px solid rgba(138,168,214,.32);background:rgba(6,14,28,.35);color:#8aa8d6;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;';
     reset.onclick = function(e){
       e.stopPropagation();
       _evlScope = 'upcoming';
@@ -15514,15 +15537,14 @@ function openCalendarEventsFilterDrawer(){
     };
     var done = document.createElement('button');
     done.type = 'button';
-    done.style.cssText = 'border:1px solid rgba(245,197,24,.78);border-radius:13px;padding:10px;background:linear-gradient(135deg,#f5c518,#d49a10);color:#06101f;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;touch-action:manipulation;box-shadow:0 0 15px rgba(245,197,24,.20);';
     done.textContent = 'DONE';
+    done.style.cssText = 'height:36px;border-radius:12px;border:1px solid rgba(245,197,24,.78);background:linear-gradient(135deg,#f5c518,#d49a10);color:#06101f;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;';
     done.onclick = function(e){ e.stopPropagation(); closeCalendarEventsFilterDrawer(); };
     foot.appendChild(reset);
     foot.appendChild(done);
-    shell.appendChild(foot);
-
-    sheet.appendChild(shell);
+    sheet.appendChild(foot);
   }
+
   _calFilterRefresh();
   wrap.appendChild(sheet);
   document.body.appendChild(wrap);
@@ -20810,7 +20832,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-filter-premium-drawer-r330';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-filter-slim-dot-cover-r331';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21103,6 +21125,9 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-filter-slim-dot-cover-r331', date:'May 6, 2026', importance:'fix',
+   title:'Calendar All Events filter returned to slim dot list',
+   detail:'All Events kebab still opens Filter Events, but the drawer now uses slim straight-down rows with small colored dots and covers the event list so no event info shows behind or around it.'},
   {version:'2026-05-06-calendar-filter-premium-drawer-r330', date:'May 6, 2026', importance:'fix',
    title:'Calendar All Events filter drawer polished',
    detail:'All Events kebab still opens Filter Events, but the expanded filter drawer now uses the premium compact pill-style selector instead of the clunky menu-list treatment.'},
