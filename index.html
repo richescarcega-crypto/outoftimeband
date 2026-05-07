@@ -8,6 +8,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 -->
 <!-- r311: Calendar All Events/Rehearsal Proposals stack gap tightened. Keeps Rehearsal Proposals locked to the tab row and moves All Events closer to it. Upload as index.html after phone test. -->
 <!-- r317: Calendar header dimension normalization; lower pill stack untouched. Upload as index.html after phone test. -->
+<!-- r318: Calendar header Next Gig widget inserted in yellow-line area only. Header size/location and lower Calendar layout untouched. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -3922,6 +3923,129 @@ body.light #sc-cal.cal-header-fit #evl{
     right:12px !important;
   }
 }
+
+
+/* r318: Calendar header Next Gig widget — yellow-line insertion only.
+   Scope: #sc-cal #calendar-hero widget contents. Header dimensions, logo, title,
+   Month/Year row, blue date panel, lower pill stack, drawers, tabs, and other tabs are untouched. */
+#sc-cal.cal-header-fit #calendar-hero{
+  position:relative !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
+  position:absolute;
+  right:25px;
+  top:76px;
+  width:106px;
+  height:38px;
+  display:grid;
+  grid-template-columns:33px 1fr;
+  min-width:0;
+  overflow:hidden;
+  border-radius:12px;
+  border:1px solid rgba(74,158,255,.44);
+  background:linear-gradient(135deg,rgba(10,33,82,.96),rgba(4,13,34,.96));
+  box-shadow:0 4px 13px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.04);
+  z-index:4;
+  padding:0;
+  cursor:pointer;
+  -webkit-tap-highlight-color:rgba(245,197,24,.24);
+  touch-action:manipulation;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget:active{
+  transform:scale(.985);
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-date{
+  background:linear-gradient(180deg,#f5c518,#c99714);
+  color:#06101f;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-family:"Russo One",sans-serif;
+  line-height:1;
+  padding-top:2px;
+  min-width:0;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-mo{
+  font-size:7px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-day{
+  font-size:15px;
+  line-height:.95;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-dow{
+  font-size:6px;
+  letter-spacing:.9px;
+  text-transform:uppercase;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-body{
+  position:relative;
+  min-width:0;
+  padding:5px 6px 4px;
+  text-align:left;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-body:before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:7px;
+  bottom:7px;
+  border-left:1px dashed rgba(232,240,255,.28);
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{
+  display:block;
+  color:#fff;
+  font-size:10px;
+  line-height:1.05;
+  max-width:58px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-weight:800;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
+  display:block;
+  margin-top:3px;
+  color:#f5c518;
+  font-size:9px;
+  line-height:1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-weight:800;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-empty .cal-next-gig-venue{
+  color:#c7d6f3;
+  font-size:9px;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-empty .cal-next-gig-time{
+  color:#8aa8d6;
+  font-size:8px;
+}
+body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
+  background:linear-gradient(135deg,#ffffff,#edf3ff);
+  border-color:rgba(21,101,192,.36);
+  box-shadow:0 4px 10px rgba(20,40,80,.12);
+}
+body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{
+  color:#1a2a4a;
+}
+body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
+  color:#9a6a00;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
+    right:23px;
+    top:73px;
+    width:100px;
+    height:36px;
+    grid-template-columns:31px 1fr;
+  }
+  #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{font-size:9.5px;max-width:54px;}
+  #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{font-size:8.5px;}
+}
 </style>
 </head>
 <body>
@@ -3999,6 +4123,17 @@ body.light #sc-cal.cal-header-fit #evl{
         <div class="oot-hero-rule"><span class="oot-hero-star">✦</span></div>
       </div>
     </div>
+    <button id="cal-next-gig-widget" class="cal-next-gig-widget cal-next-gig-empty" type="button" title="Open next gig in Calendar" aria-label="Open next gig in Calendar" onclick="_r318OpenHeaderNextGig()">
+      <span class="cal-next-gig-date" aria-hidden="true">
+        <span class="cal-next-gig-mo" id="cal-next-gig-mo">—</span>
+        <span class="cal-next-gig-day" id="cal-next-gig-day">--</span>
+        <span class="cal-next-gig-dow" id="cal-next-gig-dow">---</span>
+      </span>
+      <span class="cal-next-gig-body">
+        <span class="cal-next-gig-venue" id="cal-next-gig-venue">Next Gig</span>
+        <span class="cal-next-gig-time" id="cal-next-gig-time">Open</span>
+      </span>
+    </button>
   </div>
   <div id="cal-legend-panel" class="cal-legend-row" style="display:none;">
     <span class="cal-legend-item"><span class="cal-legend-ico gig">&#127928;</span>Gig</span>
@@ -8099,6 +8234,56 @@ function _getNextCountdownGig(){
   } catch(e){ return null; }
 }
 
+
+// r318: Calendar header Next Gig widget helpers. Displays the next upcoming gig
+// in the compact yellow-line widget and opens the same Calendar gig detail path
+// as the Home next-gig card. Header layout and lower Calendar layout are not changed.
+function _r318Pad2(n){ n = parseInt(n,10); return (n < 10 ? '0' : '') + n; }
+function _r318SafeText(v){
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function(ch){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+}
+function _r318GigDisplayParts(g){
+  var out = {mo:'—', day:'--', dow:'---', venue:'Next Gig', time:'Open'};
+  if(!g || !g.date) return out;
+  try {
+    var p = String(g.date).split('-');
+    var dt = new Date(Number(p[0]), Number(p[1])-1, Number(p[2]));
+    out.mo = dt.toLocaleDateString([], {month:'short'}).toUpperCase();
+    out.day = String(dt.getDate());
+    out.dow = dt.toLocaleDateString([], {weekday:'short'}).toUpperCase();
+  } catch(e) {}
+  var det = (typeof gigDetails !== 'undefined' && g && g.id) ? (gigDetails[String(g.id)] || {}) : {};
+  out.venue = (det.flyerVenue || det.venue || g.title || 'Next Gig');
+  out.time = (det.settime || g.settime || g.time || 'Start time');
+  return out;
+}
+function _r318UpdateHeaderNextGigWidget(){
+  var btn = document.getElementById('cal-next-gig-widget');
+  if(!btn) return;
+  var g = _getNextCountdownGig();
+  var parts = _r318GigDisplayParts(g);
+  var mo = document.getElementById('cal-next-gig-mo');
+  var day = document.getElementById('cal-next-gig-day');
+  var dow = document.getElementById('cal-next-gig-dow');
+  var venue = document.getElementById('cal-next-gig-venue');
+  var time = document.getElementById('cal-next-gig-time');
+  if(mo) mo.textContent = parts.mo;
+  if(day) day.textContent = parts.day;
+  if(dow) dow.textContent = parts.dow;
+  if(venue) venue.textContent = parts.venue;
+  if(time) time.textContent = parts.time;
+  btn.classList.toggle('cal-next-gig-empty', !g);
+  btn.title = g ? ('Open next gig: ' + parts.venue + ' at ' + parts.time) : 'No upcoming gig';
+  btn.setAttribute('aria-label', btn.title);
+}
+function _r318OpenHeaderNextGig(){
+  if(typeof _openCountdownGigBackstagePass === 'function'){
+    _openCountdownGigBackstagePass();
+  }
+}
+
 function _openCountdownGigBackstagePass(){
   var next = _getNextCountdownGig();
   if(!next || !next.date){
@@ -8167,6 +8352,7 @@ function updateCountdown(){
   var card = document.getElementById('next-gig-countdown');
   if(!card) return;
   _wireGigCounterDoubleTap();
+  if(typeof _r318UpdateHeaderNextGigWidget === 'function') _r318UpdateHeaderNextGigWidget();
   if(!upcoming.length){
     card.style.display='none';
     renderNoGigsCard();
@@ -13050,6 +13236,7 @@ function rCal() {
     _r248Today.tabIndex = _r248IsCurrentMonth ? -1 : 0;
   }
   _calRenderStageSummary();
+  if(typeof _r318UpdateHeaderNextGigWidget === 'function') _r318UpdateHeaderNextGigWidget();
   _calRenderThisWeek();
   var fd = new Date(CY,CM,1).getDay(), dim = new Date(CY,CM+1,0).getDate();
   var h = DW.map(function(d){return '<div class="dhdr">'+d+'</div>';}).join('');
@@ -20294,7 +20481,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-header-dimensions-r317';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-header-next-gig-widget-r318';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20587,6 +20774,9 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-header-next-gig-widget-r318', date:'May 6, 2026', importance:'fix',
+    title:'Calendar header Next Gig widget',
+    body:'Adds a compact ticket-style Next Gig widget in the Calendar header yellow-line area. It shows date, venue, and gig start time, and taps through to the Calendar gig detail path. Header size/location, blue calendar panel, lower pill stack, drawers, tabs, and other tabs were not intentionally changed.'},
   {version:'2026-05-06-calendar-header-dimensions-r317', date:'May 6, 2026', importance:'fix',
    title:'Calendar header dimensions matched to other tabs',
    body:'Normalizes the Calendar header dimensions to match the other main tab hero headers while leaving the locked All Events/Rehearsal Proposals stack and drawer behavior untouched. The blue calendar panel remains the only flexible compensation zone, with date rows staying proportional inside it.',
