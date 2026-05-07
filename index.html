@@ -8,7 +8,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 -->
 <!-- r311: Calendar All Events/Rehearsal Proposals stack gap tightened. Keeps Rehearsal Proposals locked to the tab row and moves All Events closer to it. Upload as index.html after phone test. -->
 <!-- r317: Calendar header dimension normalization; lower pill stack untouched. Upload as index.html after phone test. -->
-<!-- r320: Calendar header Next Gig widget downward nudge only. Moves the existing widget down a little more without changing left/right placement, dimensions, header size/location, or any other Calendar/app element. Upload as index.html after phone test. -->
+<!-- r321: Calendar header Next Gig widget vertical centering only. Centers the existing widget between the gold decorative line and the Calendar header bottom border; no horizontal movement, no size change, no other Calendar/app element changes. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -4116,6 +4116,19 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
     top:110px !important;
   }
 }
+
+/* r321: Calendar header Next Gig widget vertical centering only.
+   Center the existing widget between the gold decorative line and the Calendar header bottom border.
+   Do not change horizontal placement, widget size, header size/location, or any other element. */
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
+  top:114px !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
+    top:108px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -20551,7 +20564,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-header-next-gig-widget-down-r320';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-header-next-gig-widget-centered-r321';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20844,7 +20857,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-06-calendar-header-next-gig-widget-down-r320', date:'May 6, 2026', importance:'fix',
+  {version:'2026-05-06-calendar-header-next-gig-widget-centered-r321', date:'May 6, 2026', importance:'fix',
     title:'Calendar header Next Gig widget lowered',
     body:'Moves the compact Calendar header Next Gig widget downward only, without changing its horizontal placement, size, the header, calendar body, lower pill stack, drawers, tabs, or other app sections.'},
   {version:'2026-05-06-calendar-header-next-gig-widget-fit-r319', date:'May 6, 2026', importance:'fix',
