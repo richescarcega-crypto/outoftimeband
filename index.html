@@ -8,7 +8,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 -->
 <!-- r311: Calendar All Events/Rehearsal Proposals stack gap tightened. Keeps Rehearsal Proposals locked to the tab row and moves All Events closer to it. Upload as index.html after phone test. -->
 <!-- r317: Calendar header dimension normalization; lower pill stack untouched. Upload as index.html after phone test. -->
-<!-- r318: Calendar header Next Gig widget inserted in yellow-line area only. Header size/location and lower Calendar layout untouched. Upload as index.html after phone test. -->
+<!-- r319: Calendar header Next Gig widget vertical fit only. Shrinks the existing widget and moves it down without left/right movement. Header size/location and all other Calendar layout elements untouched. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -4046,6 +4046,64 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
   #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{font-size:9.5px;max-width:54px;}
   #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{font-size:8.5px;}
 }
+
+
+/* r319: Calendar header Next Gig widget vertical fit only.
+   Scope: existing #cal-next-gig-widget inside Calendar header.
+   Do not change header size/location or any other Calendar elements.
+   Keep horizontal placement from r318; only reduce vertical footprint and move downward. */
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
+  top:112px !important;
+  right:25px !important;
+  width:106px !important;
+  height:27px !important;
+  grid-template-columns:28px 1fr !important;
+  border-radius:9px !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-date{
+  padding-top:1px !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-mo{
+  font-size:5.8px !important;
+  letter-spacing:.55px !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-day{
+  font-size:11.5px !important;
+  line-height:.92 !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-dow{
+  font-size:5.4px !important;
+  letter-spacing:.45px !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-body{
+  padding:3px 5px 2px !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-body:before{
+  top:4px !important;
+  bottom:4px !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{
+  font-size:8.4px !important;
+  line-height:.98 !important;
+  max-width:66px !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
+  margin-top:2px !important;
+  font-size:7.6px !important;
+  line-height:.98 !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
+    top:105px !important;
+    right:23px !important;
+    width:100px !important;
+    height:25px !important;
+    grid-template-columns:27px 1fr !important;
+  }
+  #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{font-size:7.9px !important;max-width:61px !important;}
+  #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{font-size:7.1px !important;}
+}
+
 </style>
 </head>
 <body>
@@ -20481,7 +20539,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-header-next-gig-widget-r318';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-header-next-gig-widget-fit-r319';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20774,6 +20832,9 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-header-next-gig-widget-fit-r319', date:'May 6, 2026', importance:'fix',
+    title:'Calendar header Next Gig widget fit',
+    body:'Shrinks the Calendar header Next Gig widget and moves it downward only, keeping its horizontal placement and leaving the header size/location, calendar panel, lower pill stack, drawers, tabs, and other tabs unchanged.'},
   {version:'2026-05-06-calendar-header-next-gig-widget-r318', date:'May 6, 2026', importance:'fix',
     title:'Calendar header Next Gig widget',
     body:'Adds a compact ticket-style Next Gig widget in the Calendar header yellow-line area. It shows date, venue, and gig start time, and taps through to the Calendar gig detail path. Header size/location, blue calendar panel, lower pill stack, drawers, tabs, and other tabs were not intentionally changed.'},
