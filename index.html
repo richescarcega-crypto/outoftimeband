@@ -9,6 +9,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r311: Calendar All Events/Rehearsal Proposals stack gap tightened. Keeps Rehearsal Proposals locked to the tab row and moves All Events closer to it. Upload as index.html after phone test. -->
 <!-- r317: Calendar header dimension normalization; lower pill stack untouched. Upload as index.html after phone test. -->
 <!-- r325: Calendar lower pill stack visibility scoped to active Calendar tab only. Upload as index.html after phone test. -->
+<!-- r326: Calendar All Events drawer opens higher. Fixes r323 allEventsMode ordering bug so expanded All Events can use the space below the Calendar header. Upload as index.html after phone test. -->
 <!-- r321: Calendar header Next Gig widget vertical centering only. Centers the existing widget between the gold decorative line and the Calendar header bottom border; no horizontal movement, no size change, no other Calendar/app element changes. Upload as index.html after phone test. -->
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!DOCTYPE html>
@@ -20638,7 +20639,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-stack-contained-r325';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-all-events-higher-r326';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20931,6 +20932,10 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-all-events-higher-r326', date:'May 6, 2026', importance:'fix',
+   title:'Calendar All Events Opens Higher',
+   body:'Moves the expanded All Events display higher on the Calendar so more events are visible at a glance without scrolling.',
+   bullets:['Fixes the r323 allEventsMode ordering bug that kept the drawer pinned too low.', 'Only All Events open-state positioning and list-height target were changed.', 'Widget placement, header, calendar grid, resting lower pill stack, Rehearsal Proposals behavior, tabs, and other app sections were not intentionally changed.']},
   {version:'2026-05-06-calendar-stack-contained-r325', date:'May 6, 2026', importance:'fix',
    title:'Calendar lower controls stay on Calendar only',
    items:['Scoped the fixed All Events / Rehearsal Proposals controls so they do not appear on other tabs.', 'No placement, sizing, drawer, Calendar header, Next Gig widget, or other-tab layout changes.']},
@@ -22151,14 +22156,8 @@ if(savedName&&savedId){
     var propOpen = _isShown(propList);
     var btnOpen = _isShown(propBtn);
     var dayOpen = _isShown(dayDrawer);
-    allEventsMode = (filterOpen || evlOpen) && !propOpen && !btnOpen && !dayOpen;
-    if(allEventsMode){
-      var header = document.getElementById('calendar-hero');
-      var headerRect = header ? header.getBoundingClientRect() : null;
-      var safeTop = headerRect ? Math.round(headerRect.bottom + 6) : Math.round((scRect && scRect.top ? scRect.top : 0) + 8);
-      availableTop = Math.max(0, safeTop);
-    }
     var anyOpen = filterOpen || evlOpen || propOpen || btnOpen || dayOpen;
+    var allEventsMode = (filterOpen || evlOpen) && !propOpen && !btnOpen && !dayOpen;
 
     // Closed state: r314 owns the position directly under the blue calendar panel.
     if(!anyOpen){
@@ -22171,11 +22170,18 @@ if(savedName&&savedId){
     var wrapRect = wrap ? wrap.getBoundingClientRect() : null;
     if(wrapRect) availableTop = Math.round(wrapRect.bottom + 8);
 
-    // r323: All Events needs a much taller drawer, so while it is open
-    // allow the lower Calendar display to shift upward over the blue date
-    // panel instead of being pinned below it. This fixes the cramped
-    // two-event view without moving the resting pill stack.
-    var allEventsMode = false;
+    // r326: in All Events mode, start the lower display just under the Calendar
+    // header instead of below the blue calendar panel. r323 intended this, but
+    // allEventsMode was reset after the calculation, so the drawer stayed too low.
+    if(allEventsMode){
+      var header = document.getElementById('calendar-hero');
+      var headerRect = header ? header.getBoundingClientRect() : null;
+      var safeTop = headerRect ? Math.round(headerRect.bottom + 6) : Math.round(scRect.top + 8);
+      availableTop = Math.max(0, safeTop);
+    }
+
+    // All Events needs a tall drawer, so while it is open allow the lower Calendar
+    // display to shift upward over the blue date panel instead of being pinned below it.
 
     var filterH = filterOpen ? Math.max(38, _measureShownHeight(filter, 46)) : 0;
     var evlScrollH = evlOpen && evl ? Math.max(60, Math.ceil(evl.scrollHeight || evl.getBoundingClientRect().height || 160)) : 0;
@@ -22188,7 +22194,7 @@ if(savedName&&savedId){
     if(evlOpen){
       // r323: aim for a large, useful All Events window. This is still capped
       // by real scrollHeight and final viewport-fit compression below.
-      desiredEvlH = Math.min(evlScrollH, Math.max(420, Math.floor(window.innerHeight * 0.62)));
+      desiredEvlH = Math.min(evlScrollH, Math.max(520, Math.floor(window.innerHeight * 0.72)));
     }
     var desiredPropH = propOpen ? Math.min(propScrollH, Math.max(150, Math.floor(window.innerHeight * 0.32))) : 0;
     var desiredDayH = dayOpen ? Math.min(dayScrollH, Math.max(150, Math.floor(window.innerHeight * 0.32))) : 0;
