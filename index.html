@@ -4342,6 +4342,53 @@ body.light #sc-cal > #calendar-hero-date-row .mlbl{
     margin:0 0 2px 0 !important;
   }
 }
+
+
+/* r336: Calendar date-box top-clearance correction after r335.
+   Scope: Calendar blue date panel only.
+   The r335 compression made the first week row start too tightly under the
+   weekday label band, causing the top of the date boxes to appear hidden behind
+   the weekday row on every month. This preserves the condensed weekday band
+   direction, but restores a small protected buffer below the weekday labels so
+   date tiles begin fully inside the bright blue date area. Lower pill stack,
+   Calendar header, Month/Year text, gig widget, return icon, drawers, tabs, and
+   non-Calendar sections remain untouched. */
+#sc-cal.cal-header-fit #cgrid{
+  padding:16px 6px 10px 6px !important;
+  grid-template-rows:minmax(42px, auto) repeat(6, minmax(0, 1fr)) !important;
+  align-content:stretch !important;
+  gap:4px 4px !important;
+}
+#sc-cal.cal-header-fit #cgrid .dhdr{
+  min-height:30px !important;
+  height:30px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 0 8px 0 !important;
+  margin:0 0 8px 0 !important;
+  line-height:1 !important;
+  box-sizing:border-box !important;
+}
+#sc-cal.cal-header-fit #cgrid .dc,
+#sc-cal.cal-header-fit #cgrid .cal-pad{
+  min-height:0 !important;
+  height:100% !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit #cgrid{
+    padding:16px 6px 10px 6px !important;
+    grid-template-rows:minmax(42px, auto) repeat(6, minmax(0, 1fr)) !important;
+    gap:4px 4px !important;
+  }
+  #sc-cal.cal-header-fit #cgrid .dhdr{
+    min-height:30px !important;
+    height:30px !important;
+    padding:0 0 8px 0 !important;
+    margin:0 0 8px 0 !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -20942,7 +20989,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-07-calendar-weekday-band-condense-r335';
+var WHATS_NEW_VERSION = '2026-05-07-calendar-date-box-top-clearance-r336';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21235,6 +21282,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-07-calendar-date-box-top-clearance-r336', date:'May 7, 2026', importance:'fix',
+    body:'Calendar date-grid clearance: corrected the r335 weekday-band compression so the first row of date boxes starts cleanly below the weekday row instead of appearing tucked under it. This keeps the lower All Events/Rehearsal Proposals stack locked and does not intentionally change the Calendar header, Month/Year color, gig widget, return icon, drawers, bottom tabs, or other tabs.'},
   {version:'2026-05-07-calendar-weekday-band-condense-r335', date:'May 7, 2026', importance:'fix',
     body:'Calendar visual spacing: reduced the upper blue weekday band/spacer by about 45%, vertically centered the weekday labels in the remaining band, and let the six-row date grid proportionally reclaim the space so date tiles enlarge without moving the lower All Events/Rehearsal Proposals pill stack. No Calendar header, Month/Year color, gig widget, return icon, drawers, tabs, or non-Calendar sections were intentionally changed.'},
   {version:'2026-05-07-calendar-month-year-gold-size-r334', date:'May 7, 2026', importance:'fix',
