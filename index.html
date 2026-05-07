@@ -16,7 +16,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!DOCTYPE html>
 <html>
 <head>
-  <!-- r333: Calendar return-to-current-month icon uses return_current_month_icon.png and is repositioned in the Calendar header. Upload index.html + return_current_month_icon.png. -->
+  <!-- r334: Calendar Month/Year text changed to warm gold and increased by 5px. Upload index.html only; return_current_month_icon.png remains unchanged from r333. -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -4278,6 +4278,26 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
 body.light #sc-cal #calendar-hero #calendar-hero-today{background:transparent !important;border:none !important;box-shadow:none !important;}
 body.light #sc-cal #calendar-hero #calendar-hero-today .calendar-return-img{filter:none !important;}
 
+
+
+/* r334: Calendar Month/Year text color and size only.
+   Scope: #sc-cal > #calendar-hero-date-row .mlbl only.
+   User selected the last mockup: warm gold Month/Year, with both month and year font increased by 5px. */
+#sc-cal > #calendar-hero-date-row .mlbl{
+  background:none !important;
+  -webkit-background-clip:initial !important;
+  background-clip:initial !important;
+  color:#ffc94f !important;
+  -webkit-text-fill-color:#ffc94f !important;
+  -webkit-text-stroke:0 !important;
+  text-shadow:none !important;
+  font-size:28.4px !important;
+}
+body.light #sc-cal > #calendar-hero-date-row .mlbl{
+  color:#b8860b !important;
+  -webkit-text-fill-color:#b8860b !important;
+  text-shadow:none !important;
+}
 </style>
 </head>
 <body>
@@ -20878,7 +20898,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-07-calendar-return-icon-r333';
+var WHATS_NEW_VERSION = '2026-05-07-calendar-month-year-gold-size-r334';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21171,6 +21191,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-07-calendar-month-year-gold-size-r334', date:'May 7, 2026', importance:'fix',
+    body:'Calendar Month/Year text: changed the month/year label to the selected warm gold color treatment and increased the Month/Year font size by 5px. No other Calendar layout, header widget, return icon, date grid, pill stack, drawers, tabs, or non-Calendar sections were intentionally changed.'},
   {version:'2026-05-07-calendar-return-icon-r333', date:'May 7, 2026', importance:'fix',
     title:'Calendar return-to-current-month icon updated',
     body:'Replaced the Calendar return-to-current-month control with the new premium Today calendar icon and moved it farther right, vertically centered within the Calendar header. No Calendar layout sections, lower pill stack, drawers, tabs, or widget behavior were intentionally changed.'},
