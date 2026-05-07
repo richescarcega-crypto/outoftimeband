@@ -20832,7 +20832,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-filter-slim-dot-cover-r331';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-gig-widget-event-detail-height-r332';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21125,6 +21125,9 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-gig-widget-event-detail-height-r332', date:'May 6, 2026', importance:'fix',
+    title:'Calendar gig-widget Event Details drawer height',
+    body:'When the Calendar header Next Gig widget opens Event Details, the lower Calendar display now shifts up and gives the date drawer enough room to show the full detail area, including the Add Another Event control, without moving the widget or resting Calendar layout.'},
   {version:'2026-05-06-calendar-filter-slim-dot-cover-r331', date:'May 6, 2026', importance:'fix',
    title:'Calendar All Events filter returned to slim dot list',
    detail:'All Events kebab still opens Filter Events, but the drawer now uses slim straight-down rows with small colored dots and covers the event list so no event info shows behind or around it.'},
@@ -22379,15 +22382,16 @@ if(savedName&&savedId){
     // r326: in All Events mode, start the lower display just under the Calendar
     // header instead of below the blue calendar panel. r323 intended this, but
     // allEventsMode was reset after the calculation, so the drawer stayed too low.
-    if(allEventsMode){
+    if(allEventsMode || dayOpen){
       var header = document.getElementById('calendar-hero');
       var headerRect = header ? header.getBoundingClientRect() : null;
       var safeTop = headerRect ? Math.round(headerRect.bottom + 6) : Math.round(scRect.top + 8);
       availableTop = Math.max(0, safeTop);
     }
 
-    // All Events needs a tall drawer, so while it is open allow the lower Calendar
-    // display to shift upward over the blue date panel instead of being pinned below it.
+    // All Events and Event Details drawers need usable height, so while either is
+    // open allow the lower Calendar display to shift upward over the blue date
+    // panel instead of being pinned below it.
 
     var filterH = filterOpen ? Math.max(38, _measureShownHeight(filter, 46)) : 0;
     var evlScrollH = evlOpen && evl ? Math.max(60, Math.ceil(evl.scrollHeight || evl.getBoundingClientRect().height || 160)) : 0;
@@ -22403,7 +22407,7 @@ if(savedName&&savedId){
       desiredEvlH = Math.min(evlScrollH, Math.max(520, Math.floor(window.innerHeight * 0.72)));
     }
     var desiredPropH = propOpen ? Math.min(propScrollH, Math.max(150, Math.floor(window.innerHeight * 0.32))) : 0;
-    var desiredDayH = dayOpen ? Math.min(dayScrollH, Math.max(150, Math.floor(window.innerHeight * 0.32))) : 0;
+    var desiredDayH = dayOpen ? Math.min(dayScrollH, Math.max(420, Math.floor(window.innerHeight * 0.62))) : 0;
 
     function totalWith(listH, propListH, dayH){
       var total = evlH;
