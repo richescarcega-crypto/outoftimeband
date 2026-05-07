@@ -4166,6 +4166,20 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
   }
 }
 
+
+
+/* r324: Calendar header Next Gig widget downward nudge only.
+   Keep same size and same left/right under-logo placement from r322.
+   Move only slightly closer to the Calendar header bottom border. */
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
+  top:119px !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
+    top:113px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -20601,7 +20615,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-all-events-drawer-open-r323';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-header-next-gig-widget-down-r324';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20894,6 +20908,9 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-header-next-gig-widget-down-r324', date:'May 6, 2026', importance:'fix',
+    title:'Calendar header Next Gig widget moved down',
+    body:'Moves the compact Next Gig widget slightly downward under the logo, closer to the Calendar header bottom border, without changing widget size, horizontal placement, header dimensions, Calendar layout, lower pill stack, drawers, or other tabs.'},
   {version:'2026-05-06-calendar-all-events-drawer-open-r323', date:'May 6, 2026', importance:'fix',
    title:'Calendar All Events Drawer Expansion',
    body:'Fixes the All Events expansion behavior so the All Events title no longer fights the lower-stack lock, and the Events window opens much higher with a larger visible list area.',
