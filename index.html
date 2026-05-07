@@ -10,7 +10,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r317: Calendar header dimension normalization; lower pill stack untouched. Upload as index.html after phone test. -->
 <!-- r325: Calendar lower pill stack visibility scoped to active Calendar tab only. Upload as index.html after phone test. -->
 <!-- r326: Calendar All Events drawer opens higher. Fixes r323 allEventsMode ordering bug so expanded All Events can use the space below the Calendar header. Upload as index.html after phone test. -->
-<!-- r328: Calendar All Events filters moved into kebab menu. Separate filter row remains hidden; All Events kebab now controls Upcoming/All and event-type filters. Upload as index.html after phone test. -->
+<!-- r329: Calendar All Events kebab now opens a separate filter selection drawer. Filter choices are no longer expanded directly inside the kebab. Upload as index.html after phone test. -->
 <!-- r321: Calendar header Next Gig widget vertical centering only. Centers the existing widget between the gold decorative line and the Calendar header bottom border; no horizontal movement, no size change, no other Calendar/app element changes. Upload as index.html after phone test. -->
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!DOCTYPE html>
@@ -13923,8 +13923,8 @@ function rEvL(){
   var filterRow = document.getElementById('evl-filter-row');
   var collapsed = !!cardStates['evl'];
   if(evlEl) evlEl.style.display = collapsed ? 'none' : 'block';
-  // r328: filters now live inside the All Events kebab menu. Keep the old
-  // filter row hidden so it cannot be clipped/covered by the expanded list.
+  // r329: filters are launched from the All Events kebab into a separate drawer.
+  // Keep the old filter row hidden so it cannot be clipped/covered by the expanded list.
   if(filterRow) filterRow.style.display = 'none';
   _evlFilterOpen = false;
   if(evlAr) evlAr.innerHTML = '&#8964;';
@@ -15395,6 +15395,111 @@ function closeCalendarEventsMenu(){
   var existing = document.getElementById('calendar-events-action-backdrop');
   if(existing) existing.remove();
 }
+function closeCalendarEventsFilterDrawer(){
+  var existing = document.getElementById('calendar-events-filter-backdrop');
+  if(existing) existing.remove();
+}
+function openCalendarEventsFilterDrawer(){
+  closeCalendarEventsMenu();
+  closeCalendarEventsFilterDrawer();
+  var wrap = document.createElement('div');
+  wrap.id = 'calendar-events-filter-backdrop';
+  wrap.className = 'oot-action-backdrop';
+  wrap.onclick = function(e){ if(e.target === wrap) closeCalendarEventsFilterDrawer(); };
+  var sheet = document.createElement('div');
+  sheet.id = 'calendar-events-filter-sheet';
+  sheet.className = 'oot-action-sheet';
+  sheet.setAttribute('role','dialog');
+  sheet.setAttribute('aria-modal','true');
+  sheet.setAttribute('aria-label','All Events filters');
+  sheet.onclick = function(e){ e.stopPropagation(); };
+  function rerender(){
+    sheet.innerHTML =
+      '<button type="button" class="songs-sheet-x" aria-label="Close All Events filters" onclick="closeCalendarEventsFilterDrawer()">×</button>' +
+      '<div class="songs-sheet-head">' +
+        '<img src="Logo.png?v=r142" class="songs-sheet-logo" alt="Out of Time">' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div class="songs-sheet-title">ALL EVENTS FILTER</div>' +
+          '<div class="songs-sheet-sub">' + _calendarEventsMenuFilterSummary() + '</div>' +
+        '</div>' +
+      '</div>';
+
+    var filterBox = document.createElement('div');
+    filterBox.style.cssText = 'margin:6px 0 10px;padding:10px;border-radius:14px;border:1px solid rgba(74,158,255,.28);background:rgba(5,14,38,.34);display:flex;flex-direction:column;gap:10px;';
+
+    var scopeTitle = document.createElement('div');
+    scopeTitle.style.cssText = 'font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1.6px;color:#8aa8d6;';
+    scopeTitle.textContent = 'SHOW';
+    filterBox.appendChild(scopeTitle);
+
+    var scopeRow = document.createElement('div');
+    scopeRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;';
+    function scopeBtn(scope,label){
+      var b = document.createElement('button');
+      b.type = 'button';
+      var on = (_evlScope === scope);
+      b.style.cssText = 'border:1px solid '+(on?'rgba(245,197,24,.8)':'rgba(74,158,255,.28)')+';border-radius:12px;padding:9px 8px;background:'+(on?'linear-gradient(135deg,#f5c518,#d49a10)':'rgba(6,14,28,.45)')+';color:'+(on?'#06101f':'#c7d6f3')+';font-family:\'Russo One\',sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;';
+      b.textContent = label;
+      b.onclick = function(e){
+        e.stopPropagation();
+        _evlScope = scope;
+        _evlFilterOpen = false;
+        rEvL();
+        if(typeof window.__ootCalDrawerShiftRefresh === 'function') setTimeout(window.__ootCalDrawerShiftRefresh, 30);
+        rerender();
+      };
+      return b;
+    }
+    scopeRow.appendChild(scopeBtn('upcoming','UPCOMING'));
+    scopeRow.appendChild(scopeBtn('all','ALL'));
+    filterBox.appendChild(scopeRow);
+
+    var typesTitle = document.createElement('div');
+    typesTitle.style.cssText = 'font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1.6px;color:#8aa8d6;margin-top:2px;';
+    typesTitle.textContent = 'EVENT TYPES';
+    filterBox.appendChild(typesTitle);
+
+    var typeRow = document.createElement('div');
+    typeRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;';
+    EVL_FILTER_LABELS.forEach(function(x){
+      var b = document.createElement('button');
+      b.type = 'button';
+      var on = !!_evlFilters[x.key];
+      b.style.cssText = 'border:1px solid '+(on?x.color:'rgba(74,158,255,.25)')+';border-radius:12px;padding:9px 8px;background:'+(on?'rgba(245,197,24,.10)':'rgba(6,14,28,.38)')+';color:'+(on?'#fff':'#7085aa')+';font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:.8px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:7px;';
+      b.innerHTML = '<span style="width:9px;height:9px;border-radius:50%;display:inline-block;background:'+x.color+';box-shadow:0 0 8px '+x.color+';"></span><span style="flex:1;">'+x.label+'</span><span style="color:'+(on?'#f5c518':'#52657f')+';">'+(on?'ON':'OFF')+'</span>';
+      b.onclick = function(e){
+        e.stopPropagation();
+        _evlFilters[x.key] = !_evlFilters[x.key];
+        _evlFilterOpen = false;
+        rEvL();
+        if(typeof window.__ootCalDrawerShiftRefresh === 'function') setTimeout(window.__ootCalDrawerShiftRefresh, 30);
+        rerender();
+      };
+      typeRow.appendChild(b);
+    });
+    filterBox.appendChild(typeRow);
+
+    var reset = document.createElement('button');
+    reset.type = 'button';
+    reset.style.cssText = 'border:1px solid rgba(245,197,24,.38);border-radius:12px;padding:9px 10px;background:rgba(245,197,24,.08);color:#f5c518;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;';
+    reset.textContent = 'RESET FILTERS';
+    reset.onclick = function(e){
+      e.stopPropagation();
+      _evlScope = 'upcoming';
+      EVL_FILTER_LABELS.forEach(function(x){ _evlFilters[x.key] = true; });
+      _evlFilterOpen = false;
+      rEvL();
+      if(typeof window.__ootCalDrawerShiftRefresh === 'function') setTimeout(window.__ootCalDrawerShiftRefresh, 30);
+      rerender();
+    };
+    filterBox.appendChild(reset);
+
+    sheet.appendChild(filterBox);
+  }
+  rerender();
+  wrap.appendChild(sheet);
+  document.body.appendChild(wrap);
+}
 function _calendarEventsMenuFilterSummary(){
   var active = EVL_FILTER_LABELS.filter(function(x){ return !!_evlFilters[x.key]; }).map(function(x){ return x.label; });
   return (_evlScope === 'upcoming' ? 'Upcoming' : 'All') + ' · ' + (active.length ? active.join(', ') : 'No types selected');
@@ -15435,77 +15540,7 @@ function toggleCalendarEventsMenu(ev){
         '</div>' +
       '</div>';
 
-    var filterBox = document.createElement('div');
-    filterBox.style.cssText = 'margin:6px 0 10px;padding:10px;border-radius:14px;border:1px solid rgba(74,158,255,.28);background:rgba(5,14,38,.34);display:flex;flex-direction:column;gap:10px;';
-
-    var scopeTitle = document.createElement('div');
-    scopeTitle.style.cssText = 'font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1.6px;color:#8aa8d6;';
-    scopeTitle.textContent = 'SHOW';
-    filterBox.appendChild(scopeTitle);
-
-    var scopeRow = document.createElement('div');
-    scopeRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;';
-    function scopeBtn(scope,label){
-      var b = document.createElement('button');
-      b.type = 'button';
-      var on = (_evlScope === scope);
-      b.style.cssText = 'border:1px solid '+(on?'rgba(245,197,24,.8)':'rgba(74,158,255,.28)')+';border-radius:12px;padding:9px 8px;background:'+(on?'linear-gradient(135deg,#f5c518,#d49a10)':'rgba(6,14,28,.45)')+';color:'+(on?'#06101f':'#c7d6f3')+';font-family:\'Russo One\',sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;';
-      b.textContent = label;
-      b.onclick = function(e){
-        e.stopPropagation();
-        _evlScope = scope;
-        _evlFilterOpen = false;
-        rEvL();
-        if(typeof window.__ootCalDrawerShiftRefresh === 'function') setTimeout(window.__ootCalDrawerShiftRefresh, 30);
-        render();
-      };
-      return b;
-    }
-    scopeRow.appendChild(scopeBtn('upcoming','UPCOMING'));
-    scopeRow.appendChild(scopeBtn('all','ALL'));
-    filterBox.appendChild(scopeRow);
-
-    var typesTitle = document.createElement('div');
-    typesTitle.style.cssText = 'font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1.6px;color:#8aa8d6;margin-top:2px;';
-    typesTitle.textContent = 'EVENT TYPES';
-    filterBox.appendChild(typesTitle);
-
-    var typeRow = document.createElement('div');
-    typeRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;';
-    EVL_FILTER_LABELS.forEach(function(x){
-      var b = document.createElement('button');
-      b.type = 'button';
-      var on = !!_evlFilters[x.key];
-      b.style.cssText = 'border:1px solid '+(on?x.color:'rgba(74,158,255,.25)')+';border-radius:12px;padding:9px 8px;background:'+(on?'rgba(245,197,24,.10)':'rgba(6,14,28,.38)')+';color:'+(on?'#fff':'#7085aa')+';font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:.8px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:7px;';
-      b.innerHTML = '<span style="width:9px;height:9px;border-radius:50%;display:inline-block;background:'+x.color+';box-shadow:0 0 8px '+x.color+';"></span><span style="flex:1;">'+x.label+'</span><span style="color:'+(on?'#f5c518':'#52657f')+';">'+(on?'ON':'OFF')+'</span>';
-      b.onclick = function(e){
-        e.stopPropagation();
-        _evlFilters[x.key] = !_evlFilters[x.key];
-        _evlFilterOpen = false;
-        rEvL();
-        if(typeof window.__ootCalDrawerShiftRefresh === 'function') setTimeout(window.__ootCalDrawerShiftRefresh, 30);
-        render();
-      };
-      typeRow.appendChild(b);
-    });
-    filterBox.appendChild(typeRow);
-
-    var reset = document.createElement('button');
-    reset.type = 'button';
-    reset.style.cssText = 'border:1px solid rgba(245,197,24,.38);border-radius:12px;padding:9px 10px;background:rgba(245,197,24,.08);color:#f5c518;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;';
-    reset.textContent = 'RESET FILTERS';
-    reset.onclick = function(e){
-      e.stopPropagation();
-      _evlScope = 'upcoming';
-      EVL_FILTER_LABELS.forEach(function(x){ _evlFilters[x.key] = true; });
-      _evlFilterOpen = false;
-      rEvL();
-      if(typeof window.__ootCalDrawerShiftRefresh === 'function') setTimeout(window.__ootCalDrawerShiftRefresh, 30);
-      render();
-    };
-    filterBox.appendChild(reset);
-
-    sheet.appendChild(filterBox);
+    sheet.appendChild(btn('Filter Events', _calendarEventsMenuFilterSummary(), '☰', function(){ openCalendarEventsFilterDrawer(); }));
     sheet.appendChild(btn('Share All Events', 'Band Chat, member chat, text, or calendar file', '⇧', function(){ exportData('events'); }));
   }
   render();
@@ -20748,7 +20783,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-filter-in-kebab-r328';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-filter-drawer-from-kebab-r329';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
