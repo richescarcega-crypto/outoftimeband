@@ -16,6 +16,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!DOCTYPE html>
 <html>
 <head>
+  <!-- r335: Calendar weekday band compressed and date grid proportionally expanded. Upload index.html only. -->
   <!-- r334: Calendar Month/Year text changed to warm gold and increased by 5px. Upload index.html only; return_current_month_icon.png remains unchanged from r333. -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
@@ -4297,6 +4298,49 @@ body.light #sc-cal > #calendar-hero-date-row .mlbl{
   color:#b8860b !important;
   -webkit-text-fill-color:#b8860b !important;
   text-shadow:none !important;
+}
+
+
+/* r335: Calendar weekday-band compression and proportional date-grid fill.
+   Scope: Calendar blue date panel only. Compresses the upper blue weekday/spacer
+   area by reducing the grid top padding from 34px to 19px (~45%). Weekday labels
+   are vertically centered in a slimmer row, and the six proportional date rows
+   reclaim the space so date tiles scale larger while the lower pill stack stays
+   fixed exactly where r314/r325 locked it. */
+#sc-cal.cal-header-fit #cgrid{
+  padding:19px 6px 10px 6px !important;
+  grid-template-rows:minmax(24px, auto) repeat(6, minmax(0, 1fr)) !important;
+  align-content:stretch !important;
+  gap:4px 4px !important;
+}
+#sc-cal.cal-header-fit #cgrid .dhdr{
+  min-height:24px !important;
+  height:24px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 0 4px 0 !important;
+  margin:0 0 2px 0 !important;
+  line-height:1 !important;
+  box-sizing:border-box !important;
+}
+#sc-cal.cal-header-fit #cgrid .dc,
+#sc-cal.cal-header-fit #cgrid .cal-pad{
+  min-height:0 !important;
+  height:100% !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit #cgrid{
+    padding:19px 6px 10px 6px !important;
+    grid-template-rows:minmax(24px, auto) repeat(6, minmax(0, 1fr)) !important;
+    gap:4px 4px !important;
+  }
+  #sc-cal.cal-header-fit #cgrid .dhdr{
+    min-height:24px !important;
+    height:24px !important;
+    padding:0 0 4px 0 !important;
+    margin:0 0 2px 0 !important;
+  }
 }
 </style>
 </head>
@@ -20898,7 +20942,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-07-calendar-month-year-gold-size-r334';
+var WHATS_NEW_VERSION = '2026-05-07-calendar-weekday-band-condense-r335';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21191,6 +21235,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-07-calendar-weekday-band-condense-r335', date:'May 7, 2026', importance:'fix',
+    body:'Calendar visual spacing: reduced the upper blue weekday band/spacer by about 45%, vertically centered the weekday labels in the remaining band, and let the six-row date grid proportionally reclaim the space so date tiles enlarge without moving the lower All Events/Rehearsal Proposals pill stack. No Calendar header, Month/Year color, gig widget, return icon, drawers, tabs, or non-Calendar sections were intentionally changed.'},
   {version:'2026-05-07-calendar-month-year-gold-size-r334', date:'May 7, 2026', importance:'fix',
     body:'Calendar Month/Year text: changed the month/year label to the selected warm gold color treatment and increased the Month/Year font size by 5px. No other Calendar layout, header widget, return icon, date grid, pill stack, drawers, tabs, or non-Calendar sections were intentionally changed.'},
   {version:'2026-05-07-calendar-return-icon-r333', date:'May 7, 2026', importance:'fix',
