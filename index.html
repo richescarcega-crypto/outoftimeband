@@ -8,6 +8,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 -->
 <!-- r311: Calendar All Events/Rehearsal Proposals stack gap tightened. Keeps Rehearsal Proposals locked to the tab row and moves All Events closer to it. Upload as index.html after phone test. -->
 <!-- r317: Calendar header dimension normalization; lower pill stack untouched. Upload as index.html after phone test. -->
+<!-- r325: Calendar lower pill stack visibility scoped to active Calendar tab only. Upload as index.html after phone test. -->
 <!-- r321: Calendar header Next Gig widget vertical centering only. Centers the existing widget between the gold decorative line and the Calendar header bottom border; no horizontal movement, no size change, no other Calendar/app element changes. Upload as index.html after phone test. -->
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!DOCTYPE html>
@@ -4180,6 +4181,28 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
   }
 }
 
+
+
+/* r325: Calendar lower pill stack containment fix.
+   Scope: visibility only. The fixed-position Calendar lower controls must not
+   render on Home/Songs/Setlists/Chat/Band/Pay. Do not move or resize anything. */
+#sc-cal.cal-header-fit:not(.on) .evl-head,
+#sc-cal.cal-header-fit:not(.on) .proposals-head,
+#sc-cal.cal-header-fit:not(.on) #evl-filter-row,
+#sc-cal.cal-header-fit:not(.on) #evl,
+#sc-cal.cal-header-fit:not(.on) #cal-drawer,
+#sc-cal.cal-header-fit:not(.on) #proposals-list,
+#sc-cal.cal-header-fit:not(.on) #propose-btn{
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+#sc-cal.cal-header-fit.on .evl-head,
+#sc-cal.cal-header-fit.on .proposals-head{
+  visibility:visible !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+}
 </style>
 </head>
 <body>
@@ -20615,7 +20638,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-06-calendar-header-next-gig-widget-down-r324';
+var WHATS_NEW_VERSION = '2026-05-06-calendar-stack-contained-r325';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -20908,6 +20931,9 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-06-calendar-stack-contained-r325', date:'May 6, 2026', importance:'fix',
+   title:'Calendar lower controls stay on Calendar only',
+   items:['Scoped the fixed All Events / Rehearsal Proposals controls so they do not appear on other tabs.', 'No placement, sizing, drawer, Calendar header, Next Gig widget, or other-tab layout changes.']},
   {version:'2026-05-06-calendar-header-next-gig-widget-down-r324', date:'May 6, 2026', importance:'fix',
     title:'Calendar header Next Gig widget moved down',
     body:'Moves the compact Next Gig widget slightly downward under the logo, closer to the Calendar header bottom border, without changing widget size, horizontal placement, header dimensions, Calendar layout, lower pill stack, drawers, or other tabs.'},
