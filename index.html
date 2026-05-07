@@ -46,7 +46,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script> 
 <style>
-<!-- r338: Properly removed weekday divider via final override and bumped WHATS_NEW_VERSION. -->
+<!-- r339: Weekday-row premium boxed day labels. Upload index.html only. -->
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;background:#060e1c;color:#e8f0ff;font-family:"Exo 2",sans-serif;transition:background .3s,color .3s;}
 input,select,textarea{font-family:"Exo 2",sans-serif;outline:none;border:none;background:transparent;color:#e8f0ff;}
@@ -4388,6 +4388,41 @@ body.light #sc-cal > #calendar-hero-date-row .mlbl{
     height:30px !important;
     padding:0 0 8px 0 !important;
     margin:0 0 8px 0 !important;
+  }
+}
+
+
+/* r339: Calendar weekday-row premium boxed day labels.
+   Scope: Calendar tab weekday labels only. Applies the first mockup: dark navy
+   boxed day labels with gold text and subtle gold border. Does not move the
+   Calendar header, Month/Year, date grid, lower pill stack, drawers, tabs, or
+   other app sections. */
+#sc-cal.cal-header-fit #cgrid .dhdr{
+  color:#ffd95a !important;
+  -webkit-text-fill-color:#ffd95a !important;
+  background:linear-gradient(180deg,rgba(10,22,48,.96) 0%,rgba(5,14,34,.98) 100%) !important;
+  border:1px solid rgba(245,197,24,.50) !important;
+  border-bottom:1px solid rgba(245,197,24,.50) !important;
+  border-radius:9px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 0 10px rgba(245,197,24,.10) !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.62),0 0 8px rgba(245,197,24,.22) !important;
+  font-size:11px !important;
+  letter-spacing:.35px !important;
+  min-height:30px !important;
+  height:30px !important;
+  padding:0 !important;
+  margin:0 2px 8px 2px !important;
+  align-self:center !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit #cgrid .dhdr{
+    font-size:10px !important;
+    min-height:30px !important;
+    height:30px !important;
+    margin:0 2px 8px 2px !important;
+    padding:0 !important;
   }
 }
 
@@ -20991,7 +21026,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-07-weekday-divider-removed-r338';
+var WHATS_NEW_VERSION = '2026-05-07-weekday-row-boxed-labels-r339';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
