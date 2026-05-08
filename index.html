@@ -4186,13 +4186,13 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
 }
 
 
-/* r363: Calendar header Next Gig widget literal blue/red markup correction.
-   Base: r362. Keep the approved glossy option 3 styling and gold date cleanup.
-   Remove the remaining red-marked empty right-side tail and keep the pill
-   approximately at the blue-marked size. Preserve top, bottom/height, and
-   left edge. No other widget, header, Calendar body, drawer, or tab changes. */
+/* r364: Calendar header Next Gig widget further narrowed from the right only.
+   Base: r363. Keep the approved glossy option 3 styling, gold date cleanup,
+   and current top/bottom/left placement. Reduce the right-side tail further so
+   the pill sits only slightly wider than the full venue name. No other widget,
+   header, Calendar body, drawer, or tab changes. */
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
-  width:194px !important;
+  width:176px !important;
   height:27px !important;
   overflow:hidden !important;
   position:absolute !important;
@@ -4286,7 +4286,7 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
   box-shadow:0 0 6px rgba(255,255,255,.18) !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{
-  max-width:139px !important;
+  max-width:121px !important;
   color:#ffffff !important;
   text-shadow:0 1px 2px rgba(0,0,0,.58),0 0 7px rgba(255,255,255,.16) !important;
 }
@@ -4301,7 +4301,7 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
 }
 @media (max-width:420px){
   #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
-    width:188px !important;
+    width:170px !important;
     height:25px !important;
     grid-template-columns:44px 1fr !important;
   }
@@ -4310,7 +4310,7 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
     min-width:44px !important;
   }
   #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{
-    max-width:133px !important;
+    max-width:115px !important;
   }
 }
 
@@ -21388,7 +21388,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-08-next-gig-widget-tail-cut-r363';
+var WHATS_NEW_VERSION = '2026-05-08-next-gig-widget-further-reduced-r364';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
