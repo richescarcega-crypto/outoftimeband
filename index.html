@@ -5451,9 +5451,9 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 
 
 
-/* r376: Actual Gig/Rehearsal detail kebab dropdown polish.
-   r375 styled the selector but the visible menu is built with inline JS styles.
-   This fallback CSS remains, while r376 also patches the actual inline DOM creation. */
+/* r375: Gig/Rehearsal detail kebab dropdown polish only.
+   Scope: existing r366 detail kebab menu. Match the premium app dropdown
+   language used by All Events / Setlists menus without changing menu actions. */
 #r366-gig-kebab-menu{
   background:radial-gradient(circle at 90% 0%,rgba(74,158,255,.18),transparent 34%),linear-gradient(180deg,rgba(8,24,56,.98),rgba(4,13,30,.99)) !important;
   border:1px solid rgba(245,197,24,.38) !important;
@@ -15923,106 +15923,43 @@ function _r366SetGigHeader(title, mode, ev){
   if(titleEl) titleEl.textContent = title || 'Gig Details';
   var header = titleEl ? titleEl.parentElement : null;
   if(!header) return;
-
   var oldMenu = document.getElementById('r366-gig-menu-wrap');
   if(oldMenu) oldMenu.remove();
-
   if(mode !== 'read') return;
-
   var closeBtn = header.querySelector('button[onclick*="gig-detail-modal"]');
   var wrap = document.createElement('div');
   wrap.id = 'r366-gig-menu-wrap';
   wrap.style.cssText = 'position:relative;display:flex;align-items:center;margin-left:auto;margin-right:4px;';
-
   var kebab = document.createElement('button');
   kebab.type = 'button';
-  kebab.setAttribute('aria-label','Event options');
+  kebab.setAttribute('aria-label','Gig options');
   kebab.style.cssText = 'background:rgba(74,158,255,.10);border:1px solid rgba(74,158,255,.35);border-radius:999px;color:#dbe9ff;font-size:18px;line-height:1;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;';
   kebab.innerHTML = '&#8942;';
-  kebab.onclick = function(evt){
-    evt.stopPropagation();
-    _r378OpenDetailOptionsSheet(ev);
-  };
-
-  wrap.appendChild(kebab);
-  if(closeBtn) header.insertBefore(wrap, closeBtn); else header.appendChild(wrap);
-}
-
-/* r378: Gig/Rehearsal Detail kebab uses the same premium options-sheet language as Songs Options. */
-function _r378OpenDetailOptionsSheet(ev){
-  if(!ev) return;
-
-  var existing = document.getElementById('r378-detail-options-sheet');
-  if(existing) existing.remove();
-
-  var ov = document.createElement('div');
-  ov.id = 'r378-detail-options-sheet';
-  ov.style.cssText = [
-    'position:fixed',
-    'inset:0',
-    'z-index:12000',
-    'display:flex',
-    'align-items:center',
-    'justify-content:center',
-    'padding:24px 18px',
-    'background:rgba(2,8,20,.62)',
-    'backdrop-filter:blur(7px)',
-    '-webkit-backdrop-filter:blur(7px)'
-  ].join(';') + ';';
-
-  var card = document.createElement('div');
-  card.style.cssText = [
-    'width:min(430px,92vw)',
-    'border-radius:22px',
-    'padding:18px 18px 20px',
-    'background:radial-gradient(circle at 82% 0%,rgba(74,158,255,.24),transparent 35%),linear-gradient(145deg,rgba(13,40,92,.98),rgba(5,17,42,.99) 64%,rgba(3,10,26,.99))',
-    'border:1px solid rgba(245,197,24,.40)',
-    'box-shadow:0 24px 70px rgba(0,0,0,.62),0 0 32px rgba(74,158,255,.16),inset 0 1px 0 rgba(255,255,255,.07)'
-  ].join(';') + ';';
-
-  var title = (ev.type === 'rehearsal') ? 'REHEARSAL OPTIONS' : 'GIG OPTIONS';
-  var sub = (ev.type === 'rehearsal') ? 'Edit or delete this rehearsal' : 'Edit or delete this gig';
-
-  card.innerHTML =
-    '<div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">' +
-      '<div style="width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(245,197,24,.42);background:rgba(5,18,45,.72);box-shadow:0 0 18px rgba(74,158,255,.20);">' +
-        '<img src="Logo.png?v=r142" style="width:100%;height:100%;object-fit:contain;">' +
-      '</div>' +
-      '<div style="min-width:0;flex:1;">' +
-        '<div style="font-family:Russo One,sans-serif;font-size:20px;letter-spacing:2.4px;color:#f5c518;line-height:1.1;text-transform:uppercase;">' + title + '</div>' +
-        '<div style="font-size:13px;color:#c8d7f6;margin-top:5px;">' + sub + '</div>' +
-      '</div>' +
-      '<button type="button" id="r378-detail-options-close" aria-label="Close" style="width:44px;height:44px;border-radius:50%;border:1px solid rgba(170,205,255,.35);background:rgba(255,255,255,.10);color:#fff;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.12);">×</button>' +
-    '</div>' +
-    '<div style="height:1px;background:linear-gradient(90deg,transparent,rgba(245,197,24,.35),transparent);margin:2px 0 14px;"></div>' +
-    '<div style="display:flex;flex-direction:column;gap:12px;">' +
-      '<button type="button" id="r378-detail-edit" style="width:100%;min-height:66px;display:flex;align-items:center;gap:16px;padding:14px 16px;border-radius:18px;border:1px solid rgba(74,158,255,.38);background:linear-gradient(135deg,rgba(9,30,70,.95),rgba(4,14,35,.98));box-shadow:0 10px 22px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.06);color:#eaf2ff;text-align:left;cursor:pointer;">' +
-        '<span style="width:46px;height:46px;border-radius:13px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(74,158,255,.44);background:radial-gradient(circle at 35% 20%,rgba(255,255,255,.18),rgba(14,43,93,.72));color:#62aeff;font-size:22px;box-shadow:0 0 14px rgba(74,158,255,.18);">✎</span>' +
-        '<span style="display:flex;flex-direction:column;gap:4px;"><span style="font-family:Russo One,sans-serif;font-size:16px;letter-spacing:1.8px;color:#f3f7ff;">Edit</span><span style="font-size:13px;color:#9fb8df;">Update this event details page</span></span>' +
-      '</button>' +
-      '<button type="button" id="r378-detail-delete" style="width:100%;min-height:66px;display:flex;align-items:center;gap:16px;padding:14px 16px;border-radius:18px;border:1px solid rgba(255,71,87,.36);background:linear-gradient(135deg,rgba(58,13,25,.86),rgba(22,8,18,.98));box-shadow:0 10px 22px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.04);color:#ffd6dc;text-align:left;cursor:pointer;">' +
-        '<span style="width:46px;height:46px;border-radius:13px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,71,87,.42);background:rgba(255,71,87,.12);color:#ff6f7d;font-size:21px;box-shadow:0 0 14px rgba(255,71,87,.12);">&#128465;</span>' +
-        '<span style="display:flex;flex-direction:column;gap:4px;"><span style="font-family:Russo One,sans-serif;font-size:16px;letter-spacing:1.8px;color:#ff8a96;">Delete</span><span style="font-size:13px;color:#dfa2aa;">Delete this event after confirmation</span></span>' +
-      '</button>' +
-    '</div>';
-
-  ov.appendChild(card);
-  document.body.appendChild(ov);
-
-  function closeSheet(){ ov.remove(); }
-
-  ov.addEventListener('click', function(e){
-    if(e.target === ov) closeSheet();
+  var menu = document.createElement('div');
+  menu.id = 'r366-gig-kebab-menu';
+  menu.style.cssText = 'display:none;position:absolute;right:0;top:35px;min-width:132px;background:#07162f;border:1px solid rgba(74,158,255,.45);border-radius:12px;box-shadow:0 14px 28px rgba(0,0,0,.45);z-index:40;overflow:hidden;';
+  var edit = document.createElement('button');
+  edit.type = 'button';
+  edit.style.cssText = 'width:100%;background:transparent;border:0;border-bottom:1px solid rgba(74,158,255,.18);color:#e8f0ff;text-align:left;padding:11px 12px;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;';
+  edit.textContent = 'EDIT';
+  edit.onclick = function(){ menu.style.display='none'; _r366OpenGigEdit(ev); };
+  var del = document.createElement('button');
+  del.type = 'button';
+  del.style.cssText = 'width:100%;background:transparent;border:0;color:#ff6b7a;text-align:left;padding:11px 12px;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;gap:7px;';
+  del.innerHTML = '<span style="font-size:13px;line-height:1;">&#128465;</span><span>DELETE</span>';
+  del.onclick = function(){ menu.style.display='none'; _r366ConfirmDeleteGig(ev); };
+  menu.appendChild(edit);
+  menu.appendChild(del);
+  kebab.onclick = function(evt){ evt.stopPropagation(); menu.style.display = (menu.style.display === 'block') ? 'none' : 'block'; };
+  document.addEventListener('click', function _r366MenuClose(evt){
+    var w = document.getElementById('r366-gig-menu-wrap');
+    var m = document.getElementById('r366-gig-kebab-menu');
+    if(!w || !m){ document.removeEventListener('click', _r366MenuClose); return; }
+    if(!w.contains(evt.target)) m.style.display='none';
   });
-  document.getElementById('r378-detail-options-close').onclick = closeSheet;
-  document.getElementById('r378-detail-edit').onclick = function(){
-    closeSheet();
-    _r366OpenGigEdit(ev);
-  };
-  document.getElementById('r378-detail-delete').onclick = function(){
-    closeSheet();
-    _r366ConfirmDeleteGig(ev);
-  };
+  wrap.appendChild(kebab);
+  wrap.appendChild(menu);
+  if(closeBtn) header.insertBefore(wrap, closeBtn); else header.appendChild(wrap);
 }
 function _r366ConfirmDeleteGig(ev){
   if(!ev) return;
@@ -22506,7 +22443,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-detail-options-sheet-syntax-fix-r378';
+var WHATS_NEW_VERSION = '2026-05-09-detail-kebab-dropdown-polish-r375';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22799,7 +22736,6 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-09-detail-options-sheet-syntax-fix-r378', date:'May 9, 2026', importance:'fix', title:'Gig/Rehearsal detail options sheet syntax fix', items:['The Gig/Rehearsal detail kebab now opens the Songs Options-style Edit/Delete sheet, with the r377 syntax issue corrected so Home and the rest of the app can render normally.']},
   {version:'2026-05-09-detail-kebab-dropdown-polish-r375', date:'May 9, 2026', importance:'fix', title:'Gig/Rehearsal detail kebab polish', items:['The Gig/Rehearsal detail kebab dropdown now uses the same premium blue-and-gold menu styling language as the app’s other kebab menus, while keeping the same Edit and Delete actions.']},
   {version:'2026-05-09-rehearsal-button-contrast-r374', date:'May 9, 2026', importance:'fix', title:'Rehearsal button label contrast', items:['The Edit Rehearsal yellow Add and Save Changes buttons now use dark readable text, including disabled state, without changing layout or behavior.']},
   {version:'2026-05-09-gig-rehearsal-centered-window-r373', date:'May 9, 2026', importance:'fix', title:'Gig and Rehearsal centered window', items:['The Gig and Rehearsal detail windows now deploy centered on screen like the Edit Blackout window, while preserving the r372 smaller-window sizing and content styling.']},
