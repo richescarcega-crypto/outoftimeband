@@ -4186,10 +4186,10 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
 }
 
 
-/* r359: Calendar header Next Gig widget right-end shortening only.
-   Base: r359. Keep the approved glossy option 3 styling and widened gold date box.
-   Preserve top, left, and height. Shorten the overall pill from the right side to
-   remove the extra tail beyond the user-marked endpoint. No header, drawer,
+/* r360: Calendar header Next Gig widget gold-date shadow cleanup only.
+   Base: r359. Keep the approved glossy option 3 styling, shortened right edge,
+   widened gold date box, and centered date stack. Clear the bottom shadow from
+   the gold date area only so the day label remains readable. No header, drawer,
    Calendar body, or tab changes. */
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
   width:246px !important;
@@ -4245,11 +4245,10 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
   align-items:center !important;
   justify-content:center !important;
   text-align:center !important;
-  background:linear-gradient(180deg,#ffe26a 0%,#f5c518 50%,#b97d0c 100%) !important;
+  background:linear-gradient(180deg,#ffe873 0%,#f8cf28 52%,#e5a913 100%) !important;
   color:#06101f !important;
   box-shadow:
     inset 1px 1px 0 rgba(255,255,255,.36),
-    inset -1px -1px 0 rgba(123,80,4,.42),
     1px 0 0 rgba(8,17,45,.42) !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-date span{
@@ -4258,6 +4257,7 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
   text-align:center !important;
   margin:0 !important;
   padding:0 !important;
+  text-shadow:none !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-mo{
   font-size:5.9px !important;
@@ -21388,7 +21388,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-08-next-gig-shorter-right-end-r359';
+var WHATS_NEW_VERSION = '2026-05-08-next-gig-date-shadow-clear-r360';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21681,7 +21681,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-08-next-gig-shorter-right-end-r359', date:'May 8, 2026', importance:'minor', title:'Calendar Next Gig widget shortened from the right', items:['The Calendar header Next Gig widget keeps the approved glossy option 3 styling and widened gold date box, while shortening the overall pill from the right side to remove the extra tail beyond the marked endpoint.']},
+  {version:'2026-05-08-next-gig-date-shadow-clear-r360', date:'May 8, 2026', importance:'minor', title:'Calendar Next Gig date shadow cleared', items:['The Calendar header Next Gig widget keeps the approved glossy option 3 styling, shortened right edge, widened gold date box, and centered date stack while clearing the bottom shadow from the gold date area only.']},
   {version:'2026-05-08-flyer-close-preserves-event-details-r354', date:'May 8, 2026', importance:'fix', title:'Calendar flyer close preserves Event Details', items:['Closing the flyer editor from a gig Event Details card now returns to the same standalone Event Details view without re-exposing the All Events header.']},
   {version:'2026-05-08-rehearsal-event-card-opens-edit-r353', date:'May 8, 2026', importance:'fix', title:'Rehearsal detail card tap fix', items:['Fixes the Rehearsal Event Details card tap so it opens the Rehearsal detail/edit screen instead of silently doing nothing.']},
   {version:'2026-05-08-rehearsal-event-card-opens-edit-r353', date:'May 8, 2026', importance:'fix', title:'Calendar empty-date and rehearsal tap cleanup', items:['Closing the Select an Event chooser after tapping an empty date now clears the temporary selected-date yellow glow.', 'Tapping a rehearsal card in Event Details now opens the Rehearsal detail/edit screen directly.']},
