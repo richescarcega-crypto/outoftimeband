@@ -5172,6 +5172,263 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   #gig-detail-modal.r368-fit-rehearsal #rh-agenda-list{max-height:62px !important;}
 }
 
+
+
+/* r372: Corrected Gig/Rehearsal outer-window footprint.
+   User clarified the target is the overall detail window/modal size, not just
+   the internal cards. This override makes the Gig/Rehearsal modal hug its
+   content with a smaller, better-proportioned static footprint while preserving
+   readable text and clearer gold/blue contrast. Blackout and unrelated app
+   areas remain untouched. */
+#gig-detail-modal.r368-static-fit{
+  align-items:flex-start !important;
+  justify-content:center !important;
+  padding:calc(env(safe-area-inset-top) + 18px) 16px 18px !important;
+  overflow:hidden !important;
+}
+#gig-detail-modal.r368-static-fit .mo{
+  height:auto !important;
+  min-height:0 !important;
+  max-height:calc(100dvh - 76px) !important;
+  overflow:hidden !important;
+  padding:12px 13px 13px !important;
+  border-radius:18px !important;
+  background:linear-gradient(180deg,#07162f 0%,#061126 100%) !important;
+  border:1px solid rgba(74,158,255,.78) !important;
+  box-shadow:0 20px 44px rgba(0,0,0,.56),0 0 0 1px rgba(255,255,255,.035),0 0 26px rgba(74,158,255,.16) !important;
+}
+#gig-detail-modal.r368-static-fit .moh{
+  margin:0 0 8px 0 !important;
+  padding:0 0 8px 0 !important;
+  border-bottom:1px solid rgba(74,158,255,.14) !important;
+}
+#gig-detail-modal.r368-static-fit .mot{
+  color:#f7fbff !important;
+  text-shadow:0 1px 10px rgba(0,0,0,.45) !important;
+}
+#gig-detail-modal.r368-static-fit #gd-body{
+  flex:0 0 auto !important;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:flex-start !important;
+  gap:7px !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-body{
+  gap:7px !important;
+  padding-bottom:0 !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-hero{
+  margin:0 !important;
+  padding:9px 11px !important;
+  border-radius:14px !important;
+  flex-shrink:0 !important;
+  background:radial-gradient(circle at 88% 28%,rgba(245,197,24,.20),transparent 25%),linear-gradient(135deg,#163b8c 0%,#0d285f 57%,#061126 100%) !important;
+  border-color:rgba(245,197,24,.48) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-kicker,
+#gig-detail-modal.r368-fit-gig .r366-gig-label{
+  color:#ffd84a !important;
+  text-shadow:0 0 8px rgba(245,197,24,.18) !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-kicker{
+  font-size:7.8px !important;
+  letter-spacing:1.8px !important;
+  margin-bottom:3px !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-title{
+  font-size:17px !important;
+  line-height:1.08 !important;
+  color:#ffffff !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-sub{
+  font-size:10.6px !important;
+  line-height:1.16 !important;
+  margin-top:4px !important;
+  color:#d9e6ff !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-grid,
+#gig-detail-modal.r368-fit-gig .r366-gig-edit-grid{
+  display:grid !important;
+  grid-template-columns:1fr 1fr !important;
+  gap:6px !important;
+  margin:0 !important;
+  flex:0 0 auto !important;
+  align-content:start !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-grid .r366-gig-field,
+#gig-detail-modal.r368-fit-gig .r366-gig-edit-field{
+  height:56px !important;
+  min-height:56px !important;
+  max-height:56px !important;
+  padding:7px 8px !important;
+  border-radius:12px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  background:linear-gradient(180deg,rgba(13,39,96,.92),rgba(5,14,35,.98)) !important;
+  border:1px solid rgba(91,150,255,.42) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.065),0 0 10px rgba(74,158,255,.08) !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-grid .r366-gig-field:nth-child(2n),
+#gig-detail-modal.r368-fit-gig .r366-gig-edit-field:nth-child(2n){
+  background:linear-gradient(180deg,rgba(16,47,113,.94),rgba(5,16,39,.98)) !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-label{
+  font-size:7.6px !important;
+  letter-spacing:1.15px !important;
+  margin-bottom:3px !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-value,
+#gig-detail-modal.r368-fit-gig .r366-gig-notes{
+  font-size:11.6px !important;
+  line-height:1.17 !important;
+  color:#f7fbff !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-value-big{
+  font-size:12.2px !important;
+  font-weight:800 !important;
+  color:#ffffff !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-notes-card{
+  min-height:46px !important;
+  height:auto !important;
+  max-height:56px !important;
+  margin:0 !important;
+  padding:7px 9px !important;
+  border-radius:12px !important;
+  background:linear-gradient(180deg,rgba(13,39,96,.84),rgba(5,14,35,.98)) !important;
+  border:1px solid rgba(91,150,255,.38) !important;
+  flex-shrink:0 !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-actions{
+  margin:0 !important;
+  gap:7px !important;
+  flex-shrink:0 !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-action-btn{
+  padding:8px 8px !important;
+  font-size:8.5px !important;
+  letter-spacing:1.15px !important;
+  border-color:rgba(74,158,255,.70) !important;
+  color:#a9d4ff !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-action-gold{
+  border-color:rgba(245,197,24,.76) !important;
+  color:#ffd84a !important;
+  background:rgba(245,197,24,.10) !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-flyer-card{
+  margin:0 !important;
+  min-height:52px !important;
+  max-height:58px !important;
+  padding:7px 8px !important;
+  border-radius:12px !important;
+  flex-shrink:0 !important;
+  background:linear-gradient(135deg,rgba(0,72,88,.72),rgba(4,26,47,.96)) !important;
+  border-color:rgba(0,188,160,.48) !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-flyer-card img{
+  width:40px !important;
+  height:40px !important;
+  border-radius:7px !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-input{
+  height:28px !important;
+  min-height:28px !important;
+  padding:5px 7px !important;
+  font-size:11.4px !important;
+  color:#f7fbff !important;
+  background:rgba(3,13,34,.76) !important;
+  border:1px solid rgba(245,197,24,.30) !important;
+}
+#gig-detail-modal.r368-fit-gig textarea.r366-gig-input{
+  height:42px !important;
+  min-height:42px !important;
+  max-height:42px !important;
+  resize:none !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-edit-actions{
+  margin-top:0 !important;
+  gap:7px !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-save,
+#gig-detail-modal.r368-fit-gig .r366-gig-cancel,
+#gig-detail-modal.r368-fit-gig .r366-gig-delete{
+  padding:8px 9px !important;
+  font-size:8.6px !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #gd-body{
+  flex:0 0 auto !important;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  justify-content:flex-start !important;
+  gap:7px !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #gd-body > div{
+  margin-bottom:0 !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #gd-body label,
+#gig-detail-modal.r368-fit-rehearsal #gd-body div[style*="font-size:10px"]{
+  color:#ffd84a !important;
+  font-size:8px !important;
+  letter-spacing:1.1px !important;
+  margin-bottom:3px !important;
+  text-shadow:0 0 8px rgba(245,197,24,.16) !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #gd-body .mi,
+#gig-detail-modal.r368-fit-rehearsal #gd-body input,
+#gig-detail-modal.r368-fit-rehearsal #gd-body textarea{
+  height:28px !important;
+  min-height:28px !important;
+  padding:5px 8px !important;
+  font-size:11.5px !important;
+  line-height:1.18 !important;
+  color:#f7fbff !important;
+  background:linear-gradient(180deg,rgba(13,39,96,.92),rgba(5,14,35,.98)) !important;
+  border:1px solid rgba(91,150,255,.42) !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #gd-body textarea{
+  height:42px !important;
+  min-height:42px !important;
+  max-height:42px !important;
+  resize:none !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #rh-agenda-list{
+  flex:0 0 auto !important;
+  min-height:0 !important;
+  max-height:64px !important;
+  overflow:hidden !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #rh-agenda-list > div{
+  padding:4px 6px !important;
+  margin-bottom:3px !important;
+  background:linear-gradient(180deg,rgba(13,39,96,.86),rgba(5,14,35,.94)) !important;
+  border-color:rgba(91,150,255,.34) !important;
+  color:#f7fbff !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #gd-body button{
+  padding:8px 9px !important;
+  font-size:8.8px !important;
+  color:#ffd84a !important;
+  border-color:rgba(245,197,24,.42) !important;
+}
+@media(max-height:740px){
+  #gig-detail-modal.r368-static-fit{padding:10px 12px !important;}
+  #gig-detail-modal.r368-static-fit .mo{max-height:calc(100dvh - 28px) !important;padding:10px 11px !important;}
+  #gig-detail-modal.r368-fit-gig .r366-gig-hero{padding:7px 10px !important;}
+  #gig-detail-modal.r368-fit-gig .r366-gig-grid .r366-gig-field,
+  #gig-detail-modal.r368-fit-gig .r366-gig-edit-field{height:50px !important;min-height:50px !important;max-height:50px !important;padding:6px 7px !important;}
+  #gig-detail-modal.r368-fit-gig .r366-gig-value{font-size:10.8px !important;}
+  #gig-detail-modal.r368-fit-gig .r366-gig-title{font-size:16px !important;}
+  #gig-detail-modal.r368-fit-rehearsal #gd-body{gap:5px !important;}
+}
+
 </style>
 </head>
 <body>
@@ -22107,7 +22364,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-gig-rehearsal-card-contrast-r371';
+var WHATS_NEW_VERSION = '2026-05-09-gig-rehearsal-smaller-window-r372';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22400,6 +22657,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-gig-rehearsal-smaller-window-r372', date:'May 9, 2026', importance:'fix', title:'Gig and Rehearsal smaller detail window', items:['The Gig and Rehearsal detail windows now use a smaller, content-hugging outer footprint instead of a full-height modal, while keeping all information static, readable, and higher contrast with gold-accent labels. Blackout remains unchanged.']},
   {version:'2026-05-09-gig-rehearsal-card-contrast-r371', date:'May 9, 2026', importance:'fix', title:'Gig and Rehearsal card sizing and contrast', items:['The Gig and Rehearsal detail pages now back off the over-stretched field boxes from r370, keep the pages static and readable, and improve contrast with brighter text and gold-themed labels. Blackout remains unchanged.']},
   {version:'2026-05-09-static-gig-rehearsal-pages-r368', date:'May 9, 2026', importance:'fix', title:'Gig and Rehearsal pages fit the screen', items:['The Gig and Rehearsal detail/edit pages now use a static full-viewport fit so the page is visible without modal scrolling. Blackout pages are unchanged.']},
   {version:'2026-05-09-calendar-drawer-closes-on-leave-r367', date:'May 9, 2026', importance:'fix', title:'Calendar drawer closes when leaving Calendar', items:['The Calendar Event Details/day drawer now closes when the user leaves the Calendar tab or the app is backgrounded/closed, so returning to Calendar starts from the normal grid view instead of reopening a stale drawer.']},
