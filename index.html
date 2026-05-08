@@ -14545,13 +14545,19 @@ function closeDayDrawer(){
 }
 
 function _refreshDrawerForCurrentDay(day){
-  // Recompute combined list (events + custom dates) and refresh, or close if empty
+  // Recompute combined list (events + custom dates) and refresh, or close if empty.
+  // r354: Preserve standalone Event Details mode during async flyer saves.
+  // Closing/editing a flyer triggers this refresh after the modal closes; if the
+  // drawer was opened from a date tap as standalone Event Details, refreshing
+  // without this flag re-exposed the All Events header behind the same drawer.
   var ds = fD(CY,CM,day);
   var de2 = events.filter(function(x){return x.date===ds;});
   var custom2 = _customEntriesAsRows().filter(function(x){return x.date===ds;});
   var combined = de2.concat(custom2);
   if(combined.length){
-    openDayDrawer(day, combined, {skipScroll:true});
+    var drawer = document.getElementById('cal-drawer');
+    var wasStandalone = !!(drawer && drawer.classList && drawer.classList.contains('header-next-gig-detail'));
+    openDayDrawer(day, combined, {skipScroll:true, standaloneEventDetail:wasStandalone});
   } else {
     closeDayDrawer();
   }
@@ -21253,7 +21259,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-08-rehearsal-event-card-opens-edit-r353';
+var WHATS_NEW_VERSION = '2026-05-08-flyer-close-preserves-event-details-r354';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21546,6 +21552,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-08-flyer-close-preserves-event-details-r354', date:'May 8, 2026', importance:'fix', title:'Calendar flyer close preserves Event Details', items:['Closing the flyer editor from a gig Event Details card now returns to the same standalone Event Details view without re-exposing the All Events header.']},
   {version:'2026-05-08-rehearsal-event-card-opens-edit-r353', date:'May 8, 2026', importance:'fix', title:'Rehearsal detail card tap fix', items:['Fixes the Rehearsal Event Details card tap so it opens the Rehearsal detail/edit screen instead of silently doing nothing.']},
   {version:'2026-05-08-rehearsal-event-card-opens-edit-r353', date:'May 8, 2026', importance:'fix', title:'Calendar empty-date and rehearsal tap cleanup', items:['Closing the Select an Event chooser after tapping an empty date now clears the temporary selected-date yellow glow.', 'Tapping a rehearsal card in Event Details now opens the Rehearsal detail/edit screen directly.']},
   {version:'2026-05-08-current-date-gold-border-r349', date:'May 8, 2026', importance:'fix', title:'Calendar current-date border', items:['Restored the visible gold border around the automatic current-date tile without changing Calendar layout or date logic.']},
