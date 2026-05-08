@@ -4509,6 +4509,30 @@ body.light #sc-cal.cal-header-fit #cgrid .dhdr{
   }
 }
 
+
+
+/* r348: Calendar blue-panel gap equalization.
+   Scope: Calendar lower blue calendar panel and its stack spacing only.
+   User marked the outside gaps above and below the full Calendar block; top gap
+   was wider than bottom gap. This moves the calendar block up 4px, expands the
+   blue date-panel height by 8px so the bottom edge fills down 4px, and leaves
+   the lower stack position stable by matching the panel-to-stack gap at 4px.
+   Date rows remain proportional because #cgrid still uses fr rows inside the
+   resized #cgrid-wrap. */
+#sc-cal.cal-header-fit #calendar-hero{
+  margin-bottom:4px !important;
+}
+#sc-cal.cal-header-fit #cgrid-wrap{
+  height:var(--oot-cal-grid-wrap-h, calc(58vh + 8px)) !important;
+  max-height:var(--oot-cal-grid-wrap-h, calc(58vh + 8px)) !important;
+  min-height:328px !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit #cgrid-wrap{
+    min-height:308px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -21186,7 +21210,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-08-next-gig-standalone-event-details-r347';
+var WHATS_NEW_VERSION = '2026-05-08-calendar-blue-panel-gap-equalization-r348';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21479,6 +21503,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-08-calendar-blue-panel-gap-equalization-r348', date:'May 8, 2026', importance:'fix', title:'Calendar blue panel spacing', items:['Reduced and balanced the top/bottom gap around the Calendar blue panel by expanding only the Calendar panel area and keeping date rows proportional.']},
   {version:'2026-05-08-next-gig-standalone-event-details-r347', date:'May 8, 2026', importance:'fix',
    emoji:'🎫', title:'Header Next Gig Real Tap Path Fixed',
    body:'Calendar header Next Gig now uses its actual tap handler to open the Gig Details modal directly. It no longer routes through the backstage/day drawer path that opens inside the Calendar drawer area.'},
@@ -22625,7 +22650,7 @@ if(savedName&&savedId){
     var evlH = Math.ceil(evl.getBoundingClientRect().height || 66);
     var proposalH = Math.ceil(proposal.getBoundingClientRect().height || 60);
     var stackGap = 6;
-    var panelGap = 8;
+    var panelGap = 4;
     var safeBottom = 4;
     var stackH = evlH + stackGap + proposalH;
 
