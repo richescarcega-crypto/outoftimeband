@@ -5174,16 +5174,14 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 
 
 
-/* r372: Corrected Gig/Rehearsal outer-window footprint.
-   User clarified the target is the overall detail window/modal size, not just
-   the internal cards. This override makes the Gig/Rehearsal modal hug its
-   content with a smaller, better-proportioned static footprint while preserving
-   readable text and clearer gold/blue contrast. Blackout and unrelated app
-   areas remain untouched. */
+/* r373: Center Gig/Rehearsal detail window deployment.
+   Base r372 smaller-window treatment remains intact. This changes only the
+   modal overlay alignment so Gig/Rehearsal deploy centered like Edit Blackout,
+   instead of pinned to the top. Blackout and unrelated app areas untouched. */
 #gig-detail-modal.r368-static-fit{
-  align-items:flex-start !important;
+  align-items:center !important;
   justify-content:center !important;
-  padding:calc(env(safe-area-inset-top) + 18px) 16px 18px !important;
+  padding:16px !important;
   overflow:hidden !important;
 }
 #gig-detail-modal.r368-static-fit .mo{
@@ -22364,7 +22362,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-gig-rehearsal-smaller-window-r372';
+var WHATS_NEW_VERSION = '2026-05-09-gig-rehearsal-centered-window-r373';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22657,6 +22655,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-gig-rehearsal-centered-window-r373', date:'May 9, 2026', importance:'fix', title:'Gig and Rehearsal centered window', items:['The Gig and Rehearsal detail windows now deploy centered on screen like the Edit Blackout window, while preserving the r372 smaller-window sizing and content styling.']},
   {version:'2026-05-09-gig-rehearsal-smaller-window-r372', date:'May 9, 2026', importance:'fix', title:'Gig and Rehearsal smaller detail window', items:['The Gig and Rehearsal detail windows now use a smaller, content-hugging outer footprint instead of a full-height modal, while keeping all information static, readable, and higher contrast with gold-accent labels. Blackout remains unchanged.']},
   {version:'2026-05-09-gig-rehearsal-card-contrast-r371', date:'May 9, 2026', importance:'fix', title:'Gig and Rehearsal card sizing and contrast', items:['The Gig and Rehearsal detail pages now back off the over-stretched field boxes from r370, keep the pages static and readable, and improve contrast with brighter text and gold-themed labels. Blackout remains unchanged.']},
   {version:'2026-05-09-static-gig-rehearsal-pages-r368', date:'May 9, 2026', importance:'fix', title:'Gig and Rehearsal pages fit the screen', items:['The Gig and Rehearsal detail/edit pages now use a static full-viewport fit so the page is visible without modal scrolling. Blackout pages are unchanged.']},
