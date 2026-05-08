@@ -8741,10 +8741,25 @@ function _r318UpdateHeaderNextGigWidget(){
   btn.title = g ? ('Open next gig: ' + parts.venue + ' at ' + parts.time) : 'No upcoming gig';
   btn.setAttribute('aria-label', btn.title);
 }
+// r345: Calendar header Next Gig widget must open the gig detail modal only.
+// Do not use _openCountdownGigBackstagePass here: that path intentionally opens
+// the day/backstage drawer, which is the wrong behavior for this header widget.
 function _r318OpenHeaderNextGig(){
-  if(typeof _openCountdownGigBackstagePass === 'function'){
-    _openCountdownGigBackstagePass();
+  var next = (typeof _getNextCountdownGig === 'function') ? _getNextCountdownGig() : null;
+  if(!next || !next.id){
+    toast('No upcoming gig to open', {tone:'info'});
+    return;
   }
+  try {
+    cardStates['evl'] = true; // true = collapsed for toggleCard/rEvL
+    var evl = document.getElementById('evl');
+    if(evl) evl.style.display = 'none';
+    var filterRow = document.getElementById('evl-filter-row');
+    if(filterRow) filterRow.style.display = 'none';
+    if(typeof _closeEvlFilterDropdown === 'function') _closeEvlFilterDropdown();
+    if(typeof closeDayDrawer === 'function') closeDayDrawer();
+  } catch(e){}
+  if(typeof showGigDetail === 'function') showGigDetail(String(next.id));
 }
 
 function _openCountdownGigBackstagePass(){
@@ -21131,7 +21146,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-08-next-gig-opens-details-only-r344';
+var WHATS_NEW_VERSION = '2026-05-08-header-next-gig-details-only-real-path-r345';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21424,7 +21439,11 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-08-next-gig-opens-details-only-r344', date:'May 8, 2026', importance:'fix',
+  {version:'2026-05-08-header-next-gig-details-only-real-path-r345', date:'May 8, 2026', importance:'fix',
+   emoji:'🎫', title:'Header Next Gig Real Tap Path Fixed',
+   body:'Calendar header Next Gig now uses its actual tap handler to open the Gig Details modal directly. It no longer routes through the backstage/day drawer path that opens inside the Calendar drawer area.'},
+
+  {version:'2026-05-08-header-next-gig-details-only-real-path-r345', date:'May 8, 2026', importance:'fix',
    emoji:'🎫', title:'Next Gig Opens Details Only',
    body:'Calendar header Next Up / Next Gig tap now opens the gig details modal directly and keeps the All Events/day drawer closed.'},
   {version:'2026-05-07-calendar-weekday-down-3px-r343', date:'May 7, 2026', importance:'fix',
