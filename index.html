@@ -4186,6 +4186,25 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
 }
 
 
+/* r355: Calendar header Next Gig widget right-side expansion only.
+   Keep existing left and top placement from r322/r324. Increase width so
+   the widget grows to the right and can show more gig detail text. */
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
+  width:268px !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{
+  max-width:218px !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
+    width:256px !important;
+  }
+  #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{
+    max-width:207px !important;
+  }
+}
+
+
 
 /* r325: Calendar lower pill stack containment fix.
    Scope: visibility only. The fixed-position Calendar lower controls must not
@@ -21259,7 +21278,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-08-flyer-close-preserves-event-details-r354';
+var WHATS_NEW_VERSION = '2026-05-08-next-gig-widget-expanded-r355';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21552,6 +21571,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-08-next-gig-widget-expanded-r355', date:'May 8, 2026', importance:'minor', title:'Calendar Next Gig widget expanded', items:['The Calendar header Next Gig widget now expands to the right for more venue/detail text while preserving the same left, top, and vertical placement.']},
   {version:'2026-05-08-flyer-close-preserves-event-details-r354', date:'May 8, 2026', importance:'fix', title:'Calendar flyer close preserves Event Details', items:['Closing the flyer editor from a gig Event Details card now returns to the same standalone Event Details view without re-exposing the All Events header.']},
   {version:'2026-05-08-rehearsal-event-card-opens-edit-r353', date:'May 8, 2026', importance:'fix', title:'Rehearsal detail card tap fix', items:['Fixes the Rehearsal Event Details card tap so it opens the Rehearsal detail/edit screen instead of silently doing nothing.']},
   {version:'2026-05-08-rehearsal-event-card-opens-edit-r353', date:'May 8, 2026', importance:'fix', title:'Calendar empty-date and rehearsal tap cleanup', items:['Closing the Select an Event chooser after tapping an empty date now clears the temporary selected-date yellow glow.', 'Tapping a rehearsal card in Event Details now opens the Rehearsal detail/edit screen directly.']},
