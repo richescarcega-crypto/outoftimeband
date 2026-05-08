@@ -14390,8 +14390,12 @@ function oDy(day) {
   var combined = de.concat(customForDay);
 
   if(combined.length){
-    // Existing events on this date — show inline drawer
-    openDayDrawer(day, combined);
+    // r350: Dates with gigs/rehearsals use the same standalone Event Details
+    // deployment pattern as the Calendar header Next Gig widget. This keeps the
+    // All Events accordion/header out of view while the read-only event drawer
+    // is open. Custom/holiday-only dates keep the normal inline drawer behavior.
+    var hasScheduledEvent = combined.some(function(ev){ return ev && (ev.type === 'gig' || ev.type === 'rehearsal'); });
+    openDayDrawer(day, combined, hasScheduledEvent ? {standaloneEventDetail:true} : undefined);
   } else {
     // No events — close drawer if open and go straight to creation modal
     closeDayDrawer();
@@ -14555,7 +14559,7 @@ function openDayDrawer(day, de, opts){
   var ds = fD(CY,CM,day);
   d.innerHTML = '';
   d.classList.add('backstage-pass');
-  if(opts.headerNextGigStandalone){
+  if(opts.headerNextGigStandalone || opts.standaloneEventDetail){
     d.classList.add('header-next-gig-detail');
     if(typeof _setHeaderNextGigStandaloneMode === 'function') _setHeaderNextGigStandaloneMode(true);
   } else {
@@ -21231,7 +21235,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-08-current-date-gold-border-r349';
+var WHATS_NEW_VERSION = '2026-05-08-date-tap-standalone-event-details-r350';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21524,6 +21528,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-08-date-tap-standalone-event-details-r350', date:'May 8, 2026', importance:'fix', title:'Calendar date taps open standalone details', items:['Tapping a Calendar date with a gig or rehearsal now opens the read-only Event Details drawer in standalone mode, matching the header Next Gig behavior, so the All Events accordion/header is not visible as part of that deployment.']},
   {version:'2026-05-08-current-date-gold-border-r349', date:'May 8, 2026', importance:'fix', title:'Calendar current-date border', items:['Restored the visible gold border around the automatic current-date tile without changing Calendar layout or date logic.']},
   {version:'2026-05-08-next-gig-standalone-event-details-r347', date:'May 8, 2026', importance:'fix',
    emoji:'🎫', title:'Header Next Gig Real Tap Path Fixed',
