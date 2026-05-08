@@ -4438,14 +4438,14 @@ body.light #sc-cal.cal-header-fit #cgrid .dhdr{
 }
 
 
-/* r339: Calendar weekday box visual-centering correction.
+/* r340: Calendar weekday box gap-balance refinement.
    Scope: Calendar weekday labels only. r338 created the right box/color treatment,
    but the visible boxes sat low in the dark weekday band because the band includes
    top padding outside the CSS grid row. This visual-only transform moves the day
    boxes upward inside the existing band without changing the grid row, date tiles,
    panel size, lower cards, Calendar HTML, bottom tabs, or any JavaScript. */
 #sc-cal.cal-header-fit #cgrid .dhdr{
-  transform:translateY(-8px) !important;
+  transform:translateY(-4px) !important;
   will-change:transform !important;
 }
 
@@ -21049,7 +21049,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-07-calendar-weekday-boxes-vertical-center-r339';
+var WHATS_NEW_VERSION = '2026-05-07-calendar-weekday-boxes-gap-balance-r340';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21342,7 +21342,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-07-calendar-weekday-boxes-vertical-center-r339', date:'May 7, 2026', importance:'fix',
+  {version:'2026-05-07-calendar-weekday-boxes-gap-balance-r340', date:'May 7, 2026', importance:'fix',
     title:'Calendar weekday box vertical centering',
     body:'Calendar visual correction: moves only the painted weekday boxes upward so they visually center in the dark weekday band. This is a transform-only CSS correction scoped to the Calendar weekday labels; it does not reflow the grid, date tiles, lower cards, Calendar HTML, bottom tabs, other tabs, or JavaScript.'},
   {version:'2026-05-07-calendar-weekday-boxes-gold-r338', date:'May 7, 2026', importance:'fix',
