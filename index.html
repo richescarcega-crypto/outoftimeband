@@ -5451,9 +5451,9 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 
 
 
-/* r375: Gig/Rehearsal detail kebab dropdown polish only.
-   Scope: existing r366 detail kebab menu. Match the premium app dropdown
-   language used by All Events / Setlists menus without changing menu actions. */
+/* r376: Actual Gig/Rehearsal detail kebab dropdown polish.
+   r375 styled the selector but the visible menu is built with inline JS styles.
+   This fallback CSS remains, while r376 also patches the actual inline DOM creation. */
 #r366-gig-kebab-menu{
   background:radial-gradient(circle at 90% 0%,rgba(74,158,255,.18),transparent 34%),linear-gradient(180deg,rgba(8,24,56,.98),rgba(4,13,30,.99)) !important;
   border:1px solid rgba(245,197,24,.38) !important;
@@ -15937,16 +15937,67 @@ function _r366SetGigHeader(title, mode, ev){
   kebab.innerHTML = '&#8942;';
   var menu = document.createElement('div');
   menu.id = 'r366-gig-kebab-menu';
-  menu.style.cssText = 'display:none;position:absolute;right:0;top:35px;min-width:132px;background:#07162f;border:1px solid rgba(74,158,255,.45);border-radius:12px;box-shadow:0 14px 28px rgba(0,0,0,.45);z-index:40;overflow:hidden;';
+  menu.style.cssText = [
+    'display:none',
+    'position:absolute',
+    'right:-2px',
+    'top:38px',
+    'min-width:178px',
+    'padding:7px',
+    'background:radial-gradient(circle at 88% 0%,rgba(74,158,255,.18),transparent 34%),linear-gradient(180deg,rgba(8,24,56,.99),rgba(4,13,30,.99))',
+    'border:1px solid rgba(245,197,24,.38)',
+    'border-radius:14px',
+    'box-shadow:0 16px 34px rgba(0,0,0,.58),0 0 22px rgba(74,158,255,.14),inset 0 1px 0 rgba(255,255,255,.05)',
+    'z-index:10000',
+    'overflow:visible'
+  ].join(';') + ';';
   var edit = document.createElement('button');
   edit.type = 'button';
-  edit.style.cssText = 'width:100%;background:transparent;border:0;border-bottom:1px solid rgba(74,158,255,.18);color:#e8f0ff;text-align:left;padding:11px 12px;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;';
-  edit.textContent = 'EDIT';
+  edit.style.cssText = [
+    'width:100%',
+    'min-height:40px',
+    'display:flex',
+    'align-items:center',
+    'gap:10px',
+    'margin:0 0 6px 0',
+    'padding:10px 12px',
+    'border-radius:12px',
+    'border:1px solid rgba(74,158,255,.24)',
+    'background:linear-gradient(135deg,rgba(9,30,70,.88),rgba(5,17,40,.96))',
+    'color:#dbe9ff',
+    'box-shadow:0 6px 14px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.04)',
+    'text-align:left',
+    'font-family:Russo One,sans-serif',
+    'font-size:11px',
+    'letter-spacing:1px',
+    'line-height:1.2',
+    'cursor:pointer'
+  ].join(';') + ';';
+  edit.innerHTML = '<span style="width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(245,197,24,.35);color:#f5c518;font-size:11px;line-height:1;">✎</span><span>EDIT</span>';
   edit.onclick = function(){ menu.style.display='none'; _r366OpenGigEdit(ev); };
   var del = document.createElement('button');
   del.type = 'button';
-  del.style.cssText = 'width:100%;background:transparent;border:0;color:#ff6b7a;text-align:left;padding:11px 12px;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;gap:7px;';
-  del.innerHTML = '<span style="font-size:13px;line-height:1;">&#128465;</span><span>DELETE</span>';
+  del.style.cssText = [
+    'width:100%',
+    'min-height:40px',
+    'display:flex',
+    'align-items:center',
+    'gap:10px',
+    'margin:0',
+    'padding:10px 12px',
+    'border-radius:12px',
+    'border:1px solid rgba(255,71,87,.30)',
+    'background:linear-gradient(135deg,rgba(50,12,24,.72),rgba(22,9,18,.94))',
+    'color:#ff7c8a',
+    'box-shadow:0 6px 14px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.03)',
+    'text-align:left',
+    'font-family:Russo One,sans-serif',
+    'font-size:11px',
+    'letter-spacing:1px',
+    'line-height:1.2',
+    'cursor:pointer'
+  ].join(';') + ';';
+  del.innerHTML = '<span style="width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,71,87,.38);color:#ff7c8a;font-size:12px;line-height:1;">&#128465;</span><span>DELETE</span>';
   del.onclick = function(){ menu.style.display='none'; _r366ConfirmDeleteGig(ev); };
   menu.appendChild(edit);
   menu.appendChild(del);
@@ -22443,7 +22494,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-detail-kebab-dropdown-polish-r375';
+var WHATS_NEW_VERSION = '2026-05-09-actual-detail-kebab-polish-r376';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22736,6 +22787,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-actual-detail-kebab-polish-r376', date:'May 9, 2026', importance:'fix', title:'Actual Gig/Rehearsal detail kebab polish', items:['The visible Gig/Rehearsal detail kebab menu now uses the premium blue/gold dropdown styling directly in the actual Edit/Delete menu creation path, while keeping the same actions.']},
   {version:'2026-05-09-detail-kebab-dropdown-polish-r375', date:'May 9, 2026', importance:'fix', title:'Gig/Rehearsal detail kebab polish', items:['The Gig/Rehearsal detail kebab dropdown now uses the same premium blue-and-gold menu styling language as the app’s other kebab menus, while keeping the same Edit and Delete actions.']},
   {version:'2026-05-09-rehearsal-button-contrast-r374', date:'May 9, 2026', importance:'fix', title:'Rehearsal button label contrast', items:['The Edit Rehearsal yellow Add and Save Changes buttons now use dark readable text, including disabled state, without changing layout or behavior.']},
   {version:'2026-05-09-gig-rehearsal-centered-window-r373', date:'May 9, 2026', importance:'fix', title:'Gig and Rehearsal centered window', items:['The Gig and Rehearsal detail windows now deploy centered on screen like the Edit Blackout window, while preserving the r372 smaller-window sizing and content styling.']},
