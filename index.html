@@ -47,7 +47,6 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script> 
 <style>
 <!-- r339: Weekday-row premium boxed day labels. Upload index.html only. -->
-<!-- r340: Weekday box vertical centering in band. Upload index.html only. -->
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;background:#060e1c;color:#e8f0ff;font-family:"Exo 2",sans-serif;transition:background .3s,color .3s;}
 input,select,textarea{font-family:"Exo 2",sans-serif;outline:none;border:none;background:transparent;color:#e8f0ff;}
@@ -4424,34 +4423,6 @@ body.light #sc-cal > #calendar-hero-date-row .mlbl{
     height:30px !important;
     margin:0 2px 8px 2px !important;
     padding:0 !important;
-  }
-}
-
-
-/* r340: Calendar weekday boxes vertical balance.
-   Scope: Calendar weekday band only. Reduces the extra space above the weekday
-   boxes and centers the boxed labels vertically in the band. Keeps the r339
-   box styling, Month/Year, date tiles, lower pill stack, drawers, and other tabs
-   locked. */
-#sc-cal.cal-header-fit #cgrid{
-  padding:8px 6px 10px 6px !important;
-  grid-template-rows:minmax(38px, auto) repeat(6, minmax(0, 1fr)) !important;
-}
-#sc-cal.cal-header-fit #cgrid .dhdr{
-  min-height:30px !important;
-  height:30px !important;
-  margin:4px 2px 4px 2px !important;
-  align-self:center !important;
-}
-@media (max-width:420px){
-  #sc-cal.cal-header-fit #cgrid{
-    padding:8px 6px 10px 6px !important;
-    grid-template-rows:minmax(38px, auto) repeat(6, minmax(0, 1fr)) !important;
-  }
-  #sc-cal.cal-header-fit #cgrid .dhdr{
-    min-height:30px !important;
-    height:30px !important;
-    margin:4px 2px 4px 2px !important;
   }
 }
 
@@ -21055,7 +21026,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-07-weekday-box-vertical-balance-r340';
+var WHATS_NEW_VERSION = '2026-05-07-weekday-row-boxed-labels-r339';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
