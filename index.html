@@ -15327,7 +15327,7 @@ function openRehearsalSheet(ev){
   });
 
   // Save / Delete actions
-  if(!isNew && canEditThisBlackout){
+  if(!isNew){
     var delBtn = document.createElement('button');
     delBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:8px;padding:8px 12px;color:#ff4757;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;width:100%;margin-top:6px;margin-bottom:4px;display:inline-flex;align-items:center;justify-content:center;gap:6px;';
     delBtn.innerHTML = '<span style="font-size:13px;line-height:1;">&#128465;</span><span>DELETE EVENT</span>';
@@ -21253,7 +21253,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-08-empty-date-clear-and-rehearsal-edit-r352';
+var WHATS_NEW_VERSION = '2026-05-08-rehearsal-event-card-opens-edit-r353';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21546,7 +21546,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-08-empty-date-clear-and-rehearsal-edit-r352', date:'May 8, 2026', importance:'fix', title:'Calendar empty-date and rehearsal tap cleanup', items:['Closing the Select an Event chooser after tapping an empty date now clears the temporary selected-date yellow glow.', 'Tapping a rehearsal card in Event Details now opens the Rehearsal detail/edit screen directly.']},
+  {version:'2026-05-08-rehearsal-event-card-opens-edit-r353', date:'May 8, 2026', importance:'fix', title:'Rehearsal detail card tap fix', items:['Fixes the Rehearsal Event Details card tap so it opens the Rehearsal detail/edit screen instead of silently doing nothing.']},
+  {version:'2026-05-08-rehearsal-event-card-opens-edit-r353', date:'May 8, 2026', importance:'fix', title:'Calendar empty-date and rehearsal tap cleanup', items:['Closing the Select an Event chooser after tapping an empty date now clears the temporary selected-date yellow glow.', 'Tapping a rehearsal card in Event Details now opens the Rehearsal detail/edit screen directly.']},
   {version:'2026-05-08-current-date-gold-border-r349', date:'May 8, 2026', importance:'fix', title:'Calendar current-date border', items:['Restored the visible gold border around the automatic current-date tile without changing Calendar layout or date logic.']},
   {version:'2026-05-08-next-gig-standalone-event-details-r347', date:'May 8, 2026', importance:'fix',
    emoji:'🎫', title:'Header Next Gig Real Tap Path Fixed',
