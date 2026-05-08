@@ -9362,6 +9362,32 @@ var events = [], msgs = [], sets = [], pay = [], contacts = [], announcements = 
 var gigDetails = {};
 var _ootToday = new Date();
 var CY=_ootToday.getFullYear(), CM=_ootToday.getMonth(), sDay=null, cET="gig", aSL=null, eSID=null;
+// r365: Calendar current-day marker must be dynamic, not tied to the date
+// when the PWA/app shell was first loaded. The app can stay alive across
+// midnight on phones, so we track today's local date key and refresh the
+// Calendar when the key changes.
+var _calLastTodayKey = null;
+function _calTodayDate(){ return new Date(); }
+function _calTodayKey(d){
+  d = d || _calTodayDate();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function _calIsVisible(){
+  var sc = document.getElementById('sc-cal');
+  return !!(sc && sc.classList.contains('on'));
+}
+function _calRefreshForTodayRollover(reason){
+  try {
+    var key = _calTodayKey();
+    if(_calLastTodayKey && _calLastTodayKey !== key){
+      _calLastTodayKey = key;
+      if(_calIsVisible() && typeof rCal === 'function') rCal();
+      return;
+    }
+    _calLastTodayKey = key;
+    if(_calIsVisible() && typeof rCal === 'function') rCal();
+  } catch(e){}
+}
 var MO=["January","February","March","April","May","June","July","August","September","October","November","December"];
 var DW=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 var EC={gig:"#f5c518", blackout:"#ff4757", rehearsal:"#4a9eff"};
@@ -13932,7 +13958,8 @@ function rCal() {
   var prevRendered = rCal._lastRendered;
   rCal._lastRendered = CY + '-' + CM;
   document.getElementById('mlbl').textContent = MO[CM].toUpperCase() + ' ' + CY;
-  var _r248Now = new Date();
+  var _r248Now = _calTodayDate();
+  _calLastTodayKey = _calTodayKey(_r248Now);
   var _r248IsCurrentMonth = (CY === _r248Now.getFullYear() && CM === _r248Now.getMonth());
   var _r248Cal = document.getElementById('sc-cal');
   if(_r248Cal) _r248Cal.classList.toggle('cal-current-month', _r248IsCurrentMonth);
@@ -13949,7 +13976,7 @@ function rCal() {
   for(var i=0;i<fd;i++) h+='<div></div>';
   for(var d=1;d<=dim;d++){
     var ds=fD(CY,CM,d), de=events.filter(function(e){return e.date===ds;});
-    var today=new Date(); var td=CY===today.getFullYear()&&CM===today.getMonth()&&d===today.getDate();
+    var today=_r248Now; var td=CY===today.getFullYear()&&CM===today.getMonth()&&d===today.getDate();
     var eventTypes=['gig','rehearsal','blackout'].filter(function(t){return de.some(function(e){return e.type===t;});});
     var pipSize = eventTypes.length>1 ? '13px' : '15px';
     var pp=eventTypes.map(function(t){
@@ -21388,7 +21415,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-08-next-gig-widget-further-reduced-r364';
+var WHATS_NEW_VERSION = '2026-05-09-calendar-current-date-rollover-r365';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21681,6 +21708,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-calendar-current-date-rollover-r365', date:'May 9, 2026', importance:'fix', title:'Calendar current-date rollover fix', items:['The Calendar current-day yellow number and border now refresh from the phone\'s current local date when the app opens, resumes, or Calendar renders, so the marker moves from May 8 to May 9 and continues moving each day.']},
   {version:'2026-05-08-next-gig-widget-tail-cut-r363', date:'May 8, 2026', importance:'minor', title:'Calendar Next Gig widget right tail cut', items:['The Calendar header Next Gig widget now cuts off the remaining red-marked right-side tail and keeps the pill at the blue-marked size while preserving the left edge, height, and venue readability.']},
   {version:'2026-05-08-next-gig-widget-blue-markup-r362', date:'May 8, 2026', importance:'minor', title:'Calendar Next Gig widget blue-markup fit', items:['The Calendar header Next Gig widget now matches the user-marked blue pill size by removing the red-marked excess area on the right while preserving the full venue name, top/bottom placement, and left edge.']},
   {version:'2026-05-08-next-gig-widget-narrower-r361', date:'May 8, 2026', importance:'minor', title:'Calendar Next Gig widget narrowed', items:['The Calendar header Next Gig widget keeps the approved glossy option 3 styling and gold date cleanup while moving only the right edge left so the pill is just wide enough to show the full venue name without extra unused space.']},
@@ -22620,6 +22648,21 @@ if(savedName&&savedId){
   if(typeof renderNamePicker === 'function') renderNamePicker();
   document.getElementById('name-picker-overlay').style.display='flex';
 }
+
+// r365: Refresh Calendar current-day marker when the app resumes or returns
+// from browser/PWA cache. This fixes the yellow current-day number/border
+// staying on yesterday after the phone crosses midnight while the app shell
+// remains alive.
+(function(){
+  function scheduleCalTodayRefresh(reason){
+    setTimeout(function(){ _calRefreshForTodayRollover(reason); }, 120);
+  }
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'visible') scheduleCalTodayRefresh('visibility');
+  });
+  window.addEventListener('focus', function(){ scheduleCalTodayRefresh('focus'); });
+  window.addEventListener('pageshow', function(){ scheduleCalTodayRefresh('pageshow'); });
+})();
 
 // r303: if mobile PWA/browser restores this page from background/cache,
 // reset to Home when it becomes visible again.
