@@ -371,7 +371,7 @@ body.light .ngc-lbl{ color:#fff !important; }
 .mlbl.flip{animation:mlblFlip .45s ease-out;}
 
 .cgrid{position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:3px;background:radial-gradient(circle at 50% 30%,rgba(74,158,255,.18) 0%,rgba(13,43,107,.85) 50%,#0a1628 100%),linear-gradient(135deg,#0d2b6b,#1a56c4);border:1px solid rgba(74,158,255,.3);border-radius:14px;padding:10px 7px;box-shadow:0 0 26px rgba(74,158,255,.18),inset 0 1px 0 rgba(255,255,255,.04);will-change:transform,opacity;}
-.dhdr{text-align:center;font-size:13px;font-weight:700;color:#bcd5ff;font-family:"Russo One",sans-serif;padding-bottom:7px;margin-bottom:4px;letter-spacing:.5px;text-shadow:0 0 8px rgba(188,213,255,.25);}
+.dhdr{text-align:center;font-size:13px;font-weight:700;color:#bcd5ff;font-family:"Russo One",sans-serif;padding-bottom:7px;margin-bottom:4px;border-bottom:1px solid rgba(74,158,255,.35);letter-spacing:.5px;text-shadow:0 0 8px rgba(188,213,255,.25);}
 .dc{min-height:60px;background:rgba(10,22,40,.85);border-radius:7px;padding:5px 2px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;cursor:pointer;transition:all .15s;border:1px solid rgba(74,158,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.04);}
 .dc:hover{background:#132040;border-color:rgba(74,158,255,.5);transform:scale(1.05);}
 .dc:active{background:#1a3a8a;}
@@ -511,7 +511,7 @@ body.light .ngc-lbl{ color:#fff !important; }
 #cal-this-week{display:none !important;}
 .cal-marker{font-size:13px;line-height:1;filter:drop-shadow(0 0 5px rgba(255,255,255,.25));}
 .cgrid{background:linear-gradient(180deg,rgba(14,42,104,.95) 0%,rgba(12,34,88,.96) 36%,rgba(7,18,45,.98) 100%) !important;border:1px solid rgba(74,158,255,.26) !important;box-shadow:0 0 24px rgba(0,0,0,.30),0 0 16px rgba(27,90,210,.18),inset 0 1px 0 rgba(255,255,255,.05) !important;padding:9px 7px !important;}
-.dhdr{color:#e6d287 !important;text-shadow:0 0 8px rgba(245,197,24,.18) !important;}
+.dhdr{color:#e6d287 !important;border-bottom:1px solid rgba(245,197,24,.18) !important;text-shadow:0 0 8px rgba(245,197,24,.18) !important;}
 /* r234: Calendar cobalt background scope — ONLY nav bar + empty calendar-grid background.
    Do not alter weekday header labels (.dhdr), date tiles (.dc), All Events, Rehearsal Proposals, or top hero/header. */
 body:not(.light) #sc-cal .cnav{
@@ -4387,6 +4387,54 @@ body.light #sc-cal > #calendar-hero-date-row .mlbl{
     padding:0 0 8px 0 !important;
     margin:0 0 8px 0 !important;
   }
+}
+
+
+/* r338: Calendar weekday boxes + brighter Month/Year gold.
+   Scope: Calendar visual CSS only.
+   Keeps the r336 Calendar grid outer metrics locked: #cgrid padding,
+   grid-template-rows, gaps, date tiles, lower All Events/Rehearsal Proposals
+   stack, Calendar header structure, bottom tabs, and non-Calendar sections are
+   not changed. The weekday boxes are centered inside the existing 42px weekday
+   row footprint by using 34px boxes with equal 4px top/bottom margins. */
+#sc-cal > #calendar-hero-date-row .mlbl{
+  color:#ffd84a !important;
+  -webkit-text-fill-color:#ffd84a !important;
+  text-shadow:0 0 16px rgba(255,216,74,.58),0 2px 5px rgba(0,0,0,.42) !important;
+}
+#sc-cal.cal-header-fit #cgrid .dhdr{
+  min-height:34px !important;
+  height:34px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 !important;
+  margin:4px 0 4px 0 !important;
+  box-sizing:border-box !important;
+  border:1px solid rgba(74,158,255,.72) !important;
+  border-radius:8px !important;
+  background:linear-gradient(180deg,#06142f 0%,#1266d6 50%,#06142f 100%) !important;
+  color:#ffd84a !important;
+  -webkit-text-fill-color:#ffd84a !important;
+  font-family:"Russo One",sans-serif !important;
+  font-size:11px !important;
+  letter-spacing:.7px !important;
+  line-height:1 !important;
+  text-shadow:0 0 9px rgba(255,216,74,.36),0 1px 2px rgba(0,0,0,.60) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.15),inset 0 -1px 0 rgba(0,0,0,.35),0 0 10px rgba(74,158,255,.18) !important;
+}
+body.light #sc-cal > #calendar-hero-date-row .mlbl{
+  color:#b8860b !important;
+  -webkit-text-fill-color:#b8860b !important;
+  text-shadow:none !important;
+}
+body.light #sc-cal.cal-header-fit #cgrid .dhdr{
+  background:linear-gradient(180deg,#dbeaff 0%,#ffffff 50%,#dbeaff 100%) !important;
+  color:#8a6200 !important;
+  -webkit-text-fill-color:#8a6200 !important;
+  border-color:rgba(26,58,138,.32) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.65),0 1px 4px rgba(20,40,80,.08) !important;
+  text-shadow:none !important;
 }
 
 </style>
@@ -20989,7 +21037,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-07-weekday-divider-line-removed-r337a';
+var WHATS_NEW_VERSION = '2026-05-07-calendar-weekday-boxes-gold-r338';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21282,7 +21330,10 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-07-weekday-divider-line-removed-r337a', date:'May 7, 2026', importance:'fix',
+  {version:'2026-05-07-calendar-weekday-boxes-gold-r338', date:'May 7, 2026', importance:'fix',
+    title:'Calendar weekday boxes and brighter gold month',
+    body:'Calendar visual polish: adds the selected dark-light-dark blue weekday boxes with gold day text and brightens the Month/Year gold. The weekday boxes are centered within the existing r336 weekday-row footprint, so the Calendar date grid, lower All Events/Rehearsal Proposals stack, Calendar header structure, bottom tabs, and other tabs are not intentionally moved.'},
+  {version:'2026-05-07-calendar-date-box-top-clearance-r336', date:'May 7, 2026', importance:'fix',
     body:'Calendar date-grid clearance: corrected the r335 weekday-band compression so the first row of date boxes starts cleanly below the weekday row instead of appearing tucked under it. This keeps the lower All Events/Rehearsal Proposals stack locked and does not intentionally change the Calendar header, Month/Year color, gig widget, return icon, drawers, bottom tabs, or other tabs.'},
   {version:'2026-05-07-calendar-weekday-band-condense-r335', date:'May 7, 2026', importance:'fix',
     body:'Calendar visual spacing: reduced the upper blue weekday band/spacer by about 45%, vertically centered the weekday labels in the remaining band, and let the six-row date grid proportionally reclaim the space so date tiles enlarge without moving the lower All Events/Rehearsal Proposals pill stack. No Calendar header, Month/Year color, gig widget, return icon, drawers, tabs, or non-Calendar sections were intentionally changed.'},
