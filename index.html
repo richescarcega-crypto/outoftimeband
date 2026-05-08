@@ -4714,6 +4714,98 @@ body.light .r366-gig-value,body.light .r366-gig-notes{color:#1a2a4a;}
 body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,#10275d);}
 @media(max-width:420px){.r366-gig-title{font-size:19px}.r366-gig-grid,.r366-gig-edit-grid{gap:7px}.r366-gig-field,.r366-gig-edit-field,.r366-gig-notes-card{padding:9px}.r366-gig-actions{grid-template-columns:1fr}.r366-gig-edit-actions{grid-template-columns:1fr}}
 
+
+/* r368: Static full-viewport fit for Gig + Rehearsal detail/edit pages only.
+   Scope: #gig-detail-modal when opened by Gig or Rehearsal flows. Blackout is
+   intentionally excluded because its existing layout was confirmed fine. */
+#gig-detail-modal.r368-static-fit{
+  align-items:stretch !important;
+  justify-content:center !important;
+  padding:8px !important;
+  overflow:hidden !important;
+}
+#gig-detail-modal.r368-static-fit .mo{
+  height:calc(100dvh - 16px) !important;
+  max-height:calc(100dvh - 16px) !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+  padding:9px 10px 10px !important;
+  margin:0 auto !important;
+}
+#gig-detail-modal.r368-static-fit .moh{
+  position:static !important;
+  top:auto !important;
+  margin:0 0 6px 0 !important;
+  padding:0 0 6px 0 !important;
+  flex-shrink:0 !important;
+}
+#gig-detail-modal.r368-static-fit #gd-body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-body{padding-bottom:0 !important;}
+#gig-detail-modal.r368-fit-gig .r366-gig-hero{
+  border-radius:14px !important;
+  padding:8px 10px !important;
+  margin:0 0 6px !important;
+  flex-shrink:0 !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-kicker{font-size:7px !important;letter-spacing:1.6px !important;margin-bottom:3px !important;}
+#gig-detail-modal.r368-fit-gig .r366-gig-title{font-size:15px !important;line-height:1.05 !important;}
+#gig-detail-modal.r368-fit-gig .r366-gig-sub{font-size:9.5px !important;line-height:1.12 !important;margin-top:3px !important;}
+#gig-detail-modal.r368-fit-gig .r366-gig-grid,
+#gig-detail-modal.r368-fit-gig .r366-gig-edit-grid{gap:5px !important;margin-bottom:5px !important;}
+#gig-detail-modal.r368-fit-gig .r366-gig-field,
+#gig-detail-modal.r368-fit-gig .r366-gig-edit-field,
+#gig-detail-modal.r368-fit-gig .r366-gig-notes-card{border-radius:10px !important;padding:5px 6px !important;}
+#gig-detail-modal.r368-fit-gig .r366-gig-label{font-size:6.8px !important;letter-spacing:.9px !important;margin-bottom:2px !important;}
+#gig-detail-modal.r368-fit-gig .r366-gig-value{font-size:9.8px !important;line-height:1.08 !important;}
+#gig-detail-modal.r368-fit-gig .r366-gig-value-big{font-size:10.5px !important;}
+#gig-detail-modal.r368-fit-gig .r366-gig-notes{font-size:9.5px !important;line-height:1.12 !important;}
+#gig-detail-modal.r368-fit-gig .r366-gig-actions{gap:6px !important;margin-top:6px !important;flex-shrink:0 !important;}
+#gig-detail-modal.r368-fit-gig .r366-gig-action-btn{padding:7px 6px !important;font-size:7.4px !important;}
+#gig-detail-modal.r368-fit-gig .r366-gig-flyer-card{margin-top:6px !important;padding:6px !important;border-radius:10px !important;flex-shrink:0 !important;}
+#gig-detail-modal.r368-fit-gig .r366-gig-flyer-card img{width:38px !important;height:38px !important;}
+#gig-detail-modal.r368-fit-gig .r366-gig-input{min-height:0 !important;height:25px !important;padding:4px 6px !important;font-size:10.5px !important;}
+#gig-detail-modal.r368-fit-gig textarea.r366-gig-input{height:42px !important;min-height:42px !important;resize:none !important;line-height:1.15 !important;}
+#gig-detail-modal.r368-fit-gig .r366-gig-edit-actions{gap:6px !important;margin-top:6px !important;}
+#gig-detail-modal.r368-fit-gig .r366-gig-save,
+#gig-detail-modal.r368-fit-gig .r366-gig-cancel,
+#gig-detail-modal.r368-fit-gig .r366-gig-delete{padding:7px 8px !important;font-size:8px !important;}
+#gig-detail-modal.r368-fit-rehearsal #gd-body > div{margin-bottom:4px !important;}
+#gig-detail-modal.r368-fit-rehearsal #gd-body label,
+#gig-detail-modal.r368-fit-rehearsal #gd-body div[style*="font-size:10px"]{font-size:7.8px !important;letter-spacing:.8px !important;margin-bottom:2px !important;}
+#gig-detail-modal.r368-fit-rehearsal #gd-body .mi,
+#gig-detail-modal.r368-fit-rehearsal #gd-body input,
+#gig-detail-modal.r368-fit-rehearsal #gd-body textarea{
+  min-height:0 !important;
+  height:25px !important;
+  padding:4px 6px !important;
+  font-size:10.5px !important;
+  line-height:1.15 !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #gd-body textarea{height:38px !important;resize:none !important;}
+#gig-detail-modal.r368-fit-rehearsal #rh-agenda-list{max-height:58px !important;overflow:hidden !important;margin-bottom:4px !important;}
+#gig-detail-modal.r368-fit-rehearsal #rh-agenda-list > div{padding:3px 5px !important;margin-bottom:2px !important;}
+#gig-detail-modal.r368-fit-rehearsal #gd-body button{padding:7px 8px !important;font-size:8px !important;}
+@media(max-height:740px){
+  #gig-detail-modal.r368-fit-gig .r366-gig-hero{padding:6px 9px !important;margin-bottom:4px !important;}
+  #gig-detail-modal.r368-fit-gig .r366-gig-grid,
+  #gig-detail-modal.r368-fit-gig .r366-gig-edit-grid{gap:4px !important;margin-bottom:4px !important;}
+  #gig-detail-modal.r368-fit-gig .r366-gig-field,
+  #gig-detail-modal.r368-fit-gig .r366-gig-edit-field,
+  #gig-detail-modal.r368-fit-gig .r366-gig-notes-card{padding:4px 5px !important;}
+  #gig-detail-modal.r368-fit-rehearsal #gd-body .mi,
+  #gig-detail-modal.r368-fit-rehearsal #gd-body input,
+  #gig-detail-modal.r368-fit-rehearsal #gd-body textarea{height:23px !important;}
+  #gig-detail-modal.r368-fit-rehearsal #gd-body textarea{height:32px !important;}
+}
+
+
 </style>
 </head>
 <body>
@@ -15056,6 +15148,16 @@ function editEv(id){
 }
 
 
+
+function _r368SetDetailFit(kind){
+  var ov = document.getElementById('gig-detail-modal');
+  if(!ov || !ov.classList) return;
+  ov.classList.remove('r368-static-fit','r368-fit-gig','r368-fit-rehearsal');
+  if(kind === 'gig' || kind === 'rehearsal'){
+    ov.classList.add('r368-static-fit','r368-fit-' + kind);
+  }
+}
+
 /* r366: Premium read-only Gig detail page + in-place premium edit mode.
    Scope: existing Gig records only. New Gig creation, Rehearsal, Blackout,
    Calendar grid/header/drawer, and other tabs remain unchanged. */
@@ -15165,6 +15267,7 @@ function _r366ConfirmDeleteGig(ev){
 }
 function _r366OpenGigReadOnly(ev){
   if(!ev) return;
+  _r368SetDetailFit('gig');
   var d = _r366GigDet(ev);
   _r366SetGigHeader('Gig Details', 'read', ev);
   var b = document.getElementById('gd-body');
@@ -15207,6 +15310,7 @@ function _r366OpenGigReadOnly(ev){
 }
 function _r366OpenGigEdit(ev){
   if(!ev) return;
+  _r368SetDetailFit('gig');
   var d = _r366GigDet(ev);
   _r366SetGigHeader('Edit Gig', 'edit', ev);
   var b = document.getElementById('gd-body');
@@ -15293,6 +15397,7 @@ function openGigSheet(ev){
     return;
   }
 
+  _r368SetDetailFit('gig');
   _r366SetGigHeader('New Gig', 'edit', ev);
   document.getElementById('gd-title').textContent = isNew ? 'New Gig' : 'Edit Gig';
   var b = document.getElementById('gd-body');
@@ -15733,6 +15838,7 @@ function saveGigSheet(evId, isNew){
 }
 
 function openRehearsalSheet(ev){
+  _r368SetDetailFit('rehearsal');
   var isNew = !ev;
   var dateStr = isNew ? fD(CY,CM,sDay) : ev.date;
   document.getElementById('gd-title').textContent = isNew ? 'New Rehearsal' : 'Edit Rehearsal';
@@ -15839,6 +15945,7 @@ function saveRehearsalSheet(evId, isNew){
 }
 
 function openBlackoutSheet(ev){
+  _r368SetDetailFit(null);
   var isNew = !ev;
   var dateStr = isNew ? fD(CY,CM,sDay) : ev.date;
   document.getElementById('gd-title').textContent = isNew ? 'New Blackout Date' : 'Edit Blackout';
@@ -21433,12 +21540,16 @@ function clM(id){
     _clearCalendarSelectedDateVisual();
   }
   var el = document.getElementById(id);
+  if(id === 'gig-detail-modal'){
+    try { _r368SetDetailFit(null); } catch(e){}
+  }
   if(el) el.classList.remove('on');
 }
 document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){
   if(e.target===this){
     if(this.id === 'band-image-modal'){ closeBandImageModal(); }
     else if(this.id === 'evm'){ clM('evm'); }
+    else if(this.id === 'gig-detail-modal'){ clM('gig-detail-modal'); }
     else this.classList.remove('on');
   }
 });});
@@ -21630,7 +21741,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-calendar-drawer-closes-on-leave-r367';
+var WHATS_NEW_VERSION = '2026-05-09-static-gig-rehearsal-pages-r368';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21923,6 +22034,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-static-gig-rehearsal-pages-r368', date:'May 9, 2026', importance:'fix', title:'Gig and Rehearsal pages fit the screen', items:['The Gig and Rehearsal detail/edit pages now use a static full-viewport fit so the page is visible without modal scrolling. Blackout pages are unchanged.']},
   {version:'2026-05-09-calendar-drawer-closes-on-leave-r367', date:'May 9, 2026', importance:'fix', title:'Calendar drawer closes when leaving Calendar', items:['The Calendar Event Details/day drawer now closes when the user leaves the Calendar tab or the app is backgrounded/closed, so returning to Calendar starts from the normal grid view instead of reopening a stale drawer.']},
   {version:'2026-05-09-premium-gig-detail-r366', date:'May 9, 2026', importance:'minor', title:'Premium Gig detail page', items:['Existing gig events now open to a premium read-only Gig Details page first. The kebab menu offers Edit and Delete. Edit mode uses the same premium page with Save, Cancel, and red Delete controls.']},
   {version:'2026-05-09-calendar-current-date-rollover-r365', date:'May 9, 2026', importance:'fix', title:'Calendar current-date rollover fix', items:['The Calendar current-day yellow number and border now refresh from the phone\'s current local date when the app opens, resumes, or Calendar renders, so the marker moves from May 8 to May 9 and continues moving each day.']},
