@@ -4533,6 +4533,27 @@ body.light #sc-cal.cal-header-fit #cgrid .dhdr{
   }
 }
 
+
+
+/* r349: Restore visible gold border on the automatic current-date tile.
+   Scope: Calendar date tile styling only. The current day already receives
+   the .td class dynamically in rCal(); this restores the visible border that
+   later .dc override rules had visually suppressed. */
+#sc-cal.cal-header-fit #cgrid .dc.td{
+  border:2px solid #f5c518 !important;
+  box-shadow:
+    0 0 0 1px rgba(245,197,24,.28),
+    0 0 18px rgba(245,197,24,.52),
+    inset 0 0 16px rgba(245,197,24,.16) !important;
+}
+#sc-cal.cal-header-fit #cgrid .dc.td .dn{
+  color:#f5c518 !important;
+  -webkit-text-fill-color:#f5c518 !important;
+}
+body.light #sc-cal.cal-header-fit #cgrid .dc.td{
+  border:2px solid #f5c518 !important;
+}
+
 </style>
 </head>
 <body>
@@ -21210,7 +21231,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-08-calendar-blue-panel-gap-equalization-r348';
+var WHATS_NEW_VERSION = '2026-05-08-current-date-gold-border-r349';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21503,7 +21524,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-08-calendar-blue-panel-gap-equalization-r348', date:'May 8, 2026', importance:'fix', title:'Calendar blue panel spacing', items:['Reduced and balanced the top/bottom gap around the Calendar blue panel by expanding only the Calendar panel area and keeping date rows proportional.']},
+  {version:'2026-05-08-current-date-gold-border-r349', date:'May 8, 2026', importance:'fix', title:'Calendar current-date border', items:['Restored the visible gold border around the automatic current-date tile without changing Calendar layout or date logic.']},
   {version:'2026-05-08-next-gig-standalone-event-details-r347', date:'May 8, 2026', importance:'fix',
    emoji:'🎫', title:'Header Next Gig Real Tap Path Fixed',
    body:'Calendar header Next Gig now uses its actual tap handler to open the Gig Details modal directly. It no longer routes through the backstage/day drawer path that opens inside the Calendar drawer area.'},
