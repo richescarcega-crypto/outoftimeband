@@ -5427,6 +5427,28 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   #gig-detail-modal.r368-fit-rehearsal #gd-body{gap:5px !important;}
 }
 
+
+/* r374: Edit Rehearsal yellow button text contrast only.
+   Scope: Rehearsal edit form inside #gig-detail-modal.
+   Fixes unreadable labels on yellow Add / Save Changes buttons without
+   changing layout, behavior, Gig, Blackout, Calendar, or other tabs. */
+#gig-detail-modal.r368-fit-rehearsal #gd-body button.sb{
+  color:#06101f !important;
+  -webkit-text-fill-color:#06101f !important;
+  text-shadow:none !important;
+  opacity:1 !important;
+  background:linear-gradient(180deg,#ffe26a 0%,#f5c518 58%,#d99a00 100%) !important;
+  border:1px solid rgba(255,226,106,.55) !important;
+  font-weight:800 !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #gd-body button.sb:disabled,
+#gig-detail-modal.r368-fit-rehearsal #gd-body button.sb[disabled]{
+  color:#17233a !important;
+  -webkit-text-fill-color:#17233a !important;
+  opacity:.72 !important;
+  filter:saturate(.82) brightness(.98) !important;
+}
+
 </style>
 </head>
 <body>
@@ -22362,7 +22384,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-gig-rehearsal-centered-window-r373';
+var WHATS_NEW_VERSION = '2026-05-09-rehearsal-button-contrast-r374';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22655,6 +22677,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-rehearsal-button-contrast-r374', date:'May 9, 2026', importance:'fix', title:'Rehearsal button label contrast', items:['The Edit Rehearsal yellow Add and Save Changes buttons now use dark readable text, including disabled state, without changing layout or behavior.']},
   {version:'2026-05-09-gig-rehearsal-centered-window-r373', date:'May 9, 2026', importance:'fix', title:'Gig and Rehearsal centered window', items:['The Gig and Rehearsal detail windows now deploy centered on screen like the Edit Blackout window, while preserving the r372 smaller-window sizing and content styling.']},
   {version:'2026-05-09-gig-rehearsal-smaller-window-r372', date:'May 9, 2026', importance:'fix', title:'Gig and Rehearsal smaller detail window', items:['The Gig and Rehearsal detail windows now use a smaller, content-hugging outer footprint instead of a full-height modal, while keeping all information static, readable, and higher contrast with gold-accent labels. Blackout remains unchanged.']},
   {version:'2026-05-09-gig-rehearsal-card-contrast-r371', date:'May 9, 2026', importance:'fix', title:'Gig and Rehearsal card sizing and contrast', items:['The Gig and Rehearsal detail pages now back off the over-stretched field boxes from r370, keep the pages static and readable, and improve contrast with brighter text and gold-themed labels. Blackout remains unchanged.']},
