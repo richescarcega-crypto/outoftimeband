@@ -14532,6 +14532,10 @@ function showDayOptions(day, de){
 
 // ── Inline date drawer (replaces showDayOptions modal for days with events) ──
 var _drawerDay = null; // currently expanded day number, or null
+var _clearCalendarSelectionOnEvmClose = false; // r352: empty-date chooser dismiss clears temporary selected-date glow
+function _clearCalendarSelectedDateVisual(){
+  try { document.querySelectorAll('#sc-cal .dc.sel').forEach(function(node){ node.classList.remove('sel'); }); } catch(e){}
+}
 
 function closeDayDrawer(){
   _drawerDay = null;
@@ -14641,6 +14645,12 @@ function openDayDrawer(day, de, opts){
       }
       if(e.type === 'custom'){
         openImportantDateModal(e._customSourceId);
+      } else if(e.type === 'gig'){
+        openGigSheet(e);
+      } else if(e.type === 'rehearsal'){
+        openRehearsalSheet(e);
+      } else if(e.type === 'blackout'){
+        openBlackoutSheet(e);
       } else {
         editEv(e.id);
       }
@@ -14752,6 +14762,7 @@ function showNewEventForm(){
 
 function openNewEventModal(day){
   sDay=day;
+  _clearCalendarSelectionOnEvmClose = true;
   document.getElementById('emtit').textContent = MO[CM] + ' ' + day;
   // Hide the legacy form fields — we use a clean chooser instead
   hideNewEventForm();
@@ -21040,12 +21051,17 @@ function clM(id){
     try { closeBandImageModal(); } catch(e){}
     return;
   }
+  if(id === 'evm' && _clearCalendarSelectionOnEvmClose){
+    _clearCalendarSelectionOnEvmClose = false;
+    _clearCalendarSelectedDateVisual();
+  }
   var el = document.getElementById(id);
   if(el) el.classList.remove('on');
 }
 document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){
   if(e.target===this){
     if(this.id === 'band-image-modal'){ closeBandImageModal(); }
+    else if(this.id === 'evm'){ clM('evm'); }
     else this.classList.remove('on');
   }
 });});
@@ -21237,7 +21253,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-08-all-date-types-standalone-event-details-r351';
+var WHATS_NEW_VERSION = '2026-05-08-empty-date-clear-and-rehearsal-edit-r352';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21530,7 +21546,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-08-all-date-types-standalone-event-details-r351', date:'May 8, 2026', importance:'fix', title:'All Calendar date event taps open standalone details', items:['Tapping a Calendar date with a gig, rehearsal, blackout, or custom event now opens the read-only Event Details drawer in standalone mode, so the All Events accordion/header is not visible as part of that deployment.']},
+  {version:'2026-05-08-empty-date-clear-and-rehearsal-edit-r352', date:'May 8, 2026', importance:'fix', title:'Calendar empty-date and rehearsal tap cleanup', items:['Closing the Select an Event chooser after tapping an empty date now clears the temporary selected-date yellow glow.', 'Tapping a rehearsal card in Event Details now opens the Rehearsal detail/edit screen directly.']},
   {version:'2026-05-08-current-date-gold-border-r349', date:'May 8, 2026', importance:'fix', title:'Calendar current-date border', items:['Restored the visible gold border around the automatic current-date tile without changing Calendar layout or date logic.']},
   {version:'2026-05-08-next-gig-standalone-event-details-r347', date:'May 8, 2026', importance:'fix',
    emoji:'🎫', title:'Header Next Gig Real Tap Path Fixed',
