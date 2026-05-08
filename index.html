@@ -4449,6 +4449,48 @@ body.light #sc-cal.cal-header-fit #cgrid .dhdr{
   will-change:transform !important;
 }
 
+
+
+/* r341: Calendar weekday-row real centering fix.
+   Deep-dive finding: r339/r340 used transform-only visual offsets on .dhdr.
+   That was the wrong lever because the visible weekday band is controlled by
+   #cgrid's top padding + first grid row + the first row gap, not by the label
+   paint position alone. This keeps the date tile start position locked by
+   preserving the same first-band total: r336/r338/r340 used 16px top padding +
+   42px first row + 4px gap = 62px before the date rows. r341 changes that to
+   0px top padding + 58px first row + 4px gap = the same 62px, then centers
+   the 34px weekday boxes inside the 58px first row. Date tiles should not move. */
+#sc-cal.cal-header-fit #cgrid{
+  padding:0 6px 10px 6px !important;
+  grid-template-rows:minmax(58px, auto) repeat(6, minmax(0, 1fr)) !important;
+  align-content:stretch !important;
+  gap:4px 4px !important;
+}
+#sc-cal.cal-header-fit #cgrid .dhdr{
+  min-height:34px !important;
+  height:34px !important;
+  align-self:center !important;
+  padding:0 !important;
+  margin:0 !important;
+  transform:none !important;
+  will-change:auto !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit #cgrid{
+    padding:0 6px 10px 6px !important;
+    grid-template-rows:minmax(58px, auto) repeat(6, minmax(0, 1fr)) !important;
+    gap:4px 4px !important;
+  }
+  #sc-cal.cal-header-fit #cgrid .dhdr{
+    min-height:34px !important;
+    height:34px !important;
+    align-self:center !important;
+    padding:0 !important;
+    margin:0 !important;
+    transform:none !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -21049,7 +21091,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-07-calendar-weekday-boxes-gap-balance-r340';
+var WHATS_NEW_VERSION = '2026-05-07-calendar-weekday-real-centering-r341';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21342,7 +21384,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-07-calendar-weekday-boxes-gap-balance-r340', date:'May 7, 2026', importance:'fix',
+  {version:'2026-05-07-calendar-weekday-real-centering-r341', date:'May 7, 2026', importance:'fix',
     title:'Calendar weekday box vertical centering',
     body:'Calendar visual correction: moves only the painted weekday boxes upward so they visually center in the dark weekday band. This is a transform-only CSS correction scoped to the Calendar weekday labels; it does not reflow the grid, date tiles, lower cards, Calendar HTML, bottom tabs, other tabs, or JavaScript.'},
   {version:'2026-05-07-calendar-weekday-boxes-gold-r338', date:'May 7, 2026', importance:'fix',
