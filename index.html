@@ -46,7 +46,6 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script> 
 <style>
-<!-- r338: Properly removed weekday divider via final override and bumped WHATS_NEW_VERSION. -->
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;background:#060e1c;color:#e8f0ff;font-family:"Exo 2",sans-serif;transition:background .3s,color .3s;}
 input,select,textarea{font-family:"Exo 2",sans-serif;outline:none;border:none;background:transparent;color:#e8f0ff;}
@@ -513,7 +512,7 @@ body.light .ngc-lbl{ color:#fff !important; }
 #cal-this-week{display:none !important;}
 .cal-marker{font-size:13px;line-height:1;filter:drop-shadow(0 0 5px rgba(255,255,255,.25));}
 .cgrid{background:linear-gradient(180deg,rgba(14,42,104,.95) 0%,rgba(12,34,88,.96) 36%,rgba(7,18,45,.98) 100%) !important;border:1px solid rgba(74,158,255,.26) !important;box-shadow:0 0 24px rgba(0,0,0,.30),0 0 16px rgba(27,90,210,.18),inset 0 1px 0 rgba(255,255,255,.05) !important;padding:9px 7px !important;}
-.dhdr{color:#e6d287 !important;border-bottom:none !important;text-shadow:0 0 8px rgba(245,197,24,.18) !important;}
+.dhdr{color:#e6d287 !important;border-bottom:1px solid rgba(245,197,24,.18) !important;text-shadow:0 0 8px rgba(245,197,24,.18) !important;}
 /* r234: Calendar cobalt background scope — ONLY nav bar + empty calendar-grid background.
    Do not alter weekday header labels (.dhdr), date tiles (.dc), All Events, Rehearsal Proposals, or top hero/header. */
 body:not(.light) #sc-cal .cnav{
@@ -4346,7 +4345,7 @@ body.light #sc-cal > #calendar-hero-date-row .mlbl{
 }
 
 
-/* r336: Calendar weekday divider-line removal after r337.
+/* r336: Calendar date-box top-clearance correction after r335.
    Scope: Calendar blue date panel only.
    The r335 compression made the first week row start too tightly under the
    weekday label band, causing the top of the date boxes to appear hidden behind
@@ -20991,7 +20990,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-07-weekday-divider-removed-r338';
+var WHATS_NEW_VERSION = '2026-05-07-calendar-date-box-top-clearance-r336';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21284,7 +21283,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-07-weekday-divider-removed-r338', date:'May 7, 2026', importance:'fix',
+  {version:'2026-05-07-calendar-date-box-top-clearance-r336', date:'May 7, 2026', importance:'fix',
     body:'Calendar date-grid clearance: corrected the r335 weekday-band compression so the first row of date boxes starts cleanly below the weekday row instead of appearing tucked under it. This keeps the lower All Events/Rehearsal Proposals stack locked and does not intentionally change the Calendar header, Month/Year color, gig widget, return icon, drawers, bottom tabs, or other tabs.'},
   {version:'2026-05-07-calendar-weekday-band-condense-r335', date:'May 7, 2026', importance:'fix',
     body:'Calendar visual spacing: reduced the upper blue weekday band/spacer by about 45%, vertically centered the weekday labels in the remaining band, and let the six-row date grid proportionally reclaim the space so date tiles enlarge without moving the lower All Events/Rehearsal Proposals pill stack. No Calendar header, Month/Year color, gig widget, return icon, drawers, tabs, or non-Calendar sections were intentionally changed.'},
