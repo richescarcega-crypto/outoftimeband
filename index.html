@@ -8741,6 +8741,23 @@ function _r318UpdateHeaderNextGigWidget(){
   btn.title = g ? ('Open next gig: ' + parts.venue + ' at ' + parts.time) : 'No upcoming gig';
   btn.setAttribute('aria-label', btn.title);
 }
+// r347: Standalone header Next Gig Event Details mode.
+// The user wants the same read-only Event Details drawer content, but NOT visually
+// tied to the All Events accordion. When opened from the header widget, hide the
+// All Events accordion header/list/filter row until the drawer is closed.
+var _calHeaderNextGigStandaloneDrawer = false;
+function _setHeaderNextGigStandaloneMode(on){
+  _calHeaderNextGigStandaloneDrawer = !!on;
+  var evlHead = document.querySelector('#sc-cal .cal-accordion-head.evl-head');
+  if(evlHead) evlHead.style.display = on ? 'none' : '';
+  var evl = document.getElementById('evl');
+  if(evl) evl.style.display = 'none';
+  var filterRow = document.getElementById('evl-filter-row');
+  if(filterRow) filterRow.style.display = 'none';
+  if(typeof cardStates !== 'undefined') cardStates['evl'] = true;
+  if(typeof _closeEvlFilterDropdown === 'function') _closeEvlFilterDropdown();
+}
+
 // r346: Calendar header Next Gig widget opens the existing Event Details drawer only.
 // Important distinction: this must NOT open the Gig Edit form / gig-detail-modal.
 // It reuses the read-only inline Calendar Event Details drawer (openDayDrawer),
@@ -8758,13 +8775,10 @@ function _r318OpenHeaderNextGig(){
     CM = parseInt(parts[1], 10) - 1;
     var day = parseInt(parts[2], 10);
 
-    // Keep All Events closed. This is the specific user requirement.
-    if(typeof cardStates !== 'undefined') cardStates['evl'] = true;
-    var evl = document.getElementById('evl');
-    if(evl) evl.style.display = 'none';
-    var filterRow = document.getElementById('evl-filter-row');
-    if(filterRow) filterRow.style.display = 'none';
-    if(typeof _closeEvlFilterDropdown === 'function') _closeEvlFilterDropdown();
+    // r347: hide the All Events accordion entirely for this header-widget path.
+    // The Event Details drawer must appear as standalone Calendar detail content,
+    // not inside/under the All Events dropdown/header.
+    if(typeof _setHeaderNextGigStandaloneMode === 'function') _setHeaderNextGigStandaloneMode(true);
 
     var calBtn = document.getElementById('tb-cal');
     _calendarSkipTopResetOnce = true;
@@ -8773,7 +8787,7 @@ function _r318OpenHeaderNextGig(){
 
     // Open the same read-only Event Details drawer the old tap path used,
     // but populate it with the next gig only instead of routing to the edit form.
-    if(typeof openDayDrawer === 'function') openDayDrawer(day, [next], {skipScroll:true});
+    if(typeof openDayDrawer === 'function') openDayDrawer(day, [next], {skipScroll:true, headerNextGigStandalone:true});
   } catch(e){
     try { console.warn('[r346 header next gig] failed to open event details drawer', e); } catch(_e){}
     toast('Could not open gig details', {tone:'error'});
@@ -14470,8 +14484,9 @@ var _drawerDay = null; // currently expanded day number, or null
 
 function closeDayDrawer(){
   _drawerDay = null;
+  if(_calHeaderNextGigStandaloneDrawer && typeof _setHeaderNextGigStandaloneMode === 'function') _setHeaderNextGigStandaloneMode(false);
   var d = document.getElementById('cal-drawer');
-  if(d){ d.style.display = 'none'; d.innerHTML = ''; d.classList.remove('backstage-pass'); }
+  if(d){ d.style.display = 'none'; d.innerHTML = ''; d.classList.remove('backstage-pass','header-next-gig-detail'); }
 }
 
 function _refreshDrawerForCurrentDay(day){
@@ -14495,6 +14510,13 @@ function openDayDrawer(day, de, opts){
   var ds = fD(CY,CM,day);
   d.innerHTML = '';
   d.classList.add('backstage-pass');
+  if(opts.headerNextGigStandalone){
+    d.classList.add('header-next-gig-detail');
+    if(typeof _setHeaderNextGigStandaloneMode === 'function') _setHeaderNextGigStandaloneMode(true);
+  } else {
+    d.classList.remove('header-next-gig-detail');
+    if(_calHeaderNextGigStandaloneDrawer && typeof _setHeaderNextGigStandaloneMode === 'function') _setHeaderNextGigStandaloneMode(false);
+  }
 
   // Header — date. r174 removes the X control; tap the header or selected date to close.
   var head = document.createElement('div');
@@ -21164,7 +21186,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-08-header-next-gig-event-drawer-r346';
+var WHATS_NEW_VERSION = '2026-05-08-next-gig-standalone-event-details-r347';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21457,11 +21479,11 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-08-header-next-gig-event-drawer-r346', date:'May 8, 2026', importance:'fix',
+  {version:'2026-05-08-next-gig-standalone-event-details-r347', date:'May 8, 2026', importance:'fix',
    emoji:'🎫', title:'Header Next Gig Real Tap Path Fixed',
    body:'Calendar header Next Gig now uses its actual tap handler to open the Gig Details modal directly. It no longer routes through the backstage/day drawer path that opens inside the Calendar drawer area.'},
 
-  {version:'2026-05-08-header-next-gig-event-drawer-r346', date:'May 8, 2026', importance:'fix',
+  {version:'2026-05-08-next-gig-standalone-event-details-r347', date:'May 8, 2026', importance:'fix',
    emoji:'🎫', title:'Next Gig Opens Details Only',
    body:'Calendar header Next Up / Next Gig tap now opens the gig details modal directly and keeps the All Events/day drawer closed.'},
   {version:'2026-05-07-calendar-weekday-down-3px-r343', date:'May 7, 2026', importance:'fix',
