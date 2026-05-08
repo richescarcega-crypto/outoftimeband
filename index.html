@@ -4683,6 +4683,37 @@ body.light #sc-cal.cal-header-fit #cgrid .dc.td{
   border:2px solid #f5c518 !important;
 }
 
+
+/* r366 Premium Gig detail/read-only + edit page */
+.r366-gig-body{padding-bottom:10px;}
+.r366-gig-hero{position:relative;overflow:hidden;border-radius:18px;padding:16px 15px;margin:2px 0 14px;background:linear-gradient(135deg,rgba(8,24,60,.98),rgba(20,55,125,.96) 52%,rgba(9,18,43,.98));border:1px solid rgba(245,197,24,.38);box-shadow:0 14px 30px rgba(0,0,0,.28),0 0 22px rgba(74,158,255,.12),inset 0 1px 0 rgba(255,255,255,.09);}
+.r366-gig-hero:before{content:"";position:absolute;right:-45px;top:-55px;width:150px;height:150px;background:radial-gradient(circle,rgba(245,197,24,.22),transparent 62%);pointer-events:none;}
+.r366-gig-kicker{position:relative;font-family:"Russo One",sans-serif;font-size:9px;letter-spacing:2.4px;color:#f5c518;margin-bottom:7px;text-transform:uppercase;}
+.r366-gig-title{position:relative;font-family:"Russo One",sans-serif;font-size:21px;line-height:1.1;color:#fff;letter-spacing:.8px;text-shadow:0 2px 12px rgba(0,0,0,.45);}
+.r366-gig-sub{position:relative;margin-top:7px;font-size:12px;color:#c8d8f4;line-height:1.25;}
+.r366-gig-grid,.r366-gig-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px;}
+.r366-gig-field,.r366-gig-edit-field,.r366-gig-notes-card{background:linear-gradient(180deg,rgba(11,28,66,.96),rgba(6,16,39,.98));border:1px solid rgba(74,158,255,.22);border-radius:13px;padding:10px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05);min-width:0;}
+.r366-gig-label{font-family:"Russo One",sans-serif;font-size:8.5px;letter-spacing:1.4px;color:#8aa8d6;text-transform:uppercase;margin-bottom:5px;}
+.r366-gig-value{font-size:13px;color:#e8f0ff;line-height:1.22;word-break:break-word;}
+.r366-gig-value-big{font-size:14px;font-weight:700;color:#fff;}
+.r366-gig-notes{font-size:13px;color:#e8f0ff;line-height:1.35;white-space:pre-wrap;}
+.r366-gig-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+.r366-gig-action-btn{border-radius:999px;border:1px solid rgba(74,158,255,.55);background:rgba(74,158,255,.10);color:#8fc4ff;font-family:"Russo One",sans-serif;font-size:9px;letter-spacing:1px;padding:10px 8px;cursor:pointer;}
+.r366-gig-action-gold{border-color:rgba(245,197,24,.65);background:rgba(245,197,24,.12);color:#f5c518;}
+.r366-gig-flyer-card{display:flex;align-items:center;gap:10px;margin-top:10px;padding:9px;border-radius:13px;border:1px solid rgba(6,214,160,.34);background:rgba(6,214,160,.07);cursor:pointer;}
+.r366-gig-flyer-card img{width:54px;height:54px;border-radius:8px;object-fit:cover;background:#000;box-shadow:0 6px 14px rgba(0,0,0,.3);}
+.r366-gig-input{width:100%;margin:0 !important;border-color:rgba(74,158,255,.32) !important;background:rgba(3,10,26,.55) !important;}
+textarea.r366-gig-input{resize:vertical;min-height:72px;font-family:"Exo 2",sans-serif;}
+.r366-gig-edit-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.r366-gig-save{width:100%;margin:0 !important;}
+.r366-gig-cancel,.r366-gig-delete{border-radius:999px;padding:10px 12px;font-family:"Russo One",sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;}
+.r366-gig-cancel{background:rgba(138,168,214,.10);border:1px solid rgba(138,168,214,.38);color:#c6d8f6;}
+.r366-gig-delete{grid-column:1 / -1;background:rgba(255,71,87,.10);border:1px solid rgba(255,71,87,.55);color:#ff6b7a;display:flex;align-items:center;justify-content:center;gap:7px;}
+body.light .r366-gig-field,body.light .r366-gig-edit-field,body.light .r366-gig-notes-card{background:#fff;border-color:#c8d4e8;}
+body.light .r366-gig-value,body.light .r366-gig-notes{color:#1a2a4a;}
+body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,#10275d);}
+@media(max-width:420px){.r366-gig-title{font-size:19px}.r366-gig-grid,.r366-gig-edit-grid{gap:7px}.r366-gig-field,.r366-gig-edit-field,.r366-gig-notes-card{padding:9px}.r366-gig-actions{grid-template-columns:1fr}.r366-gig-edit-actions{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -15019,12 +15050,245 @@ function editEv(id){
   }
 }
 
+
+/* r366: Premium read-only Gig detail page + in-place premium edit mode.
+   Scope: existing Gig records only. New Gig creation, Rehearsal, Blackout,
+   Calendar grid/header/drawer, and other tabs remain unchanged. */
+function _r366Esc(v){
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function _r366GigDet(ev){
+  var id = ev && ev.id != null ? String(ev.id) : '';
+  var det = id ? (gigDetails[id] || {}) : {};
+  var addrParts = (det.street || det.city)
+    ? {street: det.street || '', city: det.city || ''}
+    : _splitGigAddress(det.address || '');
+  return {
+    id: id,
+    title: (ev && ev.title) || '',
+    date: (ev && ev.date) || '',
+    venue: det.venue || (ev && ev.note) || '',
+    street: addrParts.street || '',
+    city: addrParts.city || '',
+    address: _combineGigAddress(addrParts.street || '', addrParts.city || '') || det.address || '',
+    loadin: det.loadin || '',
+    sc: det.sc || '',
+    settime: det.settime || '',
+    contact: det.contact || '',
+    notes: det.notes || '',
+    flyerData: det.flyerData || '',
+    flyerTemplateKey: det.flyerTemplateKey || '',
+    flyerVenue: det.flyerVenue || '',
+    flyerAddress: det.flyerAddress || '',
+    flyerDate: det.flyerDate || '',
+    flyerAnnouncement: det.flyerAnnouncement || ''
+  };
+}
+function _r366FieldHtml(label, value, opts){
+  opts = opts || {};
+  var val = (value == null || value === '') ? '—' : value;
+  var cls = opts.big ? ' r366-gig-value-big' : '';
+  return '<div class="r366-gig-field">' +
+    '<div class="r366-gig-label">' + _r366Esc(label) + '</div>' +
+    '<div class="r366-gig-value' + cls + '">' + _r366Esc(val) + '</div>' +
+  '</div>';
+}
+function _r366InputHtml(label, id, value, placeholder, type){
+  type = type || 'text';
+  var safeVal = _r366Esc(value || '');
+  var tag = type === 'textarea' ? 'textarea' : 'input';
+  var typeAttr = (type === 'textarea') ? '' : ' type="' + _r366Esc(type) + '"';
+  var rows = (type === 'textarea') ? ' rows="3"' : '';
+  var cls = 'class="mi r366-gig-input"';
+  var content = type === 'textarea' ? safeVal : '';
+  var valAttr = type === 'textarea' ? '' : ' value="' + safeVal + '"';
+  return '<div class="r366-gig-edit-field">' +
+    '<label class="r366-gig-label" for="' + _r366Esc(id) + '">' + _r366Esc(label) + '</label>' +
+    '<' + tag + ' id="' + _r366Esc(id) + '" ' + cls + typeAttr + valAttr + rows + ' placeholder="' + _r366Esc(placeholder || '') + '">' + content + '</' + tag + '>' +
+  '</div>';
+}
+function _r366SetGigHeader(title, mode, ev){
+  var titleEl = document.getElementById('gd-title');
+  if(titleEl) titleEl.textContent = title || 'Gig Details';
+  var header = titleEl ? titleEl.parentElement : null;
+  if(!header) return;
+  var oldMenu = document.getElementById('r366-gig-menu-wrap');
+  if(oldMenu) oldMenu.remove();
+  if(mode !== 'read') return;
+  var closeBtn = header.querySelector('button[onclick*="gig-detail-modal"]');
+  var wrap = document.createElement('div');
+  wrap.id = 'r366-gig-menu-wrap';
+  wrap.style.cssText = 'position:relative;display:flex;align-items:center;margin-left:auto;margin-right:4px;';
+  var kebab = document.createElement('button');
+  kebab.type = 'button';
+  kebab.setAttribute('aria-label','Gig options');
+  kebab.style.cssText = 'background:rgba(74,158,255,.10);border:1px solid rgba(74,158,255,.35);border-radius:999px;color:#dbe9ff;font-size:18px;line-height:1;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;';
+  kebab.innerHTML = '&#8942;';
+  var menu = document.createElement('div');
+  menu.id = 'r366-gig-kebab-menu';
+  menu.style.cssText = 'display:none;position:absolute;right:0;top:35px;min-width:132px;background:#07162f;border:1px solid rgba(74,158,255,.45);border-radius:12px;box-shadow:0 14px 28px rgba(0,0,0,.45);z-index:40;overflow:hidden;';
+  var edit = document.createElement('button');
+  edit.type = 'button';
+  edit.style.cssText = 'width:100%;background:transparent;border:0;border-bottom:1px solid rgba(74,158,255,.18);color:#e8f0ff;text-align:left;padding:11px 12px;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;';
+  edit.textContent = 'EDIT';
+  edit.onclick = function(){ menu.style.display='none'; _r366OpenGigEdit(ev); };
+  var del = document.createElement('button');
+  del.type = 'button';
+  del.style.cssText = 'width:100%;background:transparent;border:0;color:#ff6b7a;text-align:left;padding:11px 12px;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;gap:7px;';
+  del.innerHTML = '<span style="font-size:13px;line-height:1;">&#128465;</span><span>DELETE</span>';
+  del.onclick = function(){ menu.style.display='none'; _r366ConfirmDeleteGig(ev); };
+  menu.appendChild(edit);
+  menu.appendChild(del);
+  kebab.onclick = function(evt){ evt.stopPropagation(); menu.style.display = (menu.style.display === 'block') ? 'none' : 'block'; };
+  document.addEventListener('click', function _r366MenuClose(evt){
+    var w = document.getElementById('r366-gig-menu-wrap');
+    var m = document.getElementById('r366-gig-kebab-menu');
+    if(!w || !m){ document.removeEventListener('click', _r366MenuClose); return; }
+    if(!w.contains(evt.target)) m.style.display='none';
+  });
+  wrap.appendChild(kebab);
+  wrap.appendChild(menu);
+  if(closeBtn) header.insertBefore(wrap, closeBtn); else header.appendChild(wrap);
+}
+function _r366ConfirmDeleteGig(ev){
+  if(!ev) return;
+  appConfirm({title:'Delete event?', message:'Delete "' + (ev.title || 'this gig') + '"? This cannot be undone.'}).then(function(ok){
+    if(ok){ dEv(ev.id); clM('gig-detail-modal'); toast('Event deleted', {tone:'success'}); }
+  });
+}
+function _r366OpenGigReadOnly(ev){
+  if(!ev) return;
+  var d = _r366GigDet(ev);
+  _r366SetGigHeader('Gig Details', 'read', ev);
+  var b = document.getElementById('gd-body');
+  b.innerHTML = '';
+  b.classList.add('r366-gig-body');
+  var datePretty = d.date ? fmtGigDateForNotif(d.date) : '—';
+  var mapText = d.address || d.venue || '';
+  var html = '';
+  html += '<div class="r366-gig-hero">';
+  html += '<div class="r366-gig-kicker">GIG</div>';
+  html += '<div class="r366-gig-title">' + _r366Esc(d.title || 'Untitled Gig') + '</div>';
+  html += '<div class="r366-gig-sub">' + _r366Esc(datePretty) + (d.venue ? ' · ' + _r366Esc(d.venue) : '') + '</div>';
+  html += '</div>';
+  html += '<div class="r366-gig-grid">';
+  html += _r366FieldHtml('Date', datePretty, {big:true});
+  html += _r366FieldHtml('Venue', d.venue, {big:true});
+  html += _r366FieldHtml('Street Address', d.street);
+  html += _r366FieldHtml('City', d.city);
+  html += _r366FieldHtml('Load-In', d.loadin);
+  html += _r366FieldHtml('Sound Check', d.sc);
+  html += _r366FieldHtml('Set Time', d.settime, {big:true});
+  html += _r366FieldHtml('Contact', d.contact);
+  html += '</div>';
+  html += '<div class="r366-gig-notes-card"><div class="r366-gig-label">Notes</div><div class="r366-gig-notes">' + _r366Esc(d.notes || '—') + '</div></div>';
+  html += '<div class="r366-gig-actions">';
+  html += '<button type="button" id="r366-gig-map" class="r366-gig-action-btn">OPEN IN MAPS</button>';
+  html += '<button type="button" id="r366-gig-flyer" class="r366-gig-action-btn r366-gig-action-gold">' + (d.flyerData ? 'EDIT SAVED FLYER' : 'MAKE FLYER') + '</button>';
+  html += '</div>';
+  if(d.flyerData){
+    html += '<div class="r366-gig-flyer-card" id="r366-gig-flyer-card"><img src="' + _r366Esc(d.flyerData) + '" alt="Saved flyer"><div><div class="r366-gig-label">Saved Flyer</div><div class="r366-gig-value">Tap to open flyer editor</div></div></div>';
+  }
+  b.innerHTML = html;
+  var mapBtn = document.getElementById('r366-gig-map');
+  if(mapBtn){ mapBtn.onclick = function(){ if(!mapText){ toast('No venue or address available', {tone:'error'}); return; } openInMaps(mapText); }; }
+  var flyerBtn = document.getElementById('r366-gig-flyer');
+  if(flyerBtn){ flyerBtn.onclick = function(){ clM('gig-detail-modal'); setTimeout(function(){ openFlyerForGig(ev); }, 200); }; }
+  var flyerCard = document.getElementById('r366-gig-flyer-card');
+  if(flyerCard){ flyerCard.onclick = function(){ clM('gig-detail-modal'); setTimeout(function(){ openFlyerForGig(ev); }, 200); }; }
+  opM('gig-detail-modal');
+}
+function _r366OpenGigEdit(ev){
+  if(!ev) return;
+  var d = _r366GigDet(ev);
+  _r366SetGigHeader('Edit Gig', 'edit', ev);
+  var b = document.getElementById('gd-body');
+  b.innerHTML = '';
+  b.classList.add('r366-gig-body');
+  var html = '';
+  html += '<div class="r366-gig-hero r366-gig-edit-hero">';
+  html += '<div class="r366-gig-kicker">EDIT MODE</div>';
+  html += '<div class="r366-gig-title">' + _r366Esc(d.title || 'Untitled Gig') + '</div>';
+  html += '<div class="r366-gig-sub">Make changes, then Save or Cancel.</div>';
+  html += '</div>';
+  html += '<div class="r366-gig-edit-grid">';
+  html += _r366InputHtml('Date','gd-date',d.date,'','date');
+  html += _r366InputHtml('Gig Name','gd-name',d.title,'e.g. Trip, Venice Beach Festival','text');
+  html += _r366InputHtml('Venue','gd-venue',d.venue,'e.g. The Roxy Theater','text');
+  html += _r366InputHtml('Street Address','gd-street',d.street,'e.g. 9009 Sunset Blvd','text');
+  html += _r366InputHtml('City','gd-city',d.city,'e.g. West Hollywood','text');
+  html += _r366InputHtml('Load-In','gd-loadin',d.loadin,'530 → 5:30 PM · 530a → 5:30 AM','text');
+  html += _r366InputHtml('Sound Check','gd-sc',d.sc,'630 → 6:30 PM · 630a → 6:30 AM','text');
+  html += _r366InputHtml('Set Time','gd-settime',d.settime,'8 → 8:00 PM · 8a → 8:00 AM','text');
+  html += _r366InputHtml('Contact','gd-contact',d.contact,'Venue contact','text');
+  html += '</div>';
+  html += _r366InputHtml('Notes','gd-notes',d.notes,'Parking, dress code, special instructions...','textarea');
+  html += '<div class="r366-gig-edit-actions">';
+  html += '<button type="button" id="r366-gig-save" class="sb r366-gig-save">SAVE</button>';
+  html += '<button type="button" id="r366-gig-cancel" class="r366-gig-cancel">CANCEL</button>';
+  html += '<button type="button" id="r366-gig-delete" class="r366-gig-delete"><span style="font-size:14px;line-height:1;">&#128465;</span><span>DELETE</span></button>';
+  html += '</div>';
+  b.innerHTML = html;
+  ['gd-loadin','gd-sc','gd-settime'].forEach(function(id){ var el=document.getElementById(id); if(el) attachTimeMask(el); });
+  document.getElementById('r366-gig-save').onclick = function(){ _r366SaveGigEdit(ev); };
+  document.getElementById('r366-gig-cancel').onclick = function(){ _r366OpenGigReadOnly(ev); };
+  document.getElementById('r366-gig-delete').onclick = function(){ _r366ConfirmDeleteGig(ev); };
+  opM('gig-detail-modal');
+}
+function _r366SaveGigEdit(ev){
+  if(!ev) return;
+  var evId = ev.id;
+  var dateStr = (document.getElementById('gd-date')||{value:ev.date}).value || ev.date;
+  var name = (document.getElementById('gd-name')||{value:ev.title}).value.trim();
+  if(!name){ toast('Gig name required', {tone:'error'}); return; }
+  var street = (document.getElementById('gd-street')||{value:''}).value;
+  var city = (document.getElementById('gd-city')||{value:''}).value;
+  var det = {
+    venue: (document.getElementById('gd-venue')||{value:''}).value,
+    street: street,
+    city: city,
+    address: _combineGigAddress(street, city),
+    loadin: (document.getElementById('gd-loadin')||{value:''}).value,
+    sc: (document.getElementById('gd-sc')||{value:''}).value,
+    settime: (document.getElementById('gd-settime')||{value:''}).value,
+    contact: (document.getElementById('gd-contact')||{value:''}).value,
+    notes: (document.getElementById('gd-notes')||{value:''}).value
+  };
+  var existing = gigDetails[String(evId)] || {};
+  if(existing.flyerData)        det.flyerData = existing.flyerData;
+  if(existing.flyerTemplateKey) det.flyerTemplateKey = existing.flyerTemplateKey;
+  if(existing.flyerVenue)       det.flyerVenue = existing.flyerVenue;
+  if(existing.flyerAddress)     det.flyerAddress = existing.flyerAddress;
+  if(existing.flyerDate)        det.flyerDate = existing.flyerDate;
+  if(existing.flyerAnnouncement)det.flyerAnnouncement = existing.flyerAnnouncement;
+  function commit(){
+    try { _trackActivity('edit_gig', String(evId||'')); } catch(e){}
+    saveEvent({id:evId, date:dateStr, type:'gig', title:name, note:det.venue});
+    gigDetails[String(evId)] = det;
+    db.collection('gigdetails').doc(String(evId)).set(det);
+    var updated = ev;
+    updated.date = dateStr;
+    updated.title = name;
+    updated.note = det.venue;
+    toast('Gig saved', {tone:'success'});
+    _r366OpenGigReadOnly(updated);
+  }
+  _confirmBlackoutConflictBeforeSave('gig', dateStr, commit);
+}
 function openGigSheet(ev){
   var evId = ev ? ev.id : null;
   var det = evId ? (gigDetails[String(evId)] || {}) : {};
   var isNew = !evId;
   var dateStr = isNew ? fD(CY,CM,sDay) : ev.date;
 
+  if(!isNew){
+    _r366OpenGigReadOnly(ev);
+    return;
+  }
+
+  _r366SetGigHeader('New Gig', 'edit', ev);
   document.getElementById('gd-title').textContent = isNew ? 'New Gig' : 'Edit Gig';
   var b = document.getElementById('gd-body');
   b.innerHTML = '';
@@ -15811,65 +16075,11 @@ function submitAvail(){
 }
 
 // GIG DETAILS
+// r366: route all existing Gig detail opens through the premium read-only page.
 function showGigDetail(evId) {
-  var ev=events.find(function(e){return e.id==evId;});
-  if(!ev)return;
-  document.getElementById('gd-title').textContent = ev.title;
-  var det=gigDetails[evId]||{};
-  var b = document.getElementById('gd-body');
-  b.innerHTML = '';
-  
-  var dateDiv = document.createElement('div');
-  dateDiv.innerHTML = '<div style="font-size:10px;color:#aaa;font-family:Russo One,sans-serif;margin-bottom:3px;">DATE</div><div style="font-size:14px;color:#e8f0ff;">'+ev.date+'</div>';
-  b.appendChild(dateDiv);
-  
-  function makeField(labelText, inputId, val, placeholder, type) {
-    var d = document.createElement('div');
-    d.style.marginBottom = '8px';
-    var lbl = document.createElement('label');
-    lbl.style.cssText = 'font-size:10px;color:#aaa;font-family:Russo One,sans-serif;display:block;margin-bottom:3px;';
-    lbl.textContent = labelText;
-    var inp = document.createElement(type==='textarea'?'textarea':'input');
-    inp.className = 'mi';
-    inp.id = inputId;
-    inp.value = val || '';
-    inp.placeholder = placeholder;
-    if(type==='textarea'){inp.rows=3;inp.style.resize='none';}
-    d.appendChild(lbl);
-    d.appendChild(inp);
-    return d;
-  }
-  
-  b.appendChild(makeField('VENUE','gd-venue',det.venue,'e.g. The Roxy Theater','text'));
-  // r37: split into Street + City (with on-the-fly parse for legacy records)
-  var _addrParts_b = (det.street || det.city)
-    ? {street: det.street || '', city: det.city || ''}
-    : _splitGigAddress(det.address || '');
-  b.appendChild(makeField('STREET ADDRESS','gd-street',_addrParts_b.street,'e.g. 9009 Sunset Blvd','text'));
-  b.appendChild(makeField('CITY','gd-city',_addrParts_b.city,'e.g. West Hollywood','text'));
-  
-  var row1 = document.createElement('div');
-  row1.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;';
-  row1.appendChild(makeField('LOAD-IN','gd-loadin',det.loadin,'e.g. 5:30 PM','text'));
-  row1.appendChild(makeField('SOUND CHECK','gd-sc',det.sc,'e.g. 6:30 PM','text'));
-  b.appendChild(row1);
-  
-  var row2 = document.createElement('div');
-  row2.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;';
-  row2.appendChild(makeField('SET TIME','gd-settime',det.settime,'e.g. 8:00 PM','text'));
-  row2.appendChild(makeField('CONTACT','gd-contact',det.contact,'Venue contact','text'));
-  b.appendChild(row2);
-  
-  b.appendChild(makeField('NOTES','gd-notes',det.notes,'Parking, dress code, special instructions...','textarea'));
-  
-  var btn = document.createElement('button');
-  btn.className = 'sb';
-  btn.style.width = '100%';
-  btn.textContent = 'Save Details';
-  btn.onclick = function(){ saveGigDetail(evId); };
-  b.appendChild(btn);
-  
-  opM('gig-detail-modal');
+  var ev = events.find(function(e){ return String(e.id) === String(evId); });
+  if(!ev) return;
+  _r366OpenGigReadOnly(ev);
 }
 function saveGigDetail(evId) {
   try { _trackActivity('edit_gig', String(evId||'')); } catch(e){}  // r42
@@ -21415,7 +21625,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-calendar-current-date-rollover-r365';
+var WHATS_NEW_VERSION = '2026-05-09-premium-gig-detail-r366';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21708,6 +21918,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-premium-gig-detail-r366', date:'May 9, 2026', importance:'minor', title:'Premium Gig detail page', items:['Existing gig events now open to a premium read-only Gig Details page first. The kebab menu offers Edit and Delete. Edit mode uses the same premium page with Save, Cancel, and red Delete controls.']},
   {version:'2026-05-09-calendar-current-date-rollover-r365', date:'May 9, 2026', importance:'fix', title:'Calendar current-date rollover fix', items:['The Calendar current-day yellow number and border now refresh from the phone\'s current local date when the app opens, resumes, or Calendar renders, so the marker moves from May 8 to May 9 and continues moving each day.']},
   {version:'2026-05-08-next-gig-widget-tail-cut-r363', date:'May 8, 2026', importance:'minor', title:'Calendar Next Gig widget right tail cut', items:['The Calendar header Next Gig widget now cuts off the remaining red-marked right-side tail and keeps the pill at the blue-marked size while preserving the left edge, height, and venue readability.']},
   {version:'2026-05-08-next-gig-widget-blue-markup-r362', date:'May 8, 2026', importance:'minor', title:'Calendar Next Gig widget blue-markup fit', items:['The Calendar header Next Gig widget now matches the user-marked blue pill size by removing the red-marked excess area on the right while preserving the full venue name, top/bottom placement, and left edge.']},
