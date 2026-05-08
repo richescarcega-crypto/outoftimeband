@@ -16,7 +16,6 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!DOCTYPE html>
 <html>
 <head>
-<!-- r337: Removed faint divider line from weekday band only. Upload index.html only. -->
   <!-- r335: Calendar weekday band compressed and date grid proportionally expanded. Upload index.html only. -->
   <!-- r334: Calendar Month/Year text changed to warm gold and increased by 5px. Upload index.html only; return_current_month_icon.png remains unchanged from r333. -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -372,7 +371,7 @@ body.light .ngc-lbl{ color:#fff !important; }
 .mlbl.flip{animation:mlblFlip .45s ease-out;}
 
 .cgrid{position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:3px;background:radial-gradient(circle at 50% 30%,rgba(74,158,255,.18) 0%,rgba(13,43,107,.85) 50%,#0a1628 100%),linear-gradient(135deg,#0d2b6b,#1a56c4);border:1px solid rgba(74,158,255,.3);border-radius:14px;padding:10px 7px;box-shadow:0 0 26px rgba(74,158,255,.18),inset 0 1px 0 rgba(255,255,255,.04);will-change:transform,opacity;}
-.dhdr{text-align:center;font-size:13px;font-weight:700;color:#bcd5ff;font-family:"Russo One",sans-serif;padding-bottom:7px;margin-bottom:4px;border-bottom:none;letter-spacing:.5px;text-shadow:0 0 8px rgba(188,213,255,.25);}
+.dhdr{text-align:center;font-size:13px;font-weight:700;color:#bcd5ff;font-family:"Russo One",sans-serif;padding-bottom:7px;margin-bottom:4px;border-bottom:1px solid rgba(74,158,255,.35);letter-spacing:.5px;text-shadow:0 0 8px rgba(188,213,255,.25);}
 .dc{min-height:60px;background:rgba(10,22,40,.85);border-radius:7px;padding:5px 2px;display:flex;flex-direction:column;align-items:center;touch-action:manipulation;cursor:pointer;transition:all .15s;border:1px solid rgba(74,158,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.04);}
 .dc:hover{background:#132040;border-color:rgba(74,158,255,.5);transform:scale(1.05);}
 .dc:active{background:#1a3a8a;}
