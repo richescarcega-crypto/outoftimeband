@@ -5026,6 +5026,152 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   }
 }
 
+
+
+/* r371: Gig/Rehearsal visual rebalance after r370.
+   Reduce the stretched field boxes to a more premium/readable static card layout,
+   keep all information visible without modal scrolling, and improve contrast with
+   warmer gold labels plus brighter primary text. Blackout remains untouched. */
+#gig-detail-modal.r368-static-fit #gd-body{
+  justify-content:flex-start !important;
+  gap:8px !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-body{
+  gap:8px !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-hero{
+  margin-bottom:0 !important;
+  padding:10px 12px !important;
+  border-color:rgba(245,197,24,.42) !important;
+  background:
+    radial-gradient(circle at 92% 24%,rgba(245,197,24,.16),transparent 27%),
+    linear-gradient(135deg,#173a8d 0%,#102b6d 55%,#081833 100%) !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-kicker,
+#gig-detail-modal.r368-fit-gig .r366-gig-label{
+  color:#ffd84a !important;
+  text-shadow:0 0 8px rgba(245,197,24,.18) !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-title,
+#gig-detail-modal.r368-fit-gig .r366-gig-value,
+#gig-detail-modal.r368-fit-gig .r366-gig-notes{
+  color:#f7fbff !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-sub{
+  color:#cfdcff !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-grid,
+#gig-detail-modal.r368-fit-gig .r366-gig-edit-grid{
+  flex:0 0 auto !important;
+  align-content:start !important;
+  gap:6px !important;
+  margin:0 !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-grid .r366-gig-field,
+#gig-detail-modal.r368-fit-gig .r366-gig-edit-field,
+#gig-detail-modal.r368-fit-gig .r366-gig-notes-card{
+  min-height:0 !important;
+  height:auto !important;
+  border-radius:12px !important;
+  padding:8px 9px !important;
+  justify-content:flex-start !important;
+  background:linear-gradient(180deg,rgba(13,38,91,.88),rgba(5,15,39,.96)) !important;
+  border:1px solid rgba(91,150,255,.38) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 12px rgba(74,158,255,.08) !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-grid .r366-gig-field:nth-child(2n),
+#gig-detail-modal.r368-fit-gig .r366-gig-edit-field:nth-child(2n){
+  background:linear-gradient(180deg,rgba(15,43,103,.92),rgba(6,18,45,.97)) !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-value{
+  font-size:11.5px !important;
+  line-height:1.18 !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-value-big{
+  font-size:12.2px !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-notes-card{
+  margin:0 !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-actions{
+  margin:0 !important;
+  gap:7px !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-flyer-card{
+  min-height:0 !important;
+  margin:0 !important;
+  padding:8px !important;
+  border-color:rgba(0,188,160,.48) !important;
+  background:linear-gradient(135deg,rgba(0,77,92,.72),rgba(4,28,49,.95)) !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-flyer-card img{
+  width:44px !important;
+  height:44px !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-input{
+  color:#f7fbff !important;
+  background:rgba(3,13,34,.72) !important;
+  border:1px solid rgba(245,197,24,.30) !important;
+}
+#gig-detail-modal.r368-fit-gig textarea.r366-gig-input{
+  height:44px !important;
+  min-height:44px !important;
+}
+
+/* Same contrast/readability treatment for the existing Rehearsal page, scoped only
+   when the rehearsal fit class is present. */
+#gig-detail-modal.r368-fit-rehearsal #gd-body{
+  justify-content:flex-start !important;
+  gap:7px !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #gd-body > div{
+  margin-bottom:0 !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #gd-body label,
+#gig-detail-modal.r368-fit-rehearsal #gd-body div[style*="font-size:10px"]{
+  color:#ffd84a !important;
+  text-shadow:0 0 8px rgba(245,197,24,.16) !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #gd-body .mi,
+#gig-detail-modal.r368-fit-rehearsal #gd-body input,
+#gig-detail-modal.r368-fit-rehearsal #gd-body textarea{
+  height:28px !important;
+  padding:5px 8px !important;
+  font-size:11.5px !important;
+  color:#f7fbff !important;
+  background:linear-gradient(180deg,rgba(13,38,91,.88),rgba(5,15,39,.96)) !important;
+  border:1px solid rgba(91,150,255,.40) !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #gd-body textarea{
+  height:44px !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #rh-agenda-list{
+  flex:0 0 auto !important;
+  min-height:0 !important;
+  max-height:74px !important;
+  overflow:hidden !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #rh-agenda-list > div{
+  background:linear-gradient(180deg,rgba(13,38,91,.86),rgba(5,15,39,.94)) !important;
+  border-color:rgba(91,150,255,.34) !important;
+  color:#f7fbff !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #gd-body button{
+  color:#ffd84a !important;
+  border-color:rgba(245,197,24,.42) !important;
+}
+@media(max-height:740px){
+  #gig-detail-modal.r368-fit-gig .r366-gig-hero{padding:8px 11px !important;}
+  #gig-detail-modal.r368-fit-gig .r366-gig-grid,
+  #gig-detail-modal.r368-fit-gig .r366-gig-edit-grid{gap:5px !important;}
+  #gig-detail-modal.r368-fit-gig .r366-gig-grid .r366-gig-field,
+  #gig-detail-modal.r368-fit-gig .r366-gig-edit-field,
+  #gig-detail-modal.r368-fit-gig .r366-gig-notes-card{padding:7px 8px !important;}
+  #gig-detail-modal.r368-fit-gig .r366-gig-value{font-size:11px !important;}
+  #gig-detail-modal.r368-fit-rehearsal #gd-body{gap:6px !important;}
+  #gig-detail-modal.r368-fit-rehearsal #rh-agenda-list{max-height:62px !important;}
+}
+
 </style>
 </head>
 <body>
@@ -21961,7 +22107,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-gig-rehearsal-use-full-space-r370';
+var WHATS_NEW_VERSION = '2026-05-09-gig-rehearsal-card-contrast-r371';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22254,6 +22400,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-gig-rehearsal-card-contrast-r371', date:'May 9, 2026', importance:'fix', title:'Gig and Rehearsal card sizing and contrast', items:['The Gig and Rehearsal detail pages now back off the over-stretched field boxes from r370, keep the pages static and readable, and improve contrast with brighter text and gold-themed labels. Blackout remains unchanged.']},
   {version:'2026-05-09-static-gig-rehearsal-pages-r368', date:'May 9, 2026', importance:'fix', title:'Gig and Rehearsal pages fit the screen', items:['The Gig and Rehearsal detail/edit pages now use a static full-viewport fit so the page is visible without modal scrolling. Blackout pages are unchanged.']},
   {version:'2026-05-09-calendar-drawer-closes-on-leave-r367', date:'May 9, 2026', importance:'fix', title:'Calendar drawer closes when leaving Calendar', items:['The Calendar Event Details/day drawer now closes when the user leaves the Calendar tab or the app is backgrounded/closed, so returning to Calendar starts from the normal grid view instead of reopening a stale drawer.']},
   {version:'2026-05-09-premium-gig-detail-r366', date:'May 9, 2026', importance:'minor', title:'Premium Gig detail page', items:['Existing gig events now open to a premium read-only Gig Details page first. The kebab menu offers Edit and Delete. Edit mode uses the same premium page with Save, Cancel, and red Delete controls.']},
