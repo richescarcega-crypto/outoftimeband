@@ -4186,13 +4186,13 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
 }
 
 
-/* r360: Calendar header Next Gig widget gold-date shadow cleanup only.
-   Base: r359. Keep the approved glossy option 3 styling, shortened right edge,
-   widened gold date box, and centered date stack. Clear the bottom shadow from
-   the gold date area only so the day label remains readable. No header, drawer,
-   Calendar body, or tab changes. */
+/* r361: Calendar header Next Gig widget narrowed from the right only.
+   Base: r360. Keep the approved glossy option 3 styling, gold date box cleanup,
+   and current top/bottom/left placement. Reduce width by moving the right edge
+   left so the pill is only a little wider than the full venue name. No other
+   widget, header, Calendar body, drawer, or tab changes. */
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
-  width:246px !important;
+  width:202px !important;
   height:27px !important;
   overflow:hidden !important;
   position:absolute !important;
@@ -4286,7 +4286,7 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
   box-shadow:0 0 6px rgba(255,255,255,.18) !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{
-  max-width:182px !important;
+  max-width:138px !important;
   color:#ffffff !important;
   text-shadow:0 1px 2px rgba(0,0,0,.58),0 0 7px rgba(255,255,255,.16) !important;
 }
@@ -4301,7 +4301,7 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
 }
 @media (max-width:420px){
   #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
-    width:238px !important;
+    width:196px !important;
     height:25px !important;
     grid-template-columns:44px 1fr !important;
   }
@@ -4310,7 +4310,7 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
     min-width:44px !important;
   }
   #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{
-    max-width:174px !important;
+    max-width:132px !important;
   }
 }
 
@@ -21388,7 +21388,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-08-next-gig-date-shadow-clear-r360';
+var WHATS_NEW_VERSION = '2026-05-08-next-gig-widget-narrower-r361';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21681,6 +21681,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-08-next-gig-widget-narrower-r361', date:'May 8, 2026', importance:'minor', title:'Calendar Next Gig widget narrowed', items:['The Calendar header Next Gig widget keeps the approved glossy option 3 styling and gold date cleanup while moving only the right edge left so the pill is just wide enough to show the full venue name without extra unused space.']},
   {version:'2026-05-08-next-gig-date-shadow-clear-r360', date:'May 8, 2026', importance:'minor', title:'Calendar Next Gig date shadow cleared', items:['The Calendar header Next Gig widget keeps the approved glossy option 3 styling, shortened right edge, widened gold date box, and centered date stack while clearing the bottom shadow from the gold date area only.']},
   {version:'2026-05-08-flyer-close-preserves-event-details-r354', date:'May 8, 2026', importance:'fix', title:'Calendar flyer close preserves Event Details', items:['Closing the flyer editor from a gig Event Details card now returns to the same standalone Event Details view without re-exposing the All Events header.']},
   {version:'2026-05-08-rehearsal-event-card-opens-edit-r353', date:'May 8, 2026', importance:'fix', title:'Rehearsal detail card tap fix', items:['Fixes the Rehearsal Event Details card tap so it opens the Rehearsal detail/edit screen instead of silently doing nothing.']},
