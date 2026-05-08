@@ -4186,17 +4186,18 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
 }
 
 
-/* r357: Calendar header Next Gig widget design option 3 only.
-   Base: confirmed r355. Keep the existing top, left, and height values.
-   Extend only to the right and restyle the same widget with the selected
-   glossy chrome / illuminated pill treatment from mockup #3. No header,
-   drawer, Calendar body, or tab changes. */
+/* r358: Calendar header Next Gig widget date-box adjustment only.
+   Base: r357. Keep selected glossy option 3 styling. Preserve top, left,
+   height, and the marked pill right endpoint. Extend the gold date box to the
+   marked red line and center the date content. No header, drawer, Calendar body,
+   or tab changes. */
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
   width:300px !important;
   height:27px !important;
   overflow:hidden !important;
   position:absolute !important;
   isolation:isolate !important;
+  grid-template-columns:44px 1fr !important;
   border-radius:12px !important;
   border:1px solid rgba(208,226,255,.88) !important;
   background:
@@ -4235,12 +4236,43 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-date{
   position:relative !important;
   z-index:2 !important;
+  width:44px !important;
+  min-width:44px !important;
+  height:100% !important;
+  padding:0 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
   background:linear-gradient(180deg,#ffe26a 0%,#f5c518 50%,#b97d0c 100%) !important;
   color:#06101f !important;
   box-shadow:
     inset 1px 1px 0 rgba(255,255,255,.36),
     inset -1px -1px 0 rgba(123,80,4,.42),
     1px 0 0 rgba(8,17,45,.42) !important;
+}
+
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-date span{
+  display:block !important;
+  width:100% !important;
+  text-align:center !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-mo{
+  font-size:5.9px !important;
+  letter-spacing:.35px !important;
+  line-height:.95 !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-day{
+  font-size:12px !important;
+  line-height:.90 !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-dow{
+  font-size:5.5px !important;
+  letter-spacing:.30px !important;
+  line-height:.95 !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-body{
   position:relative !important;
@@ -4255,7 +4287,7 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
   box-shadow:0 0 6px rgba(255,255,255,.18) !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{
-  max-width:248px !important;
+  max-width:238px !important;
   color:#ffffff !important;
   text-shadow:0 1px 2px rgba(0,0,0,.58),0 0 7px rgba(255,255,255,.16) !important;
 }
@@ -4272,9 +4304,14 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
   #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
     width:292px !important;
     height:25px !important;
+    grid-template-columns:44px 1fr !important;
+  }
+  #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-date{
+    width:44px !important;
+    min-width:44px !important;
   }
   #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{
-    max-width:241px !important;
+    max-width:232px !important;
   }
 }
 
@@ -21352,7 +21389,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-08-next-gig-option-3-r357';
+var WHATS_NEW_VERSION = '2026-05-08-next-gig-date-box-r358';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21645,7 +21682,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-08-next-gig-option-3-r357', date:'May 8, 2026', importance:'minor', title:'Calendar Next Gig design option 3', items:['The Calendar header Next Gig widget now uses the selected glossy chrome / illuminated pill treatment from design option 3 while preserving the confirmed top, left, and height placement and extending only to the right.']},
+  {version:'2026-05-08-next-gig-date-box-r358', date:'May 8, 2026', importance:'minor', title:'Calendar Next Gig date box adjusted', items:['The Calendar header Next Gig widget keeps the selected glossy option 3 styling, keeps the marked pill endpoint, and widens/centers the gold date box so the date is fully visible.']},
   {version:'2026-05-08-flyer-close-preserves-event-details-r354', date:'May 8, 2026', importance:'fix', title:'Calendar flyer close preserves Event Details', items:['Closing the flyer editor from a gig Event Details card now returns to the same standalone Event Details view without re-exposing the All Events header.']},
   {version:'2026-05-08-rehearsal-event-card-opens-edit-r353', date:'May 8, 2026', importance:'fix', title:'Rehearsal detail card tap fix', items:['Fixes the Rehearsal Event Details card tap so it opens the Rehearsal detail/edit screen instead of silently doing nothing.']},
   {version:'2026-05-08-rehearsal-event-card-opens-edit-r353', date:'May 8, 2026', importance:'fix', title:'Calendar empty-date and rehearsal tap cleanup', items:['Closing the Select an Event chooser after tapping an empty date now clears the temporary selected-date yellow glow.', 'Tapping a rehearsal card in Event Details now opens the Rehearsal detail/edit screen directly.']},
