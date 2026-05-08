@@ -15941,22 +15941,22 @@ function _r366SetGigHeader(title, mode, ev){
   kebab.innerHTML = '&#8942;';
   kebab.onclick = function(evt){
     evt.stopPropagation();
-    _r377OpenDetailOptionsSheet(ev);
+    _r378OpenDetailOptionsSheet(ev);
   };
 
   wrap.appendChild(kebab);
   if(closeBtn) header.insertBefore(wrap, closeBtn); else header.appendChild(wrap);
 }
 
-/* r377: Gig/Rehearsal Detail kebab uses the same premium options-sheet language as Songs Options. */
-function _r377OpenDetailOptionsSheet(ev){
+/* r378: Gig/Rehearsal Detail kebab uses the same premium options-sheet language as Songs Options. */
+function _r378OpenDetailOptionsSheet(ev){
   if(!ev) return;
 
-  var existing = document.getElementById('r377-detail-options-sheet');
+  var existing = document.getElementById('r378-detail-options-sheet');
   if(existing) existing.remove();
 
   var ov = document.createElement('div');
-  ov.id = 'r377-detail-options-sheet';
+  ov.id = 'r378-detail-options-sheet';
   ov.style.cssText = [
     'position:fixed',
     'inset:0',
@@ -15986,21 +15986,21 @@ function _r377OpenDetailOptionsSheet(ev){
   card.innerHTML =
     '<div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">' +
       '<div style="width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(245,197,24,.42);background:rgba(5,18,45,.72);box-shadow:0 0 18px rgba(74,158,255,.20);">' +
-        '<img src="Logo.png" onerror="this.src=\\'logo.jpg\\'" style="width:100%;height:100%;object-fit:contain;">' +
+        '<img src="Logo.png?v=r142" style="width:100%;height:100%;object-fit:contain;">' +
       '</div>' +
       '<div style="min-width:0;flex:1;">' +
         '<div style="font-family:Russo One,sans-serif;font-size:20px;letter-spacing:2.4px;color:#f5c518;line-height:1.1;text-transform:uppercase;">' + title + '</div>' +
         '<div style="font-size:13px;color:#c8d7f6;margin-top:5px;">' + sub + '</div>' +
       '</div>' +
-      '<button type="button" id="r377-detail-options-close" aria-label="Close" style="width:44px;height:44px;border-radius:50%;border:1px solid rgba(170,205,255,.35);background:rgba(255,255,255,.10);color:#fff;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.12);">×</button>' +
+      '<button type="button" id="r378-detail-options-close" aria-label="Close" style="width:44px;height:44px;border-radius:50%;border:1px solid rgba(170,205,255,.35);background:rgba(255,255,255,.10);color:#fff;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.12);">×</button>' +
     '</div>' +
     '<div style="height:1px;background:linear-gradient(90deg,transparent,rgba(245,197,24,.35),transparent);margin:2px 0 14px;"></div>' +
     '<div style="display:flex;flex-direction:column;gap:12px;">' +
-      '<button type="button" id="r377-detail-edit" style="width:100%;min-height:66px;display:flex;align-items:center;gap:16px;padding:14px 16px;border-radius:18px;border:1px solid rgba(74,158,255,.38);background:linear-gradient(135deg,rgba(9,30,70,.95),rgba(4,14,35,.98));box-shadow:0 10px 22px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.06);color:#eaf2ff;text-align:left;cursor:pointer;">' +
+      '<button type="button" id="r378-detail-edit" style="width:100%;min-height:66px;display:flex;align-items:center;gap:16px;padding:14px 16px;border-radius:18px;border:1px solid rgba(74,158,255,.38);background:linear-gradient(135deg,rgba(9,30,70,.95),rgba(4,14,35,.98));box-shadow:0 10px 22px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.06);color:#eaf2ff;text-align:left;cursor:pointer;">' +
         '<span style="width:46px;height:46px;border-radius:13px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(74,158,255,.44);background:radial-gradient(circle at 35% 20%,rgba(255,255,255,.18),rgba(14,43,93,.72));color:#62aeff;font-size:22px;box-shadow:0 0 14px rgba(74,158,255,.18);">✎</span>' +
         '<span style="display:flex;flex-direction:column;gap:4px;"><span style="font-family:Russo One,sans-serif;font-size:16px;letter-spacing:1.8px;color:#f3f7ff;">Edit</span><span style="font-size:13px;color:#9fb8df;">Update this event details page</span></span>' +
       '</button>' +
-      '<button type="button" id="r377-detail-delete" style="width:100%;min-height:66px;display:flex;align-items:center;gap:16px;padding:14px 16px;border-radius:18px;border:1px solid rgba(255,71,87,.36);background:linear-gradient(135deg,rgba(58,13,25,.86),rgba(22,8,18,.98));box-shadow:0 10px 22px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.04);color:#ffd6dc;text-align:left;cursor:pointer;">' +
+      '<button type="button" id="r378-detail-delete" style="width:100%;min-height:66px;display:flex;align-items:center;gap:16px;padding:14px 16px;border-radius:18px;border:1px solid rgba(255,71,87,.36);background:linear-gradient(135deg,rgba(58,13,25,.86),rgba(22,8,18,.98));box-shadow:0 10px 22px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.04);color:#ffd6dc;text-align:left;cursor:pointer;">' +
         '<span style="width:46px;height:46px;border-radius:13px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,71,87,.42);background:rgba(255,71,87,.12);color:#ff6f7d;font-size:21px;box-shadow:0 0 14px rgba(255,71,87,.12);">&#128465;</span>' +
         '<span style="display:flex;flex-direction:column;gap:4px;"><span style="font-family:Russo One,sans-serif;font-size:16px;letter-spacing:1.8px;color:#ff8a96;">Delete</span><span style="font-size:13px;color:#dfa2aa;">Delete this event after confirmation</span></span>' +
       '</button>' +
@@ -16014,12 +16014,12 @@ function _r377OpenDetailOptionsSheet(ev){
   ov.addEventListener('click', function(e){
     if(e.target === ov) closeSheet();
   });
-  document.getElementById('r377-detail-options-close').onclick = closeSheet;
-  document.getElementById('r377-detail-edit').onclick = function(){
+  document.getElementById('r378-detail-options-close').onclick = closeSheet;
+  document.getElementById('r378-detail-edit').onclick = function(){
     closeSheet();
     _r366OpenGigEdit(ev);
   };
-  document.getElementById('r377-detail-delete').onclick = function(){
+  document.getElementById('r378-detail-delete').onclick = function(){
     closeSheet();
     _r366ConfirmDeleteGig(ev);
   };
@@ -22506,7 +22506,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-detail-options-sheet-r377';
+var WHATS_NEW_VERSION = '2026-05-09-detail-options-sheet-syntax-fix-r378';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22799,7 +22799,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-09-detail-options-sheet-r377', date:'May 9, 2026', importance:'fix', title:'Actual Gig/Rehearsal detail kebab polish', items:['The visible Gig/Rehearsal detail kebab menu now uses the premium blue/gold dropdown styling directly in the actual Edit/Delete menu creation path, while keeping the same actions.']},
+  {version:'2026-05-09-detail-options-sheet-syntax-fix-r378', date:'May 9, 2026', importance:'fix', title:'Gig/Rehearsal detail options sheet syntax fix', items:['The Gig/Rehearsal detail kebab now opens the Songs Options-style Edit/Delete sheet, with the r377 syntax issue corrected so Home and the rest of the app can render normally.']},
   {version:'2026-05-09-detail-kebab-dropdown-polish-r375', date:'May 9, 2026', importance:'fix', title:'Gig/Rehearsal detail kebab polish', items:['The Gig/Rehearsal detail kebab dropdown now uses the same premium blue-and-gold menu styling language as the app’s other kebab menus, while keeping the same Edit and Delete actions.']},
   {version:'2026-05-09-rehearsal-button-contrast-r374', date:'May 9, 2026', importance:'fix', title:'Rehearsal button label contrast', items:['The Edit Rehearsal yellow Add and Save Changes buttons now use dark readable text, including disabled state, without changing layout or behavior.']},
   {version:'2026-05-09-gig-rehearsal-centered-window-r373', date:'May 9, 2026', importance:'fix', title:'Gig and Rehearsal centered window', items:['The Gig and Rehearsal detail windows now deploy centered on screen like the Edit Blackout window, while preserving the r372 smaller-window sizing and content styling.']},
