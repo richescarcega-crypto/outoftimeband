@@ -48,7 +48,6 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <style>
 <!-- r339: Weekday-row premium boxed day labels. Upload index.html only. -->
 <!-- r340: Weekday box vertical centering in band. Upload index.html only. -->
-<!-- r341: Date tiles kept inside bright blue area; separator gaps tightened. Upload index.html only. -->
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;background:#060e1c;color:#e8f0ff;font-family:"Exo 2",sans-serif;transition:background .3s,color .3s;}
 input,select,textarea{font-family:"Exo 2",sans-serif;outline:none;border:none;background:transparent;color:#e8f0ff;}
@@ -4453,67 +4452,6 @@ body.light #sc-cal > #calendar-hero-date-row .mlbl{
     min-height:30px !important;
     height:30px !important;
     margin:4px 2px 4px 2px !important;
-  }
-}
-
-
-/* r341: Calendar date-row containment + consistent tighter separator gaps.
-   Scope: Calendar tab only. Keeps the r339 weekday box style but restores a
-   protected clearance below the weekday band so first-row date tiles stay inside
-   the bright blue date area on every month. Also tightens the repeated vertical
-   separator gaps around the Calendar header, calendar panel, and lower pill
-   stack so the spacing reads consistently. */
-:root{
-  --oot-cal-sep-gap:6px;
-  --oot-cal-stack-gap:6px;
-  --oot-cal-proposals-gap:6px;
-}
-#sc-cal.cal-header-fit #calendar-hero{
-  margin-bottom:var(--oot-cal-sep-gap) !important;
-}
-#sc-cal.cal-header-fit #calendar-hero-date-row{
-  margin-bottom:var(--oot-cal-sep-gap) !important;
-}
-#sc-cal.cal-header-fit #cgrid-wrap{
-  margin-bottom:var(--oot-cal-sep-gap) !important;
-}
-#sc-cal.cal-header-fit #cgrid{
-  padding:8px 6px 10px 6px !important;
-  grid-template-rows:minmax(50px, auto) repeat(6, minmax(0, 1fr)) !important;
-  gap:4px 4px !important;
-  align-content:stretch !important;
-}
-#sc-cal.cal-header-fit #cgrid .dhdr{
-  min-height:30px !important;
-  height:30px !important;
-  margin:3px 2px 11px 2px !important;
-  padding:0 !important;
-  align-self:center !important;
-  box-sizing:border-box !important;
-}
-#sc-cal.cal-header-fit #cgrid .dc,
-#sc-cal.cal-header-fit #cgrid .cal-pad{
-  min-height:0 !important;
-  height:100% !important;
-  box-sizing:border-box !important;
-}
-#sc-cal.cal-header-fit .evl-head{
-  bottom:calc(var(--oot-tabs-h, 72px) + var(--oot-cal-proposals-h, 60px) + var(--oot-cal-stack-gap, 6px) + var(--oot-cal-proposals-gap, 6px)) !important;
-}
-#sc-cal.cal-header-fit .proposals-head{
-  bottom:calc(var(--oot-tabs-h, 72px) + var(--oot-cal-proposals-gap, 6px)) !important;
-}
-@media (max-width:420px){
-  #sc-cal.cal-header-fit #cgrid{
-    padding:8px 6px 10px 6px !important;
-    grid-template-rows:minmax(50px, auto) repeat(6, minmax(0, 1fr)) !important;
-    gap:4px 4px !important;
-  }
-  #sc-cal.cal-header-fit #cgrid .dhdr{
-    min-height:30px !important;
-    height:30px !important;
-    margin:3px 2px 11px 2px !important;
-    padding:0 !important;
   }
 }
 
@@ -21117,7 +21055,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-07-calendar-date-containment-gaps-r341';
+var WHATS_NEW_VERSION = '2026-05-07-weekday-box-vertical-balance-r340';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21410,8 +21348,6 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-07-calendar-date-containment-gaps-r341', date:'May 7, 2026', importance:'fix',
-    body:'Calendar visual correction: restored clearance under the boxed weekday labels so the first date row stays fully inside the bright blue date area across all months, and tightened the repeated separator gaps around the Calendar header, calendar panel, All Events, Rehearsal Proposals, and tab row for a more consistent stacked layout.'},
   {version:'2026-05-07-weekday-divider-removed-r338', date:'May 7, 2026', importance:'fix',
     body:'Calendar date-grid clearance: corrected the r335 weekday-band compression so the first row of date boxes starts cleanly below the weekday row instead of appearing tucked under it. This keeps the lower All Events/Rehearsal Proposals stack locked and does not intentionally change the Calendar header, Month/Year color, gig widget, return icon, drawers, bottom tabs, or other tabs.'},
   {version:'2026-05-07-calendar-weekday-band-condense-r335', date:'May 7, 2026', importance:'fix',
