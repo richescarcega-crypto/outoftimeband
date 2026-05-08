@@ -9330,6 +9330,11 @@ function _forceHomeDefaultView(reason){
 function go(id, btn) {
   // r42: track tab views (debounced 30s per tab inside _trackActivity)
   try { _trackActivity('view_tab', id); } catch(e){}
+  // r367: leaving Calendar should not preserve an open Event Details/day drawer.
+  // Close it before switching tabs so returning to Calendar starts from the normal grid view.
+  if(id !== 'cal'){
+    try { closeDayDrawer(); } catch(e){}
+  }
   // r260: never let the Calendar legend persist into another tab.
   if(id !== 'cal'){ try { closeCalLegend(); } catch(e){} }
   document.querySelectorAll('.sc').forEach(function(s) { s.classList.remove('on'); });
@@ -21625,7 +21630,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-premium-gig-detail-r366';
+var WHATS_NEW_VERSION = '2026-05-09-calendar-drawer-closes-on-leave-r367';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21918,6 +21923,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-calendar-drawer-closes-on-leave-r367', date:'May 9, 2026', importance:'fix', title:'Calendar drawer closes when leaving Calendar', items:['The Calendar Event Details/day drawer now closes when the user leaves the Calendar tab or the app is backgrounded/closed, so returning to Calendar starts from the normal grid view instead of reopening a stale drawer.']},
   {version:'2026-05-09-premium-gig-detail-r366', date:'May 9, 2026', importance:'minor', title:'Premium Gig detail page', items:['Existing gig events now open to a premium read-only Gig Details page first. The kebab menu offers Edit and Delete. Edit mode uses the same premium page with Save, Cancel, and red Delete controls.']},
   {version:'2026-05-09-calendar-current-date-rollover-r365', date:'May 9, 2026', importance:'fix', title:'Calendar current-date rollover fix', items:['The Calendar current-day yellow number and border now refresh from the phone\'s current local date when the app opens, resumes, or Calendar renders, so the marker moves from May 8 to May 9 and continues moving each day.']},
   {version:'2026-05-08-next-gig-widget-tail-cut-r363', date:'May 8, 2026', importance:'minor', title:'Calendar Next Gig widget right tail cut', items:['The Calendar header Next Gig widget now cuts off the remaining red-marked right-side tail and keeps the pill at the blue-marked size while preserving the left edge, height, and venue readability.']},
@@ -22889,6 +22895,22 @@ if(savedName&&savedId){
   window.addEventListener('pageshow', function(ev){
     if(ev && ev.persisted) setTimeout(function(){ _forceHomeDefaultView('pageshow'); }, 0);
   });
+})();
+
+// r367: Do not preserve a previously open Calendar Event Details/day drawer
+// across app background/close/restore. This intentionally does not alter the
+// drawer while the user remains on Calendar; it only clears stale drawer state
+// when the app is leaving/restoring.
+(function(){
+  function closeCalendarDrawerForLifecycle(reason){
+    try {
+      if(typeof closeDayDrawer === 'function') closeDayDrawer();
+    } catch(e){}
+  }
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'hidden') closeCalendarDrawerForLifecycle('hidden');
+  });
+  window.addEventListener('pagehide', function(){ closeCalendarDrawerForLifecycle('pagehide'); });
 })();
 </script>
 
