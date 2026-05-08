@@ -4492,22 +4492,20 @@ body.light #sc-cal.cal-header-fit #cgrid .dhdr{
 }
 
 
-/* r342: Calendar weekday visible-band centering correction.
-   Scope: Calendar weekday labels only. The rendered r341 layout proved the
-   true visual band is not the full 58px CSS grid row; the dark band visually
-   ends at the bright-blue transition just below the boxes. In r341, the boxes
-   rendered at top=227/bottom=261 while #cgrid began at 215 and the visible
-   dark-to-bright transition occurred around 260, leaving a large top gap and
-   almost no bottom gap. This moves only the painted weekday boxes up 6px.
-   It does not change grid rows, grid padding, date-tile positions, Calendar
-   HTML, lower cards, tabs, or JavaScript. */
+/* r343: Calendar weekday final downward centering adjustment.
+   Scope: Calendar weekday labels only. r342 improved the position but the
+   user confirmed the boxes still sat slightly high in the visible dark band.
+   This moves only the painted weekday boxes down 3px from r342 by changing
+   the visual transform from -6px to -3px. It does not change grid rows,
+   grid padding, date-tile positions, Calendar HTML, lower cards, tabs, or
+   JavaScript. */
 #sc-cal.cal-header-fit #cgrid .dhdr{
-  transform:translateY(-6px) !important;
+  transform:translateY(-3px) !important;
   will-change:transform !important;
 }
 @media (max-width:420px){
   #sc-cal.cal-header-fit #cgrid .dhdr{
-    transform:translateY(-6px) !important;
+    transform:translateY(-3px) !important;
   }
 }
 
@@ -21111,7 +21109,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-07-calendar-weekday-visible-band-center-r342';
+var WHATS_NEW_VERSION = '2026-05-07-calendar-weekday-down-3px-r343';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21404,7 +21402,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-07-calendar-weekday-visible-band-center-r342', date:'May 7, 2026', importance:'fix',
+  {version:'2026-05-07-calendar-weekday-down-3px-r343', date:'May 7, 2026', importance:'fix',
     title:'Calendar weekday box vertical centering',
     body:'Calendar visual correction: moves only the painted weekday boxes upward so they visually center in the dark weekday band. This is a transform-only CSS correction scoped to the Calendar weekday labels; it does not reflow the grid, date tiles, lower cards, Calendar HTML, bottom tabs, other tabs, or JavaScript.'},
   {version:'2026-05-07-calendar-weekday-boxes-gold-r338', date:'May 7, 2026', importance:'fix',
