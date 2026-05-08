@@ -4186,94 +4186,87 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
 }
 
 
-/* r356: Calendar header Next Gig widget rope-light design only.
+/* r357: Calendar header Next Gig widget design option 3 only.
    Base: confirmed r355. Keep the existing top, left, and height values.
-   Extend only to the right and restyle the same widget with a simulated
-   marquee/rope-light border. No header, drawer, Calendar body, or tab changes. */
+   Extend only to the right and restyle the same widget with the selected
+   glossy chrome / illuminated pill treatment from mockup #3. No header,
+   drawer, Calendar body, or tab changes. */
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
   width:300px !important;
   height:27px !important;
   overflow:hidden !important;
   position:absolute !important;
   isolation:isolate !important;
-  border-radius:10px !important;
-  border:1px solid rgba(255,215,76,.92) !important;
+  border-radius:12px !important;
+  border:1px solid rgba(208,226,255,.88) !important;
   background:
-    linear-gradient(180deg,rgba(32,58,134,.98) 0%,rgba(20,39,102,.98) 50%,rgba(8,17,45,.98) 100%) !important;
+    linear-gradient(180deg,rgba(87,112,170,.96) 0%,rgba(46,69,126,.98) 18%,rgba(24,42,94,.99) 52%,rgba(15,28,70,.99) 100%) !important;
   box-shadow:
-    0 0 0 1px rgba(255,215,76,.28),
-    0 0 8px rgba(245,197,24,.72),
-    0 0 18px rgba(245,197,24,.28),
-    inset 0 1px 0 rgba(255,255,255,.34),
-    inset 0 -2px 7px rgba(0,0,0,.48) !important;
+    0 0 0 1px rgba(255,255,255,.08),
+    0 0 10px rgba(74,158,255,.24),
+    0 0 18px rgba(245,197,24,.12),
+    inset 0 1px 0 rgba(255,255,255,.44),
+    inset 0 -2px 8px rgba(0,0,0,.42) !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget::before{
   content:"";
   position:absolute;
-  inset:2px;
-  border-radius:8px;
+  inset:1px;
+  border-radius:11px;
   pointer-events:none;
   z-index:0;
   background:
-    linear-gradient(90deg,rgba(255,218,82,.18),transparent 17%,transparent 83%,rgba(255,218,82,.16)),
-    radial-gradient(circle at 18% 0%,rgba(255,255,255,.42),transparent 15%),
-    linear-gradient(180deg,rgba(255,255,255,.12),transparent 38%,rgba(0,0,0,.22));
+    linear-gradient(180deg,rgba(255,255,255,.48) 0%,rgba(255,255,255,.16) 20%,rgba(255,255,255,0) 42%),
+    radial-gradient(140% 95% at 50% 0%,rgba(255,255,255,.30) 0%,rgba(255,255,255,.06) 26%,transparent 56%),
+    linear-gradient(90deg,rgba(255,255,255,.10) 0%,transparent 18%,transparent 82%,rgba(255,255,255,.08) 100%);
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget::after{
   content:"";
   position:absolute;
-  inset:0;
+  inset:2px;
   border-radius:10px;
   pointer-events:none;
   z-index:4;
-  background:
-    radial-gradient(circle at 9px 4px,rgba(255,248,188,1) 0 1.6px,rgba(255,205,44,.95) 1.7px 2.8px,transparent 3px),
-    radial-gradient(circle at 34px 4px,rgba(255,248,188,1) 0 1.6px,rgba(255,205,44,.95) 1.7px 2.8px,transparent 3px),
-    radial-gradient(circle at 59px 4px,rgba(255,248,188,1) 0 1.6px,rgba(255,205,44,.95) 1.7px 2.8px,transparent 3px),
-    radial-gradient(circle at 84px 4px,rgba(255,248,188,1) 0 1.6px,rgba(255,205,44,.95) 1.7px 2.8px,transparent 3px),
-    radial-gradient(circle at 109px 4px,rgba(255,248,188,1) 0 1.6px,rgba(255,205,44,.95) 1.7px 2.8px,transparent 3px),
-    radial-gradient(circle at 134px 4px,rgba(255,248,188,1) 0 1.6px,rgba(255,205,44,.95) 1.7px 2.8px,transparent 3px),
-    radial-gradient(circle at 159px 4px,rgba(255,248,188,1) 0 1.6px,rgba(255,205,44,.95) 1.7px 2.8px,transparent 3px),
-    radial-gradient(circle at 184px 4px,rgba(255,248,188,1) 0 1.6px,rgba(255,205,44,.95) 1.7px 2.8px,transparent 3px),
-    radial-gradient(circle at 209px 4px,rgba(255,248,188,1) 0 1.6px,rgba(255,205,44,.95) 1.7px 2.8px,transparent 3px),
-    radial-gradient(circle at 234px 4px,rgba(255,248,188,1) 0 1.6px,rgba(255,205,44,.95) 1.7px 2.8px,transparent 3px),
-    radial-gradient(circle at 259px 4px,rgba(255,248,188,1) 0 1.6px,rgba(255,205,44,.95) 1.7px 2.8px,transparent 3px),
-    radial-gradient(circle at 284px 4px,rgba(255,248,188,1) 0 1.6px,rgba(255,205,44,.95) 1.7px 2.8px,transparent 3px),
-    linear-gradient(90deg,rgba(255,215,76,.92),rgba(255,248,188,.95),rgba(255,215,76,.92));
-  background-size:auto,auto,auto,auto,auto,auto,auto,auto,auto,auto,auto,auto,100% 1px;
-  background-repeat:no-repeat;
-  background-position:center,center,center,center,center,center,center,center,center,center,center,center,0 0;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.28),
+    inset 0 -1px 0 rgba(8,18,46,.60),
+    0 0 0 1px rgba(117,154,224,.18);
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-date{
   position:relative !important;
   z-index:2 !important;
-  background:linear-gradient(180deg,#ffe36c 0%,#f5c518 48%,#b77709 100%) !important;
+  background:linear-gradient(180deg,#ffe26a 0%,#f5c518 50%,#b97d0c 100%) !important;
   color:#06101f !important;
-  box-shadow:inset -1px 0 0 rgba(4,10,24,.42), inset 1px 0 0 rgba(255,255,255,.38) !important;
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,.36),
+    inset -1px -1px 0 rgba(123,80,4,.42),
+    1px 0 0 rgba(8,17,45,.42) !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-body{
   position:relative !important;
   z-index:2 !important;
-  padding-right:7px !important;
-  background:linear-gradient(90deg,rgba(8,16,43,.28),rgba(28,55,138,.36),rgba(8,16,43,.18)) !important;
+  padding-right:8px !important;
+  background:
+    linear-gradient(180deg,rgba(109,131,183,.18) 0%,rgba(63,88,150,.10) 18%,rgba(18,35,82,.06) 40%,rgba(7,15,43,.00) 100%),
+    linear-gradient(90deg,rgba(10,20,49,.18),rgba(28,51,112,.12),rgba(11,20,49,.18)) !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-body:before{
-  border-left:1px solid rgba(255,215,76,.58) !important;
-  box-shadow:0 0 6px rgba(245,197,24,.42) !important;
+  border-left:1px solid rgba(210,226,255,.40) !important;
+  box-shadow:0 0 6px rgba(255,255,255,.18) !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{
   max-width:248px !important;
   color:#ffffff !important;
-  text-shadow:0 0 5px rgba(255,255,255,.24),0 1px 2px rgba(0,0,0,.55) !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.58),0 0 7px rgba(255,255,255,.16) !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
   color:#ffd84a !important;
-  text-shadow:0 0 6px rgba(245,197,24,.48),0 1px 2px rgba(0,0,0,.5) !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.52),0 0 7px rgba(245,197,24,.34) !important;
 }
 body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
-  background:linear-gradient(180deg,#ffffff 0%,#edf4ff 55%,#dfeaff 100%) !important;
-  border-color:rgba(184,134,11,.88) !important;
-  box-shadow:0 3px 9px rgba(20,40,80,.14),0 0 0 1px rgba(184,134,11,.24),0 0 10px rgba(212,160,23,.25),inset 0 1px 0 rgba(255,255,255,.76) !important;
+  background:linear-gradient(180deg,#ffffff 0%,#eef4ff 40%,#d9e7ff 100%) !important;
+  border-color:rgba(133,162,214,.92) !important;
+  box-shadow:0 3px 9px rgba(20,40,80,.14),0 0 0 1px rgba(255,255,255,.30),inset 0 1px 0 rgba(255,255,255,.85),inset 0 -2px 7px rgba(78,111,173,.12) !important;
 }
 @media (max-width:420px){
   #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
@@ -4282,25 +4275,6 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
   }
   #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{
     max-width:241px !important;
-  }
-  #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget::after{
-    background:
-      radial-gradient(circle at 9px 4px,rgba(255,248,188,1) 0 1.5px,rgba(255,205,44,.95) 1.6px 2.7px,transparent 2.9px),
-      radial-gradient(circle at 34px 4px,rgba(255,248,188,1) 0 1.5px,rgba(255,205,44,.95) 1.6px 2.7px,transparent 2.9px),
-      radial-gradient(circle at 59px 4px,rgba(255,248,188,1) 0 1.5px,rgba(255,205,44,.95) 1.6px 2.7px,transparent 2.9px),
-      radial-gradient(circle at 84px 4px,rgba(255,248,188,1) 0 1.5px,rgba(255,205,44,.95) 1.6px 2.7px,transparent 2.9px),
-      radial-gradient(circle at 109px 4px,rgba(255,248,188,1) 0 1.5px,rgba(255,205,44,.95) 1.6px 2.7px,transparent 2.9px),
-      radial-gradient(circle at 134px 4px,rgba(255,248,188,1) 0 1.5px,rgba(255,205,44,.95) 1.6px 2.7px,transparent 2.9px),
-      radial-gradient(circle at 159px 4px,rgba(255,248,188,1) 0 1.5px,rgba(255,205,44,.95) 1.6px 2.7px,transparent 2.9px),
-      radial-gradient(circle at 184px 4px,rgba(255,248,188,1) 0 1.5px,rgba(255,205,44,.95) 1.6px 2.7px,transparent 2.9px),
-      radial-gradient(circle at 209px 4px,rgba(255,248,188,1) 0 1.5px,rgba(255,205,44,.95) 1.6px 2.7px,transparent 2.9px),
-      radial-gradient(circle at 234px 4px,rgba(255,248,188,1) 0 1.5px,rgba(255,205,44,.95) 1.6px 2.7px,transparent 2.9px),
-      radial-gradient(circle at 259px 4px,rgba(255,248,188,1) 0 1.5px,rgba(255,205,44,.95) 1.6px 2.7px,transparent 2.9px),
-      radial-gradient(circle at 284px 4px,rgba(255,248,188,1) 0 1.5px,rgba(255,205,44,.95) 1.6px 2.7px,transparent 2.9px),
-      linear-gradient(90deg,rgba(255,215,76,.92),rgba(255,248,188,.95),rgba(255,215,76,.92));
-    background-size:auto,auto,auto,auto,auto,auto,auto,auto,auto,auto,auto,auto,100% 1px;
-    background-repeat:no-repeat;
-    background-position:center,center,center,center,center,center,center,center,center,center,center,center,0 0;
   }
 }
 
@@ -21378,7 +21352,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-08-next-gig-rope-light-r356';
+var WHATS_NEW_VERSION = '2026-05-08-next-gig-option-3-r357';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -21671,7 +21645,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-08-next-gig-rope-light-r356', date:'May 8, 2026', importance:'minor', title:'Calendar Next Gig rope-light design', items:['The Calendar header Next Gig widget now uses the selected rope-light / marquee-style border treatment while preserving the confirmed top, left, and height placement and extending only to the right.']},
+  {version:'2026-05-08-next-gig-option-3-r357', date:'May 8, 2026', importance:'minor', title:'Calendar Next Gig design option 3', items:['The Calendar header Next Gig widget now uses the selected glossy chrome / illuminated pill treatment from design option 3 while preserving the confirmed top, left, and height placement and extending only to the right.']},
   {version:'2026-05-08-flyer-close-preserves-event-details-r354', date:'May 8, 2026', importance:'fix', title:'Calendar flyer close preserves Event Details', items:['Closing the flyer editor from a gig Event Details card now returns to the same standalone Event Details view without re-exposing the All Events header.']},
   {version:'2026-05-08-rehearsal-event-card-opens-edit-r353', date:'May 8, 2026', importance:'fix', title:'Rehearsal detail card tap fix', items:['Fixes the Rehearsal Event Details card tap so it opens the Rehearsal detail/edit screen instead of silently doing nothing.']},
   {version:'2026-05-08-rehearsal-event-card-opens-edit-r353', date:'May 8, 2026', importance:'fix', title:'Calendar empty-date and rehearsal tap cleanup', items:['Closing the Select an Event chooser after tapping an empty date now clears the temporary selected-date yellow glow.', 'Tapping a rehearsal card in Event Details now opens the Rehearsal detail/edit screen directly.']},
