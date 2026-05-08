@@ -4951,6 +4951,81 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   #gig-detail-modal.r368-fit-rehearsal #rh-agenda-list{max-height:62px !important;}
 }
 
+/* r370: Gig/Rehearsal detail pages use available vertical space without shrinking text.
+   Base r369 already restored readability. This patch removes the large unused lower
+   blank area by distributing existing detail sections vertically inside the static
+   modal. Blackout remains untouched. */
+#gig-detail-modal.r368-static-fit #gd-body{
+  justify-content:space-between !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-body{
+  gap:clamp(7px,1.1dvh,14px) !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-hero{
+  margin-bottom:0 !important;
+  padding:clamp(10px,1.45dvh,16px) 12px !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-grid{
+  flex:1 1 auto !important;
+  align-content:stretch !important;
+  gap:clamp(7px,1.05dvh,12px) !important;
+  margin-bottom:0 !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-grid .r366-gig-field{
+  min-height:clamp(58px,7.2dvh,86px) !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-notes-card{
+  min-height:clamp(52px,6.2dvh,78px) !important;
+  margin:0 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-actions{
+  margin:0 !important;
+  flex-shrink:0 !important;
+}
+#gig-detail-modal.r368-fit-gig .r366-gig-flyer-card{
+  margin:0 !important;
+  min-height:clamp(58px,7dvh,86px) !important;
+  flex-shrink:0 !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #gd-body{
+  justify-content:space-between !important;
+  gap:clamp(5px,.8dvh,10px) !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #gd-body > div{
+  margin-bottom:0 !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #gd-body .mi,
+#gig-detail-modal.r368-fit-rehearsal #gd-body input,
+#gig-detail-modal.r368-fit-rehearsal #gd-body textarea{
+  flex-shrink:0 !important;
+}
+#gig-detail-modal.r368-fit-rehearsal #rh-agenda-list{
+  flex:1 1 auto !important;
+  min-height:clamp(58px,8dvh,96px) !important;
+  max-height:clamp(70px,11dvh,130px) !important;
+}
+@media(max-height:740px){
+  #gig-detail-modal.r368-static-fit #gd-body{
+    justify-content:flex-start !important;
+  }
+  #gig-detail-modal.r368-fit-gig .r366-gig-grid .r366-gig-field{
+    min-height:0 !important;
+  }
+  #gig-detail-modal.r368-fit-gig .r366-gig-notes-card,
+  #gig-detail-modal.r368-fit-gig .r366-gig-flyer-card{
+    min-height:0 !important;
+  }
+  #gig-detail-modal.r368-fit-rehearsal #rh-agenda-list{
+    min-height:0 !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -21886,7 +21961,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-readable-static-gig-rehearsal-r369';
+var WHATS_NEW_VERSION = '2026-05-09-gig-rehearsal-use-full-space-r370';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
