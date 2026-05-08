@@ -15921,46 +15921,140 @@ function _r366InputHtml(label, id, value, placeholder, type){
 function _r366SetGigHeader(title, mode, ev){
   var titleEl = document.getElementById('gd-title');
   if(titleEl) titleEl.textContent = title || 'Gig Details';
-  var header = titleEl ? titleEl.parentElement : null;
-  if(!header) return;
   var oldMenu = document.getElementById('r366-gig-menu-wrap');
   if(oldMenu) oldMenu.remove();
   if(mode !== 'read') return;
+  _r379InstallDetailOptionsButton(ev, 'gig');
+}
+
+function _r379CloseDetailOptions(){
+  var existing = document.getElementById('detail-action-backdrop');
+  if(existing) existing.remove();
+}
+
+function _r379DetailOptionButton(label, sub, iconText, danger, action){
+  var b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'songs-sheet-btn';
+  var ico = document.createElement('span');
+  ico.className = 'songs-sheet-btn-icon';
+  ico.textContent = iconText || '';
+  if(danger){
+    ico.style.color = '#ff4757';
+    ico.style.borderColor = 'rgba(255,71,87,.42)';
+  }
+  var textWrap = document.createElement('span');
+  textWrap.style.flex = '1';
+  var lbl = document.createElement('span');
+  lbl.className = 'songs-sheet-btn-label';
+  lbl.textContent = label || '';
+  if(danger) lbl.style.color = '#ff7180';
+  textWrap.appendChild(lbl);
+  if(sub){
+    var s = document.createElement('span');
+    s.className = 'songs-sheet-btn-sub';
+    s.textContent = sub;
+    textWrap.appendChild(s);
+  }
+  b.appendChild(ico);
+  b.appendChild(textWrap);
+  b.onclick = function(e){
+    if(e) e.stopPropagation();
+    _r379CloseDetailOptions();
+    setTimeout(action, 0);
+  };
+  return b;
+}
+
+function _r379OpenDetailOptions(ev, kind){
+  if(!ev) return;
+  _r379CloseDetailOptions();
+
+  var isRehearsal = kind === 'rehearsal';
+  var wrap = document.createElement('div');
+  wrap.id = 'detail-action-backdrop';
+  wrap.className = 'oot-action-backdrop';
+  wrap.onclick = function(e){ if(e.target === wrap) _r379CloseDetailOptions(); };
+
+  var sheet = document.createElement('div');
+  sheet.id = 'detail-action-sheet';
+  sheet.className = 'oot-action-sheet';
+  sheet.setAttribute('role','dialog');
+  sheet.setAttribute('aria-modal','true');
+  sheet.setAttribute('aria-label', isRehearsal ? 'Rehearsal options' : 'Gig options');
+  sheet.onclick = function(e){ e.stopPropagation(); };
+
+  var close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'songs-sheet-x';
+  close.setAttribute('aria-label','Close options');
+  close.textContent = '×';
+  close.onclick = function(e){ if(e) e.stopPropagation(); _r379CloseDetailOptions(); };
+  sheet.appendChild(close);
+
+  var head = document.createElement('div');
+  head.className = 'songs-sheet-head';
+  var logo = document.createElement('img');
+  logo.className = 'songs-sheet-logo';
+  logo.src = 'Logo.png?v=r142';
+  logo.alt = 'Out of Time';
+  head.appendChild(logo);
+  var titleWrap = document.createElement('div');
+  titleWrap.style.flex = '1';
+  titleWrap.style.minWidth = '0';
+  var title = document.createElement('div');
+  title.className = 'songs-sheet-title';
+  title.textContent = isRehearsal ? 'REHEARSAL OPTIONS' : 'GIG OPTIONS';
+  var sub = document.createElement('div');
+  sub.className = 'songs-sheet-sub';
+  sub.textContent = isRehearsal ? 'Edit or delete this rehearsal event' : 'Edit or delete this gig event';
+  titleWrap.appendChild(title);
+  titleWrap.appendChild(sub);
+  head.appendChild(titleWrap);
+  sheet.appendChild(head);
+
+  sheet.appendChild(_r379DetailOptionButton('Edit', isRehearsal ? 'Open rehearsal editing tools' : 'Open gig editing tools', '✎', false, function(){
+    if(isRehearsal){ openRehearsalSheet(ev); }
+    else { _r366OpenGigEdit(ev); }
+  }));
+
+  sheet.appendChild(_r379DetailOptionButton('Delete', isRehearsal ? 'Delete this rehearsal event' : 'Delete this gig event', '🗑', true, function(){
+    if(isRehearsal){
+      appConfirm({title:'Delete event?', message:'Delete "' + (ev.title || 'this rehearsal') + '"? This cannot be undone.'}).then(function(ok){
+        if(ok){ dEv(ev.id); clM('gig-detail-modal'); toast('Event deleted', {tone:'success'}); }
+      });
+    } else {
+      _r366ConfirmDeleteGig(ev);
+    }
+  }));
+
+  wrap.appendChild(sheet);
+  document.body.appendChild(wrap);
+}
+
+function _r379InstallDetailOptionsButton(ev, kind){
+  var titleEl = document.getElementById('gd-title');
+  var header = titleEl ? titleEl.parentElement : null;
+  if(!header || !ev) return;
+  var oldMenu = document.getElementById('r366-gig-menu-wrap');
+  if(oldMenu) oldMenu.remove();
   var closeBtn = header.querySelector('button[onclick*="gig-detail-modal"]');
   var wrap = document.createElement('div');
   wrap.id = 'r366-gig-menu-wrap';
   wrap.style.cssText = 'position:relative;display:flex;align-items:center;margin-left:auto;margin-right:4px;';
   var kebab = document.createElement('button');
   kebab.type = 'button';
-  kebab.setAttribute('aria-label','Gig options');
+  kebab.setAttribute('aria-label', kind === 'rehearsal' ? 'Rehearsal options' : 'Gig options');
   kebab.style.cssText = 'background:rgba(74,158,255,.10);border:1px solid rgba(74,158,255,.35);border-radius:999px;color:#dbe9ff;font-size:18px;line-height:1;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;';
   kebab.innerHTML = '&#8942;';
-  var menu = document.createElement('div');
-  menu.id = 'r366-gig-kebab-menu';
-  menu.style.cssText = 'display:none;position:absolute;right:0;top:35px;min-width:132px;background:#07162f;border:1px solid rgba(74,158,255,.45);border-radius:12px;box-shadow:0 14px 28px rgba(0,0,0,.45);z-index:40;overflow:hidden;';
-  var edit = document.createElement('button');
-  edit.type = 'button';
-  edit.style.cssText = 'width:100%;background:transparent;border:0;border-bottom:1px solid rgba(74,158,255,.18);color:#e8f0ff;text-align:left;padding:11px 12px;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;';
-  edit.textContent = 'EDIT';
-  edit.onclick = function(){ menu.style.display='none'; _r366OpenGigEdit(ev); };
-  var del = document.createElement('button');
-  del.type = 'button';
-  del.style.cssText = 'width:100%;background:transparent;border:0;color:#ff6b7a;text-align:left;padding:11px 12px;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;gap:7px;';
-  del.innerHTML = '<span style="font-size:13px;line-height:1;">&#128465;</span><span>DELETE</span>';
-  del.onclick = function(){ menu.style.display='none'; _r366ConfirmDeleteGig(ev); };
-  menu.appendChild(edit);
-  menu.appendChild(del);
-  kebab.onclick = function(evt){ evt.stopPropagation(); menu.style.display = (menu.style.display === 'block') ? 'none' : 'block'; };
-  document.addEventListener('click', function _r366MenuClose(evt){
-    var w = document.getElementById('r366-gig-menu-wrap');
-    var m = document.getElementById('r366-gig-kebab-menu');
-    if(!w || !m){ document.removeEventListener('click', _r366MenuClose); return; }
-    if(!w.contains(evt.target)) m.style.display='none';
-  });
+  kebab.onclick = function(evt){
+    if(evt) evt.stopPropagation();
+    _r379OpenDetailOptions(ev, kind || 'gig');
+  };
   wrap.appendChild(kebab);
-  wrap.appendChild(menu);
   if(closeBtn) header.insertBefore(wrap, closeBtn); else header.appendChild(wrap);
 }
+
 function _r366ConfirmDeleteGig(ev){
   if(!ev) return;
   appConfirm({title:'Delete event?', message:'Delete "' + (ev.title || 'this gig') + '"? This cannot be undone.'}).then(function(ok){
@@ -16543,7 +16637,11 @@ function openRehearsalSheet(ev){
   _r368SetDetailFit('rehearsal');
   var isNew = !ev;
   var dateStr = isNew ? fD(CY,CM,sDay) : ev.date;
-  document.getElementById('gd-title').textContent = isNew ? 'New Rehearsal' : 'Edit Rehearsal';
+  var rhTitleEl = document.getElementById('gd-title');
+  if(rhTitleEl) rhTitleEl.textContent = isNew ? 'New Rehearsal' : 'Edit Rehearsal';
+  var rhOldMenu = document.getElementById('r366-gig-menu-wrap');
+  if(rhOldMenu) rhOldMenu.remove();
+  if(!isNew) _r379InstallDetailOptionsButton(ev, 'rehearsal');
   var b = document.getElementById('gd-body');
   b.innerHTML = '';
 
@@ -22443,7 +22541,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-detail-kebab-dropdown-polish-r375';
+var WHATS_NEW_VERSION = '2026-05-09-detail-options-sheet-from-r375-r379';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22736,6 +22834,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-detail-options-sheet-from-r375-r379', date:'May 9, 2026', importance:'fix', title:'Gig/Rehearsal detail options sheet', items:['Built from the phone rollback base r375. The Gig/Rehearsal detail kebab now opens a Songs Options-style action sheet with only Edit and Delete, without changing event logic or unrelated app areas.']},
   {version:'2026-05-09-detail-kebab-dropdown-polish-r375', date:'May 9, 2026', importance:'fix', title:'Gig/Rehearsal detail kebab polish', items:['The Gig/Rehearsal detail kebab dropdown now uses the same premium blue-and-gold menu styling language as the app’s other kebab menus, while keeping the same Edit and Delete actions.']},
   {version:'2026-05-09-rehearsal-button-contrast-r374', date:'May 9, 2026', importance:'fix', title:'Rehearsal button label contrast', items:['The Edit Rehearsal yellow Add and Save Changes buttons now use dark readable text, including disabled state, without changing layout or behavior.']},
   {version:'2026-05-09-gig-rehearsal-centered-window-r373', date:'May 9, 2026', importance:'fix', title:'Gig and Rehearsal centered window', items:['The Gig and Rehearsal detail windows now deploy centered on screen like the Edit Blackout window, while preserving the r372 smaller-window sizing and content styling.']},
