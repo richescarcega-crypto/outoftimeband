@@ -16,7 +16,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
-<!-- r422: Robust external return context for Android/PWA album-art YouTube handoffs. Upload as index.html after phone test. -->
+<!-- r424: Setlists album-art external return stabilizer. Keeps source setlist restored through Android/PWA multi-step YouTube back navigation. Upload as index.html after phone test. -->
 <head>
   <!-- r335: Calendar weekday band compressed and date grid proportionally expanded. Upload index.html only. -->
   <!-- r334: Calendar Month/Year text changed to warm gold and increased by 5px. Upload index.html only; return_current_month_icon.png remains unchanged from r333. -->
@@ -10596,8 +10596,16 @@ function _resetTransientUIForHomeDefault(reason){
   } catch(e){}
 }
 
+function _cancelForceHomeDefaultTimers(){
+  try {
+    _ootForceHomeTimerIds.forEach(function(id){ try { clearTimeout(id); } catch(e){} });
+    _ootForceHomeTimerIds = [];
+  } catch(e){}
+}
+
 function _forceHomeDefaultView(reason){
   try {
+    try { window._ootLastExternalRestoreContext = null; window._ootExternalRestoreLockUntil = 0; } catch(e){}
     if(typeof _clearExternalReturnContext === 'function') _clearExternalReturnContext(reason || 'force-home');
     _resetTransientUIForHomeDefault(reason || 'force-home');
     var hb = document.getElementById('tb-home');
@@ -10619,8 +10627,7 @@ function _forceHomeDefaultView(reason){
 
 function _scheduleForceHomeDefault(reason){
   try {
-    _ootForceHomeTimerIds.forEach(function(id){ try { clearTimeout(id); } catch(e){} });
-    _ootForceHomeTimerIds = [];
+    if(typeof _cancelForceHomeDefaultTimers === 'function') _cancelForceHomeDefaultTimers();
     [0, 60, 180, 500, 1000].forEach(function(delay){
       _ootForceHomeTimerIds.push(setTimeout(function(){
         _forceHomeDefaultView((reason || 'lifecycle') + '-' + delay);
@@ -10838,6 +10845,13 @@ var _ootExternalNavAt = 0;
 var _ootExternalHandoffSeen = false;
 var _ootExternalReturnTTL = 3 * 60 * 1000;
 var _ootExternalLaunchWindow = 8000;
+// r424: Android/PWA can emit multiple focus/pageshow/visibility events while
+// backing out of YouTube.  Keep a short restore-stabilization window after a
+// consumed app-launched external return so later lifecycle events do not
+// misclassify the same return as a normal reopen and force Home.
+var _ootExternalReturnStabilizeWindow = 45 * 1000;
+var _ootLastExternalRestoreContext = null;
+var _ootExternalRestoreLockUntil = 0;
 var _ootExternalStoreKey = 'oot_external_return_ctx';
 function _persistExternalReturnContext(ctx){
   try {
@@ -10918,6 +10932,7 @@ function _markExternalHandoffIfPending(reason){
   return false;
 }
 function _captureExternalReturnContext(){
+  try { if(typeof _cancelForceHomeDefaultTimers === 'function') _cancelForceHomeDefaultTimers(); } catch(e){}
   try {
     var activeSc = document.querySelector('.sc.on');
     var tab = activeSc && activeSc.id ? activeSc.id.replace(/^sc-/, '') : '';
@@ -10965,6 +10980,8 @@ function _consumeExternalReturnContext(reason){
   window._ootExternalNavAt = 0;
   window._ootExternalHandoffSeen = false;
   window._ootLastExternalRestoreAt = Date.now();
+  window._ootLastExternalRestoreContext = ctx;
+  window._ootExternalRestoreLockUntil = Date.now() + _ootExternalReturnStabilizeWindow;
   try { sessionStorage.removeItem(_ootExternalStoreKey); } catch(e){}
   return ctx;
 }
@@ -10995,6 +11012,7 @@ function _restoreExternalReturnContext(reason){
   var ctx = _consumeExternalReturnContext(reason);
   if(!ctx) return false;
   try {
+    if(typeof _cancelForceHomeDefaultTimers === 'function') _cancelForceHomeDefaultTimers();
     if(ctx.expandedSetlistId) window._expandedSetlistId = ctx.expandedSetlistId;
     if(ctx.setsViewState && typeof setsViewState !== 'undefined') setsViewState = ctx.setsViewState;
     if(ctx.activeSetlistId && typeof aSL !== 'undefined') aSL = ctx.activeSetlistId;
@@ -11008,7 +11026,7 @@ function _restoreExternalReturnContext(reason){
       if(ctx.tab === 'songs' && typeof rLib === 'function') rLib();
       if(ctx.tab === 'home' && typeof rHome === 'function') rHome();
     }
-    [80, 350, 900].forEach(function(delay){
+    [80, 350, 900, 1600, 3000].forEach(function(delay){
       setTimeout(function(){
         try {
           if(ctx.expandedSetlistId) window._expandedSetlistId = ctx.expandedSetlistId;
@@ -11022,6 +11040,45 @@ function _restoreExternalReturnContext(reason){
     });
     return true;
   } catch(e){ return true; }
+}
+
+
+// r424: Re-apply the just-restored external context during the short Android/PWA
+// return-stabilization window.  This is intentionally not general state
+// persistence; it only exists after an app-launched external URL was consumed.
+function _reapplyLastExternalReturnContext(reason){
+  try {
+    var ctx = window._ootLastExternalRestoreContext || null;
+    if(!ctx || !ctx.at) return false;
+    var now = Date.now();
+    if(!window._ootExternalRestoreLockUntil || now > window._ootExternalRestoreLockUntil) return false;
+    if(typeof _cancelForceHomeDefaultTimers === 'function') _cancelForceHomeDefaultTimers();
+    if(ctx.expandedSetlistId) window._expandedSetlistId = ctx.expandedSetlistId;
+    if(ctx.setsViewState && typeof setsViewState !== 'undefined') setsViewState = ctx.setsViewState;
+    if(ctx.activeSetlistId && typeof aSL !== 'undefined') aSL = ctx.activeSetlistId;
+    var activeSc = document.querySelector('.sc.on');
+    var activeTab = activeSc && activeSc.id ? activeSc.id.replace(/^sc-/, '') : '';
+    if(ctx.tab && activeTab !== ctx.tab){
+      var btn = document.getElementById('tb-' + ctx.tab);
+      if(typeof go === 'function') go(ctx.tab, btn);
+    }
+    [0, 120, 450, 1000, 2200].forEach(function(delay){
+      setTimeout(function(){
+        try {
+          if(ctx.expandedSetlistId) window._expandedSetlistId = ctx.expandedSetlistId;
+          if(ctx.setsViewState && typeof setsViewState !== 'undefined') setsViewState = ctx.setsViewState;
+          if(ctx.activeSetlistId && typeof aSL !== 'undefined') aSL = ctx.activeSetlistId;
+          if(ctx.tab === 'sets' && typeof rSets === 'function' && (!ctx.setsViewState || ctx.setsViewState === 'list')) rSets();
+          if(ctx.tab === 'songs' && typeof rLib === 'function') rLib();
+          if(ctx.tab === 'songs' && document.getElementById('sc-songs')) document.getElementById('sc-songs').scrollTop = Number(ctx.songsScroll || 0);
+          if(ctx.tab === 'sets' && document.getElementById('sc-sets')) document.getElementById('sc-sets').scrollTop = Number(ctx.setsScroll || 0);
+          _restoreExternalOpenOverlays(ctx);
+        } catch(e){}
+      }, delay);
+    });
+    window._ootLastExternalRestoreAt = now;
+    return true;
+  } catch(e){ return false; }
 }
 
 // r48b: PWA-aware opener for non-maps external https URLs (YouTube, social
@@ -23827,7 +23884,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-setlists-share-lifecycle-reset-r423';
+var WHATS_NEW_VERSION = '2026-05-09-setlist-album-art-return-r424';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -25128,11 +25185,12 @@ if(savedName&&savedId){
       try {
         if(typeof _restoreExternalReturnContext === 'function' && _restoreExternalReturnContext(reason)) return;
       } catch(e){}
-      // If a cluster of focus/pageshow/visibility events fires immediately after
-      // a legitimate external restore, do not let the later event wipe the source
-      // context.  This guard is short and only exists after a consumed restore.
+      // If a cluster of focus/pageshow/visibility events fires after a legitimate
+      // external restore, re-apply the captured source context instead of wiping
+      // it to Home.  This lock is short-lived and only created by an app-launched
+      // external URL return.
       try {
-        if(window._ootLastExternalRestoreAt && (Date.now() - window._ootLastExternalRestoreAt) < 5000) return;
+        if(typeof _reapplyLastExternalReturnContext === 'function' && _reapplyLastExternalReturnContext(reason)) return;
       } catch(e){}
       try { if(typeof _scheduleForceHomeDefault === 'function') _scheduleForceHomeDefault(reason); } catch(e){}
     }, 0);
@@ -25147,6 +25205,7 @@ if(savedName&&savedId){
     }
     // Normal close/background from ANY tab/modal/submenu becomes Home before
     // the app is even visible again.  A stale external context is cleared here.
+    try { window._ootLastExternalRestoreContext = null; window._ootExternalRestoreLockUntil = 0; } catch(e){}
     try { if(typeof _forceHomeDefaultView === 'function') _forceHomeDefaultView(reason + '-leaving'); } catch(e){}
   }
   document.addEventListener('visibilitychange', function(){
