@@ -6059,11 +6059,11 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
     <div id="si-edit-label" style="font-family:Russo One,sans-serif;font-size:9px;letter-spacing:2px;color:#4a6a9a;margin-bottom:10px;">EDIT DETAILS</div>
     <div style="padding:10px 0;border-bottom:1px solid #0d1f3a;">
       <div style="color:#aaa;font-size:13px;margin-bottom:6px;">Title</div>
-      <input id="si-title-edit" class="mi" style="width:100%;margin:0;font-size:13px;" placeholder="Song title">
+      <input id="si-title-edit" class="mi" style="width:100%;margin:0;font-size:13px;" placeholder="Song title" oninput="_ootTitleCaseField(this)">
     </div>
     <div style="padding:10px 0;border-bottom:1px solid #0d1f3a;">
       <div style="color:#aaa;font-size:13px;margin-bottom:6px;">Artist</div>
-      <input id="si-artist-edit" class="mi" style="width:100%;margin:0;font-size:13px;" placeholder="Artist name">
+      <input id="si-artist-edit" class="mi" style="width:100%;margin:0;font-size:13px;" placeholder="Artist name" oninput="_ootTitleCaseField(this)">
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #0d1f3a;">
       <span style="color:#aaa;font-size:13px;">Keyboards / Keys</span>
@@ -6135,7 +6135,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
       <button id="si-delete-btn" title="Delete song" aria-label="Delete song" style="flex:0 0 auto;width:34px;height:34px;background:rgba(255,71,87,.15);border:1.5px solid #ff4757;border-radius:50%;padding:0;color:#ff4757;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#ff4757" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg>
       </button>
-      <button id="si-save-btn" onclick="saveSongInfo()" style="flex:0 0 auto;min-width:70px;background:#f5c518;border:none;border-radius:10px;padding:7px 10px;color:#060e1c;font-family:Russo One,sans-serif;font-size:9px;letter-spacing:.9px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">
+      <button id="si-save-btn" onclick="saveSongInfo()" style="flex:0 0 auto;min-width:70px;background:#22c55e;border:none;border-radius:10px;padding:7px 10px;color:#060e1c;font-family:Russo One,sans-serif;font-size:9px;letter-spacing:.9px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">
         <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path d="M5 3h11l4 4v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm2 2v5h8V5H7zm0 9v5h10v-5H7z" fill="#060e1c"/></svg>
         Save
       </button>
@@ -6178,9 +6178,9 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
     <div id="suggest-form" style="display:none;position:relative;padding-top:38px;" class="fb">
       <button type="button" aria-label="Close song suggestion form" onclick="document.getElementById('suggest-form').style.display='none'" style="position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(138,168,214,.38);background:rgba(10,22,40,.78);color:#8aa8d6;font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>
       <div style="position:absolute;top:12px;left:0;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1.5px;color:#f5c518;">SUGGEST A SONG</div>
-      <input class="fi2" id="suggest-title" placeholder="Song title *">
-      <input class="fi2" id="suggest-artist" placeholder="Artist">
-      <input class="fi2" id="suggest-note" placeholder="Why this song? (optional)">
+      <input class="fi2" id="suggest-title" placeholder="Song *" oninput="_ootTitleCaseField(this)">
+      <input class="fi2" id="suggest-artist" placeholder="Artist" oninput="_ootTitleCaseField(this)">
+      <input class="fi2" id="suggest-note" placeholder="Why this song? (optional)" oninput="_ootSentenceCaseField(this)">
       <div class="r2">
         <button class="sb" onclick="submitSuggestion()" style="width:100%;">Submit</button>
       </div>
@@ -9472,12 +9472,15 @@ function castVote(id, voteType){
 }
 
 function submitSuggestion(){
-  var t=document.getElementById('suggest-title').value.trim();
+  var titleEl=document.getElementById('suggest-title');
+  var artistEl=document.getElementById('suggest-artist');
+  var noteEl=document.getElementById('suggest-note');
+  var t=_ootTitleCaseText(titleEl ? titleEl.value.trim() : '');
   if(!t)return;
   var s={
     title:t,
-    artist:document.getElementById('suggest-artist').value.trim(),
-    note:document.getElementById('suggest-note').value.trim(),
+    artist:_ootTitleCaseText(artistEl ? artistEl.value.trim() : ''),
+    note:_ootSentenceCaseText(noteEl ? noteEl.value.trim() : ''),
     suggestedBy:myName,
     suggestedById:ME,
     votes:0,
@@ -9485,10 +9488,11 @@ function submitSuggestion(){
     created:Date.now()
   };
   db.collection('suggestions').add(s);
-  document.getElementById('suggest-title').value='';
-  document.getElementById('suggest-artist').value='';
-  document.getElementById('suggest-note').value='';
+  if(titleEl) titleEl.value='';
+  if(artistEl) artistEl.value='';
+  if(noteEl) noteEl.value='';
   document.getElementById('suggest-form').style.display='none';
+  try{ toast('Song suggestion submitted', {tone:'success'}); }catch(e){}
 }
 // ── REHEARSAL AGENDA ───────────────────────────────────────────────────────
 var agendas = {}; // eventId -> {songs:[], notes:'', startTime:'', endTime:'', focus:''}
@@ -18184,11 +18188,14 @@ function toggleSongsMenu(ev){
     '</div>';
 
   sheet.appendChild(btn('Add Song', 'Create a new song entry', '+', function(){ showAddSongForm(); }));
-  sheet.appendChild(btn('Vote on Songs', 'Open the song voting tools', '✓', function(){
-    try { openSongVoteModal(); } catch(e){ try { toggleVotePanel(); } catch(e2){ toast('Vote tools are not available in this build', {tone:'info'}); } }
+  sheet.appendChild(btn('Suggest a Song', 'Open the song suggestion form', '♪', function(){
+    try { openSongSuggestModal(); } catch(e){ try { openSongVoteModal(); } catch(e2){ toast('Song suggestions are not available in this build', {tone:'info'}); } }
   }));
   sheet.appendChild(btn('Quick Paste', 'Paste multiple songs quickly', '⌘', function(){
     try { openQuickPasteSongs(); } catch(e){ try { showQuickPasteSongs(); } catch(e2){ toast('Quick Paste is not available in this build', {tone:'info'}); } }
+  }));
+  sheet.appendChild(btn('Delete Songs', 'Select multiple songs to remove', '🗑', function(){
+    try { openDeleteSongsModal(); } catch(e){ toast('Delete Songs is not available in this build', {tone:'error'}); }
   }));
   sheet.appendChild(btn('Share Library', 'Export or share the song list', '⇧', function(){ exportData('songs'); }));
 
@@ -18197,6 +18204,38 @@ function toggleSongsMenu(ev){
 }
 
 
+
+function _ootPreserveCursorTransform(el, fn){
+  if(!el) return;
+  var before = el.value || '';
+  var start = el.selectionStart, end = el.selectionEnd;
+  var after = fn(before);
+  if(after !== before){
+    el.value = after;
+    try{
+      var delta = after.length - before.length;
+      if(typeof start === 'number' && typeof end === 'number') el.setSelectionRange(Math.max(0,start+delta), Math.max(0,end+delta));
+    }catch(e){}
+  }
+}
+function _ootTitleCaseText(v){
+  return String(v||'').replace(/(^|[\s\-\/\(\["'])((?:[a-z]))/g, function(m,p1,p2){ return p1 + p2.toUpperCase(); });
+}
+function _ootSentenceCaseText(v){
+  return String(v||'').replace(/^(\s*)([a-z])/, function(m,p1,p2){ return p1 + p2.toUpperCase(); });
+}
+function _ootTitleCaseField(el){ _ootPreserveCursorTransform(el, _ootTitleCaseText); }
+function _ootSentenceCaseField(el){ _ootPreserveCursorTransform(el, _ootSentenceCaseText); }
+function openSongSuggestModal(){
+  try{ if(typeof rVotes === 'function') rVotes(); }catch(e){}
+  try{ if(typeof opM === 'function') opM('votes-modal'); else { var vm=document.getElementById('votes-modal'); if(vm) vm.classList.add('on'); } }catch(e){}
+  setTimeout(function(){
+    var form = document.getElementById('suggest-form');
+    if(form){ form.style.display='flex'; form.style.flexDirection='column'; }
+    ['suggest-title','suggest-artist','suggest-note'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+    var t = document.getElementById('suggest-title'); if(t) t.focus();
+  }, 60);
+}
 
 function openSongVoteModal(){
   try{
@@ -18237,7 +18276,7 @@ function openImportSongsModal(){
     ov.innerHTML =
       '<div class="mo">'+
         '<div class="moh"><span class="mot" style="color:#f5c518;">Quick Paste</span><button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="closeImportSongsModal()">&#10005;</button></div>'+
-        '<p style="font-size:12px;color:#8aa8d6;margin-bottom:10px;line-height:1.4;">Paste one song per line. Use <b>Title - Artist</b> format (the dash is optional). Imports apply to your current session only.</p>'+
+        '<p style="font-size:12px;color:#8aa8d6;margin-bottom:10px;line-height:1.4;">Paste one song per line. Use <b>Title - Artist</b> format (the dash is optional). Paste from Notes, Word, Excel, or Notepad. One song per line works best; use Title - Artist when possible. Imports are saved to the shared song library.</p>'+
         '<textarea id="import-songs-textarea" placeholder="Free Bird - Lynyrd Skynyrd&#10;Hotel California - Eagles&#10;Sweet Child O Mine - Guns N Roses" style="width:100%;min-height:180px;background:#060e1c;border:1px solid #1a3a8a;border-radius:8px;padding:10px;color:#e8f0ff;font-family:\'Exo 2\',sans-serif;font-size:13px;outline:none;resize:vertical;box-sizing:border-box;"></textarea>'+
         '<div id="import-songs-preview" style="margin-top:8px;font-size:11px;color:#4a9eff;min-height:14px;"></div>'+
         '<div style="display:flex;gap:8px;margin-top:10px;">'+
@@ -18317,6 +18356,73 @@ function commitImportSongs(){
   var msg = 'Imported ' + added + ' song' + (added===1?'':'s');
   if(skipped > 0) msg += ' (' + skipped + ' duplicate' + (skipped===1?'':'s') + ' skipped)';
   toast(msg, {tone:'success', duration:4000});
+}
+
+
+// ── Delete Songs (multi-select) ─────────────────────────────────────
+function closeDeleteSongsModal(){
+  var ov=document.getElementById('delete-songs-modal');
+  if(ov) ov.style.display='none';
+}
+function openDeleteSongsModal(){
+  var ov=document.getElementById('delete-songs-modal');
+  if(!ov){
+    ov=document.createElement('div');
+    ov.id='delete-songs-modal';
+    ov.className='ov';
+    ov.innerHTML='<div class="mo" style="max-height:85vh;display:flex;flex-direction:column;">'+
+      '<div class="moh" style="flex-shrink:0;"><span class="mot" style="color:#f5c518;">Delete Songs</span><button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="closeDeleteSongsModal()">&#10005;</button></div>'+
+      '<p style="font-size:12px;color:#8aa8d6;margin-bottom:10px;line-height:1.35;flex-shrink:0;">Select one or more songs to permanently remove from the shared library.</p>'+
+      '<div id="delete-songs-count" style="font-size:11px;color:#4a9eff;margin-bottom:8px;flex-shrink:0;"></div>'+
+      '<div id="delete-songs-list" style="flex:1;min-height:120px;overflow-y:auto;border:1px solid rgba(74,158,255,.18);border-radius:12px;padding:6px;background:rgba(6,14,28,.45);"></div>'+
+      '<div style="display:flex;gap:8px;margin-top:12px;flex-shrink:0;">'+
+        '<button class="cb" onclick="closeDeleteSongsModal()" style="flex:1;">Cancel</button>'+
+        '<button class="sb" onclick="deleteSelectedSongs()" style="flex:1;background:#ff4757;color:#fff;">Delete Selected</button>'+
+      '</div>'+
+    '</div>';
+    document.body.appendChild(ov);
+  }
+  renderDeleteSongsList();
+  ov.style.display='flex';
+}
+function _deleteSongsSelectedIds(){
+  return Array.prototype.slice.call(document.querySelectorAll('#delete-songs-list input[type="checkbox"]:checked')).map(function(cb){return cb.value;});
+}
+function updateDeleteSongsCount(){
+  var el=document.getElementById('delete-songs-count');
+  if(el){ var n=_deleteSongsSelectedIds().length; el.textContent=n ? (n+' selected') : 'No songs selected'; }
+}
+function renderDeleteSongsList(){
+  var list=document.getElementById('delete-songs-list');
+  if(!list) return;
+  var songs=library.slice().sort(function(a,b){return String(a.title||'').localeCompare(String(b.title||''));});
+  if(!songs.length){ list.innerHTML='<div style="font-size:12px;color:#8aa8d6;font-style:italic;padding:10px;">No songs in the library.</div>'; updateDeleteSongsCount(); return; }
+  list.innerHTML='';
+  songs.forEach(function(s){
+    var row=document.createElement('label');
+    row.style.cssText='display:flex;align-items:center;gap:10px;padding:9px 8px;border-bottom:1px solid rgba(74,158,255,.10);cursor:pointer;';
+    row.innerHTML='<input type="checkbox" value="'+_escAttr(String(s.id))+'" style="width:18px;height:18px;accent-color:#ff4757;flex-shrink:0;">'+
+      '<span style="flex:1;min-width:0;"><span style="display:block;color:#fff;font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_escHtml(s.title||'Untitled')+'</span>'+ (s.artist?'<span style="display:block;color:#8aa8d6;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_escHtml(s.artist)+'</span>':'') +'</span>';
+    var cb=row.querySelector('input');
+    cb.onchange=updateDeleteSongsCount;
+    list.appendChild(row);
+  });
+  updateDeleteSongsCount();
+}
+function deleteSelectedSongs(){
+  var ids=_deleteSongsSelectedIds();
+  if(!ids.length){ toast('Select at least one song to delete', {tone:'error'}); return; }
+  appConfirm({title:'Delete selected songs?', message:'Remove '+ids.length+' song'+(ids.length===1?'':'s')+' from the shared library?'}).then(function(ok){
+    if(!ok) return;
+    ids.forEach(function(id){
+      var raw=library.find(function(s){return String(s.id)===String(id);});
+      if(raw){ try{ _deleteLibrarySong(raw.id); }catch(e){} }
+      library=library.filter(function(s){return String(s.id)!==String(id);});
+    });
+    closeDeleteSongsModal();
+    if(typeof rLib==='function') rLib();
+    toast('Deleted '+ids.length+' song'+(ids.length===1?'':'s'), {tone:'success'});
+  });
 }
 
 
@@ -22441,7 +22547,7 @@ function clearYTLink(){
   db.collection('songdetails').doc(String(editingSongId)).set(det, {merge:true});
 }
 function saveSongInfo(){
-  var newTitle = document.getElementById('si-title-edit').value.trim();
+  var newTitle = _ootTitleCaseText(document.getElementById('si-title-edit').value.trim());
   if(!newTitle){ toast('Song title is required.', {tone:'error'}); return; }
 
   // ADD mode - create new song
@@ -22454,7 +22560,7 @@ function saveSongInfo(){
     var newSong = {
       id: Date.now(),
       title: newTitle,
-      artist: document.getElementById('si-artist-edit').value.trim(),
+      artist: _ootTitleCaseText(document.getElementById('si-artist-edit').value.trim()),
       key: document.getElementById('si-key').value.trim(),
       bpm: parseInt(document.getElementById('si-bpm').value)||0,
       vocal: document.getElementById('si-vocal').value,
@@ -22493,8 +22599,8 @@ function saveSongInfo(){
     rLib();
     return;
   }
-  var newTitle = document.getElementById('si-title-edit').value.trim();
-  var newArtist = document.getElementById('si-artist-edit').value.trim();
+  var newTitle = _ootTitleCaseText(document.getElementById('si-title-edit').value.trim());
+  var newArtist = _ootTitleCaseText(document.getElementById('si-artist-edit').value.trim());
   // Flush the visible tab into the draft, then read both
   var liveNotesEl = document.getElementById('si-notes');
   if(liveNotesEl){ _siNotesDraft[notesMode] = liveNotesEl.value; }
@@ -22992,7 +23098,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-blackout-marker-size-r394';
+var WHATS_NEW_VERSION = '2026-05-09-songs-menu-suggest-delete-r395';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23285,6 +23391,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-songs-menu-suggest-delete-r395', date:'May 9, 2026', importance:'fix', title:'Songs menu polish and bulk delete', items:['Add New Song save pill is now green with black text.', 'Songs options now says Suggest a Song and opens the suggestion form directly.', 'Song and Artist fields auto-capitalize each word; Why This Song capitalizes the first word only.', 'Songs options now includes Delete Songs with multi-select deletion.']},
   {version:'2026-05-09-blackout-marker-size-r394', date:'May 9, 2026', importance:'fix', title:'Smaller blackout date marker', items:['Calendar blackout date icons are now 50% smaller in the month grid.', 'The smaller blackout marker applies automatically to existing blackout dates and all future blackout dates when rendered on the calendar.', 'No blackout save logic or notification behavior was changed.']},
   {version:'2026-05-09-custom-event-time-all-day-r393', date:'May 9, 2026', importance:'fix', title:'Custom event fields and calendar markers', items:['New Important Date / Custom Event now includes Start Time, End Time, and an All Day toggle.', 'The unused color bubble selector was removed from Custom Event setup and custom events render consistently gold.', 'Calendar date markers now put the custom star into the same row as event icons and shrink markers when multiple event types share a date.']},
   {version:'2026-05-09-agenda-list-trigger-gig-flyer-r390', date:'May 9, 2026', importance:'fix', title:'Agenda trigger and gig flyer cleanup', items:['On Edit Rehearsal, the Agenda popout now opens from the visible song list instead of the Agenda heading/subtitle area.', 'On Gig Event Details, gigs with saved flyers no longer show the duplicate green Flyer check pill; the Gig Flyer thumbnail/card remains the flyer editor tap target.']},
