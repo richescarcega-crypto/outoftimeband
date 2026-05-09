@@ -10117,6 +10117,11 @@ function _openCountdownGigBackstagePass(){
     CM = parseInt(parts[1], 10) - 1;
     var day = parseInt(parts[2], 10);
 
+    // r415: Home Gig Counter should open the next gig as standalone Event Details,
+    // not inside/under the All Events accordion/list context. This mirrors the
+    // Calendar header Next Gig path and deliberately passes only the selected gig.
+    if(typeof _setHeaderNextGigStandaloneMode === 'function') _setHeaderNextGigStandaloneMode(true);
+
     var calBtn = document.getElementById('tb-cal');
     _calendarSkipTopResetOnce = true;
     go('cal', calBtn);
@@ -10125,14 +10130,7 @@ function _openCountdownGigBackstagePass(){
     // explicit if this function is invoked from a stale Home render.
     if(typeof rCal === 'function') rCal();
 
-    var ds = fD(CY, CM, day);
-    var dayEvents = events.filter(function(x){ return x.date === ds; });
-    var customRows = (typeof _customEntriesAsRows === 'function')
-      ? _customEntriesAsRows().filter(function(x){ return x.date === ds; })
-      : [];
-    var combined = dayEvents.concat(customRows);
-
-    openDayDrawer(day, combined, {skipScroll:true});
+    openDayDrawer(day, [next], {skipScroll:true, headerNextGigStandalone:true});
 
     setTimeout(function(){
       var drawer = document.getElementById('cal-drawer');
@@ -23521,7 +23519,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-home-default-lifecycle-r413';
+var WHATS_NEW_VERSION = '2026-05-09-home-default-with-external-return-r415';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23814,6 +23812,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-home-default-with-external-return-r415', date:'May 9, 2026', importance:'fix', title:'Home default with intentional external return', items:['Normal app open/reopen from any tab, submenu, drawer, or modal now forces Home.', 'Intentional external launches through Facebook, Instagram, YouTube album art, or YouTube buttons keep a short-lived one-shot return context so backing up returns to the page that launched the external app.', 'Home Gig Counter now opens the next gig as standalone Calendar Event Details without exposing the All Events title/list context.']},
   {version:'2026-05-09-home-default-lifecycle-r413', date:'May 9, 2026', importance:'fix', title:'Home default lifecycle hardening', items:['Rebuilt the Home-default lifecycle instead of adding another tab-reset patch.', 'External YouTube/song return context is now memory-only, one-shot, and gated by an actual same-session app handoff so stale stored context cannot override Home on later app opens.', 'Normal app start, resume, close/reopen, and non-external restores should land on Home; only an immediate return from an app-launched YouTube/song link restores Songs or Setlists.']},
   {version:'2026-05-09-song-title-options-youtube-return-r411', date:'May 9, 2026', importance:'fix', title:'Song title options and YouTube return', items:['Song title/text taps in Songs and Setlists now open the Song Resources/options sheet with Lyrics, Discography / Album Info, Practice Reference, and Edit Song Links.', 'Album-art taps remain routed to saved YouTube URLs or YouTube search fallback.', 'Returning from an app-launched YouTube/external song link preserves the same Songs or Setlists context instead of applying the normal Home-on-resume reset.']},
   {version:'2026-05-09-album-art-youtube-r409', date:'May 9, 2026', importance:'fix', title:'Album art opens YouTube', items:['Songs and Setlists album-art taps now open the saved YouTube URL when one exists, or a YouTube search for the song when no saved URL exists.', 'Song name/text taps continue to open the song detail/options path. No Song Suggestion URL or album-art enhancements were included in this build.']},
@@ -24805,29 +24804,46 @@ if(savedName&&savedId){
   window.addEventListener('pageshow', function(){ scheduleCalTodayRefresh('pageshow'); });
 })();
 
-// r303: if mobile PWA/browser restores this page from background/cache,
-// reset to Home when it becomes visible again.
+// r415: App lifecycle rule.
+// Normal app open/reopen/restore ALWAYS starts on Home. The only exception is a
+// short-lived, one-shot return immediately after this app intentionally launched
+// an external destination through _openExternalUrl (Facebook, Instagram, YouTube).
+// This does not restore arbitrary prior tabs/subpages after a normal close.
 (function(){
+  function _handleLifecycleReturn(reason){
+    setTimeout(function(){
+      try {
+        if(typeof _restoreExternalReturnContext === 'function' && _restoreExternalReturnContext(reason)) return;
+      } catch(e){}
+      try { if(typeof _forceHomeDefaultView === 'function') _forceHomeDefaultView(reason); } catch(e){}
+    }, 0);
+  }
   document.addEventListener('visibilitychange', function(){
     if(document.visibilityState === 'hidden'){
       _ootHiddenAt = Date.now();
       try { if(typeof _markExternalHandoffIfPending === 'function') _markExternalHandoffIfPending('visibility-hidden'); } catch(e){}
     } else if(document.visibilityState === 'visible'){
-      var elapsed = _ootHiddenAt ? (Date.now() - _ootHiddenAt) : 0;
-      if(elapsed > 1000) setTimeout(function(){
-        if(_restoreExternalReturnContext('resume')) return;
-        _forceHomeDefaultView('resume');
-      }, 0);
+      _handleLifecycleReturn('visibility-visible');
+    }
+  });
+  window.addEventListener('blur', function(){
+    _ootHiddenAt = Date.now();
+    try { if(typeof _markExternalHandoffIfPending === 'function') _markExternalHandoffIfPending('window-blur'); } catch(e){}
+  });
+  window.addEventListener('focus', function(){
+    var elapsed = _ootHiddenAt ? (Date.now() - _ootHiddenAt) : 0;
+    var hasExternal = false;
+    try { hasExternal = !!(window._ootExternalReturnContext && window._ootExternalReturnContext.at); } catch(e){}
+    if(hasExternal || elapsed > 500){
+      _handleLifecycleReturn('window-focus');
     }
   });
   window.addEventListener('pagehide', function(){
+    _ootHiddenAt = Date.now();
     try { if(typeof _markExternalHandoffIfPending === 'function') _markExternalHandoffIfPending('pagehide'); } catch(e){}
   });
-  window.addEventListener('pageshow', function(ev){
-    if(ev && ev.persisted) setTimeout(function(){
-      if(_restoreExternalReturnContext('pageshow')) return;
-      _forceHomeDefaultView('pageshow');
-    }, 0);
+  window.addEventListener('pageshow', function(){
+    _handleLifecycleReturn('pageshow');
   });
 })();
 
