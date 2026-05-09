@@ -5630,7 +5630,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 
 /* r387: SAFE r385-based Edit Rehearsal action controls + save-stays-open only.
    Built from the stable r385 file after r386 broke app startup. Scope is Edit Rehearsal only. */
-/* r388: Edit Rehearsal Agenda song picker allows multi-select, adds picker Save/Done pill, removes readonly Tap Add field, and makes Agenda title open selected-song popout. */
+/* r390: Edit Rehearsal Agenda popout opens from the visible song list, not the Agenda label; Gig Event Details hides duplicate green saved-flyer pill. */
 #gig-detail-modal .r387-rh-edit-actions{
   display:flex !important;
   flex-direction:row !important;
@@ -12883,11 +12883,9 @@ function _renderRehearsalForm(container, initial, opts){
   // SONGS — local array, mutated in place; UI re-renders via _renderSongsList
   var songsState = Array.isArray(initial.songs) ? initial.songs.slice() : [];
 
-  var agLbl = document.createElement('button');
-  agLbl.type = 'button';
-  agLbl.style.cssText = 'width:100%;text-align:left;background:transparent;border:none;font-size:10px;color:#aaa;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:6px;margin-top:4px;padding:0;cursor:pointer;';
+  var agLbl = document.createElement('div');
+  agLbl.style.cssText = 'width:100%;text-align:left;background:transparent;border:none;font-size:10px;color:#aaa;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:6px;margin-top:4px;padding:0;';
   agLbl.textContent = 'AGENDA — SONGS TO WORK ON';
-  agLbl.setAttribute('aria-label','Show all agenda songs to work on');
   container.appendChild(agLbl);
 
   function openAgendaSongsPopout(){
@@ -12937,11 +12935,22 @@ function _renderRehearsalForm(container, initial, opts){
     ov.appendChild(card);
     document.body.appendChild(ov);
   }
-  agLbl.onclick = openAgendaSongsPopout;
-
   var agList = document.createElement('div');
   agList.id = p + '-agenda-list';
-  agList.style.cssText = 'margin-bottom:6px;';
+  agList.style.cssText = 'margin-bottom:6px;cursor:pointer;touch-action:manipulation;';
+  agList.setAttribute('role','button');
+  agList.setAttribute('tabindex','0');
+  agList.setAttribute('aria-label','Show all agenda songs to work on');
+  agList.onclick = function(evt){
+    if(evt && evt.target && evt.target.closest && evt.target.closest('button')) return;
+    openAgendaSongsPopout();
+  };
+  agList.onkeydown = function(evt){
+    if(evt && (evt.key === 'Enter' || evt.key === ' ')){
+      evt.preventDefault();
+      openAgendaSongsPopout();
+    }
+  };
   container.appendChild(agList);
 
   function renderSongsList(){
@@ -15964,19 +15973,20 @@ function openDayDrawer(day, de, opts){
 
     var btnRow = document.createElement('div');
     btnRow.style.cssText = 'display:flex;gap:4px;flex-shrink:0;margin-left:8px;flex-wrap:wrap;justify-content:flex-end;';
-    // Flyer button — only for gigs
+    // Flyer button — only for gigs WITHOUT a saved flyer.
+    // r390: when a saved flyer exists, the Gig Flyer thumbnail/card is the only flyer entry point.
     if(e.type === 'gig'){
       var hasFlyer = !!(gigDetails[String(e.id)] && gigDetails[String(e.id)].flyerData);
-      var flyerBtn = document.createElement('button');
-      var fbg = hasFlyer ? 'rgba(6,214,160,.15)' : 'rgba(245,197,24,.12)';
-      var fbc = hasFlyer ? '#06d6a0' : '#f5c518';
-      flyerBtn.style.cssText = 'background:'+fbg+';border:1px solid '+fbc+';border-radius:6px;padding:3px 8px;color:'+fbc+';font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:4px;';
-      var iconSvg = hasFlyer
-        ? '<svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/></svg>'
-        : '<svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM5 5h14v9.59l-3.29-3.3a1 1 0 0 0-1.42 0L10 15.59l-2.29-2.3a1 1 0 0 0-1.42 0L5 14.59V5z" fill="currentColor"/></svg>';
-      flyerBtn.innerHTML = iconSvg + (hasFlyer ? 'Flyer ✓' : 'Flyer');
-      flyerBtn.onclick = (function(ev){ return function(evt){ evt.stopPropagation(); if(typeof openFlyerForGig === 'function') openFlyerForGig(ev); }; })(e);
-      btnRow.appendChild(flyerBtn);
+      if(!hasFlyer){
+        var flyerBtn = document.createElement('button');
+        var fbg = 'rgba(245,197,24,.12)';
+        var fbc = '#f5c518';
+        flyerBtn.style.cssText = 'background:'+fbg+';border:1px solid '+fbc+';border-radius:6px;padding:3px 8px;color:'+fbc+';font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:4px;';
+        var iconSvg = '<svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM5 5h14v9.59l-3.29-3.3a1 1 0 0 0-1.42 0L10 15.59l-2.29-2.3a1 1 0 0 0-1.42 0L5 14.59V5z" fill="currentColor"/></svg>';
+        flyerBtn.innerHTML = iconSvg + 'Flyer';
+        flyerBtn.onclick = (function(ev){ return function(evt){ evt.stopPropagation(); if(typeof openFlyerForGig === 'function') openFlyerForGig(ev); }; })(e);
+        btnRow.appendChild(flyerBtn);
+      }
     }
     function openThisEventForEdit(evt){
       if(evt){
@@ -16045,7 +16055,7 @@ function openDayDrawer(day, de, opts){
         var thumbInfo = document.createElement('div');
         thumbInfo.style.cssText = 'flex:1;min-width:0;';
         thumbInfo.innerHTML =
-          '<div class="cal-flyer-thumb-label">SAVED FLYER</div>' +
+          '<div class="cal-flyer-thumb-label">GIG FLYER</div>' +
           '<div class="cal-flyer-thumb-help">Tap to edit, share, or delete</div>';
         thumbWrap.appendChild(thumbImg);
         thumbWrap.appendChild(thumbInfo);
@@ -22951,7 +22961,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-gig-flyer-pill-cleanup-r389';
+var WHATS_NEW_VERSION = '2026-05-09-agenda-list-trigger-gig-flyer-r390';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23244,6 +23254,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-agenda-list-trigger-gig-flyer-r390', date:'May 9, 2026', importance:'fix', title:'Agenda trigger and gig flyer cleanup', items:['On Edit Rehearsal, the Agenda popout now opens from the visible song list instead of the Agenda heading/subtitle area.', 'On Gig Event Details, gigs with saved flyers no longer show the duplicate green Flyer check pill; the Gig Flyer thumbnail/card remains the flyer editor tap target.']},
   {version:'2026-05-09-gig-flyer-pill-cleanup-r389', date:'May 9, 2026', importance:'fix', title:'Gig flyer entry cleaned up', items:['On Gig Event Details, the duplicate green flyer action pill is removed when a gig already has a saved flyer image pill.', 'The saved flyer image pill is renamed Gig Flyer and remains the tap target for opening the flyer editor.']},
   {version:'2026-05-09-rehearsal-agenda-song-picker-r388', date:'May 9, 2026', importance:'fix', title:'Edit Rehearsal agenda song picker', items:['Edit Rehearsal song picker now stays open for multiple song selections and has a green Save pill to return to Edit Rehearsal.', 'The redundant Tap Add to choose songs field was removed, and tapping the Agenda title opens a popout list of all selected songs.']},
   {version:'2026-05-09-rehearsal-edit-actions-safe-r387', date:'May 9, 2026', importance:'fix', title:'Safe Rehearsal edit action controls', items:['Built from stable r385 after r386 failed. Edit Rehearsal Save/Delete is forced to match the Edit Gig action row, and saving an existing rehearsal keeps the user on Edit Rehearsal instead of returning to Calendar Event Details.']},
