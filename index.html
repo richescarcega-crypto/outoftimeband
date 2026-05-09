@@ -10438,6 +10438,7 @@ function go(id, btn) {
   // Close it before switching tabs so returning to Calendar starts from the normal grid view.
   if(id !== 'cal'){
     try { closeDayDrawer(); } catch(e){}
+    try { collapseCalendarLowerAccordionsForReset('tab-leave'); } catch(e){}
   }
   // r260: never let the Calendar legend persist into another tab.
   if(id !== 'cal'){ try { closeCalLegend(); } catch(e){} }
@@ -16017,6 +16018,28 @@ var _drawerDay = null; // currently expanded day number, or null
 var _clearCalendarSelectionOnEvmClose = false; // r352: empty-date chooser dismiss clears temporary selected-date glow
 function _clearCalendarSelectedDateVisual(){
   try { document.querySelectorAll('#sc-cal .dc.sel').forEach(function(node){ node.classList.remove('sel'); }); } catch(e){}
+}
+
+
+// r408: Reset Calendar lower accordions when leaving Calendar or when the app is backgrounded.
+// This keeps All Events and Rehearsal Proposals collapsed by default when returning.
+function collapseCalendarLowerAccordionsForReset(reason){
+  try{
+    if(typeof cardStates !== 'undefined'){
+      cardStates['evl'] = true;
+      cardStates['proposals-list'] = true;
+    }
+    var evl = document.getElementById('evl');
+    if(evl) evl.style.display = 'none';
+    var prop = document.getElementById('proposals-list');
+    if(prop) prop.style.display = 'none';
+    var propose = document.getElementById('propose-btn');
+    if(propose) propose.style.display = 'none';
+    var filterRow = document.getElementById('evl-filter-row');
+    if(filterRow) filterRow.style.display = 'none';
+    if(typeof _evlFilterOpen !== 'undefined') _evlFilterOpen = false;
+    if(typeof _closeEvlFilterDropdown === 'function') _closeEvlFilterDropdown();
+  } catch(e){}
 }
 
 function closeDayDrawer(){
@@ -23397,7 +23420,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-songs-menu-pending-clue-r407';
+var WHATS_NEW_VERSION = '2026-05-09-calendar-lower-collapse-r408';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23690,6 +23713,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-calendar-lower-collapse-r408', date:'May 9, 2026', importance:'fix', title:'Calendar lower sections reset collapsed', items:['All Events and Rehearsal Proposals now collapse automatically when leaving Calendar, switching tabs, or backgrounding/closing the app.', 'Returning to Calendar starts from the default collapsed lower-section state. No Songs, Setlists, or YouTube behavior changed.']},
   {version:'2026-05-09-songs-menu-pending-clue-r407', date:'May 9, 2026', importance:'fix', title:'Songs menu pending vote clue', items:['When the Songs kebab has a red pending-vote dot, opening the Songs options menu now explains it in the menu header.', 'Vote on Suggestions is highlighted with a red border/PENDING badge and pending-vote helper text when the current member has unvoted song suggestions.', 'No song suggestion, vote, import, delete, notification, or calendar behavior changed.']},
   {version:'2026-05-09-song-vote-cue-red-border-r406', date:'May 9, 2026', importance:'fix', title:'Song vote cue red border', items:['Home Song Vote Pending cue border changed from gold to red.', 'No song suggestion, vote, import, delete, notification, or calendar behavior changed.']},
   {version:'2026-05-09-suggest-keyboard-down-r405', date:'May 9, 2026', importance:'fix', title:'Suggest a Song typing frame lowered', items:['Suggest a Song keeps the same consistent keyboard typing-frame position for Song, Artist, and Why This Song.', 'The fixed typing frame is lowered by one full inch while preserving the r404 song-vote edit and Home cue behavior.']},
@@ -24701,6 +24725,7 @@ if(savedName&&savedId){
   function closeCalendarDrawerForLifecycle(reason){
     try {
       if(typeof closeDayDrawer === 'function') closeDayDrawer();
+      if(typeof collapseCalendarLowerAccordionsForReset === 'function') collapseCalendarLowerAccordionsForReset(reason || 'lifecycle');
     } catch(e){}
   }
   document.addEventListener('visibilitychange', function(){
