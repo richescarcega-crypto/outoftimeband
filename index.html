@@ -10627,6 +10627,70 @@ function openInMaps(address){
   window.open(url, '_blank');
 }
 
+// r411: Preserve app context when leaving for an external song/YouTube link.
+// Normal app resume still defaults to Home; this one-shot flag only applies after
+// the app itself launched an external URL, so returning from YouTube keeps the same
+// Songs/Setlists screen and expanded display instead of being forced to Home.
+function _captureExternalReturnContext(){
+  try {
+    var activeSc = document.querySelector('.sc.on');
+    var tab = activeSc && activeSc.id ? activeSc.id.replace(/^sc-/, '') : '';
+    var ctx = {
+      at: Date.now(),
+      tab: tab,
+      setsViewState: (typeof setsViewState !== 'undefined' ? setsViewState : ''),
+      activeSetlistId: (typeof aSL !== 'undefined' && aSL != null ? String(aSL) : ''),
+      expandedSetlistId: (window._expandedSetlistId != null ? String(window._expandedSetlistId) : ''),
+      songsScroll: (document.getElementById('sc-songs') ? document.getElementById('sc-songs').scrollTop : 0),
+      setsScroll: (document.getElementById('sc-sets') ? document.getElementById('sc-sets').scrollTop : 0)
+    };
+    window._ootExternalReturnContext = ctx;
+    window._ootExternalNavAt = ctx.at;
+    try { sessionStorage.setItem('oot_external_return_ctx', JSON.stringify(ctx)); } catch(e){}
+  } catch(e){}
+}
+function _consumeExternalReturnContext(){
+  var ctx = window._ootExternalReturnContext || null;
+  try {
+    var raw = sessionStorage.getItem('oot_external_return_ctx');
+    if(raw) ctx = JSON.parse(raw);
+  } catch(e){}
+  if(!ctx || !ctx.at) return null;
+  if(Date.now() - Number(ctx.at) > 10 * 60 * 1000){
+    try { sessionStorage.removeItem('oot_external_return_ctx'); } catch(e){}
+    window._ootExternalReturnContext = null;
+    return null;
+  }
+  try { sessionStorage.removeItem('oot_external_return_ctx'); } catch(e){}
+  window._ootExternalReturnContext = null;
+  return ctx;
+}
+function _restoreExternalReturnContext(reason){
+  var ctx = _consumeExternalReturnContext();
+  if(!ctx) return false;
+  try {
+    if(ctx.expandedSetlistId) window._expandedSetlistId = ctx.expandedSetlistId;
+    if(ctx.setsViewState && typeof setsViewState !== 'undefined') setsViewState = ctx.setsViewState;
+    if(ctx.activeSetlistId && typeof aSL !== 'undefined') aSL = ctx.activeSetlistId;
+    var activeSc = document.querySelector('.sc.on');
+    var activeTab = activeSc && activeSc.id ? activeSc.id.replace(/^sc-/, '') : '';
+    if(ctx.tab && activeTab !== ctx.tab){
+      var btn = document.getElementById('tb-' + ctx.tab);
+      if(typeof go === 'function') go(ctx.tab, btn);
+    } else {
+      if(ctx.tab === 'sets' && typeof rSets === 'function' && (!ctx.setsViewState || ctx.setsViewState === 'list')) rSets();
+      if(ctx.tab === 'songs' && typeof rLib === 'function') rLib();
+    }
+    setTimeout(function(){
+      try {
+        if(ctx.tab === 'songs' && document.getElementById('sc-songs')) document.getElementById('sc-songs').scrollTop = Number(ctx.songsScroll || 0);
+        if(ctx.tab === 'sets' && document.getElementById('sc-sets')) document.getElementById('sc-sets').scrollTop = Number(ctx.setsScroll || 0);
+      } catch(e){}
+    }, 120);
+    return true;
+  } catch(e){ return true; }
+}
+
 // r48b: PWA-aware opener for non-maps external https URLs (YouTube, social
 // links, etc.). Inside an installed PWA, window.open() with target='_blank'
 // can strand the user in a browser tab with no back button. The fix:
@@ -10636,6 +10700,7 @@ function openInMaps(address){
 // browser, in both cases with proper back-to-app navigation.
 function _openExternalUrl(url){
   if(!url) return;
+  try { _captureExternalReturnContext(); } catch(e){}
   try {
     var a = document.createElement('a');
     a.href = url;
@@ -19237,10 +19302,10 @@ function _openSetlistSongInfoFromRow(row){
   }
 
   if(match && match.id != null){
-    // showSongInfo uses strict id matching, so pass the library record's actual id type.
-    showSongInfo(match.id);
+    // r411: song title/text taps open the Song Resources/options sheet (Lyrics, Discography, Practice, Edit Links).
+    openSongResources(match.id);
   } else {
-    toast('Save this setlist song to the library to edit song details', {tone:'info'});
+    toast('Save this setlist song to the library to open song options', {tone:'info'});
   }
 }
 
@@ -19487,24 +19552,26 @@ function rEd() {
             + (meta.length ? '<div class="song-meta-chip" style="margin-top:5px;font-size:10px;letter-spacing:.35px;">' + meta.join(' · ') + '</div>' : '')
           + '</div>'
         + '</div>';
-      // Tap a song row (when not reordering) to open the song detail sheet
+      // r411: Tap the song title/text (when not reordering) to open the Song Resources/options sheet.
       if(libSong){
         textDiv.style.cursor = 'pointer';
         textDiv.onclick = (function(libId){ return function(e){
           if(reorderMode) return; // don't hijack drag mode
           e.stopPropagation();
-          showSongInfo(libId);
+          openSongResources(libId);
         }; })(libSong.id);
         var artTap = textDiv.querySelector('.song-cover-box,.song-badge-box');
         if(artTap){
           artTap.classList.add('song-art-tap');
-          artTap.setAttribute('title','Song resources');
-          artTap.setAttribute('aria-label','Song resources');
-          artTap.onclick = (function(libId){ return function(e){
+          artTap.setAttribute('title','Play on YouTube');
+          artTap.setAttribute('aria-label','Play on YouTube');
+          artTap.onclick = (function(song, detObj){ return function(e){
             if(reorderMode) return;
             e.stopPropagation();
-            openSongResources(libId);
-          }; })(libSong.id);
+            var savedUrl = (detObj && detObj.yt) || (song && song.yt) || '';
+            if(savedUrl){ _openExternalUrl(savedUrl); }
+            else { playYT(((song && song.title) || '') + ' ' + ((song && song.artist) || '')); }
+          }; })(libSong, det);
         }
       }
 
@@ -22495,7 +22562,8 @@ function rLib() {
         + '<button class="song-youtube-btn" type="button" aria-label="Play on YouTube" title="Play on YouTube"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="1.5" y="5" width="21" height="14" rx="3.5" fill="#ff0000"/><polygon points="10,9 16,12 10,15" fill="#fff"/></svg></button>'
       + '</div>';
 
-    row.onclick=(function(song){ return function(){ showSongInfo(song.id); }; })(s);
+    // r411: Song title/text tap opens the Song Resources/options sheet; album art remains YouTube.
+    row.onclick=(function(song){ return function(){ openSongResources(song.id); }; })(s);
 
     var ytBtn = row.querySelector('.song-youtube-btn');
     if(ytBtn){
@@ -23425,7 +23493,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-album-art-youtube-r409';
+var WHATS_NEW_VERSION = '2026-05-09-song-title-options-youtube-return-r411';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23718,6 +23786,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-song-title-options-youtube-return-r411', date:'May 9, 2026', importance:'fix', title:'Song title options and YouTube return', items:['Song title/text taps in Songs and Setlists now open the Song Resources/options sheet with Lyrics, Discography / Album Info, Practice Reference, and Edit Song Links.', 'Album-art taps remain routed to saved YouTube URLs or YouTube search fallback.', 'Returning from an app-launched YouTube/external song link preserves the same Songs or Setlists context instead of applying the normal Home-on-resume reset.']},
   {version:'2026-05-09-album-art-youtube-r409', date:'May 9, 2026', importance:'fix', title:'Album art opens YouTube', items:['Songs and Setlists album-art taps now open the saved YouTube URL when one exists, or a YouTube search for the song when no saved URL exists.', 'Song name/text taps continue to open the song detail/options path. No Song Suggestion URL or album-art enhancements were included in this build.']},
   {version:'2026-05-09-calendar-lower-collapse-r408', date:'May 9, 2026', importance:'fix', title:'Calendar lower sections reset collapsed', items:['All Events and Rehearsal Proposals now collapse automatically when leaving Calendar, switching tabs, or backgrounding/closing the app.', 'Returning to Calendar starts from the default collapsed lower-section state. No Songs, Setlists, or YouTube behavior changed.']},
   {version:'2026-05-09-songs-menu-pending-clue-r407', date:'May 9, 2026', importance:'fix', title:'Songs menu pending vote clue', items:['When the Songs kebab has a red pending-vote dot, opening the Songs options menu now explains it in the menu header.', 'Vote on Suggestions is highlighted with a red border/PENDING badge and pending-vote helper text when the current member has unvoted song suggestions.', 'No song suggestion, vote, import, delete, notification, or calendar behavior changed.']},
@@ -24715,11 +24784,17 @@ if(savedName&&savedId){
       _ootHiddenAt = Date.now();
     } else if(document.visibilityState === 'visible'){
       var elapsed = _ootHiddenAt ? (Date.now() - _ootHiddenAt) : 0;
-      if(elapsed > 1000) setTimeout(function(){ _forceHomeDefaultView('resume'); }, 0);
+      if(elapsed > 1000) setTimeout(function(){
+        if(_restoreExternalReturnContext('resume')) return;
+        _forceHomeDefaultView('resume');
+      }, 0);
     }
   });
   window.addEventListener('pageshow', function(ev){
-    if(ev && ev.persisted) setTimeout(function(){ _forceHomeDefaultView('pageshow'); }, 0);
+    if(ev && ev.persisted) setTimeout(function(){
+      if(_restoreExternalReturnContext('pageshow')) return;
+      _forceHomeDefaultView('pageshow');
+    }, 0);
   });
 })();
 
