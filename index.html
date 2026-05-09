@@ -19339,17 +19339,19 @@ function rSets() {
         });
         Array.prototype.slice.call(panel.querySelectorAll('.setlist-expanded-song .song-cover-box,.setlist-expanded-song .song-badge-box')).forEach(function(art){
           art.classList.add('song-art-tap');
-          art.title = 'Song resources';
-          art.setAttribute('aria-label','Song resources');
+          art.title = 'Play on YouTube';
+          art.setAttribute('aria-label','Play on YouTube');
           art.onclick = function(e){
             e.stopPropagation();
             var row = art.closest('.setlist-expanded-song');
             var libId = row && row.getAttribute('data-lib-id');
-            if(libId && library.some(function(l){ return String(l.id) === String(libId); })){
-              openSongResources(libId);
-            } else {
-              _openSetlistSongInfoFromRow(row);
-            }
+            var title = row && row.getAttribute('data-title') || '';
+            var artist = row && row.getAttribute('data-artist') || '';
+            var libSong = libId ? library.find(function(l){ return String(l.id) === String(libId); }) : null;
+            var det = libId ? (songDetails[String(libId)] || {}) : {};
+            var saved = (det && det.yt) || (libSong && libSong.yt) || '';
+            if(saved) _openExternalUrl(saved);
+            else playYT((title + ' ' + artist).trim());
           };
         });
         Array.prototype.slice.call(panel.querySelectorAll('.setlist-expanded-info')).forEach(function(info){
@@ -22508,11 +22510,14 @@ function rLib() {
     var artTap = row.querySelector('.song-cover-box,.song-badge-box');
     if(artTap){
       artTap.classList.add('song-art-tap');
-      artTap.setAttribute('title','Song resources');
-      artTap.setAttribute('aria-label','Song resources');
+      artTap.setAttribute('title','Play on YouTube');
+      artTap.setAttribute('aria-label','Play on YouTube');
       artTap.onclick=(function(song){ return function(e){
         e.stopPropagation();
-        openSongResources(song.id);
+        var det = songDetails[String(song.id)] || {};
+        var savedUrl = det.yt || song.yt || '';
+        if(savedUrl){ _openExternalUrl(savedUrl); }
+        else { playYT(song.title+' '+(song.artist||'')); }
       }; })(s);
     }
     el.appendChild(row);
@@ -23420,7 +23425,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-calendar-lower-collapse-r408';
+var WHATS_NEW_VERSION = '2026-05-09-album-art-youtube-r409';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23713,6 +23718,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-album-art-youtube-r409', date:'May 9, 2026', importance:'fix', title:'Album art opens YouTube', items:['Songs and Setlists album-art taps now open the saved YouTube URL when one exists, or a YouTube search for the song when no saved URL exists.', 'Song name/text taps continue to open the song detail/options path. No Song Suggestion URL or album-art enhancements were included in this build.']},
   {version:'2026-05-09-calendar-lower-collapse-r408', date:'May 9, 2026', importance:'fix', title:'Calendar lower sections reset collapsed', items:['All Events and Rehearsal Proposals now collapse automatically when leaving Calendar, switching tabs, or backgrounding/closing the app.', 'Returning to Calendar starts from the default collapsed lower-section state. No Songs, Setlists, or YouTube behavior changed.']},
   {version:'2026-05-09-songs-menu-pending-clue-r407', date:'May 9, 2026', importance:'fix', title:'Songs menu pending vote clue', items:['When the Songs kebab has a red pending-vote dot, opening the Songs options menu now explains it in the menu header.', 'Vote on Suggestions is highlighted with a red border/PENDING badge and pending-vote helper text when the current member has unvoted song suggestions.', 'No song suggestion, vote, import, delete, notification, or calendar behavior changed.']},
   {version:'2026-05-09-song-vote-cue-red-border-r406', date:'May 9, 2026', importance:'fix', title:'Song vote cue red border', items:['Home Song Vote Pending cue border changed from gold to red.', 'No song suggestion, vote, import, delete, notification, or calendar behavior changed.']},
