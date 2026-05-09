@@ -5508,6 +5508,18 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   flex-shrink:0 !important;
 }
 
+
+/* r382: Rehearsal Details read-only page and edit action polish only. */
+.r382-rh-detail-body .r366-gig-field{white-space:pre-line;}
+.r382-rh-readonly-grid .r366-gig-field:nth-child(5),
+.r382-rh-readonly-grid .r366-gig-field:nth-child(6){grid-column:1 / -1;}
+.r382-rh-actions{display:flex;justify-content:center;margin-top:8px;}
+.r382-trash-icon{width:38px;height:38px;border-radius:999px;background:rgba(255,71,87,.12);border:1px solid rgba(255,71,87,.70);color:#ff3348;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 14px rgba(255,71,87,.16);padding:0;}
+.r382-trash-icon:active{transform:scale(.96);}
+.r382-edit-trash{margin:8px auto 2px auto;}
+.r382-rh-saved-pill{display:block;margin:8px auto 0 auto;min-width:96px;border:none;border-radius:999px;padding:8px 18px;background:linear-gradient(135deg,#06d6a0,#0fbf8b);color:#041c19;font-family:"Russo One",sans-serif;font-size:10px;letter-spacing:1.2px;font-weight:700;box-shadow:0 0 14px rgba(6,214,160,.22);cursor:pointer;}
+#detail-action-sheet .songs-sheet-btn-icon svg{display:block;}
+
 </style>
 </head>
 <body>
@@ -15663,7 +15675,7 @@ function openDayDrawer(day, de, opts){
       } else if(e.type === 'gig'){
         openGigSheet(e);
       } else if(e.type === 'rehearsal'){
-        openRehearsalSheet(e);
+        _r382OpenRehearsalDetails(e);
       } else if(e.type === 'blackout'){
         openBlackoutSheet(e);
       } else {
@@ -15866,7 +15878,7 @@ function editEv(id){
   if(ev.type === 'gig'){
     openGigSheet(ev);
   } else if(ev.type === 'rehearsal'){
-    openRehearsalSheet(ev);
+    _r382OpenRehearsalDetails(ev);
   } else {
     openBlackoutSheet(ev);
   }
@@ -15961,10 +15973,12 @@ function _r379DetailOptionButton(label, sub, iconText, danger, action){
   b.className = 'songs-sheet-btn';
   var ico = document.createElement('span');
   ico.className = 'songs-sheet-btn-icon';
-  ico.textContent = iconText || '';
   if(danger){
+    ico.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg>';
     ico.style.color = '#ff4757';
     ico.style.borderColor = 'rgba(255,71,87,.42)';
+  } else {
+    ico.textContent = iconText || '';
   }
   var textWrap = document.createElement('span');
   textWrap.style.flex = '1';
@@ -16656,6 +16670,59 @@ function saveGigSheet(evId, isNew){
   _confirmBlackoutConflictBeforeSave('gig', dateStr, commitGigSave);
 }
 
+function _r382RehearsalData(ev){
+  ev = ev || {};
+  var ag = ev.id ? _getAgenda(ev.id) : {songs:[], notes:'', startTime:'', endTime:'', focus:''};
+  return {
+    date: ev.date || '',
+    title: ev.title || 'Rehearsal',
+    location: ev.note || '',
+    startTime: ag.startTime || ev.startTime || ev.start || '',
+    endTime: ag.endTime || ev.endTime || ev.end || '',
+    focus: ag.focus || ev.focus || '',
+    songs: Array.isArray(ag.songs) ? ag.songs.slice() : [],
+    notes: ag.notes || ''
+  };
+}
+function _r382OpenRehearsalDetails(ev){
+  if(!ev) return openRehearsalSheet(null);
+  _r368SetDetailFit('rehearsal');
+  var rhTitleEl = document.getElementById('gd-title');
+  if(rhTitleEl) rhTitleEl.textContent = 'Rehearsal Details';
+  var oldMenu = document.getElementById('r366-gig-menu-wrap');
+  if(oldMenu) oldMenu.remove();
+  _r379InstallDetailOptionsButton(ev, 'rehearsal');
+  var b = document.getElementById('gd-body');
+  b.innerHTML = '';
+  b.classList.add('r366-gig-body','r382-rh-detail-body');
+  var d = _r382RehearsalData(ev);
+  var datePretty = d.date ? fmtGigDateForNotif(d.date) : '—';
+  var html = '';
+  html += '<div class="r366-gig-hero r382-rh-hero">';
+  html += '<div class="r366-gig-kicker">REHEARSAL</div>';
+  html += '<div class="r366-gig-title">' + _r366Esc(d.title || 'Rehearsal') + '</div>';
+  html += '<div class="r366-gig-sub">' + _r366Esc(datePretty) + (d.location ? ' · ' + _r366Esc(d.location) : '') + '</div>';
+  html += '</div>';
+  html += '<div class="r366-gig-grid r382-rh-readonly-grid">';
+  html += _r366FieldHtml('Date', datePretty, {big:true});
+  html += _r366FieldHtml('Location', d.location, {big:true});
+  html += _r366FieldHtml('Start Time', d.startTime, {big:true});
+  html += _r366FieldHtml('End Time', d.endTime, {big:true});
+  html += _r366FieldHtml('Focus / Goals', d.focus);
+  html += _r366FieldHtml('Songs', d.songs.length ? d.songs.join('\n') : '—');
+  html += '</div>';
+  html += '<div class="r366-gig-notes-card"><div class="r366-gig-label">Notes</div><div class="r366-gig-notes">' + _r366Esc(d.notes || '—') + '</div></div>';
+  html += '<div class="r382-rh-actions"><button type="button" id="r382-rh-delete" class="r382-trash-icon" title="Delete event" aria-label="Delete event"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg></button></div>';
+  b.innerHTML = html;
+  var del = document.getElementById('r382-rh-delete');
+  if(del){ del.onclick = function(){
+    appConfirm({title:'Delete event?', message:'Delete "' + (ev.title || 'this rehearsal') + '"? This cannot be undone.'}).then(function(ok){
+      if(ok){ dEv(ev.id); clM('gig-detail-modal'); toast('Event deleted', {tone:'success'}); }
+    });
+  }; }
+  opM('gig-detail-modal');
+}
+
 function openRehearsalSheet(ev){
   _r368SetDetailFit('rehearsal');
   var isNew = !ev;
@@ -16689,8 +16756,11 @@ function openRehearsalSheet(ev){
   // Save / Delete actions
   if(!isNew){
     var delBtn = document.createElement('button');
-    delBtn.style.cssText = 'background:#0a1628;border:1px solid #ff4757;border-radius:8px;padding:8px 12px;color:#ff4757;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;width:100%;margin-top:6px;margin-bottom:4px;display:inline-flex;align-items:center;justify-content:center;gap:6px;';
-    delBtn.innerHTML = '<span style="font-size:13px;line-height:1;">&#128465;</span><span>DELETE EVENT</span>';
+    delBtn.className = 'r382-trash-icon r382-edit-trash';
+    delBtn.title = 'Delete event';
+    delBtn.setAttribute('aria-label', 'Delete event');
+    delBtn.style.cssText = '';
+    delBtn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg>';
     delBtn.onclick = (function(eid, title){ return function(){
       appConfirm({title:'Delete event?', message:'Delete "' + title + '"? This cannot be undone.'}).then(function(ok){ if(ok){ dEv(eid); clM('gig-detail-modal'); toast('Event deleted', {tone:'success'}); } });
     }; })(ev.id, ev.title || 'this rehearsal');
@@ -16698,9 +16768,9 @@ function openRehearsalSheet(ev){
   }
 
   var saveBtn = document.createElement('button');
-  saveBtn.className = 'sb';
-  saveBtn.style.cssText = 'width:100%;margin-top:8px;';
-  saveBtn.textContent = isNew ? 'Add Rehearsal' : 'Save Changes';
+  saveBtn.className = isNew ? 'sb' : 'r382-rh-saved-pill';
+  saveBtn.style.cssText = isNew ? 'width:100%;margin-top:8px;' : '';
+  saveBtn.textContent = isNew ? 'Add Rehearsal' : 'SAVED';
   saveBtn.onclick = function(){ saveRehearsalSheet(ev ? ev.id : null, isNew); };
   b.appendChild(saveBtn);
 
@@ -22564,7 +22634,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-gig-flyer-detail-entry-cleanup-r381';
+var WHATS_NEW_VERSION = '2026-05-09-rehearsal-details-readonly-r382';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22857,6 +22927,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-rehearsal-details-readonly-r382', date:'May 9, 2026', importance:'minor', title:'Rehearsal Details read-only page', items:['Tapping an existing rehearsal now opens a read-only Rehearsal Details page first. The kebab still opens the options sheet, Edit opens the editable form, the read-only Save Changes pill is removed, and rehearsal delete controls use red trash-can icons.']},
   {version:'2026-05-09-gig-flyer-detail-entry-cleanup-r381', date:'May 9, 2026', importance:'fix', title:'Gig Detail flyer entry cleaned up', items:['On Gig Details, the duplicate yellow Edit Saved Flyer pill is hidden when a saved flyer card already exists. Opening the flyer editor from Gig Details now keeps the Gig Details modal underneath so closing the flyer editor returns directly without flashing Home.']},
   {version:'2026-05-09-gig-flyer-return-path-r380', date:'May 9, 2026', importance:'fix', title:'Gig flyer return path fixed', items:['When Edit Saved Flyer is opened from Gig Details, closing the flyer editor now returns to Gig Details instead of dropping back to the Calendar Event Details drawer. Calendar drawer flyer launches keep their existing return behavior.']},
   {version:'2026-05-09-detail-options-sheet-from-r375-r379', date:'May 9, 2026', importance:'fix', title:'Gig/Rehearsal detail options sheet', items:['Built from the phone rollback base r375. The Gig/Rehearsal detail kebab now opens a Songs Options-style action sheet with only Edit and Delete, without changing event logic or unrelated app areas.']},
