@@ -18267,6 +18267,18 @@ function _ootSentenceCaseField(el){ _ootPreserveCursorTransform(el, _ootSentence
 function _ootSuggestKeyboardMode(active, el){
   var ov = document.getElementById('votes-modal');
   var card = document.getElementById('votes-modal-card');
+  function alignToArtistAnchor(){
+    if(!card) return;
+    try{
+      var artist = document.getElementById('suggest-artist');
+      if(!artist) return;
+      // r401: use the Artist field as the fixed anchor because that was the approved phone position.
+      // Every Suggest field now forces the modal/card to the same scroll position that centers Artist.
+      var target = Math.max(0, Math.round(artist.offsetTop - (card.clientHeight * 0.48) + (artist.offsetHeight / 2)));
+      card.scrollTop = target;
+      if(ov) ov.scrollTop = 0;
+    }catch(e){}
+  }
   function apply(){
     if(!ov || !card) return;
     if(active){
@@ -18278,25 +18290,29 @@ function _ootSuggestKeyboardMode(active, el){
           card.style.setProperty('--oot-suggest-keyboard-height', safeH + 'px');
         }
       }catch(e){}
-      // r400: keep Suggest a Song modal in one consistent keyboard position for every field.
-      // Do not scroll the focused field into a different center point; that made Song, Artist,
-      // and Why This Song each shift the modal by a different amount on Android keyboards.
-      try{
-        if(card){ card.scrollTop = 0; }
-        if(ov){ ov.scrollTop = 0; }
-      }catch(e){}
+      alignToArtistAnchor();
     } else {
       setTimeout(function(){
         var form = document.getElementById('suggest-form');
         var a = document.activeElement;
         if(form && a && form.contains(a)) return;
         if(ov) ov.classList.remove('suggest-keyboard-active');
-        if(card) card.style.removeProperty('--oot-suggest-keyboard-height');
+        if(card){
+          card.style.removeProperty('--oot-suggest-keyboard-height');
+          card.scrollTop = 0;
+        }
       }, 180);
     }
   }
   apply();
-  if(active){ setTimeout(apply, 350); }
+  // Android/Samsung may auto-pan after focus and again after the keyboard finishes animating.
+  // Re-apply the same Artist-anchor position several times so Song, Artist, and Why land together.
+  if(active){
+    setTimeout(apply, 80);
+    setTimeout(apply, 260);
+    setTimeout(apply, 520);
+    setTimeout(apply, 820);
+  }
 }
 function _setSongSuggestionsModalMode(mode){
   var ov = document.getElementById('votes-modal');
@@ -23296,7 +23312,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-suggest-field-position-r400';
+var WHATS_NEW_VERSION = '2026-05-09-suggest-field-anchor-r401';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23589,6 +23605,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-suggest-field-anchor-r401', date:'May 9, 2026', importance:'fix', title:'Suggest a Song fixed field anchor', items:['Suggest a Song now uses the Artist field as the fixed approved keyboard position anchor.', 'Song, Artist, and Why This Song focus events re-apply that same position during Android keyboard animation so the modal should not land in three different spots.']},
   {version:'2026-05-09-suggest-field-position-r400', date:'May 9, 2026', importance:'fix', title:'Suggest a Song field position consistency', items:['Suggest a Song now keeps the modal in the same keyboard-raised position whether the Song, Artist, or Why This Song field is tapped.', 'Removed field-specific scroll-centering that caused each input to shift the modal by a different amount on Android.']},
   {version:'2026-05-09-import-songs-preview-r399', date:'May 9, 2026', importance:'fix', title:'Import Songs preview upgrade', items:['Import Songs now accepts pasted rows in Title - Artist, Title, Artist, or Excel/Sheets tab-separated formats.', 'Added a Preview Import step with selectable rows before anything is saved.', 'Preview flags missing artists and duplicate-looking entries before import.']},
   {version:'2026-05-09-suggest-modal-keyboard-r398', date:'May 9, 2026', importance:'fix', title:'Suggest a Song keyboard positioning', items:['When typing in Suggest a Song fields, the modal shifts into a compact top-positioned layout so the form remains visible above the mobile keyboard.', 'The suggestion subtitle is temporarily hidden during typing to recover vertical space, then normal layout returns after the keyboard focus leaves the form.']},
