@@ -10418,6 +10418,7 @@ function initApp() {
 var _ootHiddenAt = 0;
 function _forceHomeDefaultView(reason){
   try {
+    if(typeof _clearExternalReturnContext === 'function') _clearExternalReturnContext(reason || 'force-home');
     var hb = document.getElementById('tb-home');
     if(typeof go === 'function') go('home', hb);
     else {
@@ -10627,10 +10628,32 @@ function openInMaps(address){
   window.open(url, '_blank');
 }
 
-// r411: Preserve app context when leaving for an external song/YouTube link.
-// Normal app resume still defaults to Home; this one-shot flag only applies after
-// the app itself launched an external URL, so returning from YouTube keeps the same
-// Songs/Setlists screen and expanded display instead of being forced to Home.
+// r413: External-link return context is memory-only and one-shot.
+// Home remains the default for every normal app start/resume. The only exception is
+// a verified same-session return immediately after this app launched an external
+// song/YouTube link. Do NOT store this in sessionStorage/localStorage; stale stored
+// return contexts were overriding the Home-default rule on later app opens.
+var _ootExternalReturnContext = null;
+var _ootExternalNavAt = 0;
+var _ootExternalHandoffSeen = false;
+function _clearExternalReturnContext(reason){
+  try { window._ootExternalReturnContext = null; } catch(e){}
+  try { window._ootExternalNavAt = 0; } catch(e){}
+  try { window._ootExternalHandoffSeen = false; } catch(e){}
+  try { sessionStorage.removeItem('oot_external_return_ctx'); } catch(e){}
+}
+function _markExternalHandoffIfPending(reason){
+  try {
+    var ctx = window._ootExternalReturnContext;
+    if(!ctx || !ctx.at) return;
+    var age = Date.now() - Number(ctx.at);
+    if(age >= 0 && age < 30000){
+      window._ootExternalHandoffSeen = true;
+    } else if(age >= 30000){
+      _clearExternalReturnContext('stale-before-handoff');
+    }
+  } catch(e){}
+}
 function _captureExternalReturnContext(){
   try {
     var activeSc = document.querySelector('.sc.on');
@@ -10646,27 +10669,32 @@ function _captureExternalReturnContext(){
     };
     window._ootExternalReturnContext = ctx;
     window._ootExternalNavAt = ctx.at;
-    try { sessionStorage.setItem('oot_external_return_ctx', JSON.stringify(ctx)); } catch(e){}
+    window._ootExternalHandoffSeen = false;
+    try { sessionStorage.removeItem('oot_external_return_ctx'); } catch(e){}
   } catch(e){}
 }
-function _consumeExternalReturnContext(){
+function _consumeExternalReturnContext(reason){
   var ctx = window._ootExternalReturnContext || null;
-  try {
-    var raw = sessionStorage.getItem('oot_external_return_ctx');
-    if(raw) ctx = JSON.parse(raw);
-  } catch(e){}
   if(!ctx || !ctx.at) return null;
-  if(Date.now() - Number(ctx.at) > 10 * 60 * 1000){
-    try { sessionStorage.removeItem('oot_external_return_ctx'); } catch(e){}
-    window._ootExternalReturnContext = null;
+  var age = Date.now() - Number(ctx.at);
+  if(age < 0 || age > 3 * 60 * 1000){
+    _clearExternalReturnContext('expired');
     return null;
   }
-  try { sessionStorage.removeItem('oot_external_return_ctx'); } catch(e){}
+  // Only restore if the app actually handed off to another app/tab shortly after
+  // launching the external URL. Without this gate, stale contexts can restore
+  // Songs/Setlists during a normal reopen, which violates the Home-default rule.
+  if(!window._ootExternalHandoffSeen){
+    return null;
+  }
   window._ootExternalReturnContext = null;
+  window._ootExternalNavAt = 0;
+  window._ootExternalHandoffSeen = false;
+  try { sessionStorage.removeItem('oot_external_return_ctx'); } catch(e){}
   return ctx;
 }
 function _restoreExternalReturnContext(reason){
-  var ctx = _consumeExternalReturnContext();
+  var ctx = _consumeExternalReturnContext(reason);
   if(!ctx) return false;
   try {
     if(ctx.expandedSetlistId) window._expandedSetlistId = ctx.expandedSetlistId;
@@ -23493,7 +23521,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-song-title-options-youtube-return-r411';
+var WHATS_NEW_VERSION = '2026-05-09-home-default-lifecycle-r413';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23786,6 +23814,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-home-default-lifecycle-r413', date:'May 9, 2026', importance:'fix', title:'Home default lifecycle hardening', items:['Rebuilt the Home-default lifecycle instead of adding another tab-reset patch.', 'External YouTube/song return context is now memory-only, one-shot, and gated by an actual same-session app handoff so stale stored context cannot override Home on later app opens.', 'Normal app start, resume, close/reopen, and non-external restores should land on Home; only an immediate return from an app-launched YouTube/song link restores Songs or Setlists.']},
   {version:'2026-05-09-song-title-options-youtube-return-r411', date:'May 9, 2026', importance:'fix', title:'Song title options and YouTube return', items:['Song title/text taps in Songs and Setlists now open the Song Resources/options sheet with Lyrics, Discography / Album Info, Practice Reference, and Edit Song Links.', 'Album-art taps remain routed to saved YouTube URLs or YouTube search fallback.', 'Returning from an app-launched YouTube/external song link preserves the same Songs or Setlists context instead of applying the normal Home-on-resume reset.']},
   {version:'2026-05-09-album-art-youtube-r409', date:'May 9, 2026', importance:'fix', title:'Album art opens YouTube', items:['Songs and Setlists album-art taps now open the saved YouTube URL when one exists, or a YouTube search for the song when no saved URL exists.', 'Song name/text taps continue to open the song detail/options path. No Song Suggestion URL or album-art enhancements were included in this build.']},
   {version:'2026-05-09-calendar-lower-collapse-r408', date:'May 9, 2026', importance:'fix', title:'Calendar lower sections reset collapsed', items:['All Events and Rehearsal Proposals now collapse automatically when leaving Calendar, switching tabs, or backgrounding/closing the app.', 'Returning to Calendar starts from the default collapsed lower-section state. No Songs, Setlists, or YouTube behavior changed.']},
@@ -24782,6 +24811,7 @@ if(savedName&&savedId){
   document.addEventListener('visibilitychange', function(){
     if(document.visibilityState === 'hidden'){
       _ootHiddenAt = Date.now();
+      try { if(typeof _markExternalHandoffIfPending === 'function') _markExternalHandoffIfPending('visibility-hidden'); } catch(e){}
     } else if(document.visibilityState === 'visible'){
       var elapsed = _ootHiddenAt ? (Date.now() - _ootHiddenAt) : 0;
       if(elapsed > 1000) setTimeout(function(){
@@ -24789,6 +24819,9 @@ if(savedName&&savedId){
         _forceHomeDefaultView('resume');
       }, 0);
     }
+  });
+  window.addEventListener('pagehide', function(){
+    try { if(typeof _markExternalHandoffIfPending === 'function') _markExternalHandoffIfPending('pagehide'); } catch(e){}
   });
   window.addEventListener('pageshow', function(ev){
     if(ev && ev.persisted) setTimeout(function(){
