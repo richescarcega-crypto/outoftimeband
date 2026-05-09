@@ -5708,7 +5708,8 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 #votes-modal.suggest-keyboard-active #suggest-form .fi2{margin-bottom:7px!important;}
 #votes-modal.suggest-keyboard-active #suggest-title,
 #votes-modal.suggest-keyboard-active #suggest-artist,
-#votes-modal.suggest-keyboard-active #suggest-note{min-height:38px!important;font-size:15px!important;}
+#votes-modal.suggest-keyboard-active #suggest-note,
+#votes-modal.suggest-keyboard-active #suggest-url{min-height:38px!important;font-size:15px!important;}
 </style>
 </head>
 <body>
@@ -6195,6 +6196,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
       <input class="fi2" id="suggest-title" placeholder="Song *" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" onblur="_ootSuggestKeyboardMode(false,this)" oninput="_ootTitleCaseField(this)">
       <input class="fi2" id="suggest-artist" placeholder="Artist" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" onblur="_ootSuggestKeyboardMode(false,this)" oninput="_ootTitleCaseField(this)">
       <input class="fi2" id="suggest-note" placeholder="Why this song? (optional)" autocomplete="off" autocorrect="on" spellcheck="true" inputmode="text" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" onblur="_ootSuggestKeyboardMode(false,this)" oninput="_ootSentenceCaseField(this)">
+      <input class="fi2" id="suggest-url" placeholder="YouTube URL (optional)" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="url" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" onblur="_ootSuggestKeyboardMode(false,this)">
       <div class="r2" style="margin-top:8px;">
         <button class="sb" onclick="submitSuggestion()" style="width:100%;">Submit</button>
       </div>
@@ -9427,6 +9429,23 @@ function renderHomeSongVoteCue(){
 }
 
 
+function _songSuggestionVideoUrl(s){
+  var raw = String((s && (s.ytUrl || s.youtubeUrl || s.url || s.link)) || '').trim();
+  if(!raw) return '';
+  if(/^https?:\/\//i.test(raw)) return raw;
+  if(/^www\./i.test(raw)) return 'https://' + raw;
+  if(/^(youtube\.com|youtu\.be)\//i.test(raw)) return 'https://' + raw;
+  return raw;
+}
+function _songSuggestionSearchUrl(s){
+  var q = String(((s && s.title) || '') + ' ' + ((s && s.artist) || '')).trim();
+  return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q || 'song');
+}
+function _openSongSuggestionVideo(s){
+  var url = _songSuggestionVideoUrl(s) || _songSuggestionSearchUrl(s);
+  _openExternalUrl(url);
+}
+
 function _songSuggestionMemberStatusHtml(yesVoters, noVoters){
   yesVoters = (yesVoters||[]).map(function(v){ return String(v); });
   noVoters = (noVoters||[]).map(function(v){ return String(v); });
@@ -9464,12 +9483,26 @@ function rVotes(){
     var card=document.createElement('div');
     card.style.cssText='background:#101e34;border-radius:8px;padding:10px 12px;margin-bottom:8px;';
     var info = document.createElement('div');
+    var directUrl = _songSuggestionVideoUrl(s);
+    var artHtml = (typeof _songArtMarkup === 'function'
+      ? _songArtMarkup({title:s.title||'', artist:s.artist||''}).replace('class="song-cover-box', 'data-art-immediate="1" class="song-cover-box')
+      : '<span class="song-badge-box">♪</span>');
     info.innerHTML=
-      '<div style="font-size:13px;font-weight:600;color:#e8f0ff;">'+s.title+'</div>'+
-      (s.artist?'<div style="font-size:11px;color:#f5c518;">'+s.artist+'</div>':'')+
-      (s.note?'<div style="font-size:11px;color:#4a6a9a;margin-top:2px;">'+s.note+'</div>':'')+
-      '<div style="font-size:10px;color:#4a6a9a;margin-top:3px;">Suggested by '+s.suggestedBy+'</div>';
+      '<div style="display:flex;gap:10px;align-items:flex-start;">'+
+        '<button type="button" class="suggestion-art-link" aria-label="Open YouTube for suggested song" title="Open YouTube" style="background:none;border:none;padding:0;margin:0;cursor:pointer;flex:0 0 auto;line-height:0;">'+artHtml+'</button>'+
+        '<div style="flex:1;min-width:0;">'+
+          '<div style="font-size:13px;font-weight:600;color:#e8f0ff;line-height:1.2;">'+s.title+'</div>'+
+          (s.artist?'<div style="font-size:11px;color:#f5c518;margin-top:2px;">'+s.artist+'</div>':'')+
+          (s.note?'<div style="font-size:11px;color:#4a6a9a;margin-top:3px;line-height:1.25;">'+s.note+'</div>':'')+
+          '<div style="font-size:10px;color:#4a6a9a;margin-top:4px;">Suggested by '+s.suggestedBy+'</div>'+
+          (directUrl?'<button type="button" class="suggestion-url-link" style="margin-top:7px;background:rgba(255,0,0,.14);border:1px solid rgba(255,0,0,.55);border-radius:999px;color:#ffb3b3;font-family:Russo One,sans-serif;font-size:9px;letter-spacing:.8px;padding:5px 8px;cursor:pointer;">Open submitted YouTube URL</button>':'')+
+        '</div>'+
+      '</div>';
     card.appendChild(info);
+    var artBtn = info.querySelector('.suggestion-art-link');
+    if(artBtn){ artBtn.onclick = (function(sg){ return function(e){ e.stopPropagation(); _openSongSuggestionVideo(sg); }; })(s); }
+    var urlBtn = info.querySelector('.suggestion-url-link');
+    if(urlBtn){ urlBtn.onclick = (function(sg){ return function(e){ e.stopPropagation(); _openExternalUrl(_songSuggestionVideoUrl(sg)); }; })(s); }
 
     var status = document.createElement('div');
     status.innerHTML = _songSuggestionMemberStatusHtml(yesVoters, noVoters);
@@ -9578,12 +9611,16 @@ function submitSuggestion(){
   var titleEl=document.getElementById('suggest-title');
   var artistEl=document.getElementById('suggest-artist');
   var noteEl=document.getElementById('suggest-note');
+  var urlEl=document.getElementById('suggest-url');
   var t=_ootTitleCaseText(titleEl ? titleEl.value.trim() : '');
   if(!t)return;
+  var normalizedUrl = _songSuggestionVideoUrl({ytUrl:(urlEl ? urlEl.value.trim() : '')});
   var s={
     title:t,
     artist:_ootTitleCaseText(artistEl ? artistEl.value.trim() : ''),
     note:_ootSentenceCaseText(noteEl ? noteEl.value.trim() : ''),
+    ytUrl:normalizedUrl,
+    youtubeUrl:normalizedUrl,
     suggestedBy:myName,
     suggestedById:ME,
     votes:0,
@@ -9594,6 +9631,7 @@ function submitSuggestion(){
   if(titleEl) titleEl.value='';
   if(artistEl) artistEl.value='';
   if(noteEl) noteEl.value='';
+  if(urlEl) urlEl.value='';
   document.getElementById('suggest-form').style.display='none';
   try{ toast('Song suggestion submitted', {tone:'success'}); }catch(e){}
 }
@@ -18546,7 +18584,7 @@ function openSongSuggestModal(){
   _setSongSuggestionsModalMode('suggest');
   try{ if(typeof opM === 'function') opM('votes-modal'); else { var vm=document.getElementById('votes-modal'); if(vm) vm.classList.add('on'); } }catch(e){}
   setTimeout(function(){
-    ['suggest-title','suggest-artist','suggest-note'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+    ['suggest-title','suggest-artist','suggest-note','suggest-url'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
     // Do not auto-focus: prevents the mobile keyboard from covering the suggestion form on open.
   }, 60);
 }
@@ -23519,7 +23557,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-home-default-with-external-return-r415';
+var WHATS_NEW_VERSION = '2026-05-09-song-suggestion-youtube-art-r416';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23812,6 +23850,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-song-suggestion-youtube-art-r416', date:'May 9, 2026', importance:'minor', title:'Song suggestion YouTube and album art', items:['Suggest a Song now includes an optional YouTube URL field.', 'Vote on Suggestions now shows song artwork for each suggested song; tapping the artwork opens the submitted URL when present or falls back to YouTube search.', 'Submitted YouTube URLs also appear as a compact link pill in the suggestion vote card.', 'Preserves r415 Home default and intentional external-return behavior.']},
   {version:'2026-05-09-home-default-with-external-return-r415', date:'May 9, 2026', importance:'fix', title:'Home default with intentional external return', items:['Normal app open/reopen from any tab, submenu, drawer, or modal now forces Home.', 'Intentional external launches through Facebook, Instagram, YouTube album art, or YouTube buttons keep a short-lived one-shot return context so backing up returns to the page that launched the external app.', 'Home Gig Counter now opens the next gig as standalone Calendar Event Details without exposing the All Events title/list context.']},
   {version:'2026-05-09-home-default-lifecycle-r413', date:'May 9, 2026', importance:'fix', title:'Home default lifecycle hardening', items:['Rebuilt the Home-default lifecycle instead of adding another tab-reset patch.', 'External YouTube/song return context is now memory-only, one-shot, and gated by an actual same-session app handoff so stale stored context cannot override Home on later app opens.', 'Normal app start, resume, close/reopen, and non-external restores should land on Home; only an immediate return from an app-launched YouTube/song link restores Songs or Setlists.']},
   {version:'2026-05-09-song-title-options-youtube-return-r411', date:'May 9, 2026', importance:'fix', title:'Song title options and YouTube return', items:['Song title/text taps in Songs and Setlists now open the Song Resources/options sheet with Lyrics, Discography / Album Info, Practice Reference, and Edit Song Links.', 'Album-art taps remain routed to saved YouTube URLs or YouTube search fallback.', 'Returning from an app-launched YouTube/external song link preserves the same Songs or Setlists context instead of applying the normal Home-on-resume reset.']},
