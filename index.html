@@ -6168,20 +6168,20 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 </div>
 
 <div class="ov" id="votes-modal">
-  <div class="mo" style="max-height:85vh;">
+  <div class="mo" id="votes-modal-card" style="max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
     <div class="moh">
       <span class="mot" id="votes-modal-title">🎸 Song Suggestions</span>
       <button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="clM('votes-modal')">&#10005;</button>
     </div>
     <p id="votes-modal-subtitle" style="font-size:12px;color:#4a6a9a;margin-bottom:12px;">Vote on songs to add to the repertoire. One vote per person.</p>
     <div id="votes-list" style="margin-bottom:12px;"></div>
-    <div id="suggest-form" style="display:none;position:relative;padding-top:38px;" class="fb">
-      <button type="button" aria-label="Close song suggestion form" onclick="document.getElementById('suggest-form').style.display='none'" style="position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(138,168,214,.38);background:rgba(10,22,40,.78);color:#8aa8d6;font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>
-      <div style="position:absolute;top:12px;left:0;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1.5px;color:#f5c518;">SUGGEST A SONG</div>
-      <input class="fi2" id="suggest-title" placeholder="Song *" oninput="_ootTitleCaseField(this)">
-      <input class="fi2" id="suggest-artist" placeholder="Artist" oninput="_ootTitleCaseField(this)">
-      <input class="fi2" id="suggest-note" placeholder="Why this song? (optional)" oninput="_ootSentenceCaseField(this)">
-      <div class="r2">
+    <div id="suggest-form" style="display:none;position:relative;padding-top:30px;" class="fb">
+      <button type="button" aria-label="Close song suggestion form" onclick="document.getElementById('suggest-form').style.display='none'" style="position:absolute;top:3px;right:3px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(138,168,214,.38);background:rgba(10,22,40,.78);color:#8aa8d6;font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>
+      <div style="position:absolute;top:8px;left:0;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1.5px;color:#f5c518;">SUGGEST A SONG</div>
+      <input class="fi2" id="suggest-title" placeholder="Song *" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text" data-lpignore="true" data-form-type="other" oninput="_ootTitleCaseField(this)">
+      <input class="fi2" id="suggest-artist" placeholder="Artist" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text" data-lpignore="true" data-form-type="other" oninput="_ootTitleCaseField(this)">
+      <input class="fi2" id="suggest-note" placeholder="Why this song? (optional)" autocomplete="off" autocorrect="on" spellcheck="true" inputmode="text" data-lpignore="true" data-form-type="other" oninput="_ootSentenceCaseField(this)">
+      <div class="r2" style="margin-top:8px;">
         <button class="sb" onclick="submitSuggestion()" style="width:100%;">Submit</button>
       </div>
     </div>
@@ -9371,6 +9371,30 @@ function listenSuggestions(){
   });
 }
 
+
+function _songSuggestionMemberStatusHtml(yesVoters, noVoters){
+  yesVoters = (yesVoters||[]).map(function(v){ return String(v); });
+  noVoters = (noVoters||[]).map(function(v){ return String(v); });
+  var yesNames = [], noNames = [], pendingNames = [];
+  (members||[]).forEach(function(m){
+    var id = String(m.id);
+    var name = (m.name || ('Member '+id)).split(' ')[0];
+    if(yesVoters.indexOf(id) >= 0) yesNames.push(name);
+    else if(noVoters.indexOf(id) >= 0) noNames.push(name);
+    else pendingNames.push(name);
+  });
+  function row(label, names, color){
+    return '<div style="font-size:10.5px;color:#8aa8d6;line-height:1.35;margin-top:3px;">'+
+      '<span style="color:'+color+';font-family:Russo One,sans-serif;letter-spacing:.6px;">'+label+'</span> '+
+      '<span style="color:#dbe8ff;">'+(names.length ? names.join(', ') : 'None')+'</span></div>';
+  }
+  return '<div style="margin-top:9px;padding:7px 8px;border:1px solid rgba(74,158,255,.16);border-radius:8px;background:rgba(6,14,28,.36);">'+
+    row('YES', yesNames, '#06d6a0')+
+    row('NO', noNames, '#ff4757')+
+    row('PENDING', pendingNames, '#f5c518')+
+  '</div>';
+}
+
 function rVotes(){
   var el=document.getElementById('votes-list');if(!el)return;
   if(!suggestions.length){
@@ -9391,6 +9415,10 @@ function rVotes(){
       (s.note?'<div style="font-size:11px;color:#4a6a9a;margin-top:2px;">'+s.note+'</div>':'')+
       '<div style="font-size:10px;color:#4a6a9a;margin-top:3px;">Suggested by '+s.suggestedBy+'</div>';
     card.appendChild(info);
+
+    var status = document.createElement('div');
+    status.innerHTML = _songSuggestionMemberStatusHtml(yesVoters, noVoters);
+    card.appendChild(status);
 
     // Vote row
     var voteRow = document.createElement('div');
@@ -18230,18 +18258,24 @@ function _ootSentenceCaseText(v){
 function _ootTitleCaseField(el){ _ootPreserveCursorTransform(el, _ootTitleCaseText); }
 function _ootSentenceCaseField(el){ _ootPreserveCursorTransform(el, _ootSentenceCaseText); }
 function _setSongSuggestionsModalMode(mode){
+  var ov = document.getElementById('votes-modal');
+  var card = document.getElementById('votes-modal-card');
   var title = document.getElementById('votes-modal-title');
   var subtitle = document.getElementById('votes-modal-subtitle');
   var list = document.getElementById('votes-list');
   var form = document.getElementById('suggest-form');
   var inlineBtn = document.getElementById('votes-modal-suggest-inline');
   if(mode === 'suggest'){
+    if(ov){ ov.style.alignItems = 'flex-start'; ov.style.paddingTop = '10px'; }
+    if(card){ card.style.maxHeight = 'calc(100vh - 24px)'; card.style.overflowY = 'auto'; card.scrollTop = 0; }
     if(title) title.textContent = '🎸 Suggest a Song';
     if(subtitle) subtitle.textContent = 'Submit a song suggestion for the band to vote on.';
     if(list) list.style.display = 'none';
     if(inlineBtn) inlineBtn.style.display = 'none';
     if(form){ form.style.display = 'flex'; form.style.flexDirection = 'column'; }
   } else {
+    if(ov){ ov.style.alignItems = ''; ov.style.paddingTop = ''; }
+    if(card){ card.style.maxHeight = '85vh'; card.style.overflowY = 'auto'; card.scrollTop = 0; }
     if(title) title.textContent = '🎸 Vote on Suggestions';
     if(subtitle) subtitle.textContent = 'Review pending song suggestions and vote once per song.';
     if(list) list.style.display = 'block';
@@ -18255,7 +18289,7 @@ function openSongSuggestModal(){
   try{ if(typeof opM === 'function') opM('votes-modal'); else { var vm=document.getElementById('votes-modal'); if(vm) vm.classList.add('on'); } }catch(e){}
   setTimeout(function(){
     ['suggest-title','suggest-artist','suggest-note'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
-    var t = document.getElementById('suggest-title'); if(t) t.focus();
+    // Do not auto-focus: prevents the mobile keyboard from covering the suggestion form on open.
   }, 60);
 }
 
@@ -18384,8 +18418,15 @@ function commitImportSongs(){
 
 // ── Delete Songs (multi-select) ─────────────────────────────────────
 function closeDeleteSongsModal(){
+  clearDeleteSongsSelection();
   var ov=document.getElementById('delete-songs-modal');
   if(ov) ov.style.display='none';
+}
+function clearDeleteSongsSelection(){
+  try{
+    Array.prototype.slice.call(document.querySelectorAll('#delete-songs-list input[type="checkbox"]')).forEach(function(cb){ cb.checked=false; });
+    updateDeleteSongsCount();
+  }catch(e){}
 }
 function openDeleteSongsModal(){
   var ov=document.getElementById('delete-songs-modal');
@@ -18436,7 +18477,7 @@ function deleteSelectedSongs(){
   var ids=_deleteSongsSelectedIds();
   if(!ids.length){ toast('Select at least one song to delete', {tone:'error'}); return; }
   appConfirm({title:'Delete selected songs?', message:'Remove '+ids.length+' song'+(ids.length===1?'':'s')+' from the shared library?'}).then(function(ok){
-    if(!ok) return;
+    if(!ok){ clearDeleteSongsSelection(); return; }
     ids.forEach(function(id){
       var raw=library.find(function(s){return String(s.id)===String(id);});
       if(raw){ try{ _deleteLibrarySong(raw.id); }catch(e){} }
@@ -23121,7 +23162,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-songs-menu-separation-r396';
+var WHATS_NEW_VERSION = '2026-05-09-songs-suggestion-delete-polish-r397';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23414,6 +23455,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-songs-suggestion-delete-polish-r397', date:'May 9, 2026', importance:'fix', title:'Song suggestion and delete polish', items:['Suggest a Song no longer auto-focuses the Song field, reducing unwanted keyboard pop-up.', 'Suggestion fields request no browser/autofill toolbar where supported and the suggestion modal is more keyboard-friendly.', 'Vote on Suggestions shows yes, no, and pending member status for each suggestion.', 'Canceling a Delete Songs confirmation now clears the selected checkmarks when returning to the delete window.']},
   {version:'2026-05-09-songs-menu-separation-r396', date:'May 9, 2026', importance:'fix', title:'Songs menu separation and delete fix', items:['Songs menu now separates Add New Song, Import Songs, Suggest a Song, Vote on Suggestions, Delete Songs, and Share Library.', 'Suggest a Song opens only the suggestion form.', 'Vote on Suggestions opens only the voting list.', 'Delete Songs now opens the multi-select delete window instead of the disabled fallback.']},
   {version:'2026-05-09-blackout-marker-size-r394', date:'May 9, 2026', importance:'fix', title:'Smaller blackout date marker', items:['Calendar blackout date icons are now 50% smaller in the month grid.', 'The smaller blackout marker applies automatically to existing blackout dates and all future blackout dates when rendered on the calendar.', 'No blackout save logic or notification behavior was changed.']},
   {version:'2026-05-09-custom-event-time-all-day-r393', date:'May 9, 2026', importance:'fix', title:'Custom event fields and calendar markers', items:['New Important Date / Custom Event now includes Start Time, End Time, and an All Day toggle.', 'The unused color bubble selector was removed from Custom Event setup and custom events render consistently gold.', 'Calendar date markers now put the custom star into the same row as event icons and shrink markers when multiple event types share a date.']},
