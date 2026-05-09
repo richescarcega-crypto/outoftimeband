@@ -18278,10 +18278,12 @@ function _ootSuggestKeyboardMode(active, el){
           card.style.setProperty('--oot-suggest-keyboard-height', safeH + 'px');
         }
       }catch(e){}
+      // r400: keep Suggest a Song modal in one consistent keyboard position for every field.
+      // Do not scroll the focused field into a different center point; that made Song, Artist,
+      // and Why This Song each shift the modal by a different amount on Android keyboards.
       try{
-        if(el && typeof el.scrollIntoView === 'function'){
-          el.scrollIntoView({block:'center', inline:'nearest', behavior:'smooth'});
-        }
+        if(card){ card.scrollTop = 0; }
+        if(ov){ ov.scrollTop = 0; }
       }catch(e){}
     } else {
       setTimeout(function(){
@@ -23294,7 +23296,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-import-songs-preview-r399';
+var WHATS_NEW_VERSION = '2026-05-09-suggest-field-position-r400';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23587,6 +23589,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-suggest-field-position-r400', date:'May 9, 2026', importance:'fix', title:'Suggest a Song field position consistency', items:['Suggest a Song now keeps the modal in the same keyboard-raised position whether the Song, Artist, or Why This Song field is tapped.', 'Removed field-specific scroll-centering that caused each input to shift the modal by a different amount on Android.']},
   {version:'2026-05-09-import-songs-preview-r399', date:'May 9, 2026', importance:'fix', title:'Import Songs preview upgrade', items:['Import Songs now accepts pasted rows in Title - Artist, Title, Artist, or Excel/Sheets tab-separated formats.', 'Added a Preview Import step with selectable rows before anything is saved.', 'Preview flags missing artists and duplicate-looking entries before import.']},
   {version:'2026-05-09-suggest-modal-keyboard-r398', date:'May 9, 2026', importance:'fix', title:'Suggest a Song keyboard positioning', items:['When typing in Suggest a Song fields, the modal shifts into a compact top-positioned layout so the form remains visible above the mobile keyboard.', 'The suggestion subtitle is temporarily hidden during typing to recover vertical space, then normal layout returns after the keyboard focus leaves the form.']},
   {version:'2026-05-09-songs-suggestion-delete-polish-r397', date:'May 9, 2026', importance:'fix', title:'Song suggestion and delete polish', items:['Suggest a Song no longer auto-focuses the Song field, reducing unwanted keyboard pop-up.', 'Suggestion fields request no browser/autofill toolbar where supported and the suggestion modal is more keyboard-friendly.', 'Vote on Suggestions shows yes, no, and pending member status for each suggestion.', 'Canceling a Delete Songs confirmation now clears the selected checkmarks when returning to the delete window.']},
