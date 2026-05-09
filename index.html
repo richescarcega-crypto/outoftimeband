@@ -10409,8 +10409,8 @@ function initApp() {
   loadTabOrder();
   _initTabEdit();  // r52: long-press tabs to enter rearrange mode
 
-  // r303: opening the app always lands on Home, regardless of last active tab.
-  setTimeout(function(){ _forceHomeDefaultView('init'); }, 0);
+  // r418: opening the app always lands on Home, regardless of last active tab/submenu/modal.
+  setTimeout(function(){ _scheduleForceHomeDefault('init'); }, 0);
 
   // Notifications / tab activity
   loadNotifPrefs();
@@ -10449,12 +10449,83 @@ function initApp() {
   if(typeof maybeShowWhatsNew === 'function') maybeShowWhatsNew();
 }
 
-// r303: Home is the default screen whenever the app starts or resumes.
-// This avoids reopening into the last active tab after the PWA/browser restores state.
+// r418: Central Home-default lifecycle reset.
+// Normal app start/resume/reopen must not preserve ANY tab, drawer, modal,
+// subpage, setlist edit state, chat thread, or song/options sheet.  The only
+// allowed exception is an immediate, app-launched external handoff return
+// (YouTube/Facebook/Instagram), handled separately and consumed one time.
 var _ootHiddenAt = 0;
+var _ootForceHomeTimerIds = [];
+var _ootLastExternalRestoreAt = 0;
+
+function _resetTransientUIForHomeDefault(reason){
+  try { if(typeof closeDayDrawer === 'function') closeDayDrawer(); } catch(e){}
+  try { if(typeof collapseCalendarLowerAccordionsForReset === 'function') collapseCalendarLowerAccordionsForReset(reason || 'home-default'); } catch(e){}
+  try { if(typeof closeCalLegend === 'function') closeCalLegend(); } catch(e){}
+
+  // Close every modal/drawer overlay, regardless of whether it was opened with
+  // classList.add('on') or inline style.display='flex'.  Clear display instead
+  // of forcing display:none so future class-based opens still work normally.
+  try {
+    document.querySelectorAll('.ov').forEach(function(ov){
+      if(!ov || ov.id === 'name-picker-overlay') return;
+      ov.classList.remove('on');
+      ov.classList.remove('suggest-keyboard-active');
+      if(ov.style && ov.style.display) ov.style.removeProperty('display');
+    });
+  } catch(e){}
+
+  // Close custom confirm/prompt layers which are not .ov overlays.
+  try {
+    ['app-confirm','app-prompt'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.style.display = 'none';
+    });
+  } catch(e){}
+
+  // Remove dynamic preview overlays/sheets that may be injected outside .ov.
+  try {
+    ['band-image-preview-overlay','flyer-template-preview-overlay'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el && el.parentNode) el.parentNode.removeChild(el);
+    });
+  } catch(e){}
+
+  // Reset Setlists to the list landing state.  This is critical because the
+  // Setlists tab has nested edit/detail/menu states that can survive in the DOM
+  // even after the visible tab is changed.
+  try {
+    if(typeof setsViewState !== 'undefined') setsViewState = 'list';
+    if(typeof aSL !== 'undefined') aSL = null;
+    if(typeof eSID !== 'undefined') eSID = null;
+    if(typeof reorderMode !== 'undefined') reorderMode = false;
+    if(typeof window._expandedSetlistId !== 'undefined') window._expandedSetlistId = null;
+    var si = document.getElementById('si'); if(si) si.style.display = 'block';
+    var se = document.getElementById('se'); if(se) se.style.display = 'none';
+  } catch(e){}
+
+  // Reset Chat to the thread list so a hidden member/Band chat thread cannot be
+  // the state waiting behind Home on the next tab entry.
+  try {
+    if(typeof chatTo !== 'undefined') chatTo = 'band';
+    var cl = document.getElementById('chat-list-screen'); if(cl) cl.style.display = 'flex';
+    var ct = document.getElementById('chat-thread-screen'); if(ct) ct.style.display = 'none';
+  } catch(e){}
+
+  // Reset common section scroll positions so reopened Home is clean and other
+  // sections do not keep stale nested scroll when visited later.
+  try {
+    ['sc-home','sc-songs','sc-sets','sc-chat','sc-band','sc-pay','sc-cal'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.scrollTop = 0;
+    });
+  } catch(e){}
+}
+
 function _forceHomeDefaultView(reason){
   try {
     if(typeof _clearExternalReturnContext === 'function') _clearExternalReturnContext(reason || 'force-home');
+    _resetTransientUIForHomeDefault(reason || 'force-home');
     var hb = document.getElementById('tb-home');
     if(typeof go === 'function') go('home', hb);
     else {
@@ -10464,7 +10535,26 @@ function _forceHomeDefaultView(reason){
       if(home) home.classList.add('on');
       if(hb) hb.classList.add('on');
     }
+    _resetTransientUIForHomeDefault((reason || 'force-home') + '-after-go');
+    try {
+      var hsc = document.getElementById('sc-home');
+      if(hsc) hsc.scrollTop = 0;
+    } catch(e){}
   } catch(e){}
+}
+
+function _scheduleForceHomeDefault(reason){
+  try {
+    _ootForceHomeTimerIds.forEach(function(id){ try { clearTimeout(id); } catch(e){} });
+    _ootForceHomeTimerIds = [];
+    [0, 60, 180, 500, 1000].forEach(function(delay){
+      _ootForceHomeTimerIds.push(setTimeout(function(){
+        _forceHomeDefaultView((reason || 'lifecycle') + '-' + delay);
+      }, delay));
+    });
+  } catch(e){
+    try { setTimeout(function(){ _forceHomeDefaultView(reason || 'lifecycle'); }, 0); } catch(e2){}
+  }
 }
 
 // TAB NAVIGATION
@@ -10664,11 +10754,10 @@ function openInMaps(address){
   window.open(url, '_blank');
 }
 
-// r413: External-link return context is memory-only and one-shot.
-// Home remains the default for every normal app start/resume. The only exception is
-// a verified same-session return immediately after this app launched an external
-// song/YouTube link. Do NOT store this in sessionStorage/localStorage; stale stored
-// return contexts were overriding the Home-default rule on later app opens.
+// r418: External-link return context is memory-only, one-shot, and gated.
+// It may restore the source screen only when the app itself just launched an
+// external destination and the browser/app actually handed off within 30s.
+// It is never written to persistent storage and is consumed immediately.
 var _ootExternalReturnContext = null;
 var _ootExternalNavAt = 0;
 var _ootExternalHandoffSeen = false;
@@ -10678,17 +10767,27 @@ function _clearExternalReturnContext(reason){
   try { window._ootExternalHandoffSeen = false; } catch(e){}
   try { sessionStorage.removeItem('oot_external_return_ctx'); } catch(e){}
 }
-function _markExternalHandoffIfPending(reason){
+function _externalReturnAge(){
   try {
     var ctx = window._ootExternalReturnContext;
-    if(!ctx || !ctx.at) return;
-    var age = Date.now() - Number(ctx.at);
+    if(!ctx || !ctx.at) return Infinity;
+    return Date.now() - Number(ctx.at);
+  } catch(e){ return Infinity; }
+}
+function _isExternalReturnPending(){
+  var age = _externalReturnAge();
+  return !!(window._ootExternalReturnContext && age >= 0 && age < 30000);
+}
+function _markExternalHandoffIfPending(reason){
+  try {
+    var age = _externalReturnAge();
     if(age >= 0 && age < 30000){
       window._ootExternalHandoffSeen = true;
-    } else if(age >= 30000){
-      _clearExternalReturnContext('stale-before-handoff');
+      return true;
     }
+    if(age >= 30000) _clearExternalReturnContext('stale-before-handoff');
   } catch(e){}
+  return false;
 }
 function _captureExternalReturnContext(){
   try {
@@ -10717,15 +10816,13 @@ function _consumeExternalReturnContext(reason){
     _clearExternalReturnContext('expired');
     return null;
   }
-  // Only restore if the app actually handed off to another app/tab shortly after
-  // launching the external URL. Without this gate, stale contexts can restore
-  // Songs/Setlists during a normal reopen, which violates the Home-default rule.
   if(!window._ootExternalHandoffSeen){
     return null;
   }
   window._ootExternalReturnContext = null;
   window._ootExternalNavAt = 0;
   window._ootExternalHandoffSeen = false;
+  window._ootLastExternalRestoreAt = Date.now();
   try { sessionStorage.removeItem('oot_external_return_ctx'); } catch(e){}
   return ctx;
 }
@@ -23557,7 +23654,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-song-suggestion-youtube-art-r416';
+var WHATS_NEW_VERSION = '2026-05-09-home-default-deep-reset-r418';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23850,6 +23947,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-home-default-deep-reset-r418', date:'May 9, 2026', importance:'fix', title:'Home default deep reset', items:['Centralized the app lifecycle reset so normal close/background/reopen from any tab, submenu, drawer, modal, setlist option, chat thread, Band page, Pay page, or Songs page lands on Home.', 'Transient overlays, setlist edit/detail state, expanded setlists, chat thread view, Calendar drawers, and modal layers are cleared before and after forcing Home.', 'External app handoffs remain one-shot and short-lived: returning immediately from app-launched YouTube/Facebook/Instagram can restore the source context, but stale or normal app opens cannot.']},
   {version:'2026-05-09-song-suggestion-youtube-art-r416', date:'May 9, 2026', importance:'minor', title:'Song suggestion YouTube and album art', items:['Suggest a Song now includes an optional YouTube URL field.', 'Vote on Suggestions now shows song artwork for each suggested song; tapping the artwork opens the submitted URL when present or falls back to YouTube search.', 'Submitted YouTube URLs also appear as a compact link pill in the suggestion vote card.', 'Preserves r415 Home default and intentional external-return behavior.']},
   {version:'2026-05-09-home-default-with-external-return-r415', date:'May 9, 2026', importance:'fix', title:'Home default with intentional external return', items:['Normal app open/reopen from any tab, submenu, drawer, or modal now forces Home.', 'Intentional external launches through Facebook, Instagram, YouTube album art, or YouTube buttons keep a short-lived one-shot return context so backing up returns to the page that launched the external app.', 'Home Gig Counter now opens the next gig as standalone Calendar Event Details without exposing the All Events title/list context.']},
   {version:'2026-05-09-home-default-lifecycle-r413', date:'May 9, 2026', importance:'fix', title:'Home default lifecycle hardening', items:['Rebuilt the Home-default lifecycle instead of adding another tab-reset patch.', 'External YouTube/song return context is now memory-only, one-shot, and gated by an actual same-session app handoff so stale stored context cannot override Home on later app opens.', 'Normal app start, resume, close/reopen, and non-external restores should land on Home; only an immediate return from an app-launched YouTube/song link restores Songs or Setlists.']},
@@ -24843,47 +24941,51 @@ if(savedName&&savedId){
   window.addEventListener('pageshow', function(){ scheduleCalTodayRefresh('pageshow'); });
 })();
 
-// r415: App lifecycle rule.
-// Normal app open/reopen/restore ALWAYS starts on Home. The only exception is a
-// short-lived, one-shot return immediately after this app intentionally launched
-// an external destination through _openExternalUrl (Facebook, Instagram, YouTube).
-// This does not restore arbitrary prior tabs/subpages after a normal close.
+// r418: App lifecycle rule, centralized and hardened.
+// On normal hide/pagehide/blur, immediately collapse to Home while the app is
+// leaving so a preserved PWA process cannot resume into a stale modal/subpage.
+// When the hide is caused by an app-launched external URL, skip the leaving
+// reset and allow a one-shot return restore.  Any later hide/reopen goes Home.
 (function(){
   function _handleLifecycleReturn(reason){
     setTimeout(function(){
       try {
         if(typeof _restoreExternalReturnContext === 'function' && _restoreExternalReturnContext(reason)) return;
       } catch(e){}
-      try { if(typeof _forceHomeDefaultView === 'function') _forceHomeDefaultView(reason); } catch(e){}
+      // If a cluster of focus/pageshow/visibility events fires immediately after
+      // a legitimate external restore, do not let the later event wipe the source
+      // context.  This guard is short and only exists after a consumed restore.
+      try {
+        if(window._ootLastExternalRestoreAt && (Date.now() - window._ootLastExternalRestoreAt) < 1200) return;
+      } catch(e){}
+      try { if(typeof _scheduleForceHomeDefault === 'function') _scheduleForceHomeDefault(reason); } catch(e){}
     }, 0);
   }
-  document.addEventListener('visibilitychange', function(){
-    if(document.visibilityState === 'hidden'){
-      _ootHiddenAt = Date.now();
-      try { if(typeof _markExternalHandoffIfPending === 'function') _markExternalHandoffIfPending('visibility-hidden'); } catch(e){}
-    } else if(document.visibilityState === 'visible'){
-      _handleLifecycleReturn('visibility-visible');
-    }
-  });
-  window.addEventListener('blur', function(){
+  function _handleLifecycleLeaving(reason){
     _ootHiddenAt = Date.now();
-    try { if(typeof _markExternalHandoffIfPending === 'function') _markExternalHandoffIfPending('window-blur'); } catch(e){}
+    var external = false;
+    try { external = !!(typeof _isExternalReturnPending === 'function' && _isExternalReturnPending()); } catch(e){}
+    if(external){
+      try { if(typeof _markExternalHandoffIfPending === 'function') _markExternalHandoffIfPending(reason); } catch(e){}
+      return;
+    }
+    // Normal close/background from ANY tab/modal/submenu becomes Home before
+    // the app is even visible again.
+    try { if(typeof _forceHomeDefaultView === 'function') _forceHomeDefaultView(reason + '-leaving'); } catch(e){}
+  }
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'hidden') _handleLifecycleLeaving('visibility-hidden');
+    else if(document.visibilityState === 'visible') _handleLifecycleReturn('visibility-visible');
   });
+  window.addEventListener('blur', function(){ _handleLifecycleLeaving('window-blur'); });
   window.addEventListener('focus', function(){
     var elapsed = _ootHiddenAt ? (Date.now() - _ootHiddenAt) : 0;
     var hasExternal = false;
     try { hasExternal = !!(window._ootExternalReturnContext && window._ootExternalReturnContext.at); } catch(e){}
-    if(hasExternal || elapsed > 500){
-      _handleLifecycleReturn('window-focus');
-    }
+    if(hasExternal || elapsed > 250) _handleLifecycleReturn('window-focus');
   });
-  window.addEventListener('pagehide', function(){
-    _ootHiddenAt = Date.now();
-    try { if(typeof _markExternalHandoffIfPending === 'function') _markExternalHandoffIfPending('pagehide'); } catch(e){}
-  });
-  window.addEventListener('pageshow', function(){
-    _handleLifecycleReturn('pageshow');
-  });
+  window.addEventListener('pagehide', function(){ _handleLifecycleLeaving('pagehide'); });
+  window.addEventListener('pageshow', function(){ _handleLifecycleReturn('pageshow'); });
 })();
 
 // r367: Do not preserve a previously open Calendar Event Details/day drawer
