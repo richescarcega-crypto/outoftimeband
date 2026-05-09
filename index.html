@@ -16,6 +16,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
+<!-- r425: Setlists external-return guard extended. Prevents late Android/PWA leaving events during YouTube handoff from clearing the captured open-setlist context. Upload as index.html after phone test. -->
 <!-- r424: Setlists album-art external return stabilizer. Keeps source setlist restored through Android/PWA multi-step YouTube back navigation. Upload as index.html after phone test. -->
 <head>
   <!-- r335: Calendar weekday band compressed and date grid proportionally expanded. Upload index.html only. -->
@@ -10605,6 +10606,14 @@ function _cancelForceHomeDefaultTimers(){
 
 function _forceHomeDefaultView(reason){
   try {
+    // r425: A delayed Home timer must not override a just-consumed external
+    // return restore. Normal close/reopen clears the lock before calling this,
+    // so the hard Home-default rule is preserved for non-external launches.
+    try {
+      if(window._ootLastExternalRestoreContext && window._ootExternalRestoreLockUntil && Date.now() <= window._ootExternalRestoreLockUntil){
+        if(typeof _reapplyLastExternalReturnContext === 'function' && _reapplyLastExternalReturnContext(reason || 'force-home-guard')) return;
+      }
+    } catch(e){}
     try { window._ootLastExternalRestoreContext = null; window._ootExternalRestoreLockUntil = 0; } catch(e){}
     if(typeof _clearExternalReturnContext === 'function') _clearExternalReturnContext(reason || 'force-home');
     _resetTransientUIForHomeDefault(reason || 'force-home');
@@ -10909,16 +10918,26 @@ function _externalReturnAge(){
   } catch(e){ return Infinity; }
 }
 function _isExternalReturnPending(){
-  var age = _externalReturnAge();
-  // Only the immediate launch handoff should suppress the Home reset while the
-  // app is leaving. A later close/background is a normal reopen and must Home.
-  return !!(_loadExternalReturnContext() && age >= 0 && age < _ootExternalLaunchWindow);
+  var ctx = _loadExternalReturnContext();
+  if(!ctx || !ctx.at) return false;
+  var age = Date.now() - Number(ctx.at);
+  if(age < 0 || age > _ootExternalReturnTTL){
+    _clearExternalReturnContext('external-pending-expired');
+    return false;
+  }
+  // r425: Once an app-launched external URL has captured context, protect it
+  // through the full short-lived return TTL, not just the first launch seconds.
+  // Android/PWA YouTube handoff can emit blur/pagehide/visibility events after
+  // the 8s launch window; treating those as normal app closes was clearing the
+  // open Setlists context before the user backed out of YouTube. Normal app
+  // closes still Home because this context only exists after _openExternalUrl.
+  return !!(ctx.source === 'oot-app-external-v1' && (ctx.handoffSeen || window._ootExternalHandoffSeen));
 }
 function _markExternalHandoffIfPending(reason){
   try {
     var ctx = _loadExternalReturnContext();
     var age = _externalReturnAge();
-    if(ctx && age >= 0 && age < _ootExternalLaunchWindow){
+    if(ctx && age >= 0 && age <= _ootExternalReturnTTL && (ctx.handoffSeen || window._ootExternalHandoffSeen || age < _ootExternalLaunchWindow)){
       window._ootExternalHandoffSeen = true;
       ctx.handoffSeen = true;
       window._ootExternalReturnContext = ctx;
@@ -23884,7 +23903,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-setlist-album-art-return-r424';
+var WHATS_NEW_VERSION = '2026-05-09-setlist-external-return-guard-r425';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24177,6 +24196,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-setlist-external-return-guard-r425', date:'May 9, 2026', importance:'fix', title:'Setlists YouTube return guard', items:['Setlists open-setlist album-art YouTube launches now keep their captured source context protected through the Android/PWA external handoff, so backing out of YouTube should return to the same open setlist instead of Home.', 'Normal app close/reopen remains Home because the guard only exists after the app itself launches an external URL.']},
   {version:'2026-05-09-setlists-share-lifecycle-reset-r423', date:'May 9, 2026', importance:'fix', title:'Setlists share menu lifecycle reset', items:['Normal app reopen now centrally removes the shared export/share overlay used by Setlists → Share All Setlists and other app share flows.', 'Closing the app from Setlists → top kebab → Share All Setlists should reopen to Home, not the stale Share window.', 'No UI design, Firebase, song, calendar, pay, or external-link behavior was intentionally changed.']},
   {version:'2026-05-09-robust-external-return-r422', date:'May 9, 2026', importance:'fix', title:'Robust album-art external return', items:['Album-art and resource-link handoffs now store a short-lived one-shot return context so Android/PWA reloads after YouTube can still return to the launching page instead of Home.', 'Normal app reopen still defaults Home when there was no app-launched external link.', 'Carries forward the Pay share submenu lifecycle cleanup so Pay → kebab → Share Pay Log also resets to Home on normal reopen.']},
   {version:'2026-05-09-lifecycle-reset-coverage-r420', date:'May 9, 2026', importance:'fix', title:'Lifecycle reset coverage', items:['Normal app reopen now also clears non-modal dynamic layers such as Pay option sheets, Pay Log Gig form, Band roster menus, Setlist option sheets, Calendar event option sheets, and flyer/share sheets.', 'Band tab member image previews and Chat tab image lightboxes are force-closed during Home-default lifecycle reset so they cannot survive a normal app reopen.', 'Pay Gig History is collapsed during reset so Pay sublevel state does not remain waiting behind Home.']},
