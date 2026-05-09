@@ -5701,7 +5701,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
    This locks the whole modal card to one top position instead of allowing
    Android/Samsung keyboard auto-pan to move each focused field differently. */
 #votes-modal.suggest-keyboard-active{display:block!important;align-items:initial!important;justify-content:initial!important;padding:0!important;overflow:hidden!important;}
-#votes-modal.suggest-keyboard-active #votes-modal-card{position:fixed!important;top:var(--oot-suggest-keyboard-top,6px)!important;left:50%!important;right:auto!important;width:calc(100% - 24px)!important;max-width:460px!important;max-height:var(--oot-suggest-keyboard-height,340px)!important;margin:0!important;transform:translateX(-50%)!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;padding-top:10px!important;padding-bottom:12px!important;}
+#votes-modal.suggest-keyboard-active #votes-modal-card{position:fixed!important;top:var(--oot-suggest-keyboard-top,102px)!important;left:50%!important;right:auto!important;width:calc(100% - 24px)!important;max-width:460px!important;max-height:var(--oot-suggest-keyboard-height,340px)!important;margin:0!important;transform:translateX(-50%)!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;padding-top:10px!important;padding-bottom:12px!important;}
 #votes-modal.suggest-keyboard-active #votes-modal-subtitle{display:none!important;}
 #votes-modal.suggest-keyboard-active #votes-modal-card .moh{margin-bottom:6px!important;}
 #votes-modal.suggest-keyboard-active #suggest-form{padding-top:22px!important;}
@@ -9415,7 +9415,7 @@ function renderHomeSongVoteCue(){
   el.style.display = 'block';
   el.innerHTML =
     '<button type="button" onclick="try{go(\'songs\',document.getElementById(\'tb-songs\'));}catch(e){};setTimeout(function(){try{openSongVoteModal();}catch(e){}},80);" '+
-    'style="width:100%;text-align:left;background:linear-gradient(135deg,rgba(245,197,24,.20),rgba(74,158,255,.10));border:1px solid rgba(245,197,24,.55);border-radius:14px;padding:10px 12px;margin:0 0 10px 0;color:#e8f0ff;box-shadow:0 0 18px rgba(245,197,24,.16);display:flex;gap:10px;align-items:center;cursor:pointer;">'+
+    'style="width:100%;text-align:left;background:linear-gradient(135deg,rgba(245,197,24,.20),rgba(74,158,255,.10));border:1px solid rgba(255,59,48,.85);border-radius:14px;padding:10px 12px;margin:0 0 10px 0;color:#e8f0ff;box-shadow:0 0 18px rgba(245,197,24,.16);display:flex;gap:10px;align-items:center;cursor:pointer;">'+
       '<span style="width:34px;height:34px;border-radius:50%;background:#f5c518;color:#06121f;display:flex;align-items:center;justify-content:center;font-family:Russo One,sans-serif;font-size:17px;flex-shrink:0;">♪</span>'+
       '<span style="flex:1;min-width:0;">'+
         '<span style="display:block;font-family:Russo One,sans-serif;color:#f5c518;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;">Song Vote Pending</span>'+
@@ -18342,9 +18342,11 @@ function _ootSuggestKeyboardMode(active, el){
     if(!ov || !card) return;
     try{
       var vv = window.visualViewport;
-      var top = 6;
-      var h = Math.min(340, Math.max(260, Math.floor((vv && vv.height ? vv.height : window.innerHeight) - 14)));
-      if(vv && typeof vv.offsetTop === 'number') top = Math.max(4, Math.floor(vv.offsetTop + 6));
+      // r405: keep the same fixed typing frame from r403/r404, but move it down one full inch (96px).
+      var top = 102;
+      if(vv && typeof vv.offsetTop === 'number') top = Math.max(4, Math.floor(vv.offsetTop + 102));
+      var viewportH = (vv && vv.height ? vv.height : window.innerHeight);
+      var h = Math.min(340, Math.max(240, Math.floor(viewportH - top - 10)));
       card.style.setProperty('--oot-suggest-keyboard-top', top + 'px');
       card.style.setProperty('--oot-suggest-keyboard-height', h + 'px');
       card.scrollTop = 0;
@@ -23372,7 +23374,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-song-vote-edit-home-cue-r404';
+var WHATS_NEW_VERSION = '2026-05-09-song-vote-cue-red-border-r406';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23665,6 +23667,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-song-vote-cue-red-border-r406', date:'May 9, 2026', importance:'fix', title:'Song vote cue red border', items:['Home Song Vote Pending cue border changed from gold to red.', 'No song suggestion, vote, import, delete, notification, or calendar behavior changed.']},
+  {version:'2026-05-09-suggest-keyboard-down-r405', date:'May 9, 2026', importance:'fix', title:'Suggest a Song typing frame lowered', items:['Suggest a Song keeps the same consistent keyboard typing-frame position for Song, Artist, and Why This Song.', 'The fixed typing frame is lowered by one full inch while preserving the r404 song-vote edit and Home cue behavior.']},
   {version:'2026-05-09-song-vote-edit-home-cue-r404', date:'May 9, 2026', importance:'fix', title:'Song vote edit and Home cue', items:['Members can now change a song-suggestion vote from Yes to No or No to Yes and the vote is saved back to the suggestion.', 'Members can remove their own vote, which returns that suggestion to pending for that member so the Home Song Vote Pending cue can be tested again.', 'Home now shows a Song Vote Pending cue when the current member has unvoted song suggestions; tapping it opens Vote on Suggestions.']},
   {version:'2026-05-09-suggest-keyboard-fixed-frame-r403', date:'May 9, 2026', importance:'fix', title:'Suggest a Song keyboard frame fix', items:['Suggest a Song now uses a fixed keyboard-safe typing frame instead of field-specific scroll positioning.', 'Song, Artist, and Why This Song no longer use scrollIntoView or Artist-anchor scroll math; the modal card locks to one top position while the keyboard opens.']},
   {version:'2026-05-09-suggest-field-position-r400', date:'May 9, 2026', importance:'fix', title:'Suggest a Song field position consistency', items:['Suggest a Song now keeps the modal in the same keyboard-raised position whether the Song, Artist, or Why This Song field is tapped.', 'Removed field-specific scroll-centering that caused each input to shift the modal by a different amount on Android.']},
