@@ -22961,7 +22961,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-agenda-list-trigger-gig-flyer-r390';
+var WHATS_NEW_VERSION = '2026-05-09-custom-event-time-all-day-home-restore-r392';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23254,6 +23254,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-custom-event-time-all-day-home-restore-r392', date:'May 9, 2026', importance:'fix', title:'Custom events and Home reopen restore', items:['Custom / New Important Date adds Start Time, End Time, and an All Day toggle, and removes the unused color bubble selector.', 'Calendar day markers are sized into one row when multiple event types land on the same date.', 'App reopen/default handling is restored so the app should return to Home on fresh reopen.']},
   {version:'2026-05-09-agenda-list-trigger-gig-flyer-r390', date:'May 9, 2026', importance:'fix', title:'Agenda trigger and gig flyer cleanup', items:['On Edit Rehearsal, the Agenda popout now opens from the visible song list instead of the Agenda heading/subtitle area.', 'On Gig Event Details, gigs with saved flyers no longer show the duplicate green Flyer check pill; the Gig Flyer thumbnail/card remains the flyer editor tap target.']},
   {version:'2026-05-09-gig-flyer-pill-cleanup-r389', date:'May 9, 2026', importance:'fix', title:'Gig flyer entry cleaned up', items:['On Gig Event Details, the duplicate green flyer action pill is removed when a gig already has a saved flyer image pill.', 'The saved flyer image pill is renamed Gig Flyer and remains the tap target for opening the flyer editor.']},
   {version:'2026-05-09-rehearsal-agenda-song-picker-r388', date:'May 9, 2026', importance:'fix', title:'Edit Rehearsal agenda song picker', items:['Edit Rehearsal song picker now stays open for multiple song selections and has a green Save pill to return to Edit Rehearsal.', 'The redundant Tap Add to choose songs field was removed, and tapping the Agenda title opens a popout list of all selected songs.']},
