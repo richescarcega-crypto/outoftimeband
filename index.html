@@ -5733,6 +5733,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
     <div class="hero-tagline">Where Rock &amp; Roll Meets the Dance Floor</div>
   </div>
   <div id="birthday-banner" style="display:none;"></div>
+  <div id="home-song-vote-cue" style="display:none;"></div>
   <div id="next-gig-countdown" style="display:none;background:#060e1c;border-radius:12px;padding:7px 14px;margin-bottom:8px;text-align:center;border:2px solid rgba(245,197,24,1);box-shadow:0 0 30px rgba(245,197,24,.4),inset 0 0 30px rgba(10,22,40,.8);">
     <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">
       <div style="height:1px;flex:1;background:linear-gradient(to right,transparent,rgba(245,197,24,.4));"></div>
@@ -9381,7 +9382,48 @@ function listenSuggestions(){
     suggestions = newList;
     rVotes();
     updateVoteBadge();
+    try { renderHomeSongVoteCue(); } catch(e){}
   });
+}
+
+
+function _songSuggestionMyVote(s){
+  var yesVoters = (s && s.yesVoters) ? s.yesVoters.map(function(v){return String(v);}) : [];
+  var noVoters = (s && s.noVoters) ? s.noVoters.map(function(v){return String(v);}) : [];
+  var me = String(ME||'');
+  if(yesVoters.indexOf(me) >= 0) return 'yes';
+  if(noVoters.indexOf(me) >= 0) return 'no';
+  return null;
+}
+function _pendingSongSuggestionsForMe(){
+  try{
+    return (suggestions||[]).filter(function(s){ return !_songSuggestionMyVote(s); });
+  }catch(e){ return []; }
+}
+function renderHomeSongVoteCue(){
+  var el = document.getElementById('home-song-vote-cue');
+  if(!el) return;
+  var pending = _pendingSongSuggestionsForMe();
+  if(!pending.length){
+    el.style.display = 'none';
+    el.innerHTML = '';
+    return;
+  }
+  var label = pending.length === 1 ? '1 song suggestion needs your vote' : (pending.length + ' song suggestions need your vote');
+  var first = pending[0] || {};
+  var detail = first.title ? ('“' + first.title + '”' + (pending.length>1 ? ' + more' : '')) : 'Review the pending suggestion list.';
+  el.style.display = 'block';
+  el.innerHTML =
+    '<button type="button" onclick="try{go(\'songs\',document.getElementById(\'tb-songs\'));}catch(e){};setTimeout(function(){try{openSongVoteModal();}catch(e){}},80);" '+
+    'style="width:100%;text-align:left;background:linear-gradient(135deg,rgba(245,197,24,.20),rgba(74,158,255,.10));border:1px solid rgba(245,197,24,.55);border-radius:14px;padding:10px 12px;margin:0 0 10px 0;color:#e8f0ff;box-shadow:0 0 18px rgba(245,197,24,.16);display:flex;gap:10px;align-items:center;cursor:pointer;">'+
+      '<span style="width:34px;height:34px;border-radius:50%;background:#f5c518;color:#06121f;display:flex;align-items:center;justify-content:center;font-family:Russo One,sans-serif;font-size:17px;flex-shrink:0;">♪</span>'+
+      '<span style="flex:1;min-width:0;">'+
+        '<span style="display:block;font-family:Russo One,sans-serif;color:#f5c518;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;">Song Vote Pending</span>'+
+        '<span style="display:block;color:#fff;font-size:13px;font-weight:700;margin-top:2px;">'+label+'</span>'+
+        '<span style="display:block;color:#8aa8d6;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+detail+'</span>'+
+      '</span>'+
+      '<span style="color:#f5c518;font-size:20px;line-height:1;">›</span>'+
+    '</button>';
 }
 
 
@@ -9437,24 +9479,32 @@ function rVotes(){
     var voteRow = document.createElement('div');
     voteRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:10px;';
 
+    var voteStatus = document.createElement('div');
+    voteStatus.style.cssText = 'font-size:11px;color:#8aa8d6;flex:1;min-width:0;';
+    voteStatus.textContent = myVote ? ('Your vote: ' + (myVote==='yes'?'👍 Yes':'👎 No')) : 'Your vote: pending';
+    voteRow.appendChild(voteStatus);
+
+    var yesBtn = document.createElement('button');
+    yesBtn.style.cssText = (myVote==='yes')
+      ? 'background:#06d6a0;border:1px solid #06d6a0;border-radius:8px;padding:6px 10px;color:#06121f;font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;'
+      : 'background:rgba(6,214,160,.15);border:1px solid #06d6a0;border-radius:8px;padding:6px 10px;color:#06d6a0;font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;';
+    yesBtn.innerHTML = '👍 Yes';
+    yesBtn.onclick = (function(sg){ return function(){ castVote(sg.id,'yes'); }; })(s);
+    var noBtn = document.createElement('button');
+    noBtn.style.cssText = (myVote==='no')
+      ? 'background:#ff4757;border:1px solid #ff4757;border-radius:8px;padding:6px 10px;color:#fff;font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;'
+      : 'background:rgba(255,71,87,.15);border:1px solid #ff4757;border-radius:8px;padding:6px 10px;color:#ff4757;font-size:11px;font-family:Russo One,sans-serif;cursor:pointer;';
+    noBtn.innerHTML = '👎 No';
+    noBtn.onclick = (function(sg){ return function(){ castVote(sg.id,'no'); }; })(s);
+    voteRow.appendChild(yesBtn);
+    voteRow.appendChild(noBtn);
+
     if(myVote){
-      // Already voted - show result, no changes
-      var voted = document.createElement('div');
-      voted.style.cssText = 'font-size:11px;color:#4a6a9a;font-style:italic;flex:1;';
-      voted.textContent = 'Your vote: ' + (myVote==='yes'?'👍 Yes':'👎 No');
-      voteRow.appendChild(voted);
-    } else {
-      // Not voted yet
-      var yesBtn = document.createElement('button');
-      yesBtn.style.cssText = 'background:rgba(6,214,160,.15);border:1px solid #06d6a0;border-radius:8px;padding:6px 14px;color:#06d6a0;font-size:12px;font-family:Russo One,sans-serif;cursor:pointer;';
-      yesBtn.innerHTML = '👍 Yes';
-      yesBtn.onclick = (function(sg){ return function(){ castVote(sg.id,'yes'); }; })(s);
-      var noBtn = document.createElement('button');
-      noBtn.style.cssText = 'background:rgba(255,71,87,.15);border:1px solid #ff4757;border-radius:8px;padding:6px 14px;color:#ff4757;font-size:12px;font-family:Russo One,sans-serif;cursor:pointer;';
-      noBtn.innerHTML = '👎 No';
-      noBtn.onclick = (function(sg){ return function(){ castVote(sg.id,'no'); }; })(s);
-      voteRow.appendChild(yesBtn);
-      voteRow.appendChild(noBtn);
+      var removeBtn = document.createElement('button');
+      removeBtn.style.cssText='background:none;border:1px solid rgba(138,168,214,.35);border-radius:8px;padding:6px 8px;color:#8aa8d6;font-size:10px;font-family:Russo One,sans-serif;cursor:pointer;';
+      removeBtn.textContent='Remove';
+      removeBtn.onclick=(function(sg){ return function(){ removeMySongVote(sg.id); }; })(s);
+      voteRow.appendChild(removeBtn);
     }
 
     // Tally
@@ -9503,13 +9553,25 @@ function castVote(id, voteType){
   try { _trackActivity('vote_proposal', String(id||'')); } catch(e){}  // r42
   var s = suggestions.find(function(x){return x.id===id;});
   if(!s) return;
-  var yesVoters = (s.yesVoters||[]).slice();
-  var noVoters = (s.noVoters||[]).slice();
-  // Only allow voting once - don't change
-  if(yesVoters.indexOf(ME)>=0 || noVoters.indexOf(ME)>=0) return;
-  if(voteType==='yes') yesVoters.push(ME);
-  else noVoters.push(ME);
-  db.collection('suggestions').doc(id).update({yesVoters:yesVoters, noVoters:noVoters, votes:yesVoters.length});
+  var me = String(ME||'');
+  var yesVoters = (s.yesVoters||[]).map(function(v){return String(v);}).filter(function(v){return v !== me;});
+  var noVoters = (s.noVoters||[]).map(function(v){return String(v);}).filter(function(v){return v !== me;});
+  if(voteType==='yes') yesVoters.push(me);
+  else if(voteType==='no') noVoters.push(me);
+  else return;
+  db.collection('suggestions').doc(id).update({yesVoters:yesVoters, noVoters:noVoters, votes:yesVoters.length}).then(function(){
+    try{ toast('Vote saved', {tone:'success'}); }catch(e){}
+  });
+}
+function removeMySongVote(id){
+  var s = suggestions.find(function(x){return x.id===id;});
+  if(!s) return;
+  var me = String(ME||'');
+  var yesVoters = (s.yesVoters||[]).map(function(v){return String(v);}).filter(function(v){return v !== me;});
+  var noVoters = (s.noVoters||[]).map(function(v){return String(v);}).filter(function(v){return v !== me;});
+  db.collection('suggestions').doc(id).update({yesVoters:yesVoters, noVoters:noVoters, votes:yesVoters.length}).then(function(){
+    try{ toast('Vote removed', {tone:'success'}); }catch(e){}
+  });
 }
 
 function submitSuggestion(){
@@ -14978,6 +15040,7 @@ function rHome() {
       bbEl.innerHTML = '';
     }
   }
+  try { renderHomeSongVoteCue(); } catch(e){}
   var wi = document.getElementById('who-am-i');
   if (wi && myName) {
     var m = gM(ME);
@@ -23309,7 +23372,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-suggest-keyboard-fixed-frame-r403';
+var WHATS_NEW_VERSION = '2026-05-09-song-vote-edit-home-cue-r404';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23602,6 +23665,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-song-vote-edit-home-cue-r404', date:'May 9, 2026', importance:'fix', title:'Song vote edit and Home cue', items:['Members can now change a song-suggestion vote from Yes to No or No to Yes and the vote is saved back to the suggestion.', 'Members can remove their own vote, which returns that suggestion to pending for that member so the Home Song Vote Pending cue can be tested again.', 'Home now shows a Song Vote Pending cue when the current member has unvoted song suggestions; tapping it opens Vote on Suggestions.']},
   {version:'2026-05-09-suggest-keyboard-fixed-frame-r403', date:'May 9, 2026', importance:'fix', title:'Suggest a Song keyboard frame fix', items:['Suggest a Song now uses a fixed keyboard-safe typing frame instead of field-specific scroll positioning.', 'Song, Artist, and Why This Song no longer use scrollIntoView or Artist-anchor scroll math; the modal card locks to one top position while the keyboard opens.']},
   {version:'2026-05-09-suggest-field-position-r400', date:'May 9, 2026', importance:'fix', title:'Suggest a Song field position consistency', items:['Suggest a Song now keeps the modal in the same keyboard-raised position whether the Song, Artist, or Why This Song field is tapped.', 'Removed field-specific scroll-centering that caused each input to shift the modal by a different amount on Android.']},
   {version:'2026-05-09-import-songs-preview-r399', date:'May 9, 2026', importance:'fix', title:'Import Songs preview upgrade', items:['Import Songs now accepts pasted rows in Title - Artist, Title, Artist, or Excel/Sheets tab-separated formats.', 'Added a Preview Import step with selectable rows before anything is saved.', 'Preview flags missing artists and duplicate-looking entries before import.']},
