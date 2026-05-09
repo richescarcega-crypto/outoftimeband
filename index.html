@@ -5584,6 +5584,10 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 #gig-detail-modal .r382-edit-trash{margin:8px auto 2px auto !important;}
 #detail-action-sheet .songs-sheet-btn-icon svg{display:block;}
 
+/* r384: Edit action labels/alignment and rehearsal song picker polish only. */
+#gig-detail-modal .r384-rh-edit-actions{margin-top:8px !important;}
+#r384-rh-song-picker *{box-sizing:border-box;}
+
 </style>
 </head>
 <body>
@@ -12605,6 +12609,103 @@ function _isAdmin(){
 //                onSongsChange: function(newSongsArray) — called when songs list mutates }
 // Returns:
 //   { getValues: function() -> {date, title, location, startTime, endTime, focus, songs, notes} }
+
+function _r384CloseRehearsalSongPicker(){
+  var ov = document.getElementById('r384-rh-song-picker');
+  if(ov) ov.remove();
+}
+function _r384OpenRehearsalSongPicker(onSelect){
+  _r384CloseRehearsalSongPicker();
+  if(typeof library === 'undefined' || !library || !library.length){
+    toast('No songs in the Songs list yet', {tone:'info'});
+    return;
+  }
+  var ov = document.createElement('div');
+  ov.id = 'r384-rh-song-picker';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:12000;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:18px;';
+  ov.onclick = function(e){ if(e.target === ov) _r384CloseRehearsalSongPicker(); };
+
+  var sheet = document.createElement('div');
+  sheet.style.cssText = 'width:min(420px,calc(100vw - 34px));max-height:min(78vh,620px);background:linear-gradient(180deg,rgba(8,24,56,.98),rgba(4,13,30,.99));border:1px solid rgba(245,197,24,.42);border-radius:22px;box-shadow:0 22px 52px rgba(0,0,0,.62),0 0 28px rgba(74,158,255,.14),inset 0 1px 0 rgba(255,255,255,.06);padding:14px;display:flex;flex-direction:column;gap:10px;';
+  sheet.onclick = function(e){ e.stopPropagation(); };
+
+  var head = document.createElement('div');
+  head.style.cssText = 'display:flex;align-items:center;gap:10px;padding:2px 2px 8px;border-bottom:1px solid rgba(74,158,255,.18);';
+  var titleWrap = document.createElement('div');
+  titleWrap.style.cssText = 'flex:1;min-width:0;';
+  var title = document.createElement('div');
+  title.style.cssText = 'font-family:Russo One,sans-serif;font-size:13px;letter-spacing:2px;color:#f5c518;';
+  title.textContent = 'SONGS LIST';
+  var sub = document.createElement('div');
+  sub.style.cssText = 'font-size:11px;color:#9fb8dc;margin-top:2px;';
+  sub.textContent = 'Tap a song to add it to this rehearsal';
+  titleWrap.appendChild(title); titleWrap.appendChild(sub);
+  var close = document.createElement('button');
+  close.type = 'button';
+  close.setAttribute('aria-label','Close Songs list');
+  close.textContent = '×';
+  close.style.cssText = 'width:32px;height:32px;border-radius:50%;background:rgba(74,158,255,.10);border:1px solid rgba(74,158,255,.35);color:#dbe9ff;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;';
+  close.onclick = function(){ _r384CloseRehearsalSongPicker(); };
+  head.appendChild(titleWrap); head.appendChild(close);
+  sheet.appendChild(head);
+
+  var search = document.createElement('input');
+  search.className = 'fi2';
+  search.placeholder = 'Search songs...';
+  search.style.cssText = 'width:100%;padding:10px 12px;border-radius:12px;background:rgba(3,12,28,.72);border:1px solid rgba(74,158,255,.24);color:#f7fbff;font-size:13px;';
+  sheet.appendChild(search);
+
+  var list = document.createElement('div');
+  list.style.cssText = 'overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:7px;padding-right:2px;';
+  sheet.appendChild(list);
+
+  function render(){
+    var q = (search.value || '').trim().toLowerCase();
+    var songs = library.slice().filter(function(s){
+      return !q || String(s.title || '').toLowerCase().indexOf(q) >= 0 || String(s.artist || '').toLowerCase().indexOf(q) >= 0;
+    }).sort(function(a,b){ return String(a.title || '').localeCompare(String(b.title || '')); });
+    list.innerHTML = '';
+    songs.forEach(function(s){
+      var row = document.createElement('button');
+      row.type = 'button';
+      row.style.cssText = 'width:100%;text-align:left;border:1px solid rgba(74,158,255,.22);border-radius:13px;background:linear-gradient(135deg,rgba(9,30,70,.88),rgba(5,17,40,.96));padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.04);';
+      var plus = document.createElement('span');
+      plus.style.cssText = 'width:26px;height:26px;border-radius:50%;background:rgba(245,197,24,.14);border:1px solid rgba(245,197,24,.42);color:#f5c518;display:inline-flex;align-items:center;justify-content:center;font-family:Russo One,sans-serif;font-size:16px;flex-shrink:0;';
+      plus.textContent = '+';
+      var txt = document.createElement('span');
+      txt.style.cssText = 'min-width:0;flex:1;';
+      var nm = document.createElement('span');
+      nm.style.cssText = 'display:block;color:#f7fbff;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+      nm.textContent = s.title || 'Untitled Song';
+      txt.appendChild(nm);
+      if(s.artist){
+        var ar = document.createElement('span');
+        ar.style.cssText = 'display:block;color:#f5c518;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+        ar.textContent = s.artist;
+        txt.appendChild(ar);
+      }
+      row.appendChild(plus); row.appendChild(txt);
+      row.onclick = function(){
+        var label = (s.title || '').trim() + (s.artist ? ' — ' + s.artist : '');
+        if(label.trim() && typeof onSelect === 'function') onSelect(label.trim());
+        _r384CloseRehearsalSongPicker();
+      };
+      list.appendChild(row);
+    });
+    if(!songs.length){
+      var empty = document.createElement('div');
+      empty.style.cssText = 'text-align:center;color:#8aa8d6;font-size:12px;padding:18px 8px;';
+      empty.textContent = 'No songs match that search.';
+      list.appendChild(empty);
+    }
+  }
+  search.addEventListener('input', render);
+  ov.appendChild(sheet);
+  document.body.appendChild(ov);
+  render();
+  setTimeout(function(){ try{ search.focus(); }catch(e){} }, 60);
+}
+
 function _renderRehearsalForm(container, initial, opts){
   initial = initial || {};
   opts = opts || {};
@@ -12754,7 +12855,15 @@ function _renderRehearsalForm(container, initial, opts){
   addBtn.textContent = 'Add';
   addBtn.onclick = function(){
     var v = addInp.value.trim();
-    if(!v) return;
+    if(!v){
+      _r384OpenRehearsalSongPicker(function(songLabel){
+        if(!songLabel) return;
+        songsState.push(songLabel);
+        renderSongsList();
+        if(opts.onSongsChange) opts.onSongsChange(songsState);
+      });
+      return;
+    }
     songsState.push(v);
     addInp.value = '';
     renderSongsList();
@@ -16219,7 +16328,7 @@ function _r366OpenGigEdit(ev){
   html += '<div class="r366-gig-hero r366-gig-edit-hero">';
   html += '<div class="r366-gig-kicker">EDIT MODE</div>';
   html += '<div class="r366-gig-title">' + _r366Esc(d.title || 'Untitled Gig') + '</div>';
-  html += '<div class="r366-gig-sub">Make changes, then Save or Cancel.</div>';
+  html += '<div class="r366-gig-sub">Make changes, then Save.</div>';
   html += '</div>';
   html += '<div class="r366-gig-edit-grid">';
   html += _r366InputHtml('Date','gd-date',d.date,'','date');
@@ -16234,7 +16343,7 @@ function _r366OpenGigEdit(ev){
   html += '</div>';
   html += _r366InputHtml('Notes','gd-notes',d.notes,'Parking, dress code, special instructions...','textarea');
   html += '<div class="r366-gig-edit-actions r383-gig-edit-actions">';
-  html += '<button type="button" id="r366-gig-save" class="r382-rh-saved-pill r383-gig-saved-pill">SAVED</button>';
+  html += '<button type="button" id="r366-gig-save" class="r382-rh-saved-pill r383-gig-saved-pill">Save</button>';
   html += '<button type="button" id="r366-gig-delete" class="r383-trash-icon" title="Delete event" aria-label="Delete event"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg></button>';
   html += '</div>';
   b.innerHTML = html;
@@ -16774,14 +16883,7 @@ function _r382OpenRehearsalDetails(ev){
   html += _r366FieldHtml('Songs', d.songs.length ? d.songs.join('\n') : '—');
   html += '</div>';
   html += '<div class="r366-gig-notes-card"><div class="r366-gig-label">Notes</div><div class="r366-gig-notes">' + _r366Esc(d.notes || '—') + '</div></div>';
-  html += '<div class="r382-rh-actions"><button type="button" id="r382-rh-delete" class="r382-trash-icon" title="Delete event" aria-label="Delete event"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg></button></div>';
   b.innerHTML = html;
-  var del = document.getElementById('r382-rh-delete');
-  if(del){ del.onclick = function(){
-    appConfirm({title:'Delete event?', message:'Delete "' + (ev.title || 'this rehearsal') + '"? This cannot be undone.'}).then(function(ok){
-      if(ok){ dEv(ev.id); clM('gig-detail-modal'); toast('Event deleted', {tone:'success'}); }
-    });
-  }; }
   opM('gig-detail-modal');
 }
 
@@ -16817,24 +16919,33 @@ function openRehearsalSheet(ev){
 
   // Save / Delete actions
   if(!isNew){
+    var actionRow = document.createElement('div');
+    actionRow.className = 'r366-gig-edit-actions r383-gig-edit-actions r384-rh-edit-actions';
+
+    var saveBtn = document.createElement('button');
+    saveBtn.className = 'r382-rh-saved-pill r383-gig-saved-pill';
+    saveBtn.textContent = 'Save';
+    saveBtn.onclick = function(){ saveRehearsalSheet(ev ? ev.id : null, isNew); };
+    actionRow.appendChild(saveBtn);
+
     var delBtn = document.createElement('button');
     delBtn.className = 'r382-trash-icon r382-edit-trash r383-trash-icon';
     delBtn.title = 'Delete event';
     delBtn.setAttribute('aria-label', 'Delete event');
-    delBtn.style.cssText = '';
     delBtn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg>';
     delBtn.onclick = (function(eid, title){ return function(){
       appConfirm({title:'Delete event?', message:'Delete "' + title + '"? This cannot be undone.'}).then(function(ok){ if(ok){ dEv(eid); clM('gig-detail-modal'); toast('Event deleted', {tone:'success'}); } });
     }; })(ev.id, ev.title || 'this rehearsal');
-    b.appendChild(delBtn);
+    actionRow.appendChild(delBtn);
+    b.appendChild(actionRow);
+  } else {
+    var saveBtnNew = document.createElement('button');
+    saveBtnNew.className = 'sb';
+    saveBtnNew.style.cssText = 'width:100%;margin-top:8px;';
+    saveBtnNew.textContent = 'Add Rehearsal';
+    saveBtnNew.onclick = function(){ saveRehearsalSheet(null, true); };
+    b.appendChild(saveBtnNew);
   }
-
-  var saveBtn = document.createElement('button');
-  saveBtn.className = isNew ? 'sb' : 'r382-rh-saved-pill';
-  saveBtn.style.cssText = isNew ? 'width:100%;margin-top:8px;' : '';
-  saveBtn.textContent = isNew ? 'Add Rehearsal' : 'SAVED';
-  saveBtn.onclick = function(){ saveRehearsalSheet(ev ? ev.id : null, isNew); };
-  b.appendChild(saveBtn);
 
   opM('gig-detail-modal');
 }
@@ -22696,7 +22807,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-edit-actions-red-trash-r383';
+var WHATS_NEW_VERSION = '2026-05-09-edit-save-text-rehearsal-songs-r384';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22989,6 +23100,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-edit-save-text-rehearsal-songs-r384', date:'May 9, 2026', importance:'fix', title:'Edit save labels and rehearsal song picker', items:['Edit Gig and Edit Rehearsal green pills now say Save, the read-only Rehearsal Details delete icon was removed, Edit Rehearsal uses the same Save/Delete action row as Edit Gig, and the rehearsal Add song button now opens a songs picker when no text is entered.']},
   {version:'2026-05-09-edit-actions-red-trash-r383', date:'May 9, 2026', importance:'fix', title:'Edit action controls cleaned up', items:['Edit Gig now uses the same small green SAVED pill as Edit Rehearsal, the Edit Gig Cancel pill was removed, and Gig/Rehearsal edit delete controls are forced to red trash-can icons.']},
   {version:'2026-05-09-rehearsal-details-readonly-r382', date:'May 9, 2026', importance:'minor', title:'Rehearsal Details read-only page', items:['Tapping an existing rehearsal now opens a read-only Rehearsal Details page first. The kebab still opens the options sheet, Edit opens the editable form, the read-only Save Changes pill is removed, and rehearsal delete controls use red trash-can icons.']},
   {version:'2026-05-09-gig-flyer-detail-entry-cleanup-r381', date:'May 9, 2026', importance:'fix', title:'Gig Detail flyer entry cleaned up', items:['On Gig Details, the duplicate yellow Edit Saved Flyer pill is hidden when a saved flyer card already exists. Opening the flyer editor from Gig Details now keeps the Gig Details modal underneath so closing the flyer editor returns directly without flashing Home.']},
