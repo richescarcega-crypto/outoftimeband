@@ -6,6 +6,7 @@ GitHub web upload/processing below the apparent ~6.5 MB failure threshold.
 No runtime app code was removed.
 r305 adds scoped CSS-only non-Calendar header height normalization.
 -->
+<!-- r419: Lifecycle Router Stabilization. Normal reopen forces Home; app-launched external links restore source context one-shot. Upload as index.html after phone test. -->
 <!-- r311: Calendar All Events/Rehearsal Proposals stack gap tightened. Keeps Rehearsal Proposals locked to the tab row and moves All Events closer to it. Upload as index.html after phone test. -->
 <!-- r317: Calendar header dimension normalization; lower pill stack untouched. Upload as index.html after phone test. -->
 <!-- r325: Calendar lower pill stack visibility scoped to active Calendar tab only. Upload as index.html after phone test. -->
@@ -10754,13 +10755,15 @@ function openInMaps(address){
   window.open(url, '_blank');
 }
 
-// r418: External-link return context is memory-only, one-shot, and gated.
-// It may restore the source screen only when the app itself just launched an
-// external destination and the browser/app actually handed off within 30s.
-// It is never written to persistent storage and is consumed immediately.
+// r419: External-link return context is memory-only, one-shot, and gated.
+// The trigger is the explicit app action (_openExternalUrl), not unreliable
+// platform blur/visibility timing.  Blur/pagehide is used only to classify the
+// immediate launch window; stale context is never allowed to hijack normal opens.
 var _ootExternalReturnContext = null;
 var _ootExternalNavAt = 0;
 var _ootExternalHandoffSeen = false;
+var _ootExternalReturnTTL = 3 * 60 * 1000;
+var _ootExternalLaunchWindow = 8000;
 function _clearExternalReturnContext(reason){
   try { window._ootExternalReturnContext = null; } catch(e){}
   try { window._ootExternalNavAt = 0; } catch(e){}
@@ -10776,16 +10779,21 @@ function _externalReturnAge(){
 }
 function _isExternalReturnPending(){
   var age = _externalReturnAge();
-  return !!(window._ootExternalReturnContext && age >= 0 && age < 30000);
+  // Only the immediate launch handoff should suppress the Home reset while the
+  // app is leaving.  A later close/background is a normal reopen and must Home.
+  return !!(window._ootExternalReturnContext && age >= 0 && age < _ootExternalLaunchWindow);
 }
 function _markExternalHandoffIfPending(reason){
   try {
     var age = _externalReturnAge();
-    if(age >= 0 && age < 30000){
+    if(age >= 0 && age < _ootExternalLaunchWindow){
       window._ootExternalHandoffSeen = true;
+      if(window._ootExternalReturnContext) window._ootExternalReturnContext.handoffSeen = true;
       return true;
     }
-    if(age >= 30000) _clearExternalReturnContext('stale-before-handoff');
+    if(age >= _ootExternalLaunchWindow && !window._ootExternalHandoffSeen){
+      _clearExternalReturnContext('stale-before-handoff');
+    }
   } catch(e){}
   return false;
 }
@@ -10793,9 +10801,15 @@ function _captureExternalReturnContext(){
   try {
     var activeSc = document.querySelector('.sc.on');
     var tab = activeSc && activeSc.id ? activeSc.id.replace(/^sc-/, '') : '';
+    var openOverlays = [];
+    try {
+      document.querySelectorAll('.ov.on').forEach(function(ov){ if(ov && ov.id) openOverlays.push(ov.id); });
+    } catch(e){}
     var ctx = {
       at: Date.now(),
       tab: tab,
+      handoffSeen: true,
+      openOverlays: openOverlays,
       setsViewState: (typeof setsViewState !== 'undefined' ? setsViewState : ''),
       activeSetlistId: (typeof aSL !== 'undefined' && aSL != null ? String(aSL) : ''),
       expandedSetlistId: (window._expandedSetlistId != null ? String(window._expandedSetlistId) : ''),
@@ -10804,7 +10818,9 @@ function _captureExternalReturnContext(){
     };
     window._ootExternalReturnContext = ctx;
     window._ootExternalNavAt = ctx.at;
-    window._ootExternalHandoffSeen = false;
+    // r419: mark at capture time because Android/PWA external handoffs do not
+    // consistently fire blur/hidden before the user returns.
+    window._ootExternalHandoffSeen = true;
     try { sessionStorage.removeItem('oot_external_return_ctx'); } catch(e){}
   } catch(e){}
 }
@@ -10812,11 +10828,11 @@ function _consumeExternalReturnContext(reason){
   var ctx = window._ootExternalReturnContext || null;
   if(!ctx || !ctx.at) return null;
   var age = Date.now() - Number(ctx.at);
-  if(age < 0 || age > 3 * 60 * 1000){
+  if(age < 0 || age > _ootExternalReturnTTL){
     _clearExternalReturnContext('expired');
     return null;
   }
-  if(!window._ootExternalHandoffSeen){
+  if(!window._ootExternalHandoffSeen && !ctx.handoffSeen){
     return null;
   }
   window._ootExternalReturnContext = null;
@@ -10841,6 +10857,7 @@ function _restoreExternalReturnContext(reason){
     } else {
       if(ctx.tab === 'sets' && typeof rSets === 'function' && (!ctx.setsViewState || ctx.setsViewState === 'list')) rSets();
       if(ctx.tab === 'songs' && typeof rLib === 'function') rLib();
+      if(ctx.tab === 'home' && typeof rHome === 'function') rHome();
     }
     setTimeout(function(){
       try {
@@ -23654,7 +23671,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-home-default-deep-reset-r418';
+var WHATS_NEW_VERSION = '2026-05-09-lifecycle-router-stabilization-r419';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23947,6 +23964,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-lifecycle-router-stabilization-r419', date:'May 9, 2026', importance:'fix', title:'Lifecycle router stabilization', items:['Normal app close/background/reopen is forced back to Home from any tab, nested Setlists view, modal, drawer, chat thread, or resources sheet.', 'External-link returns are separated from normal reopen behavior: app-launched YouTube/Facebook/Instagram/Discography/Lyrics/resource links restore the source context one time only.', 'External return context remains memory-only and expires quickly so stale context cannot hijack later normal opens.']},
   {version:'2026-05-09-home-default-deep-reset-r418', date:'May 9, 2026', importance:'fix', title:'Home default deep reset', items:['Centralized the app lifecycle reset so normal close/background/reopen from any tab, submenu, drawer, modal, setlist option, chat thread, Band page, Pay page, or Songs page lands on Home.', 'Transient overlays, setlist edit/detail state, expanded setlists, chat thread view, Calendar drawers, and modal layers are cleared before and after forcing Home.', 'External app handoffs remain one-shot and short-lived: returning immediately from app-launched YouTube/Facebook/Instagram can restore the source context, but stale or normal app opens cannot.']},
   {version:'2026-05-09-song-suggestion-youtube-art-r416', date:'May 9, 2026', importance:'minor', title:'Song suggestion YouTube and album art', items:['Suggest a Song now includes an optional YouTube URL field.', 'Vote on Suggestions now shows song artwork for each suggested song; tapping the artwork opens the submitted URL when present or falls back to YouTube search.', 'Submitted YouTube URLs also appear as a compact link pill in the suggestion vote card.', 'Preserves r415 Home default and intentional external-return behavior.']},
   {version:'2026-05-09-home-default-with-external-return-r415', date:'May 9, 2026', importance:'fix', title:'Home default with intentional external return', items:['Normal app open/reopen from any tab, submenu, drawer, or modal now forces Home.', 'Intentional external launches through Facebook, Instagram, YouTube album art, or YouTube buttons keep a short-lived one-shot return context so backing up returns to the page that launched the external app.', 'Home Gig Counter now opens the next gig as standalone Calendar Event Details without exposing the All Events title/list context.']},
@@ -24941,11 +24959,10 @@ if(savedName&&savedId){
   window.addEventListener('pageshow', function(){ scheduleCalTodayRefresh('pageshow'); });
 })();
 
-// r418: App lifecycle rule, centralized and hardened.
-// On normal hide/pagehide/blur, immediately collapse to Home while the app is
-// leaving so a preserved PWA process cannot resume into a stale modal/subpage.
-// When the hide is caused by an app-launched external URL, skip the leaving
-// reset and allow a one-shot return restore.  Any later hide/reopen goes Home.
+// r419: App lifecycle rule, centralized and hardened.
+// Normal hide/pagehide/blur always collapses to Home unless it occurs inside the
+// very short launch window after an app-launched external URL.  External return
+// restores its captured source context once, then clears itself.
 (function(){
   function _handleLifecycleReturn(reason){
     setTimeout(function(){
@@ -24970,7 +24987,7 @@ if(savedName&&savedId){
       return;
     }
     // Normal close/background from ANY tab/modal/submenu becomes Home before
-    // the app is even visible again.
+    // the app is even visible again.  A stale external context is cleared here.
     try { if(typeof _forceHomeDefaultView === 'function') _forceHomeDefaultView(reason + '-leaving'); } catch(e){}
   }
   document.addEventListener('visibilitychange', function(){
