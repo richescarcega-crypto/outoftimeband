@@ -13062,6 +13062,24 @@ var _flyerCtx = {
   loadedImages: {}      // template key -> loaded HTMLImageElement
 };
 
+// r380: return-path context when the flyer editor is launched from Gig Details.
+// Calendar drawer launches leave this null so they keep returning to the drawer.
+var _r380FlyerReturnGig = null;
+function _r380OpenFlyerFromGigDetail(ev){
+  if(!ev) return;
+  _r380FlyerReturnGig = ev;
+  if(typeof clM === 'function') clM('gig-detail-modal');
+  setTimeout(function(){ openFlyerForGig(ev); }, 180);
+}
+function _r380ReturnToGigDetailIfNeeded(){
+  var ev = _r380FlyerReturnGig;
+  _r380FlyerReturnGig = null;
+  if(!ev) return;
+  setTimeout(function(){
+    try { _r366OpenGigReadOnly(ev); } catch(e){}
+  }, 260);
+}
+
 // Open modal for a specific gig event
 function openFlyerForGig(ev){
   if(!ev) return;
@@ -13901,6 +13919,7 @@ function _flyerCommitFlyerData(){
       flyerAnnouncement: _flyerCtx.announce,
       flyerSavedAt: Date.now()
     });
+    gigDetails[gigId] = updated;
     db.collection('gigdetails').doc(gigId).set(updated).then(function(){
       gigDetails[gigId] = updated;
       // Refresh drawer thumbnail so it shows the latest render
@@ -13939,6 +13958,7 @@ function _flyerCloseModal(){
     var banner = document.getElementById('flyer-save-banner');
     if(banner){ banner.style.transform = 'translateY(-110%)'; }
     if(typeof clM === 'function') clM('flyer-modal');
+    if(typeof _r380ReturnToGigDetailIfNeeded === 'function') _r380ReturnToGigDetailIfNeeded();
   });
 }
 
@@ -14102,6 +14122,7 @@ function _flyerDeleteSaved(){
       gigDetails[gigId] = updated;
       toast('Saved flyer deleted', {tone:'success'});
       clM('flyer-modal');
+      if(typeof _r380ReturnToGigDetailIfNeeded === 'function') _r380ReturnToGigDetailIfNeeded();
       // Refresh drawer if showing
       if(typeof _refreshDrawerForCurrentDay === 'function' && _flyerCtx.gig){
         try {
@@ -14156,6 +14177,7 @@ function _flyerSendToChat(){
         });
         toast('Flyer posted to band chat', {tone:'success'});
         clM('flyer-modal');
+        if(typeof _r380ReturnToGigDetailIfNeeded === 'function') _r380ReturnToGigDetailIfNeeded();
         // Push notification
         var senderFirst = (myName || '').split(' ')[0] || 'A member';
         notifyBand('chat',
@@ -16099,9 +16121,9 @@ function _r366OpenGigReadOnly(ev){
   var mapBtn = document.getElementById('r366-gig-map');
   if(mapBtn){ mapBtn.onclick = function(){ if(!mapText){ toast('No venue or address available', {tone:'error'}); return; } openInMaps(mapText); }; }
   var flyerBtn = document.getElementById('r366-gig-flyer');
-  if(flyerBtn){ flyerBtn.onclick = function(){ clM('gig-detail-modal'); setTimeout(function(){ openFlyerForGig(ev); }, 200); }; }
+  if(flyerBtn){ flyerBtn.onclick = function(){ _r380OpenFlyerFromGigDetail(ev); }; }
   var flyerCard = document.getElementById('r366-gig-flyer-card');
-  if(flyerCard){ flyerCard.onclick = function(){ clM('gig-detail-modal'); setTimeout(function(){ openFlyerForGig(ev); }, 200); }; }
+  if(flyerCard){ flyerCard.onclick = function(){ _r380OpenFlyerFromGigDetail(ev); }; }
   opM('gig-detail-modal');
 }
 function _r366OpenGigEdit(ev){
@@ -16394,8 +16416,7 @@ function openGigSheet(ev){
       thumbWrap.appendChild(thumbImg);
       thumbWrap.appendChild(thumbInfo);
       thumbWrap.onclick = (function(_ev){ return function(){
-        clM('gig-detail-modal');
-        setTimeout(function(){ openFlyerForGig(_ev); }, 200);
+        _r380OpenFlyerFromGigDetail(_ev);
       }; })(ev);
       b.appendChild(thumbWrap);
     }
@@ -16407,8 +16428,7 @@ function openGigSheet(ev){
     var flyerLabel = hasSavedFlyer ? 'EDIT FLYER' : 'MAKE FLYER';
     flyerBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM5 5h14v9.59l-3.29-3.3a1 1 0 0 0-1.42 0L10 15.59l-2.29-2.3a1 1 0 0 0-1.42 0L5 14.59V5z" fill="currentColor"/></svg><span>'+flyerLabel+'</span>';
     flyerBtn.onclick = (function(_ev){ return function(){
-      clM('gig-detail-modal');
-      setTimeout(function(){ openFlyerForGig(_ev); }, 200);
+      _r380OpenFlyerFromGigDetail(_ev);
     }; })(ev);
     b.appendChild(flyerBtn);
 
@@ -22541,7 +22561,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-detail-options-sheet-from-r375-r379';
+var WHATS_NEW_VERSION = '2026-05-09-gig-flyer-return-path-r380';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22834,6 +22854,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-gig-flyer-return-path-r380', date:'May 9, 2026', importance:'fix', title:'Gig flyer return path fixed', items:['When Edit Saved Flyer is opened from Gig Details, closing the flyer editor now returns to Gig Details instead of dropping back to the Calendar Event Details drawer. Calendar drawer flyer launches keep their existing return behavior.']},
   {version:'2026-05-09-detail-options-sheet-from-r375-r379', date:'May 9, 2026', importance:'fix', title:'Gig/Rehearsal detail options sheet', items:['Built from the phone rollback base r375. The Gig/Rehearsal detail kebab now opens a Songs Options-style action sheet with only Edit and Delete, without changing event logic or unrelated app areas.']},
   {version:'2026-05-09-detail-kebab-dropdown-polish-r375', date:'May 9, 2026', importance:'fix', title:'Gig/Rehearsal detail kebab polish', items:['The Gig/Rehearsal detail kebab dropdown now uses the same premium blue-and-gold menu styling language as the app’s other kebab menus, while keeping the same Edit and Delete actions.']},
   {version:'2026-05-09-rehearsal-button-contrast-r374', date:'May 9, 2026', importance:'fix', title:'Rehearsal button label contrast', items:['The Edit Rehearsal yellow Add and Save Changes buttons now use dark readable text, including disabled state, without changing layout or behavior.']},
