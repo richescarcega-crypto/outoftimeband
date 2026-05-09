@@ -13068,8 +13068,9 @@ var _r380FlyerReturnGig = null;
 function _r380OpenFlyerFromGigDetail(ev){
   if(!ev) return;
   _r380FlyerReturnGig = ev;
-  if(typeof clM === 'function') clM('gig-detail-modal');
-  setTimeout(function(){ openFlyerForGig(ev); }, 180);
+  // r381: keep Gig Details open underneath the flyer editor. Closing the flyer
+  // should reveal/refresh Gig Details directly, without flashing Home between modals.
+  openFlyerForGig(ev);
 }
 function _r380ReturnToGigDetailIfNeeded(){
   var ev = _r380FlyerReturnGig;
@@ -13077,7 +13078,7 @@ function _r380ReturnToGigDetailIfNeeded(){
   if(!ev) return;
   setTimeout(function(){
     try { _r366OpenGigReadOnly(ev); } catch(e){}
-  }, 260);
+  }, 40);
 }
 
 // Open modal for a specific gig event
@@ -16112,7 +16113,9 @@ function _r366OpenGigReadOnly(ev){
   html += '<div class="r366-gig-notes-card"><div class="r366-gig-label">Notes</div><div class="r366-gig-notes">' + _r366Esc(d.notes || '—') + '</div></div>';
   html += '<div class="r366-gig-actions">';
   html += '<button type="button" id="r366-gig-map" class="r366-gig-action-btn">OPEN IN MAPS</button>';
-  html += '<button type="button" id="r366-gig-flyer" class="r366-gig-action-btn r366-gig-action-gold">' + (d.flyerData ? 'EDIT SAVED FLYER' : 'MAKE FLYER') + '</button>';
+  if(!d.flyerData){
+    html += '<button type="button" id="r366-gig-flyer" class="r366-gig-action-btn r366-gig-action-gold">MAKE FLYER</button>';
+  }
   html += '</div>';
   if(d.flyerData){
     html += '<div class="r366-gig-flyer-card" id="r366-gig-flyer-card"><img src="' + _r366Esc(d.flyerData) + '" alt="Saved flyer"><div><div class="r366-gig-label">Saved Flyer</div><div class="r366-gig-value">Tap to open flyer editor</div></div></div>';
@@ -22561,7 +22564,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-gig-flyer-return-path-r380';
+var WHATS_NEW_VERSION = '2026-05-09-gig-flyer-detail-entry-cleanup-r381';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22854,6 +22857,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-gig-flyer-detail-entry-cleanup-r381', date:'May 9, 2026', importance:'fix', title:'Gig Detail flyer entry cleaned up', items:['On Gig Details, the duplicate yellow Edit Saved Flyer pill is hidden when a saved flyer card already exists. Opening the flyer editor from Gig Details now keeps the Gig Details modal underneath so closing the flyer editor returns directly without flashing Home.']},
   {version:'2026-05-09-gig-flyer-return-path-r380', date:'May 9, 2026', importance:'fix', title:'Gig flyer return path fixed', items:['When Edit Saved Flyer is opened from Gig Details, closing the flyer editor now returns to Gig Details instead of dropping back to the Calendar Event Details drawer. Calendar drawer flyer launches keep their existing return behavior.']},
   {version:'2026-05-09-detail-options-sheet-from-r375-r379', date:'May 9, 2026', importance:'fix', title:'Gig/Rehearsal detail options sheet', items:['Built from the phone rollback base r375. The Gig/Rehearsal detail kebab now opens a Songs Options-style action sheet with only Edit and Delete, without changing event logic or unrelated app areas.']},
   {version:'2026-05-09-detail-kebab-dropdown-polish-r375', date:'May 9, 2026', importance:'fix', title:'Gig/Rehearsal detail kebab polish', items:['The Gig/Rehearsal detail kebab dropdown now uses the same premium blue-and-gold menu styling language as the app’s other kebab menus, while keeping the same Edit and Delete actions.']},
