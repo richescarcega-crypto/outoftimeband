@@ -384,7 +384,8 @@ body.light .ngc-lbl{ color:#fff !important; }
 .dn{font-family:"Russo One",sans-serif;font-size:16px;color:#c5cee0;font-weight:400;letter-spacing:.5px;text-shadow:0 1px 3px rgba(0,0,0,.5),0 0 8px rgba(197,206,224,.18);}
 .dc.td .dn{color:#f5c518;font-weight:700;text-shadow:0 0 12px rgba(245,197,24,.7),0 1px 3px rgba(0,0,0,.4);}
 .dc.sel .dn{color:#fff;text-shadow:0 0 10px rgba(255,255,255,.5),0 1px 3px rgba(0,0,0,.5);}
-.pips{display:flex;gap:2px;margin-top:2px;}
+.pips{display:flex;gap:1px;margin-top:2px;align-items:center;justify-content:center;flex-wrap:nowrap;max-width:100%;overflow:hidden;}
+.pips>div{flex:0 1 auto;min-width:0;}
 .pip{width:9px;height:9px;border-radius:50%;cursor:pointer;box-shadow:0 0 4px rgba(0,0,0,.6);}
 /* r82 Home band-image fit correction */
 #home-social-row{
@@ -6235,7 +6236,26 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
       <div style="color:#aaa;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:5px;">DATE</div>
       <input id="idate-date" type="date" class="mi" style="width:100%;margin:0;">
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:10px 0;border-top:1px solid #0d1f3a;border-bottom:1px solid #0d1f3a;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+      <div>
+        <div style="color:#aaa;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:5px;">START TIME</div>
+        <input id="idate-start-time" type="time" class="mi" style="width:100%;margin:0;">
+      </div>
+      <div>
+        <div style="color:#aaa;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:5px;">END TIME</div>
+        <input id="idate-end-time" type="time" class="mi" style="width:100%;margin:0;">
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:10px 0;border-top:1px solid #0d1f3a;border-bottom:1px solid #0d1f3a;">
+      <div>
+        <div style="color:#e8f0ff;font-size:13px;">All day</div>
+        <div style="color:#4a6a9a;font-size:11px;margin-top:2px;">No specific start or end time</div>
+      </div>
+      <div id="idate-all-day-toggle" onclick="toggleIDateAllDay()" style="width:36px;height:20px;border-radius:10px;background:#1a3a8a;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;">
+        <div id="idate-all-day-knob" style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:10px 0;border-bottom:1px solid #0d1f3a;">
       <div>
         <div style="color:#e8f0ff;font-size:13px;">Repeats every year</div>
         <div style="color:#4a6a9a;font-size:11px;margin-top:2px;">Anniversaries, recurring milestones</div>
@@ -6243,10 +6263,6 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
       <div id="idate-rec-toggle" onclick="toggleIDateRecurring()" style="width:36px;height:20px;border-radius:10px;background:#1a3a8a;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;">
         <div id="idate-rec-knob" style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;"></div>
       </div>
-    </div>
-    <div style="margin-bottom:14px;">
-      <div style="color:#aaa;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:6px;">COLOR</div>
-      <div id="idate-color-row" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
     </div>
     <div id="idate-action-row" style="display:flex;gap:8px;">
       <button id="idate-delete-btn" onclick="deleteImportantDate()" style="flex:1;background:#0a1628;border:1px solid #ff4757;border-radius:8px;padding:9px;color:#ff4757;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;display:none;align-items:center;justify-content:center;gap:6px;">
@@ -10407,7 +10423,7 @@ function _calRefreshForTodayRollover(reason){
 }
 var MO=["January","February","March","April","May","June","July","August","September","October","November","December"];
 var DW=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-var EC={gig:"#f5c518", blackout:"#ff4757", rehearsal:"#4a9eff"};
+var EC={gig:"#f5c518", blackout:"#ff4757", rehearsal:"#4a9eff", custom:"#f5c518"};
 var chatTo = "band";
 var chatFilter = "all";
 var reactions = {};
@@ -10709,30 +10725,38 @@ function getImportantDatesOn(ds){
 // Important Date editor state
 var _editingIDateId = null;
 var _editingIDateRecurring = false;
-var _editingIDateColor = '#06d6a0';
-var IDATE_COLORS = ['#06d6a0','#f5c518','#4a9eff','#ff6b9d','#c084fc','#ffa500','#ff4757','#7ed4ff'];
+var _editingIDateAllDay = false;
+var IDATE_DEFAULT_COLOR = '#f5c518';
 
-function _renderIDateColorRow(){
-  var host = document.getElementById('idate-color-row');
-  if(!host) return;
-  host.innerHTML = '';
-  IDATE_COLORS.forEach(function(c){
-    var sw = document.createElement('div');
-    var selected = c === _editingIDateColor;
-    sw.style.cssText = 'width:30px;height:30px;border-radius:50%;background:'+c+';cursor:pointer;border:'+(selected?'2px solid #fff':'2px solid transparent')+';box-shadow:0 0 '+(selected?'14':'6')+'px '+c+(selected?'aa':'40')+';transition:all .15s;';
-    sw.onclick = (function(col){ return function(){ _editingIDateColor = col; _renderIDateColorRow(); }; })(c);
-    host.appendChild(sw);
+function _applyIDateToggleVisual(toggleId, knobId, isOn){
+  var t = document.getElementById(toggleId);
+  var k = document.getElementById(knobId);
+  if(t && k){
+    t.style.background = isOn ? '#4a9eff' : '#1a3a8a';
+    k.style.left = isOn ? '18px' : '2px';
+  }
+}
+
+function _applyIDateAllDayState(){
+  _applyIDateToggleVisual('idate-all-day-toggle', 'idate-all-day-knob', _editingIDateAllDay);
+  var st = document.getElementById('idate-start-time');
+  var en = document.getElementById('idate-end-time');
+  [st,en].forEach(function(inp){
+    if(!inp) return;
+    inp.disabled = _editingIDateAllDay;
+    inp.style.opacity = _editingIDateAllDay ? '.42' : '1';
+    if(_editingIDateAllDay) inp.value = '';
   });
+}
+
+function toggleIDateAllDay(){
+  _editingIDateAllDay = !_editingIDateAllDay;
+  _applyIDateAllDayState();
 }
 
 function toggleIDateRecurring(){
   _editingIDateRecurring = !_editingIDateRecurring;
-  var t = document.getElementById('idate-rec-toggle');
-  var k = document.getElementById('idate-rec-knob');
-  if(t && k){
-    t.style.background = _editingIDateRecurring ? '#4a9eff' : '#1a3a8a';
-    k.style.left = _editingIDateRecurring ? '18px' : '2px';
-  }
+  _applyIDateToggleVisual('idate-rec-toggle', 'idate-rec-knob', _editingIDateRecurring);
 }
 
 function openImportantDateModal(idateOrId){
@@ -10744,7 +10768,7 @@ function openImportantDateModal(idateOrId){
   }
   _editingIDateId = existing ? existing.id : null;
   _editingIDateRecurring = existing ? !!existing.recurring : false;
-  _editingIDateColor = existing && existing.color ? existing.color : '#06d6a0';
+  _editingIDateAllDay = existing ? !!existing.allDay : false;
   document.getElementById('idate-title').textContent = existing ? 'Edit Important Date' : 'New Important Date';
   document.getElementById('idate-name').value = existing ? (existing.title||'') : '';
   // Hydrate date input — if recurring, normalize to current year so the date input renders
@@ -10762,17 +10786,15 @@ function openImportantDateModal(idateOrId){
     dateForInput = now.getFullYear()+'-'+_pad(now.getMonth()+1)+'-'+_pad(now.getDate());
   }
   document.getElementById('idate-date').value = dateForInput;
-  // Apply toggle visual
-  var t = document.getElementById('idate-rec-toggle');
-  var k = document.getElementById('idate-rec-knob');
-  if(t && k){
-    t.style.background = _editingIDateRecurring ? '#4a9eff' : '#1a3a8a';
-    k.style.left = _editingIDateRecurring ? '18px' : '2px';
-  }
+  var startEl = document.getElementById('idate-start-time');
+  var endEl = document.getElementById('idate-end-time');
+  if(startEl) startEl.value = existing ? (existing.startTime || '') : '';
+  if(endEl) endEl.value = existing ? (existing.endTime || '') : '';
+  _applyIDateToggleVisual('idate-rec-toggle', 'idate-rec-knob', _editingIDateRecurring);
+  _applyIDateAllDayState();
   // Show/hide delete based on edit vs create
   var delBtn = document.getElementById('idate-delete-btn');
   if(delBtn) delBtn.style.display = existing ? 'inline-flex' : 'none';
-  _renderIDateColorRow();
   opM('idate-modal');
 }
 
@@ -10784,11 +10806,17 @@ function saveImportantDate(){
   var dateToStore = _editingIDateRecurring
     ? dateRaw.slice(5) // 'MM-DD' for annual
     : dateRaw;
+  var startTime = (document.getElementById('idate-start-time') && document.getElementById('idate-start-time').value) || '';
+  var endTime = (document.getElementById('idate-end-time') && document.getElementById('idate-end-time').value) || '';
+  if(_editingIDateAllDay){ startTime = ''; endTime = ''; }
   var data = {
     title: title,
     date: dateToStore,
     recurring: _editingIDateRecurring,
-    color: _editingIDateColor,
+    allDay: _editingIDateAllDay,
+    startTime: startTime,
+    endTime: endTime,
+    color: IDATE_DEFAULT_COLOR,
     updated: firebase.firestore.FieldValue.serverTimestamp()
   };
   var wasEdit = !!_editingIDateId;
@@ -10835,7 +10863,7 @@ function rImportantDatesList(){
   });
   el.innerHTML = '';
   sorted.forEach(function(x){
-    var color = x.color || '#06d6a0';
+    var color = IDATE_DEFAULT_COLOR;
     var dateLabel = '';
     if(x.recurring){
       var p = String(x.date).split('-');
@@ -10846,13 +10874,10 @@ function rImportantDatesList(){
     }
     var row = document.createElement('div');
     row.style.cssText = 'background:linear-gradient(135deg,'+color+'22 0%,'+color+'08 50%,#0a1628 100%);border:1px solid '+color+'55;border-left:4px solid '+color+';border-radius:10px;padding:10px 12px;margin-bottom:7px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:0 0 12px '+color+'22;';
+    var timeLabel = x.allDay ? 'All Day' : ([x.startTime || '', x.endTime || ''].filter(Boolean).join('–'));
+    var metaLabel = dateLabel + (x.recurring?' &middot; Annual':'') + (timeLabel ? ' &middot; ' + timeLabel : '');
     row.innerHTML =
-      '<span style="color:'+color+';font-size:18px;line-height:1;">&#9733;</span>'+
-      '<div style="flex:1;min-width:0;">'+
-        '<div style="font-size:14px;font-weight:600;color:#fff;">'+(x.title||'Untitled')+'</div>'+
-        '<div style="font-size:11px;color:#aaa;margin-top:2px;">'+dateLabel+(x.recurring?' &middot; Annual':'')+'</div>'+
-      '</div>'+
-      '<div style="color:'+color+';font-size:18px;line-height:1;flex-shrink:0;opacity:.7;">&#8250;</div>';
+      '<span style="color:'+color+';font-size:18px;line-height:1;">&#9733;</span>'+      '<div style="flex:1;min-width:0;">'+        '<div style="font-size:14px;font-weight:600;color:#fff;">'+(x.title||'Untitled')+'</div>'+        '<div style="font-size:11px;color:#aaa;margin-top:2px;">'+metaLabel+'</div>'+      '</div>'+      '<div style="color:'+color+';font-size:18px;line-height:1;flex-shrink:0;opacity:.7;">&#8250;</div>';
     row.onclick = (function(id){ return function(){ openImportantDateModal(id); }; })(x.id);
     el.appendChild(row);
   });
@@ -15164,24 +15189,26 @@ function rCal() {
   for(var d=1;d<=dim;d++){
     var ds=fD(CY,CM,d), de=events.filter(function(e){return e.date===ds;});
     var today=_r248Now; var td=CY===today.getFullYear()&&CM===today.getMonth()&&d===today.getDate();
-    var eventTypes=['gig','rehearsal','blackout'].filter(function(t){return de.some(function(e){return e.type===t;});});
-    var pipSize = eventTypes.length>1 ? '13px' : '15px';
-    var pp=eventTypes.map(function(t){
-      var count=de.filter(function(e){return e.type===t;}).length;
-      var badge=count>1?'<span style="position:absolute;top:-5px;right:-6px;background:#fff;color:#000;font-size:6px;font-weight:700;border-radius:50%;width:10px;height:10px;display:flex;align-items:center;justify-content:center;line-height:1;">'+count+'</span>':'';
-      return '<div style="position:relative;display:inline-flex;"><span class="cal-marker" style="color:'+EC[t]+';font-size:'+pipSize+';cursor:pointer;" onclick="event.stopPropagation();oDy('+d+')" title="'+t+'">'+_calTypeIcon(t)+'</span>'+badge+'</div>';
-    }).join('');
     // Special-day badges
     var bdayMembers = getMembersBornOn(ds);
     var holiday = getHolidayOn(ds);
     var impDates = getImportantDatesOn(ds);
+    var eventTypes=['gig','rehearsal','blackout'].filter(function(t){return de.some(function(e){return e.type===t;});});
+    var markerTypes = eventTypes.slice();
+    if(impDates.length) markerTypes.push('custom');
+    var pipSize = markerTypes.length>1 ? '12px' : '15px';
+    var pp=markerTypes.map(function(t){
+      var count = (t === 'custom') ? impDates.length : de.filter(function(e){return e.type===t;}).length;
+      var color = (t === 'custom') ? IDATE_DEFAULT_COLOR : EC[t];
+      var badge=count>1?'<span style="position:absolute;top:-5px;right:-6px;background:#fff;color:#000;font-size:6px;font-weight:700;border-radius:50%;width:10px;height:10px;display:flex;align-items:center;justify-content:center;line-height:1;">'+count+'</span>':'';
+      return '<div style="position:relative;display:inline-flex;"><span class="cal-marker" style="color:'+color+';font-size:'+pipSize+';cursor:pointer;" onclick="event.stopPropagation();oDy('+d+')" title="'+t+'">'+_calTypeIcon(t)+'</span>'+badge+'</div>';
+    }).join('');
     var cake = bdayMembers.length ? '<span style="position:absolute;bottom:2px;right:3px;font-size:7px;line-height:1;pointer-events:none;" title="Birthday"><span class="icon-cake" aria-hidden="true"></span></span>' : '';
     var flag  = holiday ? '<span style="position:absolute;bottom:2px;left:3px;font-size:7px;line-height:1;pointer-events:none;" title="'+holiday.name+'"><span class="icon-usflag" aria-hidden="true"></span></span>' : '';
-    var star  = impDates.length ? '<span style="position:absolute;top:1px;left:3px;font-size:10px;line-height:1;pointer-events:none;color:#f5c518;text-shadow:0 0 6px rgba(245,197,24,.5);" title="Important date">&#9733;</span>' : '';
-    var busyCount = eventTypes.length + bdayMembers.length + (holiday?1:0) + impDates.length;
+    var busyCount = markerTypes.length + bdayMembers.length + (holiday?1:0);
     var busyClass = busyCount >= 3 ? ' stage-busy-3' : (busyCount === 2 ? ' stage-busy-2' : (busyCount === 1 ? ' stage-busy' : ''));
     var blackoutClass = eventTypes.indexOf('blackout') >= 0 ? ' has-blackout' : '';
-    h+='<div class="dc'+(td?' td':'')+busyClass+blackoutClass+'" style="position:relative;" onclick="oDy('+d+')">'+flag+star+cake+'<span class="dn">'+d+'</span><div class="pips">'+pp+'</div></div>';
+    h+='<div class="dc'+(td?' td':'')+busyClass+blackoutClass+'" style="position:relative;" onclick="oDy('+d+')">'+flag+cake+'<span class="dn">'+d+'</span><div class="pips">'+pp+'</div></div>';
   }
   // r308: keep every calendar month at a fixed 6-week height.
   // The app always renders 42 day slots (7 days x 6 rows): actual leading blanks + dates + invisible trailing placeholders.
@@ -15432,7 +15459,7 @@ var EVL_FILTER_LABELS = [
   {key:'gig',       label:'Gigs',       color:'#f5c518'},
   {key:'rehearsal', label:'Rehearsals', color:'#4a9eff'},
   {key:'blackout',  label:'Blackouts',  color:'#ff4757'},
-  {key:'custom',    label:'Custom',     color:'#06d6a0'}
+  {key:'custom',    label:'Custom',     color:'#f5c518'}
 ];
 
 // Tracks whether the filter dropdown panel is open
@@ -15614,7 +15641,7 @@ function _customEntriesAsRows(){
   var todayY = new Date().getFullYear();
   importantDates.forEach(function(x){
     if(!x || !x.date) return;
-    var color = x.color || '#06d6a0';
+    var color = IDATE_DEFAULT_COLOR;
     if(x.recurring){
       var p = String(x.date).split('-');
       var mm, dd;
@@ -15628,7 +15655,10 @@ function _customEntriesAsRows(){
           date: ds,
           type: 'custom',
           title: x.title || 'Untitled',
-          note: 'Annual',
+          note: x.allDay ? 'All Day · Annual' : 'Annual',
+          startTime: x.startTime || '',
+          endTime: x.endTime || '',
+          allDay: !!x.allDay,
           _customColor: color,
           _customSourceId: x.id,
           _customRecurring: true
@@ -15640,7 +15670,10 @@ function _customEntriesAsRows(){
         date: x.date,
         type: 'custom',
         title: x.title || 'Untitled',
-        note: '',
+        note: x.allDay ? 'All Day' : '',
+        startTime: x.startTime || '',
+        endTime: x.endTime || '',
+        allDay: !!x.allDay,
         _customColor: color,
         _customSourceId: x.id,
         _customRecurring: false
@@ -15775,14 +15808,11 @@ function _renderSpecialDayNotes(eexEl, ds, opts){
     eexEl.appendChild(hCard);
   }
   impDates.forEach(function(idate){
-    var color = idate.color || '#06d6a0';
+    var color = IDATE_DEFAULT_COLOR;
+    var timeLabel = idate.allDay ? 'All Day' : ([idate.startTime || '', idate.endTime || ''].filter(Boolean).join('–'));
     var dCard = document.createElement('div');
     dCard.style.cssText = 'padding:8px 12px;background:linear-gradient(135deg,'+color+'2e 0%,'+color+'0d 50%,#0a1628 100%);border:1px solid '+color+'66;border-radius:8px;margin-bottom:6px;display:flex;align-items:center;gap:8px;';
-    dCard.innerHTML = '<span style="color:'+color+';font-size:16px;line-height:1;">&#9733;</span>'+
-      '<div style="flex:1;">'+
-        '<div style="font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1.5px;color:'+color+';">'+(idate.recurring?'ANNUAL · ':'')+'IMPORTANT DATE</div>'+
-        '<div style="font-size:13px;color:#fff;font-weight:600;margin-top:1px;">'+(idate.title||'')+'</div>'+
-      '</div>';
+    dCard.innerHTML = '<span style="color:'+color+';font-size:16px;line-height:1;">&#9733;</span>'+      '<div style="flex:1;">'+        '<div style="font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1.5px;color:'+color+';">'+(idate.recurring?'ANNUAL · ':'')+'IMPORTANT DATE</div>'+        '<div style="font-size:13px;color:#fff;font-weight:600;margin-top:1px;">'+(idate.title||'')+'</div>'+        (timeLabel ? '<div style="font-size:11px;color:#aaa;margin-top:2px;">'+timeLabel+'</div>' : '')+      '</div>';
     eexEl.appendChild(dCard);
   });
   // Visual separator before events
@@ -22961,7 +22991,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-custom-event-time-all-day-home-restore-r392';
+var WHATS_NEW_VERSION = '2026-05-09-custom-event-time-all-day-r393';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23254,7 +23284,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-09-custom-event-time-all-day-home-restore-r392', date:'May 9, 2026', importance:'fix', title:'Custom events and Home reopen restore', items:['Custom / New Important Date adds Start Time, End Time, and an All Day toggle, and removes the unused color bubble selector.', 'Calendar day markers are sized into one row when multiple event types land on the same date.', 'App reopen/default handling is restored so the app should return to Home on fresh reopen.']},
+  {version:'2026-05-09-custom-event-time-all-day-r393', date:'May 9, 2026', importance:'fix', title:'Custom event fields and calendar markers', items:['New Important Date / Custom Event now includes Start Time, End Time, and an All Day toggle.', 'The unused color bubble selector was removed from Custom Event setup and custom events render consistently gold.', 'Calendar date markers now put the custom star into the same row as event icons and shrink markers when multiple event types share a date.']},
   {version:'2026-05-09-agenda-list-trigger-gig-flyer-r390', date:'May 9, 2026', importance:'fix', title:'Agenda trigger and gig flyer cleanup', items:['On Edit Rehearsal, the Agenda popout now opens from the visible song list instead of the Agenda heading/subtitle area.', 'On Gig Event Details, gigs with saved flyers no longer show the duplicate green Flyer check pill; the Gig Flyer thumbnail/card remains the flyer editor tap target.']},
   {version:'2026-05-09-gig-flyer-pill-cleanup-r389', date:'May 9, 2026', importance:'fix', title:'Gig flyer entry cleaned up', items:['On Gig Event Details, the duplicate green flyer action pill is removed when a gig already has a saved flyer image pill.', 'The saved flyer image pill is renamed Gig Flyer and remains the tap target for opening the flyer editor.']},
   {version:'2026-05-09-rehearsal-agenda-song-picker-r388', date:'May 9, 2026', importance:'fix', title:'Edit Rehearsal agenda song picker', items:['Edit Rehearsal song picker now stays open for multiple song selections and has a green Save pill to return to Edit Rehearsal.', 'The redundant Tap Add to choose songs field was removed, and tapping the Agenda title opens a popout list of all selected songs.']},
