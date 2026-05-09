@@ -5696,6 +5696,13 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   stroke:#ff3348 !important;
 }
 
+
+/* r398: keep Suggest a Song modal visible above mobile keyboard */
+#votes-modal.suggest-keyboard-active{align-items:flex-start!important;justify-content:flex-start!important;padding-top:max(4px,env(safe-area-inset-top))!important;}
+#votes-modal.suggest-keyboard-active #votes-modal-card{max-height:var(--oot-suggest-keyboard-height,52vh)!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;transform:translateY(-6px);padding-top:10px!important;padding-bottom:12px!important;}
+#votes-modal.suggest-keyboard-active #votes-modal-subtitle{display:none!important;}
+#votes-modal.suggest-keyboard-active #suggest-form{padding-top:24px!important;}
+#votes-modal.suggest-keyboard-active #suggest-form .fi2{margin-bottom:7px!important;}
 </style>
 </head>
 <body>
@@ -6178,9 +6185,9 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
     <div id="suggest-form" style="display:none;position:relative;padding-top:30px;" class="fb">
       <button type="button" aria-label="Close song suggestion form" onclick="document.getElementById('suggest-form').style.display='none'" style="position:absolute;top:3px;right:3px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(138,168,214,.38);background:rgba(10,22,40,.78);color:#8aa8d6;font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>
       <div style="position:absolute;top:8px;left:0;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1.5px;color:#f5c518;">SUGGEST A SONG</div>
-      <input class="fi2" id="suggest-title" placeholder="Song *" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text" data-lpignore="true" data-form-type="other" oninput="_ootTitleCaseField(this)">
-      <input class="fi2" id="suggest-artist" placeholder="Artist" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text" data-lpignore="true" data-form-type="other" oninput="_ootTitleCaseField(this)">
-      <input class="fi2" id="suggest-note" placeholder="Why this song? (optional)" autocomplete="off" autocorrect="on" spellcheck="true" inputmode="text" data-lpignore="true" data-form-type="other" oninput="_ootSentenceCaseField(this)">
+      <input class="fi2" id="suggest-title" placeholder="Song *" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" onblur="_ootSuggestKeyboardMode(false,this)" oninput="_ootTitleCaseField(this)">
+      <input class="fi2" id="suggest-artist" placeholder="Artist" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" onblur="_ootSuggestKeyboardMode(false,this)" oninput="_ootTitleCaseField(this)">
+      <input class="fi2" id="suggest-note" placeholder="Why this song? (optional)" autocomplete="off" autocorrect="on" spellcheck="true" inputmode="text" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" onblur="_ootSuggestKeyboardMode(false,this)" oninput="_ootSentenceCaseField(this)">
       <div class="r2" style="margin-top:8px;">
         <button class="sb" onclick="submitSuggestion()" style="width:100%;">Submit</button>
       </div>
@@ -18257,6 +18264,38 @@ function _ootSentenceCaseText(v){
 }
 function _ootTitleCaseField(el){ _ootPreserveCursorTransform(el, _ootTitleCaseText); }
 function _ootSentenceCaseField(el){ _ootPreserveCursorTransform(el, _ootSentenceCaseText); }
+function _ootSuggestKeyboardMode(active, el){
+  var ov = document.getElementById('votes-modal');
+  var card = document.getElementById('votes-modal-card');
+  function apply(){
+    if(!ov || !card) return;
+    if(active){
+      ov.classList.add('suggest-keyboard-active');
+      try{
+        var vv = window.visualViewport;
+        if(vv && vv.height){
+          var safeH = Math.max(300, Math.floor(vv.height - 12));
+          card.style.setProperty('--oot-suggest-keyboard-height', safeH + 'px');
+        }
+      }catch(e){}
+      try{
+        if(el && typeof el.scrollIntoView === 'function'){
+          el.scrollIntoView({block:'center', inline:'nearest', behavior:'smooth'});
+        }
+      }catch(e){}
+    } else {
+      setTimeout(function(){
+        var form = document.getElementById('suggest-form');
+        var a = document.activeElement;
+        if(form && a && form.contains(a)) return;
+        if(ov) ov.classList.remove('suggest-keyboard-active');
+        if(card) card.style.removeProperty('--oot-suggest-keyboard-height');
+      }, 180);
+    }
+  }
+  apply();
+  if(active){ setTimeout(apply, 350); }
+}
 function _setSongSuggestionsModalMode(mode){
   var ov = document.getElementById('votes-modal');
   var card = document.getElementById('votes-modal-card');
@@ -18265,6 +18304,8 @@ function _setSongSuggestionsModalMode(mode){
   var list = document.getElementById('votes-list');
   var form = document.getElementById('suggest-form');
   var inlineBtn = document.getElementById('votes-modal-suggest-inline');
+  if(ov){ ov.classList.remove('suggest-keyboard-active'); }
+  if(card){ card.style.removeProperty('--oot-suggest-keyboard-height'); }
   if(mode === 'suggest'){
     if(ov){ ov.style.alignItems = 'flex-start'; ov.style.paddingTop = '10px'; }
     if(card){ card.style.maxHeight = 'calc(100vh - 24px)'; card.style.overflowY = 'auto'; card.scrollTop = 0; }
@@ -23162,7 +23203,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-songs-suggestion-delete-polish-r397';
+var WHATS_NEW_VERSION = '2026-05-09-suggest-modal-keyboard-r398';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23455,6 +23496,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-suggest-modal-keyboard-r398', date:'May 9, 2026', importance:'fix', title:'Suggest a Song keyboard positioning', items:['When typing in Suggest a Song fields, the modal shifts into a compact top-positioned layout so the form remains visible above the mobile keyboard.', 'The suggestion subtitle is temporarily hidden during typing to recover vertical space, then normal layout returns after the keyboard focus leaves the form.']},
   {version:'2026-05-09-songs-suggestion-delete-polish-r397', date:'May 9, 2026', importance:'fix', title:'Song suggestion and delete polish', items:['Suggest a Song no longer auto-focuses the Song field, reducing unwanted keyboard pop-up.', 'Suggestion fields request no browser/autofill toolbar where supported and the suggestion modal is more keyboard-friendly.', 'Vote on Suggestions shows yes, no, and pending member status for each suggestion.', 'Canceling a Delete Songs confirmation now clears the selected checkmarks when returning to the delete window.']},
   {version:'2026-05-09-songs-menu-separation-r396', date:'May 9, 2026', importance:'fix', title:'Songs menu separation and delete fix', items:['Songs menu now separates Add New Song, Import Songs, Suggest a Song, Vote on Suggestions, Delete Songs, and Share Library.', 'Suggest a Song opens only the suggestion form.', 'Vote on Suggestions opens only the voting list.', 'Delete Songs now opens the multi-select delete window instead of the disabled fallback.']},
   {version:'2026-05-09-blackout-marker-size-r394', date:'May 9, 2026', importance:'fix', title:'Smaller blackout date marker', items:['Calendar blackout date icons are now 50% smaller in the month grid.', 'The smaller blackout marker applies automatically to existing blackout dates and all future blackout dates when rendered on the calendar.', 'No blackout save logic or notification behavior was changed.']},
