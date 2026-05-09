@@ -5697,12 +5697,18 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 }
 
 
-/* r398: keep Suggest a Song modal visible above mobile keyboard */
-#votes-modal.suggest-keyboard-active{align-items:flex-start!important;justify-content:flex-start!important;padding-top:max(4px,env(safe-area-inset-top))!important;}
-#votes-modal.suggest-keyboard-active #votes-modal-card{max-height:var(--oot-suggest-keyboard-height,52vh)!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;transform:translateY(-6px);padding-top:10px!important;padding-bottom:12px!important;}
+/* r403: fixed keyboard-safe Suggest a Song typing mode.
+   This locks the whole modal card to one top position instead of allowing
+   Android/Samsung keyboard auto-pan to move each focused field differently. */
+#votes-modal.suggest-keyboard-active{display:block!important;align-items:initial!important;justify-content:initial!important;padding:0!important;overflow:hidden!important;}
+#votes-modal.suggest-keyboard-active #votes-modal-card{position:fixed!important;top:var(--oot-suggest-keyboard-top,6px)!important;left:50%!important;right:auto!important;width:calc(100% - 24px)!important;max-width:460px!important;max-height:var(--oot-suggest-keyboard-height,340px)!important;margin:0!important;transform:translateX(-50%)!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;padding-top:10px!important;padding-bottom:12px!important;}
 #votes-modal.suggest-keyboard-active #votes-modal-subtitle{display:none!important;}
-#votes-modal.suggest-keyboard-active #suggest-form{padding-top:24px!important;}
+#votes-modal.suggest-keyboard-active #votes-modal-card .moh{margin-bottom:6px!important;}
+#votes-modal.suggest-keyboard-active #suggest-form{padding-top:22px!important;}
 #votes-modal.suggest-keyboard-active #suggest-form .fi2{margin-bottom:7px!important;}
+#votes-modal.suggest-keyboard-active #suggest-title,
+#votes-modal.suggest-keyboard-active #suggest-artist,
+#votes-modal.suggest-keyboard-active #suggest-note{min-height:38px!important;font-size:15px!important;}
 </style>
 </head>
 <body>
@@ -5727,7 +5733,6 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
     <div class="hero-tagline">Where Rock &amp; Roll Meets the Dance Floor</div>
   </div>
   <div id="birthday-banner" style="display:none;"></div>
-  <div id="home-song-vote-cue" style="display:none;"></div>
   <div id="next-gig-countdown" style="display:none;background:#060e1c;border-radius:12px;padding:7px 14px;margin-bottom:8px;text-align:center;border:2px solid rgba(245,197,24,1);box-shadow:0 0 30px rgba(245,197,24,.4),inset 0 0 30px rgba(10,22,40,.8);">
     <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">
       <div style="height:1px;flex:1;background:linear-gradient(to right,transparent,rgba(245,197,24,.4));"></div>
@@ -9476,46 +9481,6 @@ function rVotes(){
   updateVoteBadge();
 }
 
-
-function _pendingSongSuggestionsForMe(){
-  try {
-    if(!Array.isArray(suggestions) || !ME) return [];
-    return suggestions.filter(function(s){
-      var yv = (s.yesVoters||[]).map(function(v){ return String(v); });
-      var nv = (s.noVoters||[]).map(function(v){ return String(v); });
-      var me = String(ME);
-      return yv.indexOf(me) < 0 && nv.indexOf(me) < 0;
-    });
-  } catch(e){ return []; }
-}
-
-function updateHomeSongVoteCue(){
-  var cue = document.getElementById('home-song-vote-cue');
-  if(!cue) return;
-  var pending = _pendingSongSuggestionsForMe();
-  if(!pending.length){
-    cue.style.display = 'none';
-    cue.innerHTML = '';
-    return;
-  }
-  var count = pending.length;
-  var first = pending[0] || {};
-  var title = first.title ? String(first.title) : 'new song suggestion';
-  var artist = first.artist ? String(first.artist) : '';
-  cue.style.display = 'block';
-  cue.innerHTML =
-    '<button type="button" onclick="openSongVoteModal()" aria-label="Review pending song suggestion votes" '+
-      'style="width:100%;background:linear-gradient(135deg,rgba(245,197,24,.20),rgba(74,158,255,.10) 55%,rgba(10,22,40,.96));border:1px solid rgba(245,197,24,.48);border-radius:12px;padding:10px 12px;margin:0 0 8px 0;color:#e8f0ff;text-align:left;display:flex;align-items:center;gap:10px;box-shadow:0 0 20px rgba(245,197,24,.16),inset 0 1px 0 rgba(255,255,255,.05);font-family:Exo 2,sans-serif;touch-action:manipulation;">'+
-      '<span style="width:34px;height:34px;border-radius:10px;background:#f5c518;color:#060e1c;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;box-shadow:0 0 12px rgba(245,197,24,.35);">♪</span>'+ 
-      '<span style="flex:1;min-width:0;">'+
-        '<span style="display:block;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1.4px;color:#f5c518;text-transform:uppercase;">Song Vote Pending</span>'+ 
-        '<span style="display:block;font-size:13px;font-weight:700;color:#fff;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_esc(title)+(artist?' — '+_esc(artist):'')+'</span>'+ 
-        '<span style="display:block;font-size:11px;color:#8aa8d6;margin-top:2px;">'+(count===1?'1 suggestion needs your vote':count+' suggestions need your vote')+'</span>'+ 
-      '</span>'+ 
-      '<span style="font-size:20px;line-height:1;color:#f5c518;flex-shrink:0;">›</span>'+ 
-    '</button>';
-}
-
 function updateVoteBadge(){
   var unvoted = suggestions.filter(function(s){
     var yv = s.yesVoters||[];
@@ -9532,7 +9497,6 @@ function updateVoteBadge(){
   // Kebab indicator dot — visible whenever there are pending votes
   var dot = document.getElementById('songs-menu-dot');
   if(dot) dot.style.display = unvoted > 0 ? 'block' : 'none';
-  try { updateHomeSongVoteCue(); } catch(e){}
 }
 
 function castVote(id, voteType){
@@ -14982,7 +14946,6 @@ function rHome() {
   _ensureHomeBandBackdrop();
   // r76: Home schedule cards removed. Keep Home focused on countdown + band image.
   updateCountdown();
-  try { updateHomeSongVoteCue(); } catch(e){}
   // Birthday banner
   var bbEl = document.getElementById('birthday-banner');
   if(bbEl){
@@ -18310,51 +18273,42 @@ function _ootSentenceCaseField(el){ _ootPreserveCursorTransform(el, _ootSentence
 function _ootSuggestKeyboardMode(active, el){
   var ov = document.getElementById('votes-modal');
   var card = document.getElementById('votes-modal-card');
-  function alignToArtistAnchor(){
-    if(!card) return;
+  var form = document.getElementById('suggest-form');
+
+  function setFrame(){
+    if(!ov || !card) return;
     try{
-      var artist = document.getElementById('suggest-artist');
-      if(!artist) return;
-      // r401: use the Artist field as the fixed anchor because that was the approved phone position.
-      // Every Suggest field now forces the modal/card to the same scroll position that centers Artist.
-      var target = Math.max(0, Math.round(artist.offsetTop - (card.clientHeight * 0.48) + (artist.offsetHeight / 2)));
-      card.scrollTop = target;
-      if(ov) ov.scrollTop = 0;
+      var vv = window.visualViewport;
+      var top = 6;
+      var h = Math.min(340, Math.max(260, Math.floor((vv && vv.height ? vv.height : window.innerHeight) - 14)));
+      if(vv && typeof vv.offsetTop === 'number') top = Math.max(4, Math.floor(vv.offsetTop + 6));
+      card.style.setProperty('--oot-suggest-keyboard-top', top + 'px');
+      card.style.setProperty('--oot-suggest-keyboard-height', h + 'px');
+      card.scrollTop = 0;
+      ov.scrollTop = 0;
+      if(document.scrollingElement) document.scrollingElement.scrollTop = 0;
+      try{ window.scrollTo(0,0); }catch(e){}
     }catch(e){}
   }
-  function apply(){
-    if(!ov || !card) return;
-    if(active){
-      ov.classList.add('suggest-keyboard-active');
-      try{
-        var vv = window.visualViewport;
-        if(vv && vv.height){
-          var safeH = Math.max(300, Math.floor(vv.height - 12));
-          card.style.setProperty('--oot-suggest-keyboard-height', safeH + 'px');
-        }
-      }catch(e){}
-      alignToArtistAnchor();
-    } else {
-      setTimeout(function(){
-        var form = document.getElementById('suggest-form');
-        var a = document.activeElement;
-        if(form && a && form.contains(a)) return;
-        if(ov) ov.classList.remove('suggest-keyboard-active');
-        if(card){
-          card.style.removeProperty('--oot-suggest-keyboard-height');
-          card.scrollTop = 0;
-        }
-      }, 180);
-    }
-  }
-  apply();
-  // Android/Samsung may auto-pan after focus and again after the keyboard finishes animating.
-  // Re-apply the same Artist-anchor position several times so Song, Artist, and Why land together.
+
   if(active){
-    setTimeout(apply, 80);
-    setTimeout(apply, 260);
-    setTimeout(apply, 520);
-    setTimeout(apply, 820);
+    if(ov) ov.classList.add('suggest-keyboard-active');
+    setFrame();
+    // Android/Samsung changes visualViewport during keyboard animation.
+    // Recalculate the same fixed frame several times; do not scroll to the focused field.
+    if(window.requestAnimationFrame) requestAnimationFrame(setFrame);
+    [60,140,260,420,650,900].forEach(function(ms){ setTimeout(setFrame, ms); });
+  } else {
+    setTimeout(function(){
+      var a = document.activeElement;
+      if(form && a && form.contains(a)) return;
+      if(ov) ov.classList.remove('suggest-keyboard-active');
+      if(card){
+        card.style.removeProperty('--oot-suggest-keyboard-top');
+        card.style.removeProperty('--oot-suggest-keyboard-height');
+        card.scrollTop = 0;
+      }
+    }, 220);
   }
 }
 function _setSongSuggestionsModalMode(mode){
@@ -23355,7 +23309,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-home-song-vote-cue-r402';
+var WHATS_NEW_VERSION = '2026-05-09-suggest-keyboard-fixed-frame-r403';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23648,8 +23602,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-09-home-song-vote-cue-r402', date:'May 9, 2026', importance:'fix', title:'Home song vote cue', items:['Home now shows a compact Song Vote Pending card when the current member has unvoted song suggestions.', 'Tapping the card opens Vote on Suggestions directly and the cue disappears after that member votes.']},
-  {version:'2026-05-09-suggest-field-anchor-r401', date:'May 9, 2026', importance:'fix', title:'Suggest a Song fixed field anchor', items:['Suggest a Song now uses the Artist field as the fixed approved keyboard position anchor.', 'Song, Artist, and Why This Song focus events re-apply that same position during Android keyboard animation so the modal should not land in three different spots.']},
+  {version:'2026-05-09-suggest-keyboard-fixed-frame-r403', date:'May 9, 2026', importance:'fix', title:'Suggest a Song keyboard frame fix', items:['Suggest a Song now uses a fixed keyboard-safe typing frame instead of field-specific scroll positioning.', 'Song, Artist, and Why This Song no longer use scrollIntoView or Artist-anchor scroll math; the modal card locks to one top position while the keyboard opens.']},
   {version:'2026-05-09-suggest-field-position-r400', date:'May 9, 2026', importance:'fix', title:'Suggest a Song field position consistency', items:['Suggest a Song now keeps the modal in the same keyboard-raised position whether the Song, Artist, or Why This Song field is tapped.', 'Removed field-specific scroll-centering that caused each input to shift the modal by a different amount on Android.']},
   {version:'2026-05-09-import-songs-preview-r399', date:'May 9, 2026', importance:'fix', title:'Import Songs preview upgrade', items:['Import Songs now accepts pasted rows in Title - Artist, Title, Artist, or Excel/Sheets tab-separated formats.', 'Added a Preview Import step with selectable rows before anything is saved.', 'Preview flags missing artists and duplicate-looking entries before import.']},
   {version:'2026-05-09-suggest-modal-keyboard-r398', date:'May 9, 2026', importance:'fix', title:'Suggest a Song keyboard positioning', items:['When typing in Suggest a Song fields, the modal shifts into a compact top-positioned layout so the form remains visible above the mobile keyboard.', 'The suggestion subtitle is temporarily hidden during typing to recover vertical space, then normal layout returns after the keyboard focus leaves the form.']},
