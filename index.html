@@ -10499,6 +10499,12 @@ function _resetTransientUIForHomeDefault(reason){
   // Pay/Band/Chat subwindow instead of the Home tab.
   try {
     [
+      // Shared export/share overlay used by Setlists, Pay, Calendar, Songs,
+      // Band, and other app-level share flows.  It is deliberately not part
+      // of the .ov modal system, so Home-default lifecycle reset must remove
+      // it centrally; otherwise closing the app from any Share submenu can
+      // reopen into that stale share window instead of Home.
+      'share-chooser-overlay',
       'band-image-preview-overlay',
       'flyer-template-preview-overlay',
       'pay-action-backdrop',
@@ -23821,7 +23827,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-robust-external-return-r422';
+var WHATS_NEW_VERSION = '2026-05-09-setlists-share-lifecycle-reset-r423';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24114,6 +24120,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-setlists-share-lifecycle-reset-r423', date:'May 9, 2026', importance:'fix', title:'Setlists share menu lifecycle reset', items:['Normal app reopen now centrally removes the shared export/share overlay used by Setlists → Share All Setlists and other app share flows.', 'Closing the app from Setlists → top kebab → Share All Setlists should reopen to Home, not the stale Share window.', 'No UI design, Firebase, song, calendar, pay, or external-link behavior was intentionally changed.']},
   {version:'2026-05-09-robust-external-return-r422', date:'May 9, 2026', importance:'fix', title:'Robust album-art external return', items:['Album-art and resource-link handoffs now store a short-lived one-shot return context so Android/PWA reloads after YouTube can still return to the launching page instead of Home.', 'Normal app reopen still defaults Home when there was no app-launched external link.', 'Carries forward the Pay share submenu lifecycle cleanup so Pay → kebab → Share Pay Log also resets to Home on normal reopen.']},
   {version:'2026-05-09-lifecycle-reset-coverage-r420', date:'May 9, 2026', importance:'fix', title:'Lifecycle reset coverage', items:['Normal app reopen now also clears non-modal dynamic layers such as Pay option sheets, Pay Log Gig form, Band roster menus, Setlist option sheets, Calendar event option sheets, and flyer/share sheets.', 'Band tab member image previews and Chat tab image lightboxes are force-closed during Home-default lifecycle reset so they cannot survive a normal app reopen.', 'Pay Gig History is collapsed during reset so Pay sublevel state does not remain waiting behind Home.']},
   {version:'2026-05-09-lifecycle-router-stabilization-r419', date:'May 9, 2026', importance:'fix', title:'Lifecycle router stabilization', items:['Normal app close/background/reopen is forced back to Home from any tab, nested Setlists view, modal, drawer, chat thread, or resources sheet.', 'External-link returns are separated from normal reopen behavior: app-launched YouTube/Facebook/Instagram/Discography/Lyrics/resource links restore the source context one time only.', 'External return context remains memory-only and expires quickly so stale context cannot hijack later normal opens.']},
