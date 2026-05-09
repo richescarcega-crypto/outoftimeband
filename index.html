@@ -5630,6 +5630,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 
 /* r387: SAFE r385-based Edit Rehearsal action controls + save-stays-open only.
    Built from the stable r385 file after r386 broke app startup. Scope is Edit Rehearsal only. */
+/* r388: Edit Rehearsal Agenda song picker allows multi-select, adds picker Save/Done pill, removes readonly Tap Add field, and makes Agenda title open selected-song popout. */
 #gig-detail-modal .r387-rh-edit-actions{
   display:flex !important;
   flex-direction:row !important;
@@ -12744,15 +12745,21 @@ function _r384OpenRehearsalSongPicker(onSelect){
   title.textContent = 'SONGS LIST';
   var sub = document.createElement('div');
   sub.style.cssText = 'font-size:11px;color:#9fb8dc;margin-top:2px;';
-  sub.textContent = 'Tap a song to add it to this rehearsal';
+  sub.textContent = 'Tap songs to add them, then Save to return to Edit Rehearsal';
   titleWrap.appendChild(title); titleWrap.appendChild(sub);
+  var doneSave = document.createElement('button');
+  doneSave.type = 'button';
+  doneSave.textContent = 'Save';
+  doneSave.setAttribute('aria-label','Save song selections and return to Edit Rehearsal');
+  doneSave.style.cssText = 'border:none;border-radius:999px;background:linear-gradient(135deg,#39ff88,#15c45d);color:#06120a;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1px;padding:8px 13px;box-shadow:0 0 14px rgba(57,255,136,.34);cursor:pointer;flex-shrink:0;';
+  doneSave.onclick = function(){ _r384CloseRehearsalSongPicker(); };
   var close = document.createElement('button');
   close.type = 'button';
   close.setAttribute('aria-label','Close Songs list');
   close.textContent = '×';
   close.style.cssText = 'width:32px;height:32px;border-radius:50%;background:rgba(74,158,255,.10);border:1px solid rgba(74,158,255,.35);color:#dbe9ff;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;';
   close.onclick = function(){ _r384CloseRehearsalSongPicker(); };
-  head.appendChild(titleWrap); head.appendChild(close);
+  head.appendChild(titleWrap); head.appendChild(doneSave); head.appendChild(close);
   sheet.appendChild(head);
 
   var search = document.createElement('input');
@@ -12797,7 +12804,11 @@ function _r384OpenRehearsalSongPicker(onSelect){
       row.onclick = function(){
         var label = (s.title || '').trim() + (s.artist ? ' — ' + s.artist : '');
         if(label.trim() && typeof onSelect === 'function') onSelect(label.trim());
-        _r384CloseRehearsalSongPicker();
+        plus.textContent = '✓';
+        plus.style.background = 'rgba(57,255,136,.16)';
+        plus.style.borderColor = 'rgba(57,255,136,.55)';
+        plus.style.color = '#39ff88';
+        row.style.borderColor = 'rgba(57,255,136,.42)';
       };
       list.appendChild(row);
     });
@@ -12872,10 +12883,61 @@ function _renderRehearsalForm(container, initial, opts){
   // SONGS — local array, mutated in place; UI re-renders via _renderSongsList
   var songsState = Array.isArray(initial.songs) ? initial.songs.slice() : [];
 
-  var agLbl = document.createElement('div');
-  agLbl.style.cssText = 'font-size:10px;color:#aaa;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:6px;margin-top:4px;';
+  var agLbl = document.createElement('button');
+  agLbl.type = 'button';
+  agLbl.style.cssText = 'width:100%;text-align:left;background:transparent;border:none;font-size:10px;color:#aaa;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:6px;margin-top:4px;padding:0;cursor:pointer;';
   agLbl.textContent = 'AGENDA — SONGS TO WORK ON';
+  agLbl.setAttribute('aria-label','Show all agenda songs to work on');
   container.appendChild(agLbl);
+
+  function openAgendaSongsPopout(){
+    var oldPop = document.getElementById('r388-rh-agenda-popout');
+    if(oldPop) oldPop.remove();
+    var ov = document.createElement('div');
+    ov.id = 'r388-rh-agenda-popout';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:12500;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);display:flex;align-items:flex-start;justify-content:center;padding:18px;padding-top:max(18px,env(safe-area-inset-top));';
+    ov.onclick = function(e){ if(e.target === ov) ov.remove(); };
+    var card = document.createElement('div');
+    card.style.cssText = 'width:min(420px,calc(100vw - 34px));max-height:min(74vh,640px);background:linear-gradient(180deg,rgba(8,24,56,.98),rgba(4,13,30,.99));border:1px solid rgba(245,197,24,.42);border-radius:22px;box-shadow:0 22px 52px rgba(0,0,0,.62),0 0 28px rgba(74,158,255,.14),inset 0 1px 0 rgba(255,255,255,.06);padding:14px;display:flex;flex-direction:column;gap:10px;';
+    card.onclick = function(e){ e.stopPropagation(); };
+    var h = document.createElement('div');
+    h.style.cssText = 'display:flex;align-items:center;gap:10px;padding:2px 2px 8px;border-bottom:1px solid rgba(74,158,255,.18);';
+    var t = document.createElement('div');
+    t.style.cssText = 'flex:1;min-width:0;font-family:Russo One,sans-serif;font-size:13px;letter-spacing:2px;color:#f5c518;';
+    t.textContent = 'AGENDA SONGS';
+    var x = document.createElement('button');
+    x.type = 'button';
+    x.textContent = '×';
+    x.setAttribute('aria-label','Close agenda songs');
+    x.style.cssText = 'width:32px;height:32px;border-radius:50%;background:rgba(74,158,255,.10);border:1px solid rgba(74,158,255,.35);color:#dbe9ff;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;';
+    x.onclick = function(){ ov.remove(); };
+    h.appendChild(t); h.appendChild(x);
+    card.appendChild(h);
+    var body = document.createElement('div');
+    body.style.cssText = 'overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:7px;padding-right:2px;';
+    if(!songsState.length){
+      var empty = document.createElement('div');
+      empty.style.cssText = 'text-align:center;color:#8aa8d6;font-size:12px;padding:18px 8px;';
+      empty.textContent = 'No songs added yet.';
+      body.appendChild(empty);
+    }
+    songsState.forEach(function(songName, i){
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:flex-start;gap:9px;padding:10px 11px;border:1px solid rgba(74,158,255,.22);border-radius:13px;background:linear-gradient(135deg,rgba(9,30,70,.88),rgba(5,17,40,.96));';
+      var num = document.createElement('span');
+      num.style.cssText = 'font-family:Russo One,sans-serif;font-size:11px;color:#f5c518;letter-spacing:1px;flex-shrink:0;min-width:20px;';
+      num.textContent = (i+1) + '.';
+      var nm = document.createElement('span');
+      nm.style.cssText = 'font-size:13px;color:#f7fbff;line-height:1.35;word-break:break-word;';
+      nm.textContent = songName;
+      row.appendChild(num); row.appendChild(nm);
+      body.appendChild(row);
+    });
+    card.appendChild(body);
+    ov.appendChild(card);
+    document.body.appendChild(ov);
+  }
+  agLbl.onclick = openAgendaSongsPopout;
 
   var agList = document.createElement('div');
   agList.id = p + '-agenda-list';
@@ -12935,25 +12997,13 @@ function _renderRehearsalForm(container, initial, opts){
     });
   }
 
-  // Add-song row with autocomplete from library
+  // Add-song row — r388 removes the redundant readonly “Tap Add” field; Add alone opens the picker.
   var addRow = document.createElement('div');
-  addRow.style.cssText = 'display:flex;gap:6px;margin-bottom:8px;position:relative;';
-  var addInp = document.createElement('input');
-  addInp.className = 'fi2';
-  addInp.id = p + '-agenda-inp';
-  addInp.placeholder = 'Tap Add to choose songs...';
-  addInp.style.flex = '1';
-  addInp.className += ' r385-add-song-input';
-  addInp.readOnly = true;
-  addInp.setAttribute('aria-readonly','true');
-  addInp.setAttribute('tabindex','-1');
-  addInp.setAttribute('autocomplete', 'off');
-  addInp.setAttribute('inputmode', 'none');
-  addInp.onfocus = function(){ try{ addInp.blur(); }catch(e){} };
+  addRow.style.cssText = 'display:flex;justify-content:flex-end;margin-bottom:8px;position:relative;';
   var addBtn = document.createElement('button');
   addBtn.className = 'sb';
   addBtn.type = 'button';
-  addBtn.style.cssText = 'padding:6px 14px;font-size:11px;';
+  addBtn.style.cssText = 'padding:6px 18px;font-size:11px;';
   addBtn.textContent = 'Add';
   addBtn.onclick = function(){
     _r384OpenRehearsalSongPicker(function(songLabel){
@@ -12963,7 +13013,6 @@ function _renderRehearsalForm(container, initial, opts){
       if(opts.onSongsChange) opts.onSongsChange(songsState);
     });
   };
-  addRow.appendChild(addInp);
   addRow.appendChild(addBtn);
   container.appendChild(addRow);
 
@@ -22903,7 +22952,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-rehearsal-edit-actions-safe-r387';
+var WHATS_NEW_VERSION = '2026-05-09-rehearsal-agenda-song-picker-r388';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23196,6 +23245,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-rehearsal-agenda-song-picker-r388', date:'May 9, 2026', importance:'fix', title:'Edit Rehearsal agenda song picker', items:['Edit Rehearsal song picker now stays open for multiple song selections and has a green Save pill to return to Edit Rehearsal.', 'The redundant Tap Add to choose songs field was removed, and tapping the Agenda title opens a popout list of all selected songs.']},
   {version:'2026-05-09-rehearsal-edit-actions-safe-r387', date:'May 9, 2026', importance:'fix', title:'Safe Rehearsal edit action controls', items:['Built from stable r385 after r386 failed. Edit Rehearsal Save/Delete is forced to match the Edit Gig action row, and saving an existing rehearsal keeps the user on Edit Rehearsal instead of returning to Calendar Event Details.']},
   {version:'2026-05-09-rehearsal-actions-song-picker-r385', date:'May 9, 2026', importance:'fix', title:'Rehearsal edit actions and song picker cleanup', items:['Edit Rehearsal Save/Delete now matches the Edit Gig action layout, the Add Song field no longer focuses or opens keyboard suggestions, the Add button opens the song picker without auto-opening the keyboard, and long song lists on Rehearsal Details are contained in a scrollable Songs field.']},
   {version:'2026-05-09-edit-save-text-rehearsal-songs-r384', date:'May 9, 2026', importance:'fix', title:'Edit save labels and rehearsal song picker', items:['Edit Gig and Edit Rehearsal green pills now say Save, the read-only Rehearsal Details delete icon was removed, Edit Rehearsal uses the same Save/Delete action row as Edit Gig, and the rehearsal Add song button now opens a songs picker when no text is entered.']},
