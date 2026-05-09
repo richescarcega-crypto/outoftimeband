@@ -6,7 +6,7 @@ GitHub web upload/processing below the apparent ~6.5 MB failure threshold.
 No runtime app code was removed.
 r305 adds scoped CSS-only non-Calendar header height normalization.
 -->
-<!-- r419: Lifecycle Router Stabilization. Normal reopen forces Home; app-launched external links restore source context one-shot. Upload as index.html after phone test. -->
+<!-- r420: Lifecycle Reset Coverage. Normal reopen also clears non-.ov dynamic menus, Pay subwindows/forms, and Band/Chat image lightboxes. Upload as index.html after phone test. -->
 <!-- r311: Calendar All Events/Rehearsal Proposals stack gap tightened. Keeps Rehearsal Proposals locked to the tab row and moves All Events closer to it. Upload as index.html after phone test. -->
 <!-- r317: Calendar header dimension normalization; lower pill stack untouched. Upload as index.html after phone test. -->
 <!-- r325: Calendar lower pill stack visibility scoped to active Calendar tab only. Upload as index.html after phone test. -->
@@ -10484,12 +10484,71 @@ function _resetTransientUIForHomeDefault(reason){
     });
   } catch(e){}
 
-  // Remove dynamic preview overlays/sheets that may be injected outside .ov.
+  // Remove dynamic menus, backdrops, and preview layers that are injected
+  // outside the canonical .ov modal system.  r420 expands this list because
+  // Pay action sheets/forms and Band/Chat image lightboxes are not .ov nodes;
+  // leaving them alive made a normal app reopen appear to restore the old
+  // Pay/Band/Chat subwindow instead of the Home tab.
   try {
-    ['band-image-preview-overlay','flyer-template-preview-overlay'].forEach(function(id){
+    [
+      'band-image-preview-overlay',
+      'flyer-template-preview-overlay',
+      'pay-action-backdrop',
+      'band-roster-action-backdrop',
+      'band-roster-menu-popup',
+      'songs-action-backdrop',
+      'songs-menu-popup',
+      'setlists-action-backdrop',
+      'setlists-menu-popup',
+      'setlist-edit-action-backdrop',
+      'setlist-expanded-action-backdrop',
+      'setlist-remove-song-backdrop',
+      'calendar-events-action-backdrop',
+      'calendar-events-filter-backdrop',
+      'detail-action-backdrop',
+      'r366-gig-menu-wrap',
+      'flyer-more-sheet'
+    ].forEach(function(id){
       var el = document.getElementById(id);
       if(el && el.parentNode) el.parentNode.removeChild(el);
     });
+  } catch(e){}
+
+  // Force-close image/lightbox systems that are not .ov overlays.  Do this
+  // directly rather than relying only on animated close helpers, because a
+  // lifecycle reset needs the stale layer gone before the app is shown again.
+  try {
+    var mlb = document.getElementById('member-lightbox');
+    if(mlb){
+      mlb.style.opacity = '0';
+      mlb.style.display = 'none';
+    }
+    if(typeof _memLightboxTimer !== 'undefined' && _memLightboxTimer){
+      clearTimeout(_memLightboxTimer);
+      _memLightboxTimer = null;
+    }
+  } catch(e){}
+  try {
+    var ilb = document.getElementById('img-lightbox');
+    if(ilb){
+      ilb.style.display = 'none';
+      ilb.classList.remove('on');
+    }
+    var ilbImg = document.getElementById('img-lightbox-img');
+    if(ilbImg) ilbImg.removeAttribute('src');
+  } catch(e){}
+
+  // Reset Pay-specific transient state.  The Pay tab contains inline subwindows
+  // (#pf Log Gig Pay) and a collapsible Gig History section, so normalize both
+  // on Home-default lifecycle reset.
+  try {
+    var pf = document.getElementById('pf');
+    if(pf) pf.style.display = 'none';
+    if(typeof cardStates !== 'undefined') cardStates['gig-history-list'] = true;
+    var gh = document.getElementById('gig-history-list');
+    if(gh) gh.style.display = 'none';
+    var gha = document.getElementById('gig-history-arrow');
+    if(gha) gha.innerHTML = '&#8964;';
   } catch(e){}
 
   // Reset Setlists to the list landing state.  This is critical because the
@@ -23965,6 +24024,7 @@ function _showStuckUpdateBanner(expectedVer){
 }
 var WHATS_NEW_LOG = [
   {version:'2026-05-09-lifecycle-router-stabilization-r419', date:'May 9, 2026', importance:'fix', title:'Lifecycle router stabilization', items:['Normal app close/background/reopen is forced back to Home from any tab, nested Setlists view, modal, drawer, chat thread, or resources sheet.', 'External-link returns are separated from normal reopen behavior: app-launched YouTube/Facebook/Instagram/Discography/Lyrics/resource links restore the source context one time only.', 'External return context remains memory-only and expires quickly so stale context cannot hijack later normal opens.']},
+  {version:'2026-05-09-lifecycle-reset-coverage-r420', date:'May 9, 2026', importance:'fix', title:'Lifecycle reset coverage', items:['Normal app reopen now also clears non-modal dynamic layers such as Pay option sheets, Pay Log Gig form, Band roster menus, Setlist option sheets, Calendar event option sheets, and flyer/share sheets.', 'Band tab member image previews and Chat tab image lightboxes are force-closed during Home-default lifecycle reset so they cannot survive a normal app reopen.', 'Pay Gig History is collapsed during reset so Pay sublevel state does not remain waiting behind Home.']},
   {version:'2026-05-09-home-default-deep-reset-r418', date:'May 9, 2026', importance:'fix', title:'Home default deep reset', items:['Centralized the app lifecycle reset so normal close/background/reopen from any tab, submenu, drawer, modal, setlist option, chat thread, Band page, Pay page, or Songs page lands on Home.', 'Transient overlays, setlist edit/detail state, expanded setlists, chat thread view, Calendar drawers, and modal layers are cleared before and after forcing Home.', 'External app handoffs remain one-shot and short-lived: returning immediately from app-launched YouTube/Facebook/Instagram can restore the source context, but stale or normal app opens cannot.']},
   {version:'2026-05-09-song-suggestion-youtube-art-r416', date:'May 9, 2026', importance:'minor', title:'Song suggestion YouTube and album art', items:['Suggest a Song now includes an optional YouTube URL field.', 'Vote on Suggestions now shows song artwork for each suggested song; tapping the artwork opens the submitted URL when present or falls back to YouTube search.', 'Submitted YouTube URLs also appear as a compact link pill in the suggestion vote card.', 'Preserves r415 Home default and intentional external-return behavior.']},
   {version:'2026-05-09-home-default-with-external-return-r415', date:'May 9, 2026', importance:'fix', title:'Home default with intentional external return', items:['Normal app open/reopen from any tab, submenu, drawer, or modal now forces Home.', 'Intentional external launches through Facebook, Instagram, YouTube album art, or YouTube buttons keep a short-lived one-shot return context so backing up returns to the page that launched the external app.', 'Home Gig Counter now opens the next gig as standalone Calendar Event Details without exposing the All Events title/list context.']},
