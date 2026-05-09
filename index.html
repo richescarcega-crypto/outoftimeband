@@ -15200,8 +15200,9 @@ function rCal() {
     var pp=markerTypes.map(function(t){
       var count = (t === 'custom') ? impDates.length : de.filter(function(e){return e.type===t;}).length;
       var color = (t === 'custom') ? IDATE_DEFAULT_COLOR : EC[t];
+      var markerSize = (t === 'blackout') ? (parseFloat(pipSize) * 0.5) + 'px' : pipSize;
       var badge=count>1?'<span style="position:absolute;top:-5px;right:-6px;background:#fff;color:#000;font-size:6px;font-weight:700;border-radius:50%;width:10px;height:10px;display:flex;align-items:center;justify-content:center;line-height:1;">'+count+'</span>':'';
-      return '<div style="position:relative;display:inline-flex;"><span class="cal-marker" style="color:'+color+';font-size:'+pipSize+';cursor:pointer;" onclick="event.stopPropagation();oDy('+d+')" title="'+t+'">'+_calTypeIcon(t)+'</span>'+badge+'</div>';
+      return '<div style="position:relative;display:inline-flex;align-items:center;justify-content:center;"><span class="cal-marker" style="color:'+color+';font-size:'+markerSize+';cursor:pointer;" onclick="event.stopPropagation();oDy('+d+')" title="'+t+'">'+_calTypeIcon(t)+'</span>'+badge+'</div>';
     }).join('');
     var cake = bdayMembers.length ? '<span style="position:absolute;bottom:2px;right:3px;font-size:7px;line-height:1;pointer-events:none;" title="Birthday"><span class="icon-cake" aria-hidden="true"></span></span>' : '';
     var flag  = holiday ? '<span style="position:absolute;bottom:2px;left:3px;font-size:7px;line-height:1;pointer-events:none;" title="'+holiday.name+'"><span class="icon-usflag" aria-hidden="true"></span></span>' : '';
@@ -22991,7 +22992,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-custom-event-time-all-day-r393';
+var WHATS_NEW_VERSION = '2026-05-09-blackout-marker-size-r394';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23284,6 +23285,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-blackout-marker-size-r394', date:'May 9, 2026', importance:'fix', title:'Smaller blackout date marker', items:['Calendar blackout date icons are now 50% smaller in the month grid.', 'The smaller blackout marker applies automatically to existing blackout dates and all future blackout dates when rendered on the calendar.', 'No blackout save logic or notification behavior was changed.']},
   {version:'2026-05-09-custom-event-time-all-day-r393', date:'May 9, 2026', importance:'fix', title:'Custom event fields and calendar markers', items:['New Important Date / Custom Event now includes Start Time, End Time, and an All Day toggle.', 'The unused color bubble selector was removed from Custom Event setup and custom events render consistently gold.', 'Calendar date markers now put the custom star into the same row as event icons and shrink markers when multiple event types share a date.']},
   {version:'2026-05-09-agenda-list-trigger-gig-flyer-r390', date:'May 9, 2026', importance:'fix', title:'Agenda trigger and gig flyer cleanup', items:['On Edit Rehearsal, the Agenda popout now opens from the visible song list instead of the Agenda heading/subtitle area.', 'On Gig Event Details, gigs with saved flyers no longer show the duplicate green Flyer check pill; the Gig Flyer thumbnail/card remains the flyer editor tap target.']},
   {version:'2026-05-09-gig-flyer-pill-cleanup-r389', date:'May 9, 2026', importance:'fix', title:'Gig flyer entry cleaned up', items:['On Gig Event Details, the duplicate green flyer action pill is removed when a gig already has a saved flyer image pill.', 'The saved flyer image pill is renamed Gig Flyer and remains the tap target for opening the flyer editor.']},
