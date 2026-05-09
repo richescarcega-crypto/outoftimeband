@@ -16,6 +16,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
+<!-- r426: Setlists external-return durable handoff. Stores app-launched YouTube return context in short-lived localStorage + sessionStorage so Android/PWA process resume cannot lose the open setlist. Upload as index.html after phone test. -->
 <!-- r425: Setlists external-return guard extended. Prevents late Android/PWA leaving events during YouTube handoff from clearing the captured open-setlist context. Upload as index.html after phone test. -->
 <!-- r424: Setlists album-art external return stabilizer. Keeps source setlist restored through Android/PWA multi-step YouTube back navigation. Upload as index.html after phone test. -->
 <head>
@@ -10862,30 +10863,51 @@ var _ootExternalReturnStabilizeWindow = 45 * 1000;
 var _ootLastExternalRestoreContext = null;
 var _ootExternalRestoreLockUntil = 0;
 var _ootExternalStoreKey = 'oot_external_return_ctx';
+var _ootExternalDurableStoreKey = 'oot_external_return_ctx_durable';
 function _persistExternalReturnContext(ctx){
   try {
     if(!ctx || !ctx.at) return;
     ctx.source = 'oot-app-external-v1';
     ctx.handoffSeen = true;
-    sessionStorage.setItem(_ootExternalStoreKey, JSON.stringify(ctx));
+    var payload = JSON.stringify(ctx);
+    // r426: sessionStorage alone was not durable enough for the Android/PWA
+    // YouTube app handoff. Store the same one-shot, short-lived payload in
+    // localStorage too, so a process resume/reload can still restore the exact
+    // source Setlists context. It is still TTL-bound and consumed once.
+    try { sessionStorage.setItem(_ootExternalStoreKey, payload); } catch(e1){}
+    try { localStorage.setItem(_ootExternalDurableStoreKey, payload); } catch(e2){}
   } catch(e){}
 }
-function _readStoredExternalReturnContext(){
+function _readExternalReturnPayloadFromStorage(storage, key){
   try {
-    var raw = sessionStorage.getItem(_ootExternalStoreKey);
+    if(!storage || !key) return null;
+    var raw = storage.getItem(key);
     if(!raw) return null;
     var ctx = JSON.parse(raw);
     if(!ctx || ctx.source !== 'oot-app-external-v1' || !ctx.at) return null;
     var age = Date.now() - Number(ctx.at);
     if(age < 0 || age > _ootExternalReturnTTL){
-      sessionStorage.removeItem(_ootExternalStoreKey);
+      try { storage.removeItem(key); } catch(e1){}
       return null;
     }
     return ctx;
   } catch(e){
-    try { sessionStorage.removeItem(_ootExternalStoreKey); } catch(e2){}
+    try { storage.removeItem(key); } catch(e2){}
     return null;
   }
+}
+function _readStoredExternalReturnContext(){
+  var ctx = null;
+  try { ctx = _readExternalReturnPayloadFromStorage(sessionStorage, _ootExternalStoreKey); } catch(e){}
+  if(ctx) return ctx;
+  try { ctx = _readExternalReturnPayloadFromStorage(localStorage, _ootExternalDurableStoreKey); } catch(e){}
+  if(ctx){
+    // Rehydrate sessionStorage when possible so the rest of the lifecycle path
+    // behaves exactly as before after a durable restore.
+    try { sessionStorage.setItem(_ootExternalStoreKey, JSON.stringify(ctx)); } catch(e2){}
+    return ctx;
+  }
+  return null;
 }
 function _loadExternalReturnContext(){
   try {
@@ -10909,6 +10931,7 @@ function _clearExternalReturnContext(reason){
   try { window._ootExternalNavAt = 0; } catch(e){}
   try { window._ootExternalHandoffSeen = false; } catch(e){}
   try { sessionStorage.removeItem(_ootExternalStoreKey); } catch(e){}
+  try { localStorage.removeItem(_ootExternalDurableStoreKey); } catch(e){}
 }
 function _externalReturnAge(){
   try {
@@ -11002,6 +11025,7 @@ function _consumeExternalReturnContext(reason){
   window._ootLastExternalRestoreContext = ctx;
   window._ootExternalRestoreLockUntil = Date.now() + _ootExternalReturnStabilizeWindow;
   try { sessionStorage.removeItem(_ootExternalStoreKey); } catch(e){}
+  try { localStorage.removeItem(_ootExternalDurableStoreKey); } catch(e){}
   return ctx;
 }
 function _restoreExternalOpenOverlays(ctx){
@@ -23903,7 +23927,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-setlist-external-return-guard-r425';
+var WHATS_NEW_VERSION = '2026-05-09-setlist-external-return-durable-r426';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24196,6 +24220,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-setlist-external-return-durable-r426', date:'May 9, 2026', importance:'fix', title:'Setlists YouTube return made durable', items:['Setlists open-setlist album-art YouTube launches now save the source context in a short-lived durable handoff, not sessionStorage only.', 'This targets Android/PWA returns where YouTube can resume the app after sessionStorage is gone, causing the app to fall back to Home.', 'The handoff is still app-launched only, expires quickly, and is consumed once so normal app close/reopen remains Home.']},
   {version:'2026-05-09-setlist-external-return-guard-r425', date:'May 9, 2026', importance:'fix', title:'Setlists YouTube return guard', items:['Setlists open-setlist album-art YouTube launches now keep their captured source context protected through the Android/PWA external handoff, so backing out of YouTube should return to the same open setlist instead of Home.', 'Normal app close/reopen remains Home because the guard only exists after the app itself launches an external URL.']},
   {version:'2026-05-09-setlists-share-lifecycle-reset-r423', date:'May 9, 2026', importance:'fix', title:'Setlists share menu lifecycle reset', items:['Normal app reopen now centrally removes the shared export/share overlay used by Setlists → Share All Setlists and other app share flows.', 'Closing the app from Setlists → top kebab → Share All Setlists should reopen to Home, not the stale Share window.', 'No UI design, Firebase, song, calendar, pay, or external-link behavior was intentionally changed.']},
   {version:'2026-05-09-robust-external-return-r422', date:'May 9, 2026', importance:'fix', title:'Robust album-art external return', items:['Album-art and resource-link handoffs now store a short-lived one-shot return context so Android/PWA reloads after YouTube can still return to the launching page instead of Home.', 'Normal app reopen still defaults Home when there was no app-launched external link.', 'Carries forward the Pay share submenu lifecycle cleanup so Pay → kebab → Share Pay Log also resets to Home on normal reopen.']},
