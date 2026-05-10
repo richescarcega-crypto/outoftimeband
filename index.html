@@ -26,6 +26,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r430: External-return post-restore shield hardening. Late hidden/blur/pagehide noise after YouTube return can no longer trigger delayed Home override. Upload as index.html after phone test. -->
 <!-- r429: External-return post-restore shield. Prevents late blur/pagehide/hidden events after successful YouTube return from overriding restored source tab with Home. Upload as index.html after phone test. -->
 <!-- r432: Vote on Suggestions real artwork source. Vote-window artwork now prefers submitted YouTube thumbnail/library match before iTunes fallback. Upload as index.html after phone test. -->
+<!-- r449: Edit Saved Flyer static/no-bounce + visible top actions. Removes saved flyer modal bounce and forces the top flyer actions menu above the editor. Upload as index.html after phone test. -->
 <!-- r448: Edit Saved Flyer balance/actions. Fills static page better and moves flyer actions kebab to top standard color. Upload as index.html after phone test. -->
 <!-- r436: Armed external-return defer. Prevents early focus/pageshow/init noise after album-art tap from falling through to Home and deleting the pending YouTube return payload. Upload as index.html after phone test. -->
 <!-- r438: Band Contacts sticky expanded drawer. Keeps the CONTACTS pill sticky while open, scrolls it to the top of the Band tab, and gives the contact list a larger internal scroll area. Upload as index.html after phone test. -->
@@ -2290,6 +2291,45 @@ body.light .home-summary-card [style*="color:rgba(255,255,255"]{color:#5a6a85 !i
   #flyer-modal.flyer-saved-static #flyer-step-fields .mi{height:28px !important;padding:5px 8px !important;font-size:11px !important;}
   #flyer-modal.flyer-saved-static #flyer-step-fields > div{margin-bottom:4px !important;}
   #flyer-modal.flyer-saved-static #flyer-preview-wrap{min-height:130px !important;}
+}
+
+/* r449: Edit Saved Flyer no-bounce + visible top actions. */
+#flyer-modal.flyer-saved-static{
+  overflow:hidden !important;
+  overscroll-behavior:none !important;
+  touch-action:none;
+}
+#flyer-modal.flyer-saved-static .mo{
+  overflow:hidden !important;
+  overscroll-behavior:none !important;
+}
+#flyer-modal.flyer-saved-static #flyer-body{
+  overflow:hidden !important;
+  overscroll-behavior:none !important;
+  -webkit-overflow-scrolling:auto !important;
+  touch-action:manipulation;
+}
+#flyer-modal.flyer-saved-static #flyer-preview-wrap{
+  max-height:none !important;
+}
+#flyer-more-btn:hover,
+#flyer-more-btn:active,
+#flyer-more-btn.flyer-more-open{
+  background:rgba(3,14,33,.78) !important;
+  border-color:rgba(74,158,255,.58) !important;
+  color:#8db8ff !important;
+}
+#flyer-more-sheet{
+  z-index:99960 !important;
+  background:rgba(0,0,0,.66) !important;
+  pointer-events:auto !important;
+}
+#flyer-more-card{
+  background:#0a1628 !important;
+  color:#e8f0ff !important;
+}
+#flyer-more-options{
+  display:block !important;
 }
 
 /* r207: targeted Light Mode Flyer editor/selector readability pass.
@@ -6618,7 +6658,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 </div>
 
 <!-- FLYER MORE-ACTIONS BOTTOM SHEET -->
-<div id="flyer-more-sheet" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:9100;align-items:flex-start;justify-content:center;padding:calc(58px + env(safe-area-inset-top)) 12px 0;box-sizing:border-box;opacity:0;transition:opacity .15s ease-out;" onclick="_flyerCloseMore(event)">
+<div id="flyer-more-sheet" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:99960;align-items:flex-start;justify-content:center;padding:calc(58px + env(safe-area-inset-top)) 12px 0;box-sizing:border-box;opacity:0;transition:opacity .15s ease-out;" onclick="_flyerCloseMore(event)">
   <div id="flyer-more-card" style="position:relative;background:var(--n2);border:1px solid #1a3a8a;border-radius:14px;padding:14px 16px 18px;max-width:440px;width:100%;box-shadow:0 14px 44px rgba(0,0,0,.68),0 0 0 1px rgba(74,158,255,.12);transform:translateY(-10px);transition:transform .2s ease-out;" onclick="event.stopPropagation()">
     <button type="button" aria-label="Close flyer actions" onclick="_flyerCloseMore()" style="position:absolute;top:12px;right:14px;width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 12px rgba(0,0,0,.22);">×</button>
     <div style="width:40px;height:4px;background:#1a3a8a;border-radius:2px;margin:0 auto 14px;"></div>
@@ -15110,6 +15150,7 @@ function _flyerDownloadBlob(blob, fname){
 function _flyerToggleMore(evt){
   if(evt) evt.stopPropagation();
   var sheet = document.getElementById('flyer-more-sheet');
+  var moreBtn = document.getElementById('flyer-more-btn');
   if(!sheet) return;
   if(sheet.style.display === 'flex'){
     _flyerCloseMore();
@@ -15117,7 +15158,20 @@ function _flyerToggleMore(evt){
   }
   _flyerRenderMoreOptions();
   sheet.style.display = 'flex';
+  sheet.style.opacity = '0';
+  sheet.style.zIndex = '99960';
+  sheet.style.pointerEvents = 'auto';
   var card = document.getElementById('flyer-more-card');
+  if(card){
+    card.style.display = 'block';
+    card.style.visibility = 'visible';
+    card.style.opacity = '1';
+    card.style.transform = 'translateY(-10px)';
+  }
+  if(moreBtn){
+    moreBtn.classList.add('flyer-more-open');
+    moreBtn.setAttribute('aria-expanded','true');
+  }
   requestAnimationFrame(function(){
     sheet.style.opacity = '1';
     if(card) card.style.transform = 'translateY(0)';
@@ -15125,17 +15179,21 @@ function _flyerToggleMore(evt){
 }
 
 function _flyerCloseMore(evt){
-  // If event was on backdrop only, close. If clicking inside card, ignore (handled by stopPropagation).
-  if(evt && evt.target && evt.target.id !== 'flyer-more-sheet') {
-    // Only close if click came from the backdrop or the cancel button
-    if(evt.target.tagName !== 'BUTTON' || !evt.target.onclick) return;
-  }
+  // Backdrop clicks close. Card clicks are stopped by the card handler. Direct close-button calls pass no event.
+  if(evt && evt.target && evt.target.id !== 'flyer-more-sheet') return;
   var sheet = document.getElementById('flyer-more-sheet');
   var card = document.getElementById('flyer-more-card');
+  var moreBtn = document.getElementById('flyer-more-btn');
   if(!sheet) return;
   sheet.style.opacity = '0';
   if(card) card.style.transform = 'translateY(-10px)';
-  setTimeout(function(){ sheet.style.display = 'none'; }, 200);
+  if(moreBtn){
+    moreBtn.classList.remove('flyer-more-open');
+    moreBtn.setAttribute('aria-expanded','false');
+  }
+  setTimeout(function(){
+    if(sheet.style.opacity === '0') sheet.style.display = 'none';
+  }, 180);
 }
 
 function _flyerRenderMoreOptions(){
@@ -15423,6 +15481,7 @@ function _flyerFlushPendingSaves(callback){
 }
 
 function _flyerCloseModal(){
+  _flyerCloseMore();
   // Drain pending saves, then capture JPEG, then close the modal.
   _flyerFlushPendingSaves(function(){
     _flyerCommitFlyerData();
@@ -24506,7 +24565,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-saved-flyer-editor-balance-r448';
+var WHATS_NEW_VERSION = '2026-05-09-saved-flyer-static-actions-r449';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
