@@ -1682,7 +1682,7 @@ body.light #sc-band.contacts-open #contacts-add-btn{background:linear-gradient(1
 #sc-band #contacts-pill.oot-band-contacts-pill:active{transform:translateY(1px);filter:brightness(1.08);}
 #sc-band.contacts-open #contacts-pill.oot-band-contacts-pill{border-color:rgba(245,197,24,.42);box-shadow:0 10px 22px rgba(0,0,0,.24),0 0 18px rgba(245,197,24,.12),inset 0 1px 0 rgba(255,255,255,.05);}
 /* r451: Band contact detail actions only. Preserve Edit on the left as a blue circular pencil icon; preserve r450 trashcan on the bottom-right. */
-#sc-band #contacts-list .oot-contact-actions{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:10px;}
+#sc-band #contacts-list .oot-contact-actions{display:flex;align-items:center;justify-content:flex-end;gap:16px;margin-top:10px;}
 #sc-band #contacts-list .oot-contact-edit-icon{flex:0 0 auto;width:36px;height:36px;border-radius:999px;background:rgba(74,158,255,.10);border:1.5px solid rgba(74,158,255,.82);color:#4a9eff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 14px rgba(74,158,255,.14);padding:0;touch-action:manipulation;}
 #sc-band #contacts-list .oot-contact-edit-icon:active{transform:scale(.96);}
 #sc-band #contacts-list .oot-contact-edit-icon svg{display:block;width:17px;height:17px;}
@@ -24834,7 +24834,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-calendar-form-visuals-idate-actions-r453';
+var WHATS_NEW_VERSION = '2026-05-09-band-contact-action-cluster-r454';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -25127,6 +25127,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-band-contact-action-cluster-r454', date:'May 9, 2026', importance:'fix', title:'Band contact action cluster', items:['Band tab expanded contact details now place the blue edit pencil immediately to the left of the red trashcan at the bottom-right of the contact drawer.', 'The action buttons use a measured gap so edit and delete are visually grouped but still separated enough to reduce accidental taps.', 'No contact edit behavior, delete confirmation, Contacts open/collapse behavior, Calendar, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase data behavior was intentionally changed.']},
   {version:'2026-05-09-calendar-form-visuals-idate-actions-r453', date:'May 9, 2026', importance:'fix', title:'Calendar form visuals and Important Date actions', items:['New Gig and Blackout forms now use the same gold-label / dark-blue field visual language as the updated New Rehearsal page without changing the fields or save logic.', 'Custom / Important Date uses the same visual language and its bottom actions are now a green Save button on the left plus a red trash-can icon on the right when editing.', 'The Important Date delete confirmation and save behavior are unchanged.']},
   {version:'2026-05-09-calendar-new-gig-fit-r452', date:'May 9, 2026', importance:'fix', title:'Calendar new gig fit', items:['Calendar empty-date event chooser no longer shows right-side carets on Gig, Rehearsal, Blackout, or Custom; each full pill remains tappable.', 'Calendar empty-date → Gig → New Gig form is condensed and held static so the full New Gig display is intended to fit without scrolling.', 'No saved gig data model, event save behavior, Calendar body, Band, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase behavior was intentionally changed.']},
   {version:'2026-05-09-band-contact-edit-icon-r451', date:'May 9, 2026', importance:'fix', title:'Band contact edit icon', items:['Band tab expanded contact details now use a compact blue circular pencil icon for Edit instead of the older text Edit pill.', 'The contact edit modal still opens with the same fields populated, and the r450 red trashcan delete control remains bottom-right.', 'No Contacts drawer open/collapse behavior, contact_icon.png asset handling, lifecycle, Calendar, Songs, Setlists, Chat, Pay, or Firebase data model behavior was intentionally changed.']},
