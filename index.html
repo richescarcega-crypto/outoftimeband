@@ -19,6 +19,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r430: External-return post-restore shield hardening. Late hidden/blur/pagehide noise after YouTube return can no longer trigger delayed Home override. Upload as index.html after phone test. -->
 <!-- r429: External-return post-restore shield. Prevents late blur/pagehide/hidden events after successful YouTube return from overriding restored source tab with Home. Upload as index.html after phone test. -->
 <!-- r432: Vote on Suggestions real artwork source. Vote-window artwork now prefers submitted YouTube thumbnail/library match before iTunes fallback. Upload as index.html after phone test. -->
+<!-- r434: Context-aware external restore shield. Preserves r433 Songs resource quick-close fix while restoring Setlists/Vote artwork returns. Upload as index.html after phone test. -->
 <!-- r431: Vote on Suggestions artwork hydration. Vote-window suggestion album art now uses the shared artwork loader after rendering. Upload as index.html after phone test. -->
 <!-- r428: Album-art external-return handoff gate for Setlists, Songs, and Song Suggestions. Prevents early focus/pageshow events from consuming context before the app actually leaves. Upload as index.html after phone test. -->
 <!-- r427: Setlists external-return handoff gate. Prevents early focus/pageshow events from consuming the YouTube return context before the app actually leaves. Upload as index.html after phone test. -->
@@ -11104,6 +11105,21 @@ function _captureExternalReturnContext(){
     _persistExternalReturnContext(ctx);
   } catch(e){}
 }
+function _externalRestoreNormalCloseDelay(ctx){
+  try {
+    // r434: r433 proved the resource-menu quick-close path needs a short
+    // normal-close handoff, but phone testing showed Setlists and Vote artwork
+    // still receive later Android/PWA return-chain events. Use a context-aware
+    // delay: resource/options menus settle quickly; Setlists and Vote need the
+    // full shield window so they do not restore correctly and then get forced
+    // Home by a late lifecycle event.
+    var overlays = (ctx && ctx.openOverlays) || [];
+    if(overlays.indexOf('song-resources-modal') >= 0) return 1200;
+    if(ctx && ctx.votesMode === 'vote') return Number(_ootExternalReturnStabilizeWindow || 3200);
+    if(ctx && ctx.tab === 'sets') return Number(_ootExternalReturnStabilizeWindow || 3200);
+  } catch(e){}
+  return 1200;
+}
 function _consumeExternalReturnContext(reason){
   var ctx = _loadExternalReturnContext();
   if(!ctx || !ctx.at) return null;
@@ -11124,9 +11140,11 @@ function _consumeExternalReturnContext(reason){
   window._ootLastExternalRestoreAt = Date.now();
   window._ootLastExternalRestoreContext = ctx;
   window._ootExternalRestoreLockUntil = Date.now() + _ootExternalReturnStabilizeWindow;
-  // r433: Give Android/PWA return noise a brief suppress window, then let a
-  // deliberate close/reopen behave as a normal app open to Home.
-  window._ootExternalRestoreNormalCloseAfter = Date.now() + 1200;
+  // r434: Give Android/PWA return noise a context-aware suppress window.
+  // Song Resources gets a short window so quick manual close/reopen goes Home;
+  // Setlists and Vote get the full shield because phone testing showed their
+  // external-return chains fire later events that otherwise force Home.
+  window._ootExternalRestoreNormalCloseAfter = Date.now() + (typeof _externalRestoreNormalCloseDelay === 'function' ? _externalRestoreNormalCloseDelay(ctx) : 1200);
   try { if(typeof _scheduleExternalRestoreLockCleanup === 'function') _scheduleExternalRestoreLockCleanup(); } catch(e){}
   try { sessionStorage.removeItem(_ootExternalStoreKey); } catch(e){}
   try { localStorage.removeItem(_ootExternalDurableStoreKey); } catch(e){}
@@ -24074,7 +24092,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-song-resource-normal-reopen-r433';
+var WHATS_NEW_VERSION = '2026-05-09-context-aware-external-restore-r434';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24367,6 +24385,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-context-aware-external-restore-r434', date:'May 9, 2026', importance:'fix', title:'Context-aware external return shield', items:['Keeps the r433 quick-close fix for Songs resource menus, while giving Setlists album-art and Vote on Suggestions artwork returns the full post-return shield they need on Android/PWA.', 'Targets the phone-tested failures where Setlists album art and Vote artwork returned Home while Songs album art and Songs resource-menu behavior passed.', 'No album-art targets, artwork display, voting data, Setlists UI, Songs menu labels, Firebase writes, or normal Home-default rule were intentionally changed.']},
   {version:'2026-05-09-song-resource-normal-reopen-r433', date:'May 9, 2026', importance:'fix', title:'Song resources normal reopen reset', items:['Fixed the quick-close/reopen case after returning from Lyrics, Discography, or Practice Reference: the app no longer treats that normal reopen as another external-return restore.', 'The external-return shield now acts only as a short stabilization window for noisy Android/PWA return events, not as temporary state persistence for the song options menu.', 'Confirmed r432 Vote on Suggestions artwork behavior and r430 external-return behavior are preserved; no Songs menu labels, navigation targets, voting, Setlists, or Firebase behavior was intentionally changed.']},
   {version:'2026-05-09-vote-suggestion-real-art-r432', date:'May 9, 2026', importance:'fix', title:'Vote suggestion real artwork source', items:['Vote on Suggestions artwork now prefers a submitted YouTube video thumbnail when a suggestion has a YouTube URL, then falls back to a matching library song and the shared iTunes artwork lookup.', 'This targets the placeholder-looking artwork in the Vote on Suggestions window only.', 'No album-art navigation, lifecycle return, voting, Setlists, Songs list, or Firebase data behavior was intentionally changed.']},
   {version:'2026-05-09-vote-suggestion-art-hydration-r431', date:'May 9, 2026', importance:'fix', title:'Vote suggestion artwork hydration', items:['Vote on Suggestions now runs the shared song-artwork loader after rendering suggestion cards, so the artwork can resolve to the actual album art instead of staying on the placeholder badge.', 'The submitted-URL and YouTube-search tap behavior is unchanged.', 'No lifecycle, tab-return, Setlists, Songs list, voting, or Firebase data behavior was intentionally changed.']},
