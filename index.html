@@ -18,6 +18,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <html>
 <!-- r430: External-return post-restore shield hardening. Late hidden/blur/pagehide noise after YouTube return can no longer trigger delayed Home override. Upload as index.html after phone test. -->
 <!-- r429: External-return post-restore shield. Prevents late blur/pagehide/hidden events after successful YouTube return from overriding restored source tab with Home. Upload as index.html after phone test. -->
+<!-- r432: Vote on Suggestions real artwork source. Vote-window artwork now prefers submitted YouTube thumbnail/library match before iTunes fallback. Upload as index.html after phone test. -->
 <!-- r431: Vote on Suggestions artwork hydration. Vote-window suggestion album art now uses the shared artwork loader after rendering. Upload as index.html after phone test. -->
 <!-- r428: Album-art external-return handoff gate for Setlists, Songs, and Song Suggestions. Prevents early focus/pageshow events from consuming context before the app actually leaves. Upload as index.html after phone test. -->
 <!-- r427: Setlists external-return handoff gate. Prevents early focus/pageshow events from consuming the YouTube return context before the app actually leaves. Upload as index.html after phone test. -->
@@ -9446,6 +9447,59 @@ function _songSuggestionVideoUrl(s){
   if(/^(youtube\.com|youtu\.be)\//i.test(raw)) return 'https://' + raw;
   return raw;
 }
+function _songSuggestionYouTubeThumb(url){
+  try{
+    var raw = String(url || '').trim();
+    if(!raw) return '';
+    var u = raw;
+    if(/^www\./i.test(u)) u = 'https://' + u;
+    if(/^(youtube\.com|youtu\.be)\//i.test(u)) u = 'https://' + u;
+    var id = '';
+    var m = u.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/i);
+    if(m && m[1]) id = m[1];
+    if(!id){
+      m = u.match(/[?&]v=([A-Za-z0-9_-]{6,})/i);
+      if(m && m[1]) id = m[1];
+    }
+    if(!id){
+      m = u.match(/\/embed\/([A-Za-z0-9_-]{6,})/i);
+      if(m && m[1]) id = m[1];
+    }
+    if(!id){
+      m = u.match(/\/shorts\/([A-Za-z0-9_-]{6,})/i);
+      if(m && m[1]) id = m[1];
+    }
+    if(!id) return '';
+    return 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg';
+  }catch(e){ return ''; }
+}
+function _songSuggestionArtMarkup(s){
+  var base = {title:(s && s.title) || '', artist:(s && s.artist) || ''};
+  try{
+    var t = _songArtNorm(base.title);
+    var a = _songArtNorm(base.artist);
+    var libMatch = (library || []).find(function(song){
+      if(!song) return false;
+      var st = _songArtNorm(song.title);
+      var sa = _songArtNorm(song.artist);
+      if(t && a) return st === t && sa === a;
+      return t && st === t;
+    });
+    if(libMatch){
+      base = Object.assign({}, libMatch, {title:base.title || libMatch.title, artist:base.artist || libMatch.artist});
+    }
+  }catch(e){}
+  var thumb = _songSuggestionYouTubeThumb(_songSuggestionVideoUrl(s));
+  if(typeof _songArtMarkup !== 'function') return '<span class="song-badge-box">♪</span>';
+  var html = _songArtMarkup(base).replace('class="song-cover-box', 'data-art-immediate="1" class="song-cover-box');
+  if(thumb){
+    html = html.replace('class="song-cover-box', 'class="song-cover-box has-art');
+    html = html.replace(/style="([^"]*)"/, function(all, css){
+      return 'style="background-image:url(\'' + thumb + '\');' + String(css).replace(/background(?:-image)?:[^;]+;/g, '') + '"';
+    });
+  }
+  return html;
+}
 function _songSuggestionSearchUrl(s){
   var q = String(((s && s.title) || '') + ' ' + ((s && s.artist) || '')).trim();
   return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q || 'song');
@@ -9493,9 +9547,11 @@ function rVotes(){
     card.style.cssText='background:#101e34;border-radius:8px;padding:10px 12px;margin-bottom:8px;';
     var info = document.createElement('div');
     var directUrl = _songSuggestionVideoUrl(s);
-    var artHtml = (typeof _songArtMarkup === 'function'
-      ? _songArtMarkup({title:s.title||'', artist:s.artist||''}).replace('class="song-cover-box', 'data-art-immediate="1" class="song-cover-box')
-      : '<span class="song-badge-box">♪</span>');
+    var artHtml = (typeof _songSuggestionArtMarkup === 'function'
+      ? _songSuggestionArtMarkup(s)
+      : (typeof _songArtMarkup === 'function'
+        ? _songArtMarkup({title:s.title||'', artist:s.artist||''}).replace('class="song-cover-box', 'data-art-immediate="1" class="song-cover-box')
+        : '<span class="song-badge-box">♪</span>'));
     info.innerHTML=
       '<div style="display:flex;gap:10px;align-items:flex-start;">'+
         '<button type="button" class="suggestion-art-link" aria-label="Open YouTube for suggested song" title="Open YouTube" style="background:none;border:none;padding:0;margin:0;cursor:pointer;flex:0 0 auto;line-height:0;">'+artHtml+'</button>'+
@@ -23984,7 +24040,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-vote-suggestion-art-hydration-r431';
+var WHATS_NEW_VERSION = '2026-05-09-vote-suggestion-real-art-r432';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24277,6 +24333,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-vote-suggestion-real-art-r432', date:'May 9, 2026', importance:'fix', title:'Vote suggestion real artwork source', items:['Vote on Suggestions artwork now prefers a submitted YouTube video thumbnail when a suggestion has a YouTube URL, then falls back to a matching library song and the shared iTunes artwork lookup.', 'This targets the placeholder-looking artwork in the Vote on Suggestions window only.', 'No album-art navigation, lifecycle return, voting, Setlists, Songs list, or Firebase data behavior was intentionally changed.']},
   {version:'2026-05-09-vote-suggestion-art-hydration-r431', date:'May 9, 2026', importance:'fix', title:'Vote suggestion artwork hydration', items:['Vote on Suggestions now runs the shared song-artwork loader after rendering suggestion cards, so the artwork can resolve to the actual album art instead of staying on the placeholder badge.', 'The submitted-URL and YouTube-search tap behavior is unchanged.', 'No lifecycle, tab-return, Setlists, Songs list, voting, or Firebase data behavior was intentionally changed.']},
   {version:'2026-05-09-external-return-shield-hardening-r430', date:'May 9, 2026', importance:'fix', title:'External return shield hardening', items:['Fixed the remaining flash-then-Home failure after returning from YouTube by removing the delayed hidden-state Home override inside the post-restore shield.', 'When Android/PWA reports late blur/pagehide/visibility-hidden noise after a successful app-launched external return, the app now suppresses that noise instead of treating it as a normal close.', 'Applies to the shared album-art YouTube return path used by Setlists, Songs list, and Song Suggestion vote-window artwork.']},
   {version:'2026-05-09-external-return-post-restore-shield-r429', date:'May 9, 2026', importance:'fix', title:'YouTube return post-restore shield', items:['Fixed the flash-then-Home failure after returning from YouTube: the source tab/setlist was restoring correctly, then a later lifecycle event was overriding it with Home.', 'Late blur/pagehide/visibility-hidden events during the short external-return stabilization window are now treated as part of the same YouTube return chain instead of a normal app close.', 'Applies to all shared album-art external returns: Setlists, Songs list, and Song Suggestion vote-window artwork.']},
