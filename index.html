@@ -19,6 +19,8 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r430: External-return post-restore shield hardening. Late hidden/blur/pagehide noise after YouTube return can no longer trigger delayed Home override. Upload as index.html after phone test. -->
 <!-- r429: External-return post-restore shield. Prevents late blur/pagehide/hidden events after successful YouTube return from overriding restored source tab with Home. Upload as index.html after phone test. -->
 <!-- r432: Vote on Suggestions real artwork source. Vote-window artwork now prefers submitted YouTube thumbnail/library match before iTunes fallback. Upload as index.html after phone test. -->
+<!-- r436: Armed external-return defer. Prevents early focus/pageshow/init noise after album-art tap from falling through to Home and deleting the pending YouTube return payload. Upload as index.html after phone test. -->
+<!-- r435: Explicit album-art return contexts. Setlists/Vote/Songs album-art launches now pass source-specific restore payloads and tolerate missing Android handoff events. Upload as index.html after phone test. -->
 <!-- r434: Context-aware external restore shield. Preserves r433 Songs resource quick-close fix while restoring Setlists/Vote artwork returns. Upload as index.html after phone test. -->
 <!-- r431: Vote on Suggestions artwork hydration. Vote-window suggestion album art now uses the shared artwork loader after rendering. Upload as index.html after phone test. -->
 <!-- r428: Album-art external-return handoff gate for Setlists, Songs, and Song Suggestions. Prevents early focus/pageshow events from consuming context before the app actually leaves. Upload as index.html after phone test. -->
@@ -9507,7 +9509,7 @@ function _songSuggestionSearchUrl(s){
 }
 function _openSongSuggestionVideo(s){
   var url = _songSuggestionVideoUrl(s) || _songSuggestionSearchUrl(s);
-  _openExternalUrl(url);
+  _openExternalUrl(url, {externalKind:'vote-art', tab:'songs', openOverlays:['votes-modal'], votesMode:'vote', songsScroll:(document.getElementById('sc-songs')?document.getElementById('sc-songs').scrollTop:0), restoreAfterMs:1200});
 }
 
 function _songSuggestionMemberStatusHtml(yesVoters, noVoters){
@@ -9568,7 +9570,7 @@ function rVotes(){
     var artBtn = info.querySelector('.suggestion-art-link');
     if(artBtn){ artBtn.onclick = (function(sg){ return function(e){ e.stopPropagation(); _openSongSuggestionVideo(sg); }; })(s); }
     var urlBtn = info.querySelector('.suggestion-url-link');
-    if(urlBtn){ urlBtn.onclick = (function(sg){ return function(e){ e.stopPropagation(); _openExternalUrl(_songSuggestionVideoUrl(sg)); }; })(s); }
+    if(urlBtn){ urlBtn.onclick = (function(sg){ return function(e){ e.stopPropagation(); _openExternalUrl(_songSuggestionVideoUrl(sg), {externalKind:'vote-art', tab:'songs', openOverlays:['votes-modal'], votesMode:'vote', songsScroll:(document.getElementById('sc-songs')?document.getElementById('sc-songs').scrollTop:0), restoreAfterMs:1200}); }; })(s); }
 
     var status = document.createElement('div');
     status.innerHTML = _songSuggestionMemberStatusHtml(yesVoters, noVoters);
@@ -10487,6 +10489,9 @@ function initApp() {
     try {
       if(typeof _restoreExternalReturnContext === 'function' && _restoreExternalReturnContext('init-external-return')) return;
     } catch(e){}
+    try {
+      if(typeof _deferHomeForArmedExternalReturn === 'function' && _deferHomeForArmedExternalReturn('init-external-armed')) return;
+    } catch(e){}
     _scheduleForceHomeDefault('init');
   }, 0);
 
@@ -11021,7 +11026,7 @@ function _scheduleExternalRestoreLockCleanup(){
           window._ootExternalRestoreNormalCloseAfter = 0;
         }
       } catch(e){}
-    }, Number(_ootExternalReturnStabilizeWindow || 0) + 250);
+    }, Math.max(13000, Number(_ootExternalReturnStabilizeWindow || 0) + 250));
   } catch(e){}
 }
 function _externalReturnAge(){
@@ -11064,7 +11069,7 @@ function _markExternalHandoffIfPending(reason){
   } catch(e){}
   return false;
 }
-function _captureExternalReturnContext(){
+function _captureExternalReturnContext(extraCtx){
   try { if(typeof _cancelForceHomeDefaultTimers === 'function') _cancelForceHomeDefaultTimers(); } catch(e){}
   try {
     var activeSc = document.querySelector('.sc.on');
@@ -11094,6 +11099,17 @@ function _captureExternalReturnContext(){
       songsScroll: (document.getElementById('sc-songs') ? document.getElementById('sc-songs').scrollTop : 0),
       setsScroll: (document.getElementById('sc-sets') ? document.getElementById('sc-sets').scrollTop : 0)
     };
+    // r435: Album-art/resource launchers may pass an explicit restore payload.
+    // This avoids relying only on ambient DOM state, which was inconsistent for
+    // generated Setlists rows and Vote-on-Suggestions cards.
+    try {
+      if(extraCtx && typeof extraCtx === 'object'){
+        Object.keys(extraCtx).forEach(function(k){
+          if(k === 'source' || k === 'at') return;
+          ctx[k] = extraCtx[k];
+        });
+      }
+    } catch(e){}
     window._ootExternalReturnContext = ctx;
     window._ootExternalNavAt = ctx.at;
     // r428: Capture means "an app-owned external launch is armed"; it does
@@ -11105,6 +11121,17 @@ function _captureExternalReturnContext(){
     _persistExternalReturnContext(ctx);
   } catch(e){}
 }
+function _externalRestoreShieldMs(ctx){
+  try {
+    // r435: Some Android/YouTube returns do not produce a consistent handoff
+    // event and can emit late lifecycle noise several seconds after the correct
+    // source screen is restored. Keep the longer shield only for the fragile
+    // album-art contexts; Song Resources keeps the short r433 behavior.
+    if(ctx && (ctx.externalKind === 'setlist-art' || ctx.externalKind === 'vote-art')) return 12000;
+    if(ctx && ctx.externalKind === 'songs-art') return 5000;
+  } catch(e){}
+  return Number(_ootExternalReturnStabilizeWindow || 3200);
+}
 function _externalRestoreNormalCloseDelay(ctx){
   try {
     // r434: r433 proved the resource-menu quick-close path needs a short
@@ -11115,10 +11142,39 @@ function _externalRestoreNormalCloseDelay(ctx){
     // Home by a late lifecycle event.
     var overlays = (ctx && ctx.openOverlays) || [];
     if(overlays.indexOf('song-resources-modal') >= 0) return 1200;
+    if(ctx && (ctx.externalKind === 'setlist-art' || ctx.externalKind === 'vote-art')) return (typeof _externalRestoreShieldMs === 'function' ? _externalRestoreShieldMs(ctx) : 12000);
+    if(ctx && ctx.externalKind === 'songs-art') return 1800;
     if(ctx && ctx.votesMode === 'vote') return Number(_ootExternalReturnStabilizeWindow || 3200);
     if(ctx && ctx.tab === 'sets') return Number(_ootExternalReturnStabilizeWindow || 3200);
   } catch(e){}
   return 1200;
+}
+function _deferHomeForArmedExternalReturn(reason){
+  try {
+    var ctx = _loadExternalReturnContext();
+    if(!ctx || ctx.source !== 'oot-app-external-v1' || !ctx.at) return false;
+    var age = Date.now() - Number(ctx.at);
+    if(age < 0 || age > _ootExternalReturnTTL){
+      _clearExternalReturnContext('armed-defer-expired');
+      return false;
+    }
+    // r436: A focus/pageshow/init event can fire immediately after the tap that
+    // launches YouTube, before Android/PWA has emitted a trustworthy leaving
+    // signal. In r435 that early event could fall through to the Home-default
+    // path and delete the still-valid external payload. Defer Home briefly so
+    // the same payload can be consumed by the real return event.
+    if(window._ootExternalHandoffSeen || ctx.handoffSeen || ctx.leftAppAt) return false;
+    var minRestoreAge = Number(ctx.restoreAfterMs || 1500);
+    if(age >= minRestoreAge) return false;
+    var wait = Math.max(80, Math.min(1600, Math.ceil(minRestoreAge - age + 80)));
+    setTimeout(function(){
+      try {
+        if(typeof _restoreExternalReturnContext === 'function' && _restoreExternalReturnContext((reason || 'external-armed') + '-deferred')) return;
+        if(typeof _reapplyLastExternalReturnContext === 'function' && _reapplyLastExternalReturnContext((reason || 'external-armed') + '-deferred-reapply')) return;
+      } catch(e){}
+    }, wait);
+    return true;
+  } catch(e){ return false; }
 }
 function _consumeExternalReturnContext(reason){
   var ctx = _loadExternalReturnContext();
@@ -11132,14 +11188,20 @@ function _consumeExternalReturnContext(reason){
   // unless a real app-leaving event has marked the external handoff. This is
   // what keeps the context alive until the user actually backs out of YouTube.
   if(!window._ootExternalHandoffSeen && !ctx.handoffSeen && !ctx.leftAppAt){
-    return null;
+    // r435: Android/YouTube does not consistently fire blur/pagehide before the
+    // external app takes over. If an app-launched payload is old enough to have
+    // plausibly left the app, allow a one-shot restore instead of falling back
+    // Home. The short age gate still protects against immediate focus/pageshow
+    // noise right after a tap.
+    var minRestoreAge = Number(ctx.restoreAfterMs || 1500);
+    if(!(ctx.source === 'oot-app-external-v1' && age >= minRestoreAge)) return null;
   }
   window._ootExternalReturnContext = null;
   window._ootExternalNavAt = 0;
   window._ootExternalHandoffSeen = false;
   window._ootLastExternalRestoreAt = Date.now();
   window._ootLastExternalRestoreContext = ctx;
-  window._ootExternalRestoreLockUntil = Date.now() + _ootExternalReturnStabilizeWindow;
+  window._ootExternalRestoreLockUntil = Date.now() + (typeof _externalRestoreShieldMs === 'function' ? _externalRestoreShieldMs(ctx) : _ootExternalReturnStabilizeWindow);
   // r434: Give Android/PWA return noise a context-aware suppress window.
   // Song Resources gets a short window so quick manual close/reopen goes Home;
   // Setlists and Vote get the full shield because phone testing showed their
@@ -11191,7 +11253,7 @@ function _restoreExternalReturnContext(reason){
       if(ctx.tab === 'songs' && typeof rLib === 'function') rLib();
       if(ctx.tab === 'home' && typeof rHome === 'function') rHome();
     }
-    [80, 350, 900, 1600, 3000].forEach(function(delay){
+    (ctx && (ctx.externalKind === 'setlist-art' || ctx.externalKind === 'vote-art') ? [80,350,900,1600,3000,5000,8000,11000] : [80,350,900,1600,3000]).forEach(function(delay){
       setTimeout(function(){
         try {
           if(!window._ootExternalRestoreLockUntil || Date.now() > window._ootExternalRestoreLockUntil) return;
@@ -11228,7 +11290,7 @@ function _reapplyLastExternalReturnContext(reason){
       var btn = document.getElementById('tb-' + ctx.tab);
       if(typeof go === 'function') go(ctx.tab, btn);
     }
-    [0, 120, 450, 1000, 2200].forEach(function(delay){
+    (ctx && (ctx.externalKind === 'setlist-art' || ctx.externalKind === 'vote-art') ? [0,120,450,1000,2200,4200,7000,10500] : [0,120,450,1000,2200]).forEach(function(delay){
       setTimeout(function(){
         try {
           if(!window._ootExternalRestoreLockUntil || Date.now() > window._ootExternalRestoreLockUntil) return;
@@ -11296,9 +11358,9 @@ function _handleLateExternalRestoreLeaving(reason){
 // which lets the OS treat it as a proper external navigation. iOS/Android
 // will hand off to the appropriate app (YouTube app if installed) or
 // browser, in both cases with proper back-to-app navigation.
-function _openExternalUrl(url){
+function _openExternalUrl(url, extraCtx){
   if(!url) return;
-  try { _captureExternalReturnContext(); } catch(e){}
+  try { _captureExternalReturnContext(extraCtx); } catch(e){}
   try {
     var a = document.createElement('a');
     a.href = url;
@@ -20013,8 +20075,9 @@ function rSets() {
             var libSong = libId ? library.find(function(l){ return String(l.id) === String(libId); }) : null;
             var det = libId ? (songDetails[String(libId)] || {}) : {};
             var saved = (det && det.yt) || (libSong && libSong.yt) || '';
-            if(saved) _openExternalUrl(saved);
-            else playYT((title + ' ' + artist).trim());
+            var returnCtx = {externalKind:'setlist-art', tab:'sets', setsViewState:'list', expandedSetlistId:String(window._expandedSetlistId || ''), activeSetlistId:'', songsScroll:(document.getElementById('sc-songs')?document.getElementById('sc-songs').scrollTop:0), setsScroll:(document.getElementById('sc-sets')?document.getElementById('sc-sets').scrollTop:0), restoreAfterMs:1200};
+            if(saved) _openExternalUrl(saved, returnCtx);
+            else _openExternalUrl('https://www.youtube.com/results?search_query='+encodeURIComponent((title + ' ' + artist).trim()), returnCtx);
           };
         });
         Array.prototype.slice.call(panel.querySelectorAll('.setlist-expanded-info')).forEach(function(info){
@@ -20030,8 +20093,9 @@ function rSets() {
             var saved = btn.getAttribute('data-yt') || '';
             var title = btn.getAttribute('data-title') || '';
             var artist = btn.getAttribute('data-artist') || '';
-            if(saved) _openExternalUrl(saved);
-            else playYT((title + ' ' + artist).trim());
+            var returnCtx = {externalKind:'setlist-art', tab:'sets', setsViewState:'list', expandedSetlistId:String(window._expandedSetlistId || ''), activeSetlistId:'', songsScroll:(document.getElementById('sc-songs')?document.getElementById('sc-songs').scrollTop:0), setsScroll:(document.getElementById('sc-sets')?document.getElementById('sc-sets').scrollTop:0), restoreAfterMs:1200};
+            if(saved) _openExternalUrl(saved, returnCtx);
+            else _openExternalUrl('https://www.youtube.com/results?search_query='+encodeURIComponent((title + ' ' + artist).trim()), returnCtx);
           };
         });
         if(typeof _hydrateSongArtwork === 'function') _hydrateSongArtwork();
@@ -20167,8 +20231,9 @@ function rEd() {
             if(reorderMode) return;
             e.stopPropagation();
             var savedUrl = (detObj && detObj.yt) || (song && song.yt) || '';
-            if(savedUrl){ _openExternalUrl(savedUrl); }
-            else { playYT(((song && song.title) || '') + ' ' + ((song && song.artist) || '')); }
+            var returnCtx = {externalKind:'setlist-art', tab:'sets', setsViewState:(typeof setsViewState !== 'undefined' ? setsViewState : ''), activeSetlistId:(typeof aSL !== 'undefined' && aSL != null ? String(aSL) : ''), expandedSetlistId:String(window._expandedSetlistId || ''), setsScroll:(document.getElementById('sc-sets')?document.getElementById('sc-sets').scrollTop:0), restoreAfterMs:1200};
+            if(savedUrl){ _openExternalUrl(savedUrl, returnCtx); }
+            else { _openExternalUrl('https://www.youtube.com/results?search_query='+encodeURIComponent((((song && song.title) || '') + ' ' + ((song && song.artist) || '')).trim()), returnCtx); }
           }; })(libSong, det);
         }
       }
@@ -20183,8 +20248,9 @@ function rEd() {
       ytBtn.onclick = (function(song, detObj){ return function(e){
         e.stopPropagation();
         var savedUrl = (detObj && detObj.yt) || (song && song.yt) || '';
-        if(savedUrl) _openExternalUrl(savedUrl);
-        else playYT(((songTitle || '') + ' ' + (songArtist || '')).trim());
+        var returnCtx = {externalKind:'setlist-art', tab:'sets', setsViewState:(typeof setsViewState !== 'undefined' ? setsViewState : ''), activeSetlistId:(typeof aSL !== 'undefined' && aSL != null ? String(aSL) : ''), expandedSetlistId:String(window._expandedSetlistId || ''), setsScroll:(document.getElementById('sc-sets')?document.getElementById('sc-sets').scrollTop:0), restoreAfterMs:1200};
+        if(savedUrl) _openExternalUrl(savedUrl, returnCtx);
+        else _openExternalUrl('https://www.youtube.com/results?search_query='+encodeURIComponent(((songTitle || '') + ' ' + (songArtist || '')).trim()), returnCtx);
       }; })(libSong, det);
 
       var rmBtn = document.createElement('button');
@@ -23169,8 +23235,9 @@ function rLib() {
         e.stopPropagation();
         var det = songDetails[String(song.id)] || {};
         var savedUrl = det.yt || song.yt || '';
-        if(savedUrl){ _openExternalUrl(savedUrl); }
-        else { playYT(song.title+' '+(song.artist||'')); }
+        var returnCtx = {externalKind:'songs-art', tab:'songs', songsScroll:(document.getElementById('sc-songs')?document.getElementById('sc-songs').scrollTop:0), restoreAfterMs:1200};
+        if(savedUrl){ _openExternalUrl(savedUrl, returnCtx); }
+        else { _openExternalUrl('https://www.youtube.com/results?search_query='+encodeURIComponent(song.title+' '+(song.artist||'')), returnCtx); }
       }; })(s);
     }
     var artTap = row.querySelector('.song-cover-box,.song-badge-box');
@@ -23182,8 +23249,9 @@ function rLib() {
         e.stopPropagation();
         var det = songDetails[String(song.id)] || {};
         var savedUrl = det.yt || song.yt || '';
-        if(savedUrl){ _openExternalUrl(savedUrl); }
-        else { playYT(song.title+' '+(song.artist||'')); }
+        var returnCtx = {externalKind:'songs-art', tab:'songs', songsScroll:(document.getElementById('sc-songs')?document.getElementById('sc-songs').scrollTop:0), restoreAfterMs:1200};
+        if(savedUrl){ _openExternalUrl(savedUrl, returnCtx); }
+        else { _openExternalUrl('https://www.youtube.com/results?search_query='+encodeURIComponent(song.title+' '+(song.artist||'')), returnCtx); }
       }; })(s);
     }
     el.appendChild(row);
@@ -24092,7 +24160,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-context-aware-external-restore-r434';
+var WHATS_NEW_VERSION = '2026-05-09-armed-external-return-defer-r436';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24385,6 +24453,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-armed-external-return-defer-r436', date:'May 9, 2026', importance:'fix', title:'Armed external return defer', items:['Prevents early focus/pageshow/init noise immediately after an album-art tap from falling through to the Home-default lifecycle path and deleting the pending YouTube return payload.', 'Keeps r435 explicit source-context payloads for Setlists, Songs, and Vote on Suggestions artwork while making the pending-return guard safer and more deterministic.', 'No UI, voting, Firebase, artwork-source, or external URL target behavior was intentionally changed.']},
+  {version:'2026-05-09-explicit-album-art-return-r435', date:'May 9, 2026', importance:'fix', title:'Explicit album-art return contexts', items:['Setlists, Songs, and Vote on Suggestions album-art YouTube launches now pass explicit source-context payloads instead of relying only on ambient DOM state.', 'Adds an age-gated restore fallback for Android/YouTube cases where blur/pagehide is not fired consistently before the external app opens.', 'Extends only Setlists and Vote artwork restore re-apply windows to cover inconsistent YouTube return timing while preserving the short r433 Song Resources quick-close behavior.']},
   {version:'2026-05-09-context-aware-external-restore-r434', date:'May 9, 2026', importance:'fix', title:'Context-aware external return shield', items:['Keeps the r433 quick-close fix for Songs resource menus, while giving Setlists album-art and Vote on Suggestions artwork returns the full post-return shield they need on Android/PWA.', 'Targets the phone-tested failures where Setlists album art and Vote artwork returned Home while Songs album art and Songs resource-menu behavior passed.', 'No album-art targets, artwork display, voting data, Setlists UI, Songs menu labels, Firebase writes, or normal Home-default rule were intentionally changed.']},
   {version:'2026-05-09-song-resource-normal-reopen-r433', date:'May 9, 2026', importance:'fix', title:'Song resources normal reopen reset', items:['Fixed the quick-close/reopen case after returning from Lyrics, Discography, or Practice Reference: the app no longer treats that normal reopen as another external-return restore.', 'The external-return shield now acts only as a short stabilization window for noisy Android/PWA return events, not as temporary state persistence for the song options menu.', 'Confirmed r432 Vote on Suggestions artwork behavior and r430 external-return behavior are preserved; no Songs menu labels, navigation targets, voting, Setlists, or Firebase behavior was intentionally changed.']},
   {version:'2026-05-09-vote-suggestion-real-art-r432', date:'May 9, 2026', importance:'fix', title:'Vote suggestion real artwork source', items:['Vote on Suggestions artwork now prefers a submitted YouTube video thumbnail when a suggestion has a YouTube URL, then falls back to a matching library song and the shared iTunes artwork lookup.', 'This targets the placeholder-looking artwork in the Vote on Suggestions window only.', 'No album-art navigation, lifecycle return, voting, Setlists, Songs list, or Firebase data behavior was intentionally changed.']},
@@ -25409,6 +25479,9 @@ if(savedName&&savedId){
       // external URL return.
       try {
         if(typeof _reapplyLastExternalReturnContext === 'function' && _reapplyLastExternalReturnContext(reason)) return;
+      } catch(e){}
+      try {
+        if(typeof _deferHomeForArmedExternalReturn === 'function' && _deferHomeForArmedExternalReturn(reason)) return;
       } catch(e){}
       try { if(typeof _scheduleForceHomeDefault === 'function') _scheduleForceHomeDefault(reason); } catch(e){}
     }, 0);
