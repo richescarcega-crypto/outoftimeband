@@ -16,6 +16,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
+<!-- r442: Band Contacts icon safe-asset filename. Uses contact_icon.png as the primary no-space Contacts icon asset, with legacy Contact Icon.png fallback; preserves r440/r441 measured Contacts drawer behavior and no contact-row carets. Upload index.html plus contact_icon.png after phone test. -->
 <!-- r441: Band Contacts icon img restore. Uses real <img src="Contact%20Icon.png" with CSS fallback, removes remaining contact carets, and preserves r440 measured contact visibility. Upload as index.html after phone test. -->
 <!-- r440: Band Contacts caret removal and measured contact detail visibility. Removes contact-card carets, restores the Contacts icon via CSS background asset path, and measures the open drawer/detail space so expanded contact info stays above Add Contact. Upload as index.html after phone test. -->
 <!-- r439: Restore Band Contacts custom icon. Restores the right-side Contacts icon from GitHub asset while preserving r438 sticky expanded drawer behavior. Upload as index.html after phone test. -->
@@ -1612,7 +1613,7 @@ body.light #sc-band.contacts-open #contacts-add-btn{background:linear-gradient(1
 #sc-band #contacts-pill.oot-band-contacts-pill > div:first-child{width:auto;min-width:0;flex:1;}
 #sc-band #contacts-pill.oot-band-contacts-pill .oot-expand-pill-icon.contact-photo{display:flex;flex:0 0 42px;width:42px;height:42px;min-width:42px;}
 #sc-band #contacts-pill.oot-band-contacts-pill .oot-expand-pill-icon.contact-photo.contact-icon-img{
-  background-image:url("Contact%20Icon.png?v=r441");
+  background-image:url("contact_icon.png?v=r442");
   background-position:center;
   background-repeat:no-repeat;
   background-size:cover;
@@ -5987,7 +5988,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
       <div class="oot-expand-pill-title">CONTACTS</div>
       <div class="oot-expand-pill-sub" id="contacts-pill-sub">Tap to view phone numbers · emails · band contact info</div>
     </div>
-    <div class="oot-expand-pill-icon contact-photo contact-icon-img" aria-hidden="true"><img src="Contact%20Icon.png?v=r441" alt="" loading="eager" decoding="async" onerror="this.onerror=null;this.src='Contact Icon.png?v=r441';"></div>
+    <div class="oot-expand-pill-icon contact-photo contact-icon-img" aria-hidden="true"><img src="contact_icon.png?v=r442" alt="" loading="eager" decoding="async" onerror="this.onerror=null;this.onerror=null;this.src='Contact%20Icon.png?v=r442';"></div>
   </div>
   <div id="contacts-list"></div>
   <div id="contacts-add-btn"><button class="ab" onclick="opM('contact-modal')">+ Add Contact</button></div>
@@ -24260,7 +24261,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-band-contacts-icon-img-restore-r441';
+var WHATS_NEW_VERSION = '2026-05-09-band-contacts-safe-icon-asset-r442';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24553,6 +24554,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-band-contacts-safe-icon-asset-r442', date:'May 9, 2026', importance:'fix', title:'Band Contacts icon safe asset path', items:['Changed the Band CONTACTS icon to load from a no-space asset filename: contact_icon.png.', 'Kept a fallback to the legacy Contact Icon.png filename in case that file remains in GitHub.', 'Preserved the measured CONTACTS drawer/list behavior and no-caret contact rows from r440/r441.']},
   {version:'2026-05-09-band-contacts-visibility-r440', date:'May 9, 2026', importance:'fix', title:'Band Contacts visibility cleanup', items:['Removed the caret from individual contact rows in the Band CONTACTS list.', 'Changed the Contacts icon from a broken-img element to a CSS background image using the existing GitHub asset Contact Icon.png.', 'Measured the CONTACTS drawer, contact list, and Add Contact button at runtime so expanded contact details scroll above Add Contact instead of being hidden behind it.']},
   {version:'2026-05-09-band-contacts-icon-restore-r439', date:'May 9, 2026', importance:'minor', title:'Band Contacts icon restored', items:['Restored the custom Contacts icon on the Band CONTACTS pill using the GitHub asset Contact Icon.png.', 'Preserved r438 behavior: CONTACTS opens higher on the Band tab, the header stays sticky, and the contacts list remains scrollable.', 'No lifecycle, external-return, Songs, Setlists, Calendar, Pay, Chat, Firebase, or contact-data behavior was intentionally changed.']},
   {version:'2026-05-09-band-contacts-pill-cleanup-r437', date:'May 9, 2026', importance:'minor', title:'Band Contacts pill cleanup', items:['Band tab CONTACTS now uses the same full-card tap language as the Calendar bottom sections.', 'Removed the right-side contact thumbnail/icon so the card is clean and does not depend on a caret-style affordance.', 'No lifecycle, external-return, Setlists, Songs, Calendar, Pay, Chat, Firebase, or notification behavior was intentionally changed.']},
