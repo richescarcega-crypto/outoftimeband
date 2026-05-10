@@ -26,6 +26,8 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r430: External-return post-restore shield hardening. Late hidden/blur/pagehide noise after YouTube return can no longer trigger delayed Home override. Upload as index.html after phone test. -->
 <!-- r429: External-return post-restore shield. Prevents late blur/pagehide/hidden events after successful YouTube return from overriding restored source tab with Home. Upload as index.html after phone test. -->
 <!-- r432: Vote on Suggestions real artwork source. Vote-window artwork now prefers submitted YouTube thumbnail/library match before iTunes fallback. Upload as index.html after phone test. -->
+<!-- r456: Externalized calendar save icon asset. Save controls now reference save_icon.png instead of embedded base64. Upload index.html plus save_icon.png after phone test. -->
+<!-- r455: Calendar event save controls used an embedded save icon; superseded by r456 external asset. -->
 <!-- r449: Edit Saved Flyer static/no-bounce + visible top actions. Removes saved flyer modal bounce and forces the top flyer actions menu above the editor. Upload as index.html after phone test. -->
 <!-- r452: Calendar event chooser caret cleanup + New Gig static fit. Removes chooser carets, keeps full pill tap targets, and condenses New Gig form to fit without scrolling. Upload as index.html after phone test. -->
 <!-- r453: Calendar form visual parity + Important Date action controls. Applies Rehearsal-style visual treatment to New Gig/Blackout/Custom forms and converts Important Date bottom actions to green Save + red trash icon. Upload as index.html after phone test. -->
@@ -6215,6 +6217,56 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 #votes-modal.suggest-keyboard-active #suggest-artist,
 #votes-modal.suggest-keyboard-active #suggest-note,
 #votes-modal.suggest-keyboard-active #suggest-url{min-height:38px!important;font-size:15px!important;}
+
+/* r456: Calendar save-action icon styling. Uses external save_icon.png
+   for Gig, Rehearsal, Blackout, and Important Date save controls without changing
+   the underlying save behavior. */
+.r455-save-icon-btn{
+  -webkit-appearance:none;
+  appearance:none;
+  border:none !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  width:58px !important;
+  height:58px !important;
+  min-width:58px !important;
+  padding:0 !important;
+  margin:10px auto 0 !important;
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  border-radius:16px !important;
+  line-height:0;
+}
+.r455-save-icon-btn img{
+  width:58px;
+  height:58px;
+  display:block;
+  border-radius:16px;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.r455-save-icon-btn:hover img{
+  transform:translateY(-1px);
+}
+.r455-save-icon-btn:focus-visible{
+  outline:2px solid rgba(245,197,24,.95);
+  outline-offset:3px;
+}
+.r455-save-icon-btn:disabled{
+  opacity:.48;
+  cursor:not-allowed;
+  filter:saturate(.7);
+}
+.r455-save-icon-btn.r455-save-inline{
+  margin:0 !important;
+}
+#idate-action-row .r455-save-icon-btn{
+  margin:0 !important;
+}
+
 </style>
 </head>
 <body>
@@ -6786,7 +6838,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
       </div>
     </div>
     <div id="idate-action-row" class="r453-idate-actions">
-      <button id="idate-save-btn" onclick="saveImportantDate()">Save</button>
+      <button id="idate-save-btn" class="r455-save-icon-btn r455-save-inline" onclick="saveImportantDate()" aria-label="Save important date" title="Save important date"><img src="save_icon.png" alt="" aria-hidden="true"></button>
       <button id="idate-delete-btn" onclick="deleteImportantDate()" title="Delete important date" aria-label="Delete important date">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg>
       </button>
@@ -12171,6 +12223,19 @@ function openImportantDateModal(idateOrId){
   var delBtn = document.getElementById('idate-delete-btn');
   if(delBtn) delBtn.style.display = existing ? 'inline-flex' : 'none';
   opM('idate-modal');
+}
+
+
+var _R455_SAVE_ICON_SRC = 'save_icon.png';
+function _r455ApplySaveIconButton(btn, label, inlineMode){
+  if(!btn) return btn;
+  btn.classList.add('r455-save-icon-btn');
+  if(inlineMode) btn.classList.add('r455-save-inline');
+  var aria = label || btn.getAttribute('aria-label') || btn.textContent || 'Save';
+  btn.setAttribute('aria-label', aria);
+  btn.title = aria;
+  btn.innerHTML = '<img src="' + _R455_SAVE_ICON_SRC + '" alt="" aria-hidden="true">';
+  return btn;
 }
 
 function saveImportantDate(){
@@ -18332,6 +18397,7 @@ function openGigSheet(ev){
   saveBtn.style.width = '100%';
   saveBtn.textContent = isNew ? 'Add Gig' : 'Save Changes';
   saveBtn.onclick = function(){ saveGigSheet(evId, isNew); };
+  _r455ApplySaveIconButton(saveBtn, isNew ? 'Add gig' : 'Save gig');
   b.appendChild(saveBtn);
 
   opM('gig-detail-modal');
@@ -18624,6 +18690,7 @@ function openRehearsalSheet(ev){
     saveBtn.className = 'r382-rh-saved-pill r383-gig-saved-pill r387-rh-save';
     saveBtn.textContent = 'Save';
     saveBtn.onclick = function(){ saveRehearsalSheet(ev ? ev.id : null, isNew); };
+    _r455ApplySaveIconButton(saveBtn, 'Save rehearsal');
     actionRow.appendChild(saveBtn);
 
     var delBtn = document.createElement('button');
@@ -18642,6 +18709,7 @@ function openRehearsalSheet(ev){
     saveBtnNew.style.cssText = 'width:100%;margin-top:8px;';
     saveBtnNew.textContent = 'Add Rehearsal';
     saveBtnNew.onclick = function(){ saveRehearsalSheet(null, true); };
+    _r455ApplySaveIconButton(saveBtnNew, 'Add rehearsal');
     b.appendChild(saveBtnNew);
   }
 
@@ -18772,6 +18840,7 @@ function openBlackoutSheet(ev){
   saveBtn.disabled = !canEditThisBlackout;
   if(!canEditThisBlackout){ saveBtn.style.opacity = '.55'; saveBtn.style.cursor = 'not-allowed'; }
   saveBtn.onclick = function(){ if(canEditThisBlackout) saveBlackoutSheet(ev ? ev.id : null, isNew); };
+  if(canEditThisBlackout) _r455ApplySaveIconButton(saveBtn, isNew ? 'Add blackout' : 'Save blackout');
   b.appendChild(saveBtn);
 
   opM('gig-detail-modal');
