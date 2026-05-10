@@ -16,6 +16,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
+<!-- r430: External-return post-restore shield hardening. Late hidden/blur/pagehide noise after YouTube return can no longer trigger delayed Home override. Upload as index.html after phone test. -->
 <!-- r429: External-return post-restore shield. Prevents late blur/pagehide/hidden events after successful YouTube return from overriding restored source tab with Home. Upload as index.html after phone test. -->
 <!-- r428: Album-art external-return handoff gate for Setlists, Songs, and Song Suggestions. Prevents early focus/pageshow events from consuming context before the app actually leaves. Upload as index.html after phone test. -->
 <!-- r427: Setlists external-return handoff gate. Prevents early focus/pageshow events from consuming the YouTube return context before the app actually leaves. Upload as index.html after phone test. -->
@@ -11160,23 +11161,16 @@ function _handleLateExternalRestoreLeaving(reason){
   try {
     if(!_isExternalRestoreShieldActive()) return false;
     if(typeof _cancelForceHomeDefaultTimers === 'function') _cancelForceHomeDefaultTimers();
-    // Reapply immediately because the app is still in the external-return chain.
-    if(typeof _reapplyLastExternalReturnContext === 'function') _reapplyLastExternalReturnContext((reason || 'lifecycle-leaving') + '-shield');
-    // If this was actually a real app close/background immediately after return,
-    // allow Home-default to happen only after the app remains hidden. A false late
-    // blur/pagehide during YouTube back-swipe will be visible/focused again before
-    // this delayed check and will keep the restored source context.
-    setTimeout(function(){
-      try {
-        if(!_isExternalRestoreShieldActive()) return;
-        if(document.visibilityState === 'hidden'){
-          try { window._ootLastExternalRestoreContext = null; window._ootExternalRestoreLockUntil = 0; } catch(e1){}
-          if(typeof _forceHomeDefaultView === 'function') _forceHomeDefaultView((reason || 'lifecycle-leaving') + '-shield-hidden');
-        } else {
-          if(typeof _reapplyLastExternalReturnContext === 'function') _reapplyLastExternalReturnContext((reason || 'lifecycle-leaving') + '-shield-visible');
-        }
-      } catch(e){}
-    }, 1200);
+    // r430: The phone-test evidence shows the correct source screen restores and
+    // then Home takes over. That means this code path must be a suppress-only
+    // shield after a successful app-launched external return. Do NOT branch on
+    // document.visibilityState here: Android/PWA/YouTube can report hidden during
+    // the noisy return chain even after the restored screen is visible to the
+    // user. Treat late blur/pagehide/visibility-hidden events inside this short
+    // lock as external-return noise, never as permission to force Home.
+    if(typeof _reapplyLastExternalReturnContext === 'function'){
+      _reapplyLastExternalReturnContext((reason || 'lifecycle-leaving') + '-shield-suppress');
+    }
     return true;
   } catch(e){ return false; }
 }
@@ -23984,7 +23978,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-external-return-post-restore-shield-r429';
+var WHATS_NEW_VERSION = '2026-05-09-external-return-shield-hardening-r430';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24277,6 +24271,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-external-return-shield-hardening-r430', date:'May 9, 2026', importance:'fix', title:'External return shield hardening', items:['Fixed the remaining flash-then-Home failure after returning from YouTube by removing the delayed hidden-state Home override inside the post-restore shield.', 'When Android/PWA reports late blur/pagehide/visibility-hidden noise after a successful app-launched external return, the app now suppresses that noise instead of treating it as a normal close.', 'Applies to the shared album-art YouTube return path used by Setlists, Songs list, and Song Suggestion vote-window artwork.']},
   {version:'2026-05-09-external-return-post-restore-shield-r429', date:'May 9, 2026', importance:'fix', title:'YouTube return post-restore shield', items:['Fixed the flash-then-Home failure after returning from YouTube: the source tab/setlist was restoring correctly, then a later lifecycle event was overriding it with Home.', 'Late blur/pagehide/visibility-hidden events during the short external-return stabilization window are now treated as part of the same YouTube return chain instead of a normal app close.', 'Applies to all shared album-art external returns: Setlists, Songs list, and Song Suggestion vote-window artwork.']},
   {version:'2026-05-09-album-art-external-return-gate-r428', date:'May 9, 2026', importance:'fix', title:'Album-art YouTube return gate', items:['Fixed the shared album-art external-return handoff used by Setlists, Songs list, and Song Suggestion vote-window artwork.', 'The app now captures the source context when album art launches YouTube, but does not allow early Android/PWA focus/pageshow noise to consume that context before the app has actually left.', 'Normal close/reopen still defaults Home; only short-lived app-launched external returns restore their source screen.']},
   {version:'2026-05-09-setlist-external-return-handoff-gate-r427', date:'May 9, 2026', importance:'fix', title:'Setlists YouTube return handoff gate', items:['Setlists album-art YouTube launches now capture return context but do not consume it until the app has actually entered an external handoff state.', 'This prevents early focus/pageshow noise from deleting the return context before Android/PWA finishes the YouTube back-swipe chain.', 'Normal close/reopen still defaults Home because the external handoff must originate from an app-launched URL and remains short-lived.']},
