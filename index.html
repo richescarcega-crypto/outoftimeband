@@ -16,6 +16,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
+<!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
 <!-- r444: Band Contacts collapse scroll reset. When Contacts auto-collapses after tab leave/reopen, Band scroll resets to the top so roster pills are visible and CONTACTS returns to its normal lower position. Upload index.html only after phone test. -->
 <!-- r443: Band Contacts auto-collapse reset. Collapses all open contact rows and closes the Contacts drawer when leaving Band or during normal app close/reopen lifecycle reset; preserves r442 icon asset and measured contact drawer behavior. Upload index.html only after phone test. -->
 <!-- r442: Band Contacts icon safe-asset filename. Uses contact_icon.png as the primary no-space Contacts icon asset, with legacy Contact Icon.png fallback; preserves r440/r441 measured Contacts drawer behavior and no contact-row carets. Upload index.html plus contact_icon.png after phone test. -->
@@ -1528,6 +1529,51 @@ body.light .oot-expand-pill-icon.contact-photo img{box-shadow:0 6px 14px rgba(20
 }
 .songs-sheet-btn:hover .songs-sheet-btn-label{
   color:#ffffff !important;
+}
+
+
+/* r445 Songs options drawer polish: high, scroll-safe, sticky header/X.
+   Scoped to Songs menu only; shared action-sheet menus remain unchanged. */
+#songs-action-backdrop{
+  align-items:flex-start !important;
+  justify-content:center !important;
+  padding:64px 12px calc(14px + env(safe-area-inset-bottom)) !important;
+}
+#songs-action-sheet{
+  max-height:calc(100dvh - 88px) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior:contain !important;
+}
+#songs-action-sheet .songs-sheet-head{
+  position:sticky !important;
+  top:-12px !important;
+  z-index:3 !important;
+  margin:-12px -12px 10px -12px !important;
+  padding:12px 52px 12px 12px !important;
+  background:
+    radial-gradient(circle at 88% 4%, rgba(74,158,255,.22), transparent 34%),
+    linear-gradient(180deg, rgba(7,26,62,.99) 0%, rgba(4,13,31,.99) 100%) !important;
+  border-bottom:1px solid rgba(245,197,24,.22) !important;
+  border-radius:20px 20px 0 0 !important;
+}
+#songs-action-sheet .songs-sheet-x{
+  position:sticky !important;
+  top:0 !important;
+  float:right !important;
+  z-index:4 !important;
+  margin:0 0 -38px 0 !important;
+}
+#songs-action-sheet .songs-sheet-btn{
+  min-height:54px !important;
+}
+@media (max-width:520px){
+  #songs-action-backdrop{
+    padding-top:58px !important;
+  }
+  #songs-action-sheet{
+    max-height:calc(100dvh - 76px - env(safe-area-inset-bottom)) !important;
+  }
 }
 
 
@@ -19162,10 +19208,12 @@ function toggleSongsMenu(ev){
 
   var wrap = document.createElement('div');
   wrap.id = 'songs-action-backdrop';
+  wrap.className = 'oot-action-backdrop songs-options-backdrop';
   wrap.onclick = function(e){ if(e.target === wrap) closeSongsMenu(); };
 
   var sheet = document.createElement('div');
   sheet.id = 'songs-action-sheet';
+  sheet.className = 'oot-action-sheet songs-options-sheet';
   sheet.setAttribute('role','dialog');
   sheet.setAttribute('aria-modal','true');
   sheet.setAttribute('aria-label','Song options');
@@ -19197,7 +19245,7 @@ function toggleSongsMenu(ev){
     '</div>';
 
   sheet.appendChild(btn('Add New Song', 'Create one song manually', '+', function(){ showAddSongForm(); }));
-  sheet.appendChild(btn('Import Songs', 'Paste a song list into the library', '⌘', function(){
+  sheet.appendChild(btn('Quick Paste', 'Paste a song list into the library', '⌘', function(){
     try { openQuickPasteSongs(); } catch(e){ try { showQuickPasteSongs(); } catch(e2){ toast('Import Songs is not available in this build', {tone:'info'}); } }
   }));
   sheet.appendChild(btn('Suggest a Song', 'Submit one song suggestion', '♪', function(){
@@ -24315,7 +24363,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-band-contacts-collapse-scroll-reset-r444';
+var WHATS_NEW_VERSION = '2026-05-09-songs-options-drawer-polish-r445';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24608,6 +24656,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-songs-options-drawer-polish-r445', date:'May 9, 2026', importance:'fix', title:'Songs options drawer polish', items:['Songs options now use a high, scroll-safe action window with sticky header and X while the action list scrolls.', 'Restored the menu label to Quick Paste for the paste-import workflow while preserving the existing Quick Paste function path.', 'No lifecycle, external-return, Song Resources, Setlists, Calendar, Pay, Chat, Firebase, or song data behavior was intentionally changed.']},
   {version:'2026-05-09-band-contacts-collapse-scroll-reset-r444', date:'May 9, 2026', importance:'fix', title:'Band Contacts collapse scroll reset', items:['When CONTACTS auto-collapses after leaving Band or reopening the app, the Band page now resets to the roster-first position.', 'The full Band roster pills are visible again and the CONTACTS pill returns to its normal lower position instead of leaving the page scrolled down at the Contacts section.', 'Preserved r443 auto-collapse behavior, r442 contact_icon.png asset handling, and the measured Contacts detail visibility behavior.']},
   {version:'2026-05-09-band-contacts-auto-collapse-r443', date:'May 9, 2026', importance:'fix', title:'Band Contacts auto-collapse', items:['Leaving the Band tab or reopening the app now closes the CONTACTS drawer and collapses any open contact cards back into the main CONTACTS header.', 'Preserved the r442 contacts icon asset and measured contact drawer/detail visibility behavior.', 'No lifecycle external-return behavior, Songs, Setlists, Calendar, Pay, Chat, Firebase, or contact-data behavior was intentionally changed.']},
   {version:'2026-05-09-band-contacts-safe-icon-asset-r442', date:'May 9, 2026', importance:'fix', title:'Band Contacts icon safe asset path', items:['Changed the Band CONTACTS icon to load from a no-space asset filename: contact_icon.png.', 'Kept a fallback to the legacy Contact Icon.png filename in case that file remains in GitHub.', 'Preserved the measured CONTACTS drawer/list behavior and no-caret contact rows from r440/r441.']},
