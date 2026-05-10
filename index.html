@@ -26,11 +26,11 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r430: External-return post-restore shield hardening. Late hidden/blur/pagehide noise after YouTube return can no longer trigger delayed Home override. Upload as index.html after phone test. -->
 <!-- r429: External-return post-restore shield. Prevents late blur/pagehide/hidden events after successful YouTube return from overriding restored source tab with Home. Upload as index.html after phone test. -->
 <!-- r432: Vote on Suggestions real artwork source. Vote-window artwork now prefers submitted YouTube thumbnail/library match before iTunes fallback. Upload as index.html after phone test. -->
-<!-- r460: Save-icon unification pass. Uses revised brighter save_icon.png?v=r460, replaces Songs Edit Song, existing Gig/Rehearsal edit save, Setlist reorder save, and Arrange Tabs Save Order controls. Upload index.html plus save_icon.png after phone test. -->
-<!-- r459: Calendar save icon right-align and 10% size increase. Save icon is 32px and right-aligned on Gig, Rehearsal, Blackout, and Custom forms. Upload index.html plus save_icon.png after phone test. -->
-<!-- r458: Calendar save icon sizing/Important Date cleanup. Shrinks save icon 50%, removes old Important Date green-save underlay, and gives New Gig form safer bottom clearance. Upload index.html plus save_icon.png after phone test. -->
-<!-- r457: Version-marker correction for external save icon build. Bumps WHATS_NEW_VERSION so phone auto-update detects the build. Upload index.html plus save_icon.png after phone test. -->
-<!-- r456: Externalized calendar save icon asset. Save controls now reference save_icon.png?v=r460 instead of embedded base64. Upload index.html plus save_icon.png after phone test. -->
+<!-- r460: Save-icon unification pass. Uses revised brighter save_icon_r461.png, replaces Songs Edit Song, existing Gig/Rehearsal edit save, Setlist reorder save, and Arrange Tabs Save Order controls. Upload index.html plus save_icon_r461.png after phone test. -->
+<!-- r459: Calendar save icon right-align and 10% size increase. Save icon is 32px and right-aligned on Gig, Rehearsal, Blackout, and Custom forms. Upload index.html plus save_icon_r461.png after phone test. -->
+<!-- r458: Calendar save icon sizing/Important Date cleanup. Shrinks save icon 50%, removes old Important Date green-save underlay, and gives New Gig form safer bottom clearance. Upload index.html plus save_icon_r461.png after phone test. -->
+<!-- r457: Version-marker correction for external save icon build. Bumps WHATS_NEW_VERSION so phone auto-update detects the build. Upload index.html plus save_icon_r461.png after phone test. -->
+<!-- r456: Externalized calendar save icon asset. Save controls now reference save_icon_r461.png instead of embedded base64. Upload index.html plus save_icon_r461.png after phone test. -->
 <!-- r455: Calendar event save controls used an embedded save icon; superseded by r456 external asset. -->
 <!-- r449: Edit Saved Flyer static/no-bounce + visible top actions. Removes saved flyer modal bounce and forces the top flyer actions menu above the editor. Upload as index.html after phone test. -->
 <!-- r452: Calendar event chooser caret cleanup + New Gig static fit. Removes chooser carets, keeps full pill tap targets, and condenses New Gig form to fit without scrolling. Upload as index.html after phone test. -->
@@ -6222,7 +6222,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 #votes-modal.suggest-keyboard-active #suggest-note,
 #votes-modal.suggest-keyboard-active #suggest-url{min-height:38px!important;font-size:15px!important;}
 
-/* r456: Calendar save-action icon styling. Uses external save_icon.png?v=r460
+/* r456: Calendar save-action icon styling. Uses external save_icon_r461.png
    for Gig, Rehearsal, Blackout, and Important Date save controls without changing
    the underlying save behavior. */
 .r455-save-icon-btn{
@@ -6407,6 +6407,74 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   min-width:32px !important;
   width:32px !important;
   height:32px !important;
+  flex:0 0 32px !important;
+}
+
+
+/* r461: corrected save-icon asset + right-side placement.
+   Uses a new filename to bypass stale PWA/browser/GitHub image cache. */
+.r455-save-icon-btn,
+.oot-save-icon-btn{
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+  flex:0 0 32px !important;
+  border-radius:9px !important;
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  padding:0 !important;
+  color:inherit !important;
+}
+.r455-save-icon-btn img,
+.oot-save-icon-btn img{
+  width:32px !important;
+  height:32px !important;
+  border-radius:9px !important;
+  display:block !important;
+}
+/* Calendar event forms: save icon belongs on the right side. */
+#gig-detail-modal .r455-save-icon-btn,
+#gig-detail-modal .oot-save-icon-btn,
+#idate-action-row .r455-save-icon-btn,
+#idate-action-row .oot-save-icon-btn{
+  margin-left:auto !important;
+  margin-right:0 !important;
+}
+/* New/edit Gig and Blackout dynamic save buttons are appended as block controls;
+   this forces them to the right instead of returning to centered/left placement. */
+#gig-detail-modal #gd-body > .r455-save-icon-btn,
+#gig-detail-modal #gd-body > .oot-save-icon-btn{
+  display:flex !important;
+  margin-left:auto !important;
+  margin-right:0 !important;
+}
+/* Rehearsal edit/new controls that carry older green/yellow saved-pill classes must stay icon-only. */
+.r382-rh-saved-pill.r455-save-icon-btn,
+.r383-gig-saved-pill.r455-save-icon-btn,
+.r387-rh-save.r455-save-icon-btn,
+.r460-rehearsal-save.r455-save-icon-btn,
+.r382-rh-saved-pill.oot-save-icon-btn,
+.r383-gig-saved-pill.oot-save-icon-btn,
+.r387-rh-save.oot-save-icon-btn,
+.r460-rehearsal-save.oot-save-icon-btn{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  padding:0 !important;
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+  flex:0 0 32px !important;
+  margin-left:auto !important;
+  margin-right:0 !important;
+}
+/* Arrange Tabs and Setlist reorder should use the versioned asset and keep their current good placement. */
+#sl-save-order-icon.oot-save-icon-btn,
+#reorder-modal .oot-save-icon-btn{
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
   flex:0 0 32px !important;
 }
 
@@ -6850,7 +6918,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
       <button id="si-delete-btn" title="Delete song" aria-label="Delete song" style="flex:0 0 auto;width:34px;height:34px;background:rgba(255,71,87,.15);border:1.5px solid #ff4757;border-radius:50%;padding:0;color:#ff4757;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#ff4757" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg>
       </button>
-      <button id="si-save-btn" class="oot-save-icon-btn" onclick="saveSongInfo()" aria-label="Save song" title="Save song"><img src="save_icon.png?v=r460" alt="" aria-hidden="true"></button>
+      <button id="si-save-btn" class="oot-save-icon-btn" onclick="saveSongInfo()" aria-label="Save song" title="Save song"><img src="save_icon_r461.png" alt="" aria-hidden="true"></button>
     </div>
   </div>
 </div>
@@ -6978,7 +7046,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
       </div>
     </div>
     <div id="idate-action-row" class="r453-idate-actions">
-      <button id="idate-save-btn" class="r455-save-icon-btn r455-save-inline" onclick="saveImportantDate()" aria-label="Save important date" title="Save important date"><img src="save_icon.png?v=r460" alt="" aria-hidden="true"></button>
+      <button id="idate-save-btn" class="r455-save-icon-btn r455-save-inline" onclick="saveImportantDate()" aria-label="Save important date" title="Save important date"><img src="save_icon_r461.png" alt="" aria-hidden="true"></button>
       <button id="idate-delete-btn" onclick="deleteImportantDate()" title="Delete important date" aria-label="Delete important date">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg>
       </button>
@@ -12366,7 +12434,7 @@ function openImportantDateModal(idateOrId){
 }
 
 
-var _R455_SAVE_ICON_SRC = 'save_icon.png?v=r460';
+var _R455_SAVE_ICON_SRC = 'save_icon_r461.png';
 function _r455ApplySaveIconButton(btn, label, inlineMode){
   if(!btn) return btn;
   btn.classList.add('r455-save-icon-btn');
@@ -18243,7 +18311,7 @@ function _r366OpenGigEdit(ev){
   html += '</div>';
   html += _r366InputHtml('Notes','gd-notes',d.notes,'Parking, dress code, special instructions...','textarea');
   html += '<div class="r366-gig-edit-actions r383-gig-edit-actions">';
-  html += '<button type="button" id="r366-gig-save" class="oot-save-icon-btn" aria-label="Save event" title="Save event"><img src="save_icon.png?v=r460" alt="" aria-hidden="true"></button>';
+  html += '<button type="button" id="r366-gig-save" class="oot-save-icon-btn" aria-label="Save event" title="Save event"><img src="save_icon_r461.png" alt="" aria-hidden="true"></button>';
   html += '<button type="button" id="r366-gig-delete" class="r383-trash-icon" title="Delete event" aria-label="Delete event"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg></button>';
   html += '</div>';
   b.innerHTML = html;
@@ -21015,7 +21083,7 @@ function rEd() {
     '<div style="display:flex;align-items:center;gap:9px;margin-bottom:5px;flex-wrap:wrap;">'+
     '<img src="Logo.png?v=r142" class="setlist-title-logo" alt="Out of Time">'+
     '<span style="background:'+_slPal.gradient+';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:700;text-shadow:0 0 18px '+_slPal.glow+';font-family:Russo One,sans-serif;font-size:17px;flex:1;min-width:110px;letter-spacing:1px;">'+s.name+'</span>'+
-    (reorderMode ? '<button id="sl-save-order-icon" class="oot-save-icon-btn" onclick="finishSetlistReorderAndReturn()" type="button" title="Save order" aria-label="Save order"><img src="save_icon.png?v=r460" alt="" aria-hidden="true"></button>' : '')+
+    (reorderMode ? '<button id="sl-save-order-icon" class="oot-save-icon-btn" onclick="finishSetlistReorderAndReturn()" type="button" title="Save order" aria-label="Save order"><img src="save_icon_r461.png" alt="" aria-hidden="true"></button>' : '')+
     '</div>'+
     '<div style="font-size:12px;color:#aaa;margin-bottom:4px;">'+s.songs.length+' songs'+durStr+'</div>'+
     '<div style="font-size:10px;color:'+(reorderMode?'#f5c518':'#4a6a9a')+';margin-bottom:10px;">'+(reorderMode?'Hold ≡ and drag to reorder · tap the thumb-drive save icon to finish':'Use the expanded setlist ⋮ for add, share, manage, and reorder')+'</div>';
@@ -25046,7 +25114,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-save-icon-unification-r460';
+var WHATS_NEW_VERSION = '2026-05-09-save-icon-cache-placement-r461';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -25339,10 +25407,11 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-09-save-icon-unification-r460', date:'May 9, 2026', importance:'fix', title:'Save icon controls unified', items:['Updated the app to use the newer brighter save_icon.png asset.', 'Replaced the Songs Edit Song save pill, existing Gig/Rehearsal edit save controls, Setlist reorder save icon, and Arrange Tabs Save Order pill with the new save icon.', 'Removed old green/yellow save-pill styling under the replaced icon controls where it was bleeding through.', 'Generic prompt SAVE and flyer save/banner workflow were intentionally left unchanged.']},
-{version:'2026-05-09-save-icon-unification-r460', date:'May 9, 2026', importance:'fix', title:'Calendar save icon aligned right', items:['Calendar save icons are now about 10% larger than r458.', 'Gig, Rehearsal, Blackout, and Custom event forms now align the save icon to the right side.', 'No form fields, save behavior, delete behavior, lifecycle behavior, Firebase behavior, or unrelated tabs were changed.']},
-{version:'2026-05-09-save-icon-unification-r460', date:'May 9, 2026', importance:'fix', title:'Save icon size corrected', items:['Calendar save icons are now 50% smaller on Gig, Rehearsal, Blackout, and Custom forms.', 'The Custom / Important Date form no longer shows the old green Save pill under the new save icon.', 'New Gig gets safer bottom clearance so the save icon does not overlap the Notes field.']},
-{version:'2026-05-09-save-icon-unification-r460', date:'May 9, 2026', importance:'fix', title:'Band contact action cluster', items:['Band tab expanded contact details now place the blue edit pencil immediately to the left of the red trashcan at the bottom-right of the contact drawer.', 'The action buttons use a measured gap so edit and delete are visually grouped but still separated enough to reduce accidental taps.', 'No contact edit behavior, delete confirmation, Contacts open/collapse behavior, Calendar, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase data behavior was intentionally changed.']},
+  {version:'2026-05-09-save-icon-cache-placement-r461', date:'May 9, 2026', importance:'fix', title:'Save icon cache and placement corrected', items:['Uses the newest save icon as a new versioned asset named save_icon_r461.png so the phone cannot keep showing the old cached icon.', 'Restores right-side placement for Gig and Blackout save icons.', 'Keeps Setlist reorder and Arrange Tabs on the new save icon while preserving their current placement.', 'No save handlers, form fields, Firebase behavior, lifecycle behavior, or flyer workflow were changed.']},
+{version:'2026-05-09-save-icon-cache-placement-r461', date:'May 9, 2026', importance:'fix', title:'Save icon controls unified', items:['Updated the app to use the newer brighter save_icon_r461.png asset.', 'Replaced the Songs Edit Song save pill, existing Gig/Rehearsal edit save controls, Setlist reorder save icon, and Arrange Tabs Save Order pill with the new save icon.', 'Removed old green/yellow save-pill styling under the replaced icon controls where it was bleeding through.', 'Generic prompt SAVE and flyer save/banner workflow were intentionally left unchanged.']},
+{version:'2026-05-09-save-icon-cache-placement-r461', date:'May 9, 2026', importance:'fix', title:'Calendar save icon aligned right', items:['Calendar save icons are now about 10% larger than r458.', 'Gig, Rehearsal, Blackout, and Custom event forms now align the save icon to the right side.', 'No form fields, save behavior, delete behavior, lifecycle behavior, Firebase behavior, or unrelated tabs were changed.']},
+{version:'2026-05-09-save-icon-cache-placement-r461', date:'May 9, 2026', importance:'fix', title:'Save icon size corrected', items:['Calendar save icons are now 50% smaller on Gig, Rehearsal, Blackout, and Custom forms.', 'The Custom / Important Date form no longer shows the old green Save pill under the new save icon.', 'New Gig gets safer bottom clearance so the save icon does not overlap the Notes field.']},
+{version:'2026-05-09-save-icon-cache-placement-r461', date:'May 9, 2026', importance:'fix', title:'Band contact action cluster', items:['Band tab expanded contact details now place the blue edit pencil immediately to the left of the red trashcan at the bottom-right of the contact drawer.', 'The action buttons use a measured gap so edit and delete are visually grouped but still separated enough to reduce accidental taps.', 'No contact edit behavior, delete confirmation, Contacts open/collapse behavior, Calendar, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase data behavior was intentionally changed.']},
   {version:'2026-05-09-calendar-form-visuals-idate-actions-r453', date:'May 9, 2026', importance:'fix', title:'Calendar form visuals and Important Date actions', items:['New Gig and Blackout forms now use the same gold-label / dark-blue field visual language as the updated New Rehearsal page without changing the fields or save logic.', 'Custom / Important Date uses the same visual language and its bottom actions are now a green Save button on the left plus a red trash-can icon on the right when editing.', 'The Important Date delete confirmation and save behavior are unchanged.']},
   {version:'2026-05-09-calendar-new-gig-fit-r452', date:'May 9, 2026', importance:'fix', title:'Calendar new gig fit', items:['Calendar empty-date event chooser no longer shows right-side carets on Gig, Rehearsal, Blackout, or Custom; each full pill remains tappable.', 'Calendar empty-date → Gig → New Gig form is condensed and held static so the full New Gig display is intended to fit without scrolling.', 'No saved gig data model, event save behavior, Calendar body, Band, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase behavior was intentionally changed.']},
   {version:'2026-05-09-band-contact-edit-icon-r451', date:'May 9, 2026', importance:'fix', title:'Band contact edit icon', items:['Band tab expanded contact details now use a compact blue circular pencil icon for Edit instead of the older text Edit pill.', 'The contact edit modal still opens with the same fields populated, and the r450 red trashcan delete control remains bottom-right.', 'No Contacts drawer open/collapse behavior, contact_icon.png asset handling, lifecycle, Calendar, Songs, Setlists, Chat, Pay, or Firebase data model behavior was intentionally changed.']},
@@ -26450,7 +26519,7 @@ if(savedName&&savedId){
     <p style="font-size:11px;color:#06d6a0;background:rgba(6,214,160,.08);border:1px solid rgba(6,214,160,.25);border-radius:8px;padding:8px 10px;margin-bottom:14px;line-height:1.4;"><span style="font-weight:bold;">Tip:</span> long-press any tab in the bottom bar to rearrange them directly with drag-and-drop.</p>
     <div id="reorder-list"></div>
     <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
-      <div style="display:flex;justify-content:flex-end;width:100%;"><button class="oot-save-icon-btn" onclick="saveTabOrder();clM('reorder-modal')" aria-label="Save tab order" title="Save tab order"><img src="save_icon.png?v=r460" alt="" aria-hidden="true"></button></div>
+      <div style="display:flex;justify-content:flex-end;width:100%;"><button class="oot-save-icon-btn" onclick="saveTabOrder();clM('reorder-modal')" aria-label="Save tab order" title="Save tab order"><img src="save_icon_r461.png" alt="" aria-hidden="true"></button></div>
     </div>
   </div>
 </div>
