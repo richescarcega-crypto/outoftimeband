@@ -19424,7 +19424,7 @@ function openImportSongsModal(){
     ov.className = 'ov';
     ov.innerHTML =
       '<div class="mo" style="max-height:88vh;display:flex;flex-direction:column;">'+
-        '<div class="moh" style="flex-shrink:0;"><span class="mot" style="color:#f5c518;">Import Songs</span><button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="closeImportSongsModal()">&#10005;</button></div>'+
+        '<div class="moh" style="flex-shrink:0;"><span class="mot" style="color:#f5c518;">Paste Songs</span><button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="closeImportSongsModal()">&#10005;</button></div>'+
         '<p id="import-songs-help" style="font-size:12px;color:#8aa8d6;margin-bottom:10px;line-height:1.4;flex-shrink:0;">Paste one song per line. Accepted formats: <b>Title - Artist</b>, <b>Title, Artist</b>, or copied two-column Excel/Sheets rows.</p>'+
         '<textarea id="import-songs-textarea" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" placeholder="Free Bird - Lynyrd Skynyrd&#10;Hotel California, Eagles&#10;Sweet Child O Mine&#9;Guns N Roses" style="width:100%;min-height:150px;background:#060e1c;border:1px solid #1a3a8a;border-radius:8px;padding:10px;color:#e8f0ff;font-family:\'Exo 2\',sans-serif;font-size:13px;outline:none;resize:vertical;box-sizing:border-box;flex-shrink:0;"></textarea>'+
         '<div id="import-songs-preview-summary" style="margin-top:8px;font-size:11px;color:#4a9eff;min-height:14px;flex-shrink:0;"></div>'+
@@ -24363,7 +24363,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-songs-options-drawer-polish-r445';
+var WHATS_NEW_VERSION = '2026-05-09-quick-paste-title-r446';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24656,6 +24656,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-quick-paste-title-r446', date:'May 9, 2026', importance:'fix', title:'Quick Paste modal title', items:['Changed the Quick Paste paste-entry window title from Import Songs to Paste Songs.', 'No paste behavior, import parsing, song data, lifecycle, or other tab behavior was intentionally changed.']},
   {version:'2026-05-09-songs-options-drawer-polish-r445', date:'May 9, 2026', importance:'fix', title:'Songs options drawer polish', items:['Songs options now use a high, scroll-safe action window with sticky header and X while the action list scrolls.', 'Restored the menu label to Quick Paste for the paste-import workflow while preserving the existing Quick Paste function path.', 'No lifecycle, external-return, Song Resources, Setlists, Calendar, Pay, Chat, Firebase, or song data behavior was intentionally changed.']},
   {version:'2026-05-09-band-contacts-collapse-scroll-reset-r444', date:'May 9, 2026', importance:'fix', title:'Band Contacts collapse scroll reset', items:['When CONTACTS auto-collapses after leaving Band or reopening the app, the Band page now resets to the roster-first position.', 'The full Band roster pills are visible again and the CONTACTS pill returns to its normal lower position instead of leaving the page scrolled down at the Contacts section.', 'Preserved r443 auto-collapse behavior, r442 contact_icon.png asset handling, and the measured Contacts detail visibility behavior.']},
   {version:'2026-05-09-band-contacts-auto-collapse-r443', date:'May 9, 2026', importance:'fix', title:'Band Contacts auto-collapse', items:['Leaving the Band tab or reopening the app now closes the CONTACTS drawer and collapses any open contact cards back into the main CONTACTS header.', 'Preserved the r442 contacts icon asset and measured contact drawer/detail visibility behavior.', 'No lifecycle external-return behavior, Songs, Setlists, Calendar, Pay, Chat, Firebase, or contact-data behavior was intentionally changed.']},
