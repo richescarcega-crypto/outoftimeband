@@ -2179,6 +2179,81 @@ body.light .home-summary-card [style*="color:rgba(255,255,255"]{color:#5a6a85 !i
 
 
 
+
+/* r447: Edit Saved Flyer compact static fit.
+   Applies only when editing an already-saved flyer so the flyer preview remains visible without scrolling on normal phone heights. */
+#flyer-modal.flyer-saved-static .mo{
+  height:calc(100dvh - 22px);
+  max-height:calc(100dvh - 22px) !important;
+  padding-bottom:10px !important;
+}
+#flyer-modal.flyer-saved-static #flyer-summary-bar{
+  padding:7px 10px !important;
+  margin-bottom:7px !important;
+  border-radius:9px !important;
+}
+#flyer-modal.flyer-saved-static #flyer-summary-bar > div:first-child{
+  width:26px !important;
+  height:26px !important;
+}
+#flyer-modal.flyer-saved-static #flyer-summary-text{
+  font-size:11px !important;
+  line-height:1.15 !important;
+}
+#flyer-modal.flyer-saved-static #flyer-body{
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+#flyer-modal.flyer-saved-static #flyer-step-fields{
+  flex:0 0 auto !important;
+}
+#flyer-modal.flyer-saved-static #flyer-step-fields > div{
+  margin-bottom:4px !important;
+}
+#flyer-modal.flyer-saved-static #flyer-step-fields > div:first-child{
+  font-size:9px !important;
+  margin-bottom:4px !important;
+  letter-spacing:1.4px !important;
+}
+#flyer-modal.flyer-saved-static #flyer-step-fields label{
+  font-size:8px !important;
+  line-height:1 !important;
+  margin-bottom:1px !important;
+}
+#flyer-modal.flyer-saved-static #flyer-step-fields .mi{
+  padding:5px 8px !important;
+  font-size:12px !important;
+  min-height:0 !important;
+  height:28px !important;
+  border-radius:7px !important;
+}
+#flyer-modal.flyer-saved-static #flyer-preview-wrap{
+  flex:1 1 auto !important;
+  min-height:118px !important;
+  margin-bottom:0 !important;
+  border-radius:9px !important;
+}
+#flyer-modal.flyer-saved-static #flyer-preview-hint{
+  font-size:8px !important;
+  padding:4px 7px !important;
+}
+#flyer-modal.flyer-saved-static #flyer-action-row{
+  padding-top:7px !important;
+  margin-top:6px !important;
+}
+#flyer-modal.flyer-saved-static #flyer-more-btn{
+  width:42px !important;
+  height:42px !important;
+}
+@media (max-height:700px){
+  #flyer-modal.flyer-saved-static .moh{padding-top:8px !important;padding-bottom:8px !important;}
+  #flyer-modal.flyer-saved-static #flyer-summary-bar{padding:6px 9px !important;margin-bottom:6px !important;}
+  #flyer-modal.flyer-saved-static #flyer-step-fields .mi{height:26px !important;padding:4px 7px !important;font-size:11px !important;}
+  #flyer-modal.flyer-saved-static #flyer-step-fields > div{margin-bottom:3px !important;}
+  #flyer-modal.flyer-saved-static #flyer-preview-wrap{min-height:100px !important;}
+}
+
 /* r207: targeted Light Mode Flyer editor/selector readability pass.
    CSS-only: improves flyer modal labels, selector pills, template grid, preview hint, and action controls without changing flyer rendering or save behavior. */
 body.light #flyer-modal .mo{
@@ -6500,7 +6575,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
     </div>
 
     <!-- PINNED BOTTOM: action row — r152 keeps one action icon; Share now lives inside ⋮ -->
-    <div style="display:flex;gap:8px;align-items:stretch;justify-content:flex-end;flex-shrink:0;padding-top:10px;border-top:1px solid rgba(74,158,255,.18);margin-top:6px;">
+    <div id="flyer-action-row" style="display:flex;gap:8px;align-items:stretch;justify-content:flex-end;flex-shrink:0;padding-top:10px;border-top:1px solid rgba(74,158,255,.18);margin-top:6px;">
       <button id="flyer-more-btn" onclick="_flyerToggleMore(event)" aria-label="More actions" title="More" style="flex-shrink:0;width:46px;height:46px;background:rgba(74,158,255,.1);border:1px solid #1a3a8a;border-radius:10px;color:#8aa8d6;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;font-size:20px;font-weight:700;letter-spacing:2px;line-height:1;">⋮</button>
     </div>
   </div>
@@ -14530,6 +14605,8 @@ function openFlyerForGig(ev){
   });
   // Render UI
   _flyerSetFormat(_flyerCtx.format);
+  var flyerModalEl = document.getElementById('flyer-modal');
+  if(flyerModalEl){ flyerModalEl.classList.toggle('flyer-saved-static', !!hasSaved); }
   // Reflect saved-state in title + indicate via ⋮ button color when saved
   var titleEl = document.querySelector('#flyer-modal .mot');
   if(titleEl) titleEl.textContent = hasSaved ? 'Edit Saved Flyer' : 'Make Flyer';
@@ -14575,11 +14652,42 @@ function openFlyerForGig(ev){
     if(body) body.scrollTop = 0;
   }, 30);
   opM('flyer-modal');
+  if(hasSaved){
+    setTimeout(_flyerApplySavedStaticFit, 40);
+    setTimeout(_flyerApplySavedStaticFit, 260);
+  }
   // r34: show hint, then fade after a few seconds
   var _hint = document.getElementById('flyer-preview-hint');
   if(_hint){ _hint.style.opacity = '1'; }
   _flyerScheduleHintFade();
 }
+
+function _flyerApplySavedStaticFit(){
+  var modal = document.getElementById('flyer-modal');
+  if(!modal || !modal.classList.contains('flyer-saved-static')) return;
+  var body = document.getElementById('flyer-body');
+  var fields = document.getElementById('flyer-step-fields');
+  var preview = document.getElementById('flyer-preview-wrap');
+  var canvas = document.getElementById('flyer-canvas');
+  if(!body || !fields || !preview || !canvas) return;
+
+  // Measure the actual rendered phone viewport and give the flyer preview
+  // only the space that remains after the saved-flyer fields are visible.
+  var bodyH = body.clientHeight || 0;
+  var fieldsH = fields.getBoundingClientRect().height || 0;
+  var gap = 8;
+  var maxPreviewH = Math.floor(bodyH - fieldsH - gap);
+  maxPreviewH = Math.max(96, Math.min(maxPreviewH, Math.floor((window.innerHeight || 720) * 0.34)));
+  preview.style.maxHeight = maxPreviewH + 'px';
+  canvas.style.maxHeight = maxPreviewH + 'px';
+  preview.style.height = maxPreviewH + 'px';
+}
+
+window.addEventListener('resize', function(){
+  if(document.getElementById('flyer-modal') && document.getElementById('flyer-modal').classList.contains('flyer-saved-static')){
+    setTimeout(_flyerApplySavedStaticFit, 80);
+  }
+});
 
 function _flyerSetFormat(fmt){
   var prevFmt = _flyerCtx.format;
@@ -24363,7 +24471,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-quick-paste-title-r446';
+var WHATS_NEW_VERSION = '2026-05-09-saved-flyer-static-fit-r447';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24656,6 +24764,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-saved-flyer-static-fit-r447', date:'May 9, 2026', importance:'fix', title:'Saved flyer editor fit improved', items:['Edit Saved Flyer now uses a compact measured layout so the editable fields and flyer preview fit on one static phone-height view when opened from a gig.', 'The compact fit applies only to saved-flyer editing; flyer creation and template selection behavior are unchanged.']},
   {version:'2026-05-09-quick-paste-title-r446', date:'May 9, 2026', importance:'fix', title:'Quick Paste modal title', items:['Changed the Quick Paste paste-entry window title from Import Songs to Paste Songs.', 'No paste behavior, import parsing, song data, lifecycle, or other tab behavior was intentionally changed.']},
   {version:'2026-05-09-songs-options-drawer-polish-r445', date:'May 9, 2026', importance:'fix', title:'Songs options drawer polish', items:['Songs options now use a high, scroll-safe action window with sticky header and X while the action list scrolls.', 'Restored the menu label to Quick Paste for the paste-import workflow while preserving the existing Quick Paste function path.', 'No lifecycle, external-return, Song Resources, Setlists, Calendar, Pay, Chat, Firebase, or song data behavior was intentionally changed.']},
   {version:'2026-05-09-band-contacts-collapse-scroll-reset-r444', date:'May 9, 2026', importance:'fix', title:'Band Contacts collapse scroll reset', items:['When CONTACTS auto-collapses after leaving Band or reopening the app, the Band page now resets to the roster-first position.', 'The full Band roster pills are visible again and the CONTACTS pill returns to its normal lower position instead of leaving the page scrolled down at the Contacts section.', 'Preserved r443 auto-collapse behavior, r442 contact_icon.png asset handling, and the measured Contacts detail visibility behavior.']},
