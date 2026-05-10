@@ -10681,7 +10681,7 @@ function _forceHomeDefaultView(reason){
         if(typeof _reapplyLastExternalReturnContext === 'function' && _reapplyLastExternalReturnContext(reason || 'force-home-guard')) return;
       }
     } catch(e){}
-    try { window._ootLastExternalRestoreContext = null; window._ootExternalRestoreLockUntil = 0; } catch(e){}
+    try { window._ootLastExternalRestoreContext = null; window._ootExternalRestoreLockUntil = 0; window._ootExternalRestoreNormalCloseAfter = 0; } catch(e){}
     if(typeof _clearExternalReturnContext === 'function') _clearExternalReturnContext(reason || 'force-home');
     _resetTransientUIForHomeDefault(reason || 'force-home');
     var hb = document.getElementById('tb-home');
@@ -10921,13 +10921,16 @@ var _ootExternalNavAt = 0;
 var _ootExternalHandoffSeen = false;
 var _ootExternalReturnTTL = 3 * 60 * 1000;
 var _ootExternalLaunchWindow = 8000;
-// r424: Android/PWA can emit multiple focus/pageshow/visibility events while
-// backing out of YouTube.  Keep a short restore-stabilization window after a
-// consumed app-launched external return so later lifecycle events do not
-// misclassify the same return as a normal reopen and force Home.
-var _ootExternalReturnStabilizeWindow = 45 * 1000;
+// r424/r433: Android/PWA can emit multiple focus/pageshow/visibility events while
+// backing out of YouTube/Lyrics/Discography. Keep only a brief restore-stabilization
+// window after a consumed app-launched external return. This must NOT become a
+// temporary state-persistence window after the user intentionally closes/reopens
+// the app from the restored menu.
+var _ootExternalReturnStabilizeWindow = 3200;
 var _ootLastExternalRestoreContext = null;
 var _ootExternalRestoreLockUntil = 0;
+var _ootExternalRestoreCleanupTimer = null;
+var _ootExternalRestoreNormalCloseAfter = 0;
 var _ootExternalStoreKey = 'oot_external_return_ctx';
 var _ootExternalDurableStoreKey = 'oot_external_return_ctx_durable';
 function _persistExternalReturnContext(ctx){
@@ -11005,6 +11008,20 @@ function _clearExternalReturnContext(reason){
   try { window._ootExternalHandoffSeen = false; } catch(e){}
   try { sessionStorage.removeItem(_ootExternalStoreKey); } catch(e){}
   try { localStorage.removeItem(_ootExternalDurableStoreKey); } catch(e){}
+}
+function _scheduleExternalRestoreLockCleanup(){
+  try {
+    if(window._ootExternalRestoreCleanupTimer) clearTimeout(window._ootExternalRestoreCleanupTimer);
+    window._ootExternalRestoreCleanupTimer = setTimeout(function(){
+      try {
+        if(window._ootExternalRestoreLockUntil && Date.now() > window._ootExternalRestoreLockUntil){
+          window._ootLastExternalRestoreContext = null;
+          window._ootExternalRestoreLockUntil = 0;
+          window._ootExternalRestoreNormalCloseAfter = 0;
+        }
+      } catch(e){}
+    }, Number(_ootExternalReturnStabilizeWindow || 0) + 250);
+  } catch(e){}
 }
 function _externalReturnAge(){
   try {
@@ -11107,6 +11124,10 @@ function _consumeExternalReturnContext(reason){
   window._ootLastExternalRestoreAt = Date.now();
   window._ootLastExternalRestoreContext = ctx;
   window._ootExternalRestoreLockUntil = Date.now() + _ootExternalReturnStabilizeWindow;
+  // r433: Give Android/PWA return noise a brief suppress window, then let a
+  // deliberate close/reopen behave as a normal app open to Home.
+  window._ootExternalRestoreNormalCloseAfter = Date.now() + 1200;
+  try { if(typeof _scheduleExternalRestoreLockCleanup === 'function') _scheduleExternalRestoreLockCleanup(); } catch(e){}
   try { sessionStorage.removeItem(_ootExternalStoreKey); } catch(e){}
   try { localStorage.removeItem(_ootExternalDurableStoreKey); } catch(e){}
   return ctx;
@@ -11155,6 +11176,7 @@ function _restoreExternalReturnContext(reason){
     [80, 350, 900, 1600, 3000].forEach(function(delay){
       setTimeout(function(){
         try {
+          if(!window._ootExternalRestoreLockUntil || Date.now() > window._ootExternalRestoreLockUntil) return;
           if(ctx.expandedSetlistId) window._expandedSetlistId = ctx.expandedSetlistId;
           if(ctx.tab === 'sets' && typeof rSets === 'function' && (!ctx.setsViewState || ctx.setsViewState === 'list')) rSets();
           if(ctx.tab === 'songs' && typeof rLib === 'function') rLib();
@@ -11191,6 +11213,7 @@ function _reapplyLastExternalReturnContext(reason){
     [0, 120, 450, 1000, 2200].forEach(function(delay){
       setTimeout(function(){
         try {
+          if(!window._ootExternalRestoreLockUntil || Date.now() > window._ootExternalRestoreLockUntil) return;
           if(ctx.expandedSetlistId) window._expandedSetlistId = ctx.expandedSetlistId;
           if(ctx.setsViewState && typeof setsViewState !== 'undefined') setsViewState = ctx.setsViewState;
           if(ctx.activeSetlistId && typeof aSL !== 'undefined') aSL = ctx.activeSetlistId;
@@ -11222,14 +11245,25 @@ function _isExternalRestoreShieldActive(){
 function _handleLateExternalRestoreLeaving(reason){
   try {
     if(!_isExternalRestoreShieldActive()) return false;
+    // r433: After the restored source screen has had a brief moment to settle,
+    // a new hide/pagehide/blur is much more likely to be the user intentionally
+    // closing the app than the original YouTube/Lyrics return chain. In that
+    // case, clear the external restore lock and let the normal Home-default
+    // lifecycle reset run.
+    if(window._ootExternalRestoreNormalCloseAfter && Date.now() >= window._ootExternalRestoreNormalCloseAfter){
+      window._ootLastExternalRestoreContext = null;
+      window._ootExternalRestoreLockUntil = 0;
+      window._ootExternalRestoreNormalCloseAfter = 0;
+      return false;
+    }
     if(typeof _cancelForceHomeDefaultTimers === 'function') _cancelForceHomeDefaultTimers();
     // r430: The phone-test evidence shows the correct source screen restores and
     // then Home takes over. That means this code path must be a suppress-only
     // shield after a successful app-launched external return. Do NOT branch on
     // document.visibilityState here: Android/PWA/YouTube can report hidden during
     // the noisy return chain even after the restored screen is visible to the
-    // user. Treat late blur/pagehide/visibility-hidden events inside this short
-    // lock as external-return noise, never as permission to force Home.
+    // user. Treat only the very brief post-restore cluster as external-return
+    // noise; after that, normal close/reopen must go Home.
     if(typeof _reapplyLastExternalReturnContext === 'function'){
       _reapplyLastExternalReturnContext((reason || 'lifecycle-leaving') + '-shield-suppress');
     }
@@ -24040,7 +24074,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-vote-suggestion-real-art-r432';
+var WHATS_NEW_VERSION = '2026-05-09-song-resource-normal-reopen-r433';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24333,6 +24367,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-song-resource-normal-reopen-r433', date:'May 9, 2026', importance:'fix', title:'Song resources normal reopen reset', items:['Fixed the quick-close/reopen case after returning from Lyrics, Discography, or Practice Reference: the app no longer treats that normal reopen as another external-return restore.', 'The external-return shield now acts only as a short stabilization window for noisy Android/PWA return events, not as temporary state persistence for the song options menu.', 'Confirmed r432 Vote on Suggestions artwork behavior and r430 external-return behavior are preserved; no Songs menu labels, navigation targets, voting, Setlists, or Firebase behavior was intentionally changed.']},
   {version:'2026-05-09-vote-suggestion-real-art-r432', date:'May 9, 2026', importance:'fix', title:'Vote suggestion real artwork source', items:['Vote on Suggestions artwork now prefers a submitted YouTube video thumbnail when a suggestion has a YouTube URL, then falls back to a matching library song and the shared iTunes artwork lookup.', 'This targets the placeholder-looking artwork in the Vote on Suggestions window only.', 'No album-art navigation, lifecycle return, voting, Setlists, Songs list, or Firebase data behavior was intentionally changed.']},
   {version:'2026-05-09-vote-suggestion-art-hydration-r431', date:'May 9, 2026', importance:'fix', title:'Vote suggestion artwork hydration', items:['Vote on Suggestions now runs the shared song-artwork loader after rendering suggestion cards, so the artwork can resolve to the actual album art instead of staying on the placeholder badge.', 'The submitted-URL and YouTube-search tap behavior is unchanged.', 'No lifecycle, tab-return, Setlists, Songs list, voting, or Firebase data behavior was intentionally changed.']},
   {version:'2026-05-09-external-return-shield-hardening-r430', date:'May 9, 2026', importance:'fix', title:'External return shield hardening', items:['Fixed the remaining flash-then-Home failure after returning from YouTube by removing the delayed hidden-state Home override inside the post-restore shield.', 'When Android/PWA reports late blur/pagehide/visibility-hidden noise after a successful app-launched external return, the app now suppresses that noise instead of treating it as a normal close.', 'Applies to the shared album-art YouTube return path used by Setlists, Songs list, and Song Suggestion vote-window artwork.']},
