@@ -26,6 +26,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r430: External-return post-restore shield hardening. Late hidden/blur/pagehide noise after YouTube return can no longer trigger delayed Home override. Upload as index.html after phone test. -->
 <!-- r429: External-return post-restore shield. Prevents late blur/pagehide/hidden events after successful YouTube return from overriding restored source tab with Home. Upload as index.html after phone test. -->
 <!-- r432: Vote on Suggestions real artwork source. Vote-window artwork now prefers submitted YouTube thumbnail/library match before iTunes fallback. Upload as index.html after phone test. -->
+<!-- r457: Version-marker correction for external save icon build. Bumps WHATS_NEW_VERSION so phone auto-update detects the build. Upload index.html plus save_icon.png after phone test. -->
 <!-- r456: Externalized calendar save icon asset. Save controls now reference save_icon.png instead of embedded base64. Upload index.html plus save_icon.png after phone test. -->
 <!-- r455: Calendar event save controls used an embedded save icon; superseded by r456 external asset. -->
 <!-- r449: Edit Saved Flyer static/no-bounce + visible top actions. Removes saved flyer modal bounce and forces the top flyer actions menu above the editor. Upload as index.html after phone test. -->
@@ -24903,7 +24904,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-band-contact-action-cluster-r454';
+var WHATS_NEW_VERSION = '2026-05-09-external-save-icon-r457';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -25196,7 +25197,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-09-band-contact-action-cluster-r454', date:'May 9, 2026', importance:'fix', title:'Band contact action cluster', items:['Band tab expanded contact details now place the blue edit pencil immediately to the left of the red trashcan at the bottom-right of the contact drawer.', 'The action buttons use a measured gap so edit and delete are visually grouped but still separated enough to reduce accidental taps.', 'No contact edit behavior, delete confirmation, Contacts open/collapse behavior, Calendar, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase data behavior was intentionally changed.']},
+  {version:'2026-05-09-external-save-icon-r457', date:'May 9, 2026', importance:'fix', title:'Band contact action cluster', items:['Band tab expanded contact details now place the blue edit pencil immediately to the left of the red trashcan at the bottom-right of the contact drawer.', 'The action buttons use a measured gap so edit and delete are visually grouped but still separated enough to reduce accidental taps.', 'No contact edit behavior, delete confirmation, Contacts open/collapse behavior, Calendar, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase data behavior was intentionally changed.']},
   {version:'2026-05-09-calendar-form-visuals-idate-actions-r453', date:'May 9, 2026', importance:'fix', title:'Calendar form visuals and Important Date actions', items:['New Gig and Blackout forms now use the same gold-label / dark-blue field visual language as the updated New Rehearsal page without changing the fields or save logic.', 'Custom / Important Date uses the same visual language and its bottom actions are now a green Save button on the left plus a red trash-can icon on the right when editing.', 'The Important Date delete confirmation and save behavior are unchanged.']},
   {version:'2026-05-09-calendar-new-gig-fit-r452', date:'May 9, 2026', importance:'fix', title:'Calendar new gig fit', items:['Calendar empty-date event chooser no longer shows right-side carets on Gig, Rehearsal, Blackout, or Custom; each full pill remains tappable.', 'Calendar empty-date → Gig → New Gig form is condensed and held static so the full New Gig display is intended to fit without scrolling.', 'No saved gig data model, event save behavior, Calendar body, Band, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase behavior was intentionally changed.']},
   {version:'2026-05-09-band-contact-edit-icon-r451', date:'May 9, 2026', importance:'fix', title:'Band contact edit icon', items:['Band tab expanded contact details now use a compact blue circular pencil icon for Edit instead of the older text Edit pill.', 'The contact edit modal still opens with the same fields populated, and the r450 red trashcan delete control remains bottom-right.', 'No Contacts drawer open/collapse behavior, contact_icon.png asset handling, lifecycle, Calendar, Songs, Setlists, Chat, Pay, or Firebase data model behavior was intentionally changed.']},
