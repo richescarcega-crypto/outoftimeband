@@ -16,6 +16,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
+<!-- r441: Band Contacts icon img restore. Uses real <img src="Contact%20Icon.png" with CSS fallback, removes remaining contact carets, and preserves r440 measured contact visibility. Upload as index.html after phone test. -->
 <!-- r440: Band Contacts caret removal and measured contact detail visibility. Removes contact-card carets, restores the Contacts icon via CSS background asset path, and measures the open drawer/detail space so expanded contact info stays above Add Contact. Upload as index.html after phone test. -->
 <!-- r439: Restore Band Contacts custom icon. Restores the right-side Contacts icon from GitHub asset while preserving r438 sticky expanded drawer behavior. Upload as index.html after phone test. -->
 <!-- r430: External-return post-restore shield hardening. Late hidden/blur/pagehide noise after YouTube return can no longer trigger delayed Home override. Upload as index.html after phone test. -->
@@ -1611,10 +1612,17 @@ body.light #sc-band.contacts-open #contacts-add-btn{background:linear-gradient(1
 #sc-band #contacts-pill.oot-band-contacts-pill > div:first-child{width:auto;min-width:0;flex:1;}
 #sc-band #contacts-pill.oot-band-contacts-pill .oot-expand-pill-icon.contact-photo{display:flex;flex:0 0 42px;width:42px;height:42px;min-width:42px;}
 #sc-band #contacts-pill.oot-band-contacts-pill .oot-expand-pill-icon.contact-photo.contact-icon-img{
-  background-image:url("Contact Icon.png?v=r440");
+  background-image:url("Contact%20Icon.png?v=r441");
   background-position:center;
   background-repeat:no-repeat;
   background-size:cover;
+}
+#sc-band #contacts-pill.oot-band-contacts-pill .oot-expand-pill-icon.contact-photo.contact-icon-img img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:12px;
 }
 #sc-band #contacts-pill.oot-band-contacts-pill:active{transform:translateY(1px);filter:brightness(1.08);}
 #sc-band.contacts-open #contacts-pill.oot-band-contacts-pill{border-color:rgba(245,197,24,.42);box-shadow:0 10px 22px rgba(0,0,0,.24),0 0 18px rgba(245,197,24,.12),inset 0 1px 0 rgba(255,255,255,.05);}
@@ -5979,7 +5987,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
       <div class="oot-expand-pill-title">CONTACTS</div>
       <div class="oot-expand-pill-sub" id="contacts-pill-sub">Tap to view phone numbers · emails · band contact info</div>
     </div>
-    <div class="oot-expand-pill-icon contact-photo contact-icon-img" aria-hidden="true"></div>
+    <div class="oot-expand-pill-icon contact-photo contact-icon-img" aria-hidden="true"><img src="Contact%20Icon.png?v=r441" alt="" loading="eager" decoding="async" onerror="this.onerror=null;this.src='Contact Icon.png?v=r441';"></div>
   </div>
   <div id="contacts-list"></div>
   <div id="contacts-add-btn"><button class="ab" onclick="opM('contact-modal')">+ Add Contact</button></div>
@@ -24252,7 +24260,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-band-contacts-visibility-r440';
+var WHATS_NEW_VERSION = '2026-05-09-band-contacts-icon-img-restore-r441';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
