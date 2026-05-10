@@ -16,6 +16,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
+<!-- r440: Band Contacts caret removal and measured contact detail visibility. Removes contact-card carets, restores the Contacts icon via CSS background asset path, and measures the open drawer/detail space so expanded contact info stays above Add Contact. Upload as index.html after phone test. -->
 <!-- r439: Restore Band Contacts custom icon. Restores the right-side Contacts icon from GitHub asset while preserving r438 sticky expanded drawer behavior. Upload as index.html after phone test. -->
 <!-- r430: External-return post-restore shield hardening. Late hidden/blur/pagehide noise after YouTube return can no longer trigger delayed Home override. Upload as index.html after phone test. -->
 <!-- r429: External-return post-restore shield. Prevents late blur/pagehide/hidden events after successful YouTube return from overriding restored source tab with Home. Upload as index.html after phone test. -->
@@ -1575,24 +1576,26 @@ body.light .oot-expand-pill-icon.contact-photo img{box-shadow:0 6px 14px rgba(20
 #setlists-menu-popup button svg,
 #band-roster-menu-popup button svg{flex-shrink:0;}
 
-/* r438: Band contacts expanded drawer positioning/visibility */
+/* r438/r440: Band contacts expanded drawer positioning/visibility */
 #sc-band.contacts-open #contacts-pill{
   position:sticky;
-  top:6px;
+  top:0;
   z-index:30;
-  margin-top:6px;
+  margin-top:0;
   background:linear-gradient(135deg,rgba(10,31,72,.98) 0%,rgba(5,17,39,.98) 64%,rgba(7,22,50,.98) 100%);
   backdrop-filter:blur(10px);
   -webkit-backdrop-filter:blur(10px);
 }
 #sc-band.contacts-open #contacts-list{
-  max-height:min(58vh,520px);
+  max-height:min(64vh,620px);
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
-  padding:6px 2px 2px;
+  overscroll-behavior:contain;
+  padding:6px 2px 92px;
   margin-top:8px;
   border-radius:14px;
   scroll-padding-top:8px;
+  scroll-padding-bottom:96px;
 }
 #sc-band.contacts-open #contacts-add-btn{
   position:sticky;
@@ -1603,10 +1606,16 @@ body.light .oot-expand-pill-icon.contact-photo img{box-shadow:0 6px 14px rgba(20
 }
 body.light #sc-band.contacts-open #contacts-pill{background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(245,247,251,.98));}
 body.light #sc-band.contacts-open #contacts-add-btn{background:linear-gradient(180deg,rgba(245,247,251,0),#f5f7fb 35%);}  
-/* r439: Restore the custom Contacts icon while preserving the r438 sticky expanded drawer behavior. */
+/* r439/r440: Restore the custom Contacts icon while preserving the sticky expanded drawer behavior. */
 #sc-band #contacts-pill.oot-band-contacts-pill{justify-content:space-between;padding:12px 14px;gap:12px;}
 #sc-band #contacts-pill.oot-band-contacts-pill > div:first-child{width:auto;min-width:0;flex:1;}
 #sc-band #contacts-pill.oot-band-contacts-pill .oot-expand-pill-icon.contact-photo{display:flex;flex:0 0 42px;width:42px;height:42px;min-width:42px;}
+#sc-band #contacts-pill.oot-band-contacts-pill .oot-expand-pill-icon.contact-photo.contact-icon-img{
+  background-image:url("Contact Icon.png?v=r440");
+  background-position:center;
+  background-repeat:no-repeat;
+  background-size:cover;
+}
 #sc-band #contacts-pill.oot-band-contacts-pill:active{transform:translateY(1px);filter:brightness(1.08);}
 #sc-band.contacts-open #contacts-pill.oot-band-contacts-pill{border-color:rgba(245,197,24,.42);box-shadow:0 10px 22px rgba(0,0,0,.24),0 0 18px rgba(245,197,24,.12),inset 0 1px 0 rgba(255,255,255,.05);}
 
@@ -5970,7 +5979,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
       <div class="oot-expand-pill-title">CONTACTS</div>
       <div class="oot-expand-pill-sub" id="contacts-pill-sub">Tap to view phone numbers · emails · band contact info</div>
     </div>
-    <div class="oot-expand-pill-icon contact-photo" aria-hidden="true"><img src="Contact%20Icon.png?v=r439" alt=""></div>
+    <div class="oot-expand-pill-icon contact-photo contact-icon-img" aria-hidden="true"></div>
   </div>
   <div id="contacts-list"></div>
   <div id="contacts-add-btn"><button class="ab" onclick="opM('contact-modal')">+ Add Contact</button></div>
@@ -15669,22 +15678,80 @@ function toggleCard(contentId, arrowId) {
 }
 
 
+function _layoutBandContactsDrawer(){
+  // r440: Use actual rendered measurements, not a guessed drawer height.
+  try{
+    var sc = document.getElementById('sc-band');
+    var pill = document.getElementById('contacts-pill');
+    var list = document.getElementById('contacts-list');
+    var addBtn = document.getElementById('contacts-add-btn');
+    if(!sc || !pill || !list || !addBtn || !sc.classList.contains('contacts-open')) return;
+    var scRect = sc.getBoundingClientRect();
+    var pillRect = pill.getBoundingClientRect();
+    var addH = Math.max(56, addBtn.offsetHeight || 0);
+    var available = Math.floor(scRect.bottom - pillRect.bottom - addH - 18);
+    if(!isFinite(available) || available < 220) available = Math.floor(window.innerHeight * 0.52);
+    var maxH = Math.max(240, Math.min(available, Math.floor(window.innerHeight * 0.66), 620));
+    list.style.maxHeight = maxH + 'px';
+    list.style.paddingBottom = (addH + 22) + 'px';
+    list.style.scrollPaddingBottom = (addH + 26) + 'px';
+  }catch(e){}
+}
+
 function _scrollBandContactsIntoView(){
-  // r438: CONTACTS opens near the top of the Band tab so the expanded list is usable.
+  // r438/r440: CONTACTS opens near the top of the Band tab so the expanded list is usable.
   // Run twice because mobile layout height can settle after the drawer becomes visible.
   function doScroll(){
     try{
       var sc = document.getElementById('sc-band');
       var pill = document.getElementById('contacts-pill');
       if(!sc || !pill) return;
-      var top = Math.max(0, pill.offsetTop - 6);
+      var top = Math.max(0, pill.offsetTop - 2);
       if(typeof sc.scrollTo === 'function') sc.scrollTo({top: top, behavior: 'auto'});
       else sc.scrollTop = top;
+      _layoutBandContactsDrawer();
     }catch(e){}
   }
   setTimeout(doScroll, 40);
   setTimeout(doScroll, 220);
 }
+
+function _scrollBandContactDetailIntoView(contactId){
+  // r440: When an individual contact opens, measure the actual card/list/add-button
+  // positions and scroll the list enough to keep the opened details above Add Contact.
+  function doScroll(){
+    try{
+      _layoutBandContactsDrawer();
+      var list = document.getElementById('contacts-list');
+      if(!list) return;
+      var cards = list.querySelectorAll('[data-contact-id]');
+      var card = null;
+      for(var i=0;i<cards.length;i++){
+        if(String(cards[i].getAttribute('data-contact-id')) === String(contactId)){ card = cards[i]; break; }
+      }
+      if(!card) return;
+      var listRect = list.getBoundingClientRect();
+      var cardRect = card.getBoundingClientRect();
+      var topPad = 8;
+      var bottomPad = 14;
+      if(cardRect.bottom > listRect.bottom - bottomPad){
+        list.scrollTop += Math.ceil(cardRect.bottom - listRect.bottom + bottomPad);
+      }
+      if(cardRect.top < listRect.top + topPad){
+        list.scrollTop -= Math.ceil(listRect.top + topPad - cardRect.top);
+      }
+    }catch(e){}
+  }
+  setTimeout(doScroll, 40);
+  setTimeout(doScroll, 180);
+}
+
+window.addEventListener('resize', function(){
+  try{
+    var sc = document.getElementById('sc-band');
+    if(sc && sc.classList.contains('contacts-open')) _layoutBandContactsDrawer();
+  }catch(e){}
+});
 
 
 function _scrollCalendarSectionIntoView(contentId){
@@ -22536,6 +22603,7 @@ function rContacts() {
     var isOpen = !cardStates['ct_'+c.id];
     var card = document.createElement('div');
     card.className = 'mc';
+    card.setAttribute('data-contact-id', String(c.id));
     card.style.cssText = 'padding:0;overflow:hidden;margin-bottom:8px;';
 
     // Header - always visible
@@ -22545,13 +22613,14 @@ function rContacts() {
       '<div style="flex:1;min-width:0;display:flex;align-items:center;gap:8px;">'+
         '<span style="font-size:13px;font-weight:600;color:#e8f0ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%;">'+c.name+'</span>'+
         '<span style="font-size:11px;color:#f5c518;font-family:Russo One,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;">'+c.role+'</span>'+
-      '</div>'+
-      '<span style="color:#f5c518;font-size:14px;flex-shrink:0;">&#8964;</span>';
+      '</div>';
     header.setAttribute('data-cid2', c.id);
     header.onclick = function(){
       var id = this.getAttribute('data-cid2');
+      var willOpen = !!cardStates['ct_'+id];
       cardStates['ct_'+id] = !cardStates['ct_'+id];
       rContacts();
+      if(willOpen && typeof _scrollBandContactDetailIntoView === 'function') _scrollBandContactDetailIntoView(id);
     };
     card.appendChild(header);
 
@@ -24183,7 +24252,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-band-contacts-icon-restore-r439';
+var WHATS_NEW_VERSION = '2026-05-09-band-contacts-visibility-r440';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24476,6 +24545,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-band-contacts-visibility-r440', date:'May 9, 2026', importance:'fix', title:'Band Contacts visibility cleanup', items:['Removed the caret from individual contact rows in the Band CONTACTS list.', 'Changed the Contacts icon from a broken-img element to a CSS background image using the existing GitHub asset Contact Icon.png.', 'Measured the CONTACTS drawer, contact list, and Add Contact button at runtime so expanded contact details scroll above Add Contact instead of being hidden behind it.']},
   {version:'2026-05-09-band-contacts-icon-restore-r439', date:'May 9, 2026', importance:'minor', title:'Band Contacts icon restored', items:['Restored the custom Contacts icon on the Band CONTACTS pill using the GitHub asset Contact Icon.png.', 'Preserved r438 behavior: CONTACTS opens higher on the Band tab, the header stays sticky, and the contacts list remains scrollable.', 'No lifecycle, external-return, Songs, Setlists, Calendar, Pay, Chat, Firebase, or contact-data behavior was intentionally changed.']},
   {version:'2026-05-09-band-contacts-pill-cleanup-r437', date:'May 9, 2026', importance:'minor', title:'Band Contacts pill cleanup', items:['Band tab CONTACTS now uses the same full-card tap language as the Calendar bottom sections.', 'Removed the right-side contact thumbnail/icon so the card is clean and does not depend on a caret-style affordance.', 'No lifecycle, external-return, Setlists, Songs, Calendar, Pay, Chat, Firebase, or notification behavior was intentionally changed.']},
   {version:'2026-05-09-armed-external-return-defer-r436', date:'May 9, 2026', importance:'fix', title:'Armed external return defer', items:['Prevents early focus/pageshow/init noise immediately after an album-art tap from falling through to the Home-default lifecycle path and deleting the pending YouTube return payload.', 'Keeps r435 explicit source-context payloads for Setlists, Songs, and Vote on Suggestions artwork while making the pending-return guard safer and more deterministic.', 'No UI, voting, Firebase, artwork-source, or external URL target behavior was intentionally changed.']},
