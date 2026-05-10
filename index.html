@@ -26,6 +26,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r430: External-return post-restore shield hardening. Late hidden/blur/pagehide noise after YouTube return can no longer trigger delayed Home override. Upload as index.html after phone test. -->
 <!-- r429: External-return post-restore shield. Prevents late blur/pagehide/hidden events after successful YouTube return from overriding restored source tab with Home. Upload as index.html after phone test. -->
 <!-- r432: Vote on Suggestions real artwork source. Vote-window artwork now prefers submitted YouTube thumbnail/library match before iTunes fallback. Upload as index.html after phone test. -->
+<!-- r458: Calendar save icon sizing/Important Date cleanup. Shrinks save icon 50%, removes old Important Date green-save underlay, and gives New Gig form safer bottom clearance. Upload index.html plus save_icon.png after phone test. -->
 <!-- r457: Version-marker correction for external save icon build. Bumps WHATS_NEW_VERSION so phone auto-update detects the build. Upload index.html plus save_icon.png after phone test. -->
 <!-- r456: Externalized calendar save icon asset. Save controls now reference save_icon.png instead of embedded base64. Upload index.html plus save_icon.png after phone test. -->
 <!-- r455: Calendar event save controls used an embedded save icon; superseded by r456 external asset. -->
@@ -694,7 +695,7 @@ body.light #cal-drawer.backstage-pass .cal-flyer-thumb-help{color:#3a4a6a !impor
 .chat-thread-open-btn:hover{background:rgba(19,40,72,.9);}
 .chat-hero-tap-hint{display:none;}
 #chat-threads{padding:0 12px 14px;background:transparent !important;}
-#chat-threads > div{margin:0 0 8px !important;border:1px solid rgba(74,158,255,.18) !important;border-left:1px solid rgba(74,158,255,.18) !important;border-radius:16px !important;background:linear-gradient(135deg,rgba(16,30,52,.96),rgba(8,18,37,.96)) !important;box-shadow:0 8px 16px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.04) !important;}
+#chat-threads > div{margin:0 0 8px !important;border:1px solid rgba(74,158,255,.18) !important;border-left:1px solid rgba(74,158,255,.18) !important;border-radius:8px !important;background:linear-gradient(135deg,rgba(16,30,52,.96),rgba(8,18,37,.96)) !important;box-shadow:0 8px 16px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.04) !important;}
 #chat-threads > div:hover{background:linear-gradient(135deg,rgba(21,42,76,.98),rgba(10,23,48,.98)) !important;}
 #chat-threads .chat-band-divider{margin:16px auto 16px !important;width:min(78%,310px) !important;height:3px !important;border:0 !important;border-radius:999px !important;background:linear-gradient(90deg,transparent 0%,rgba(245,197,24,.35) 14%,#f5c518 50%,rgba(245,197,24,.35) 86%,transparent 100%) !important;box-shadow:0 0 14px rgba(245,197,24,.42),0 0 4px rgba(255,255,255,.18) !important;padding:0 !important;flex:0 0 auto !important;}
 #chat-threads .chat-thread-row.chat-band-row{margin-bottom:0 !important;}
@@ -707,7 +708,7 @@ body.light #cal-drawer.backstage-pass .cal-flyer-thumb-help{color:#3a4a6a !impor
 #cmsgs{background:radial-gradient(circle at 50% 0%,rgba(245,197,24,.12),transparent 28%),linear-gradient(180deg,#203b72 0%,#172b55 48%,#101f3f 100%) !important;}
 .chat-photo-avatar{overflow:hidden;background:rgba(5,15,34,.7) !important;border:1px solid rgba(245,197,24,.24);}
 .chat-photo-avatar img{width:100%;height:100%;object-fit:contain;display:block;}
-.chat-band-row-avatar{width:58px !important;height:44px !important;border-radius:14px !important;background:rgba(5,15,34,.72) !important;border:1px solid rgba(245,197,24,.36) !important;box-shadow:0 8px 18px rgba(0,0,0,.28),0 0 16px rgba(245,197,24,.12) !important;overflow:hidden !important;}
+.chat-band-row-avatar{width:29px !important;height:44px !important;border-radius:14px !important;background:rgba(5,15,34,.72) !important;border:1px solid rgba(245,197,24,.36) !important;box-shadow:0 8px 18px rgba(0,0,0,.28),0 0 16px rgba(245,197,24,.12) !important;overflow:hidden !important;}
 .chat-band-row-avatar img{width:100%;height:100%;object-fit:cover;object-position:center 28%;display:block;}
 .chat-hero-tap-hint{display:none;}
 
@@ -749,7 +750,7 @@ body.light #cmsgs{background:linear-gradient(180deg,#f7f9ff,#eef3ff) !important;
 .r2{display:flex;gap:8px;}
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:none;align-items:center;justify-content:center;padding:16px;overflow-y:auto;}
 .ov.on{display:flex;}
-.mo{background:var(--n2);border-radius:16px;padding:18px 14px 24px;width:100%;max-width:460px;max-height:75vh;overflow-y:auto;border:1px solid var(--b);margin:auto;}
+.mo{background:var(--n2);border-radius:8px;padding:18px 14px 24px;width:100%;max-width:460px;max-height:75vh;overflow-y:auto;border:1px solid var(--b);margin:auto;}
 .moh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
 .mot{font-family:"Russo One",sans-serif;font-size:17px;letter-spacing:1px;color:#fff;}
 .mi{background:#060e1c;border:1px solid var(--b);border-radius:8px;padding:9px 12px;color:#e8f0ff;font-size:13px;width:100%;margin-bottom:8px;font-family:"Exo 2",sans-serif;}
@@ -790,7 +791,7 @@ body.light #cmsgs{background:linear-gradient(180deg,#f7f9ff,#eef3ff) !important;
   transform-origin:center center !important;
   pointer-events:none !important;
   z-index:1 !important;
-  border-radius:16px !important;
+  border-radius:8px !important;
 }
 #home-social-row a{
   position:relative !important;
@@ -1073,12 +1074,12 @@ body.light #cmsgs{background:linear-gradient(180deg,#f7f9ff,#eef3ff) !important;
 #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-detail{font-size:10px;line-height:1.15;margin-top:3px;}
 @media (max-width:420px){
   #sc-cal #calendar-hero-date-row{gap:8px;margin-top:8px;}
-  #sc-cal #calendar-hero-date-row #calendar-hero-date-nav{flex-basis:100%;padding:6px 8px !important;border-radius:16px !important;}
+  #sc-cal #calendar-hero-date-row #calendar-hero-date-nav{flex-basis:100%;padding:6px 8px !important;border-radius:8px !important;}
   #sc-cal #calendar-hero-date-row .mlbl{font-size:15px !important;letter-spacing:3.1px !important;}
   #sc-cal #calendar-hero-today{min-width:70px;height:28px;font-size:10px;padding:0 12px;}
   #sc-cal #calendar-hero-date-row .calendar-hero-arrow,#sc-cal #calendar-hero-date-row #cnav-right-slot .calendar-hero-arrow{width:30px !important;height:30px !important;min-width:30px !important;font-size:25px !important;}
   #sc-cal #calendar-hero-date-row #cnav-right-slot{width:30px !important;height:30px !important;}
-  #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-card{padding:9px 10px 9px 40px;border-radius:16px;}
+  #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-card{padding:9px 10px 9px 40px;border-radius:8px;}
   #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-card:after{left:11px;font-size:19px;}
   #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-title{font-size:11px;}
   #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-detail{font-size:9px;}
@@ -1174,7 +1175,7 @@ body.light #sc-cal #calendar-hero-date-row .calendar-hero-arrow{color:#1a3a8a !i
   .song-filter-pill{padding:10px 14px;font-size:12px;}
   .song-lib-card,.song-set-row{border-radius:20px !important;}
   .song-card-shell{gap:12px;}
-  .song-badge-box{width:58px;height:58px;min-width:58px;border-radius:16px;}
+  .song-badge-box{width:58px;height:58px;min-width:58px;border-radius:8px;}
   .song-badge-glyph{font-size:28px;}
   .song-badge-label{font-size:22px;}
   .song-badge-sub{font-size:6px;bottom:5px;}
@@ -2651,7 +2652,7 @@ body.light #whats-new-card [style*="color:#aaa"]{
   #sc-cal #calendar-hero-today{min-width:58px;height:20px;font-size:9px;padding:0 9px;}
   #sc-cal #calendar-hero-date-row .calendar-hero-arrow,#sc-cal #calendar-hero-date-row #cnav-right-slot .calendar-hero-arrow{width:29px !important;height:29px !important;min-width:29px !important;font-size:30px !important;}
   #sc-cal #calendar-hero-date-row #cnav-right-slot{width:29px !important;height:29px !important;}
-  #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-card{min-height:58px;border-radius:16px;padding:8px 10px;gap:9px;}
+  #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-card{min-height:58px;border-radius:8px;padding:8px 10px;gap:9px;}
   #sc-cal #calendar-hero-date-row .cal-next-up-icon{flex-basis:29px;width:29px;height:29px;}
   #sc-cal #calendar-hero-date-row .cal-next-up-icon svg{width:29px;height:29px;}
   #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-kicker{font-size:12px;}
@@ -2713,7 +2714,7 @@ body.light #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-detai
   padding:10px 11px !important;
   margin:0 !important;
   overflow:visible !important;
-  border-radius:16px !important;
+  border-radius:8px !important;
   background:linear-gradient(135deg,rgba(5,18,48,.98),rgba(9,31,78,.98)) !important;
   border:1px solid rgba(74,158,255,.46) !important;
   box-shadow:0 14px 30px rgba(0,0,0,.42),0 0 20px rgba(0,128,255,.22),inset 0 1px 0 rgba(255,255,255,.06) !important;
@@ -3000,7 +3001,7 @@ body.light #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-card{
   top:-28px !important;
   right:-18px !important;
   width:115px !important;
-  height:58px !important;
+  height:29px !important;
   background:radial-gradient(circle,rgba(245,197,24,.22),transparent 64%) !important;
 }
 #sc-cal #calendar-hero-date-row #cal-stage-summary .cal-next-up-card:after{
@@ -5298,7 +5299,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   line-height:1.15 !important;
 }
 #gig-detail-modal.r368-fit-rehearsal #gd-body textarea{height:38px !important;resize:none !important;}
-#gig-detail-modal.r368-fit-rehearsal #rh-agenda-list{max-height:58px !important;overflow:hidden !important;margin-bottom:4px !important;}
+#gig-detail-modal.r368-fit-rehearsal #rh-agenda-list{max-height:29px !important;overflow:hidden !important;margin-bottom:4px !important;}
 #gig-detail-modal.r368-fit-rehearsal #rh-agenda-list > div{padding:3px 5px !important;margin-bottom:2px !important;}
 #gig-detail-modal.r368-fit-rehearsal #gd-body button{padding:7px 8px !important;font-size:8px !important;}
 @media(max-height:740px){
@@ -5832,7 +5833,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 #gig-detail-modal.r368-fit-gig .r366-gig-flyer-card{
   margin:0 !important;
   min-height:52px !important;
-  max-height:58px !important;
+  max-height:29px !important;
   padding:7px 8px !important;
   border-radius:12px !important;
   flex-shrink:0 !important;
@@ -6228,23 +6229,23 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   border:none !important;
   background:transparent !important;
   box-shadow:none !important;
-  width:58px !important;
-  height:58px !important;
-  min-width:58px !important;
+  width:29px !important;
+  height:29px !important;
+  min-width:29px !important;
   padding:0 !important;
-  margin:10px auto 0 !important;
+  margin:8px auto 0 !important;
   display:inline-flex !important;
   align-items:center;
   justify-content:center;
   cursor:pointer;
-  border-radius:16px !important;
+  border-radius:8px !important;
   line-height:0;
 }
 .r455-save-icon-btn img{
-  width:58px;
-  height:58px;
+  width:29px;
+  height:29px;
   display:block;
-  border-radius:16px;
+  border-radius:8px;
   pointer-events:none;
   user-select:none;
   -webkit-user-drag:none;
@@ -6266,6 +6267,32 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 }
 #idate-action-row .r455-save-icon-btn{
   margin:0 !important;
+}
+
+
+/* r458: Important Date save icon must not inherit the old green Save pill styling. */
+#idate-modal.r453-idate-visual #idate-action-row.r453-idate-actions #idate-save-btn.r455-save-icon-btn{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  color:inherit !important;
+  padding:0 !important;
+  min-width:29px !important;
+  width:29px !important;
+  height:29px !important;
+  border-radius:8px !important;
+  flex:0 0 29px !important;
+}
+#idate-modal.r453-idate-visual #idate-action-row.r453-idate-actions #idate-save-btn.r455-save-icon-btn img{
+  width:29px !important;
+  height:29px !important;
+  border-radius:8px !important;
+}
+#gig-detail-modal.r452-new-gig-form #gd-body{
+  padding-bottom:10px !important;
+}
+#gig-detail-modal.r452-new-gig-form .r455-save-icon-btn{
+  margin-top:10px !important;
 }
 
 </style>
@@ -6321,7 +6348,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   </div>
   <div id="no-gigs-card" style="display:none;background:#060e1c;border-radius:12px;padding:16px;margin-bottom:10px;text-align:center;border:2px solid rgba(245,197,24,1);box-shadow:0 0 30px rgba(245,197,24,.4),inset 0 0 30px rgba(10,22,40,.8);"></div>
   <!-- r76: Home schedule cards removed; Calendar is the schedule source of truth. -->
-  <div id="home-social-row" style="position:relative;display:flex;flex-direction:row;justify-content:flex-end;align-items:flex-end;gap:12px;padding:4px 10px 2px 10px;min-height:0;height:auto;flex:1 1 auto;margin-top:-2px;margin-bottom:0;overflow:hidden;border-radius:16px;border:1px solid rgba(245,197,24,.28);box-shadow:0 0 24px rgba(74,158,255,.16),inset 0 1px 0 rgba(255,255,255,.04);">
+  <div id="home-social-row" style="position:relative;display:flex;flex-direction:row;justify-content:flex-end;align-items:flex-end;gap:12px;padding:4px 10px 2px 10px;min-height:0;height:auto;flex:1 1 auto;margin-top:-2px;margin-bottom:0;overflow:hidden;border-radius:8px;border:1px solid rgba(245,197,24,.28);box-shadow:0 0 24px rgba(74,158,255,.16),inset 0 1px 0 rgba(255,255,255,.04);">
     <a href="https://www.facebook.com/profile.php?id=61565057075702&mibextid=ZbWKwL" target="_blank" rel="noopener noreferrer" onclick="event.preventDefault();_openExternalUrl(this.href);" title="Facebook" aria-label="Facebook" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#1877f2;text-decoration:none;box-shadow:0 0 12px rgba(24,119,242,.3);">
       <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M13.5 21v-7.5h2.55l.38-2.94h-2.93V8.7c0-.85.24-1.43 1.46-1.43h1.55V4.66c-.27-.04-1.19-.12-2.27-.12-2.24 0-3.78 1.37-3.78 3.88v2.16H7.92v2.94h2.54V21h3.04z" fill="#fff"/></svg>
     </a>
@@ -6859,7 +6886,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 
 <!-- WHAT'S NEW MODAL -->
 <div id="whats-new-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:9300;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;opacity:0;transition:opacity .18s ease-out;overflow-y:auto;cursor:pointer;">
-  <div id="whats-new-card" style="background:var(--n2);border:1px solid #4a9eff;border-radius:16px;padding:18px 20px 16px;max-width:440px;width:100%;margin:auto;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 0 1px rgba(74,158,255,.18);transform:scale(.92);opacity:0;transition:transform .2s ease-out,opacity .2s ease-out;position:relative;cursor:default;">
+  <div id="whats-new-card" style="background:var(--n2);border:1px solid #4a9eff;border-radius:8px;padding:18px 20px 16px;max-width:440px;width:100%;margin:auto;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 0 1px rgba(74,158,255,.18);transform:scale(.92);opacity:0;transition:transform .2s ease-out,opacity .2s ease-out;position:relative;cursor:default;">
     <!-- r220: standard close-control cleanup — compact top-right X, no bottom close pill. -->
     <button id="whats-new-skip-pill" onclick="dismissWhatsNew()" aria-label="Close What's New" style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:rgba(74,158,255,.10);border:1px solid rgba(74,158,255,.26);color:#8aa8d6;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;touch-action:manipulation;line-height:1;box-shadow:inset 0 1px 0 rgba(255,255,255,.06);">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
@@ -24904,7 +24931,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-external-save-icon-r457';
+var WHATS_NEW_VERSION = '2026-05-09-save-icon-size-cleanup-r458';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -25038,7 +25065,7 @@ function _showCriticalUpdateOverlay(deployedVer){
   ov.style.cssText = 'position:fixed;inset:0;z-index:10040;background:rgba(3,8,18,.94);'+
     'display:flex;align-items:center;justify-content:center;padding:22px;color:#e8f0ff;';
   ov.innerHTML =
-    '<div style="width:100%;max-width:390px;background:linear-gradient(135deg,#071f1a,#0a1628 58%,#082b24);border:1px solid rgba(6,214,160,.75);border-radius:16px;padding:20px;box-shadow:0 18px 60px rgba(0,0,0,.55),0 0 28px rgba(6,214,160,.16);text-align:center;">'+
+    '<div style="width:100%;max-width:390px;background:linear-gradient(135deg,#071f1a,#0a1628 58%,#082b24);border:1px solid rgba(6,214,160,.75);border-radius:8px;padding:20px;box-shadow:0 18px 60px rgba(0,0,0,.55),0 0 28px rgba(6,214,160,.16);text-align:center;">'+
       '<div style="font-family:Russo One,sans-serif;font-size:18px;color:#06d6a0;letter-spacing:1px;margin-bottom:8px;">A FRESH UPDATE IS READY</div>'+
       '<div style="font-size:13px;line-height:1.45;color:#c8d4e6;margin-bottom:14px;">Good news — a fresh Out of Time update is ready for your phone. Tap below to bring in the newest fixes, polish, and rehearsal tools.</div>'+
       '<div style="background:#060e1c;border:1px solid #1a3a8a;border-radius:10px;padding:10px;margin-bottom:10px;text-align:left;font-size:11px;line-height:1.5;">'+
@@ -25197,7 +25224,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-09-external-save-icon-r457', date:'May 9, 2026', importance:'fix', title:'Band contact action cluster', items:['Band tab expanded contact details now place the blue edit pencil immediately to the left of the red trashcan at the bottom-right of the contact drawer.', 'The action buttons use a measured gap so edit and delete are visually grouped but still separated enough to reduce accidental taps.', 'No contact edit behavior, delete confirmation, Contacts open/collapse behavior, Calendar, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase data behavior was intentionally changed.']},
+  {version:'2026-05-09-save-icon-size-cleanup-r458', date:'May 9, 2026', importance:'fix', title:'Save icon size corrected', items:['Calendar save icons are now 50% smaller on Gig, Rehearsal, Blackout, and Custom forms.', 'The Custom / Important Date form no longer shows the old green Save pill under the new save icon.', 'New Gig gets safer bottom clearance so the save icon does not overlap the Notes field.']},
+{version:'2026-05-09-save-icon-size-cleanup-r458', date:'May 9, 2026', importance:'fix', title:'Band contact action cluster', items:['Band tab expanded contact details now place the blue edit pencil immediately to the left of the red trashcan at the bottom-right of the contact drawer.', 'The action buttons use a measured gap so edit and delete are visually grouped but still separated enough to reduce accidental taps.', 'No contact edit behavior, delete confirmation, Contacts open/collapse behavior, Calendar, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase data behavior was intentionally changed.']},
   {version:'2026-05-09-calendar-form-visuals-idate-actions-r453', date:'May 9, 2026', importance:'fix', title:'Calendar form visuals and Important Date actions', items:['New Gig and Blackout forms now use the same gold-label / dark-blue field visual language as the updated New Rehearsal page without changing the fields or save logic.', 'Custom / Important Date uses the same visual language and its bottom actions are now a green Save button on the left plus a red trash-can icon on the right when editing.', 'The Important Date delete confirmation and save behavior are unchanged.']},
   {version:'2026-05-09-calendar-new-gig-fit-r452', date:'May 9, 2026', importance:'fix', title:'Calendar new gig fit', items:['Calendar empty-date event chooser no longer shows right-side carets on Gig, Rehearsal, Blackout, or Custom; each full pill remains tappable.', 'Calendar empty-date → Gig → New Gig form is condensed and held static so the full New Gig display is intended to fit without scrolling.', 'No saved gig data model, event save behavior, Calendar body, Band, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase behavior was intentionally changed.']},
   {version:'2026-05-09-band-contact-edit-icon-r451', date:'May 9, 2026', importance:'fix', title:'Band contact edit icon', items:['Band tab expanded contact details now use a compact blue circular pencil icon for Edit instead of the older text Edit pill.', 'The contact edit modal still opens with the same fields populated, and the r450 red trashcan delete control remains bottom-right.', 'No Contacts drawer open/collapse behavior, contact_icon.png asset handling, lifecycle, Calendar, Songs, Setlists, Chat, Pay, or Firebase data model behavior was intentionally changed.']},
@@ -26375,7 +26403,7 @@ if(savedName&&savedId){
 
 <!-- CUSTOM CONFIRM DIALOG -->
 <div id="app-confirm" style="position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:rgba(0,0,0,.82);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);z-index:9000;display:none;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">
-  <div id="app-confirm-card" style="background:var(--n2);border:1px solid #4a9eff;border-radius:16px;padding:26px 24px;max-width:420px;width:100%;margin:auto;box-shadow:0 24px 80px rgba(0,0,0,.75),0 0 0 1px rgba(74,158,255,.18);transform:scale(.92);opacity:0;transition:transform .2s ease-out,opacity .2s ease-out;">
+  <div id="app-confirm-card" style="background:var(--n2);border:1px solid #4a9eff;border-radius:8px;padding:26px 24px;max-width:420px;width:100%;margin:auto;box-shadow:0 24px 80px rgba(0,0,0,.75),0 0 0 1px rgba(74,158,255,.18);transform:scale(.92);opacity:0;transition:transform .2s ease-out,opacity .2s ease-out;">
     <div id="app-confirm-icon" style="display:flex;align-items:center;justify-content:center;width:60px;height:60px;border-radius:50%;background:rgba(255,71,87,.16);margin-bottom:18px;box-shadow:0 0 24px rgba(255,71,87,.25);">
       <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" focusable="false"><path d="M3 6h18v2H3V6zm3 3h12l-1 12H7L6 9zm3-6h6v2H9V3z" fill="#ff4757"/></svg>
     </div>
