@@ -26,6 +26,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r430: External-return post-restore shield hardening. Late hidden/blur/pagehide noise after YouTube return can no longer trigger delayed Home override. Upload as index.html after phone test. -->
 <!-- r429: External-return post-restore shield. Prevents late blur/pagehide/hidden events after successful YouTube return from overriding restored source tab with Home. Upload as index.html after phone test. -->
 <!-- r432: Vote on Suggestions real artwork source. Vote-window artwork now prefers submitted YouTube thumbnail/library match before iTunes fallback. Upload as index.html after phone test. -->
+<!-- r459: Calendar save icon right-align and 10% size increase. Save icon is 32px and right-aligned on Gig, Rehearsal, Blackout, and Custom forms. Upload index.html plus save_icon.png after phone test. -->
 <!-- r458: Calendar save icon sizing/Important Date cleanup. Shrinks save icon 50%, removes old Important Date green-save underlay, and gives New Gig form safer bottom clearance. Upload index.html plus save_icon.png after phone test. -->
 <!-- r457: Version-marker correction for external save icon build. Bumps WHATS_NEW_VERSION so phone auto-update detects the build. Upload index.html plus save_icon.png after phone test. -->
 <!-- r456: Externalized calendar save icon asset. Save controls now reference save_icon.png instead of embedded base64. Upload index.html plus save_icon.png after phone test. -->
@@ -6293,6 +6294,41 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 }
 #gig-detail-modal.r452-new-gig-form .r455-save-icon-btn{
   margin-top:10px !important;
+}
+
+
+/* r459: Save icon 10% larger than r458 and right-aligned on Calendar event forms. */
+.r455-save-icon-btn{
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+  flex:0 0 32px !important;
+  margin:8px 0 0 auto !important;
+  border-radius:9px !important;
+}
+.r455-save-icon-btn img{
+  width:32px !important;
+  height:32px !important;
+  border-radius:9px !important;
+}
+.r455-save-icon-btn.r455-save-inline{
+  margin:0 0 0 auto !important;
+}
+#idate-modal.r453-idate-visual #idate-action-row.r453-idate-actions{
+  justify-content:flex-end !important;
+}
+#idate-modal.r453-idate-visual #idate-action-row.r453-idate-actions #idate-save-btn.r455-save-icon-btn{
+  min-width:32px !important;
+  width:32px !important;
+  height:32px !important;
+  flex:0 0 32px !important;
+  border-radius:9px !important;
+  margin-left:auto !important;
+}
+#idate-modal.r453-idate-visual #idate-action-row.r453-idate-actions #idate-save-btn.r455-save-icon-btn img{
+  width:32px !important;
+  height:32px !important;
+  border-radius:9px !important;
 }
 
 </style>
@@ -24931,7 +24967,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-save-icon-size-cleanup-r458';
+var WHATS_NEW_VERSION = '2026-05-09-save-icon-right-align-r459';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -25224,8 +25260,9 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-09-save-icon-size-cleanup-r458', date:'May 9, 2026', importance:'fix', title:'Save icon size corrected', items:['Calendar save icons are now 50% smaller on Gig, Rehearsal, Blackout, and Custom forms.', 'The Custom / Important Date form no longer shows the old green Save pill under the new save icon.', 'New Gig gets safer bottom clearance so the save icon does not overlap the Notes field.']},
-{version:'2026-05-09-save-icon-size-cleanup-r458', date:'May 9, 2026', importance:'fix', title:'Band contact action cluster', items:['Band tab expanded contact details now place the blue edit pencil immediately to the left of the red trashcan at the bottom-right of the contact drawer.', 'The action buttons use a measured gap so edit and delete are visually grouped but still separated enough to reduce accidental taps.', 'No contact edit behavior, delete confirmation, Contacts open/collapse behavior, Calendar, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase data behavior was intentionally changed.']},
+  {version:'2026-05-09-save-icon-right-align-r459', date:'May 9, 2026', importance:'fix', title:'Calendar save icon aligned right', items:['Calendar save icons are now about 10% larger than r458.', 'Gig, Rehearsal, Blackout, and Custom event forms now align the save icon to the right side.', 'No form fields, save behavior, delete behavior, lifecycle behavior, Firebase behavior, or unrelated tabs were changed.']},
+{version:'2026-05-09-save-icon-right-align-r459', date:'May 9, 2026', importance:'fix', title:'Save icon size corrected', items:['Calendar save icons are now 50% smaller on Gig, Rehearsal, Blackout, and Custom forms.', 'The Custom / Important Date form no longer shows the old green Save pill under the new save icon.', 'New Gig gets safer bottom clearance so the save icon does not overlap the Notes field.']},
+{version:'2026-05-09-save-icon-right-align-r459', date:'May 9, 2026', importance:'fix', title:'Band contact action cluster', items:['Band tab expanded contact details now place the blue edit pencil immediately to the left of the red trashcan at the bottom-right of the contact drawer.', 'The action buttons use a measured gap so edit and delete are visually grouped but still separated enough to reduce accidental taps.', 'No contact edit behavior, delete confirmation, Contacts open/collapse behavior, Calendar, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase data behavior was intentionally changed.']},
   {version:'2026-05-09-calendar-form-visuals-idate-actions-r453', date:'May 9, 2026', importance:'fix', title:'Calendar form visuals and Important Date actions', items:['New Gig and Blackout forms now use the same gold-label / dark-blue field visual language as the updated New Rehearsal page without changing the fields or save logic.', 'Custom / Important Date uses the same visual language and its bottom actions are now a green Save button on the left plus a red trash-can icon on the right when editing.', 'The Important Date delete confirmation and save behavior are unchanged.']},
   {version:'2026-05-09-calendar-new-gig-fit-r452', date:'May 9, 2026', importance:'fix', title:'Calendar new gig fit', items:['Calendar empty-date event chooser no longer shows right-side carets on Gig, Rehearsal, Blackout, or Custom; each full pill remains tappable.', 'Calendar empty-date → Gig → New Gig form is condensed and held static so the full New Gig display is intended to fit without scrolling.', 'No saved gig data model, event save behavior, Calendar body, Band, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase behavior was intentionally changed.']},
   {version:'2026-05-09-band-contact-edit-icon-r451', date:'May 9, 2026', importance:'fix', title:'Band contact edit icon', items:['Band tab expanded contact details now use a compact blue circular pencil icon for Edit instead of the older text Edit pill.', 'The contact edit modal still opens with the same fields populated, and the r450 red trashcan delete control remains bottom-right.', 'No Contacts drawer open/collapse behavior, contact_icon.png asset handling, lifecycle, Calendar, Songs, Setlists, Chat, Pay, or Firebase data model behavior was intentionally changed.']},
