@@ -6478,6 +6478,49 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   flex:0 0 32px !important;
 }
 
+
+/* r462: Edit Saved Flyer Change/template-selector recovery.
+   r449 intentionally locked the saved flyer editor to stop page bounce, but that also
+   locked the expanded template chooser after tapping Change.  This opt-in class is
+   applied only while the format/template sections are expanded. */
+#flyer-modal.flyer-saved-static.flyer-template-change-open{
+  touch-action:auto !important;
+}
+#flyer-modal.flyer-saved-static.flyer-template-change-open .mo{
+  overflow:hidden !important;
+}
+#flyer-modal.flyer-saved-static.flyer-template-change-open #flyer-body{
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior:contain !important;
+  touch-action:pan-y !important;
+  display:block !important;
+  flex-direction:initial !important;
+  min-height:0 !important;
+  padding-bottom:16px !important;
+}
+#flyer-modal.flyer-saved-static.flyer-template-change-open #flyer-step-format,
+#flyer-modal.flyer-saved-static.flyer-template-change-open #flyer-step-template{
+  flex:0 0 auto !important;
+}
+#flyer-modal.flyer-saved-static.flyer-template-change-open #flyer-template-grid{
+  padding-bottom:18px !important;
+}
+#flyer-modal.flyer-saved-static.flyer-template-change-open #flyer-preview-wrap{
+  display:none !important;
+}
+/* r462: keep header kebab usable above the scroll region and above the template grid. */
+#flyer-modal.flyer-saved-static .moh{
+  z-index:30 !important;
+}
+#flyer-more-btn{
+  pointer-events:auto !important;
+  touch-action:manipulation !important;
+}
+#flyer-more-sheet{
+  pointer-events:auto !important;
+}
+
 </style>
 </head>
 <body>
@@ -15209,7 +15252,10 @@ function openFlyerForGig(ev){
   // Render UI
   _flyerSetFormat(_flyerCtx.format);
   var flyerModalEl = document.getElementById('flyer-modal');
-  if(flyerModalEl){ flyerModalEl.classList.toggle('flyer-saved-static', !!hasSaved); }
+  if(flyerModalEl){
+    flyerModalEl.classList.toggle('flyer-saved-static', !!hasSaved);
+    flyerModalEl.classList.remove('flyer-template-change-open');
+  }
   // Reflect saved-state in title. The ⋮ button stays in the standard app kebab style.
   var titleEl = document.querySelector('#flyer-modal .mot');
   if(titleEl) titleEl.textContent = hasSaved ? 'Edit Saved Flyer' : 'Make Flyer';
@@ -15235,6 +15281,10 @@ function openFlyerForGig(ev){
       sumBar.style.display = 'none';
       if(fmtSection) fmtSection.style.display = 'block';
       if(tplSection) tplSection.style.display = 'block';
+      var modal = document.getElementById('flyer-modal');
+      if(modal) modal.classList.add('flyer-template-change-open');
+      var body = document.getElementById('flyer-body');
+      if(body) body.scrollTop = 0;
     };
     if(fmtSection) fmtSection.style.display = 'none';
     if(tplSection) tplSection.style.display = 'none';
@@ -15242,6 +15292,8 @@ function openFlyerForGig(ev){
     if(sumBar) sumBar.style.display = 'none';
     if(fmtSection) fmtSection.style.display = 'block';
     if(tplSection) tplSection.style.display = 'block';
+    var modal = document.getElementById('flyer-modal');
+    if(modal) modal.classList.remove('flyer-template-change-open');
   }
   // Reset modal scroll so user sees top of content (or for saved, the editable fields)
   setTimeout(function(){
@@ -15347,7 +15399,27 @@ function _flyerBuildTemplateGrid(){
     label.style.cssText = 'position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);color:#fff;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;padding:14px 6px 5px;text-align:center;';
     label.textContent = (FLYER_NAMES[key] || key).toUpperCase();
     btn.appendChild(label);
-    btn.onclick = (function(k){ return function(){ _flyerSelectTemplate(k); _flyerBuildTemplateGrid(); }; })(key);
+    btn.onclick = (function(k){ return function(){
+      _flyerSelectTemplate(k);
+      _flyerBuildTemplateGrid();
+      var modal = document.getElementById('flyer-modal');
+      if(modal && modal.classList.contains('flyer-saved-static')){
+        modal.classList.remove('flyer-template-change-open');
+        var sumBar = document.getElementById('flyer-summary-bar');
+        var fmtSection = document.getElementById('flyer-step-format');
+        var tplSection = document.getElementById('flyer-step-template');
+        if(sumBar){
+          var styleName = (typeof FLYER_NAMES !== 'undefined' && FLYER_NAMES[_flyerCtx.template]) || 'Flyer';
+          var fmtLabel = (_flyerCtx.format === 'story') ? 'Story · 1080×1920' : 'Square · 1080×1080';
+          var sumText = document.getElementById('flyer-summary-text');
+          if(sumText) sumText.textContent = styleName + ' · ' + fmtLabel;
+          sumBar.style.display = 'flex';
+        }
+        if(fmtSection) fmtSection.style.display = 'none';
+        if(tplSection) tplSection.style.display = 'none';
+        setTimeout(_flyerApplySavedStaticFit, 40);
+      }
+    }; })(key);
     grid.appendChild(btn);
   });
 }
@@ -15683,6 +15755,9 @@ function _flyerToggleMore(evt){
     _flyerCloseMore();
     return;
   }
+  // r462: template-change scroll mode can leave touch/overlay state stale; force a clean open.
+  sheet.style.display = 'none';
+  sheet.style.opacity = '0';
   _flyerRenderMoreOptions();
   sheet.style.display = 'flex';
   sheet.style.opacity = '0';
@@ -25114,7 +25189,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-save-icon-cache-placement-r461';
+var WHATS_NEW_VERSION = '2026-05-09-flyer-change-scroll-menu-r462';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -25407,11 +25482,12 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-09-save-icon-cache-placement-r461', date:'May 9, 2026', importance:'fix', title:'Save icon cache and placement corrected', items:['Uses the newest save icon as a new versioned asset named save_icon_r461.png so the phone cannot keep showing the old cached icon.', 'Restores right-side placement for Gig and Blackout save icons.', 'Keeps Setlist reorder and Arrange Tabs on the new save icon while preserving their current placement.', 'No save handlers, form fields, Firebase behavior, lifecycle behavior, or flyer workflow were changed.']},
-{version:'2026-05-09-save-icon-cache-placement-r461', date:'May 9, 2026', importance:'fix', title:'Save icon controls unified', items:['Updated the app to use the newer brighter save_icon_r461.png asset.', 'Replaced the Songs Edit Song save pill, existing Gig/Rehearsal edit save controls, Setlist reorder save icon, and Arrange Tabs Save Order pill with the new save icon.', 'Removed old green/yellow save-pill styling under the replaced icon controls where it was bleeding through.', 'Generic prompt SAVE and flyer save/banner workflow were intentionally left unchanged.']},
-{version:'2026-05-09-save-icon-cache-placement-r461', date:'May 9, 2026', importance:'fix', title:'Calendar save icon aligned right', items:['Calendar save icons are now about 10% larger than r458.', 'Gig, Rehearsal, Blackout, and Custom event forms now align the save icon to the right side.', 'No form fields, save behavior, delete behavior, lifecycle behavior, Firebase behavior, or unrelated tabs were changed.']},
-{version:'2026-05-09-save-icon-cache-placement-r461', date:'May 9, 2026', importance:'fix', title:'Save icon size corrected', items:['Calendar save icons are now 50% smaller on Gig, Rehearsal, Blackout, and Custom forms.', 'The Custom / Important Date form no longer shows the old green Save pill under the new save icon.', 'New Gig gets safer bottom clearance so the save icon does not overlap the Notes field.']},
-{version:'2026-05-09-save-icon-cache-placement-r461', date:'May 9, 2026', importance:'fix', title:'Band contact action cluster', items:['Band tab expanded contact details now place the blue edit pencil immediately to the left of the red trashcan at the bottom-right of the contact drawer.', 'The action buttons use a measured gap so edit and delete are visually grouped but still separated enough to reduce accidental taps.', 'No contact edit behavior, delete confirmation, Contacts open/collapse behavior, Calendar, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase data behavior was intentionally changed.']},
+  {version:'2026-05-09-flyer-change-scroll-menu-r462', date:'May 9, 2026', importance:'fix', title:'Edit Saved Flyer Change page scroll fixed', items:['Edit Saved Flyer → Change now temporarily unlocks vertical scrolling so all template images can be reached.', 'Selecting a replacement flyer still works and returns the editor to its compact saved-flyer layout.', 'The flyer header kebab/action sheet remains tappable from the Edit Saved Flyer page.', 'No flyer rendering, save-to-gig behavior, share/download logic, calendar behavior, or unrelated tabs were changed.']},
+{version:'2026-05-09-flyer-change-scroll-menu-r462', date:'May 9, 2026', importance:'fix', title:'Save icon cache and placement corrected', items:['Uses the newest save icon as a new versioned asset named save_icon_r461.png so the phone cannot keep showing the old cached icon.', 'Restores right-side placement for Gig and Blackout save icons.', 'Keeps Setlist reorder and Arrange Tabs on the new save icon while preserving their current placement.', 'No save handlers, form fields, Firebase behavior, lifecycle behavior, or flyer workflow were changed.']},
+{version:'2026-05-09-flyer-change-scroll-menu-r462', date:'May 9, 2026', importance:'fix', title:'Save icon controls unified', items:['Updated the app to use the newer brighter save_icon_r461.png asset.', 'Replaced the Songs Edit Song save pill, existing Gig/Rehearsal edit save controls, Setlist reorder save icon, and Arrange Tabs Save Order pill with the new save icon.', 'Removed old green/yellow save-pill styling under the replaced icon controls where it was bleeding through.', 'Generic prompt SAVE and flyer save/banner workflow were intentionally left unchanged.']},
+{version:'2026-05-09-flyer-change-scroll-menu-r462', date:'May 9, 2026', importance:'fix', title:'Calendar save icon aligned right', items:['Calendar save icons are now about 10% larger than r458.', 'Gig, Rehearsal, Blackout, and Custom event forms now align the save icon to the right side.', 'No form fields, save behavior, delete behavior, lifecycle behavior, Firebase behavior, or unrelated tabs were changed.']},
+{version:'2026-05-09-flyer-change-scroll-menu-r462', date:'May 9, 2026', importance:'fix', title:'Save icon size corrected', items:['Calendar save icons are now 50% smaller on Gig, Rehearsal, Blackout, and Custom forms.', 'The Custom / Important Date form no longer shows the old green Save pill under the new save icon.', 'New Gig gets safer bottom clearance so the save icon does not overlap the Notes field.']},
+{version:'2026-05-09-flyer-change-scroll-menu-r462', date:'May 9, 2026', importance:'fix', title:'Band contact action cluster', items:['Band tab expanded contact details now place the blue edit pencil immediately to the left of the red trashcan at the bottom-right of the contact drawer.', 'The action buttons use a measured gap so edit and delete are visually grouped but still separated enough to reduce accidental taps.', 'No contact edit behavior, delete confirmation, Contacts open/collapse behavior, Calendar, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase data behavior was intentionally changed.']},
   {version:'2026-05-09-calendar-form-visuals-idate-actions-r453', date:'May 9, 2026', importance:'fix', title:'Calendar form visuals and Important Date actions', items:['New Gig and Blackout forms now use the same gold-label / dark-blue field visual language as the updated New Rehearsal page without changing the fields or save logic.', 'Custom / Important Date uses the same visual language and its bottom actions are now a green Save button on the left plus a red trash-can icon on the right when editing.', 'The Important Date delete confirmation and save behavior are unchanged.']},
   {version:'2026-05-09-calendar-new-gig-fit-r452', date:'May 9, 2026', importance:'fix', title:'Calendar new gig fit', items:['Calendar empty-date event chooser no longer shows right-side carets on Gig, Rehearsal, Blackout, or Custom; each full pill remains tappable.', 'Calendar empty-date → Gig → New Gig form is condensed and held static so the full New Gig display is intended to fit without scrolling.', 'No saved gig data model, event save behavior, Calendar body, Band, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase behavior was intentionally changed.']},
   {version:'2026-05-09-band-contact-edit-icon-r451', date:'May 9, 2026', importance:'fix', title:'Band contact edit icon', items:['Band tab expanded contact details now use a compact blue circular pencil icon for Edit instead of the older text Edit pill.', 'The contact edit modal still opens with the same fields populated, and the r450 red trashcan delete control remains bottom-right.', 'No Contacts drawer open/collapse behavior, contact_icon.png asset handling, lifecycle, Calendar, Songs, Setlists, Chat, Pay, or Firebase data model behavior was intentionally changed.']},
