@@ -16,6 +16,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
+<!-- r443: Band Contacts auto-collapse reset. Collapses all open contact rows and closes the Contacts drawer when leaving Band or during normal app close/reopen lifecycle reset; preserves r442 icon asset and measured contact drawer behavior. Upload index.html only after phone test. -->
 <!-- r442: Band Contacts icon safe-asset filename. Uses contact_icon.png as the primary no-space Contacts icon asset, with legacy Contact Icon.png fallback; preserves r440/r441 measured Contacts drawer behavior and no contact-row carets. Upload index.html plus contact_icon.png after phone test. -->
 <!-- r441: Band Contacts icon img restore. Uses real <img src="Contact%20Icon.png" with CSS fallback, removes remaining contact carets, and preserves r440 measured contact visibility. Upload as index.html after phone test. -->
 <!-- r440: Band Contacts caret removal and measured contact detail visibility. Removes contact-card carets, restores the Contacts icon via CSS background asset path, and measures the open drawer/detail space so expanded contact info stays above Add Contact. Upload as index.html after phone test. -->
@@ -10578,10 +10579,42 @@ var _ootHiddenAt = 0;
 var _ootForceHomeTimerIds = [];
 var _ootLastExternalRestoreAt = 0;
 
+function _collapseBandContactsForReset(reason){
+  // r443: Contacts is a transient expanded view, not a state to preserve.
+  // Collapse the drawer and every open contact row when the user leaves Band
+  // or when normal app close/reopen lifecycle reset runs.
+  try {
+    if(typeof cardStates !== 'undefined'){
+      cardStates['contacts-list'] = true;
+      Object.keys(cardStates).forEach(function(k){
+        if(/^ct_/.test(k)) cardStates[k] = true;
+      });
+    }
+    var list = document.getElementById('contacts-list');
+    if(list){
+      list.style.display = 'none';
+      list.style.removeProperty('max-height');
+      list.style.removeProperty('padding-bottom');
+      list.style.removeProperty('scroll-padding-bottom');
+      list.scrollTop = 0;
+    }
+    var addBtn = document.getElementById('contacts-add-btn');
+    if(addBtn) addBtn.style.display = 'none';
+    var pill = document.getElementById('contacts-pill');
+    if(pill) pill.setAttribute('aria-expanded', 'false');
+    var sub = document.getElementById('contacts-pill-sub');
+    if(sub) sub.textContent = 'Tap to view phone numbers · emails · band contact info';
+    var sc = document.getElementById('sc-band');
+    if(sc) sc.classList.remove('contacts-open');
+    if(typeof rContacts === 'function') rContacts();
+  } catch(e){}
+}
+
 function _resetTransientUIForHomeDefault(reason){
   try { if(typeof closeDayDrawer === 'function') closeDayDrawer(); } catch(e){}
   try { if(typeof collapseCalendarLowerAccordionsForReset === 'function') collapseCalendarLowerAccordionsForReset(reason || 'home-default'); } catch(e){}
   try { if(typeof closeCalLegend === 'function') closeCalLegend(); } catch(e){}
+  try { if(typeof _collapseBandContactsForReset === 'function') _collapseBandContactsForReset(reason || 'home-default'); } catch(e){}
 
   // Close every modal/drawer overlay, regardless of whether it was opened with
   // classList.add('on') or inline style.display='flex'.  Clear display instead
@@ -10769,6 +10802,8 @@ function go(id, btn) {
   }
   // r260: never let the Calendar legend persist into another tab.
   if(id !== 'cal'){ try { closeCalLegend(); } catch(e){} }
+  // r443: Contacts should not remain expanded behind another tab.
+  if(id !== 'band'){ try { _collapseBandContactsForReset('tab-leave-band'); } catch(e){} }
   document.querySelectorAll('.sc').forEach(function(s) { s.classList.remove('on'); });
   document.querySelectorAll('.tb').forEach(function(b) { b.classList.remove('on'); });
   var sc = document.getElementById('sc-' + id);
@@ -10791,17 +10826,11 @@ function go(id, btn) {
     showChatList();
   }
   else if (id === 'band') {
-    // Always collapse Contacts when entering the Band tab
-    cardStates['contacts-list'] = true;
+    // Always enter Band with CONTACTS collapsed into the main header.
+    try { if(typeof _collapseBandContactsForReset === 'function') _collapseBandContactsForReset('enter-band'); } catch(e){}
     rBand();
     rContacts();
-    // Force the visible state to match (toggleCard isn't being called)
-    var _cl = document.getElementById('contacts-list');
-    if(_cl) _cl.style.display = 'none';
-    var _cab = document.getElementById('contacts-add-btn');
-    if(_cab) _cab.style.display = 'none';
-    var _bs = document.getElementById('sc-band');
-    if(_bs) _bs.classList.remove('contacts-open');
+    try { if(typeof _collapseBandContactsForReset === 'function') _collapseBandContactsForReset('enter-band-after-render'); } catch(e){}
   }
   else if (id === 'songs') {
     markTabSeen('songs');
@@ -24261,7 +24290,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-band-contacts-safe-icon-asset-r442';
+var WHATS_NEW_VERSION = '2026-05-09-band-contacts-auto-collapse-r443';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24554,6 +24583,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-band-contacts-auto-collapse-r443', date:'May 9, 2026', importance:'fix', title:'Band Contacts auto-collapse', items:['Leaving the Band tab or reopening the app now closes the CONTACTS drawer and collapses any open contact cards back into the main CONTACTS header.', 'Preserved the r442 contacts icon asset and measured contact drawer/detail visibility behavior.', 'No lifecycle external-return behavior, Songs, Setlists, Calendar, Pay, Chat, Firebase, or contact-data behavior was intentionally changed.']},
   {version:'2026-05-09-band-contacts-safe-icon-asset-r442', date:'May 9, 2026', importance:'fix', title:'Band Contacts icon safe asset path', items:['Changed the Band CONTACTS icon to load from a no-space asset filename: contact_icon.png.', 'Kept a fallback to the legacy Contact Icon.png filename in case that file remains in GitHub.', 'Preserved the measured CONTACTS drawer/list behavior and no-caret contact rows from r440/r441.']},
   {version:'2026-05-09-band-contacts-visibility-r440', date:'May 9, 2026', importance:'fix', title:'Band Contacts visibility cleanup', items:['Removed the caret from individual contact rows in the Band CONTACTS list.', 'Changed the Contacts icon from a broken-img element to a CSS background image using the existing GitHub asset Contact Icon.png.', 'Measured the CONTACTS drawer, contact list, and Add Contact button at runtime so expanded contact details scroll above Add Contact instead of being hidden behind it.']},
   {version:'2026-05-09-band-contacts-icon-restore-r439', date:'May 9, 2026', importance:'minor', title:'Band Contacts icon restored', items:['Restored the custom Contacts icon on the Band CONTACTS pill using the GitHub asset Contact Icon.png.', 'Preserved r438 behavior: CONTACTS opens higher on the Band tab, the header stays sticky, and the contacts list remains scrollable.', 'No lifecycle, external-return, Songs, Setlists, Calendar, Pay, Chat, Firebase, or contact-data behavior was intentionally changed.']},
