@@ -27,6 +27,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r429: External-return post-restore shield. Prevents late blur/pagehide/hidden events after successful YouTube return from overriding restored source tab with Home. Upload as index.html after phone test. -->
 <!-- r432: Vote on Suggestions real artwork source. Vote-window artwork now prefers submitted YouTube thumbnail/library match before iTunes fallback. Upload as index.html after phone test. -->
 <!-- r449: Edit Saved Flyer static/no-bounce + visible top actions. Removes saved flyer modal bounce and forces the top flyer actions menu above the editor. Upload as index.html after phone test. -->
+<!-- r452: Calendar event chooser caret cleanup + New Gig static fit. Removes chooser carets, keeps full pill tap targets, and condenses New Gig form to fit without scrolling. Upload as index.html after phone test. -->
 <!-- r451: Band Contacts edit control consistency. Converts expanded-contact Edit text pill to the Band-standard blue circular pencil icon while preserving r450 trashcan behavior. Upload as index.html after phone test. -->
 <!-- r450: Band Contacts delete control consistency. Converts expanded-contact delete pill to bottom-right red trashcan icon while preserving Edit pill position. Upload as index.html after phone test. -->
 <!-- r448: Edit Saved Flyer balance/actions. Fills static page better and moves flyer actions kebab to top standard color. Upload as index.html after phone test. -->
@@ -4978,6 +4979,70 @@ body.light .r366-gig-value,body.light .r366-gig-notes{color:#1a2a4a;}
 body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,#10275d);}
 @media(max-width:420px){.r366-gig-title{font-size:19px}.r366-gig-grid,.r366-gig-edit-grid{gap:7px}.r366-gig-field,.r366-gig-edit-field,.r366-gig-notes-card{padding:9px}.r366-gig-actions{grid-template-columns:1fr}.r366-gig-edit-actions{grid-template-columns:1fr}}
 
+
+/* r452: New Gig form static/condensed fit only.
+   Scope: Calendar empty date -> Gig -> New Gig form in #gig-detail-modal.
+   Existing Gig detail/read-only, Rehearsal, Blackout, and Calendar body stay untouched. */
+#gig-detail-modal.r452-new-gig-form #gd-body{
+  justify-content:flex-start !important;
+  gap:5px !important;
+  overflow:hidden !important;
+}
+#gig-detail-modal.r452-new-gig-form #gd-body > div{
+  margin-bottom:0 !important;
+  flex-shrink:0 !important;
+}
+#gig-detail-modal.r452-new-gig-form #gd-body label,
+#gig-detail-modal.r452-new-gig-form #gd-body div[style*="font-size:10px"]{
+  font-size:7.6px !important;
+  letter-spacing:.85px !important;
+  margin-bottom:2px !important;
+  line-height:1.05 !important;
+}
+#gig-detail-modal.r452-new-gig-form #gd-body .mi,
+#gig-detail-modal.r452-new-gig-form #gd-body input,
+#gig-detail-modal.r452-new-gig-form #gd-body textarea{
+  height:27px !important;
+  min-height:27px !important;
+  padding:5px 8px !important;
+  margin-bottom:0 !important;
+  font-size:11px !important;
+  line-height:1.15 !important;
+  border-radius:7px !important;
+  flex-shrink:0 !important;
+}
+#gig-detail-modal.r452-new-gig-form #gd-body textarea{
+  height:38px !important;
+  min-height:38px !important;
+  resize:none !important;
+}
+#gig-detail-modal.r452-new-gig-form #gd-body > div[style*="display:flex;gap:8px"]{
+  gap:6px !important;
+}
+#gig-detail-modal.r452-new-gig-form #gd-body button:not(.sb){
+  min-height:24px !important;
+  padding:4px 8px !important;
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+  font-size:8px !important;
+  border-radius:7px !important;
+}
+#gig-detail-modal.r452-new-gig-form #gd-body button.sb{
+  height:32px !important;
+  min-height:32px !important;
+  padding:7px 10px !important;
+  margin-top:2px !important;
+  font-size:10px !important;
+  border-radius:8px !important;
+  flex-shrink:0 !important;
+}
+@media(max-height:720px){
+  #gig-detail-modal.r452-new-gig-form #gd-body{gap:4px !important;}
+  #gig-detail-modal.r452-new-gig-form #gd-body .mi,
+  #gig-detail-modal.r452-new-gig-form #gd-body input{height:25px !important;min-height:25px !important;padding:4px 7px !important;}
+  #gig-detail-modal.r452-new-gig-form #gd-body textarea{height:34px !important;min-height:34px !important;}
+  #gig-detail-modal.r452-new-gig-form #gd-body button.sb{height:30px !important;min-height:30px !important;padding:6px 10px !important;}
+}
 
 /* r368: Static full-viewport fit for Gig + Rehearsal detail/edit pages only.
    Scope: #gig-detail-modal when opened by Gig or Rehearsal flows. Blackout is
@@ -17457,14 +17522,13 @@ function _renderEventTypeChooser(host){
       'background:linear-gradient(135deg,'+t.color+'22 0%,'+t.color+'08 50%,#0a1628 100%);'+
       'border:1px solid '+t.color+'55;border-left:4px solid '+t.color+';border-radius:10px;'+
       'cursor:pointer;color:#fff;font-family:\'Exo 2\',sans-serif;'+
-      'box-shadow:0 0 14px '+t.color+'18;transition:transform .12s,box-shadow .12s;';
+      'box-shadow:0 0 14px '+t.color+'18;transition:transform .12s,box-shadow .12s;touch-action:manipulation;';
     btn.innerHTML =
       '<span style="font-size:22px;line-height:1;flex-shrink:0;">'+t.icon+'</span>'+
       '<div style="flex:1;min-width:0;">'+
         '<div style="font-family:\'Russo One\',sans-serif;font-size:13px;letter-spacing:1.5px;color:'+t.color+';">'+t.label+'</div>'+
         '<div style="font-size:11px;color:#aaa;margin-top:2px;">'+t.sub+'</div>'+
-      '</div>'+
-      '<div style="color:'+t.color+';font-size:18px;line-height:1;flex-shrink:0;opacity:.7;">&#8250;</div>';
+      '</div>';
     btn.onmouseover = function(){ this.style.transform = 'translateX(2px)'; this.style.boxShadow = '0 0 22px '+t.color+'33'; };
     btn.onmouseout = function(){ this.style.transform = ''; this.style.boxShadow = '0 0 14px '+t.color+'18'; };
     btn.onclick = (function(opener){ return function(){
@@ -17512,7 +17576,7 @@ function editEv(id){
 function _r368SetDetailFit(kind){
   var ov = document.getElementById('gig-detail-modal');
   if(!ov || !ov.classList) return;
-  ov.classList.remove('r368-static-fit','r368-fit-gig','r368-fit-rehearsal');
+  ov.classList.remove('r368-static-fit','r368-fit-gig','r368-fit-rehearsal','r452-new-gig-form');
   if(kind === 'gig' || kind === 'rehearsal'){
     ov.classList.add('r368-static-fit','r368-fit-' + kind);
   }
@@ -17855,6 +17919,10 @@ function openGigSheet(ev){
   }
 
   _r368SetDetailFit('gig');
+  if(isNew){
+    var _gdModal = document.getElementById('gig-detail-modal');
+    if(_gdModal && _gdModal.classList) _gdModal.classList.add('r452-new-gig-form');
+  }
   _r366SetGigHeader('New Gig', 'edit', ev);
   document.getElementById('gd-title').textContent = isNew ? 'New Gig' : 'Edit Gig';
   var b = document.getElementById('gd-body');
@@ -24586,7 +24654,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-band-contact-edit-icon-r451';
+var WHATS_NEW_VERSION = '2026-05-09-calendar-new-gig-fit-r452';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24879,6 +24947,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-calendar-new-gig-fit-r452', date:'May 9, 2026', importance:'fix', title:'Calendar new gig fit', items:['Calendar empty-date event chooser no longer shows right-side carets on Gig, Rehearsal, Blackout, or Custom; each full pill remains tappable.', 'Calendar empty-date → Gig → New Gig form is condensed and held static so the full New Gig display is intended to fit without scrolling.', 'No saved gig data model, event save behavior, Calendar body, Band, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase behavior was intentionally changed.']},
   {version:'2026-05-09-band-contact-edit-icon-r451', date:'May 9, 2026', importance:'fix', title:'Band contact edit icon', items:['Band tab expanded contact details now use a compact blue circular pencil icon for Edit instead of the older text Edit pill.', 'The contact edit modal still opens with the same fields populated, and the r450 red trashcan delete control remains bottom-right.', 'No Contacts drawer open/collapse behavior, contact_icon.png asset handling, lifecycle, Calendar, Songs, Setlists, Chat, Pay, or Firebase data model behavior was intentionally changed.']},
   {version:'2026-05-09-band-contact-delete-icon-r450', date:'May 9, 2026', importance:'fix', title:'Band contact delete icon', items:['Band tab expanded contact details now keep the Edit pill on the left and use the smaller red trashcan icon on the bottom-right instead of the oversized Delete Contact pill.', 'The delete confirmation and Firestore contact deletion behavior are unchanged.', 'No Contacts drawer open/collapse behavior, contact_icon.png asset handling, lifecycle, Calendar, Songs, Setlists, Chat, Pay, or Firebase data model behavior was intentionally changed.']},
   {version:'2026-05-09-saved-flyer-editor-balance-r448', date:'May 9, 2026', importance:'fix', title:'Saved flyer editor balance and actions', items:['Edit Saved Flyer now uses the full static phone-height view more evenly so the fields and flyer preview fill the page instead of leaving excess bottom space.', 'Moved the flyer actions kebab from the bottom row to the top-right header area and returned it to the standard app kebab color instead of green.', 'The flyer actions now open from the top action area; no flyer rendering, saved flyer data, Calendar event detail, lifecycle, or external-return behavior was intentionally changed.']},
