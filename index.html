@@ -16,6 +16,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
+<!-- r444: Band Contacts collapse scroll reset. When Contacts auto-collapses after tab leave/reopen, Band scroll resets to the top so roster pills are visible and CONTACTS returns to its normal lower position. Upload index.html only after phone test. -->
 <!-- r443: Band Contacts auto-collapse reset. Collapses all open contact rows and closes the Contacts drawer when leaving Band or during normal app close/reopen lifecycle reset; preserves r442 icon asset and measured contact drawer behavior. Upload index.html only after phone test. -->
 <!-- r442: Band Contacts icon safe-asset filename. Uses contact_icon.png as the primary no-space Contacts icon asset, with legacy Contact Icon.png fallback; preserves r440/r441 measured Contacts drawer behavior and no contact-row carets. Upload index.html plus contact_icon.png after phone test. -->
 <!-- r441: Band Contacts icon img restore. Uses real <img src="Contact%20Icon.png" with CSS fallback, removes remaining contact carets, and preserves r440 measured contact visibility. Upload as index.html after phone test. -->
@@ -1614,7 +1615,7 @@ body.light #sc-band.contacts-open #contacts-add-btn{background:linear-gradient(1
 #sc-band #contacts-pill.oot-band-contacts-pill > div:first-child{width:auto;min-width:0;flex:1;}
 #sc-band #contacts-pill.oot-band-contacts-pill .oot-expand-pill-icon.contact-photo{display:flex;flex:0 0 42px;width:42px;height:42px;min-width:42px;}
 #sc-band #contacts-pill.oot-band-contacts-pill .oot-expand-pill-icon.contact-photo.contact-icon-img{
-  background-image:url("contact_icon.png?v=r442");
+  background-image:url("contact_icon.png?v=r444");
   background-position:center;
   background-repeat:no-repeat;
   background-size:cover;
@@ -5989,7 +5990,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
       <div class="oot-expand-pill-title">CONTACTS</div>
       <div class="oot-expand-pill-sub" id="contacts-pill-sub">Tap to view phone numbers · emails · band contact info</div>
     </div>
-    <div class="oot-expand-pill-icon contact-photo contact-icon-img" aria-hidden="true"><img src="contact_icon.png?v=r442" alt="" loading="eager" decoding="async" onerror="this.onerror=null;this.onerror=null;this.src='Contact%20Icon.png?v=r442';"></div>
+    <div class="oot-expand-pill-icon contact-photo contact-icon-img" aria-hidden="true"><img src="contact_icon.png?v=r444" alt="" loading="eager" decoding="async" onerror="this.onerror=null;this.onerror=null;this.src='Contact%20Icon.png?v=r444';"></div>
   </div>
   <div id="contacts-list"></div>
   <div id="contacts-add-btn"><button class="ab" onclick="opM('contact-modal')">+ Add Contact</button></div>
@@ -10579,10 +10580,33 @@ var _ootHiddenAt = 0;
 var _ootForceHomeTimerIds = [];
 var _ootLastExternalRestoreAt = 0;
 
+function _resetBandScrollAfterContactsCollapse(reason){
+  // r444: After an automatic Contacts collapse, restore the Band page itself
+  // to its normal roster-first position. This is deliberate for tab-leave,
+  // app-reopen, and Band re-entry resets; it does not run for the user's
+  // ordinary CONTACTS pill open/close toggle.
+  try{
+    var sc = document.getElementById('sc-band');
+    if(!sc) return;
+    var shouldReset = /tab-leave-band|home-default|force-home|enter-band|app|visibility|pagehide|blur|init|normal/i.test(String(reason || ''));
+    if(!shouldReset) return;
+    function doReset(){
+      try{
+        sc.scrollTop = 0;
+        if(typeof sc.scrollTo === 'function') sc.scrollTo({top:0, behavior:'auto'});
+      }catch(e){}
+    }
+    doReset();
+    setTimeout(doReset, 40);
+    setTimeout(doReset, 180);
+  }catch(e){}
+}
+
 function _collapseBandContactsForReset(reason){
-  // r443: Contacts is a transient expanded view, not a state to preserve.
+  // r443/r444: Contacts is a transient expanded view, not a state to preserve.
   // Collapse the drawer and every open contact row when the user leaves Band
-  // or when normal app close/reopen lifecycle reset runs.
+  // or when normal app close/reopen lifecycle reset runs, then return the
+  // Band page to the roster-first position so CONTACTS is back below the roster.
   try {
     if(typeof cardStates !== 'undefined'){
       cardStates['contacts-list'] = true;
@@ -10607,6 +10631,7 @@ function _collapseBandContactsForReset(reason){
     var sc = document.getElementById('sc-band');
     if(sc) sc.classList.remove('contacts-open');
     if(typeof rContacts === 'function') rContacts();
+    if(typeof _resetBandScrollAfterContactsCollapse === 'function') _resetBandScrollAfterContactsCollapse(reason || 'contacts-reset');
   } catch(e){}
 }
 
@@ -24290,7 +24315,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-band-contacts-auto-collapse-r443';
+var WHATS_NEW_VERSION = '2026-05-09-band-contacts-collapse-scroll-reset-r444';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24583,6 +24608,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-band-contacts-collapse-scroll-reset-r444', date:'May 9, 2026', importance:'fix', title:'Band Contacts collapse scroll reset', items:['When CONTACTS auto-collapses after leaving Band or reopening the app, the Band page now resets to the roster-first position.', 'The full Band roster pills are visible again and the CONTACTS pill returns to its normal lower position instead of leaving the page scrolled down at the Contacts section.', 'Preserved r443 auto-collapse behavior, r442 contact_icon.png asset handling, and the measured Contacts detail visibility behavior.']},
   {version:'2026-05-09-band-contacts-auto-collapse-r443', date:'May 9, 2026', importance:'fix', title:'Band Contacts auto-collapse', items:['Leaving the Band tab or reopening the app now closes the CONTACTS drawer and collapses any open contact cards back into the main CONTACTS header.', 'Preserved the r442 contacts icon asset and measured contact drawer/detail visibility behavior.', 'No lifecycle external-return behavior, Songs, Setlists, Calendar, Pay, Chat, Firebase, or contact-data behavior was intentionally changed.']},
   {version:'2026-05-09-band-contacts-safe-icon-asset-r442', date:'May 9, 2026', importance:'fix', title:'Band Contacts icon safe asset path', items:['Changed the Band CONTACTS icon to load from a no-space asset filename: contact_icon.png.', 'Kept a fallback to the legacy Contact Icon.png filename in case that file remains in GitHub.', 'Preserved the measured CONTACTS drawer/list behavior and no-caret contact rows from r440/r441.']},
   {version:'2026-05-09-band-contacts-visibility-r440', date:'May 9, 2026', importance:'fix', title:'Band Contacts visibility cleanup', items:['Removed the caret from individual contact rows in the Band CONTACTS list.', 'Changed the Contacts icon from a broken-img element to a CSS background image using the existing GitHub asset Contact Icon.png.', 'Measured the CONTACTS drawer, contact list, and Add Contact button at runtime so expanded contact details scroll above Add Contact instead of being hidden behind it.']},
