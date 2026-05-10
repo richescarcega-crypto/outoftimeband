@@ -16,6 +16,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
+<!-- r439: Restore Band Contacts custom icon. Restores the right-side Contacts icon from GitHub asset while preserving r438 sticky expanded drawer behavior. Upload as index.html after phone test. -->
 <!-- r430: External-return post-restore shield hardening. Late hidden/blur/pagehide noise after YouTube return can no longer trigger delayed Home override. Upload as index.html after phone test. -->
 <!-- r429: External-return post-restore shield. Prevents late blur/pagehide/hidden events after successful YouTube return from overriding restored source tab with Home. Upload as index.html after phone test. -->
 <!-- r432: Vote on Suggestions real artwork source. Vote-window artwork now prefers submitted YouTube thumbnail/library match before iTunes fallback. Upload as index.html after phone test. -->
@@ -1602,9 +1603,10 @@ body.light .oot-expand-pill-icon.contact-photo img{box-shadow:0 6px 14px rgba(20
 }
 body.light #sc-band.contacts-open #contacts-pill{background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(245,247,251,.98));}
 body.light #sc-band.contacts-open #contacts-add-btn{background:linear-gradient(180deg,rgba(245,247,251,0),#f5f7fb 35%);}  
-/* r437: Band CONTACTS now follows the Calendar-style full-card tap pattern: no caret/right icon. */
-#sc-band #contacts-pill.oot-band-contacts-pill{justify-content:flex-start;padding:13px 14px;}
-#sc-band #contacts-pill.oot-band-contacts-pill > div:first-child{width:100%;min-width:0;}
+/* r439: Restore the custom Contacts icon while preserving the r438 sticky expanded drawer behavior. */
+#sc-band #contacts-pill.oot-band-contacts-pill{justify-content:space-between;padding:12px 14px;gap:12px;}
+#sc-band #contacts-pill.oot-band-contacts-pill > div:first-child{width:auto;min-width:0;flex:1;}
+#sc-band #contacts-pill.oot-band-contacts-pill .oot-expand-pill-icon.contact-photo{display:flex;flex:0 0 42px;width:42px;height:42px;min-width:42px;}
 #sc-band #contacts-pill.oot-band-contacts-pill:active{transform:translateY(1px);filter:brightness(1.08);}
 #sc-band.contacts-open #contacts-pill.oot-band-contacts-pill{border-color:rgba(245,197,24,.42);box-shadow:0 10px 22px rgba(0,0,0,.24),0 0 18px rgba(245,197,24,.12),inset 0 1px 0 rgba(255,255,255,.05);}
 
@@ -5968,7 +5970,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
       <div class="oot-expand-pill-title">CONTACTS</div>
       <div class="oot-expand-pill-sub" id="contacts-pill-sub">Tap to view phone numbers · emails · band contact info</div>
     </div>
-
+    <div class="oot-expand-pill-icon contact-photo" aria-hidden="true"><img src="Contact%20Icon.png?v=r439" alt=""></div>
   </div>
   <div id="contacts-list"></div>
   <div id="contacts-add-btn"><button class="ab" onclick="opM('contact-modal')">+ Add Contact</button></div>
@@ -24181,7 +24183,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-band-contacts-sticky-drawer-r438';
+var WHATS_NEW_VERSION = '2026-05-09-band-contacts-icon-restore-r439';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24474,6 +24476,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-band-contacts-icon-restore-r439', date:'May 9, 2026', importance:'minor', title:'Band Contacts icon restored', items:['Restored the custom Contacts icon on the Band CONTACTS pill using the GitHub asset Contact Icon.png.', 'Preserved r438 behavior: CONTACTS opens higher on the Band tab, the header stays sticky, and the contacts list remains scrollable.', 'No lifecycle, external-return, Songs, Setlists, Calendar, Pay, Chat, Firebase, or contact-data behavior was intentionally changed.']},
   {version:'2026-05-09-band-contacts-pill-cleanup-r437', date:'May 9, 2026', importance:'minor', title:'Band Contacts pill cleanup', items:['Band tab CONTACTS now uses the same full-card tap language as the Calendar bottom sections.', 'Removed the right-side contact thumbnail/icon so the card is clean and does not depend on a caret-style affordance.', 'No lifecycle, external-return, Setlists, Songs, Calendar, Pay, Chat, Firebase, or notification behavior was intentionally changed.']},
   {version:'2026-05-09-armed-external-return-defer-r436', date:'May 9, 2026', importance:'fix', title:'Armed external return defer', items:['Prevents early focus/pageshow/init noise immediately after an album-art tap from falling through to the Home-default lifecycle path and deleting the pending YouTube return payload.', 'Keeps r435 explicit source-context payloads for Setlists, Songs, and Vote on Suggestions artwork while making the pending-return guard safer and more deterministic.', 'No UI, voting, Firebase, artwork-source, or external URL target behavior was intentionally changed.']},
   {version:'2026-05-09-explicit-album-art-return-r435', date:'May 9, 2026', importance:'fix', title:'Explicit album-art return contexts', items:['Setlists, Songs, and Vote on Suggestions album-art YouTube launches now pass explicit source-context payloads instead of relying only on ambient DOM state.', 'Adds an age-gated restore fallback for Android/YouTube cases where blur/pagehide is not fired consistently before the external app opens.', 'Extends only Setlists and Vote artwork restore re-apply windows to cover inconsistent YouTube return timing while preserving the short r433 Song Resources quick-close behavior.']},
