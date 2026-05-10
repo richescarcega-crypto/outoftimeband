@@ -28,6 +28,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r432: Vote on Suggestions real artwork source. Vote-window artwork now prefers submitted YouTube thumbnail/library match before iTunes fallback. Upload as index.html after phone test. -->
 <!-- r449: Edit Saved Flyer static/no-bounce + visible top actions. Removes saved flyer modal bounce and forces the top flyer actions menu above the editor. Upload as index.html after phone test. -->
 <!-- r452: Calendar event chooser caret cleanup + New Gig static fit. Removes chooser carets, keeps full pill tap targets, and condenses New Gig form to fit without scrolling. Upload as index.html after phone test. -->
+<!-- r453: Calendar form visual parity + Important Date action controls. Applies Rehearsal-style visual treatment to New Gig/Blackout/Custom forms and converts Important Date bottom actions to green Save + red trash icon. Upload as index.html after phone test. -->
 <!-- r451: Band Contacts edit control consistency. Converts expanded-contact Edit text pill to the Band-standard blue circular pencil icon while preserving r450 trashcan behavior. Upload as index.html after phone test. -->
 <!-- r450: Band Contacts delete control consistency. Converts expanded-contact delete pill to bottom-right red trashcan icon while preserving Edit pill position. Upload as index.html after phone test. -->
 <!-- r448: Edit Saved Flyer balance/actions. Fills static page better and moves flyer actions kebab to top standard color. Upload as index.html after phone test. -->
@@ -5044,6 +5045,182 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   #gig-detail-modal.r452-new-gig-form #gd-body button.sb{height:30px !important;min-height:30px !important;padding:6px 10px !important;}
 }
 
+
+/* r453: Calendar form visual parity + Important Date bottom action controls.
+   Scope: New Gig, Blackout, and Custom/Important Date form presentation only.
+   No fields, data model, save/delete functions, or Calendar body behavior changed. */
+#gig-detail-modal.r452-new-gig-form #gd-body label,
+#gig-detail-modal.r452-new-gig-form #gd-body div[style*="font-size:10px"],
+#gig-detail-modal.r453-fit-blackout #gd-body label,
+#gig-detail-modal.r453-fit-blackout #gd-body div[style*="font-size:10px"],
+#idate-modal.r453-idate-visual .mo > div > div[style*="font-size:11px"],
+#idate-modal.r453-idate-visual .mo label{
+  color:#ffd84a !important;
+  text-shadow:0 0 8px rgba(245,197,24,.16) !important;
+}
+#gig-detail-modal.r452-new-gig-form #gd-body .mi,
+#gig-detail-modal.r452-new-gig-form #gd-body input,
+#gig-detail-modal.r452-new-gig-form #gd-body textarea,
+#gig-detail-modal.r453-fit-blackout #gd-body .mi,
+#gig-detail-modal.r453-fit-blackout #gd-body input,
+#gig-detail-modal.r453-fit-blackout #gd-body textarea,
+#idate-modal.r453-idate-visual .mi,
+#idate-modal.r453-idate-visual input,
+#idate-modal.r453-idate-visual textarea{
+  color:#f7fbff !important;
+  background:linear-gradient(180deg,rgba(13,39,96,.92),rgba(5,14,35,.98)) !important;
+  border:1px solid rgba(91,150,255,.42) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 0 10px rgba(74,158,255,.07) !important;
+}
+#gig-detail-modal.r453-fit-blackout #gd-body{
+  flex:0 0 auto !important;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  justify-content:flex-start !important;
+  gap:7px !important;
+  overflow:hidden !important;
+}
+#gig-detail-modal.r453-fit-blackout #gd-body > div{
+  margin-bottom:0 !important;
+  flex-shrink:0 !important;
+}
+#gig-detail-modal.r453-fit-blackout #gd-body label,
+#gig-detail-modal.r453-fit-blackout #gd-body div[style*="font-size:10px"]{
+  font-size:8px !important;
+  letter-spacing:1.1px !important;
+  margin-bottom:3px !important;
+}
+#gig-detail-modal.r453-fit-blackout #gd-body .mi,
+#gig-detail-modal.r453-fit-blackout #gd-body input{
+  height:28px !important;
+  min-height:28px !important;
+  padding:5px 8px !important;
+  font-size:11.5px !important;
+  line-height:1.18 !important;
+}
+#gig-detail-modal.r453-fit-blackout #gd-body > div[style*="display:flex;gap:8px"]{gap:7px !important;}
+#gig-detail-modal.r453-fit-blackout #gd-body button.sb{
+  color:#06101f !important;
+  -webkit-text-fill-color:#06101f !important;
+  text-shadow:none !important;
+  opacity:1 !important;
+  background:linear-gradient(180deg,#ffe26a 0%,#f5c518 58%,#d99a00 100%) !important;
+  border:1px solid rgba(255,226,106,.55) !important;
+  font-weight:800 !important;
+}
+#gig-detail-modal.r453-fit-blackout #gd-body button.sb:disabled,
+#gig-detail-modal.r453-fit-blackout #gd-body button.sb[disabled]{
+  color:#17233a !important;
+  -webkit-text-fill-color:#17233a !important;
+  opacity:.72 !important;
+  filter:saturate(.82) brightness(.98) !important;
+}
+#idate-modal.r453-idate-visual{
+  align-items:center !important;
+  justify-content:center !important;
+  padding:12px !important;
+  overflow:hidden !important;
+}
+#idate-modal.r453-idate-visual .mo{
+  width:calc(100% - 0px) !important;
+  max-width:460px !important;
+  max-height:calc(100dvh - 24px) !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+  padding:12px 13px 13px !important;
+  border-radius:18px !important;
+  background:linear-gradient(180deg,#07162f 0%,#061126 100%) !important;
+  border:1px solid rgba(74,158,255,.78) !important;
+  box-shadow:0 20px 44px rgba(0,0,0,.56),0 0 0 1px rgba(255,255,255,.035),0 0 26px rgba(74,158,255,.16) !important;
+}
+#idate-modal.r453-idate-visual .moh{
+  margin:0 0 8px 0 !important;
+  padding:0 0 8px 0 !important;
+  border-bottom:1px solid rgba(74,158,255,.14) !important;
+  flex-shrink:0 !important;
+}
+#idate-modal.r453-idate-visual .mot{
+  color:#f7fbff !important;
+  text-shadow:0 1px 10px rgba(0,0,0,.45) !important;
+}
+#idate-modal.r453-idate-visual .mo > div:not(.moh):not(#idate-action-row){
+  margin-bottom:7px !important;
+  flex-shrink:0 !important;
+}
+#idate-modal.r453-idate-visual .mo > div > div[style*="font-size:11px"]{
+  font-size:8px !important;
+  letter-spacing:1.1px !important;
+  margin-bottom:3px !important;
+}
+#idate-modal.r453-idate-visual .mi,
+#idate-modal.r453-idate-visual input{
+  height:28px !important;
+  min-height:28px !important;
+  padding:5px 8px !important;
+  font-size:11.5px !important;
+  line-height:1.18 !important;
+  margin:0 !important;
+}
+#idate-modal.r453-idate-visual #idate-action-row.r453-idate-actions{
+  margin-top:auto !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:12px !important;
+  width:100% !important;
+  padding-top:8px !important;
+  flex-shrink:0 !important;
+}
+#idate-modal.r453-idate-visual #idate-save-btn{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:auto !important;
+  min-width:92px !important;
+  height:38px !important;
+  margin:0 !important;
+  border:0 !important;
+  border-radius:999px !important;
+  padding:0 18px !important;
+  background:linear-gradient(135deg,#06d6a0,#0fbf8b) !important;
+  color:#041c19 !important;
+  -webkit-text-fill-color:#041c19 !important;
+  font-family:"Russo One",sans-serif !important;
+  font-size:10px !important;
+  letter-spacing:1.2px !important;
+  font-weight:800 !important;
+  line-height:1 !important;
+  text-shadow:none !important;
+  box-shadow:0 0 14px rgba(6,214,160,.22) !important;
+  cursor:pointer !important;
+}
+#idate-modal.r453-idate-visual #idate-delete-btn{
+  display:none;
+  align-items:center !important;
+  justify-content:center !important;
+  width:38px !important;
+  min-width:38px !important;
+  height:38px !important;
+  min-height:38px !important;
+  margin:0 !important;
+  padding:0 !important;
+  border-radius:999px !important;
+  background:rgba(255,71,87,.12) !important;
+  border:1px solid rgba(255,71,87,.82) !important;
+  color:#ff3348 !important;
+  -webkit-text-fill-color:#ff3348 !important;
+  box-shadow:0 0 14px rgba(255,71,87,.18) !important;
+  cursor:pointer !important;
+}
+#idate-modal.r453-idate-visual #idate-delete-btn svg,
+#idate-modal.r453-idate-visual #idate-delete-btn path{
+  color:#ff3348 !important;
+  fill:#ff3348 !important;
+  stroke:#ff3348 !important;
+}
+
 /* r368: Static full-viewport fit for Gig + Rehearsal detail/edit pages only.
    Scope: #gig-detail-modal when opened by Gig or Rehearsal flows. Blackout is
    intentionally excluded because its existing layout was confirmed fine. */
@@ -6569,7 +6746,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   </div>
 </div>
 
-<div class="ov" id="idate-modal">
+<div class="ov r453-idate-visual" id="idate-modal">
   <div class="mo">
     <div class="moh"><span class="mot" id="idate-title">New Important Date</span><button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="clM('idate-modal')">&#10005;</button></div>
     <div style="margin-bottom:12px;">
@@ -6608,11 +6785,11 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
         <div id="idate-rec-knob" style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;"></div>
       </div>
     </div>
-    <div id="idate-action-row" style="display:flex;gap:8px;">
-      <button id="idate-delete-btn" onclick="deleteImportantDate()" style="flex:1;background:#0a1628;border:1px solid #ff4757;border-radius:8px;padding:9px;color:#ff4757;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;display:none;align-items:center;justify-content:center;gap:6px;">
-        <span style="font-size:13px;line-height:1;">&#128465;</span>Delete
+    <div id="idate-action-row" class="r453-idate-actions">
+      <button id="idate-save-btn" onclick="saveImportantDate()">Save</button>
+      <button id="idate-delete-btn" onclick="deleteImportantDate()" title="Delete important date" aria-label="Delete important date">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg>
       </button>
-      <button onclick="saveImportantDate()" style="flex:1;background:#f5c518;border:none;border-radius:8px;padding:9px;color:#060e1c;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;">Save</button>
     </div>
   </div>
 </div>
@@ -17576,9 +17753,12 @@ function editEv(id){
 function _r368SetDetailFit(kind){
   var ov = document.getElementById('gig-detail-modal');
   if(!ov || !ov.classList) return;
-  ov.classList.remove('r368-static-fit','r368-fit-gig','r368-fit-rehearsal','r452-new-gig-form');
+  ov.classList.remove('r368-static-fit','r368-fit-gig','r368-fit-rehearsal','r452-new-gig-form','r453-fit-blackout');
   if(kind === 'gig' || kind === 'rehearsal'){
     ov.classList.add('r368-static-fit','r368-fit-' + kind);
+  }
+  if(kind === 'blackout'){
+    ov.classList.add('r368-static-fit','r453-fit-blackout');
   }
 }
 
@@ -18533,7 +18713,7 @@ function saveRehearsalSheet(evId, isNew){
 }
 
 function openBlackoutSheet(ev){
-  _r368SetDetailFit(null);
+  _r368SetDetailFit('blackout');
   var isNew = !ev;
   var dateStr = isNew ? fD(CY,CM,sDay) : ev.date;
   document.getElementById('gd-title').textContent = isNew ? 'New Blackout Date' : 'Edit Blackout';
@@ -24654,7 +24834,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-calendar-new-gig-fit-r452';
+var WHATS_NEW_VERSION = '2026-05-09-calendar-form-visuals-idate-actions-r453';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24947,6 +25127,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-calendar-form-visuals-idate-actions-r453', date:'May 9, 2026', importance:'fix', title:'Calendar form visuals and Important Date actions', items:['New Gig and Blackout forms now use the same gold-label / dark-blue field visual language as the updated New Rehearsal page without changing the fields or save logic.', 'Custom / Important Date uses the same visual language and its bottom actions are now a green Save button on the left plus a red trash-can icon on the right when editing.', 'The Important Date delete confirmation and save behavior are unchanged.']},
   {version:'2026-05-09-calendar-new-gig-fit-r452', date:'May 9, 2026', importance:'fix', title:'Calendar new gig fit', items:['Calendar empty-date event chooser no longer shows right-side carets on Gig, Rehearsal, Blackout, or Custom; each full pill remains tappable.', 'Calendar empty-date → Gig → New Gig form is condensed and held static so the full New Gig display is intended to fit without scrolling.', 'No saved gig data model, event save behavior, Calendar body, Band, Songs, Setlists, Chat, Pay, lifecycle, external-return, or Firebase behavior was intentionally changed.']},
   {version:'2026-05-09-band-contact-edit-icon-r451', date:'May 9, 2026', importance:'fix', title:'Band contact edit icon', items:['Band tab expanded contact details now use a compact blue circular pencil icon for Edit instead of the older text Edit pill.', 'The contact edit modal still opens with the same fields populated, and the r450 red trashcan delete control remains bottom-right.', 'No Contacts drawer open/collapse behavior, contact_icon.png asset handling, lifecycle, Calendar, Songs, Setlists, Chat, Pay, or Firebase data model behavior was intentionally changed.']},
   {version:'2026-05-09-band-contact-delete-icon-r450', date:'May 9, 2026', importance:'fix', title:'Band contact delete icon', items:['Band tab expanded contact details now keep the Edit pill on the left and use the smaller red trashcan icon on the bottom-right instead of the oversized Delete Contact pill.', 'The delete confirmation and Firestore contact deletion behavior are unchanged.', 'No Contacts drawer open/collapse behavior, contact_icon.png asset handling, lifecycle, Calendar, Songs, Setlists, Chat, Pay, or Firebase data model behavior was intentionally changed.']},
