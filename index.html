@@ -16,6 +16,8 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!DOCTYPE html>
 <html>
+<!-- r428: Album-art external-return handoff gate for Setlists, Songs, and Song Suggestions. Prevents early focus/pageshow events from consuming context before the app actually leaves. Upload as index.html after phone test. -->
+<!-- r427: Setlists external-return handoff gate. Prevents early focus/pageshow events from consuming the YouTube return context before the app actually leaves. Upload as index.html after phone test. -->
 <!-- r426: Setlists external-return durable handoff. Stores app-launched YouTube return context in short-lived localStorage + sessionStorage so Android/PWA process resume cannot lose the open setlist. Upload as index.html after phone test. -->
 <!-- r425: Setlists external-return guard extended. Prevents late Android/PWA leaving events during YouTube handoff from clearing the captured open-setlist context. Upload as index.html after phone test. -->
 <!-- r424: Setlists album-art external return stabilizer. Keeps source setlist restored through Android/PWA multi-step YouTube back navigation. Upload as index.html after phone test. -->
@@ -10868,12 +10870,16 @@ function _persistExternalReturnContext(ctx){
   try {
     if(!ctx || !ctx.at) return;
     ctx.source = 'oot-app-external-v1';
-    ctx.handoffSeen = true;
+    // r428: Do NOT mark handoffSeen while merely capturing the app-launched
+    // external URL. Earlier builds wrote handoffSeen=true during capture, so
+    // early Android/PWA focus/pageshow noise could consume/delete the payload
+    // before the app had actually left for YouTube. The leaving handler is the
+    // only place allowed to mark a real handoff.
     var payload = JSON.stringify(ctx);
     // r426: sessionStorage alone was not durable enough for the Android/PWA
     // YouTube app handoff. Store the same one-shot, short-lived payload in
     // localStorage too, so a process resume/reload can still restore the exact
-    // source Setlists context. It is still TTL-bound and consumed once.
+    // source context. It is still TTL-bound and consumed once.
     try { sessionStorage.setItem(_ootExternalStoreKey, payload); } catch(e1){}
     try { localStorage.setItem(_ootExternalDurableStoreKey, payload); } catch(e2){}
   } catch(e){}
@@ -10920,7 +10926,10 @@ function _loadExternalReturnContext(){
     if(ctx){
       window._ootExternalReturnContext = ctx;
       window._ootExternalNavAt = Number(ctx.at) || 0;
-      window._ootExternalHandoffSeen = true;
+      // r428: Rehydrate the handoff flag from the stored payload only. A
+      // captured-but-not-left launch must remain unconsumable until blur/pagehide
+      // or visibility-hidden marks that the app actually left.
+      window._ootExternalHandoffSeen = !!(ctx.handoffSeen || ctx.leftAppAt);
       return ctx;
     }
   } catch(e){}
@@ -10948,26 +10957,26 @@ function _isExternalReturnPending(){
     _clearExternalReturnContext('external-pending-expired');
     return false;
   }
-  // r425: Once an app-launched external URL has captured context, protect it
-  // through the full short-lived return TTL, not just the first launch seconds.
-  // Android/PWA YouTube handoff can emit blur/pagehide/visibility events after
-  // the 8s launch window; treating those as normal app closes was clearing the
-  // open Setlists context before the user backed out of YouTube. Normal app
-  // closes still Home because this context only exists after _openExternalUrl.
-  return !!(ctx.source === 'oot-app-external-v1' && (ctx.handoffSeen || window._ootExternalHandoffSeen));
+  // r427: Treat a freshly captured app-launched external URL as pending even
+  // before blur/pagehide/visibility-hidden marks the actual handoff. Earlier
+  // builds required handoffSeen here; that let the first leaving event look
+  // like a normal close and clear the Setlists return context.
+  return !!(ctx.source === 'oot-app-external-v1');
 }
 function _markExternalHandoffIfPending(reason){
   try {
     var ctx = _loadExternalReturnContext();
     var age = _externalReturnAge();
-    if(ctx && age >= 0 && age <= _ootExternalReturnTTL && (ctx.handoffSeen || window._ootExternalHandoffSeen || age < _ootExternalLaunchWindow)){
+    if(ctx && age >= 0 && age <= _ootExternalReturnTTL){
       window._ootExternalHandoffSeen = true;
       ctx.handoffSeen = true;
+      ctx.leftAppAt = Date.now();
+      ctx.handoffReason = reason || '';
       window._ootExternalReturnContext = ctx;
       _persistExternalReturnContext(ctx);
       return true;
     }
-    if(age >= _ootExternalLaunchWindow && !window._ootExternalHandoffSeen){
+    if(age >= _ootExternalReturnTTL && !window._ootExternalHandoffSeen){
       _clearExternalReturnContext('stale-before-handoff');
     }
   } catch(e){}
@@ -10990,7 +10999,9 @@ function _captureExternalReturnContext(){
       at: Date.now(),
       source: 'oot-app-external-v1',
       tab: tab,
-      handoffSeen: true,
+      handoffSeen: false,
+      leftAppAt: 0,
+      handoffReason: '',
       openOverlays: openOverlays,
       songResourceId: songResourceId,
       songInfoId: songInfoId,
@@ -11003,7 +11014,12 @@ function _captureExternalReturnContext(){
     };
     window._ootExternalReturnContext = ctx;
     window._ootExternalNavAt = ctx.at;
-    window._ootExternalHandoffSeen = true;
+    // r428: Capture means "an app-owned external launch is armed"; it does
+    // not mean the app has actually left. Keep this false until lifecycle
+    // leaving marks the real YouTube/browser handoff. This protects Setlists,
+    // Songs list album art, and Song Suggestion vote-window album art from
+    // early focus/pageshow consumption.
+    window._ootExternalHandoffSeen = false;
     _persistExternalReturnContext(ctx);
   } catch(e){}
 }
@@ -11015,7 +11031,10 @@ function _consumeExternalReturnContext(reason){
     _clearExternalReturnContext('expired');
     return null;
   }
-  if(!window._ootExternalHandoffSeen && !ctx.handoffSeen){
+  // r427: Do not consume/delete the payload on early focus/pageshow noise
+  // unless a real app-leaving event has marked the external handoff. This is
+  // what keeps the context alive until the user actually backs out of YouTube.
+  if(!window._ootExternalHandoffSeen && !ctx.handoffSeen && !ctx.leftAppAt){
     return null;
   }
   window._ootExternalReturnContext = null;
@@ -23927,7 +23946,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-setlist-external-return-durable-r426';
+var WHATS_NEW_VERSION = '2026-05-09-album-art-external-return-gate-r428';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24220,6 +24239,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-album-art-external-return-gate-r428', date:'May 9, 2026', importance:'fix', title:'Album-art YouTube return gate', items:['Fixed the shared album-art external-return handoff used by Setlists, Songs list, and Song Suggestion vote-window artwork.', 'The app now captures the source context when album art launches YouTube, but does not allow early Android/PWA focus/pageshow noise to consume that context before the app has actually left.', 'Normal close/reopen still defaults Home; only short-lived app-launched external returns restore their source screen.']},
+  {version:'2026-05-09-setlist-external-return-handoff-gate-r427', date:'May 9, 2026', importance:'fix', title:'Setlists YouTube return handoff gate', items:['Setlists album-art YouTube launches now capture return context but do not consume it until the app has actually entered an external handoff state.', 'This prevents early focus/pageshow noise from deleting the return context before Android/PWA finishes the YouTube back-swipe chain.', 'Normal close/reopen still defaults Home because the external handoff must originate from an app-launched URL and remains short-lived.']},
   {version:'2026-05-09-setlist-external-return-durable-r426', date:'May 9, 2026', importance:'fix', title:'Setlists YouTube return made durable', items:['Setlists open-setlist album-art YouTube launches now save the source context in a short-lived durable handoff, not sessionStorage only.', 'This targets Android/PWA returns where YouTube can resume the app after sessionStorage is gone, causing the app to fall back to Home.', 'The handoff is still app-launched only, expires quickly, and is consumed once so normal app close/reopen remains Home.']},
   {version:'2026-05-09-setlist-external-return-guard-r425', date:'May 9, 2026', importance:'fix', title:'Setlists YouTube return guard', items:['Setlists open-setlist album-art YouTube launches now keep their captured source context protected through the Android/PWA external handoff, so backing out of YouTube should return to the same open setlist instead of Home.', 'Normal app close/reopen remains Home because the guard only exists after the app itself launches an external URL.']},
   {version:'2026-05-09-setlists-share-lifecycle-reset-r423', date:'May 9, 2026', importance:'fix', title:'Setlists share menu lifecycle reset', items:['Normal app reopen now centrally removes the shared export/share overlay used by Setlists → Share All Setlists and other app share flows.', 'Closing the app from Setlists → top kebab → Share All Setlists should reopen to Home, not the stale Share window.', 'No UI design, Firebase, song, calendar, pay, or external-link behavior was intentionally changed.']},
@@ -25222,8 +25243,8 @@ if(savedName&&savedId){
 
 // r419: App lifecycle rule, centralized and hardened.
 // Normal hide/pagehide/blur always collapses to Home unless it occurs inside the
-// very short launch window after an app-launched external URL.  External return
-// restores its captured source context once, then clears itself.
+// app-launched external URL handoff. External return restores its captured
+// source context once, then clears itself.
 (function(){
   function _handleLifecycleReturn(reason){
     setTimeout(function(){
