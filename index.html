@@ -27,6 +27,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r429: External-return post-restore shield. Prevents late blur/pagehide/hidden events after successful YouTube return from overriding restored source tab with Home. Upload as index.html after phone test. -->
 <!-- r432: Vote on Suggestions real artwork source. Vote-window artwork now prefers submitted YouTube thumbnail/library match before iTunes fallback. Upload as index.html after phone test. -->
 <!-- r449: Edit Saved Flyer static/no-bounce + visible top actions. Removes saved flyer modal bounce and forces the top flyer actions menu above the editor. Upload as index.html after phone test. -->
+<!-- r450: Band Contacts delete control consistency. Converts expanded-contact delete pill to bottom-right red trashcan icon while preserving Edit pill position. Upload as index.html after phone test. -->
 <!-- r448: Edit Saved Flyer balance/actions. Fills static page better and moves flyer actions kebab to top standard color. Upload as index.html after phone test. -->
 <!-- r436: Armed external-return defer. Prevents early focus/pageshow/init noise after album-art tap from falling through to Home and deleting the pending YouTube return payload. Upload as index.html after phone test. -->
 <!-- r438: Band Contacts sticky expanded drawer. Keeps the CONTACTS pill sticky while open, scrolls it to the top of the Band tab, and gives the contact list a larger internal scroll area. Upload as index.html after phone test. -->
@@ -1677,6 +1678,13 @@ body.light #sc-band.contacts-open #contacts-add-btn{background:linear-gradient(1
 }
 #sc-band #contacts-pill.oot-band-contacts-pill:active{transform:translateY(1px);filter:brightness(1.08);}
 #sc-band.contacts-open #contacts-pill.oot-band-contacts-pill{border-color:rgba(245,197,24,.42);box-shadow:0 10px 22px rgba(0,0,0,.24),0 0 18px rgba(245,197,24,.12),inset 0 1px 0 rgba(255,255,255,.05);}
+/* r450: Band contact detail actions only. Preserve Edit pill on the left; use app-standard red trash icon on the bottom-right. */
+#sc-band #contacts-list .oot-contact-actions{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:10px;}
+#sc-band #contacts-list .oot-contact-actions .oot-contact-edit-btn{margin-top:0 !important;}
+#sc-band #contacts-list .oot-contact-trash-icon{flex:0 0 auto;width:36px;height:36px;border-radius:999px;background:rgba(255,71,87,.12);border:1.5px solid rgba(255,71,87,.82);color:#ff4757;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 14px rgba(255,71,87,.16);padding:0;touch-action:manipulation;}
+#sc-band #contacts-list .oot-contact-trash-icon:active{transform:scale(.96);}
+#sc-band #contacts-list .oot-contact-trash-icon svg{display:block;width:18px;height:18px;}
+body.light #sc-band #contacts-list .oot-contact-trash-icon{background:rgba(255,71,87,.10);border-color:#d83245;color:#d83245;box-shadow:0 0 10px rgba(216,50,69,.10);}
 
 
 /* r101 Band Image selector scroll + sticky header */
@@ -22956,10 +22964,16 @@ function rContacts() {
         editingContactId=contact.id;
         opM('contact-modal');
       }; })(c);
-      detail.appendChild(editBtn);
+      editBtn.className='oot-contact-edit-btn';
+      var actionRow=document.createElement('div');
+      actionRow.className='oot-contact-actions';
+      actionRow.appendChild(editBtn);
       var delBtn=document.createElement('button');
-      delBtn.style.cssText='background:#0a1628;border:1px solid #ff4757;border-radius:8px;padding:7px 12px;color:#ff4757;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;margin-top:10px;display:inline-flex;align-items:center;gap:6px;';
-      delBtn.innerHTML='<span style="font-size:13px;line-height:1;">&#128465;</span><span>DELETE CONTACT</span>';
+      delBtn.className='oot-contact-trash-icon';
+      delBtn.type='button';
+      delBtn.title='Delete contact';
+      delBtn.setAttribute('aria-label','Delete contact');
+      delBtn.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg>';
       delBtn.setAttribute('data-cid', c.id);
       delBtn.setAttribute('data-cname', c.name||'this contact');
       delBtn.onclick=function(){
@@ -22969,7 +22983,8 @@ function rContacts() {
           if(ok){ db.collection('contacts').doc(String(cid)).delete(); toast('Contact deleted', {tone:'success'}); }
         });
       };
-      detail.appendChild(delBtn);
+      actionRow.appendChild(delBtn);
+      detail.appendChild(actionRow);
       card.appendChild(detail);
     }
     el.appendChild(card);
@@ -24565,7 +24580,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-09-saved-flyer-static-actions-r449';
+var WHATS_NEW_VERSION = '2026-05-09-band-contact-delete-icon-r450';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -24858,6 +24873,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-09-band-contact-delete-icon-r450', date:'May 9, 2026', importance:'fix', title:'Band contact delete icon', items:['Band tab expanded contact details now keep the Edit pill on the left and use the smaller red trashcan icon on the bottom-right instead of the oversized Delete Contact pill.', 'The delete confirmation and Firestore contact deletion behavior are unchanged.', 'No Contacts drawer open/collapse behavior, contact_icon.png asset handling, lifecycle, Calendar, Songs, Setlists, Chat, Pay, or Firebase data model behavior was intentionally changed.']},
   {version:'2026-05-09-saved-flyer-editor-balance-r448', date:'May 9, 2026', importance:'fix', title:'Saved flyer editor balance and actions', items:['Edit Saved Flyer now uses the full static phone-height view more evenly so the fields and flyer preview fill the page instead of leaving excess bottom space.', 'Moved the flyer actions kebab from the bottom row to the top-right header area and returned it to the standard app kebab color instead of green.', 'The flyer actions now open from the top action area; no flyer rendering, saved flyer data, Calendar event detail, lifecycle, or external-return behavior was intentionally changed.']},
   {version:'2026-05-09-saved-flyer-static-fit-r447', date:'May 9, 2026', importance:'fix', title:'Saved flyer editor fit improved', items:['Edit Saved Flyer now uses a compact measured layout so the editable fields and flyer preview fit on one static phone-height view when opened from a gig.', 'The compact fit applies only to saved-flyer editing; flyer creation and template selection behavior are unchanged.']},
   {version:'2026-05-09-quick-paste-title-r446', date:'May 9, 2026', importance:'fix', title:'Quick Paste modal title', items:['Changed the Quick Paste paste-entry window title from Import Songs to Paste Songs.', 'No paste behavior, import parsing, song data, lifecycle, or other tab behavior was intentionally changed.']},
