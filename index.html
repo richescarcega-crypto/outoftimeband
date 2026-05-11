@@ -31,6 +31,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r458: Calendar save icon sizing/Important Date cleanup. Shrinks save icon 50%, removes old Important Date green-save underlay, and gives New Gig form safer bottom clearance. Upload index.html plus save_icon_r461.png after phone test. -->
 <!-- r457: Version-marker correction for external save icon build. Bumps WHATS_NEW_VERSION so phone auto-update detects the build. Upload index.html plus save_icon_r461.png after phone test. -->
 <!-- r482: Story Flyer 8 follow-up correction. Moves the boardwalk-story Location Stack lower/centered between the top decorative border and a lowered re-drawn bottom decorative rule. No other flyer templates or unrelated UI behavior changed. -->
+<!-- r483: Story Flyer 6 location-stack centering follow-up. Moves the comic-story venue/address/date stack downward within the lower frame only. No other flyer templates or unrelated UI changed. -->
 <!-- r456: Externalized calendar save icon asset. Save controls now reference save_icon_r461.png instead of embedded base64. Upload index.html plus save_icon_r461.png after phone test. -->
 <!-- r455: Calendar event save controls used an embedded save icon; superseded by r456 external asset. -->
 <!-- r449: Edit Saved Flyer static/no-bounce + visible top actions. Removes saved flyer modal bounce and forces the top flyer actions menu above the editor. Upload as index.html after phone test. -->
@@ -15108,9 +15109,9 @@ var FLYER_ZONES = {
     date: {y_frac: 0.886, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'comic-story': {
-    venue: {y_frac: 0.738, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.796, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.866, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.752, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.810, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.880, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
   },
   'metropolis-square': {
     venue: {y_frac: 0.757, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
@@ -25548,7 +25549,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-11-story8-locstack-center-r482';
+var WHATS_NEW_VERSION = '2026-05-11-story6-locstack-center-r483';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
