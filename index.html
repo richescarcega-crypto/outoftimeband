@@ -32,6 +32,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r457: Version-marker correction for external save icon build. Bumps WHATS_NEW_VERSION so phone auto-update detects the build. Upload index.html plus save_icon_r461.png after phone test. -->
 <!-- r482: Story Flyer 8 follow-up correction. Moves the boardwalk-story Location Stack lower/centered between the top decorative border and a lowered re-drawn bottom decorative rule. No other flyer templates or unrelated UI behavior changed. -->
 <!-- r483: Story Flyer 6 location-stack centering follow-up. Moves the comic-story venue/address/date stack downward within the lower frame only. No other flyer templates or unrelated UI changed. -->
+<!-- r484: Story Flyer 6 and Story Flyer 8 Location Stack centering. Moves only comic-story and boardwalk-story overlay stacks lower/centered within their lower frame/pill areas; boardwalk bottom rule lowered to match. -->
 <!-- r456: Externalized calendar save icon asset. Save controls now reference save_icon_r461.png instead of embedded base64. Upload index.html plus save_icon_r461.png after phone test. -->
 <!-- r455: Calendar event save controls used an embedded save icon; superseded by r456 external asset. -->
 <!-- r449: Edit Saved Flyer static/no-bounce + visible top actions. Removes saved flyer modal bounce and forces the top flyer actions menu above the editor. Upload as index.html after phone test. -->
@@ -15109,9 +15110,9 @@ var FLYER_ZONES = {
     date: {y_frac: 0.886, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'comic-story': {
-    venue: {y_frac: 0.752, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.810, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.880, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.787, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.845, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.915, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
   },
   'metropolis-square': {
     venue: {y_frac: 0.757, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
@@ -15129,10 +15130,10 @@ var FLYER_ZONES = {
     date: {y_frac: 0.866, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'boardwalk-story': {
-    venue: {y_frac: 0.730, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.788, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.858, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
-    bottomRuleShift: {oldY_frac: 0.835, newY_frac: 0.900, xInset: 150, sampleYOffset: 26, coverHeight: 34, lineHalfWidth: 300, gap: 20, diamondHalf: 6, lineWidth: 3, color: '#c89f45'},
+    venue: {y_frac: 0.765, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.823, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.893, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
+    bottomRuleShift: {oldY_frac: 0.835, newY_frac: 0.935, xInset: 150, sampleYOffset: 26, coverHeight: 34, lineHalfWidth: 300, gap: 20, diamondHalf: 6, lineWidth: 3, color: '#c89f45'},
   },
   'oot09-square': {
     tagline: {y_frac: 0.650, x_frac: 0.50, size: 42, color: '#f5c66b'},
@@ -25549,7 +25550,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-11-story6-locstack-center-r483';
+var WHATS_NEW_VERSION = '2026-05-11-story6-story8-locstack-center-r484';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
