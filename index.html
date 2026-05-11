@@ -15062,9 +15062,9 @@ var FLYER_ZONES = {
     date: {y_frac: 0.908, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'neon-story': {
-    venue: {y_frac: 0.744, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.802, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.874, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.758, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.816, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.888, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
   },
   'skyline-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
@@ -15095,9 +15095,9 @@ var FLYER_ZONES = {
     date: {y_frac: 0.859, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'disco-story': {
-    venue: {y_frac: 0.716, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.774, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.846, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.732, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.790, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.862, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
   },
   'comic-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
@@ -25497,7 +25497,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-11-story2-stack-center-r478';
+var WHATS_NEW_VERSION = '2026-05-11-story5-stack-lower-r480';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -25790,6 +25790,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-11-story5-stack-lower-r480', date:'May 11, 2026', importance:'fix', title:'Story Flyer 5 stack moved lower', items:['Adjusted Story Flyer 5 only by moving the venue/address/date Location Stack slightly lower within the lower decorative frame for a better visual presentation.', 'Horizontal center remains unchanged at x=0.50.', 'Story Flyer 2 remains unchanged from r479; no other Story or Square flyer templates were changed.']},
+  {version:'2026-05-11-story2-stack-lower-r479', date:'May 11, 2026', importance:'fix', title:'Story Flyer 2 stack moved lower', items:['Adjusted Story Flyer 2 only by moving the venue/address/date Location Stack slightly lower within the lower decorative frame for a better visual presentation.', 'Horizontal center remains unchanged at x=0.50.', 'No PNG assets, Square flyer coordinates, save/share/download behavior, or unrelated app sections were changed.']},
   {version:'2026-05-11-story2-stack-center-r478', date:'May 11, 2026', importance:'fix', title:'Story Flyer 2 stack centered', items:['Adjusted Story Flyer 2 only: moved the venue/address/date Location Stack downward as a single unit so it is centered within the lower decorative frame.', 'Horizontal center remains unchanged at x=0.50.', 'No PNG assets, Square flyer coordinates, save/share/download behavior, or unrelated app sections were changed.']},
   {version:'2026-05-11-story-stack-followup-r477', date:'May 11, 2026', importance:'fix', title:'Story flyer stack placement refined', items:['Adjusted Story flyer templates 2, 4, 5, 6, and 8 so the venue/address/date stack is better centered within each lower event-info zone or pill.', 'Story flyer templates 1, 3, and 7 were left on their prior passing placement; Square flyer coordinates from r475 remain preserved.', 'No PNG assets, save/share/download behavior, or unrelated app sections were changed.']},
   {version:'2026-05-11-story-stack-border-centering-r476', date:'May 11, 2026', importance:'fix', title:'Story flyer event stack centered', items:['Story flyer venue/address/date overlays are centered and tightened within the lower decorative event-info zone.', 'Applied the same placement methodology across all 15 Story templates without changing the Story PNG assets.', 'Square flyer coordinates from r475 are preserved; no flyer save/share/download behavior or unrelated app sections were changed.']},
