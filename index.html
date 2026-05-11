@@ -50,6 +50,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r425: Setlists external-return guard extended. Prevents late Android/PWA leaving events during YouTube handoff from clearing the captured open-setlist context. Upload as index.html after phone test. -->
 <!-- r424: Setlists album-art external return stabilizer. Keeps source setlist restored through Android/PWA multi-step YouTube back navigation. Upload as index.html after phone test. -->
 <!-- r464: Flyer template replacement. Replaces the visible flyer template set with 15 square + 15 story external PNG assets, preserving r463 flyer scroll/kebab fixes and existing flyer save/share/render workflows. Upload index.html plus oot_flyer_square_01_r464.png through oot_flyer_square_15_r464.png and oot_flyer_story_01_r464.png through oot_flyer_story_15_r464.png after phone test. -->
+<!-- r465: Make Flyer save-feedback and announcement persistence. User-tapped templates now show/save selection feedback even when re-tapping the default template; Make Flyer field saves are flushed before close so announcements persist into Edit Saved Flyer. Upload index.html only after phone test. -->
 <head>
   <!-- r335: Calendar weekday band compressed and date grid proportionally expanded. Upload index.html only. -->
   <!-- r334: Calendar Month/Year text changed to warm gold and increased by 5px. Upload index.html only; return_current_month_icon.png remains unchanged from r333. -->
@@ -15375,8 +15376,9 @@ function openFlyerForGig(ev){
       _flyerCtx.address = _flyerCtx.street + (_flyerCtx.city ? '   \u00B7   ' + _flyerCtx.city : '');
       _flyerCtx.date    = _flyerCtx.dateOnly + (_flyerCtx.timeOnly ? '   \u00B7   ' + _flyerCtx.timeOnly : '');
       _flyerRender();
-      // r33: auto-save (debounced) on every keystroke
-      _flyerScheduleAutoSave();
+      // r33/r465: auto-save (debounced) on every keystroke. Give the announcement
+      // field a specific confirmation so initial Make Flyer text entry is not silent.
+      _flyerScheduleAutoSave(id === 'flyer-announce' ? {detail:'Announcement saved'} : null);
     };
   });
   // Render UI
@@ -15488,23 +15490,29 @@ function _flyerSetFormat(fmt){
   });
   // Build template grid for this format
   _flyerBuildTemplateGrid();
-  // Pick first available template only if no template is set OR the saved template isn't compatible with this format
+  // Pick first available template only if no template is set OR the saved template isn't compatible with this format.
+  // r465: do not assign the fallback before calling _flyerSelectTemplate; doing so made
+  // the selector think nothing changed, so format/template changes could skip feedback.
   var availableKeys = Object.keys(FLYER_TEMPLATES).filter(function(k){
     return k.endsWith('-' + fmt);
   });
   var templateChanged = false;
-  if(!_flyerCtx.template || availableKeys.indexOf(_flyerCtx.template) < 0){
-    _flyerCtx.template = availableKeys[0];
+  var nextTemplate = _flyerCtx.template;
+  if(!nextTemplate || availableKeys.indexOf(nextTemplate) < 0){
+    nextTemplate = availableKeys[0];
     templateChanged = true;
   }
-  _flyerSelectTemplate(_flyerCtx.template);
-  // r30: confirm format switch (skip when initializing or re-selecting)
-  // r57: removed redundant toast. If template also changed, _flyerSelectTemplate
-  // already fired an auto-save with template detail; skip ours so we don't write
-  // twice. Otherwise fire one save with format detail.
-  if(prevFmt && prevFmt !== fmt && !templateChanged){
-    var label = (fmt === 'story') ? 'Story (1080\u00d71920)' : 'Square (1080\u00d71080)';
-    _flyerAutoSaveCheap({immediate:true, detail:'Format: ' + label});
+  var isUserFormatSwitch = !!(prevFmt && prevFmt !== fmt);
+  if(isUserFormatSwitch){
+    var label = (fmt === 'story') ? 'Story (1080×1920)' : 'Square (1080×1080)';
+    _flyerSelectTemplate(nextTemplate, {userInitiated:true, detail:'Format: ' + label});
+  } else {
+    _flyerSelectTemplate(nextTemplate);
+  }
+  // r30/r57/r465: confirm format switch even when the template stays compatible.
+  if(isUserFormatSwitch && !templateChanged){
+    var label2 = (fmt === 'story') ? 'Story (1080×1920)' : 'Square (1080×1080)';
+    _flyerAutoSaveCheap({immediate:true, detail:'Format: ' + label2});
   }
 }
 
@@ -15530,7 +15538,7 @@ function _flyerBuildTemplateGrid(){
     label.textContent = (FLYER_NAMES[key] || key).toUpperCase();
     btn.appendChild(label);
     btn.onclick = (function(k){ return function(){
-      _flyerSelectTemplate(k);
+      _flyerSelectTemplate(k, {userInitiated:true});
       _flyerBuildTemplateGrid();
       var modal = document.getElementById('flyer-modal');
       if(modal && modal.classList.contains('flyer-saved-static')){
@@ -15554,19 +15562,21 @@ function _flyerBuildTemplateGrid(){
   });
 }
 
-function _flyerSelectTemplate(key){
+function _flyerSelectTemplate(key, opts){
+  opts = opts || {};
   if(!FLYER_TEMPLATES[key]) return;
   var prev = _flyerCtx.template;
   _flyerCtx.template = key;
   _flyerRender();
-  // r30: confirm template switch (skip when initializing or re-selecting)
-  // r57: removed redundant toast — banner from _flyerAutoSaveCheap is the single
-  // source of truth for save confirmations now. Detail line will read "Template
-  // changed" instead of generic "Flyer updated" so user knows what was saved.
-  if(prev && prev !== key){
+  // r465: user-tapped templates must give/save feedback even when the user taps
+  // the already-selected default template in the initial Make Flyer flow.
+  var userInitiated = !!opts.userInitiated;
+  var changed = !!(prev && prev !== key);
+  if(changed || userInitiated){
     var name = (typeof FLYER_NAMES !== 'undefined' && FLYER_NAMES[key]) || 'Flyer';
-    // r33: persist template change immediately (no debounce — discrete event)
-    _flyerAutoSaveCheap({immediate:true, detail:'Template: ' + name});
+    var detail = opts.detail || (changed ? ('Template: ' + name) : ('Template selected: ' + name));
+    // r33/r465: persist template selection immediately (no debounce — discrete event)
+    _flyerAutoSaveCheap({immediate:true, detail:detail});
   }
 }
 
@@ -16097,23 +16107,25 @@ function _flyerSetSaveStatus(text, tone){
   // 'saving' tone intentionally ignored — banner is for completion only.
 }
 
-function _flyerScheduleAutoSave(){
+function _flyerScheduleAutoSave(opts){
+  opts = opts || {};
   if(!_flyerCtx.gig){ return; } // no gig context, nothing to save to
   if(_flyerAutoSaveTimer){ clearTimeout(_flyerAutoSaveTimer); }
   _flyerAutoSaveTimer = setTimeout(function(){
     _flyerAutoSaveTimer = null;
-    _flyerAutoSaveCheap();
-  }, 1500);
+    _flyerAutoSaveCheap(opts);
+  }, 900);
 }
 
 function _flyerAutoSaveCheap(opts){
   // Persist field values + template + format ONLY. No JPEG.
   // opts.immediate = true suppresses debounce (caller already discrete event).
   // opts.detail = banner detail line (r57)
+  // r465: returns a Promise so close can wait for the final field save before leaving.
   opts = opts || {};
-  if(!_flyerCtx.gig || !_flyerCtx.template) return;
+  if(!_flyerCtx.gig || !_flyerCtx.template) return Promise.resolve(false);
   var gigId = String(_flyerCtx.gig.id);
-  if(!gigId || !db) return;
+  if(!gigId || !db) return Promise.resolve(false);
   // If a debounced timer is pending, cancel it (we're saving now).
   if(_flyerAutoSaveTimer){ clearTimeout(_flyerAutoSaveTimer); _flyerAutoSaveTimer = null; }
 
@@ -16139,16 +16151,18 @@ function _flyerAutoSaveCheap(opts){
   // NOTE: flyerData (the JPEG) is intentionally NOT updated here. It's preserved
   // from `existing` if present, refreshed on modal close.
 
-  db.collection('gigdetails').doc(gigId).set(updated).then(function(){
+  return db.collection('gigdetails').doc(gigId).set(updated).then(function(){
     gigDetails[gigId] = updated;
     _flyerAutoSaveInFlight = false;
     // r57: banner replaces old pill — single source of truth for save confirmations
     _flyerShowSaveBanner(bannerDetail);
+    return true;
   }).catch(function(err){
     _flyerAutoSaveInFlight = false;
     if(typeof toast === 'function'){
       toast('Auto-save failed: ' + (err && err.message ? err.message : 'network'), {tone:'error', duration:3000});
     }
+    return false;
   });
 }
 
@@ -16202,17 +16216,24 @@ function _flyerCommitFlyerData(){
 }
 
 function _flyerFlushPendingSaves(callback){
-  // Cancel any pending debounced timer and flush a final cheap-save synchronously.
-  // Then call callback when done (or immediately if nothing to flush).
+  // r465: Cancel any pending debounced timer and wait for the final cheap-save
+  // before closing. This prevents initial Make Flyer announcement text from racing
+  // the modal close/reopen path and disappearing from Edit Saved Flyer.
+  var savePromise = null;
   if(_flyerAutoSaveTimer){
     clearTimeout(_flyerAutoSaveTimer);
     _flyerAutoSaveTimer = null;
-    _flyerAutoSaveCheap({immediate:true});
+    savePromise = _flyerAutoSaveCheap({immediate:true, detail:'Flyer updated'});
   }
-  // _flyerAutoSaveCheap is async; for simplicity we don't await it here (callback
-  // can fire before write lands; that's OK since we'll _flyerCommitFlyerData() too
-  // which writes a superset of fields).
-  if(typeof callback === 'function') callback();
+  if(savePromise && typeof savePromise.then === 'function'){
+    savePromise.then(function(){
+      if(typeof callback === 'function') callback();
+    }).catch(function(){
+      if(typeof callback === 'function') callback();
+    });
+  } else {
+    if(typeof callback === 'function') callback();
+  }
 }
 
 function _flyerCloseModal(){
@@ -25322,7 +25343,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-10-flyer-template-replacement-r464';
+var WHATS_NEW_VERSION = '2026-05-11-flyer-save-feedback-r465';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
