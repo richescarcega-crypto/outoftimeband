@@ -52,6 +52,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r464: Flyer template replacement. Replaces the visible flyer template set with 15 square + 15 story external PNG assets, preserving r463 flyer scroll/kebab fixes and existing flyer save/share/render workflows. Upload index.html plus oot_flyer_square_01_r464.png through oot_flyer_square_15_r464.png and oot_flyer_story_01_r464.png through oot_flyer_story_15_r464.png after phone test. -->
 <!-- r465: Make Flyer save-feedback and announcement persistence. User-tapped templates now show/save selection feedback even when re-tapping the default template; Make Flyer field saves are flushed before close so announcements persist into Edit Saved Flyer. Upload index.html only after phone test. -->
 <!-- r466: Make Flyer feedback hardening. Adds clear inline Saving/Saved status near the Announcement field and immediate template-tap feedback while preserving r465 announcement persistence. Upload index.html only after phone test. -->
+<!-- r467: Square flyer overlay tuning. Moves announcement placement for Square templates 1,2,3,11,13,14 away from the baked-in tagline and adds a code-rendered tagline only for Square template 9. Upload index.html only after phone test. -->
 <head>
   <!-- r335: Calendar weekday band compressed and date grid proportionally expanded. Upload index.html only. -->
   <!-- r334: Calendar Month/Year text changed to warm gold and increased by 5px. Upload index.html only; return_current_month_icon.png remains unchanged from r333. -->
@@ -15041,6 +15042,7 @@ var FLYER_TEMPLATES = {
 // Each template has its own positions because the empty zones differ.
 var FLYER_ZONES = {
   'hollywood-square': {
+    announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
     venue: {y_frac: 0.780, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
     address: {y_frac: 0.845, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
     date: {y_frac: 0.905, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
@@ -15051,6 +15053,7 @@ var FLYER_ZONES = {
     date: {y_frac: 0.895, x_frac: 0.50, size: 60, color: '#ffd9a3', bold: true},
   },
   'neon-square': {
+    announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
     venue: {y_frac: 0.780, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
     address: {y_frac: 0.845, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
     date: {y_frac: 0.905, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
@@ -15061,6 +15064,7 @@ var FLYER_ZONES = {
     date: {y_frac: 0.895, x_frac: 0.50, size: 60, color: '#ffd9a3', bold: true},
   },
   'skyline-square': {
+    announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
     venue: {y_frac: 0.780, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
     address: {y_frac: 0.845, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
     date: {y_frac: 0.905, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
@@ -15121,6 +15125,8 @@ var FLYER_ZONES = {
     date: {y_frac: 0.895, x_frac: 0.50, size: 60, color: '#ffd9a3', bold: true},
   },
   'oot09-square': {
+    tagline: {y_frac: 0.716, x_frac: 0.50, size: 42, color: '#f5c66b'},
+    announcement: {y_frac: 0.762, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
     venue: {y_frac: 0.780, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
     address: {y_frac: 0.845, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
     date: {y_frac: 0.905, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
@@ -15141,6 +15147,7 @@ var FLYER_ZONES = {
     date: {y_frac: 0.895, x_frac: 0.50, size: 60, color: '#ffd9a3', bold: true},
   },
   'oot11-square': {
+    announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
     venue: {y_frac: 0.780, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
     address: {y_frac: 0.845, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
     date: {y_frac: 0.905, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
@@ -15161,6 +15168,7 @@ var FLYER_ZONES = {
     date: {y_frac: 0.895, x_frac: 0.50, size: 60, color: '#ffd9a3', bold: true},
   },
   'oot13-square': {
+    announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
     venue: {y_frac: 0.780, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
     address: {y_frac: 0.845, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
     date: {y_frac: 0.905, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
@@ -15171,6 +15179,7 @@ var FLYER_ZONES = {
     date: {y_frac: 0.895, x_frac: 0.50, size: 60, color: '#ffd9a3', bold: true},
   },
   'oot14-square': {
+    announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
     venue: {y_frac: 0.780, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
     address: {y_frac: 0.845, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
     date: {y_frac: 0.905, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
@@ -15627,6 +15636,29 @@ function _flyerRender(){
     // Overlay text fields
     var zones = FLYER_ZONES[key];
     if(!zones) return;
+    // r467: Square Flyer #9 asset is the only square template missing the baked-in tagline.
+    // Add a code-rendered tagline there only, before event details are drawn.
+    if(zones.tagline){
+      var tagCfg = zones.tagline;
+      var tagText = "Where Rock 'n' Roll Meets the Dance Floor";
+      var tagSize = tagCfg.size || 42;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.font = "italic 700 " + tagSize + "px 'Georgia', 'Times New Roman', serif";
+      while(tagSize > 24 && ctx.measureText(tagText).width > dims.w - 120){
+        tagSize -= 2;
+        ctx.font = "italic 700 " + tagSize + "px 'Georgia', 'Times New Roman', serif";
+      }
+      var tagX = dims.w * (tagCfg.x_frac != null ? tagCfg.x_frac : 0.5);
+      var tagY = dims.h * tagCfg.y_frac;
+      ctx.fillStyle = 'rgba(0,0,0,0.82)';
+      ctx.fillText(tagText, tagX + 3, tagY + 4);
+      ctx.lineWidth = Math.max(1.5, Math.round(tagSize * 0.04));
+      ctx.strokeStyle = 'rgba(0,0,0,0.72)';
+      ctx.strokeText(tagText, tagX, tagY);
+      ctx.fillStyle = tagCfg.color || '#f5c66b';
+      ctx.fillText(tagText, tagX, tagY);
+    }
     ['venue','address','date'].forEach(function(field){
       var cfg = zones[field];
       if(!cfg) return;
@@ -15810,16 +15842,16 @@ function _flyerRender(){
         }
       }
     });
-    // Announcement line — small italic kicker line ABOVE the venue (more like a real poster)
+    // Announcement line — default kicker line above the venue.
+    // r467: allow per-template announcement coordinates for square templates where
+    // the original default collided with baked-in artwork/tagline.
     var ann = (_flyerCtx.announce || '').trim();
     if(ann){
       var venueCfg = zones['venue'];
-      if(venueCfg){
-        // Kicker sits above the venue — DOUBLED size + more breathing room
-        var annSize = Math.round(venueCfg.size * 0.72);
-        if(annSize < 36) annSize = 36;
-        var venueY = dims.h * venueCfg.y_frac;
-        // Auto-shrink so it fits
+      var annCfg = zones['announcement'];
+      if(venueCfg || annCfg){
+        var annSize = annCfg && annCfg.size ? annCfg.size : Math.round(venueCfg.size * 0.72);
+        if(annSize < 36 && !(annCfg && annCfg.size)) annSize = 36;
         ctx.font = "italic 700 " + annSize + "px 'Exo 2', 'Helvetica', sans-serif";
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
@@ -15827,14 +15859,19 @@ function _flyerRender(){
           annSize -= 2;
           ctx.font = "italic 700 " + annSize + "px 'Exo 2', 'Helvetica', sans-serif";
         }
-        // Position with a larger gap above the venue text
-        var annY = venueY - annSize - 36;
+        var annX = dims.w * (annCfg && annCfg.x_frac != null ? annCfg.x_frac : 0.5);
+        var annY;
+        if(annCfg && annCfg.y_frac != null){
+          annY = dims.h * annCfg.y_frac;
+        } else {
+          var venueY = dims.h * venueCfg.y_frac;
+          annY = venueY - annSize - 36;
+        }
         if(annY < 0) annY = 0;
-        // Subtle drop shadow + bright off-white so it reads on any template bg
-        ctx.fillStyle = 'rgba(0,0,0,0.7)';
-        ctx.fillText(ann, dims.w/2 + 2, annY + 2);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText(ann, dims.w/2, annY);
+        ctx.fillStyle = 'rgba(0,0,0,0.74)';
+        ctx.fillText(ann, annX + 2, annY + 2);
+        ctx.fillStyle = annCfg && annCfg.color ? annCfg.color : '#ffffff';
+        ctx.fillText(ann, annX, annY);
       }
     }
   });
@@ -25385,7 +25422,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-11-flyer-feedback-hardening-r466';
+var WHATS_NEW_VERSION = '2026-05-11-square-flyer-overlay-r467';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
