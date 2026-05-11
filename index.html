@@ -30,6 +30,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r459: Calendar save icon right-align and 10% size increase. Save icon is 32px and right-aligned on Gig, Rehearsal, Blackout, and Custom forms. Upload index.html plus save_icon_r461.png after phone test. -->
 <!-- r458: Calendar save icon sizing/Important Date cleanup. Shrinks save icon 50%, removes old Important Date green-save underlay, and gives New Gig form safer bottom clearance. Upload index.html plus save_icon_r461.png after phone test. -->
 <!-- r457: Version-marker correction for external save icon build. Bumps WHATS_NEW_VERSION so phone auto-update detects the build. Upload index.html plus save_icon_r461.png after phone test. -->
+<!-- r482: Story Flyer 8 follow-up correction. Moves the boardwalk-story Location Stack lower/centered between the top decorative border and a lowered re-drawn bottom decorative rule. No other flyer templates or unrelated UI behavior changed. -->
 <!-- r456: Externalized calendar save icon asset. Save controls now reference save_icon_r461.png instead of embedded base64. Upload index.html plus save_icon_r461.png after phone test. -->
 <!-- r455: Calendar event save controls used an embedded save icon; superseded by r456 external asset. -->
 <!-- r449: Edit Saved Flyer static/no-bounce + visible top actions. Removes saved flyer modal bounce and forces the top flyer actions menu above the editor. Upload as index.html after phone test. -->
@@ -15127,9 +15128,10 @@ var FLYER_ZONES = {
     date: {y_frac: 0.866, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'boardwalk-story': {
-    venue: {y_frac: 0.720, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.778, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.848, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.730, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.788, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.858, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
+    bottomRuleShift: {oldY_frac: 0.835, newY_frac: 0.900, xInset: 150, sampleYOffset: 26, coverHeight: 34, lineHalfWidth: 300, gap: 20, diamondHalf: 6, lineWidth: 3, color: '#c89f45'},
   },
   'oot09-square': {
     tagline: {y_frac: 0.650, x_frac: 0.50, size: 42, color: '#f5c66b'},
@@ -15647,6 +15649,9 @@ function _flyerRender(){
     if(zones && zones.panelExtend){
       _flyerApplyPanelExtension(ctx, img, dims, zones.panelExtend);
     }
+    if(zones && zones.bottomRuleShift){
+      _flyerApplyBottomRuleShift(ctx, img, dims, zones.bottomRuleShift);
+    }
     if(!zones) return;
     // r467: Square Flyer #9 asset is the only square template missing the baked-in tagline.
     // Add a code-rendered tagline there only, before event details are drawn.
@@ -15887,6 +15892,51 @@ function _flyerRender(){
       }
     }
   });
+}
+
+
+function _flyerApplyBottomRuleShift(ctx, img, dims, cfg){
+  if(!ctx || !img || !dims || !cfg) return;
+  var oldY = Math.round(dims.h * (cfg.oldY_frac != null ? cfg.oldY_frac : 0.835));
+  var newY = Math.round(dims.h * (cfg.newY_frac != null ? cfg.newY_frac : 0.900));
+  var xInset = cfg.xInset != null ? cfg.xInset : 150;
+  var sampleYOffset = cfg.sampleYOffset != null ? cfg.sampleYOffset : 26;
+  var coverHeight = cfg.coverHeight != null ? cfg.coverHeight : 34;
+  var w = dims.w - (xInset * 2);
+  if(w <= 0) return;
+  var destY = Math.max(0, Math.round(oldY - coverHeight/2));
+  var srcY = Math.max(0, Math.min(dims.h - coverHeight, oldY + sampleYOffset));
+  try {
+    ctx.drawImage(img, xInset, srcY, w, coverHeight, xInset, destY, w, coverHeight);
+  } catch(e) {
+    ctx.fillStyle = '#081a3b';
+    ctx.fillRect(xInset, destY, w, coverHeight);
+  }
+  var half = cfg.lineHalfWidth != null ? cfg.lineHalfWidth : 300;
+  var gap = cfg.gap != null ? cfg.gap : 20;
+  var diamondHalf = cfg.diamondHalf != null ? cfg.diamondHalf : 6;
+  var lineWidth = cfg.lineWidth != null ? cfg.lineWidth : 3;
+  var color = cfg.color || '#c89f45';
+  var cx = Math.round(dims.w / 2);
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = lineWidth;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx - half, newY);
+  ctx.lineTo(cx - gap, newY);
+  ctx.moveTo(cx + gap, newY);
+  ctx.lineTo(cx + half, newY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx, newY - diamondHalf);
+  ctx.lineTo(cx + diamondHalf, newY);
+  ctx.lineTo(cx, newY + diamondHalf);
+  ctx.lineTo(cx - diamondHalf, newY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
 }
 
 function _flyerApplyPanelExtension(ctx, img, dims, cfg){
@@ -25498,7 +25548,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-11-story6-stack-lower-r481';
+var WHATS_NEW_VERSION = '2026-05-11-story8-locstack-center-r482';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
