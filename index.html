@@ -54,6 +54,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r466: Make Flyer feedback hardening. Adds clear inline Saving/Saved status near the Announcement field and immediate template-tap feedback while preserving r465 announcement persistence. Upload index.html only after phone test. -->
 <!-- r467: Square flyer overlay tuning. Moves announcement placement for Square templates 1,2,3,11,13,14 away from the baked-in tagline and adds a code-rendered tagline only for Square template 9. Upload index.html only after phone test. -->
 <!-- r468: Square flyer overlay follow-up. Refines Square templates 1,2,3,9,11,13,14 based on phone test: targeted lower event-stack shifts, Square 2 spacing, Square 9 tagline/announcement/stack spacing. Baked-in taglines are not asset-edited. Upload index.html only after phone test. -->
+<!-- r474: Square location-stack vertical centering. Coordinate-only flyer-zone nudge: moves Square flyer event stacks up slightly so Location / Address / Day-Date-Time sit vertically centered inside lower location-stack pills. No assets, story flyers, saved flyer data, or unrelated app sections changed. Upload index.html only after phone test. -->
 <head>
   <!-- r335: Calendar weekday band compressed and date grid proportionally expanded. Upload index.html only. -->
   <!-- r334: Calendar Month/Year text changed to warm gold and increased by 5px. Upload index.html only; return_current_month_icon.png remains unchanged from r333. -->
@@ -15044,9 +15045,9 @@ var FLYER_TEMPLATES = {
 var FLYER_ZONES = {
   'hollywood-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
-    venue: {y_frac: 0.805, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.865, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.920, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.795, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.855, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.910, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'hollywood-story': {
     venue: {y_frac: 0.760, x_frac: 0.50, size: 78, color: '#d4b56a', bold: true},
@@ -15055,9 +15056,9 @@ var FLYER_ZONES = {
   },
   'neon-square': {
     announcement: {y_frac: 0.786, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
-    venue: {y_frac: 0.825, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.885, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.935, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.815, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.875, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.925, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'neon-story': {
     venue: {y_frac: 0.760, x_frac: 0.50, size: 78, color: '#d4b56a', bold: true},
@@ -15066,9 +15067,9 @@ var FLYER_ZONES = {
   },
   'skyline-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
-    venue: {y_frac: 0.805, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.865, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.920, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.795, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.855, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.910, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'skyline-story': {
     venue: {y_frac: 0.760, x_frac: 0.50, size: 78, color: '#d4b56a', bold: true},
@@ -15077,9 +15078,9 @@ var FLYER_ZONES = {
   },
   'deco-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
-    venue: {y_frac: 0.800, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.860, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.910, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.790, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.850, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.900, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'deco-story': {
     venue: {y_frac: 0.760, x_frac: 0.50, size: 78, color: '#d4b56a', bold: true},
@@ -15088,9 +15089,9 @@ var FLYER_ZONES = {
   },
   'disco-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
-    venue: {y_frac: 0.800, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.860, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.910, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.790, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.850, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.900, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'disco-story': {
     venue: {y_frac: 0.760, x_frac: 0.50, size: 78, color: '#d4b56a', bold: true},
@@ -15099,9 +15100,9 @@ var FLYER_ZONES = {
   },
   'comic-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
-    venue: {y_frac: 0.800, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.860, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.910, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.790, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.850, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.900, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'comic-story': {
     venue: {y_frac: 0.760, x_frac: 0.50, size: 78, color: '#d4b56a', bold: true},
@@ -15109,9 +15110,9 @@ var FLYER_ZONES = {
     date: {y_frac: 0.895, x_frac: 0.50, size: 60, color: '#ffd9a3', bold: true},
   },
   'metropolis-square': {
-    venue: {y_frac: 0.780, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.845, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.905, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.770, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.835, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.895, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'metropolis-story': {
     venue: {y_frac: 0.760, x_frac: 0.50, size: 78, color: '#d4b56a', bold: true},
@@ -15119,9 +15120,9 @@ var FLYER_ZONES = {
     date: {y_frac: 0.895, x_frac: 0.50, size: 60, color: '#ffd9a3', bold: true},
   },
   'boardwalk-square': {
-    venue: {y_frac: 0.780, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.845, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.905, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.770, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.835, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.895, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'boardwalk-story': {
     venue: {y_frac: 0.760, x_frac: 0.50, size: 78, color: '#d4b56a', bold: true},
@@ -15131,9 +15132,9 @@ var FLYER_ZONES = {
   'oot09-square': {
     tagline: {y_frac: 0.650, x_frac: 0.50, size: 42, color: '#f5c66b'},
     announcement: {y_frac: 0.699, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
-    venue: {y_frac: 0.780, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.845, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.905, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.770, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.835, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.895, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'oot09-story': {
     venue: {y_frac: 0.760, x_frac: 0.50, size: 78, color: '#d4b56a', bold: true},
@@ -15142,9 +15143,9 @@ var FLYER_ZONES = {
   },
   'oot10-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
-    venue: {y_frac: 0.800, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.860, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.910, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.790, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.850, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.900, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'oot10-story': {
     venue: {y_frac: 0.760, x_frac: 0.50, size: 78, color: '#d4b56a', bold: true},
@@ -15153,9 +15154,9 @@ var FLYER_ZONES = {
   },
   'oot11-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
-    venue: {y_frac: 0.805, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.865, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.920, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.795, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.855, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.910, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'oot11-story': {
     venue: {y_frac: 0.760, x_frac: 0.50, size: 78, color: '#d4b56a', bold: true},
@@ -15164,9 +15165,9 @@ var FLYER_ZONES = {
   },
   'oot12-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
-    venue: {y_frac: 0.800, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.860, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.910, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.790, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.850, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.900, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'oot12-story': {
     venue: {y_frac: 0.760, x_frac: 0.50, size: 78, color: '#d4b56a', bold: true},
@@ -15175,9 +15176,9 @@ var FLYER_ZONES = {
   },
   'oot13-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
-    venue: {y_frac: 0.805, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.865, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.920, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.795, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.855, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.910, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'oot13-story': {
     venue: {y_frac: 0.760, x_frac: 0.50, size: 78, color: '#d4b56a', bold: true},
@@ -15186,9 +15187,9 @@ var FLYER_ZONES = {
   },
   'oot14-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
-    venue: {y_frac: 0.805, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.865, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.920, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.795, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.855, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.910, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'oot14-story': {
     venue: {y_frac: 0.760, x_frac: 0.50, size: 78, color: '#d4b56a', bold: true},
@@ -15196,9 +15197,9 @@ var FLYER_ZONES = {
     date: {y_frac: 0.895, x_frac: 0.50, size: 60, color: '#ffd9a3', bold: true},
   },
   'oot15-square': {
-    venue: {y_frac: 0.780, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.845, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.905, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.770, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.835, x_frac: 0.50, size: 30, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.895, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'oot15-story': {
     venue: {y_frac: 0.760, x_frac: 0.50, size: 78, color: '#d4b56a', bold: true},
@@ -25495,7 +25496,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-11-square-stack-centering-r473';
+var WHATS_NEW_VERSION = '2026-05-11-square-stack-centering-r474';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -25788,6 +25789,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-11-square-stack-centering-r474', date:'May 11, 2026', importance:'fix', title:'Square flyer stack vertical centering', items:['Square flyer Location / Address / Day-Date-Time stacks were moved up slightly to better center them vertically inside the lower location-stack pill.', 'This is a coordinate-only Square flyer adjustment; no flyer assets, Story flyers, saved flyer data, share/download behavior, Calendar behavior, or unrelated tabs were changed.']},
   {version:'2026-05-09-flyer-disco-kebab-r463', date:'May 9, 2026', importance:'fix', title:'Flyer Disco template and kebab fixed', items:['Replaced embedded Disco flyer template data with external PNG assets because the Disco Story WebP decoded as corrupt on frame load.', 'Edit Saved Flyer header kebab no longer loses its action sheet during lifecycle cleanup.', 'Template scrolling and template replacement behavior from r462 are preserved.', 'No flyer text zones, save-to-gig behavior, share/download logic, calendar behavior, or unrelated tabs were changed.']},
 {version:'2026-05-09-flyer-disco-kebab-r463', date:'May 9, 2026', importance:'fix', title:'Edit Saved Flyer Change page scroll fixed', items:['Edit Saved Flyer → Change now temporarily unlocks vertical scrolling so all template images can be reached.', 'Selecting a replacement flyer still works and returns the editor to its compact saved-flyer layout.', 'The flyer header kebab/action sheet remains tappable from the Edit Saved Flyer page.', 'No flyer rendering, save-to-gig behavior, share/download logic, calendar behavior, or unrelated tabs were changed.']},
 {version:'2026-05-09-flyer-disco-kebab-r463', date:'May 9, 2026', importance:'fix', title:'Save icon cache and placement corrected', items:['Uses the newest save icon as a new versioned asset named save_icon_r461.png so the phone cannot keep showing the old cached icon.', 'Restores right-side placement for Gig and Blackout save icons.', 'Keeps Setlist reorder and Arrange Tabs on the new save icon while preserving their current placement.', 'No save handlers, form fields, Firebase behavior, lifecycle behavior, or flyer workflow were changed.']},
