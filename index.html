@@ -51,7 +51,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r424: Setlists album-art external return stabilizer. Keeps source setlist restored through Android/PWA multi-step YouTube back navigation. Upload as index.html after phone test. -->
 <!-- r464: Flyer template replacement. Replaces the visible flyer template set with 15 square + 15 story external PNG assets, preserving r463 flyer scroll/kebab fixes and existing flyer save/share/render workflows. Upload index.html plus oot_flyer_square_01_r473.png through oot_flyer_square_15_r473.png and oot_flyer_story_01_r464.png through oot_flyer_story_15_r464.png after phone test. -->
 <!-- r475: Square flyer Location Stack centering. Recalculates Square flyer venue/address/date y-coordinates so the rendered Location Stack sits vertically centered inside each lower Location Stack pill/zone. Coordinate-only patch from r473 base; no asset or unrelated UI changes. -->
-<!-- r477: Story flyer per-template Location Stack corrections. Targeted follow-up patch from r476: adjusts Story flyer venue/address/date placement only for user-flagged templates so the stack centers properly within each lower event-info zone or pill. No asset, square-flyer, or unrelated UI changes. -->
+<!-- r478: Story Flyer 2 Location Stack single-template correction. Moves only neon-story venue/address/date down together so the Location Stack is centered within the lower decorative frame. No asset, square-flyer, or unrelated UI changes. -->
 <!-- r465: Make Flyer save-feedback and announcement persistence. User-tapped templates now show/save selection feedback even when re-tapping the default template; Make Flyer field saves are flushed before close so announcements persist into Edit Saved Flyer. Upload index.html only after phone test. -->
 <!-- r466: Make Flyer feedback hardening. Adds clear inline Saving/Saved status near the Announcement field and immediate template-tap feedback while preserving r465 announcement persistence. Upload index.html only after phone test. -->
 <!-- r467: Square flyer overlay tuning. Moves announcement placement for Square templates 1,2,3,11,13,14 away from the baked-in tagline and adds a code-rendered tagline only for Square template 9. Upload index.html only after phone test. -->
@@ -15062,9 +15062,9 @@ var FLYER_ZONES = {
     date: {y_frac: 0.908, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'neon-story': {
-    venue: {y_frac: 0.724, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.782, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.854, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.744, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.802, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.874, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
   },
   'skyline-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
@@ -25497,7 +25497,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-11-story-stack-followup-r477';
+var WHATS_NEW_VERSION = '2026-05-11-story2-stack-center-r478';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -25790,6 +25790,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-11-story2-stack-center-r478', date:'May 11, 2026', importance:'fix', title:'Story Flyer 2 stack centered', items:['Adjusted Story Flyer 2 only: moved the venue/address/date Location Stack downward as a single unit so it is centered within the lower decorative frame.', 'Horizontal center remains unchanged at x=0.50.', 'No PNG assets, Square flyer coordinates, save/share/download behavior, or unrelated app sections were changed.']},
   {version:'2026-05-11-story-stack-followup-r477', date:'May 11, 2026', importance:'fix', title:'Story flyer stack placement refined', items:['Adjusted Story flyer templates 2, 4, 5, 6, and 8 so the venue/address/date stack is better centered within each lower event-info zone or pill.', 'Story flyer templates 1, 3, and 7 were left on their prior passing placement; Square flyer coordinates from r475 remain preserved.', 'No PNG assets, save/share/download behavior, or unrelated app sections were changed.']},
   {version:'2026-05-11-story-stack-border-centering-r476', date:'May 11, 2026', importance:'fix', title:'Story flyer event stack centered', items:['Story flyer venue/address/date overlays are centered and tightened within the lower decorative event-info zone.', 'Applied the same placement methodology across all 15 Story templates without changing the Story PNG assets.', 'Square flyer coordinates from r475 are preserved; no flyer save/share/download behavior or unrelated app sections were changed.']},
   {version:'2026-05-09-flyer-disco-kebab-r463', date:'May 9, 2026', importance:'fix', title:'Flyer Disco template and kebab fixed', items:['Replaced embedded Disco flyer template data with external PNG assets because the Disco Story WebP decoded as corrupt on frame load.', 'Edit Saved Flyer header kebab no longer loses its action sheet during lifecycle cleanup.', 'Template scrolling and template replacement behavior from r462 are preserved.', 'No flyer text zones, save-to-gig behavior, share/download logic, calendar behavior, or unrelated tabs were changed.']},
