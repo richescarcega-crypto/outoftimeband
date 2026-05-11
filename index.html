@@ -51,6 +51,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r424: Setlists album-art external return stabilizer. Keeps source setlist restored through Android/PWA multi-step YouTube back navigation. Upload as index.html after phone test. -->
 <!-- r464: Flyer template replacement. Replaces the visible flyer template set with 15 square + 15 story external PNG assets, preserving r463 flyer scroll/kebab fixes and existing flyer save/share/render workflows. Upload index.html plus oot_flyer_square_01_r464.png through oot_flyer_square_15_r464.png and oot_flyer_story_01_r464.png through oot_flyer_story_15_r464.png after phone test. -->
 <!-- r465: Make Flyer save-feedback and announcement persistence. User-tapped templates now show/save selection feedback even when re-tapping the default template; Make Flyer field saves are flushed before close so announcements persist into Edit Saved Flyer. Upload index.html only after phone test. -->
+<!-- r466: Make Flyer feedback hardening. Adds clear inline Saving/Saved status near the Announcement field and immediate template-tap feedback while preserving r465 announcement persistence. Upload index.html only after phone test. -->
 <head>
   <!-- r335: Calendar weekday band compressed and date grid proportionally expanded. Upload index.html only. -->
   <!-- r334: Calendar Month/Year text changed to warm gold and increased by 5px. Upload index.html only; return_current_month_icon.png remains unchanged from r333. -->
@@ -7217,7 +7218,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
           <input id="flyer-timeOnly" class="mi" style="width:100%;margin:0;text-transform:uppercase;" placeholder="9:00 PM">
         </div>
         <div style="margin-bottom:12px;">
-          <label style="display:block;font-size:10px;color:#8aa8d6;margin-bottom:3px;">Announcement <span style="color:#5a7396;font-style:italic;font-weight:normal;">(optional)</span></label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:10px;color:#8aa8d6;margin-bottom:3px;"><span>Announcement <span style="color:#5a7396;font-style:italic;font-weight:normal;">(optional)</span></span><span id="flyer-announce-save-state" style="margin-left:auto;font-family:Russo One,sans-serif;font-size:9px;letter-spacing:1px;color:#06d6a0;opacity:0;transition:opacity .18s ease-out;"></span></label>
           <input id="flyer-announce" class="mi" style="width:100%;margin:0;" placeholder='e.g. "John&apos;s birthday show" or "Park in back"'>
         </div>
       </div>
@@ -15360,6 +15361,7 @@ function openFlyerForGig(ev){
   var timeOnlyEl = document.getElementById('flyer-timeOnly'); if(timeOnlyEl) timeOnlyEl.value = timeOnly;
   var annEl = document.getElementById('flyer-announce');
   if(annEl) annEl.value = announce || '';
+  _flyerSetInlineSaveState('', 'idle');
   // Wire input listeners (idempotent — replace handlers each open)
   ['flyer-venue','flyer-street','flyer-city','flyer-dateOnly','flyer-timeOnly','flyer-announce'].forEach(function(id){
     var el = document.getElementById(id);
@@ -15376,9 +15378,11 @@ function openFlyerForGig(ev){
       _flyerCtx.address = _flyerCtx.street + (_flyerCtx.city ? '   \u00B7   ' + _flyerCtx.city : '');
       _flyerCtx.date    = _flyerCtx.dateOnly + (_flyerCtx.timeOnly ? '   \u00B7   ' + _flyerCtx.timeOnly : '');
       _flyerRender();
-      // r33/r465: auto-save (debounced) on every keystroke. Give the announcement
-      // field a specific confirmation so initial Make Flyer text entry is not silent.
-      _flyerScheduleAutoSave(id === 'flyer-announce' ? {detail:'Announcement saved'} : null);
+      // r33/r465/r466: auto-save (debounced) on every keystroke. For the
+      // Announcement field, show explicit inline Saving/Saved feedback so the
+      // Make Flyer autosave is visible even if the slide-down banner is missed.
+      if(id === 'flyer-announce'){ _flyerSetInlineSaveState('Saving...', 'saving'); }
+      _flyerScheduleAutoSave(id === 'flyer-announce' ? {detail:'Announcement saved', field:'announcement'} : null);
     };
   });
   // Render UI
@@ -15575,8 +15579,14 @@ function _flyerSelectTemplate(key, opts){
   if(changed || userInitiated){
     var name = (typeof FLYER_NAMES !== 'undefined' && FLYER_NAMES[key]) || 'Flyer';
     var detail = opts.detail || (changed ? ('Template: ' + name) : ('Template selected: ' + name));
+    // r466: give immediate visible confirmation for template taps, then let
+    // the Firestore save complete and refresh the inline status to Saved.
+    if(userInitiated){
+      _flyerSetInlineSaveState('Saving...', 'saving');
+      _flyerShowSaveBanner(detail);
+    }
     // r33/r465: persist template selection immediately (no debounce — discrete event)
-    _flyerAutoSaveCheap({immediate:true, detail:detail});
+    _flyerAutoSaveCheap({immediate:true, detail:detail, field:'template'});
   }
 }
 
@@ -16038,6 +16048,30 @@ var _flyerAutoSaveInFlight = false;
 var _flyerBannerTimer = null;
 var _flyerBannerLastShown = 0;
 var _flyerSaveAudio = null;
+var _flyerInlineStateTimer = null;
+
+function _flyerSetInlineSaveState(text, tone){
+  // r466: persistent, field-level save feedback for Make Flyer autosave.
+  // This is intentionally separate from the green banner so users can see
+  // Saving/Saved even if the banner animation is missed.
+  var el = document.getElementById('flyer-announce-save-state');
+  if(!el) return;
+  if(_flyerInlineStateTimer){ clearTimeout(_flyerInlineStateTimer); _flyerInlineStateTimer = null; }
+  if(!text){
+    el.textContent = '';
+    el.style.opacity = '0';
+    return;
+  }
+  el.textContent = text;
+  el.style.color = tone === 'saving' ? '#f5c518' : (tone === 'error' ? '#ff5c7a' : '#06d6a0');
+  el.style.opacity = '1';
+  if(tone === 'saved'){
+    _flyerInlineStateTimer = setTimeout(function(){
+      el.style.opacity = '0';
+      _flyerInlineStateTimer = null;
+    }, 2200);
+  }
+}
 
 function _flyerPlaySaveSound(){
   // Synthesize a brief 2-note success chime via Web Audio. No asset file needed.
@@ -16154,11 +16188,17 @@ function _flyerAutoSaveCheap(opts){
   return db.collection('gigdetails').doc(gigId).set(updated).then(function(){
     gigDetails[gigId] = updated;
     _flyerAutoSaveInFlight = false;
+    if(opts.field === 'announcement' || opts.field === 'template'){
+      _flyerSetInlineSaveState('Saved', 'saved');
+    }
     // r57: banner replaces old pill — single source of truth for save confirmations
     _flyerShowSaveBanner(bannerDetail);
     return true;
   }).catch(function(err){
     _flyerAutoSaveInFlight = false;
+    if(opts.field === 'announcement' || opts.field === 'template'){
+      _flyerSetInlineSaveState('Save failed', 'error');
+    }
     if(typeof toast === 'function'){
       toast('Auto-save failed: ' + (err && err.message ? err.message : 'network'), {tone:'error', duration:3000});
     }
@@ -16241,8 +16281,10 @@ function _flyerCloseModal(){
   // Drain pending saves, then capture JPEG, then close the modal.
   _flyerFlushPendingSaves(function(){
     _flyerCommitFlyerData();
-    // r57: reset banner state so it doesn't flash visible on next open
+    // r57/r466: reset banner and inline state so they do not flash visible on next open
     if(_flyerBannerTimer){ clearTimeout(_flyerBannerTimer); _flyerBannerTimer = null; }
+    if(_flyerInlineStateTimer){ clearTimeout(_flyerInlineStateTimer); _flyerInlineStateTimer = null; }
+    _flyerSetInlineSaveState('', 'idle');
     var banner = document.getElementById('flyer-save-banner');
     if(banner){ banner.style.transform = 'translateY(-110%)'; }
     if(typeof clM === 'function') clM('flyer-modal');
@@ -25343,7 +25385,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-11-flyer-save-feedback-r465';
+var WHATS_NEW_VERSION = '2026-05-11-flyer-feedback-hardening-r466';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
