@@ -14,6 +14,8 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r331: Calendar All Events filter drawer restored to slim dot-list style; filter backdrop now covers event list so no event info shows behind/around the filter. Upload as index.html after phone test. -->
 <!-- r321: Calendar header Next Gig widget vertical centering only. Centers the existing widget between the gold decorative line and the Calendar header bottom border; no horizontal movement, no size change, no other Calendar/app element changes. Upload as index.html after phone test. -->
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
+<!-- r504: Story Flyer 13 asset cleanup. Uses cleaned oot_flyer_story_13_r504.png and removes failed code cover/relayout for oot13-story lower decorative rules; text positions unchanged. -->
+<!-- r505: Saved flyer stale-render refresh. Tracks template asset source, invalidates stale saved JPEGs when a template asset filename changes, and makes image cache source-aware so Story Flyer 13 reloads the cleaned r504 asset. Upload index.html only after phone test. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -15055,7 +15057,7 @@ var FLYER_TEMPLATES = {
   'oot12-square': 'oot_flyer_square_12_r473.png',
   'oot12-story': 'oot_flyer_story_12_r464.png',
   'oot13-square': 'oot_flyer_square_13_r473.png',
-  'oot13-story': 'oot_flyer_story_13_r464.png',
+  'oot13-story': 'oot_flyer_story_13_r504.png',
   'oot14-square': 'oot_flyer_square_14_r473.png',
   'oot14-story': 'oot_flyer_story_14_r464.png',
   'oot15-square': 'oot_flyer_square_15_r473.png',
@@ -15207,7 +15209,6 @@ var FLYER_ZONES = {
     venue: {y_frac: 0.760, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true, ruleY_frac: 0.895, hideRule: true},
     address: {y_frac: 0.818, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
     date: {y_frac: 0.858, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
-    detailRuleRelayout: {oldY_frac: 0.844, newY_frac: 0.812, xInset: 145, sampleYOffset: -54, coverHeight: 42, coverFillColor: '#071a38', lineHalfWidth: 320, gap: 20, diamondHalf: 6, lineWidth: 2.5, color: '#c89f45', removeOnly: true},
   },
   'oot14-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
@@ -15281,8 +15282,38 @@ var _flyerCtx = {
   address: '',
   date: '',
   announce: '',         // optional announcement line
-  loadedImages: {}      // template key -> loaded HTMLImageElement
+  loadedImages: {},     // template key -> loaded HTMLImageElement
+  loadedImageSrc: {},  // r505: template key -> asset URL used for cached image
+  staleSavedRender: false
 };
+
+
+// r505: Saved flyer render staleness helpers. Saved flyers store a JPEG in Firestore;
+// when a template asset file changes, that JPEG can be visually stale even though
+// the template key is unchanged. Track/compare the asset source so old renders get refreshed.
+var FLYER_FORCE_REFRESH_TEMPLATES = {
+  'oot13-story': '2026-05-12-story13-asset-clean-r504'
+};
+function _flyerTemplateSrcForKey(key){
+  try { return (key && FLYER_TEMPLATES && FLYER_TEMPLATES[key]) ? String(FLYER_TEMPLATES[key]) : ''; } catch(e){ return ''; }
+}
+function _flyerSavedRenderIsStale(det){
+  if(!det || !det.flyerData || !det.flyerTemplateKey) return false;
+  var currentSrc = _flyerTemplateSrcForKey(det.flyerTemplateKey);
+  if(!currentSrc) return false;
+  if(det.flyerTemplateSrc && String(det.flyerTemplateSrc) !== currentSrc) return true;
+  if(!det.flyerTemplateSrc && FLYER_FORCE_REFRESH_TEMPLATES[det.flyerTemplateKey]) return true;
+  if(det.flyerTemplateAssetVersion && FLYER_FORCE_REFRESH_TEMPLATES[det.flyerTemplateKey] && String(det.flyerTemplateAssetVersion) !== String(FLYER_FORCE_REFRESH_TEMPLATES[det.flyerTemplateKey])) return true;
+  return false;
+}
+function _flyerPreviewSrcForDetails(det){
+  if(!det) return '';
+  if(_flyerSavedRenderIsStale(det)) return _flyerTemplateSrcForKey(det.flyerTemplateKey) || '';
+  return det.flyerData || '';
+}
+function _flyerCurrentAssetVersion(key){
+  return FLYER_FORCE_REFRESH_TEMPLATES[key] || _flyerTemplateSrcForKey(key) || '';
+}
 
 // r380: return-path context when the flyer editor is launched from Gig Details.
 // Calendar drawer launches leave this null so they keep returning to the drawer.
@@ -15310,6 +15341,7 @@ function openFlyerForGig(ev){
   var det = (typeof gigDetails !== 'undefined' && gigDetails[String(ev.id)]) || {};
   // If a saved flyer exists for this gig, restore those exact field values + template
   var hasSaved = !!det.flyerData;
+  var savedRenderStale = _flyerSavedRenderIsStale(det);
   var venue, address, dateStr, announce, savedTemplate, savedFormat;
   // r35 helpers: parse combined legacy strings into parts
   function _splitAddrCombined(str){
@@ -15391,6 +15423,7 @@ function openFlyerForGig(ev){
   _flyerCtx.address = address; // computed combined for renderer
   _flyerCtx.date = dateStr;    // computed combined for renderer
   _flyerCtx.announce = announce || '';
+  _flyerCtx.staleSavedRender = !!savedRenderStale;
   _flyerCtx.format = savedFormat || 'square';
   _flyerCtx.template = savedTemplate || null;
   // Pre-fill input fields
@@ -15480,6 +15513,13 @@ function openFlyerForGig(ev){
   if(hasSaved){
     setTimeout(_flyerApplySavedStaticFit, 40);
     setTimeout(_flyerApplySavedStaticFit, 260);
+  }
+  // r505: if the stored JPEG was made from an older template asset, refresh it
+  // from the current canvas after the replacement PNG has loaded.
+  if(savedRenderStale){
+    try { delete _flyerCtx.loadedImages[_flyerCtx.template]; delete _flyerCtx.loadedImageSrc[_flyerCtx.template]; } catch(e){}
+    setTimeout(function(){ _flyerRender(); }, 80);
+    setTimeout(function(){ _flyerCommitFlyerData(); }, 900);
   }
   // r34: show hint, then fade after a few seconds
   var _hint = document.getElementById('flyer-preview-hint');
@@ -15632,17 +15672,19 @@ function _flyerSelectTemplate(key, opts){
 
 // Load template image (cached)
 function _flyerLoadImage(key, cb){
-  if(_flyerCtx.loadedImages[key]){
+  var src = _flyerTemplateSrcForKey(key);
+  if(_flyerCtx.loadedImages[key] && _flyerCtx.loadedImageSrc && _flyerCtx.loadedImageSrc[key] === src){
     cb(_flyerCtx.loadedImages[key]);
     return;
   }
   var img = new Image();
   img.onload = function(){
     _flyerCtx.loadedImages[key] = img;
+    if(_flyerCtx.loadedImageSrc) _flyerCtx.loadedImageSrc[key] = src;
     cb(img);
   };
   img.onerror = function(){ cb(null); };
-  img.src = FLYER_TEMPLATES[key];
+  img.src = src;
 }
 
 function _flyerRender(){
@@ -16434,6 +16476,8 @@ function _flyerAutoSaveCheap(opts){
     flyerAddress: _flyerCtx.address,
     flyerDate: _flyerCtx.date,
     flyerAnnouncement: _flyerCtx.announce,
+    flyerTemplateSrc: _flyerTemplateSrcForKey(_flyerCtx.template),
+    flyerTemplateAssetVersion: _flyerCurrentAssetVersion(_flyerCtx.template),
     flyerSavedAt: Date.now()
   });
   // NOTE: flyerData (the JPEG) is intentionally NOT updated here. It's preserved
@@ -16491,6 +16535,8 @@ function _flyerCommitFlyerData(){
       flyerAddress: _flyerCtx.address,
       flyerDate: _flyerCtx.date,
       flyerAnnouncement: _flyerCtx.announce,
+      flyerTemplateSrc: _flyerTemplateSrcForKey(_flyerCtx.template),
+      flyerTemplateAssetVersion: _flyerCurrentAssetVersion(_flyerCtx.template),
       flyerSavedAt: Date.now()
     });
     gigDetails[gigId] = updated;
@@ -16580,6 +16626,8 @@ function _flyerSaveToGig(){
         flyerAddress: _flyerCtx.address,
         flyerDate: _flyerCtx.date,
         flyerAnnouncement: _flyerCtx.announce,
+        flyerTemplateSrc: _flyerTemplateSrcForKey(_flyerCtx.template),
+        flyerTemplateAssetVersion: _flyerCurrentAssetVersion(_flyerCtx.template),
         flyerSavedAt: Date.now()
       });
       db.collection('gigdetails').doc(gigId).set(updated).then(function(){
@@ -18389,7 +18437,7 @@ function openDayDrawer(day, de, opts){
         var thumbWrap = document.createElement('div');
         thumbWrap.className = 'cal-flyer-thumb-wrap';
         var thumbImg = document.createElement('img');
-        thumbImg.src = detailsForThumb.flyerData;
+        thumbImg.src = _flyerPreviewSrcForDetails(detailsForThumb);
         thumbImg.style.cssText = 'width:48px;height:48px;border-radius:4px;object-fit:cover;flex-shrink:0;background:#000;';
         thumbImg.alt = 'Gig flyer';
         var thumbInfo = document.createElement('div');
@@ -18798,7 +18846,7 @@ function _r366OpenGigReadOnly(ev){
   }
   html += '</div>';
   if(d.flyerData){
-    html += '<div class="r366-gig-flyer-card" id="r366-gig-flyer-card"><img src="' + _r366Esc(d.flyerData) + '" alt="Gig flyer"><div><div class="r366-gig-label">Gig Flyer</div><div class="r366-gig-value">Tap to open flyer editor</div></div></div>';
+    html += '<div class="r366-gig-flyer-card" id="r366-gig-flyer-card"><img src="' + _r366Esc(_flyerPreviewSrcForDetails(d)) + '" alt="Gig flyer"><div><div class="r366-gig-label">Gig Flyer</div><div class="r366-gig-value">Tap to open flyer editor</div></div></div>';
   }
   b.innerHTML = html;
   var mapBtn = document.getElementById('r366-gig-map');
@@ -19090,7 +19138,7 @@ function openGigSheet(ev){
       var thumbWrap = document.createElement('div');
       thumbWrap.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px;background:rgba(6,214,160,.06);border:1px solid rgba(6,214,160,.3);border-radius:8px;margin-top:6px;cursor:pointer;touch-action:manipulation;';
       var thumbImg = document.createElement('img');
-      thumbImg.src = detForFlyer.flyerData;
+      thumbImg.src = _flyerPreviewSrcForDetails(detForFlyer);
       thumbImg.style.cssText = 'width:48px;height:48px;border-radius:4px;object-fit:cover;flex-shrink:0;background:#000;';
       thumbImg.alt = 'Gig flyer';
       var thumbInfo = document.createElement('div');
@@ -25639,7 +25687,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-12-story13-remove-all-three-r503';
+var WHATS_NEW_VERSION = '2026-05-12-saved-flyer-refresh-r505';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
