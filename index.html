@@ -6570,6 +6570,26 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   pointer-events:auto !important;
 }
 
+
+/* r509 Image render polish: stable placeholders + fade-in */
+.song-cover-box{
+  background-size:cover !important;
+  background-position:center !important;
+  transition:opacity .18s ease-out, filter .18s ease-out !important;
+}
+.song-cover-box:not(.has-art){
+  opacity:.92;
+}
+.song-cover-box.has-art{
+  opacity:1;
+}
+.band-member-photo-tap img,
+.thread-avatar-img,
+.chat-thread-band-img{
+  opacity:1;
+  transition:opacity .16s ease-out;
+}
+
 </style>
 </head>
 <body>
@@ -11304,6 +11324,8 @@ function renderNoGigsCard(){
 function whoAmITap() { toast('Logged in as ' + myName + '. To switch, clear browser data.', {duration:4000}); }
 
 function initApp() {
+  // r509: warm fixed Chat/Band images before users navigate to those tabs.
+  try { _preloadCoreAppImages(); } catch(e){}
   // Rollout tracking — bump lastSeenAt (throttled to once per 5 min)
   setTimeout(function(){ try { _trackLastSeen(); } catch(e){} }, 2000);
   // r42: bootstrap admin flag for Rich + record app open
@@ -24672,6 +24694,27 @@ function _songArtFetchUrl(title, artist, limit){
 function _hydrateSongArtwork(){
   var nodes = Array.prototype.slice.call(document.querySelectorAll('.song-cover-box:not(.art-checked)'));
   if(!nodes.length) return;
+  function setArt(node, art){
+    if(!node || !art) return;
+    // Preload before swapping so rows do not visibly pop or flash a blank image.
+    try {
+      var img = new Image();
+      img.decoding = 'async';
+      img.onload = function(){
+        node.style.backgroundImage = "url('" + art + "')";
+        node.classList.add('has-art');
+      };
+      img.onerror = function(){
+        node.style.backgroundImage = "url('" + art + "')";
+        node.classList.add('has-art');
+      };
+      img.src = art;
+      _ootPreloadImage(art);
+    } catch(e){
+      node.style.backgroundImage = "url('" + art + "')";
+      node.classList.add('has-art');
+    }
+  }
   function loadNode(node){
     if(!node || node.classList.contains('art-checked')) return;
     node.classList.add('art-checked');
@@ -24679,8 +24722,7 @@ function _hydrateSongArtwork(){
     var legacy = node.getAttribute('data-art-legacy-key') || '';
     var cached = _songArtCache[key] || _songArtCache[legacy] || '';
     if(cached){
-      node.style.backgroundImage = "url('" + cached + "')";
-      node.classList.add('has-art');
+      setArt(node, cached);
       if(key && !_songArtCache[key]){
         _songArtCache[key] = cached;
         try { localStorage.setItem('oot_song_art_cache', JSON.stringify(_songArtCache)); } catch(e){}
@@ -24703,14 +24745,17 @@ function _hydrateSongArtwork(){
         _songArtCache[key] = art;
         if(legacy) _songArtCache[legacy] = art;
         try { localStorage.setItem('oot_song_art_cache', JSON.stringify(_songArtCache)); } catch(e){}
-        node.style.backgroundImage = "url('" + art + "')";
-        node.classList.add('has-art');
+        setArt(node, art);
       }
     }).catch(function(){
       node.classList.remove('art-checked');
     });
   }
+  // r509: do not wait for IntersectionObserver for the first visible batch.
+  // This improves initial Songs tab and expanded Setlist perceived speed while
+  // keeping the rest lazy-loaded.
   var immediate = nodes.filter(function(n){ return n.getAttribute('data-art-immediate') === '1' || n.closest('.setlist-expanded-panel'); });
+  nodes.slice(0, 18).forEach(function(n){ if(immediate.indexOf(n) < 0) immediate.push(n); });
   immediate.forEach(loadNode);
   nodes = nodes.filter(function(n){ return immediate.indexOf(n) < 0; });
   if(!nodes.length) return;
@@ -24723,14 +24768,13 @@ function _hydrateSongArtwork(){
             try { window._songArtObserver.unobserve(entry.target); } catch(e){}
           }
         });
-      }, {root:null, rootMargin:'260px 0px', threshold:0.01});
+      }, {root:null, rootMargin:'520px 0px', threshold:0.01});
     }
     nodes.forEach(function(n){ window._songArtObserver.observe(n); });
   } else {
-    nodes.slice(0, 30).forEach(loadNode);
+    nodes.slice(0, 40).forEach(loadNode);
   }
 }
-
 
 function songsFilterTap(label){
   if(label && label !== 'All'){
@@ -24797,6 +24841,7 @@ function rLib() {
     }
     el.appendChild(row);
   });
+  if(typeof _preloadCachedSongArtwork === 'function') _preloadCachedSongArtwork(90);
   if(typeof _hydrateSongArtwork === 'function') _hydrateSongArtwork();
 }
 
@@ -25701,7 +25746,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-12-home-gig-counter-no-flash-r508';
+var WHATS_NEW_VERSION = '2026-05-12-image-preload-art-hydration-r509';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -25994,6 +26039,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-12-image-preload-art-hydration-r509', date:'May 12, 2026', importance:'fix', title:'Image preload and artwork hydration', items:['Preloads fixed Chat and Band images at startup so those tabs render member images faster.', 'Hydrates the first visible Songs and expanded Setlists album-art rows immediately instead of waiting for lazy-scroll timing.', 'Adds a small fade/stable-placeholder polish for album art without changing layouts, song data, YouTube behavior, or return flow.']},
   {version:'2026-05-11-story6-stack-lower-r481', date:'May 11, 2026', importance:'fix', title:'Story Flyer 6 stack moved lower', items:['Adjusted Story Flyer 6 only by moving the venue/address/date Location Stack slightly lower within the lower event-info frame for a better visual presentation.', 'Horizontal center remains unchanged at x=0.50.', 'Story Flyers 2 and 5 remain unchanged from r479/r480; no other Story or Square flyer templates were changed.']},
   {version:'2026-05-11-story5-stack-lower-r480', date:'May 11, 2026', importance:'fix', title:'Story Flyer 5 stack moved lower', items:['Adjusted Story Flyer 5 only by moving the venue/address/date Location Stack slightly lower within the lower decorative frame for a better visual presentation.', 'Horizontal center remains unchanged at x=0.50.', 'Story Flyer 2 remains unchanged from r479; no other Story or Square flyer templates were changed.']},
   {version:'2026-05-11-story2-stack-lower-r479', date:'May 11, 2026', importance:'fix', title:'Story Flyer 2 stack moved lower', items:['Adjusted Story Flyer 2 only by moving the venue/address/date Location Stack slightly lower within the lower decorative frame for a better visual presentation.', 'Horizontal center remains unchanged at x=0.50.', 'No PNG assets, Square flyer coordinates, save/share/download behavior, or unrelated app sections were changed.']},
