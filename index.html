@@ -16,6 +16,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r322: Calendar header Next Gig widget horizontal move only. Same widget size and vertical position as r321; moved left under the logo. Upload as index.html after phone test. -->
 <!-- r504: Story Flyer 13 asset cleanup. Uses cleaned oot_flyer_story_13_r504.png and removes failed code cover/relayout for oot13-story lower decorative rules; text positions unchanged. -->
 <!-- r505: Saved flyer stale-render refresh. Tracks template asset source, invalidates stale saved JPEGs when a template asset filename changes, and makes image cache source-aware so Story Flyer 13 reloads the cleaned r504 asset. Upload index.html only after phone test. -->
+<!-- r506: Story Flyer 14 asset cleanup. Uses cleaned oot_flyer_story_14_r506.png and forces stale saved Flyer 14 JPEG refresh; no text-position or unrelated flyer changes. Upload index.html plus oot_flyer_story_14_r506.png after phone test. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -15059,7 +15060,7 @@ var FLYER_TEMPLATES = {
   'oot13-square': 'oot_flyer_square_13_r473.png',
   'oot13-story': 'oot_flyer_story_13_r504.png',
   'oot14-square': 'oot_flyer_square_14_r473.png',
-  'oot14-story': 'oot_flyer_story_14_r464.png',
+  'oot14-story': 'oot_flyer_story_14_r506.png',
   'oot15-square': 'oot_flyer_square_15_r473.png',
   'oot15-story': 'oot_flyer_story_15_r464.png',
 };
@@ -15292,7 +15293,8 @@ var _flyerCtx = {
 // when a template asset file changes, that JPEG can be visually stale even though
 // the template key is unchanged. Track/compare the asset source so old renders get refreshed.
 var FLYER_FORCE_REFRESH_TEMPLATES = {
-  'oot13-story': '2026-05-12-story13-asset-clean-r504'
+  'oot13-story': '2026-05-12-story13-asset-clean-r504',
+  'oot14-story': '2026-05-12-story14-asset-clean-r506'
 };
 function _flyerTemplateSrcForKey(key){
   try { return (key && FLYER_TEMPLATES && FLYER_TEMPLATES[key]) ? String(FLYER_TEMPLATES[key]) : ''; } catch(e){ return ''; }
@@ -25687,7 +25689,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-12-saved-flyer-refresh-r505';
+var WHATS_NEW_VERSION = '2026-05-12-story14-asset-clean-r506';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
