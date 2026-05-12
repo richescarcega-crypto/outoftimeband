@@ -46,6 +46,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r495: Story Flyer 12 stack condense and recenter. Moves only oot12-story address/date closer together and slightly re-centers the two-line stack within the decorative border space; no assets or unrelated UI changed. -->
 <!-- r496: Story Flyer 12 address-only nudge. Moves only oot12-story address line up four nudges; date/time and all other elements unchanged. -->
 <!-- r497: Story Flyer 12 address-only upward follow-up. Moves only oot12-story address line up 5 more nudges; no other flyer zones, assets, or unrelated UI changed. -->
+<!-- r498: Story Flyer 13 lower decorative venue rule moved down. Adds per-template venue ruleY_frac support and applies it only to oot13-story so the decorative rule sits below the address/date stack; no assets changed. -->
 <!-- r456: Externalized calendar save icon asset. Save controls now reference save_icon_r461.png instead of embedded base64. Upload index.html plus save_icon_r461.png after phone test. -->
 <!-- r455: Calendar event save controls used an embedded save icon; superseded by r456 external asset. -->
 <!-- r449: Edit Saved Flyer static/no-bounce + visible top actions. Removes saved flyer modal bounce and forces the top flyer actions menu above the editor. Upload as index.html after phone test. -->
@@ -15200,7 +15201,7 @@ var FLYER_ZONES = {
     date: {y_frac: 0.890, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'oot13-story': {
-    venue: {y_frac: 0.760, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
+    venue: {y_frac: 0.760, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true, ruleY_frac: 0.895},
     address: {y_frac: 0.818, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
     date: {y_frac: 0.858, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
   },
@@ -15801,7 +15802,8 @@ function _flyerRender(){
           sx += ctx.measureText(ch4).width + spacing;
         }
         // Decorative rule below the venue: thin gold line + small diamond accent in the middle
-        var ruleY = y + size + Math.round(size * 0.18);
+        // r498: allow a single template to move this rule lower without changing global flyer behavior.
+        var ruleY = (cfg.ruleY_frac != null) ? Math.round(dims.h * cfg.ruleY_frac) : (y + size + Math.round(size * 0.18));
         var ruleHalfWidth = tw * 0.42;
         var ruleColor = shade(baseColor, -0.10);
         ctx.strokeStyle = ruleColor;
@@ -25563,7 +25565,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-12-story12-address-up-r497';
+var WHATS_NEW_VERSION = '2026-05-12-story13-lower-decorative-rule-r498';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
