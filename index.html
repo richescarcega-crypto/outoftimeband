@@ -33,6 +33,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r482: Story Flyer 8 follow-up correction. Moves the boardwalk-story Location Stack lower/centered between the top decorative border and a lowered re-drawn bottom decorative rule. No other flyer templates or unrelated UI behavior changed. -->
 <!-- r483: Story Flyer 6 location-stack centering follow-up. Moves the comic-story venue/address/date stack downward within the lower frame only. No other flyer templates or unrelated UI changed. -->
 <!-- r484: Story Flyer 6 and Story Flyer 8 Location Stack centering. Moves only comic-story and boardwalk-story overlay stacks lower/centered within their lower frame/pill areas; boardwalk bottom rule lowered to match. -->
+<!-- r485: Story Flyer 9 date/address placement. Moves only oot09-story address/date pair upward/centered between decorative lines; no assets or unrelated UI changed. -->
 <!-- r456: Externalized calendar save icon asset. Save controls now reference save_icon_r461.png instead of embedded base64. Upload index.html plus save_icon_r461.png after phone test. -->
 <!-- r455: Calendar event save controls used an embedded save icon; superseded by r456 external asset. -->
 <!-- r449: Edit Saved Flyer static/no-bounce + visible top actions. Removes saved flyer modal bounce and forces the top flyer actions menu above the editor. Upload as index.html after phone test. -->
@@ -15144,8 +15145,8 @@ var FLYER_ZONES = {
   },
   'oot09-story': {
     venue: {y_frac: 0.708, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.766, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.840, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
+    address: {y_frac: 0.758, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.800, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
   },
   'oot10-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
@@ -25550,7 +25551,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-11-story6-story8-locstack-center-r484';
+var WHATS_NEW_VERSION = '2026-05-12-story9-date-address-center-r485';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
