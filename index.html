@@ -15150,7 +15150,7 @@ var FLYER_ZONES = {
     venue: {y_frac: 0.765, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
     address: {y_frac: 0.823, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
     date: {y_frac: 0.893, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
-    bottomRuleShift: {oldY_frac: 0.835, newY_frac: 0.935, xInset: 150, sampleYOffset: 26, coverHeight: 34, lineHalfWidth: 300, gap: 20, diamondHalf: 6, lineWidth: 3, color: '#c89f45'},
+    bottomRuleShift: {oldY_frac: 0.835, newY_frac: 0.935, xInset: 150, sampleYOffset: 26, coverHeight: 34, lineHalfWidth: 300, gap: 20, diamondHalf: 6, lineWidth: 3, color: '#c89f45', coverFillColor: '#081a3b', removeOnly: true},
   },
   'oot09-square': {
     tagline: {y_frac: 0.650, x_frac: 0.50, size: 42, color: '#f5c66b'},
@@ -15204,10 +15204,10 @@ var FLYER_ZONES = {
     date: {y_frac: 0.890, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'oot13-story': {
-    venue: {y_frac: 0.760, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true, ruleY_frac: 0.895},
+    venue: {y_frac: 0.760, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true, ruleY_frac: 0.895, hideRule: true},
     address: {y_frac: 0.818, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
     date: {y_frac: 0.858, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
-    detailRuleRelayout: {oldY_frac: 0.844, newY_frac: 0.812, xInset: 145, sampleYOffset: -54, coverHeight: 42, coverFillColor: '#071a38', lineHalfWidth: 320, gap: 20, diamondHalf: 6, lineWidth: 2.5, color: '#c89f45'},
+    detailRuleRelayout: {oldY_frac: 0.844, newY_frac: 0.812, xInset: 145, sampleYOffset: -54, coverHeight: 42, coverFillColor: '#071a38', lineHalfWidth: 320, gap: 20, diamondHalf: 6, lineWidth: 2.5, color: '#c89f45', removeOnly: true},
   },
   'oot14-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
@@ -15810,6 +15810,7 @@ function _flyerRender(){
         }
         // Decorative rule below the venue: thin gold line + small diamond accent in the middle
         // r498: allow a single template to move this rule lower without changing global flyer behavior.
+        if(cfg.hideRule){ return; }
         var ruleY = (cfg.ruleY_frac != null) ? Math.round(dims.h * cfg.ruleY_frac) : (y + size + Math.round(size * 0.18));
         var ruleHalfWidth = tw * 0.42;
         var ruleColor = shade(baseColor, -0.10);
@@ -15936,6 +15937,9 @@ function _flyerApplyDetailRuleRelayout(ctx, img, dims, cfg){
     ctx.fillRect(xInset, destY, w, coverHeight);
     ctx.restore();
   } else {
+  if(cfg.removeOnly){
+    return;
+  }
     try {
       // Cover the baked-in upper rule using nearby clean panel texture from the template.
       ctx.drawImage(img, xInset, srcY, w, coverHeight, xInset, destY, w, coverHeight);
@@ -15983,11 +15987,21 @@ function _flyerApplyBottomRuleShift(ctx, img, dims, cfg){
   if(w <= 0) return;
   var destY = Math.max(0, Math.round(oldY - coverHeight/2));
   var srcY = Math.max(0, Math.min(dims.h - coverHeight, oldY + sampleYOffset));
-  try {
-    ctx.drawImage(img, xInset, srcY, w, coverHeight, xInset, destY, w, coverHeight);
-  } catch(e) {
-    ctx.fillStyle = '#081a3b';
+  if(cfg.coverFillColor){
+    ctx.save();
+    ctx.fillStyle = cfg.coverFillColor;
     ctx.fillRect(xInset, destY, w, coverHeight);
+    ctx.restore();
+  } else {
+    try {
+      ctx.drawImage(img, xInset, srcY, w, coverHeight, xInset, destY, w, coverHeight);
+    } catch(e) {
+      ctx.fillStyle = '#081a3b';
+      ctx.fillRect(xInset, destY, w, coverHeight);
+    }
+  }
+  if(cfg.removeOnly){
+    return;
   }
   var half = cfg.lineHalfWidth != null ? cfg.lineHalfWidth : 300;
   var gap = cfg.gap != null ? cfg.gap : 20;
@@ -25625,7 +25639,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-12-story13-middle-rule-solid-cover-r502';
+var WHATS_NEW_VERSION = '2026-05-12-story13-remove-all-three-r503';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
