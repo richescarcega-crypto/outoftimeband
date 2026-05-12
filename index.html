@@ -25746,7 +25746,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-12-image-preload-art-hydration-r509';
+var WHATS_NEW_VERSION = '2026-05-12-calendar-stack-deterministic-height-r510';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26039,6 +26039,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-12-calendar-stack-deterministic-height-r510', date:'May 12, 2026', importance:'fix', title:'Calendar lower-stack stability', items:['Prevents the Calendar lower stack from being positioned from inactive-tab measurements.', 'Changes the closed Calendar grid height to use the available viewport space instead of preserving a stale previous height.', 'Targets only the closed Calendar stack/grid measurement path; no event drawer, flyer, Songs, Chat, Band, or Pay behavior changed.']},
   {version:'2026-05-12-image-preload-art-hydration-r509', date:'May 12, 2026', importance:'fix', title:'Image preload and artwork hydration', items:['Preloads fixed Chat and Band images at startup so those tabs render member images faster.', 'Hydrates the first visible Songs and expanded Setlists album-art rows immediately instead of waiting for lazy-scroll timing.', 'Adds a small fade/stable-placeholder polish for album art without changing layouts, song data, YouTube behavior, or return flow.']},
   {version:'2026-05-11-story6-stack-lower-r481', date:'May 11, 2026', importance:'fix', title:'Story Flyer 6 stack moved lower', items:['Adjusted Story Flyer 6 only by moving the venue/address/date Location Stack slightly lower within the lower event-info frame for a better visual presentation.', 'Horizontal center remains unchanged at x=0.50.', 'Story Flyers 2 and 5 remain unchanged from r479/r480; no other Story or Square flyer templates were changed.']},
   {version:'2026-05-11-story5-stack-lower-r480', date:'May 11, 2026', importance:'fix', title:'Story Flyer 5 stack moved lower', items:['Adjusted Story Flyer 5 only by moving the venue/address/date Location Stack slightly lower within the lower decorative frame for a better visual presentation.', 'Horizontal center remains unchanged at x=0.50.', 'Story Flyer 2 remains unchanged from r479; no other Story or Square flyer templates were changed.']},
@@ -27317,7 +27318,9 @@ if(savedName&&savedId){
 
   function _syncCalendarStackLock(){
     var sc = document.getElementById('sc-cal');
-    if(!sc || !sc.classList.contains('cal-header-fit')) return;
+    // r510: only write closed Calendar stack measurements while Calendar is the active visible tab.
+    // Hidden/inactive measurements can seed stale CSS variables that make the lower stack appear too high on first entry.
+    if(!sc || !sc.classList.contains('cal-header-fit') || !sc.classList.contains('on')) return;
 
     // r323: when a lower Calendar drawer is open, do not let the closed-stack
     // lock recalculate the pill positions. That old closed-state recalculation
@@ -27359,13 +27362,12 @@ if(savedName&&savedId){
     var wrapRect = wrap.getBoundingClientRect();
     if(!wrapRect.height && !wrapRect.top) return;
 
-    // Preserve the current blue-panel height unless it would force the lower stack below the visible Calendar viewport.
-    // This keeps the requested move focused on the lower stack and only compresses the panel if necessary.
-    var currentH = Math.ceil(wrapRect.height || 0);
+    // r510: deterministic closed-state height.
+    // Do not preserve the previous rendered height. If the first render starts short, preserving currentH
+    // creates a feedback loop where the lower stack stays too high until repeated month swipes correct it.
     var availableH = Math.floor(scRect.bottom - wrapRect.top - panelGap - stackH - safeBottom);
     var minH = (window.innerWidth <= 420) ? 300 : 320;
-    var targetH = currentH > 0 ? Math.min(currentH, availableH) : availableH;
-    targetH = Math.max(minH, targetH);
+    var targetH = Math.max(minH, availableH);
     if(isFinite(targetH) && targetH > 0){
       document.documentElement.style.setProperty('--oot-cal-grid-wrap-h', targetH + 'px');
     }
