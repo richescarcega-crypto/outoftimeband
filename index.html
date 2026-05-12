@@ -47,8 +47,8 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r496: Story Flyer 12 address-only nudge. Moves only oot12-story address line up four nudges; date/time and all other elements unchanged. -->
 <!-- r497: Story Flyer 12 address-only upward follow-up. Moves only oot12-story address line up 5 more nudges; no other flyer zones, assets, or unrelated UI changed. -->
 <!-- r498: Story Flyer 13 lower decorative venue rule moved down. Adds per-template venue ruleY_frac support and applies it only to oot13-story so the decorative rule sits below the address/date stack; no assets changed. -->
-<!-- r500: Story Flyer 13 detail-rule cleanup. Removes the extra middle horizontal rule from the lower event-info stack, leaving the existing upper rule above the address and the lower rule below the date/time; no text, assets, or unrelated templates changed. -->
 <!-- r499: Story Flyer 13 top detail rule relayout. Covers the baked-in top detail rule between address/date, redraws it above the address with matched spacing, leaves lower rule in place, and does not move text. -->
+<!-- r501: Story Flyer 13 corrected detail-rule cleanup. Restores the r499 upper rule above the address and strengthens the cleanup strip for the offending middle rule only; lower rule and text remain unchanged. -->
 <!-- r456: Externalized calendar save icon asset. Save controls now reference save_icon_r461.png instead of embedded base64. Upload index.html plus save_icon_r461.png after phone test. -->
 <!-- r455: Calendar event save controls used an embedded save icon; superseded by r456 external asset. -->
 <!-- r449: Edit Saved Flyer static/no-bounce + visible top actions. Removes saved flyer modal bounce and forces the top flyer actions menu above the editor. Upload as index.html after phone test. -->
@@ -15206,6 +15206,7 @@ var FLYER_ZONES = {
     venue: {y_frac: 0.760, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true, ruleY_frac: 0.895},
     address: {y_frac: 0.818, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
     date: {y_frac: 0.858, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
+    detailRuleRelayout: {oldY_frac: 0.844, newY_frac: 0.812, xInset: 145, sampleYOffset: -54, coverHeight: 36, lineHalfWidth: 320, gap: 20, diamondHalf: 6, lineWidth: 2.5, color: '#c89f45'},
   },
   'oot14-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
@@ -25616,7 +25617,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-12-story13-remove-middle-rule-r500';
+var WHATS_NEW_VERSION = '2026-05-12-story13-correct-middle-rule-r501';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
