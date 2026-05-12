@@ -15060,9 +15060,9 @@ var FLYER_TEMPLATES = {
   'oot13-square': 'oot_flyer_square_13_r473.png',
   'oot13-story': 'oot_flyer_story_13_r504.png',
   'oot14-square': 'oot_flyer_square_14_r473.png',
-  'oot14-story': 'oot_flyer_story_14_r506.png',
+  'oot14-story': 'oot_flyer_story_14_r507.png',
   'oot15-square': 'oot_flyer_square_15_r473.png',
-  'oot15-story': 'oot_flyer_story_15_r464.png',
+  'oot15-story': 'oot_flyer_story_15_r507.png',
 };
 
 // Per-template text-overlay zones. y_frac is fraction of canvas height where text BASELINE sits.
@@ -15218,9 +15218,9 @@ var FLYER_ZONES = {
     date: {y_frac: 0.898, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'oot14-story': {
-    venue: {y_frac: 0.708, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.766, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.840, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.724, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true, hideRule: true},
+    address: {y_frac: 0.786, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.864, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
   },
   'oot15-square': {
     venue: {y_frac: 0.745, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
@@ -15228,9 +15228,9 @@ var FLYER_ZONES = {
     date: {y_frac: 0.855, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'oot15-story': {
-    venue: {y_frac: 0.708, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.766, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.840, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.735, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true, hideRule: true},
+    address: {y_frac: 0.805, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.883, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
   },
 };
 
@@ -15294,7 +15294,8 @@ var _flyerCtx = {
 // the template key is unchanged. Track/compare the asset source so old renders get refreshed.
 var FLYER_FORCE_REFRESH_TEMPLATES = {
   'oot13-story': '2026-05-12-story13-asset-clean-r504',
-  'oot14-story': '2026-05-12-story14-asset-clean-r506'
+  'oot14-story': '2026-05-12-story14-clean-centered-r507',
+  'oot15-story': '2026-05-12-story15-clean-centered-r507'
 };
 function _flyerTemplateSrcForKey(key){
   try { return (key && FLYER_TEMPLATES && FLYER_TEMPLATES[key]) ? String(FLYER_TEMPLATES[key]) : ''; } catch(e){ return ''; }
@@ -25689,7 +25690,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-12-story14-asset-clean-r506';
+var WHATS_NEW_VERSION = '2026-05-12-story14-15-clean-centered-r507';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
