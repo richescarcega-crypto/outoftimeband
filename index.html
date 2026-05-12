@@ -103,7 +103,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Out of Time">
-<!-- r511: Flyer 1 cleanup. Uses cleaned Square Flyer 1 asset, hides generated venue rules for Flyer 1 square/story, recenters Flyer 1 event stacks, and force-refreshes saved Flyer 1 renders. Upload index.html plus oot_flyer_square_01_r511.png after phone test. -->
+<!-- r512: Flyer 1 second cleanup. Uses corrected Square Flyer 1 asset with remaining internal divider removed and cleaner centered lower stack. Upload index.html plus oot_flyer_square_01_r512.png after phone test. -->
 <title>Out of Time v3</title>
 <!-- r106-band-bottom-extended-assets: expects band1.png through band15.png with bottom-extended artwork -->
 <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
@@ -15067,7 +15067,7 @@ function cancelProposal(propId){
 // ── FLYER GENERATOR ─────────────────────────────────────────────────────────
 // Embedded base64 templates. Keys: <vibe>-<format>. format: square (1080×1080) or story (1080×1920).
 var FLYER_TEMPLATES = {
-  'hollywood-square': 'oot_flyer_square_01_r511.png',
+  'hollywood-square': 'oot_flyer_square_01_r512.png',
   'hollywood-story': 'oot_flyer_story_01_r464.png',
   'neon-square': 'oot_flyer_square_02_r473.png',
   'neon-story': 'oot_flyer_story_02_r464.png',
@@ -15328,8 +15328,8 @@ var _flyerCtx = {
 // when a template asset file changes, that JPEG can be visually stale even though
 // the template key is unchanged. Track/compare the asset source so old renders get refreshed.
 var FLYER_FORCE_REFRESH_TEMPLATES = {
-  'hollywood-square': '2026-05-12-flyer1-square-clean-stack-r511',
-  'hollywood-story': '2026-05-12-flyer1-story-clean-stack-r511',
+  'hollywood-square': '2026-05-12-flyer1-square-clean-stack-r512',
+  'hollywood-story': '2026-05-12-flyer1-story-clean-stack-r512',
   'oot13-story': '2026-05-12-story13-asset-clean-r504',
   'oot14-story': '2026-05-12-story14-clean-centered-r507',
   'oot15-story': '2026-05-12-story15-clean-centered-r507'
@@ -25750,7 +25750,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-12-flyer1-clean-stack-r511';
+var WHATS_NEW_VERSION = '2026-05-12-flyer1-clean-stack-r512';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
