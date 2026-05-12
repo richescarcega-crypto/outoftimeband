@@ -11117,10 +11117,21 @@ function _wireGigCounterDoubleTap(){
 }
 
 function updateCountdown(){
-  var upcoming = events.filter(function(e){ return e.type==='gig' && dU(e.date)>=0; })
-    .sort(function(a,b){ return a.date.localeCompare(b.date); });
   var card = document.getElementById('next-gig-countdown');
   if(!card) return;
+
+  // r508: prevent Home open flash/jitter. Before the first Firestore
+  // events snapshot arrives, the local events array is still empty. Do not
+  // briefly render the No Gig placeholder during that loading gap.
+  if(!_eventsHasInit && (!events || !events.length)){
+    card.style.display='none';
+    var loadingNoGigs = document.getElementById('no-gigs-card');
+    if(loadingNoGigs){ loadingNoGigs.style.display='none'; loadingNoGigs.innerHTML=''; }
+    return;
+  }
+
+  var upcoming = events.filter(function(e){ return e.type==='gig' && dU(e.date)>=0; })
+    .sort(function(a,b){ return a.date.localeCompare(b.date); });
   _wireGigCounterDoubleTap();
   if(typeof _r318UpdateHeaderNextGigWidget === 'function') _r318UpdateHeaderNextGigWidget();
   if(!upcoming.length){
@@ -25690,7 +25701,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-12-story14-15-clean-centered-r507';
+var WHATS_NEW_VERSION = '2026-05-12-home-gig-counter-no-flash-r508';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
