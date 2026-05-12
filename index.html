@@ -40,6 +40,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r489: Story Flyer 11 address/date stack centering. Moves only oot11-story address/date much closer together and centers the pair between decorative lines; no assets or unrelated UI changed. -->
 <!-- r490: Story Flyer 12 address/date stack centering. Moves only oot12-story address/date much closer together and keeps the pair centered between decorative lines; no assets or unrelated UI changed. -->
 <!-- r491: Story Flyer 11 stack raised/centered. Moves only oot11-story address/date stack upward while keeping the pair tight and horizontally centered between decorative lines; no assets or unrelated UI changed. -->
+<!-- r492: Story Flyer 13 full location-stack placement. Moves only oot13-story venue/address/date down into the decorative frame and spaces it as a balanced centered flyer stack; no assets or unrelated UI changed. -->
 <!-- r456: Externalized calendar save icon asset. Save controls now reference save_icon_r461.png instead of embedded base64. Upload index.html plus save_icon_r461.png after phone test. -->
 <!-- r455: Calendar event save controls used an embedded save icon; superseded by r456 external asset. -->
 <!-- r449: Edit Saved Flyer static/no-bounce + visible top actions. Removes saved flyer modal bounce and forces the top flyer actions menu above the editor. Upload as index.html after phone test. -->
@@ -15194,9 +15195,9 @@ var FLYER_ZONES = {
     date: {y_frac: 0.890, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'oot13-story': {
-    venue: {y_frac: 0.708, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.766, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.840, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.760, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
+    address: {y_frac: 0.818, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.858, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
   },
   'oot14-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
@@ -25557,7 +25558,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-12-story11-stack-raised-r491';
+var WHATS_NEW_VERSION = '2026-05-12-story13-stack-frame-r492';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
