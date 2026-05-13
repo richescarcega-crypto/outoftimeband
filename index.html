@@ -15178,10 +15178,10 @@ var FLYER_ZONES = {
     date: {y_frac: 0.886, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'comic-story': {
-    venue: {y_frac: 0.768, x_frac: 0.50, size: 76, color: '#f3c967', bold: true, font: 'premium-serif', premiumVenue: true},
-    address: {y_frac: 0.838, x_frac: 0.50, size: 34, color: '#f6df9f', bold: false, font: 'premium-serif'},
-    date: {y_frac: 0.902, x_frac: 0.50, size: 58, color: '#ffd777', bold: true, font: 'premium-serif'},
-    bottomRuleShift: {oldY_frac: 0.958, newY_frac: 0.958, xInset: 118, sampleYOffset: -86, coverHeight: 46, removeOnly: true},
+    venue: {y_frac: 0.776, x_frac: 0.508, size: 76, color: '#f3c967', bold: true, font: 'premium-serif', premiumVenue: true},
+    address: {y_frac: 0.850, x_frac: 0.50, size: 34, color: '#f6df9f', bold: false, font: 'premium-serif'},
+    date: {y_frac: 0.918, x_frac: 0.50, size: 58, color: '#ffd777', bold: true, font: 'premium-serif'},
+    bottomRuleShift: {oldY_frac: 0.952, newY_frac: 0.952, xInset: 470, sampleYOffset: -90, coverHeight: 60, coverFillColor: '#081a3b', removeOnly: true},
   },
   'metropolis-square': {
     venue: {y_frac: 0.757, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
@@ -15348,7 +15348,7 @@ var FLYER_FORCE_REFRESH_TEMPLATES = {
   'skyline-story': '2026-05-13-flyer3-story-gold-serif-r520',
   'deco-story': '2026-05-13-flyer4-story-center-cleanup-r523',
   'disco-story': '2026-05-13-flyer5-story-centering-refine-r525',
-  'comic-story': '2026-05-13-flyer6-story-gold-serif-center-r526',
+  'comic-story': '2026-05-13-flyer6-story-final-centering-r527',
   'oot13-story': '2026-05-12-story13-asset-clean-r504',
   'oot14-story': '2026-05-12-story14-clean-centered-r507',
   'oot15-story': '2026-05-12-story15-clean-centered-r507'
@@ -25886,7 +25886,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-13-flyer6-story-gold-serif-center-r526';
+var WHATS_NEW_VERSION = '2026-05-13-flyer6-story-final-centering-r527';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26179,7 +26179,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-13-flyer6-story-gold-serif-center-r526', date:'May 13, 2026', importance:'fix', title:'Story Flyer 6 gold venue typography and centering cleanup', items:['Applies the approved Cinzel-style gold venue, city, and date/time hierarchy to Story Flyer 6 only.', 'Removes the remaining lower decorative rule and drops the old block-letter venue rule by using the approved premium serif treatment.', 'Re-centers the venue and rebalances the full three-line Location Stack within the rounded lower frame.']},
+  {version:'2026-05-13-flyer6-story-final-centering-r527', date:'May 13, 2026', importance:'fix', title:'Story Flyer 6 final centering cleanup', items:['Nudges the Story Flyer 6 venue to optical center instead of slightly left-heavy alignment.', 'Moves the full three-line Location Stack slightly lower inside the rounded lower frame for better balance.', 'Removes the leftover bottom-center marker beneath the frame.']},
   {version:'2026-05-13-flyer5-story-centering-refine-r525', date:'May 13, 2026', importance:'fix', title:'Story Flyer 5 centering and spacing refinement', items:['Tightens and optically re-centers the Story Flyer 5 gold serif venue headline so it reads as one clean line.', 'Lowers the city and date/time lines slightly to reduce the top-heavy feel and balance the Location Stack inside the lower panel.', 'No PNG, Calendar, headers, tabs, app shell, or unrelated flyer templates were changed.']},
   {version:'2026-05-13-flyer5-story-gold-serif-line-cleanup-r524', date:'May 13, 2026', importance:'fix', title:'Story Flyer 5 gold venue typography and line cleanup', items:['Applies the approved Cinzel-style gold venue, city, and date/time hierarchy to Story Flyer 5 only.', 'Removes the generated text decorative rules and removes the baked lower decorative line with a sampled-texture patch.', 'Keeps the Story Flyer 5 Location Stack centered and repositions the city/date support lines to match the approved story flyer treatment.']},
   {version:'2026-05-13-flyer4-story-center-cleanup-r523', date:'May 13, 2026', importance:'fix', title:'Story Flyer 4 centering and cleanup refinement', items:['Fixes the Story Flyer 4 venue headline optical centering and slightly tightens its one-line gold serif fit.', 'Removes the visible dark cover bar by switching the bottom decorative-line removal to a sampled-texture patch instead of a flat rectangle.', 'No PNG assets, Calendar, headers, tabs, app shell, or other flyer templates were changed.']},
