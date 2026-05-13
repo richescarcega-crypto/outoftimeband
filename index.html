@@ -110,6 +110,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r518: Story Flyer 2 venue typography/centering. Applies approved Cinzel-style gold serif Location Stack treatment to neon-story and adjusts its three-line stack for the lower frame. No asset, Calendar, headers, tabs, or app-shell changes. Upload index_r518.html as index.html after phone test. -->
 <!-- r519: Story Flyer 2 venue optical centering fix. Moves only the neon-story venue headline slightly right inside the lower frame; city/date lines and all non-target app sections remain unchanged. Upload index_r519.html as index.html after phone test. -->
 <!-- r520: Story Flyer 3 approved gold serif typography. Applies the approved Cinzel-style venue/city/date hierarchy to skyline-story only and keeps the lower Location Stack horizontally centered; no PNG, app-shell, Calendar, headers, tabs, or unrelated flyer changes. Upload index_r520.html as index.html after phone test. -->
+<!-- r521: Story Flyer 4 approved gold serif typography and line cleanup. Applies the approved gold serif Location Stack to deco-story, suppresses generated venue/date decorative rules, and covers the baked lower rule only for Story Flyer 4; no PNG, app-shell, Calendar, headers, tabs, or unrelated flyer changes. Upload index_r521.html as index.html after phone test. -->
 <title>Out of Time v3</title>
 <!-- r106-band-bottom-extended-assets: expects band1.png through band15.png with bottom-extended artwork -->
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Russo+One&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
@@ -15148,9 +15149,10 @@ var FLYER_ZONES = {
     date: {y_frac: 0.877, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'deco-story': {
-    venue: {y_frac: 0.716, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true},
-    address: {y_frac: 0.774, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.846, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
+    venue: {y_frac: 0.720, x_frac: 0.50, size: 82, color: '#f3c967', bold: true, font: 'premium-serif', premiumVenue: true},
+    address: {y_frac: 0.802, x_frac: 0.50, size: 34, color: '#f6df9f', bold: false, font: 'premium-serif'},
+    date: {y_frac: 0.866, x_frac: 0.50, size: 58, color: '#ffd777', bold: true, font: 'premium-serif'},
+    bottomRuleShift: {oldY_frac: 0.958, newY_frac: 0.958, xInset: 150, sampleYOffset: -44, coverHeight: 38, coverFillColor: '#04122b', removeOnly: true},
   },
   'disco-square': {
     announcement: {y_frac: 0.745, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
@@ -15337,6 +15339,7 @@ var FLYER_FORCE_REFRESH_TEMPLATES = {
   'hollywood-story': '2026-05-13-flyer1-story-gold-serif-r517',
   'neon-story': '2026-05-13-flyer2-story-venue-optical-center-r519',
   'skyline-story': '2026-05-13-flyer3-story-gold-serif-r520',
+  'deco-story': '2026-05-13-flyer4-story-gold-serif-line-cleanup-r521',
   'oot13-story': '2026-05-12-story13-asset-clean-r504',
   'oot14-story': '2026-05-12-story14-clean-centered-r507',
   'oot15-story': '2026-05-12-story15-clean-centered-r507'
@@ -26167,6 +26170,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-13-flyer4-story-gold-serif-line-cleanup-r521', date:'May 13, 2026', importance:'fix', title:'Story Flyer 4 gold venue typography and line cleanup', items:['Applies the approved Cinzel-style gold venue, city, and date/time hierarchy to Story Flyer 4 only.', 'Removes the extra decorative rules from the Story Flyer 4 lower panel by suppressing generated rules and covering the baked lower line.', 'No PNG assets, Calendar, headers, tabs, app shell, or unrelated flyer templates were changed.']},
   {version:'2026-05-13-flyer3-story-gold-serif-r520', date:'May 13, 2026', importance:'fix', title:'Story Flyer 3 gold venue typography', items:['Applies the approved Cinzel-style gold venue, city, and date/time hierarchy to Story Flyer 3 only.', 'Keeps the Story Flyer 3 lower Location Stack horizontally centered in the lower field.', 'No PNG assets, Calendar, headers, tabs, app shell, or unrelated flyer templates were changed.']},
   {version:'2026-05-12-calendar-stack-deterministic-height-r510', date:'May 12, 2026', importance:'fix', title:'Calendar lower-stack stability', items:['Prevents the Calendar lower stack from being positioned from inactive-tab measurements.', 'Changes the closed Calendar grid height to use the available viewport space instead of preserving a stale previous height.', 'Targets only the closed Calendar stack/grid measurement path; no event drawer, flyer, Songs, Chat, Band, or Pay behavior changed.']},
   {version:'2026-05-12-image-preload-art-hydration-r509', date:'May 12, 2026', importance:'fix', title:'Image preload and artwork hydration', items:['Preloads fixed Chat and Band images at startup so those tabs render member images faster.', 'Hydrates the first visible Songs and expanded Setlists album-art rows immediately instead of waiting for lazy-scroll timing.', 'Adds a small fade/stable-placeholder polish for album art without changing layouts, song data, YouTube behavior, or return flow.']},
