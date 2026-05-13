@@ -15068,7 +15068,7 @@ function cancelProposal(propId){
 // Embedded base64 templates. Keys: <vibe>-<format>. format: square (1080×1080) or story (1080×1920).
 var FLYER_TEMPLATES = {
   'hollywood-square': 'oot_flyer_square_01_r512.png',
-  'hollywood-story': 'oot_flyer_story_01_r464.png',
+  'hollywood-story': 'oot_flyer_story_01_r513.png',
   'neon-square': 'oot_flyer_square_02_r473.png',
   'neon-story': 'oot_flyer_story_02_r464.png',
   'skyline-square': 'oot_flyer_square_03_r473.png',
@@ -15109,10 +15109,9 @@ var FLYER_ZONES = {
     date: {y_frac: 0.930, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'hollywood-story': {
-    venue: {y_frac: 0.732, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true, hideRule: true},
-    address: {y_frac: 0.792, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
-    date: {y_frac: 0.862, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
-    bottomRuleShift: {oldY_frac: 0.674, xInset: 34, sampleYOffset: 52, coverHeight: 44, removeOnly: true},
+    venue: {y_frac: 0.760, x_frac: 0.50, size: 76, color: '#d4b56a', bold: true, hideRule: true},
+    address: {y_frac: 0.822, x_frac: 0.50, size: 34, color: '#ffe5b8', bold: false},
+    date: {y_frac: 0.890, x_frac: 0.50, size: 58, color: '#ffd9a3', bold: true},
   },
   'neon-square': {
     announcement: {y_frac: 0.786, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
@@ -15329,7 +15328,7 @@ var _flyerCtx = {
 // the template key is unchanged. Track/compare the asset source so old renders get refreshed.
 var FLYER_FORCE_REFRESH_TEMPLATES = {
   'hollywood-square': '2026-05-12-flyer1-square-clean-stack-r512',
-  'hollywood-story': '2026-05-12-flyer1-story-clean-stack-r512',
+  'hollywood-story': '2026-05-12-flyer1-story-clean-stack-r513',
   'oot13-story': '2026-05-12-story13-asset-clean-r504',
   'oot14-story': '2026-05-12-story14-clean-centered-r507',
   'oot15-story': '2026-05-12-story15-clean-centered-r507'
@@ -25750,7 +25749,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-12-flyer1-clean-stack-r512';
+var WHATS_NEW_VERSION = '2026-05-12-flyer1-story-clean-stack-r513';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
