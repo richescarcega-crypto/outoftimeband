@@ -116,6 +116,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r524: Story Flyer 5 gold serif typography and line cleanup. Applies the approved gold serif Location Stack to disco-story, removes generated decorative rules by using premium rendering without rules, and removes the baked lower decorative line with a sampled-texture patch. No PNG, app-shell, Calendar, headers, tabs, or unrelated flyer changes. Upload index_r524.html as index.html after phone test. -->
 <!-- r525: Story Flyer 5 refinement. Tightens and optically re-centers the venue headline, and lowers/refines the full three-line Location Stack for better balance in the lower panel. No PNG, Calendar, header, tab, app-shell, or unrelated flyer changes. Upload index_r525.html as index.html after phone test. -->
 <!-- r526: Story Flyer 6 approved gold serif typography and centering cleanup. Applies the approved gold serif venue/city/date hierarchy to comic-story only, removes the remaining lower decorative rule, and re-centers/rebalances the three-line Location Stack within the rounded lower frame. No PNG, Calendar, header, tab, app-shell, or unrelated flyer changes. Upload index_r526.html as index.html after phone test. -->
+<!-- r528: Story Flyer 6 venue-spacing and artifact cleanup. Tightens premium venue tracking to prevent broken word spacing, re-centers the comic-story venue headline, and replaces the narrow solid-color lower-rule cover with a wider sampled texture patch so the blue rectangle artifact is removed. No PNG, Calendar, header, tab, app-shell, or unrelated flyer changes. Upload index_r528.html as index.html after phone test. -->
 <title>Out of Time v3</title>
 <!-- r106-band-bottom-extended-assets: expects band1.png through band15.png with bottom-extended artwork -->
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Russo+One&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
@@ -15178,10 +15179,10 @@ var FLYER_ZONES = {
     date: {y_frac: 0.886, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'comic-story': {
-    venue: {y_frac: 0.776, x_frac: 0.508, size: 76, color: '#f3c967', bold: true, font: 'premium-serif', premiumVenue: true},
+    venue: {y_frac: 0.776, x_frac: 0.500, size: 74, color: '#f3c967', bold: true, font: 'premium-serif', premiumVenue: true, premiumTracking: 0.018},
     address: {y_frac: 0.850, x_frac: 0.50, size: 34, color: '#f6df9f', bold: false, font: 'premium-serif'},
     date: {y_frac: 0.918, x_frac: 0.50, size: 58, color: '#ffd777', bold: true, font: 'premium-serif'},
-    bottomRuleShift: {oldY_frac: 0.952, newY_frac: 0.952, xInset: 470, sampleYOffset: -90, coverHeight: 60, coverFillColor: '#081a3b', removeOnly: true},
+    bottomRuleShift: {oldY_frac: 0.952, newY_frac: 0.952, xInset: 120, sampleYOffset: 26, coverHeight: 58, removeOnly: true},
   },
   'metropolis-square': {
     venue: {y_frac: 0.757, x_frac: 0.50, size: 60, color: '#d4b56a', bold: true},
@@ -15849,14 +15850,21 @@ function _flyerRender(){
       if(isVenue && cfg.premiumVenue){
         // r517: User-selected mockup #2 venue treatment.
         // One-line luxury gold serif headline, refined tracking, subtle depth, scoped to Story Flyer 1.
-        var premiumSpacing = Math.max(1, Math.round(size * 0.025));
+        var premiumTrackFactor = (cfg.premiumTracking != null ? cfg.premiumTracking : 0.022);
+        function premiumCharSpacing(s, txt, idx){
+          var base = Math.max(1, Math.round(s * premiumTrackFactor));
+          var ch = txt[idx] || '';
+          var next = txt[idx + 1] || '';
+          if(ch === ' ' || next === ' ') return Math.max(0, Math.round(base * 0.35));
+          return base;
+        }
+        var premiumSpacing = Math.max(1, Math.round(size * premiumTrackFactor));
         function premiumVenueWidth(s, txt){
           applyFont(s);
           var w = 0;
-          var sp = Math.max(1, Math.round(s * 0.025));
           for(var pi=0; pi<txt.length; pi++){
             w += ctx.measureText(txt[pi]).width;
-            if(pi < txt.length-1) w += sp;
+            if(pi < txt.length-1) w += premiumCharSpacing(s, txt, pi);
           }
           return w;
         }
@@ -15866,7 +15874,7 @@ function _flyerRender(){
           size -= 2;
         }
         applyFont(size);
-        premiumSpacing = Math.max(1, Math.round(size * 0.025));
+        premiumSpacing = Math.max(1, Math.round(size * premiumTrackFactor));
         var premiumTw = premiumVenueWidth(size, text);
         var premiumStartX = x - premiumTw/2;
         function drawPremiumVenue(offsetX, offsetY, mode){
@@ -15875,7 +15883,11 @@ function _flyerRender(){
             var pch = text[pj];
             if(mode === 'stroke') ctx.strokeText(pch, psx + offsetX, y + offsetY);
             else ctx.fillText(pch, psx + offsetX, y + offsetY);
-            psx += ctx.measureText(pch).width + premiumSpacing;
+            if(pj < text.length-1){
+              psx += ctx.measureText(pch).width + premiumCharSpacing(size, text, pj);
+            } else {
+              psx += ctx.measureText(pch).width;
+            }
           }
         }
         // Deep but restrained shadow; enough to lift the gold from the navy panel.
