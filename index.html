@@ -106,9 +106,10 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r512: Flyer 1 second cleanup. Uses corrected Square Flyer 1 asset with remaining internal divider removed and cleaner centered lower stack. Upload index.html plus oot_flyer_square_01_r512.png after phone test. -->
 <!-- r514: Story Flyer 1 overlay-centering fix. No asset change. Adjusts hollywood-story address/date y-fracs so the venue/city/date-time stack is visually centered among its three text lines and bumps force-refresh version for stale saved renders. Upload index.html only. -->
 <!-- r516: Story Flyer 1 premium venue hierarchy. Adds scoped premiumVenue rendering and applies it only to hollywood-story; no template asset, Calendar, headers, tabs, or app-shell changes. Upload index_r516.html as index.html after phone test. -->
+<!-- r517: Story Flyer 1 venue typography revised to user-selected mockup #2: one-line Cinzel-style gold serif headline, refined support/date hierarchy, and scoped decorative rules. Upload index_r517.html as index.html after phone test. -->
 <title>Out of Time v3</title>
 <!-- r106-band-bottom-extended-assets: expects band1.png through band15.png with bottom-extended artwork -->
-<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Russo+One&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script> 
@@ -15111,9 +15112,9 @@ var FLYER_ZONES = {
     date: {y_frac: 0.930, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'hollywood-story': {
-    venue: {y_frac: 0.760, x_frac: 0.50, size: 76, color: '#fff0c8', bold: true, hideRule: true, premiumVenue: true},
-    address: {y_frac: 0.833, x_frac: 0.50, size: 34, color: '#f4dfb8', bold: true, font: 'support'},
-    date: {y_frac: 0.887, x_frac: 0.50, size: 58, color: '#ffe6b3', bold: true},
+    venue: {y_frac: 0.760, x_frac: 0.50, size: 82, color: '#f3c967', bold: true, font: 'premium-serif', premiumVenue: true, premiumRule: true, premiumRuleY_frac: 0.820},
+    address: {y_frac: 0.833, x_frac: 0.50, size: 34, color: '#f6df9f', bold: false, font: 'premium-serif'},
+    date: {y_frac: 0.887, x_frac: 0.50, size: 58, color: '#ffd777', bold: true, font: 'premium-serif', premiumBottomRule: true, premiumBottomRuleY_frac: 0.943},
   },
   'neon-square': {
     announcement: {y_frac: 0.786, x_frac: 0.50, size: 34, color: '#ffffff', bold: true},
@@ -15330,7 +15331,7 @@ var _flyerCtx = {
 // the template key is unchanged. Track/compare the asset source so old renders get refreshed.
 var FLYER_FORCE_REFRESH_TEMPLATES = {
   'hollywood-square': '2026-05-12-flyer1-square-clean-stack-r512',
-  'hollywood-story': '2026-05-13-flyer1-story-premium-venue-r516',
+  'hollywood-story': '2026-05-13-flyer1-story-gold-serif-r517',
   'oot13-story': '2026-05-12-story13-asset-clean-r504',
   'oot14-story': '2026-05-12-story14-clean-centered-r507',
   'oot15-story': '2026-05-12-story15-clean-centered-r507'
@@ -15794,8 +15795,18 @@ function _flyerRender(){
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
       function applyFont(s){
-        var family = (cfg.font === 'support') ? "'Exo 2', Arial, sans-serif" : "'Russo One', 'Arial Black', sans-serif";
-        var weight = (cfg.font === 'support') ? (cfg.bold ? '700 ' : '600 ') : (cfg.bold ? 'bold ' : '');
+        var family;
+        var weight;
+        if(cfg.font === 'support'){
+          family = "'Exo 2', Arial, sans-serif";
+          weight = cfg.bold ? '700 ' : '600 ';
+        } else if(cfg.font === 'premium-serif'){
+          family = "'Cinzel', 'Times New Roman', Georgia, serif";
+          weight = cfg.bold ? '700 ' : '600 ';
+        } else {
+          family = "'Russo One', 'Arial Black', sans-serif";
+          weight = cfg.bold ? 'bold ' : '';
+        }
         ctx.font = weight + s + "px " + family;
       }
       // For venue: simulate letter-spacing by measuring per-character. Else just measure full string.
@@ -15819,10 +15830,27 @@ function _flyerRender(){
       var x = dims.w * (cfg.x_frac != null ? cfg.x_frac : 0.5);
       var y = dims.h * cfg.y_frac;
       if(isVenue && cfg.premiumVenue){
-        // r516: Premium venue hierarchy for Story Flyer 1.
-        // Warm ivory headline, tighter tracking, refined shadow/stroke, no novelty chrome.
-        var premiumSpacing = Math.max(2, Math.round(size * 0.045));
-        var premiumTw = venueWidth(size, text);
+        // r517: User-selected mockup #2 venue treatment.
+        // One-line luxury gold serif headline, refined tracking, subtle depth, scoped to Story Flyer 1.
+        var premiumSpacing = Math.max(1, Math.round(size * 0.025));
+        function premiumVenueWidth(s, txt){
+          applyFont(s);
+          var w = 0;
+          var sp = Math.max(1, Math.round(s * 0.025));
+          for(var pi=0; pi<txt.length; pi++){
+            w += ctx.measureText(txt[pi]).width;
+            if(pi < txt.length-1) w += sp;
+          }
+          return w;
+        }
+        while(size > 34){
+          applyFont(size);
+          if(premiumVenueWidth(size, text) <= dims.w - 96) break;
+          size -= 2;
+        }
+        applyFont(size);
+        premiumSpacing = Math.max(1, Math.round(size * 0.025));
+        var premiumTw = premiumVenueWidth(size, text);
         var premiumStartX = x - premiumTw/2;
         function drawPremiumVenue(offsetX, offsetY, mode){
           var psx = premiumStartX;
@@ -15833,25 +15861,55 @@ function _flyerRender(){
             psx += ctx.measureText(pch).width + premiumSpacing;
           }
         }
-        // Soft concert-poster depth, kept restrained so the headline stays premium.
-        ctx.fillStyle = 'rgba(0,0,0,0.82)';
-        drawPremiumVenue(4, 6, 'fill');
-        ctx.fillStyle = 'rgba(0,0,0,0.42)';
-        drawPremiumVenue(2, 3, 'fill');
-        ctx.lineWidth = Math.max(2.5, Math.round(size * 0.045));
-        ctx.strokeStyle = 'rgba(0,0,0,0.76)';
+        // Deep but restrained shadow; enough to lift the gold from the navy panel.
+        ctx.fillStyle = 'rgba(0,0,0,0.78)';
+        drawPremiumVenue(3.5, 5, 'fill');
+        ctx.fillStyle = 'rgba(0,0,0,0.40)';
+        drawPremiumVenue(1.5, 2.5, 'fill');
+        ctx.lineWidth = Math.max(2.2, Math.round(size * 0.040));
+        ctx.strokeStyle = 'rgba(0,0,0,0.72)';
         ctx.lineJoin = 'round';
         ctx.miterLimit = 2;
         drawPremiumVenue(0, 0, 'stroke');
         var pgrad = ctx.createLinearGradient(0, y, 0, y + size);
-        pgrad.addColorStop(0.00, '#fff9e8');
-        pgrad.addColorStop(0.34, cfg.color || '#fff0c8');
-        pgrad.addColorStop(0.72, '#ead09a');
-        pgrad.addColorStop(1.00, '#c7a25c');
+        pgrad.addColorStop(0.00, '#fff0a8');
+        pgrad.addColorStop(0.20, '#ffd977');
+        pgrad.addColorStop(0.48, cfg.color || '#f3c967');
+        pgrad.addColorStop(0.74, '#c99132');
+        pgrad.addColorStop(1.00, '#f1d08a');
         ctx.fillStyle = pgrad;
         drawPremiumVenue(0, 0, 'fill');
-        ctx.fillStyle = 'rgba(255,255,255,0.18)';
-        drawPremiumVenue(0, -1.5, 'fill');
+        // Delicate highlight, not the heavy chrome flash from r516.
+        ctx.fillStyle = 'rgba(255,255,255,0.20)';
+        drawPremiumVenue(0, -1.2, 'fill');
+        if(cfg.premiumRule){
+          var ruleY = Math.round(dims.h * (cfg.premiumRuleY_frac != null ? cfg.premiumRuleY_frac : (cfg.y_frac + 0.058)));
+          var ruleHalfWidth = Math.min(dims.w * 0.34, Math.max(dims.w * 0.18, premiumTw * 0.42));
+          var gap = Math.max(16, Math.round(size * 0.30));
+          ctx.save();
+          ctx.strokeStyle = 'rgba(211,157,58,0.82)';
+          ctx.lineWidth = Math.max(1.2, Math.round(size * 0.018));
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(x - ruleHalfWidth, ruleY);
+          ctx.lineTo(x - gap, ruleY);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(x + gap, ruleY);
+          ctx.lineTo(x + ruleHalfWidth, ruleY);
+          ctx.stroke();
+          var diamondHalf = Math.max(4, Math.round(size * 0.055));
+          ctx.strokeStyle = 'rgba(255,211,112,0.88)';
+          ctx.lineWidth = Math.max(1.2, Math.round(size * 0.014));
+          ctx.beginPath();
+          ctx.moveTo(x, ruleY - diamondHalf);
+          ctx.lineTo(x + diamondHalf, ruleY);
+          ctx.lineTo(x, ruleY + diamondHalf);
+          ctx.lineTo(x - diamondHalf, ruleY);
+          ctx.closePath();
+          ctx.stroke();
+          ctx.restore();
+        }
         return;
       }
       if(isVenue){
@@ -15994,8 +16052,30 @@ function _flyerRender(){
           ctx.fillStyle = dgrad;
           ctx.fillText(text, x, y);
           // Top highlight
-          ctx.fillStyle = 'rgba(255,255,255,0.28)';
+          ctx.fillStyle = 'rgba(255,255,255,0.22)';
           ctx.fillText(text, x, y - 1.5);
+          if(cfg.premiumBottomRule){
+            var bRuleY = Math.round(dims.h * (cfg.premiumBottomRuleY_frac != null ? cfg.premiumBottomRuleY_frac : (cfg.y_frac + 0.052)));
+            var bHalfWidth = Math.min(dims.w * 0.31, Math.max(dims.w * 0.16, ctx.measureText(text).width * 0.40));
+            var bGap = Math.max(15, Math.round(size * 0.27));
+            ctx.save();
+            ctx.strokeStyle = 'rgba(211,157,58,0.70)';
+            ctx.lineWidth = Math.max(1.2, Math.round(size * 0.016));
+            ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x - bHalfWidth, bRuleY); ctx.lineTo(x - bGap, bRuleY); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x + bGap, bRuleY); ctx.lineTo(x + bHalfWidth, bRuleY); ctx.stroke();
+            var bDiamondHalf = Math.max(3.5, Math.round(size * 0.050));
+            ctx.strokeStyle = 'rgba(255,211,112,0.78)';
+            ctx.lineWidth = Math.max(1.1, Math.round(size * 0.013));
+            ctx.beginPath();
+            ctx.moveTo(x, bRuleY - bDiamondHalf);
+            ctx.lineTo(x + bDiamondHalf, bRuleY);
+            ctx.lineTo(x, bRuleY + bDiamondHalf);
+            ctx.lineTo(x - bDiamondHalf, bRuleY);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.restore();
+          }
         } else {
           // Standard: drop shadow + flat fill
           ctx.fillStyle = 'rgba(0,0,0,0.7)';
@@ -25789,7 +25869,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-13-flyer1-story-premium-venue-r516';
+var WHATS_NEW_VERSION = '2026-05-13-flyer1-story-gold-serif-r517';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
