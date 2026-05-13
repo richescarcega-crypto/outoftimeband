@@ -108,6 +108,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r516: Story Flyer 1 premium venue hierarchy. Adds scoped premiumVenue rendering and applies it only to hollywood-story; no template asset, Calendar, headers, tabs, or app-shell changes. Upload index_r516.html as index.html after phone test. -->
 <!-- r517: Story Flyer 1 venue typography revised to user-selected mockup #2: one-line Cinzel-style gold serif headline, refined support/date hierarchy, and scoped decorative rules. Upload index_r517.html as index.html after phone test. -->
 <!-- r518: Story Flyer 2 venue typography/centering. Applies approved Cinzel-style gold serif Location Stack treatment to neon-story and adjusts its three-line stack for the lower frame. No asset, Calendar, headers, tabs, or app-shell changes. Upload index_r518.html as index.html after phone test. -->
+<!-- r519: Story Flyer 2 venue optical centering fix. Moves only the neon-story venue headline slightly right inside the lower frame; city/date lines and all non-target app sections remain unchanged. Upload index_r519.html as index.html after phone test. -->
 <title>Out of Time v3</title>
 <!-- r106-band-bottom-extended-assets: expects band1.png through band15.png with bottom-extended artwork -->
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Russo+One&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
@@ -15124,7 +15125,7 @@ var FLYER_ZONES = {
     date: {y_frac: 0.908, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'neon-story': {
-    venue: {y_frac: 0.758, x_frac: 0.50, size: 76, color: '#f3c967', bold: true, font: 'premium-serif', premiumVenue: true, premiumRule: true, premiumRuleY_frac: 0.824},
+    venue: {y_frac: 0.758, x_frac: 0.515, size: 76, color: '#f3c967', bold: true, font: 'premium-serif', premiumVenue: true, premiumRule: true, premiumRuleY_frac: 0.824},
     address: {y_frac: 0.846, x_frac: 0.50, size: 34, color: '#f6df9f', bold: false, font: 'premium-serif'},
     date: {y_frac: 0.904, x_frac: 0.50, size: 58, color: '#ffd777', bold: true, font: 'premium-serif', premiumBottomRule: true, premiumBottomRuleY_frac: 0.956},
   },
@@ -15333,7 +15334,7 @@ var _flyerCtx = {
 var FLYER_FORCE_REFRESH_TEMPLATES = {
   'hollywood-square': '2026-05-12-flyer1-square-clean-stack-r512',
   'hollywood-story': '2026-05-13-flyer1-story-gold-serif-r517',
-  'neon-story': '2026-05-13-flyer2-story-gold-serif-centered-r518',
+  'neon-story': '2026-05-13-flyer2-story-venue-optical-center-r519',
   'oot13-story': '2026-05-12-story13-asset-clean-r504',
   'oot14-story': '2026-05-12-story14-clean-centered-r507',
   'oot15-story': '2026-05-12-story15-clean-centered-r507'
@@ -25871,7 +25872,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-13-flyer2-story-gold-serif-centered-r518';
+var WHATS_NEW_VERSION = '2026-05-13-flyer2-story-venue-optical-center-r519';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
