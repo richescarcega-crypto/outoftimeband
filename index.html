@@ -114,6 +114,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r522: Version-marker correction for Story Flyer 4 cleanup build. r521 contained the flyer changes but accidentally left WHATS_NEW_VERSION at r520, so the phone updater would not detect/load it. No flyer/app behavior changes beyond the version marker. Upload index_r522.html as index.html after phone test. -->
 <!-- r523: Story Flyer 4 cleanup refinement. Fixes Story Flyer 4 venue optical centering, tightens the venue headline slightly, and replaces the visible bottom-line cover bar with a sampled-texture remove-only patch. No PNG, app-shell, Calendar, headers, tabs, or unrelated flyer changes. Upload index_r523.html as index.html after phone test. -->
 <!-- r524: Story Flyer 5 gold serif typography and line cleanup. Applies the approved gold serif Location Stack to disco-story, removes generated decorative rules by using premium rendering without rules, and removes the baked lower decorative line with a sampled-texture patch. No PNG, app-shell, Calendar, headers, tabs, or unrelated flyer changes. Upload index_r524.html as index.html after phone test. -->
+<!-- r525: Story Flyer 5 refinement. Tightens and optically re-centers the venue headline, and lowers/refines the full three-line Location Stack for better balance in the lower panel. No PNG, Calendar, header, tab, app-shell, or unrelated flyer changes. Upload index_r525.html as index.html after phone test. -->
 <title>Out of Time v3</title>
 <!-- r106-band-bottom-extended-assets: expects band1.png through band15.png with bottom-extended artwork -->
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Russo+One&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
@@ -15164,9 +15165,9 @@ var FLYER_ZONES = {
     date: {y_frac: 0.859, x_frac: 0.50, size: 50, color: '#ffd9a3', bold: true},
   },
   'disco-story': {
-    venue: {y_frac: 0.724, x_frac: 0.50, size: 78, color: '#f3c967', bold: true, font: 'premium-serif', premiumVenue: true},
-    address: {y_frac: 0.804, x_frac: 0.50, size: 34, color: '#f6df9f', bold: false, font: 'premium-serif'},
-    date: {y_frac: 0.866, x_frac: 0.50, size: 58, color: '#ffd777', bold: true, font: 'premium-serif'},
+    venue: {y_frac: 0.736, x_frac: 0.507, size: 74, color: '#f3c967', bold: true, font: 'premium-serif', premiumVenue: true},
+    address: {y_frac: 0.818, x_frac: 0.502, size: 34, color: '#f6df9f', bold: false, font: 'premium-serif'},
+    date: {y_frac: 0.886, x_frac: 0.502, size: 58, color: '#ffd777', bold: true, font: 'premium-serif'},
     bottomRuleShift: {oldY_frac: 0.835, newY_frac: 0.835, xInset: 118, sampleYOffset: 58, coverHeight: 44, removeOnly: true},
   },
   'comic-square': {
@@ -15344,7 +15345,7 @@ var FLYER_FORCE_REFRESH_TEMPLATES = {
   'neon-story': '2026-05-13-flyer2-story-venue-optical-center-r519',
   'skyline-story': '2026-05-13-flyer3-story-gold-serif-r520',
   'deco-story': '2026-05-13-flyer4-story-center-cleanup-r523',
-  'disco-story': '2026-05-13-flyer5-story-gold-serif-line-cleanup-r524',
+  'disco-story': '2026-05-13-flyer5-story-centering-refine-r525',
   'oot13-story': '2026-05-12-story13-asset-clean-r504',
   'oot14-story': '2026-05-12-story14-clean-centered-r507',
   'oot15-story': '2026-05-12-story15-clean-centered-r507'
@@ -25882,7 +25883,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-13-flyer5-story-gold-serif-line-cleanup-r524';
+var WHATS_NEW_VERSION = '2026-05-13-flyer5-story-centering-refine-r525';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26175,6 +26176,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-13-flyer5-story-centering-refine-r525', date:'May 13, 2026', importance:'fix', title:'Story Flyer 5 centering and spacing refinement', items:['Tightens and optically re-centers the Story Flyer 5 gold serif venue headline so it reads as one clean line.', 'Lowers the city and date/time lines slightly to reduce the top-heavy feel and balance the Location Stack inside the lower panel.', 'No PNG, Calendar, headers, tabs, app shell, or unrelated flyer templates were changed.']},
   {version:'2026-05-13-flyer5-story-gold-serif-line-cleanup-r524', date:'May 13, 2026', importance:'fix', title:'Story Flyer 5 gold venue typography and line cleanup', items:['Applies the approved Cinzel-style gold venue, city, and date/time hierarchy to Story Flyer 5 only.', 'Removes the generated text decorative rules and removes the baked lower decorative line with a sampled-texture patch.', 'Keeps the Story Flyer 5 Location Stack centered and repositions the city/date support lines to match the approved story flyer treatment.']},
   {version:'2026-05-13-flyer4-story-center-cleanup-r523', date:'May 13, 2026', importance:'fix', title:'Story Flyer 4 centering and cleanup refinement', items:['Fixes the Story Flyer 4 venue headline optical centering and slightly tightens its one-line gold serif fit.', 'Removes the visible dark cover bar by switching the bottom decorative-line removal to a sampled-texture patch instead of a flat rectangle.', 'No PNG assets, Calendar, headers, tabs, app shell, or other flyer templates were changed.']},
   {version:'2026-05-13-flyer4-story-gold-serif-line-cleanup-r522', date:'May 13, 2026', importance:'fix', title:'Story Flyer 4 cleanup build version fix', items:['Corrects the build version marker so the phone auto-update system detects the Story Flyer 4 typography/line cleanup build.', 'Carries forward the r521 Story Flyer 4 changes without altering any additional flyer, Calendar, header, tab, or app-shell code.', 'Use this file instead of r521.']},
