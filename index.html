@@ -111,6 +111,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r519: Story Flyer 2 venue optical centering fix. Moves only the neon-story venue headline slightly right inside the lower frame; city/date lines and all non-target app sections remain unchanged. Upload index_r519.html as index.html after phone test. -->
 <!-- r520: Story Flyer 3 approved gold serif typography. Applies the approved Cinzel-style venue/city/date hierarchy to skyline-story only and keeps the lower Location Stack horizontally centered; no PNG, app-shell, Calendar, headers, tabs, or unrelated flyer changes. Upload index_r520.html as index.html after phone test. -->
 <!-- r521: Story Flyer 4 approved gold serif typography and line cleanup. Applies the approved gold serif Location Stack to deco-story, suppresses generated venue/date decorative rules, and covers the baked lower rule only for Story Flyer 4; no PNG, app-shell, Calendar, headers, tabs, or unrelated flyer changes. Upload index_r521.html as index.html after phone test. -->
+<!-- r522: Version-marker correction for Story Flyer 4 cleanup build. r521 contained the flyer changes but accidentally left WHATS_NEW_VERSION at r520, so the phone updater would not detect/load it. No flyer/app behavior changes beyond the version marker. Upload index_r522.html as index.html after phone test. -->
 <title>Out of Time v3</title>
 <!-- r106-band-bottom-extended-assets: expects band1.png through band15.png with bottom-extended artwork -->
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Russo+One&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
@@ -25877,7 +25878,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-13-flyer3-story-gold-serif-r520';
+var WHATS_NEW_VERSION = '2026-05-13-flyer4-story-gold-serif-line-cleanup-r522';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26170,6 +26171,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-13-flyer4-story-gold-serif-line-cleanup-r522', date:'May 13, 2026', importance:'fix', title:'Story Flyer 4 cleanup build version fix', items:['Corrects the build version marker so the phone auto-update system detects the Story Flyer 4 typography/line cleanup build.', 'Carries forward the r521 Story Flyer 4 changes without altering any additional flyer, Calendar, header, tab, or app-shell code.', 'Use this file instead of r521.']},
   {version:'2026-05-13-flyer4-story-gold-serif-line-cleanup-r521', date:'May 13, 2026', importance:'fix', title:'Story Flyer 4 gold venue typography and line cleanup', items:['Applies the approved Cinzel-style gold venue, city, and date/time hierarchy to Story Flyer 4 only.', 'Removes the extra decorative rules from the Story Flyer 4 lower panel by suppressing generated rules and covering the baked lower line.', 'No PNG assets, Calendar, headers, tabs, app shell, or unrelated flyer templates were changed.']},
   {version:'2026-05-13-flyer3-story-gold-serif-r520', date:'May 13, 2026', importance:'fix', title:'Story Flyer 3 gold venue typography', items:['Applies the approved Cinzel-style gold venue, city, and date/time hierarchy to Story Flyer 3 only.', 'Keeps the Story Flyer 3 lower Location Stack horizontally centered in the lower field.', 'No PNG assets, Calendar, headers, tabs, app shell, or unrelated flyer templates were changed.']},
   {version:'2026-05-12-calendar-stack-deterministic-height-r510', date:'May 12, 2026', importance:'fix', title:'Calendar lower-stack stability', items:['Prevents the Calendar lower stack from being positioned from inactive-tab measurements.', 'Changes the closed Calendar grid height to use the available viewport space instead of preserving a stale previous height.', 'Targets only the closed Calendar stack/grid measurement path; no event drawer, flyer, Songs, Chat, Band, or Pay behavior changed.']},
