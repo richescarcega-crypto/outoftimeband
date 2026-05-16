@@ -123,6 +123,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r532: Story Flyer 6 premium spacing rebalance. Fixes the broken comic-story venue chunking (SAN TA / MON ICA / P IER) by disabling artificial venue tracking, raises and tightens the location stack so the date/time no longer crowds the lower frame, and updates version/refresh markers. No PNG, Calendar, header, tab, app-shell, or unrelated flyer changes. Upload index_r532.html as index.html after phone test. -->
 <!-- r533: Story Flyer 8 premium typography and artifact cleanup. Applies the approved gold serif stack to boardwalk-story, removes the old block venue treatment and visible blue city cover bar by replacing the flat line cover with sampled texture, and updates version/refresh markers. No PNG, Calendar, header, tab, app-shell, or unrelated flyer changes. Upload index_r533.html as index.html after phone test. -->
 <!-- r534: Story Flyer 9 premium typography and separator cleanup. Applies the approved gold serif stack to oot09-story, removes the old block venue treatment and lower separator clutter with sampled texture, rebalances the location stack, and updates version/refresh markers. No PNG, Calendar, header, tab, app-shell, or unrelated flyer changes. Upload index_r534.html as index.html after phone test. -->
+<!-- r535: Home Next Rehearsal card. Adds a premium Home-page upcoming rehearsal cue that shows only the next future rehearsal and opens its Calendar Event Details; no flyer/image/template changes. Upload index_r535.html as index.html after phone test. -->
 <title>Out of Time v3</title>
 <!-- r106-band-bottom-extended-assets: expects band1.png through band15.png with bottom-extended artwork -->
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Russo+One&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
@@ -6635,6 +6636,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   </div>
   <div id="birthday-banner" style="display:none;"></div>
   <div id="home-song-vote-cue" style="display:none;"></div>
+  <div id="home-rehearsal-cue" style="display:none;"></div>
   <div id="next-gig-countdown" style="display:none;background:#060e1c;border-radius:12px;padding:7px 14px;margin-bottom:8px;text-align:center;border:2px solid rgba(245,197,24,1);box-shadow:0 0 30px rgba(245,197,24,.4),inset 0 0 30px rgba(10,22,40,.8);">
     <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">
       <div style="height:1px;flex:1;background:linear-gradient(to right,transparent,rgba(245,197,24,.4));"></div>
@@ -10280,6 +10282,7 @@ function listenSuggestions(){
     rVotes();
     updateVoteBadge();
     try { renderHomeSongVoteCue(); } catch(e){}
+  try { renderHomeRehearsalCue(); } catch(e){}
   });
 }
 
@@ -10297,6 +10300,137 @@ function _pendingSongSuggestionsForMe(){
     return (suggestions||[]).filter(function(s){ return !_songSuggestionMyVote(s); });
   }catch(e){ return []; }
 }
+function _r535HomeEscape(s){
+  return String(s == null ? '' : s).replace(/[&<>'"]/g, function(ch){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch] || ch;
+  });
+}
+function _r535ParseTimeToMinutes(raw){
+  raw = String(raw || '').trim();
+  if(!raw) return null;
+  var s = raw.toLowerCase().replace(/\s+/g,'');
+  var m = s.match(/^(\d{1,2})(?::(\d{2}))?(am|pm)?$/);
+  if(!m) return null;
+  var h = parseInt(m[1],10);
+  var min = m[2] ? parseInt(m[2],10) : 0;
+  if(isNaN(h) || isNaN(min) || h < 0 || h > 23 || min < 0 || min > 59) return null;
+  if(m[3]){
+    if(h < 1 || h > 12) return null;
+    if(m[3] === 'pm' && h !== 12) h += 12;
+    if(m[3] === 'am' && h === 12) h = 0;
+  }
+  return h * 60 + min;
+}
+function _r535RehearsalTimes(ev){
+  var ag = (ev && ev.id && typeof _getAgenda === 'function') ? _getAgenda(ev.id) : {};
+  var p = (typeof _findConfirmedProposalForEvent === 'function') ? (_findConfirmedProposalForEvent(ev) || {}) : {};
+  var start = (ag && ag.startTime) || ev.startTime || ev.start || p.startTime || '';
+  var end = (ag && ag.endTime) || ev.endTime || ev.end || p.endTime || '';
+  return {start:start, end:end};
+}
+function _r535RehearsalDeadline(ev){
+  try{
+    if(!ev || !ev.date) return null;
+    var t = _r535RehearsalTimes(ev);
+    var minutes = _r535ParseTimeToMinutes(t.end || t.start);
+    if(minutes === null) minutes = 23*60 + 59; // no time: keep visible through that calendar day
+    var d = new Date(String(ev.date) + 'T00:00:00');
+    if(isNaN(d.getTime())) return null;
+    d.setHours(Math.floor(minutes/60), minutes%60, 59, 999);
+    return d;
+  }catch(e){ return null; }
+}
+function _r535RehearsalStartSort(ev){
+  try{
+    if(!ev || !ev.date) return Number.MAX_SAFE_INTEGER;
+    var t = _r535RehearsalTimes(ev);
+    var minutes = _r535ParseTimeToMinutes(t.start || t.end);
+    if(minutes === null) minutes = 0;
+    var d = new Date(String(ev.date) + 'T00:00:00');
+    if(isNaN(d.getTime())) return Number.MAX_SAFE_INTEGER;
+    d.setHours(Math.floor(minutes/60), minutes%60, 0, 0);
+    return d.getTime();
+  }catch(e){ return Number.MAX_SAFE_INTEGER; }
+}
+function _r535NextUpcomingRehearsal(){
+  try{
+    var now = new Date();
+    return (events || []).filter(function(ev){
+      if(!ev || ev.type !== 'rehearsal' || !ev.date) return false;
+      var deadline = _r535RehearsalDeadline(ev);
+      return !!(deadline && deadline.getTime() >= now.getTime());
+    }).sort(function(a,b){
+      return _r535RehearsalStartSort(a) - _r535RehearsalStartSort(b);
+    })[0] || null;
+  }catch(e){ return null; }
+}
+function _r535PrettyRehearsalDate(ev){
+  try{
+    var d = new Date(String(ev.date) + 'T00:00:00');
+    if(isNaN(d.getTime())) return String(ev.date || '');
+    return d.toLocaleDateString(undefined, {weekday:'short', month:'short', day:'numeric'});
+  }catch(e){ return String(ev && ev.date || ''); }
+}
+function _r535OpenHomeRehearsal(eid){
+  try{
+    var ev = (events || []).find(function(x){ return String(x.id) === String(eid); });
+    if(!ev || !ev.date){ toast('Rehearsal not found', {tone:'error'}); return; }
+    var parts = String(ev.date).split('-');
+    if(parts.length !== 3) throw new Error('Bad rehearsal date');
+    CY = parseInt(parts[0], 10);
+    CM = parseInt(parts[1], 10) - 1;
+    var day = parseInt(parts[2], 10);
+    var calBtn = document.getElementById('tb-cal');
+    _calendarSkipTopResetOnce = true;
+    if(typeof go === 'function') go('cal', calBtn);
+    if(typeof rCal === 'function') rCal();
+    if(typeof openDayDrawer === 'function') openDayDrawer(day, [ev], {skipScroll:true, standaloneEventDetail:true});
+    setTimeout(function(){
+      try{
+        var drawer = document.getElementById('cal-drawer');
+        if(drawer && drawer.scrollIntoView) drawer.scrollIntoView({block:'nearest', behavior:'smooth'});
+      }catch(_e){}
+    }, 70);
+  }catch(e){
+    try { console.warn('[r535 home rehearsal] open failed', e); } catch(_e){}
+    toast('Could not open rehearsal details', {tone:'error'});
+  }
+}
+function renderHomeRehearsalCue(){
+  var el = document.getElementById('home-rehearsal-cue');
+  if(!el) return;
+  if(!_eventsHasInit && (!events || !events.length)){
+    el.style.display = 'none';
+    el.innerHTML = '';
+    return;
+  }
+  var ev = _r535NextUpcomingRehearsal();
+  if(!ev){
+    el.style.display = 'none';
+    el.innerHTML = '';
+    return;
+  }
+  var times = _r535RehearsalTimes(ev);
+  var timeLabel = times.start ? (times.end ? (times.start + ' – ' + times.end) : times.start) : 'Time TBD';
+  var dateLabel = _r535PrettyRehearsalDate(ev);
+  var title = ev.title || 'Band Rehearsal';
+  var sub = dateLabel + ' · ' + timeLabel;
+  var note = ev.note || ev.location || '';
+  el.style.display = 'block';
+  el.innerHTML =
+    '<button type="button" onclick="_r535OpenHomeRehearsal(\''+_r535HomeEscape(String(ev.id||''))+'\')" '+
+    'style="width:100%;text-align:left;background:linear-gradient(135deg,rgba(11,31,76,.98),rgba(5,13,32,.98) 58%,rgba(32,14,57,.96));border:1px solid rgba(245,197,24,.55);border-radius:16px;padding:11px 12px;margin:0 0 10px 0;color:#e8f0ff;box-shadow:0 9px 22px rgba(0,0,0,.30),0 0 18px rgba(74,158,255,.14),inset 0 1px 0 rgba(255,255,255,.06);display:flex;gap:10px;align-items:center;cursor:pointer;touch-action:manipulation;overflow:hidden;position:relative;">'+
+      '<span style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 32% 24%,#fff7b8 0%,#f5c518 36%,#b77c00 100%);color:#06121f;display:flex;align-items:center;justify-content:center;font-family:Russo One,sans-serif;font-size:17px;flex-shrink:0;box-shadow:0 0 16px rgba(245,197,24,.34);">🎤</span>'+
+      '<span style="flex:1;min-width:0;position:relative;z-index:1;">'+
+        '<span style="display:block;font-family:Russo One,sans-serif;color:#f5c518;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;">Rehearsal on Deck</span>'+ 
+        '<span style="display:block;color:#fff;font-size:14px;font-weight:800;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_r535HomeEscape(title)+'</span>'+ 
+        '<span style="display:block;color:#9fc2ff;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_r535HomeEscape(sub)+'</span>'+ 
+        (note ? '<span style="display:block;color:#8aa8d6;font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_r535HomeEscape(note)+'</span>' : '')+
+      '</span>'+
+      '<span style="color:#f5c518;font-size:22px;line-height:1;flex-shrink:0;position:relative;z-index:1;">›</span>'+ 
+    '</button>';
+}
+
 function renderHomeSongVoteCue(){
   var el = document.getElementById('home-song-vote-cue');
   if(!el) return;
@@ -10608,6 +10742,7 @@ function listenAgendas(){
       };
     });
     if(document.getElementById('sc-cal').classList.contains('on')) rEvL();
+    try { renderHomeRehearsalCue(); } catch(e){}
   });
 }
 function openAgenda(evId){
@@ -25918,7 +26053,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-13-flyer9-story-premium-separator-cleanup-r534';
+var WHATS_NEW_VERSION = '2026-05-16-home-next-rehearsal-card-r535';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26211,6 +26346,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-16-home-next-rehearsal-card-r535', date:'May 16, 2026', importance:'minor', title:'Home rehearsal reminder card', items:['Adds a polished Home-page rehearsal card that shows the next upcoming confirmed rehearsal only.', 'The rehearsal cue stays visible until the rehearsal date/time has passed, then automatically disappears.', 'Tapping the card opens the matching Calendar Event Details drawer without changing flyer, image, tab, or unrelated app behavior.']},
   {version:'2026-05-13-flyer9-story-premium-separator-cleanup-r534', date:'May 13, 2026', importance:'fix', title:'Story Flyer 9 premium cleanup', items:['Applies the approved premium gold serif venue, city, and date/time hierarchy to Story Flyer 9 only.', 'Replaces the old white/block venue treatment and disables artificial venue tracking so SANTA MONICA PIER reads naturally.', 'Removes the lower separator clutter with sampled texture cleanup, rebalances the location stack, and bumps the oot09-story refresh key.']},
   {version:'2026-05-13-flyer8-story-premium-artifact-cleanup-r533', date:'May 13, 2026', importance:'fix', title:'Story Flyer 8 premium cleanup', items:['Applies the approved premium gold serif venue, city, and date/time stack to Story Flyer 8 only.', 'Replaces the old white/block venue treatment and disables artificial venue tracking so SANTA MONICA PIER reads naturally.', 'Removes the visible blue city cover bar by replacing the flat decorative-line cover with a sampled texture cleanup and bumps the boardwalk-story refresh key.']},
   {version:'2026-05-13-flyer6-story-spacing-rebalance-r532', date:'May 13, 2026', importance:'fix', title:'Story Flyer 6 spacing rebalance', items:['Fixes the broken Story Flyer 6 venue chunking so SANTA MONICA PIER no longer reads as SAN TA, MON ICA, or P IER.', 'Disables artificial premium venue tracking on comic-story and rebalances the venue, city, and date/time stack upward so the date/time no longer crowds the lower frame line.', 'Bumps the comic-story refresh key so stale saved flyer renders update without changing any non-flyer app behavior.']},
