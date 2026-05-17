@@ -124,6 +124,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r533: Story Flyer 8 premium typography and artifact cleanup. Applies the approved gold serif stack to boardwalk-story, removes the old block venue treatment and visible blue city cover bar by replacing the flat line cover with sampled texture, and updates version/refresh markers. No PNG, Calendar, header, tab, app-shell, or unrelated flyer changes. Upload index_r533.html as index.html after phone test. -->
 <!-- r534: Story Flyer 9 premium typography and separator cleanup. Applies the approved gold serif stack to oot09-story, removes the old block venue treatment and lower separator clutter with sampled texture, rebalances the location stack, and updates version/refresh markers. No PNG, Calendar, header, tab, app-shell, or unrelated flyer changes. Upload index_r534.html as index.html after phone test. -->
 <!-- r535: Home Next Rehearsal card. Adds a premium Home-page upcoming rehearsal cue that shows only the next future rehearsal and opens its Calendar Event Details; no flyer/image/template changes. Upload index_r535.html as index.html after phone test. -->
+<!-- r536: Home Rehearsal on Deck card caret removal. Removes only the right-side chevron from the Home rehearsal cue while keeping the full pill/card button tappable. Upload index_r536.html as index.html after phone test. -->
 <title>Out of Time v3</title>
 <!-- r106-band-bottom-extended-assets: expects band1.png through band15.png with bottom-extended artwork -->
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Russo+One&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
@@ -10427,7 +10428,6 @@ function renderHomeRehearsalCue(){
         '<span style="display:block;color:#9fc2ff;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_r535HomeEscape(sub)+'</span>'+ 
         (note ? '<span style="display:block;color:#8aa8d6;font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_r535HomeEscape(note)+'</span>' : '')+
       '</span>'+
-      '<span style="color:#f5c518;font-size:22px;line-height:1;flex-shrink:0;position:relative;z-index:1;">›</span>'+ 
     '</button>';
 }
 
@@ -26053,7 +26053,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-16-home-next-rehearsal-card-r535';
+var WHATS_NEW_VERSION = '2026-05-16-home-rehearsal-card-caret-removal-r536';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26346,6 +26346,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-16-home-rehearsal-card-caret-removal-r536', date:'May 16, 2026', importance:'fix', title:'Home rehearsal card polish', items:['Removes the right-side chevron from the Home Rehearsal on Deck card for a cleaner full-pill look.', 'Keeps the entire rehearsal card tappable so it still opens the matching Calendar Event Details drawer.', 'No Calendar, Songs, Setlists, Chat, Band, Pay, flyer, image, or tab behavior changed.']},
   {version:'2026-05-16-home-next-rehearsal-card-r535', date:'May 16, 2026', importance:'minor', title:'Home rehearsal reminder card', items:['Adds a polished Home-page rehearsal card that shows the next upcoming confirmed rehearsal only.', 'The rehearsal cue stays visible until the rehearsal date/time has passed, then automatically disappears.', 'Tapping the card opens the matching Calendar Event Details drawer without changing flyer, image, tab, or unrelated app behavior.']},
   {version:'2026-05-13-flyer9-story-premium-separator-cleanup-r534', date:'May 13, 2026', importance:'fix', title:'Story Flyer 9 premium cleanup', items:['Applies the approved premium gold serif venue, city, and date/time hierarchy to Story Flyer 9 only.', 'Replaces the old white/block venue treatment and disables artificial venue tracking so SANTA MONICA PIER reads naturally.', 'Removes the lower separator clutter with sampled texture cleanup, rebalances the location stack, and bumps the oot09-story refresh key.']},
   {version:'2026-05-13-flyer8-story-premium-artifact-cleanup-r533', date:'May 13, 2026', importance:'fix', title:'Story Flyer 8 premium cleanup', items:['Applies the approved premium gold serif venue, city, and date/time stack to Story Flyer 8 only.', 'Replaces the old white/block venue treatment and disables artificial venue tracking so SANTA MONICA PIER reads naturally.', 'Removes the visible blue city cover bar by replacing the flat decorative-line cover with a sampled texture cleanup and bumps the boardwalk-story refresh key.']},
