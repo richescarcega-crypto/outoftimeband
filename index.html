@@ -9417,8 +9417,8 @@ function renderBandImagePicker(){
   var sub = document.getElementById('band-image-current-sub');
   if(!host) return;
   var pref = _currentMemberBandImagePref();
-  var imgs = (typeof BAND_GROUP_IMAGES !== 'undefined' && BAND_GROUP_IMAGES && BAND_GROUP_IMAGES.length) ? BAND_GROUP_IMAGES : ['band1.png'];
-  var defaultIdx = (typeof DEFAULT_BAND_GROUP_IMAGE_INDEX === 'number') ? DEFAULT_BAND_GROUP_IMAGE_INDEX : 14;
+  var imgs = (typeof HOME_BAND_IMAGES !== 'undefined' && HOME_BAND_IMAGES && HOME_BAND_IMAGES.length) ? HOME_BAND_IMAGES : ['band1.png'];
+  var defaultIdx = (typeof DEFAULT_HOME_BAND_IMAGE_INDEX === 'number') ? DEFAULT_HOME_BAND_IMAGE_INDEX : 1;
   var nPref = parseInt(pref, 10);
   var active = (!isNaN(nPref) && nPref >= 1 && nPref <= imgs.length) ? String(nPref) : String(defaultIdx);
   if(sub) sub.textContent = (!isNaN(nPref) && nPref >= 1 && nPref <= imgs.length)
@@ -17539,7 +17539,7 @@ function _ensureHomeBandBackdrop(){
   // r67: baked-background band image. Auto-rotates daily unless this member pins one.
   var row = document.getElementById('home-social-row');
   if(!row) return;
-  var src = (typeof _resolveBandGroupImg === 'function') ? _resolveBandGroupImg() : (INSTR_IMG && INSTR_IMG['band-group']);
+  var src = (typeof _resolveHomeBandImg === 'function') ? _resolveHomeBandImg() : ((typeof _resolveBandGroupImg === 'function') ? _resolveBandGroupImg() : (INSTR_IMG && INSTR_IMG['band-group']));
   if(!src) return;
   var bg = row.querySelector('.home-band-backdrop');
   if(!bg){
@@ -23765,6 +23765,11 @@ var INSTR_IMG = {
 // Default is band14.png. No automatic rotation. Optional member pin lives at members/{ME}.bandImagePref.
 var BAND_GROUP_IMAGES = ['band1.png','band2.png','band3.png','band4.png','band5.png','band6.png','band7.png','band8.png','band9.png','band10.png','band11.png','band12.png','band13.png','band14.png','band15.png'];
 var DEFAULT_BAND_GROUP_IMAGE_INDEX = 14;
+
+// r537: Home tab image set is now separate from Band Chat.
+// Home uses the new 2400x1600 exported image assets; Band Chat remains on BAND_GROUP_IMAGES until explicitly changed.
+var HOME_BAND_IMAGES = ['band_image_01.png'];
+var DEFAULT_HOME_BAND_IMAGE_INDEX = 1;
 function _currentMemberBandImagePref(){
   try {
     if(typeof ME !== 'undefined' && ME && typeof members !== 'undefined' && members && members[ME-1]){
@@ -23779,6 +23784,15 @@ function _resolveBandGroupImg(){
   var n = parseInt(pref, 10);
   if(!isNaN(n) && n >= 1 && n <= imgs.length) return imgs[n-1];
   var def = (typeof DEFAULT_BAND_GROUP_IMAGE_INDEX === 'number') ? DEFAULT_BAND_GROUP_IMAGE_INDEX : 14;
+  if(def >= 1 && def <= imgs.length) return imgs[def-1];
+  return imgs[0];
+}
+function _resolveHomeBandImg(){
+  var imgs = (typeof HOME_BAND_IMAGES !== 'undefined' && HOME_BAND_IMAGES && HOME_BAND_IMAGES.length) ? HOME_BAND_IMAGES : ((typeof BAND_GROUP_IMAGES !== 'undefined' && BAND_GROUP_IMAGES && BAND_GROUP_IMAGES.length) ? BAND_GROUP_IMAGES : ['band1.png']);
+  var pref = _currentMemberBandImagePref();
+  var n = parseInt(pref, 10);
+  if(!isNaN(n) && n >= 1 && n <= imgs.length) return imgs[n-1];
+  var def = (typeof DEFAULT_HOME_BAND_IMAGE_INDEX === 'number') ? DEFAULT_HOME_BAND_IMAGE_INDEX : 1;
   if(def >= 1 && def <= imgs.length) return imgs[def-1];
   return imgs[0];
 }
@@ -26053,7 +26067,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-16-home-rehearsal-card-caret-removal-r536';
+var WHATS_NEW_VERSION = '2026-05-22-home-band-image-01-r537';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26346,6 +26360,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-22-home-band-image-01-r537', date:'May 22, 2026', importance:'fix', title:'Home band image asset update', items:['Adds the first new Home-only band image asset, band_image_01.png.', 'Separates the Home tab image resolver from Band Chat so this image does not change the Band Chat/Band Tab group image.', 'No Calendar, Songs, Setlists, Chat, Band, Pay, flyer, or unrelated app behavior changed.']},
   {version:'2026-05-16-home-rehearsal-card-caret-removal-r536', date:'May 16, 2026', importance:'fix', title:'Home rehearsal card polish', items:['Removes the right-side chevron from the Home Rehearsal on Deck card for a cleaner full-pill look.', 'Keeps the entire rehearsal card tappable so it still opens the matching Calendar Event Details drawer.', 'No Calendar, Songs, Setlists, Chat, Band, Pay, flyer, image, or tab behavior changed.']},
   {version:'2026-05-16-home-next-rehearsal-card-r535', date:'May 16, 2026', importance:'minor', title:'Home rehearsal reminder card', items:['Adds a polished Home-page rehearsal card that shows the next upcoming confirmed rehearsal only.', 'The rehearsal cue stays visible until the rehearsal date/time has passed, then automatically disappears.', 'Tapping the card opens the matching Calendar Event Details drawer without changing flyer, image, tab, or unrelated app behavior.']},
   {version:'2026-05-13-flyer9-story-premium-separator-cleanup-r534', date:'May 13, 2026', importance:'fix', title:'Story Flyer 9 premium cleanup', items:['Applies the approved premium gold serif venue, city, and date/time hierarchy to Story Flyer 9 only.', 'Replaces the old white/block venue treatment and disables artificial venue tracking so SANTA MONICA PIER reads naturally.', 'Removes the lower separator clutter with sampled texture cleanup, rebalances the location stack, and bumps the oot09-story refresh key.']},
