@@ -23768,7 +23768,7 @@ var DEFAULT_BAND_GROUP_IMAGE_INDEX = 14;
 
 // r537: Home tab image set is now separate from Band Chat.
 // Home uses the new 2400x1600 exported image assets; Band Chat remains on BAND_GROUP_IMAGES until explicitly changed.
-var HOME_BAND_IMAGES = ['band_image_01.png?v=r541','band_image_02.png?v=r542'];
+var HOME_BAND_IMAGES = ['band_image_01.png?v=r541','band_image_02.png?v=r542','band_image_03.png?v=r544'];
 var DEFAULT_HOME_BAND_IMAGE_INDEX = 1;
 function _currentMemberBandImagePref(){
   try {
@@ -26067,7 +26067,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-23-home-band-image-02-r542';
+var WHATS_NEW_VERSION = '2026-05-23-home-band-image-03-revised-r544';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26360,6 +26360,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-23-home-band-image-03-revised-r544', date:'May 23, 2026', importance:'fix', title:'Home band image 03 revised', items:['Replaces band_image_03.png with the revised exact supplied image.', 'Updates HOME_BAND_IMAGES cache-busting for band_image_03.png to v=r544.', 'Keeps band_image_01 and band_image_02 unchanged.', 'Band Chat and Band tab remain unchanged.']},
+  {version:'2026-05-23-home-band-image-03-r543', date:'May 23, 2026', importance:'fix', title:'Home band image 03 added', items:['Adds the new Home-only asset band_image_03.png using the exact supplied image.', 'Updates HOME_BAND_IMAGES to include band_image_03.png?v=r543.', 'Keeps the default Home image on image 1. Band Chat/Band Tab remain unchanged.']},
   {version:'2026-05-23-home-band-image-02-r542', date:'May 23, 2026', importance:'fix', title:'Home band image 02 added', items:['Adds the new Home-only asset band_image_02.png using the exact supplied image.', 'Updates HOME_BAND_IMAGES to include band_image_01.png?v=r541 and band_image_02.png?v=r542.', 'Keeps the default Home image on image 1. Band Chat/Band Tab remain unchanged.']},
   {version:'2026-05-22-home-band-image-01-r541', date:'May 22, 2026', importance:'fix', title:'Home band image 01 replacement', items:['Replaces the Home-only band image asset using the newly supplied band_image_01.png.', 'Keeps the GitHub filename as band_image_01.png and updates the cache-busting query string to ?v=r541.', 'No Home layout/CSS change. Band Chat/Band Tab remain unchanged.']},
   {version:'2026-05-22-home-band-image-01-r541', date:'May 22, 2026', importance:'fix', title:'Home image cache-bust fix', items:['Keeps the GitHub asset filename as band_image_01.png.', 'Adds a cache-busting query string to the Home image reference so phones do not reuse a cached blank/failed image response.', 'No Home layout/CSS change. Band Chat/Band Tab remain unchanged.']},
