@@ -23768,7 +23768,7 @@ var DEFAULT_BAND_GROUP_IMAGE_INDEX = 14;
 
 // r537: Home tab image set is now separate from Band Chat.
 // Home uses the new 2400x1600 exported image assets; Band Chat remains on BAND_GROUP_IMAGES until explicitly changed.
-var HOME_BAND_IMAGES = ['band_image_01_r539.png'];
+var HOME_BAND_IMAGES = ['band_image_01.png?v=r540'];
 var DEFAULT_HOME_BAND_IMAGE_INDEX = 1;
 function _currentMemberBandImagePref(){
   try {
@@ -26067,7 +26067,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-22-home-band-image-01-r539';
+var WHATS_NEW_VERSION = '2026-05-22-home-band-image-01-r540';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26360,7 +26360,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  {version:'2026-05-22-home-band-image-01-r539', date:'May 22, 2026', importance:'fix', title:'Home band image cache-bust', items:['Changes the Home-only image filename to band_image_01_r539.png so GitHub/browser/PWA cache cannot keep showing the prior band_image_01.png asset.', 'No Home layout/CSS change. Band Chat/Band Tab remain unchanged.', 'No Calendar, Songs, Setlists, Chat, Band, Pay, flyer, or unrelated app behavior changed.']},
+  {version:'2026-05-22-home-band-image-01-r540', date:'May 22, 2026', importance:'fix', title:'Home image cache-bust fix', items:['Keeps the GitHub asset filename as band_image_01.png.', 'Adds a cache-busting query string to the Home image reference so phones do not reuse a cached blank/failed image response.', 'No Home layout/CSS change. Band Chat/Band Tab remain unchanged.']},
+  {version:'2026-05-22-home-band-image-01-r539', date:'May 22, 2026', importance:'fix', title:'Home band image refresh marker', items:['Keeps the Home-only image filename as band_image_01.png per request.', 'Bumps the app build/version marker to r539 so phones already running r538 can detect a new deploy and prompt for refresh.', 'No Home layout/CSS change. Band Chat/Band Tab remain unchanged.']},
   {version:'2026-05-22-home-band-image-01-r538', date:'May 22, 2026', importance:'fix', title:'Home band image asset update', items:['Adds the first new Home-only band image asset, band_image_01.png.', 'Separates the Home tab image resolver from Band Chat so this image does not change the Band Chat/Band Tab group image.', 'No Calendar, Songs, Setlists, Chat, Band, Pay, flyer, or unrelated app behavior changed.']},
   {version:'2026-05-16-home-rehearsal-card-caret-removal-r536', date:'May 16, 2026', importance:'fix', title:'Home rehearsal card polish', items:['Removes the right-side chevron from the Home Rehearsal on Deck card for a cleaner full-pill look.', 'Keeps the entire rehearsal card tappable so it still opens the matching Calendar Event Details drawer.', 'No Calendar, Songs, Setlists, Chat, Band, Pay, flyer, image, or tab behavior changed.']},
   {version:'2026-05-16-home-next-rehearsal-card-r535', date:'May 16, 2026', importance:'minor', title:'Home rehearsal reminder card', items:['Adds a polished Home-page rehearsal card that shows the next upcoming confirmed rehearsal only.', 'The rehearsal cue stays visible until the rehearsal date/time has passed, then automatically disappears.', 'Tapping the card opens the matching Calendar Event Details drawer without changing flyer, image, tab, or unrelated app behavior.']},
