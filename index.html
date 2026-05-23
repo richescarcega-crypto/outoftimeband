@@ -124,6 +124,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r533: Story Flyer 8 premium typography and artifact cleanup. Applies the approved gold serif stack to boardwalk-story, removes the old block venue treatment and visible blue city cover bar by replacing the flat line cover with sampled texture, and updates version/refresh markers. No PNG, Calendar, header, tab, app-shell, or unrelated flyer changes. Upload index_r533.html as index.html after phone test. -->
 <!-- r534: Story Flyer 9 premium typography and separator cleanup. Applies the approved gold serif stack to oot09-story, removes the old block venue treatment and lower separator clutter with sampled texture, rebalances the location stack, and updates version/refresh markers. No PNG, Calendar, header, tab, app-shell, or unrelated flyer changes. Upload index_r534.html as index.html after phone test. -->
 <!-- r535: Home Next Rehearsal card. Adds a premium Home-page upcoming rehearsal cue that shows only the next future rehearsal and opens its Calendar Event Details; no flyer/image/template changes. Upload index_r535.html as index.html after phone test. -->
+<!-- r554: Home band image 12 added. Adds exact supplied Home-only band_image_12.png to HOME_BAND_IMAGES with cache-bust v=r554; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r554.html as index.html plus band_image_12.png after phone test. -->
 <!-- r552: Home band image 11 added. Adds exact supplied Home-only band_image_11.png to HOME_BAND_IMAGES with cache-bust v=r552; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r552.html as index.html plus band_image_11.png after phone test. -->
 <!-- r551: Home band image 10 added. Adds exact supplied Home-only band_image_10.png to HOME_BAND_IMAGES with cache-bust v=r551; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r551.html as index.html plus band_image_10.png after phone test. -->
 <!-- r550: Home band image 09 added. Adds exact supplied Home-only band_image_09.png to HOME_BAND_IMAGES with cache-bust v=r550; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r550.html as index.html plus band_image_09.png after phone test. -->
@@ -23776,7 +23777,7 @@ var DEFAULT_BAND_GROUP_IMAGE_INDEX = 14;
 
 // r537: Home tab image set is now separate from Band Chat.
 // Home uses the new 2400x1600 exported image assets; Band Chat remains on BAND_GROUP_IMAGES until explicitly changed.
-var HOME_BAND_IMAGES = ['band_image_01.png?v=r541','band_image_02.png?v=r542','band_image_03.png?v=r544','band_image_04.png?v=r545','band_image_05.png?v=r546','band_image_06.png?v=r547','band_image_07.png?v=r548','band_image_08.png?v=r549','band_image_09.png?v=r550','band_image_10.png?v=r551','band_image_11.png?v=r552'];
+var HOME_BAND_IMAGES = ['band_image_01.png?v=r541','band_image_02.png?v=r542','band_image_03.png?v=r544','band_image_04.png?v=r545','band_image_05.png?v=r546','band_image_06.png?v=r547','band_image_07.png?v=r548','band_image_08.png?v=r549','band_image_09.png?v=r550','band_image_10.png?v=r551','band_image_11.png?v=r552','band_image_12.png?v=r554'];
 var DEFAULT_HOME_BAND_IMAGE_INDEX = 1;
 function _currentMemberBandImagePref(){
   try {
@@ -26075,7 +26076,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-23-home-band-image-11-r552';
+var WHATS_NEW_VERSION = '2026-05-23-home-band-image-12-r554';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26368,6 +26369,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-23-home-band-image-12-r554', date:'May 23, 2026', importance:'fix', title:'Home band image 12 added', items:['Adds the new Home-only asset band_image_12.png using the exact supplied image.', 'Updates HOME_BAND_IMAGES to include band_image_12.png?v=r554.', 'Keeps band_image_01 through band_image_11 unchanged.', 'Band Chat and Band tab remain unchanged.']},
   {version:'2026-05-23-home-band-image-11-r552', date:'May 23, 2026', importance:'fix', title:'Home band image 11 added', items:['Adds the new Home-only asset band_image_11.png using the exact supplied image.', 'Updates HOME_BAND_IMAGES to include band_image_11.png?v=r552.', 'Keeps band_image_01 through band_image_10 unchanged.', 'Band Chat and Band tab remain unchanged.']},
   {version:'2026-05-23-home-band-image-10-r551', date:'May 23, 2026', importance:'fix', title:'Home band image 10 added', items:['Adds the new Home-only asset band_image_10.png using the exact supplied image.', 'Updates HOME_BAND_IMAGES to include band_image_10.png?v=r551.', 'Keeps band_image_01 through band_image_09 unchanged.', 'Band Chat and Band tab remain unchanged.']},
   {version:'2026-05-23-home-band-image-09-r550', date:'May 23, 2026', importance:'fix', title:'Home band image 09 added', items:['Adds the new Home-only asset band_image_09.png using the exact supplied image.', 'Updates HOME_BAND_IMAGES to include band_image_09.png?v=r550.', 'Keeps band_image_01 through band_image_08 unchanged.', 'Band Chat and Band tab remain unchanged.']},
