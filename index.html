@@ -132,6 +132,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r567: Home scenic band image framing zoom. Keeps the same 2400x2000 band_image_01.png asset, moderately enlarges/reframes the Home image app-side only, and uses a shorter-frame rehearsal-present override so the band stays visible when the Rehearsal on Deck pill is shown. No source artwork, Chat/Band/member images, flyers, Calendar, Songs, Setlists, Band, Pay, notification, or service-worker logic changes. Upload index_r567.html as index.html; band_image_01.png remains the same asset from r566. -->
 <!-- r568: Home scenic band image rehearsal-state tuning. Keeps the r567 no-rehearsal framing nearly unchanged, softens the Rehearsal On Deck override with slightly less zoom and a lower vertical anchor, and reduces rehearsal-state social-button intrusion. No source artwork, Chat/Band/member images, flyers, Calendar, Songs, Setlists, Band, Pay, notification, or service-worker logic changes. Upload index_r568.html as index.html; band_image_01.png remains the same asset. -->
 <!-- r569: Home scenic social-button polish. Keeps r568 scenic image zoom/framing intact and refines only the Home Facebook/Instagram button footprint/placement so the lower-right band/instrument area is less crowded, especially when Rehearsal On Deck is visible. No source artwork, Chat/Band/member images, flyers, Calendar, Songs, Setlists, Band, Pay, notification, or service-worker logic changes. Upload index_r569.html as index.html; band_image_01.png remains the same asset. -->
+<!-- r570: Home social-button clipping correction. Keeps r569 image framing and button size/right-side tuck, but raises the Facebook/Instagram buttons slightly so their circular bottoms are not clipped in either Rehearsal On Deck or no-rehearsal state. No source artwork, Chat/Band/member images, flyers, Calendar, Songs, Setlists, Band, Pay, notification, or service-worker logic changes. Upload index_r570.html as index.html; band_image_01.png remains the same asset. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
 <!-- r559: Home band image 17 added. Adds exact supplied Home-only band_image_17.png to HOME_BAND_IMAGES with cache-bust v=r559; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r559.html as index.html plus band_image_17.png after phone test. -->
 <!-- r558: Home band image 16 added. Adds exact supplied Home-only band_image_16.png to HOME_BAND_IMAGES with cache-bust v=r558; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r558.html as index.html plus band_image_16.png after phone test. -->
@@ -6749,6 +6750,27 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   #sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row a svg{
     width:18px !important;
     height:18px !important;
+  }
+}
+
+
+/* r570 Home social-button clipping correction
+   Keep r569 button size and right-side tuck, but lift the controls so the
+   circular bottoms remain fully visible in both Home states. */
+#home-social-row a{
+  transform:translate(4px,-1px) scale(1) !important;
+}
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row a,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row a{
+  transform:translate(6px,1px) scale(.94) !important;
+}
+@media (max-width:520px){
+  #home-social-row a{
+    transform:translate(4px,0px) scale(1) !important;
+  }
+  #sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row a,
+  #sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row a{
+    transform:translate(6px,1px) scale(.94) !important;
   }
 }
 
@@ -26209,7 +26231,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-24-home-social-button-polish-r569';
+var WHATS_NEW_VERSION = '2026-05-24-home-social-button-clip-fix-r570';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26502,6 +26524,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-24-home-social-button-clip-fix-r570', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home social-button clip fix', body:'Keeps the r569 Home scenic image framing and button footprint, but lifts the Facebook and Instagram controls slightly so their circular bottoms are not clipped in either Home state.' },
   { version:'2026-05-24-home-social-button-polish-r569', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home social-button polish', body:'Keeps the r568 Home scenic image framing intact and subtly reduces/tucks the Facebook and Instagram buttons so they crowd the lower-right band area less, especially when Rehearsal On Deck is visible.' },
   { version:'2026-05-24-home-band-image-01-rehearsal-tune-r568', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home image rehearsal-state tune', body:'Keeps the stronger no-rehearsal Home image framing, but softens the Rehearsal On Deck state with slightly less zoom, a lower vertical anchor, and reduced social-button intrusion.' },
   { version:'2026-05-24-home-band-image-01-framing-r567', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home image framing zoom', body:'Moderately enlarges and reframes the Home scenic band image in the app using the same 2400×2000 source asset, with a rehearsal-present framing override for the shorter Home image frame.' },
