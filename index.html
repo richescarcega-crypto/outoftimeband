@@ -128,6 +128,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r562: Home band image 20 added. Adds exact supplied Home-only band_image_20.png to HOME_BAND_IMAGES with cache-bust v=r562; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r562.html as index.html plus band_image_20.png after phone test. -->
 <!-- r563: Amy individual image replacement. Uses exact supplied full-scene Amy.png with cache-bust v=r563 for Band Chat/Band tab/member image placements; no Home images, Calendar, Songs, Setlists, Pay, flyer, service-worker, or notification changes. Upload index_r563.html as index.html plus Amy.png after phone test. -->
 <!-- r564: Member image replacements for Ed/Jim/Rachel/Rich/Zach. Uses exact supplied full-scene Ed.png, Jim.png, Rachel.png, Rich.png, and Zach.png with cache-bust v=r564 for Band Chat/Band tab/member image placements; Amy remains Amy.png?v=r563; no Home images, Calendar, Songs, Setlists, Pay, flyer, service-worker, or notification changes. Upload index_r564.html as index.html plus Ed.png, Jim.png, Rachel.png, Rich.png, and Zach.png after phone test. -->
+<!-- r566: Home scenic band image 01 full-resolution test. Updates only HOME_BAND_IMAGES[0] to band_image_01.png?v=r566 using the supplied 2400x2000 asset; preserves r565 Chat/Band/member images including band_group_chat.png?v=r565; no Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r566.html as index.html plus band_image_01.png after phone test. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
 <!-- r559: Home band image 17 added. Adds exact supplied Home-only band_image_17.png to HOME_BAND_IMAGES with cache-bust v=r559; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r559.html as index.html plus band_image_17.png after phone test. -->
 <!-- r558: Home band image 16 added. Adds exact supplied Home-only band_image_16.png to HOME_BAND_IMAGES with cache-bust v=r558; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r558.html as index.html plus band_image_16.png after phone test. -->
@@ -23787,7 +23788,7 @@ var DEFAULT_BAND_GROUP_IMAGE_INDEX = 14;
 
 
 var CHAT_BAND_GROUP_IMAGE = 'band_group_chat.png?v=r565';
-var HOME_BAND_IMAGES = ['band_image_01.png?v=r541','band_image_02.png?v=r542','band_image_03.png?v=r544','band_image_04.png?v=r545','band_image_05.png?v=r546','band_image_06.png?v=r547','band_image_07.png?v=r548','band_image_08.png?v=r549','band_image_09.png?v=r550','band_image_10.png?v=r551','band_image_11.png?v=r552','band_image_12.png?v=r554','band_image_13.png?v=r555','band_image_14.png?v=r556','band_image_15.png?v=r557','band_image_16.png?v=r558','band_image_17.png?v=r559','band_image_18.png?v=r560','band_image_19.png?v=r561','band_image_20.png?v=r562'];
+var HOME_BAND_IMAGES = ['band_image_01.png?v=r566','band_image_02.png?v=r542','band_image_03.png?v=r544','band_image_04.png?v=r545','band_image_05.png?v=r546','band_image_06.png?v=r547','band_image_07.png?v=r548','band_image_08.png?v=r549','band_image_09.png?v=r550','band_image_10.png?v=r551','band_image_11.png?v=r552','band_image_12.png?v=r554','band_image_13.png?v=r555','band_image_14.png?v=r556','band_image_15.png?v=r557','band_image_16.png?v=r558','band_image_17.png?v=r559','band_image_18.png?v=r560','band_image_19.png?v=r561','band_image_20.png?v=r562'];
 var DEFAULT_HOME_BAND_IMAGE_INDEX = 1;
 function _currentMemberBandImagePref(){
   try {
@@ -26088,7 +26089,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-23-member-images-5-pack-r564';
+var WHATS_NEW_VERSION = '2026-05-24-home-band-image-01-test-r566';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26381,6 +26382,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-24-home-band-image-01-test-r566', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home band image test', body:'Tests the first Home scenic band image using the corrected 2400×2000 source asset while preserving Chat/Band/member images and all non-Home sections.' },
   {version:'2026-05-23-member-images-5-pack-r564', date:'May 23, 2026', importance:'fix', title:'Five member images updated', items:['Uses the exact supplied full-scene Ed.png, Jim.png, Rachel.png, Rich.png, and Zach.png for their matching member image placements.', 'Ed replaces Ed only, Jim replaces Jim only, Rachel replaces Rachel only, Rich replaces Rich only, and Zach replaces Zach only.', 'Adds cache-bust v=r564 to those five member image references so phones load the new assets.', 'Amy remains on the prior Amy.png?v=r563 asset. Home band images 1 through 20 remain unchanged.', 'No Calendar, Songs, Setlists, Pay, flyer, service-worker, notification, or unrelated layout changes.']},
   {version:'2026-05-23-amy-member-image-r563', date:'May 23, 2026', importance:'fix', title:'Amy member image updated', items:['Uses the exact supplied full-scene Amy.png as the Amy image for Band Chat/Band tab/member image placements.', 'Adds cache-bust Amy.png?v=r563 so phones load the new asset instead of the old cached Amy image.', 'Keeps Home band images 1 through 20 unchanged.', 'No Calendar, Songs, Setlists, Pay, flyer, service-worker, notification, or unrelated layout changes.']},
   {version:'2026-05-23-home-band-image-20-r562', date:'May 23, 2026', importance:'fix', title:'Home band image 20 added', items:['Adds the new Home-only asset band_image_20.png using the exact supplied image.', 'Updates HOME_BAND_IMAGES to include band_image_20.png?v=r562.', 'Keeps band_image_01 through band_image_19 unchanged.', 'Band Chat and Band tab remain unchanged.']},
