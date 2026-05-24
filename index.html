@@ -6814,6 +6814,30 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   }
 }
 
+
+
+/* r574 Home image 01 cleaner horizontal framing method
+   Apply a single explicit horizontal crop adjustment per mode, without touching
+   source art, zoom, vertical framing, or social buttons. This is a narrow
+   follow-up to r573 that nudges the visible window a hair to the right in both
+   modes so the band sits more evenly between Ed and Zach. */
+#sc-home:not(:has(#home-rehearsal-cue[style*="display: block"])):not(:has(#home-rehearsal-cue[style*="display:block"])) #home-social-row .home-band-backdrop{
+  transform:translate(calc(-50% + 8px),-54%) !important;
+}
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row .home-band-backdrop,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row .home-band-backdrop{
+  transform:translate(calc(-50% + 8px),-58%) !important;
+}
+@media (max-width:520px){
+  #sc-home:not(:has(#home-rehearsal-cue[style*="display: block"])):not(:has(#home-rehearsal-cue[style*="display:block"])) #home-social-row .home-band-backdrop{
+    transform:translate(calc(-50% + 8px),-55%) !important;
+  }
+  #sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row .home-band-backdrop,
+  #sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row .home-band-backdrop{
+    transform:translate(calc(-50% + 8px),-58%) !important;
+  }
+}
+
 </style>
 </head>
 <body>
