@@ -131,6 +131,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r566: Home scenic band image 01 full-resolution test. Updates only HOME_BAND_IMAGES[0] to band_image_01.png?v=r568 using the supplied 2400x2000 asset; preserves r565 Chat/Band/member images including band_group_chat.png?v=r565; no Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r566.html as index.html plus band_image_01.png after phone test. -->
 <!-- r567: Home scenic band image framing zoom. Keeps the same 2400x2000 band_image_01.png asset, moderately enlarges/reframes the Home image app-side only, and uses a shorter-frame rehearsal-present override so the band stays visible when the Rehearsal on Deck pill is shown. No source artwork, Chat/Band/member images, flyers, Calendar, Songs, Setlists, Band, Pay, notification, or service-worker logic changes. Upload index_r567.html as index.html; band_image_01.png remains the same asset from r566. -->
 <!-- r568: Home scenic band image rehearsal-state tuning. Keeps the r567 no-rehearsal framing nearly unchanged, softens the Rehearsal On Deck override with slightly less zoom and a lower vertical anchor, and reduces rehearsal-state social-button intrusion. No source artwork, Chat/Band/member images, flyers, Calendar, Songs, Setlists, Band, Pay, notification, or service-worker logic changes. Upload index_r568.html as index.html; band_image_01.png remains the same asset. -->
+<!-- r569: Home scenic social-button polish. Keeps r568 scenic image zoom/framing intact and refines only the Home Facebook/Instagram button footprint/placement so the lower-right band/instrument area is less crowded, especially when Rehearsal On Deck is visible. No source artwork, Chat/Band/member images, flyers, Calendar, Songs, Setlists, Band, Pay, notification, or service-worker logic changes. Upload index_r569.html as index.html; band_image_01.png remains the same asset. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
 <!-- r559: Home band image 17 added. Adds exact supplied Home-only band_image_17.png to HOME_BAND_IMAGES with cache-bust v=r559; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r559.html as index.html plus band_image_17.png after phone test. -->
 <!-- r558: Home band image 16 added. Adds exact supplied Home-only band_image_16.png to HOME_BAND_IMAGES with cache-bust v=r558; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r558.html as index.html plus band_image_16.png after phone test. -->
@@ -6685,6 +6686,69 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   #sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row a,
   #sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row a{
     transform:translateY(5px) scale(.92) !important;
+  }
+}
+
+
+
+/* r569 Home social-button polish
+   Keep r568 image framing intact. Reduce and tuck the Home Facebook/Instagram
+   buttons so they read as controls without crowding Zach/keyboard or the
+   lower-right stage area; apply a slightly stronger tuck in the short
+   Rehearsal On Deck state. */
+#home-social-row{
+  gap:9px !important;
+}
+#home-social-row a{
+  width:39px !important;
+  height:39px !important;
+  transform:translate(3px,4px) scale(1) !important;
+  transform-origin:center center !important;
+  box-shadow:0 5px 15px rgba(0,0,0,.32) !important;
+}
+#home-social-row a svg{
+  width:20px !important;
+  height:20px !important;
+}
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row{
+  gap:8px !important;
+}
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row a,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row a{
+  width:37px !important;
+  height:37px !important;
+  transform:translate(5px,7px) scale(.94) !important;
+  box-shadow:0 4px 13px rgba(0,0,0,.30) !important;
+}
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row a svg,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row a svg{
+  width:19px !important;
+  height:19px !important;
+}
+@media (max-width:520px){
+  #home-social-row{
+    gap:8px !important;
+  }
+  #home-social-row a{
+    width:38px !important;
+    height:38px !important;
+    transform:translate(4px,5px) scale(1) !important;
+  }
+  #home-social-row a svg{
+    width:20px !important;
+    height:20px !important;
+  }
+  #sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row a,
+  #sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row a{
+    width:36px !important;
+    height:36px !important;
+    transform:translate(6px,8px) scale(.94) !important;
+  }
+  #sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row a svg,
+  #sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row a svg{
+    width:18px !important;
+    height:18px !important;
   }
 }
 
@@ -23844,7 +23908,7 @@ var DEFAULT_BAND_GROUP_IMAGE_INDEX = 14;
 
 
 var CHAT_BAND_GROUP_IMAGE = 'band_group_chat.png?v=r565';
-var HOME_BAND_IMAGES = ['band_image_01.png?v=r568','band_image_02.png?v=r542','band_image_03.png?v=r544','band_image_04.png?v=r545','band_image_05.png?v=r546','band_image_06.png?v=r547','band_image_07.png?v=r548','band_image_08.png?v=r549','band_image_09.png?v=r550','band_image_10.png?v=r551','band_image_11.png?v=r552','band_image_12.png?v=r554','band_image_13.png?v=r555','band_image_14.png?v=r556','band_image_15.png?v=r557','band_image_16.png?v=r558','band_image_17.png?v=r559','band_image_18.png?v=r560','band_image_19.png?v=r561','band_image_20.png?v=r562'];
+var HOME_BAND_IMAGES = ['band_image_01.png?v=r569','band_image_02.png?v=r542','band_image_03.png?v=r544','band_image_04.png?v=r545','band_image_05.png?v=r546','band_image_06.png?v=r547','band_image_07.png?v=r548','band_image_08.png?v=r549','band_image_09.png?v=r550','band_image_10.png?v=r551','band_image_11.png?v=r552','band_image_12.png?v=r554','band_image_13.png?v=r555','band_image_14.png?v=r556','band_image_15.png?v=r557','band_image_16.png?v=r558','band_image_17.png?v=r559','band_image_18.png?v=r560','band_image_19.png?v=r561','band_image_20.png?v=r562'];
 var DEFAULT_HOME_BAND_IMAGE_INDEX = 1;
 function _currentMemberBandImagePref(){
   try {
@@ -26145,7 +26209,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-24-home-band-image-01-rehearsal-tune-r568';
+var WHATS_NEW_VERSION = '2026-05-24-home-social-button-polish-r569';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26438,6 +26502,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-24-home-social-button-polish-r569', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home social-button polish', body:'Keeps the r568 Home scenic image framing intact and subtly reduces/tucks the Facebook and Instagram buttons so they crowd the lower-right band area less, especially when Rehearsal On Deck is visible.' },
   { version:'2026-05-24-home-band-image-01-rehearsal-tune-r568', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home image rehearsal-state tune', body:'Keeps the stronger no-rehearsal Home image framing, but softens the Rehearsal On Deck state with slightly less zoom, a lower vertical anchor, and reduced social-button intrusion.' },
   { version:'2026-05-24-home-band-image-01-framing-r567', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home image framing zoom', body:'Moderately enlarges and reframes the Home scenic band image in the app using the same 2400×2000 source asset, with a rehearsal-present framing override for the shorter Home image frame.' },
   { version:'2026-05-24-home-band-image-01-test-r566', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home band image test', body:'Tests the first Home scenic band image using the corrected 2400×2000 source asset while preserving Chat/Band/member images and all non-Home sections.' },
