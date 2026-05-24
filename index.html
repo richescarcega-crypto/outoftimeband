@@ -135,6 +135,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r570: Home social-button clipping correction. Keeps r569 image framing and button size/right-side tuck, but raises the Facebook/Instagram buttons slightly so their circular bottoms are not clipped in either Rehearsal On Deck or no-rehearsal state. No source artwork, Chat/Band/member images, flyers, Calendar, Songs, Setlists, Band, Pay, notification, or service-worker logic changes. Upload index_r570.html as index.html; band_image_01.png remains the same asset. -->
 <!-- r571: Home band image 01 asset refresh. Keeps r570 Home layout/framing/social-button polish unchanged, replaces only the GitHub asset band_image_01.png with the newly supplied 2400x2000 PNG, and bumps HOME_BAND_IMAGES[0] cache-bust to v=r571 so phones load the new file. No Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r571.html as index.html plus the new band_image_01.png. -->
 <!-- r572: Home image 01 no-rehearsal horizontal nudge. Changes only the no-Rehearsal-On-Deck Home image framing by shifting the displayed image slightly right so Ed's right foot is inside the frame while preserving the existing zoom, vertical framing, social-button placement, and Rehearsal On Deck mode. No source artwork, image asset, Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r572.html as index.html. -->
+<!-- r573: Home image 01 horizontal centering refinement. Applies a tiny same-direction horizontal correction in both Home states: backs off the over-right no-Rehearsal nudge while adding a small matching Rehearsal On Deck nudge, preserving zoom, vertical framing, social buttons, source artwork, and all non-Home app sections. Upload index_r573.html as index.html. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
 <!-- r559: Home band image 17 added. Adds exact supplied Home-only band_image_17.png to HOME_BAND_IMAGES with cache-bust v=r559; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r559.html as index.html plus band_image_17.png after phone test. -->
 <!-- r558: Home band image 16 added. Adds exact supplied Home-only band_image_16.png to HOME_BAND_IMAGES with cache-bust v=r558; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r558.html as index.html plus band_image_16.png after phone test. -->
@@ -6787,6 +6788,29 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 @media (max-width:520px){
   #sc-home:not(:has(#home-rehearsal-cue[style*="display: block"])):not(:has(#home-rehearsal-cue[style*="display:block"])) #home-social-row .home-band-backdrop{
     transform:translate(calc(-50% + 12px),-55%) !important;
+  }
+}
+
+
+/* r573 Home image 01 horizontal centering refinement
+   Preserve r571/r572 zoom, vertical framing, source image, and social buttons.
+   Fine-tune only horizontal position in BOTH states: reduce the prior no-rehearsal
+   right nudge, and add a small matching Rehearsal On Deck nudge so the band
+   sits more evenly between Ed's foot side and Zach/keyboard side. */
+#sc-home:not(:has(#home-rehearsal-cue[style*="display: block"])):not(:has(#home-rehearsal-cue[style*="display:block"])) #home-social-row .home-band-backdrop{
+  transform:translate(calc(-50% + 6px),-54%) !important;
+}
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row .home-band-backdrop,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row .home-band-backdrop{
+  transform:translate(calc(-50% + 6px),-58%) !important;
+}
+@media (max-width:520px){
+  #sc-home:not(:has(#home-rehearsal-cue[style*="display: block"])):not(:has(#home-rehearsal-cue[style*="display:block"])) #home-social-row .home-band-backdrop{
+    transform:translate(calc(-50% + 6px),-55%) !important;
+  }
+  #sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row .home-band-backdrop,
+  #sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row .home-band-backdrop{
+    transform:translate(calc(-50% + 6px),-58%) !important;
   }
 }
 
@@ -26247,7 +26271,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-24-home-image-01-no-rehearsal-nudge-r572';
+var WHATS_NEW_VERSION = '2026-05-24-home-image-01-horizontal-centering-r573';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26540,6 +26564,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-24-home-image-01-horizontal-centering-r573', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home image 01 centering refinement', body:'Fine-tunes only horizontal framing for Home image 01 in both Home states, reducing the previous no-rehearsal right nudge while adding a small matching Rehearsal On Deck nudge. Zoom, vertical framing, social buttons, and source artwork are unchanged.' },
   { version:'2026-05-24-home-image-01-no-rehearsal-nudge-r572', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home image 01 foot framing', body:'In the no-Rehearsal-On-Deck Home state, nudges the displayed image slightly right so Ed’s right foot sits inside the frame while preserving the existing zoom, vertical framing, social-button placement, and Rehearsal On Deck mode.' },
   { version:'2026-05-24-home-band-image-01-refresh-r571', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home image 01 refresh', body:'Replaces the Home image 01 asset with the newly supplied 2400×2000 PNG and bumps the cache marker so phones load the updated file. Keeps r570 Home framing and social-button placement unchanged.' },
   { version:'2026-05-24-home-social-button-clip-fix-r570', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home social-button clip fix', body:'Keeps the r569 Home scenic image framing and button footprint, but lifts the Facebook and Instagram controls slightly so their circular bottoms are not clipped in either Home state.' },
