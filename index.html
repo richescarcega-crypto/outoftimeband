@@ -133,6 +133,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r568: Home scenic band image rehearsal-state tuning. Keeps the r567 no-rehearsal framing nearly unchanged, softens the Rehearsal On Deck override with slightly less zoom and a lower vertical anchor, and reduces rehearsal-state social-button intrusion. No source artwork, Chat/Band/member images, flyers, Calendar, Songs, Setlists, Band, Pay, notification, or service-worker logic changes. Upload index_r568.html as index.html; band_image_01.png remains the same asset. -->
 <!-- r569: Home scenic social-button polish. Keeps r568 scenic image zoom/framing intact and refines only the Home Facebook/Instagram button footprint/placement so the lower-right band/instrument area is less crowded, especially when Rehearsal On Deck is visible. No source artwork, Chat/Band/member images, flyers, Calendar, Songs, Setlists, Band, Pay, notification, or service-worker logic changes. Upload index_r569.html as index.html; band_image_01.png remains the same asset. -->
 <!-- r570: Home social-button clipping correction. Keeps r569 image framing and button size/right-side tuck, but raises the Facebook/Instagram buttons slightly so their circular bottoms are not clipped in either Rehearsal On Deck or no-rehearsal state. No source artwork, Chat/Band/member images, flyers, Calendar, Songs, Setlists, Band, Pay, notification, or service-worker logic changes. Upload index_r570.html as index.html; band_image_01.png remains the same asset. -->
+<!-- r571: Home band image 01 asset refresh. Keeps r570 Home layout/framing/social-button polish unchanged, replaces only the GitHub asset band_image_01.png with the newly supplied 2400x2000 PNG, and bumps HOME_BAND_IMAGES[0] cache-bust to v=r571 so phones load the new file. No Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r571.html as index.html plus the new band_image_01.png. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
 <!-- r559: Home band image 17 added. Adds exact supplied Home-only band_image_17.png to HOME_BAND_IMAGES with cache-bust v=r559; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r559.html as index.html plus band_image_17.png after phone test. -->
 <!-- r558: Home band image 16 added. Adds exact supplied Home-only band_image_16.png to HOME_BAND_IMAGES with cache-bust v=r558; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r558.html as index.html plus band_image_16.png after phone test. -->
@@ -23930,7 +23931,7 @@ var DEFAULT_BAND_GROUP_IMAGE_INDEX = 14;
 
 
 var CHAT_BAND_GROUP_IMAGE = 'band_group_chat.png?v=r565';
-var HOME_BAND_IMAGES = ['band_image_01.png?v=r569','band_image_02.png?v=r542','band_image_03.png?v=r544','band_image_04.png?v=r545','band_image_05.png?v=r546','band_image_06.png?v=r547','band_image_07.png?v=r548','band_image_08.png?v=r549','band_image_09.png?v=r550','band_image_10.png?v=r551','band_image_11.png?v=r552','band_image_12.png?v=r554','band_image_13.png?v=r555','band_image_14.png?v=r556','band_image_15.png?v=r557','band_image_16.png?v=r558','band_image_17.png?v=r559','band_image_18.png?v=r560','band_image_19.png?v=r561','band_image_20.png?v=r562'];
+var HOME_BAND_IMAGES = ['band_image_01.png?v=r571','band_image_02.png?v=r542','band_image_03.png?v=r544','band_image_04.png?v=r545','band_image_05.png?v=r546','band_image_06.png?v=r547','band_image_07.png?v=r548','band_image_08.png?v=r549','band_image_09.png?v=r550','band_image_10.png?v=r551','band_image_11.png?v=r552','band_image_12.png?v=r554','band_image_13.png?v=r555','band_image_14.png?v=r556','band_image_15.png?v=r557','band_image_16.png?v=r558','band_image_17.png?v=r559','band_image_18.png?v=r560','band_image_19.png?v=r561','band_image_20.png?v=r562'];
 var DEFAULT_HOME_BAND_IMAGE_INDEX = 1;
 function _currentMemberBandImagePref(){
   try {
@@ -26231,7 +26232,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-24-home-social-button-clip-fix-r570';
+var WHATS_NEW_VERSION = '2026-05-24-home-band-image-01-refresh-r571';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26524,6 +26525,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-24-home-band-image-01-refresh-r571', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home image 01 refresh', body:'Replaces the Home image 01 asset with the newly supplied 2400×2000 PNG and bumps the cache marker so phones load the updated file. Keeps r570 Home framing and social-button placement unchanged.' },
   { version:'2026-05-24-home-social-button-clip-fix-r570', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home social-button clip fix', body:'Keeps the r569 Home scenic image framing and button footprint, but lifts the Facebook and Instagram controls slightly so their circular bottoms are not clipped in either Home state.' },
   { version:'2026-05-24-home-social-button-polish-r569', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home social-button polish', body:'Keeps the r568 Home scenic image framing intact and subtly reduces/tucks the Facebook and Instagram buttons so they crowd the lower-right band area less, especially when Rehearsal On Deck is visible.' },
   { version:'2026-05-24-home-band-image-01-rehearsal-tune-r568', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home image rehearsal-state tune', body:'Keeps the stronger no-rehearsal Home image framing, but softens the Rehearsal On Deck state with slightly less zoom, a lower vertical anchor, and reduced social-button intrusion.' },
