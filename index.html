@@ -179,6 +179,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r618: Home image 17 asset refresh + registry framing. Updates HOME_BAND_IMAGES[16] to band_image_17.png?v=r618 so phones load the newly supplied Image 17 asset, and adds a Home Image Presentation entry for image 17 using the approved image 10 baseline: same feet level and horizontal centering/left shift in normal and Rehearsal On Deck modes. Changes only Home image 17 framing in normal and Rehearsal On Deck modes; no social button, non-Home, or unrelated logic changes. Upload index_r618.html as index.html plus band_image_17.png. -->
 <!-- r620: Home image 19 asset refresh + registry framing. Updates HOME_BAND_IMAGES[18] to band_image_19.png?v=r620 so phones load the newly supplied Image 19 asset, and adds Home Image Presentation entry for image 19 using the approved image 10 baseline: same feet level and horizontal centering/left shift in normal and Rehearsal On Deck modes. Changes only Home image 19 framing in normal and Rehearsal On Deck modes; no social button, non-Home, or unrelated logic changes. Upload index_r620.html as index.html plus band_image_19.png. -->
 <!-- r622: Home image 20 safe rebuild from r620. Updates only HOME_BAND_IMAGES[19] to band_image_20.png?v=r622, assigns Image 20 to the approved image 10 presentation baseline after the registry object, and bumps WHATS_NEW_VERSION. Built fresh because r621 produced a black screen on phone. Upload index_r622.html as index.html plus band_image_20.png. -->
+<!-- r623: Home image 06 normal-mode social-button tune. Locks the existing 20 Rehearsal On Deck image presentations unchanged and changes only Image 06 in normal mode: make the Home Facebook/Instagram buttons a bit smaller and nudge them to the right so they no longer crowd Jim's left foot. No asset, rehearsal-mode, or non-Home changes. Upload index_r623.html as index.html. -->
 <!-- r619: Home image 18 asset refresh + registry framing. Updates HOME_BAND_IMAGES[17] to band_image_18.png?v=r619 so phones load the newly supplied Image 18 asset, and adds a Home Image Presentation entry for image 18 using the approved image 10 baseline: same feet level and horizontal centering/left shift in normal and Rehearsal On Deck modes. Changes only Home image 18 framing in normal and Rehearsal On Deck modes; no social button, non-Home, or unrelated logic changes. Upload index_r619.html as index.html plus band_image_18.png. -->
 <!-- r595: Image 01 rehearsal registry tune. Changes only Home image 01 in Rehearsal On Deck mode: nudges the scenic band image upward for less bottom-heavy framing and slightly tucks/reduces the social buttons to reduce lower-right artwork interference. No asset, Calendar, Songs, Setlists, Chat, Band, Pay, notification, or service-worker changes. Upload index_r595.html as index.html. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
@@ -24268,6 +24269,9 @@ var HOME_IMAGE_PRESENTATION = {
     }
   },
   6: {
+    normal: {
+      buttons: { gapPx: 7, sizePx: 32, iconPx: 16, xPx: 10, yPx: 1, scale: 1 }
+    },
     rehearsal: {
       buttons: { gapPx: 8, sizePx: 30, iconPx: 15, xPx: 6, yPx: 1, scale: .94 }
     }
@@ -26896,7 +26900,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-25-home-image-20-safe-rebuild-r622';
+var WHATS_NEW_VERSION = '2026-05-26-home-image-06-normal-social-buttons-r623';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
