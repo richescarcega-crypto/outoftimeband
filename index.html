@@ -203,6 +203,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r545: Home band image 04 added. Adds exact supplied Home-only band_image_04.png to HOME_BAND_IMAGES with cache-bust v=r545; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r545.html as index.html plus band_image_04.png after phone test. -->
 <!-- r536: Home Rehearsal on Deck card caret removal. Removes only the right-side chevron from the Home rehearsal cue while keeping the full pill/card button tappable. Upload index_r536.html as index.html after phone test. -->
 <title>Out of Time v3</title>
+<!-- r628: Home Band Image default change. Sets DEFAULT_HOME_BAND_IMAGE_INDEX to 9 so the Home tab default band image is Band Image 9 when no member-specific preference is saved. No Home image assets, Chat Band image, Band tab member avatars, Calendar, Songs, Setlists, Pay, flyer, service-worker, notification, or layout changes. Upload index_r628.html as index.html. -->
 <!-- r106-band-bottom-extended-assets: expects band1.png through band15.png with bottom-extended artwork -->
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Russo+One&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -24205,7 +24206,7 @@ var DEFAULT_BAND_GROUP_IMAGE_INDEX = 14;
 
 var CHAT_BAND_GROUP_IMAGE = 'band_group_chat.png?v=r627';
 var HOME_BAND_IMAGES = ['band_image_01.png?v=r576','band_image_02.png?v=r577','band_image_03.png?v=r578','band_image_04.png?v=r579','band_image_05.png?v=r586','band_image_06.png?v=r588','band_image_07.png?v=r604','band_image_08.png?v=r604','band_image_09.png?v=r609','band_image_10.png?v=r610','band_image_11.png?v=r612','band_image_12.png?v=r613','band_image_13.png?v=r614','band_image_14.png?v=r615','band_image_15.png?v=r616','band_image_16.png?v=r617','band_image_17.png?v=r618','band_image_18.png?v=r619','band_image_19.png?v=r620','band_image_20.png?v=r622'];
-var DEFAULT_HOME_BAND_IMAGE_INDEX = 1;
+var DEFAULT_HOME_BAND_IMAGE_INDEX = 9;
 
 /* r582 Home Image Presentation Registry
    Edit this one object for Home band-image fit work.
@@ -26904,7 +26905,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-25-chat-band-image-refresh-r627';
+var WHATS_NEW_VERSION = '2026-05-25-home-band-image-09-default-r628';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -27197,6 +27198,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-25-home-band-image-09-default-r628', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home Band Image 9 is now default', body:'Sets Band Image 9 as the Home tab default when no member-specific image choice is saved. Existing personal selections can still override the default until changed in the Band Image selector.', items:['Upload index_r628.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Home tab with a member/account that has no saved Band Image preference, or clear/select Band Image 9 if a personal preference is already saved.'] },
   { version:'2026-05-25-member-avatar-refresh-chat-band-r625', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Member avatar image refresh', body:'Updates the individual member image assets used by the Chat tab and Band tab only. Uses the exact supplied PNG files for Amy, Ed, Jim, Rachel, Rich, and Zach with new cache-bust markers so all members see the refreshed portraits, including Rich for other members even though Rich does not see his own image in his own Chat view.', items:['Upload index_r625.html as index.html.', 'Upload Amy.png, Ed.png, Jim.png, Rachel.png, Rich.png, and Zach.png to the GitHub root.', 'Retest Chat and Band tabs; no Home, Calendar, Songs, Setlists, Pay, flyer, notification, or service-worker behavior was changed.'] },
   { version:'2026-05-25-home-image-registry-control-path-r594', date:'May 25, 2026', importance:'fix', emoji:'🛠️', title:'Home image registry control-path repair', body:'Removes the visible r593 diagnostic badge/code overlay and repairs the Home image registry renderer so resolved image/button values are written directly to the live Home image nodes as inline-important styles. This prevents older high-specificity rehearsal CSS from overriding the registry.', items:['Upload index_r594.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 05 with Rehearsal On Deck visible; the badge/text should be gone and Image 05 should now use the r592 registry values.'] },
   { version:'2026-05-25-image-05-rehearsal-strong-tune-r592', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Image 05 rehearsal stronger tune', body:'Applies a clearly stronger Image 05 Rehearsal On Deck registry override after r591 looked visually unchanged on phone: larger zoom-out, stronger left shift, balanced vertical anchor, and smaller/tucked social buttons. QA badge remains off by default and the registry reliability guard remains active.', items:['Upload index_r592.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 05 with Rehearsal On Deck visible.'] },
