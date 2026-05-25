@@ -154,7 +154,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r590: Home Image QA / Registry Reliability Guard. Adds a MutationObserver-backed reliability guard so Home image presentation is refreshed whenever the Rehearsal On Deck cue changes visibility/content/style/class, refreshes again after band image load, and enables a temporary Home image QA badge by default during this tuning workstream showing IMG / MODE / W / X / Y. No asset changes; upload index_r590.html only. -->
 <!-- r591: Image 05 rehearsal visual tune + QA badge default-off. Keeps the r590 registry reliability guard, disables the visible QA badge by default so diagnostics do not cover the artwork, and strengthens the Image 05 / Rehearsal On Deck registry override: smaller scale, slight left shift, higher vertical anchor, and smaller/tucked social buttons. No asset changes; upload index_r591.html only. -->
 <!-- r592: Image 05 rehearsal stronger visible tune. Keeps QA badge default-off and registry guard active. Applies a clearly stronger Image 05 / Rehearsal On Deck override: larger zoom-out, stronger left shift, balanced vertical anchor, and smaller/tucked social buttons so the result should visibly differ from r591. No asset changes; upload index_r592.html only. -->
-<!-- r593: Home image registry diagnostic proof build. Temporarily forces Image 05 / Rehearsal On Deck to an intentionally extreme registry presentation and forces the QA badge visible so phone testing can prove whether the registry controls the live Home image before any further tuning. Upload index_r593.html as index.html; no image assets changed. -->
+<!-- r594: Home image registry control-path repair. Removes the r593 visible QA badge/code overlay and makes the registry renderer write direct inline !important styles to the Home image/buttons so older high-specificity rehearsal CSS cannot override registry values. Keeps Image 05 rehearsal values from r592. Upload index_r594.html as index.html; no image assets changed. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
 <!-- r559: Home band image 17 added. Adds exact supplied Home-only band_image_17.png to HOME_BAND_IMAGES with cache-bust v=r559; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r559.html as index.html plus band_image_17.png after phone test. -->
 <!-- r558: Home band image 16 added. Adds exact supplied Home-only band_image_16.png to HOME_BAND_IMAGES with cache-bust v=r558; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r558.html as index.html plus band_image_16.png after phone test. -->
@@ -6992,9 +6992,8 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 .oot-home-image-qa-badge{
   position:absolute;
   left:8px;
-  top:8px;
-  bottom:auto;
-  z-index:30;
+  bottom:8px;
+  z-index:5;
   pointer-events:none;
   background:rgba(6,14,28,.86);
   border:1px solid rgba(245,197,24,.58);
@@ -24234,9 +24233,8 @@ var HOME_IMAGE_PRESENTATION = {
   },
   5: {
     rehearsal: {
-      // r593 DIAGNOSTIC ONLY: intentionally extreme values to prove the registry is actually controlling the live phone render before visual tuning resumes.
-      img: { widthPct: 70, xPx: -70, yPct: -68 },
-      buttons: { gapPx: 4, sizePx: 22, iconPx: 11, xPx: 22, yPx: -2, scale: 1 }
+      img: { widthPct: 94, xPx: -8, yPct: -60 },
+      buttons: { gapPx: 5, sizePx: 26, iconPx: 13, xPx: 13, yPx: 4, scale: 1 }
     }
   }
 };
@@ -24278,15 +24276,65 @@ function _applyHomeImagePresentation(row, idx){
   var p = _getHomeImagePresentation(idx, mode);
   row.setAttribute('data-home-image-index', String(idx || 1));
   row.setAttribute('data-home-image-mode', mode);
-  _setHomeCssVar(row, '--oot-home-img-width', (p.img.widthPct || 114) + '%');
-  _setHomeCssVar(row, '--oot-home-img-x', (p.img.xPx || 0) + 'px');
-  _setHomeCssVar(row, '--oot-home-img-y', (p.img.yPct || -55) + '%');
-  _setHomeCssVar(row, '--oot-home-button-gap', ((p.buttons.gapPx === 0 ? 0 : (p.buttons.gapPx || 8))) + 'px');
-  _setHomeCssVar(row, '--oot-home-button-size', (p.buttons.sizePx || 38) + 'px');
-  _setHomeCssVar(row, '--oot-home-button-icon', (p.buttons.iconPx || 20) + 'px');
-  _setHomeCssVar(row, '--oot-home-button-x', ((p.buttons.xPx === 0 ? 0 : (p.buttons.xPx || 0))) + 'px');
-  _setHomeCssVar(row, '--oot-home-button-y', ((p.buttons.yPx === 0 ? 0 : (p.buttons.yPx || 0))) + 'px');
-  _setHomeCssVar(row, '--oot-home-button-scale', (p.buttons.scale === 0 ? 0 : (p.buttons.scale || 1)));
+
+  var imgWidth = (p.img.widthPct || 114) + '%';
+  var imgX = (p.img.xPx || 0) + 'px';
+  var imgY = (p.img.yPct || -55) + '%';
+  var btnGap = ((p.buttons.gapPx === 0 ? 0 : (p.buttons.gapPx || 8))) + 'px';
+  var btnSize = (p.buttons.sizePx || 38) + 'px';
+  var btnIcon = (p.buttons.iconPx || 20) + 'px';
+  var btnX = ((p.buttons.xPx === 0 ? 0 : (p.buttons.xPx || 0))) + 'px';
+  var btnY = ((p.buttons.yPx === 0 ? 0 : (p.buttons.yPx || 0))) + 'px';
+  var btnScale = (p.buttons.scale === 0 ? 0 : (p.buttons.scale || 1));
+
+  _setHomeCssVar(row, '--oot-home-img-width', imgWidth);
+  _setHomeCssVar(row, '--oot-home-img-x', imgX);
+  _setHomeCssVar(row, '--oot-home-img-y', imgY);
+  _setHomeCssVar(row, '--oot-home-button-gap', btnGap);
+  _setHomeCssVar(row, '--oot-home-button-size', btnSize);
+  _setHomeCssVar(row, '--oot-home-button-icon', btnIcon);
+  _setHomeCssVar(row, '--oot-home-button-x', btnX);
+  _setHomeCssVar(row, '--oot-home-button-y', btnY);
+  _setHomeCssVar(row, '--oot-home-button-scale', btnScale);
+
+  // r594: direct inline-important renderer. Older Home/Rehearsal CSS used higher-specificity
+  // :has(...) selectors with !important, so CSS variables alone could be overridden. The
+  // registry now applies the resolved values directly to the live nodes as !important.
+  try {
+    row.style.setProperty('gap', btnGap, 'important');
+    var bg = row.querySelector('.home-band-backdrop');
+    if(bg){
+      bg.style.setProperty('position', 'absolute', 'important');
+      bg.style.setProperty('left', '50%', 'important');
+      bg.style.setProperty('top', '50%', 'important');
+      bg.style.setProperty('right', 'auto', 'important');
+      bg.style.setProperty('bottom', 'auto', 'important');
+      bg.style.setProperty('width', imgWidth, 'important');
+      bg.style.setProperty('height', 'auto', 'important');
+      bg.style.setProperty('max-width', 'none', 'important');
+      bg.style.setProperty('max-height', 'none', 'important');
+      bg.style.setProperty('object-fit', 'contain', 'important');
+      bg.style.setProperty('object-position', 'center center', 'important');
+      bg.style.setProperty('transform', 'translate(calc(-50% + ' + imgX + '), ' + imgY + ')', 'important');
+      bg.style.setProperty('transform-origin', 'center center', 'important');
+      bg.style.setProperty('pointer-events', 'none', 'important');
+      bg.style.setProperty('z-index', '1', 'important');
+    }
+    row.querySelectorAll('a').forEach(function(a){
+      a.style.setProperty('width', btnSize, 'important');
+      a.style.setProperty('height', btnSize, 'important');
+      a.style.setProperty('transform', 'translate(' + btnX + ', ' + btnY + ') scale(' + btnScale + ')', 'important');
+      a.style.setProperty('transform-origin', 'center center', 'important');
+      a.style.setProperty('position', 'relative', 'important');
+      a.style.setProperty('z-index', '3', 'important');
+      var svg = a.querySelector('svg');
+      if(svg){
+        svg.style.setProperty('width', btnIcon, 'important');
+        svg.style.setProperty('height', btnIcon, 'important');
+      }
+    });
+  } catch(e){}
+
   _renderHomeImageQaBadge(row, idx, mode, p);
 }
 function _refreshHomeImagePresentation(){
@@ -24324,8 +24372,11 @@ function _ensureHomePresentationObserver(){
   } catch(e){}
 }
 function _homeImageQaEnabled(){
-  // r593 diagnostic: force visible QA badge for this proof build. Remove this forced true after the registry control path is confirmed on phone.
-  return true;
+  try {
+    return /(?:\?|&)homeImageQa=1(?:&|$)/.test(location.search || '') ||
+      localStorage.getItem('oot_home_image_qa') === '1';
+  } catch(e){}
+  return false;
 }
 function _renderHomeImageQaBadge(row, idx, mode, p){
   if(!row) return;
@@ -26668,7 +26719,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-25-home-image-registry-diagnostic-r593';
+var WHATS_NEW_VERSION = '2026-05-25-home-image-registry-control-path-r594';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26961,7 +27012,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  { version:'2026-05-25-home-image-registry-diagnostic-r593', date:'May 25, 2026', importance:'fix', emoji:'🧪', title:'Home image registry diagnostic', body:'Temporarily forces Image 05 Rehearsal On Deck into an intentionally extreme presentation and forces the QA badge visible. This is a proof build: confirm whether the registry controls the live phone render before doing any more visual tuning.' },
+  { version:'2026-05-25-home-image-registry-control-path-r594', date:'May 25, 2026', importance:'fix', emoji:'🛠️', title:'Home image registry control-path repair', body:'Removes the visible r593 diagnostic badge/code overlay and repairs the Home image registry renderer so resolved image/button values are written directly to the live Home image nodes as inline-important styles. This prevents older high-specificity rehearsal CSS from overriding the registry.', items:['Upload index_r594.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 05 with Rehearsal On Deck visible; the badge/text should be gone and Image 05 should now use the r592 registry values.'] },
   { version:'2026-05-25-image-05-rehearsal-strong-tune-r592', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Image 05 rehearsal stronger tune', body:'Applies a clearly stronger Image 05 Rehearsal On Deck registry override after r591 looked visually unchanged on phone: larger zoom-out, stronger left shift, balanced vertical anchor, and smaller/tucked social buttons. QA badge remains off by default and the registry reliability guard remains active.', items:['Upload index_r592.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 05 with Rehearsal On Deck visible.'] },
   { version:'2026-05-25-image-05-rehearsal-clean-tune-r591', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Image 05 rehearsal clean tune', body:'Keeps the r590 registry reliability guard but turns the visible QA badge off by default so diagnostic text does not cover the artwork. Also strengthens the Image 05 Rehearsal On Deck framing override: smaller scale, slight left shift, higher vertical anchor, and smaller/tucked social buttons.', items:['Upload index_r591.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 05 with Rehearsal On Deck visible.'] },
   { version:'2026-05-25-home-image-qa-registry-guard-r590', date:'May 25, 2026', importance:'fix', emoji:'🧪', title:'Home image QA registry guard', body:'Adds a reliability guard for Home image presentation tuning. A MutationObserver now refreshes the presentation registry whenever the Rehearsal On Deck cue changes visibility/content/style, the band image refreshes again after image load, and a temporary QA badge shows IMG / MODE / W / X / Y so we can verify that the phone is using the intended presentation values.', items:['Upload index_r590.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 5 with Rehearsal On Deck visible and confirm the badge reads IMG 05 / REHEARSAL.'] },
