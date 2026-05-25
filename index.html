@@ -138,6 +138,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r573: Home image 01 horizontal centering refinement. Applies a tiny same-direction horizontal correction in both Home states: backs off the over-right no-Rehearsal nudge while adding a small matching Rehearsal On Deck nudge, preserving zoom, vertical framing, social buttons, source artwork, and all non-Home app sections. Upload index_r573.html as index.html. -->
 <!-- r575: Version-marker correction for r574 Home image 01 framing build. r574 contained the Home-only CSS horizontal framing override but accidentally left WHATS_NEW_VERSION at r573, so the phone updater would not detect/load the change. No new layout change beyond carrying forward the r574 CSS. Upload index_r575.html as index.html. -->
 <!-- r576: Home image 01 asset refresh. Replaces only the GitHub asset band_image_01.png with the newly supplied revised image and bumps HOME_BAND_IMAGES[0] cache-bust plus WHATS_NEW_VERSION to r576 so phones load it. No Home CSS/framing, Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r576.html as index.html plus band_image_01.png. -->
+<!-- r577: Home image 02 asset refresh. Replaces only the GitHub asset band_image_02.png with the newly supplied revised image and bumps HOME_BAND_IMAGES[1] cache-bust plus WHATS_NEW_VERSION to r577 so phones load it. No Home CSS/framing, Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r577.html as index.html plus band_image_02.png. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
 <!-- r559: Home band image 17 added. Adds exact supplied Home-only band_image_17.png to HOME_BAND_IMAGES with cache-bust v=r559; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r559.html as index.html plus band_image_17.png after phone test. -->
 <!-- r558: Home band image 16 added. Adds exact supplied Home-only band_image_16.png to HOME_BAND_IMAGES with cache-bust v=r558; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r558.html as index.html plus band_image_16.png after phone test. -->
@@ -23996,7 +23997,7 @@ var DEFAULT_BAND_GROUP_IMAGE_INDEX = 14;
 
 
 var CHAT_BAND_GROUP_IMAGE = 'band_group_chat.png?v=r565';
-var HOME_BAND_IMAGES = ['band_image_01.png?v=r576','band_image_02.png?v=r542','band_image_03.png?v=r544','band_image_04.png?v=r545','band_image_05.png?v=r546','band_image_06.png?v=r547','band_image_07.png?v=r548','band_image_08.png?v=r549','band_image_09.png?v=r550','band_image_10.png?v=r551','band_image_11.png?v=r552','band_image_12.png?v=r554','band_image_13.png?v=r555','band_image_14.png?v=r556','band_image_15.png?v=r557','band_image_16.png?v=r558','band_image_17.png?v=r559','band_image_18.png?v=r560','band_image_19.png?v=r561','band_image_20.png?v=r562'];
+var HOME_BAND_IMAGES = ['band_image_01.png?v=r576','band_image_02.png?v=r577','band_image_03.png?v=r544','band_image_04.png?v=r545','band_image_05.png?v=r546','band_image_06.png?v=r547','band_image_07.png?v=r548','band_image_08.png?v=r549','band_image_09.png?v=r550','band_image_10.png?v=r551','band_image_11.png?v=r552','band_image_12.png?v=r554','band_image_13.png?v=r555','band_image_14.png?v=r556','band_image_15.png?v=r557','band_image_16.png?v=r558','band_image_17.png?v=r559','band_image_18.png?v=r560','band_image_19.png?v=r561','band_image_20.png?v=r562'];
 var DEFAULT_HOME_BAND_IMAGE_INDEX = 1;
 function _currentMemberBandImagePref(){
   try {
@@ -26297,7 +26298,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-25-home-band-image-01-refresh-r576';
+var WHATS_NEW_VERSION = '2026-05-25-home-band-image-02-refresh-r577';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26590,6 +26591,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-25-home-band-image-02-refresh-r577', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home image 02 asset refresh', body:'Replaces only the Home image 02 asset with the newly supplied revised band_image_02.png and bumps the cache marker so phones load the file. No Home layout/CSS, Band Chat/Band tab, Calendar, Songs, Setlists, Pay, flyer, notification, or service-worker logic changes.', items:['Upload the revised band_image_02.png to GitHub root.', 'Upload index_r577.html as index.html.', 'Tests should check Home with and without Rehearsal On Deck visible.'] },
   { version:'2026-05-25-home-band-image-01-refresh-r576', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home image 01 asset refresh', body:'Replaces only the Home image 01 asset with the newly supplied revised band_image_01.png and bumps the cache marker so phones load the file. No Home layout/CSS, Band Chat/Band tab, Calendar, Songs, Setlists, Pay, flyer, notification, or service-worker logic changes.', items:['Upload the revised band_image_01.png to GitHub root.', 'Upload index_r576.html as index.html.', 'Tests should check Home with and without Rehearsal On Deck visible.'] },
   { version:'2026-05-24-home-image-01-horizontal-framing-r575', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home image 01 r574 load fix', body:'Corrects the build/version marker so the phone update flow detects the r574 Home image 01 horizontal framing CSS. No source image change and no new visual scope beyond carrying forward r574.', items:['Bumps WHATS_NEW_VERSION from the stale r573 value to r575.','Carries forward the r574 Home-only horizontal crop/framing override.','No image asset re-upload required if band_image_01.png is already current.'] },
   { version:'2026-05-24-home-image-01-horizontal-centering-r573', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home image 01 centering refinement', body:'Fine-tunes only horizontal framing for Home image 01 in both Home states, reducing the previous no-rehearsal right nudge while adding a small matching Rehearsal On Deck nudge. Zoom, vertical framing, social buttons, and source artwork are unchanged.' },
