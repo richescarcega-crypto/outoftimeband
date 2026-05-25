@@ -153,6 +153,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r589: Home presentation registry timing fix. Fixes the root cause where Rehearsal On Deck visibility was changed after the Home band image registry had already applied normal-mode values, so rehearsal-mode overrides could appear unchanged. Adds _refreshHomeImagePresentation(), calls it after every renderHomeRehearsalCue display-state change, and calls renderHomeRehearsalCue during rHome. No asset changes; upload index_r589.html only. -->
 <!-- r590: Home Image QA / Registry Reliability Guard. Adds a MutationObserver-backed reliability guard so Home image presentation is refreshed whenever the Rehearsal On Deck cue changes visibility/content/style/class, refreshes again after band image load, and enables a temporary Home image QA badge by default during this tuning workstream showing IMG / MODE / W / X / Y. No asset changes; upload index_r590.html only. -->
 <!-- r591: Image 05 rehearsal visual tune + QA badge default-off. Keeps the r590 registry reliability guard, disables the visible QA badge by default so diagnostics do not cover the artwork, and strengthens the Image 05 / Rehearsal On Deck registry override: smaller scale, slight left shift, higher vertical anchor, and smaller/tucked social buttons. No asset changes; upload index_r591.html only. -->
+<!-- r592: Image 05 rehearsal stronger visible tune. Keeps QA badge default-off and registry guard active. Applies a clearly stronger Image 05 / Rehearsal On Deck override: larger zoom-out, stronger left shift, balanced vertical anchor, and smaller/tucked social buttons so the result should visibly differ from r591. No asset changes; upload index_r592.html only. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
 <!-- r559: Home band image 17 added. Adds exact supplied Home-only band_image_17.png to HOME_BAND_IMAGES with cache-bust v=r559; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r559.html as index.html plus band_image_17.png after phone test. -->
 <!-- r558: Home band image 16 added. Adds exact supplied Home-only band_image_16.png to HOME_BAND_IMAGES with cache-bust v=r558; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r558.html as index.html plus band_image_16.png after phone test. -->
@@ -24231,8 +24232,8 @@ var HOME_IMAGE_PRESENTATION = {
   },
   5: {
     rehearsal: {
-      img: { widthPct: 100, xPx: -4, yPct: -62 },
-      buttons: { gapPx: 6, sizePx: 30, iconPx: 15, xPx: 10, yPx: 3, scale: 1 }
+      img: { widthPct: 94, xPx: -8, yPct: -60 },
+      buttons: { gapPx: 5, sizePx: 26, iconPx: 13, xPx: 13, yPx: 4, scale: 1 }
     }
   }
 };
@@ -26667,7 +26668,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-25-image-05-rehearsal-clean-tune-r591';
+var WHATS_NEW_VERSION = '2026-05-25-image-05-rehearsal-strong-tune-r592';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26960,6 +26961,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-25-image-05-rehearsal-strong-tune-r592', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Image 05 rehearsal stronger tune', body:'Applies a clearly stronger Image 05 Rehearsal On Deck registry override after r591 looked visually unchanged on phone: larger zoom-out, stronger left shift, balanced vertical anchor, and smaller/tucked social buttons. QA badge remains off by default and the registry reliability guard remains active.', items:['Upload index_r592.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 05 with Rehearsal On Deck visible.'] },
   { version:'2026-05-25-image-05-rehearsal-clean-tune-r591', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Image 05 rehearsal clean tune', body:'Keeps the r590 registry reliability guard but turns the visible QA badge off by default so diagnostic text does not cover the artwork. Also strengthens the Image 05 Rehearsal On Deck framing override: smaller scale, slight left shift, higher vertical anchor, and smaller/tucked social buttons.', items:['Upload index_r591.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 05 with Rehearsal On Deck visible.'] },
   { version:'2026-05-25-home-image-qa-registry-guard-r590', date:'May 25, 2026', importance:'fix', emoji:'🧪', title:'Home image QA registry guard', body:'Adds a reliability guard for Home image presentation tuning. A MutationObserver now refreshes the presentation registry whenever the Rehearsal On Deck cue changes visibility/content/style, the band image refreshes again after image load, and a temporary QA badge shows IMG / MODE / W / X / Y so we can verify that the phone is using the intended presentation values.', items:['Upload index_r590.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 5 with Rehearsal On Deck visible and confirm the badge reads IMG 05 / REHEARSAL.'] },
   { version:'2026-05-25-home-presentation-registry-timing-r589', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home presentation registry timing fix', body:'Fixes the root cause where Rehearsal On Deck visibility could be set after the Home image presentation registry had already applied normal-mode values. The app now refreshes registry variables after every rehearsal-cue display change and during Home render, so rehearsal-mode image overrides take effect reliably.', items:['Upload index_r589.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 5 with Rehearsal On Deck visible before continuing image uploads.'] },
