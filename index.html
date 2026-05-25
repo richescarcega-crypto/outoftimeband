@@ -17,6 +17,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r504: Story Flyer 13 asset cleanup. Uses cleaned oot_flyer_story_13_r504.png and removes failed code cover/relayout for oot13-story lower decorative rules; text positions unchanged. -->
 <!-- r505: Saved flyer stale-render refresh. Tracks template asset source, invalidates stale saved JPEGs when a template asset filename changes, and makes image cache source-aware so Story Flyer 13 reloads the cleaned r504 asset. Upload index.html only after phone test. -->
 <!-- r506: Story Flyer 14 asset cleanup. Uses cleaned oot_flyer_story_14_r506.png and forces stale saved Flyer 14 JPEG refresh; no text-position or unrelated flyer changes. Upload index.html plus oot_flyer_story_14_r506.png after phone test. -->
+<!-- r630: Update banner false-positive guard. Requires a deployed-version mismatch to be confirmed by a second fresh no-store fetch before showing the green update banner or critical update overlay. Prevents transient CDN/cache/visibility-check mismatches from flashing update banners when no real update is available. Chat tab composer r629 retained; no tab/content/image changes. Upload index_r630.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -130,6 +131,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r564: Member image replacements for Ed/Jim/Rachel/Rich/Zach. Uses exact supplied full-scene Ed.png, Jim.png, Rachel.png, Rich.png, and Zach.png with cache-bust v=r564 for Band Chat/Band tab/member image placements; Amy remains Amy.png?v=r563; no Home images, Calendar, Songs, Setlists, Pay, flyer, service-worker, or notification changes. Upload index_r564.html as index.html plus Ed.png, Jim.png, Rachel.png, Rich.png, and Zach.png after phone test. -->
 <!-- r626: Chat tab Band Chat image refresh. Replaces only the Chat-tab Band Chat group image with the exact supplied band_group_chat.png asset, bumps the two Band Chat image references to ?v=r626, and updates WHATS_NEW_VERSION so phones detect the build. No Home, Calendar, Songs, Setlists, Band member avatars, Pay, flyer, service-worker, or notification logic changes. Upload index_r626.html as index.html plus band_group_chat.png after phone test. -->
 <!-- r627: Chat tab Band Chat image replacement. Replaces only the GitHub asset band_group_chat.png with the exact newly supplied Band Chat image and bumps the two active Band Chat image cache markers to ?v=r627 plus WHATS_NEW_VERSION so phones load the replacement. No Home, Calendar, Songs, Setlists, Band member avatars, Pay, flyer, service-worker, or notification changes. Upload index_r627.html as index.html plus band_group_chat.png. -->
+<!-- r631: Songs tab light-blue canvas test. Changes only the deepest/furthest-back Songs tab background to the Calendar body-style blue gradient so the dark search/song elements sit on a lighter blue page canvas. No foreground Songs elements, no other tabs, no layout, no assets, and no logic changes. Upload index_r631.html as index.html after phone test. -->
 <!-- r566: Home scenic band image 01 full-resolution test. Updates only HOME_BAND_IMAGES[0] to band_image_01.png?v=r568 using the supplied 2400x2000 asset; preserves r565 Chat/Band/member images including band_group_chat.png?v=r565; no Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r566.html as index.html plus band_image_01.png after phone test. -->
 <!-- r567: Home scenic band image framing zoom. Keeps the same 2400x2000 band_image_01.png asset, moderately enlarges/reframes the Home image app-side only, and uses a shorter-frame rehearsal-present override so the band stays visible when the Rehearsal on Deck pill is shown. No source artwork, Chat/Band/member images, flyers, Calendar, Songs, Setlists, Band, Pay, notification, or service-worker logic changes. Upload index_r567.html as index.html; band_image_01.png remains the same asset from r566. -->
 <!-- r568: Home scenic band image rehearsal-state tuning. Keeps the r567 no-rehearsal framing nearly unchanged, softens the Rehearsal On Deck override with slightly less zoom and a lower vertical anchor, and reduces rehearsal-state social-button intrusion. No source artwork, Chat/Band/member images, flyers, Calendar, Songs, Setlists, Band, Pay, notification, or service-worker logic changes. Upload index_r568.html as index.html; band_image_01.png remains the same asset. -->
@@ -204,6 +206,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r536: Home Rehearsal on Deck card caret removal. Removes only the right-side chevron from the Home rehearsal cue while keeping the full pill/card button tappable. Upload index_r536.html as index.html after phone test. -->
 <title>Out of Time v3</title>
 <!-- r628: Home Band Image default change. Sets DEFAULT_HOME_BAND_IMAGE_INDEX to 9 so the Home tab default band image is Band Image 9 when no member-specific preference is saved. No Home image assets, Chat Band image, Band tab member avatars, Calendar, Songs, Setlists, Pay, flyer, service-worker, notification, or layout changes. Upload index_r628.html as index.html. -->
+<!-- r629: Chat composer multiline visibility fix. Replaces the Chat tab message composer input with an auto-growing textarea so long typed or dictated messages remain visible before sending. Scope is Chat tab composer only; no message rendering, Home, Band, Calendar, Songs, Setlists, Pay, flyer, asset, service-worker, or notification changes. Upload index_r629.html as index.html after phone test. -->
 <!-- r106-band-bottom-extended-assets: expects band1.png through band15.png with bottom-extended artwork -->
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Russo+One&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -866,7 +869,7 @@ body.light #cmsgs{background:linear-gradient(180deg,#f7f9ff,#eef3ff) !important;
 .mt{font-size:13px;line-height:1.4;color:#fff;}
 .mti{font-size:10px;color:rgba(255,255,255,.3);margin-top:3px;text-align:right;}
 #cir{display:flex;gap:8px;padding:8px 0 10px;border-top:1px solid var(--n3);margin-top:8px;}
-#cin{flex:1;background:var(--n2);border:1px solid var(--b);border-radius:20px;padding:9px 14px;color:#e8f0ff;font-size:13px;}
+#cin{flex:1;background:var(--n2);border:1px solid var(--b);border-radius:20px;padding:9px 14px;color:#e8f0ff;font-size:13px;line-height:1.35;min-height:42px;max-height:108px;resize:none;overflow-y:auto;white-space:pre-wrap;}
 #csb{background:#1a3a8a;border:none;border-radius:50%;width:40px;height:40px;color:var(--g);font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .mc{background:var(--n4);border:1px solid var(--n3);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
 .avmd{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;position:relative;flex-shrink:0;}
@@ -3672,6 +3675,15 @@ body.light #sc-cal #calendar-hero-date-row .mlbl{
 #sc-band,
 #sc-pay{
   padding-top:2px !important;
+}
+
+/* r631: Songs tab background canvas test.
+   Scope: Songs tab deepest/furthest-back background only.
+   Foreground song pills/cards/search/header remain unchanged. */
+body:not(.light) #sc-songs{
+  background:
+    radial-gradient(circle at 45% 28%,rgba(0,150,255,.72) 0%,rgba(0,92,220,.88) 42%,rgba(6,45,125,.96) 72%,rgba(7,18,45,.98) 100%),
+    linear-gradient(180deg,#006cff 0%,#0054d6 46%,#06388f 100%) !important;
 }
 #sc-songs #songs-hero,
 #sc-sets #sets-hero,
@@ -7238,7 +7250,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
     <div id="cmsgs" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;"></div>
     <!-- Input -->
     <div class="chat-input-bar" style="padding:10px 12px;background:#080f1e;border-top:1px solid #0d1f3a;display:flex;gap:10px;align-items:center;flex-shrink:0;">
-      <input id="cin" placeholder="Message..." onkeydown="if(event.key==='Enter')sMsg()" oninput="updateSendBtn()" style="flex:1;background:#0d1f3a;border:1px solid #1a3a8a;border-radius:22px;padding:10px 16px;color:#e8f0ff;font-size:14px;font-family:'Exo 2',sans-serif;outline:none;">
+      <textarea id="cin" placeholder="Message..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sMsg();}" oninput="updateChatComposer(this);updateSendBtn();" style="flex:1;background:#0d1f3a;border:1px solid #1a3a8a;border-radius:22px;padding:10px 16px;color:#e8f0ff;font-size:14px;font-family:'Exo 2',sans-serif;outline:none;resize:none;min-height:42px;max-height:108px;line-height:1.35;overflow-y:auto;white-space:pre-wrap;"></textarea>
       <button id="send-btn" onclick="sMsg()" style="background:radial-gradient(circle at 30% 25%,#ff8ab8 0%,#ff4d8a 55%,#c2185b 100%);border:1px solid #ffb6cf;border-radius:50%;width:42px;height:42px;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;touch-action:manipulation;transition:all .2s;box-shadow:0 0 18px rgba(255,77,138,.6), 0 2px 8px rgba(0,0,0,.4), inset 0 -2px 6px rgba(0,0,0,.22);">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M2 12l20-9-9 20-2-9-9-2z" fill="currentColor"/></svg>
       </button>
@@ -24145,6 +24157,7 @@ function sMsg(){
   var day=now.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
   saveMsg({who:ME,to:chatTo,txt:txt,time:t,day:day});
   inp.value='';
+  updateChatComposer(inp);
   updateSendBtn();
   var preview = txt.length > 100 ? txt.slice(0,100) + '…' : txt;
   if(chatTo === 'band'){
@@ -24157,6 +24170,18 @@ function sMsg(){
   } else {
     notifyBand('chat', myName + ' sent you a message', preview, '/', { targetMemberId: chatTo });
   }
+}
+
+function updateChatComposer(el){
+  el = el || document.getElementById('cin');
+  if(!el) return;
+  try{
+    el.style.height = 'auto';
+    var maxH = 108;
+    var nextH = Math.min(el.scrollHeight, maxH);
+    el.style.height = Math.max(42, nextH) + 'px';
+    el.style.overflowY = (el.scrollHeight > maxH) ? 'auto' : 'hidden';
+  }catch(e){}
 }
 
 function updateSendBtn(){
@@ -26905,7 +26930,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-25-home-band-image-09-default-r628';
+var WHATS_NEW_VERSION = '2026-05-25-songs-light-blue-background-test-r631';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26917,6 +26942,13 @@ var WHATS_NEW_VERSION = '2026-05-25-home-band-image-09-default-r628';
 // ──────────────────────────────────────────────────────────────────────
 
 var _versionCheckInterval = null;
+// r630: false-positive guard for update checks. CDN/service-worker edges can
+// briefly return an older or different index.html during tab switches, app resume,
+// or deploy propagation. Do not show update UI until the mismatch is confirmed
+// by a second fresh fetch.
+var _versionMismatchCandidate = null;
+var _versionMismatchTimer = null;
+var _versionMismatchToken = 0;
 var _versionCheckUrl = (function(){
   // Build absolute URL to index.html for fetch — relative URLs may resolve
   // weirdly inside service-worker contexts.
@@ -27084,18 +27116,63 @@ function _hideUpdateBanner(){
   if(b) b.remove();
 }
 
-// Run a single check. If a different version is deployed, show banner.
+function _clearVersionMismatchCandidate(){
+  _versionMismatchCandidate = null;
+  _versionMismatchToken++;
+  if(_versionMismatchTimer){
+    clearTimeout(_versionMismatchTimer);
+    _versionMismatchTimer = null;
+  }
+}
+
+// Run a single check. r630: require a two-pass confirmed mismatch before
+// showing update UI. This prevents transient CDN/cache responses from flashing
+// green update banners when the running app is already current.
 function _checkForUpdate(hardBlock){
   if(typeof WHATS_NEW_VERSION === 'undefined') return;
   _fetchDeployedVersion().then(function(deployedVer){
     if(!deployedVer) return;  // network error, skip silently
-    if(deployedVer !== WHATS_NEW_VERSION){
-      _showUpdateBanner(deployedVer);
-      if(hardBlock) _showCriticalUpdateOverlay(deployedVer);
-    } else {
+    if(deployedVer === WHATS_NEW_VERSION){
+      _clearVersionMismatchCandidate();
       _hideUpdateBanner();
       _hideCriticalUpdateOverlay();
+      return;
     }
+
+    // If the banner is already showing for the same confirmed version, keep it.
+    var existing = document.getElementById('update-banner');
+    if(existing && existing.dataset && existing.dataset.deployedVer === deployedVer){
+      if(hardBlock) _showCriticalUpdateOverlay(deployedVer);
+      return;
+    }
+
+    // First sighting only records a candidate and schedules a confirmation.
+    // Do not show any visible update UI yet.
+    _versionMismatchCandidate = deployedVer;
+    _versionMismatchToken++;
+    var token = _versionMismatchToken;
+    if(_versionMismatchTimer) clearTimeout(_versionMismatchTimer);
+    _versionMismatchTimer = setTimeout(function(){
+      _versionMismatchTimer = null;
+      _fetchDeployedVersion().then(function(confirmVer){
+        if(token !== _versionMismatchToken) return;
+        if(!confirmVer) return;
+        if(confirmVer === WHATS_NEW_VERSION){
+          _clearVersionMismatchCandidate();
+          _hideUpdateBanner();
+          _hideCriticalUpdateOverlay();
+          return;
+        }
+        if(confirmVer !== _versionMismatchCandidate){
+          // Different answer on confirmation means the edge/cache state is unstable.
+          // Wait for a later scheduled check rather than flashing UI.
+          _clearVersionMismatchCandidate();
+          return;
+        }
+        _showUpdateBanner(confirmVer);
+        if(hardBlock) _showCriticalUpdateOverlay(confirmVer);
+      }).catch(function(){});
+    }, 3500);
   });
 }
 
@@ -27198,6 +27275,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-25-songs-light-blue-background-test-r631', date:'May 25, 2026', importance:'fix', emoji:'🎨', title:'Songs tab light-blue background test', body:'Tests the Calendar-style blue gradient only on the furthest-back Songs tab canvas. Song cards, search, buttons, text, layout, and all other tabs are unchanged.', items:['Upload index_r631.html as index.html.', 'Check only the Songs tab background visible around the search/list edges.', 'This is a visual test and can be adjusted or rolled back.'] },
+  { version:'2026-05-25-chat-composer-multiline-r629', date:'May 25, 2026', importance:'fix', emoji:'💬', title:'Chat composer long-message visibility fix', body:'The Chat message creation field now expands while you type or dictate, so longer messages are visible before sending instead of being clipped in a single-line field.', items:['Replaced the Chat tab composer input with an auto-growing textarea.', 'Enter still sends on desktop; Shift+Enter adds a line break.', 'Scope is Chat composer only — posted messages and other tabs are unchanged.'] },
   { version:'2026-05-25-home-band-image-09-default-r628', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home Band Image 9 is now default', body:'Sets Band Image 9 as the Home tab default when no member-specific image choice is saved. Existing personal selections can still override the default until changed in the Band Image selector.', items:['Upload index_r628.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Home tab with a member/account that has no saved Band Image preference, or clear/select Band Image 9 if a personal preference is already saved.'] },
   { version:'2026-05-25-member-avatar-refresh-chat-band-r625', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Member avatar image refresh', body:'Updates the individual member image assets used by the Chat tab and Band tab only. Uses the exact supplied PNG files for Amy, Ed, Jim, Rachel, Rich, and Zach with new cache-bust markers so all members see the refreshed portraits, including Rich for other members even though Rich does not see his own image in his own Chat view.', items:['Upload index_r625.html as index.html.', 'Upload Amy.png, Ed.png, Jim.png, Rachel.png, Rich.png, and Zach.png to the GitHub root.', 'Retest Chat and Band tabs; no Home, Calendar, Songs, Setlists, Pay, flyer, notification, or service-worker behavior was changed.'] },
   { version:'2026-05-25-home-image-registry-control-path-r594', date:'May 25, 2026', importance:'fix', emoji:'🛠️', title:'Home image registry control-path repair', body:'Removes the visible r593 diagnostic badge/code overlay and repairs the Home image registry renderer so resolved image/button values are written directly to the live Home image nodes as inline-important styles. This prevents older high-specificity rehearsal CSS from overriding the registry.', items:['Upload index_r594.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 05 with Rehearsal On Deck visible; the badge/text should be gone and Image 05 should now use the r592 registry values.'] },
