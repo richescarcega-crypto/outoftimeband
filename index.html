@@ -142,6 +142,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r578: Home image 03 asset refresh. Replaces only the GitHub asset band_image_03.png with the newly supplied revised image and bumps HOME_BAND_IMAGES[2] cache-bust plus WHATS_NEW_VERSION to r578 so phones load it. No Home CSS/framing, Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r578.html as index.html plus band_image_03.png. -->
 <!-- r579: Home image 04 asset refresh. Replaces only the GitHub asset band_image_04.png with the newly supplied revised image and bumps HOME_BAND_IMAGES[3] cache-bust plus WHATS_NEW_VERSION to r579 so phones load it. No Home CSS/framing, Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r579.html as index.html plus band_image_04.png. -->
 <!-- r580: Home image-specific framing follow-up. Makes two narrow Home-only phone-test adjustments: (1) Image 01, no Rehearsal On Deck — shrink/tuck the Facebook and Instagram buttons deeper into the lower-right corner to reduce overlap; (2) Image 02, Rehearsal On Deck visible — ease the crop/zoom and recenter horizontally so the full band body reads better. No asset changes; upload index_r580.html only. -->
+<!-- r581: Image 02 Rehearsal On Deck framing correction. Replaces the incremental r580 Image 02 rehearsal crop with a stronger explicit per-image rule: full-width 100% image scale, deeper vertical anchor to recover lower bodies/feet, centered horizontally, and smaller/tucked social buttons for this state only. No asset changes; upload index_r581.html only. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
 <!-- r559: Home band image 17 added. Adds exact supplied Home-only band_image_17.png to HOME_BAND_IMAGES with cache-bust v=r559; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r559.html as index.html plus band_image_17.png after phone test. -->
 <!-- r558: Home band image 16 added. Adds exact supplied Home-only band_image_16.png to HOME_BAND_IMAGES with cache-bust v=r558; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r558.html as index.html plus band_image_16.png after phone test. -->
@@ -6885,6 +6886,56 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   #sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row[data-home-image-index="2"] .home-band-backdrop{
     width:103% !important;
     transform:translate(calc(-50% + 2px),-58%) !important;
+  }
+}
+
+/* r581 Image 02 Rehearsal On Deck final framing correction
+   Source image has enough canvas. This rule takes explicit control of only
+   Image 02 in the short rehearsal Home window: width is not over-zoomed,
+   horizontal centering is reset, and the vertical anchor is moved deeper so
+   the lower bodies/feet stay inside the visible crop. */
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row[data-home-image-index="2"] .home-band-backdrop,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row[data-home-image-index="2"] .home-band-backdrop{
+  width:100% !important;
+  height:auto !important;
+  max-width:none !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  transform:translate(-50%,-62%) !important;
+}
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row[data-home-image-index="2"]{
+  gap:7px !important;
+}
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row[data-home-image-index="2"]{
+  gap:7px !important;
+}
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row[data-home-image-index="2"] a,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row[data-home-image-index="2"] a{
+  width:34px !important;
+  height:34px !important;
+  transform:translate(8px,2px) scale(1) !important;
+}
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row[data-home-image-index="2"] a svg,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row[data-home-image-index="2"] a svg{
+  width:17px !important;
+  height:17px !important;
+}
+@media (max-width:520px){
+  #sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row[data-home-image-index="2"] .home-band-backdrop,
+  #sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row[data-home-image-index="2"] .home-band-backdrop{
+    width:100% !important;
+    transform:translate(-50%,-62.5%) !important;
+  }
+  #sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row[data-home-image-index="2"] a,
+  #sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row[data-home-image-index="2"] a{
+    width:33px !important;
+    height:33px !important;
+    transform:translate(8px,2px) scale(1) !important;
+  }
+  #sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row[data-home-image-index="2"] a svg,
+  #sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row[data-home-image-index="2"] a svg{
+    width:16px !important;
+    height:16px !important;
   }
 }
 
@@ -26359,7 +26410,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-25-home-image-framing-followup-r580';
+var WHATS_NEW_VERSION = '2026-05-25-image-02-rehearsal-framing-r581';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26652,6 +26703,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-25-image-02-rehearsal-framing-r581', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Image 02 rehearsal framing correction', body:'Corrects Image 02 in Rehearsal On Deck mode with an explicit per-image Home framing rule: reset horizontal centering, reduce over-zoom to full-width scale, move the vertical anchor deeper to keep lower bodies/feet visible, and tuck smaller social buttons in that state. No image assets changed.', items:['Upload index_r581.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 02 with Rehearsal On Deck visible.'] },
   { version:'2026-05-25-home-image-framing-followup-r580', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home image-specific framing follow-up', body:'Applies two narrow Home-only phone-test follow-ups with no asset changes: Image 01 in no-Rehearsal mode gets smaller, more tucked social buttons; Image 02 in Rehearsal-On-Deck mode gets an eased crop/zoom plus horizontal recentering so the full band body reads better.', items:['Upload index_r580.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 01 without Rehearsal On Deck and Image 02 with Rehearsal On Deck visible.'] },
   { version:'2026-05-25-home-band-image-04-refresh-r579', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home image 04 asset refresh', body:'Replaces only the Home image 04 asset with the newly supplied revised band_image_04.png and bumps the cache marker so phones load the file. No Home layout/CSS, Band Chat/Band tab, Calendar, Songs, Setlists, Pay, flyer, notification, or service-worker logic changes.', items:['Upload the revised band_image_04.png to GitHub root.', 'Upload index_r579.html as index.html.', 'Tests should check Home with and without Rehearsal On Deck visible.'] },
   { version:'2026-05-25-home-band-image-03-refresh-r578', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home image 03 asset refresh', body:'Replaces only the Home image 03 asset with the newly supplied revised band_image_03.png and bumps the cache marker so phones load the file. No Home layout/CSS, Band Chat/Band tab, Calendar, Songs, Setlists, Pay, flyer, notification, or service-worker logic changes.', items:['Upload the revised band_image_03.png to GitHub root.', 'Upload index_r578.html as index.html.', 'Tests should check Home with and without Rehearsal On Deck visible.'] },
