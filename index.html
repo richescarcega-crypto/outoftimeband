@@ -148,6 +148,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r584: Image 03 registry tune. Adds Image 03 overrides to the Home Image Presentation Registry: normal mode gets smaller/tucked social buttons with framing left essentially intact; Rehearsal On Deck mode gets slightly reduced zoom, a slightly higher vertical anchor, and smaller/tucked social buttons. No asset changes; upload index_r584.html only. -->
 <!-- r585: Image 04 registry tune. Adds Image 04 overrides to the Home Image Presentation Registry: normal mode keeps framing mostly intact with smaller/tucked social buttons; Rehearsal On Deck mode slightly zooms out, lifts the vertical anchor, and shifts the crop left from the prior default so the keyboard edge and Ed right foot balance better. No asset changes; upload index_r585.html only. -->
 <!-- r586: Home image 05 asset refresh. Replaces only the GitHub asset band_image_05.png with the newly supplied revised image and bumps HOME_BAND_IMAGES[4] cache-bust plus WHATS_NEW_VERSION to r586 so phones load it. No Home registry/CSS changes, Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r586.html as index.html plus band_image_05.png. -->
+<!-- r587: Image 05 rehearsal registry tune. Adds an Image 05 / Rehearsal On Deck override to the Home Image Presentation Registry: slight zoom-out, slightly higher vertical anchor, slight left shift for better horizontal balance, and smaller/tucked social buttons. Normal mode remains unchanged. No asset changes; upload index_r587.html only. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
 <!-- r559: Home band image 17 added. Adds exact supplied Home-only band_image_17.png to HOME_BAND_IMAGES with cache-bust v=r559; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r559.html as index.html plus band_image_17.png after phone test. -->
 <!-- r558: Home band image 16 added. Adds exact supplied Home-only band_image_16.png to HOME_BAND_IMAGES with cache-bust v=r558; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r558.html as index.html plus band_image_16.png after phone test. -->
@@ -24216,6 +24217,12 @@ var HOME_IMAGE_PRESENTATION = {
       img: { widthPct: 106, xPx: 2, yPct: -60 },
       buttons: { gapPx: 7, sizePx: 33, iconPx: 16, xPx: 8, yPx: 2, scale: 1 }
     }
+  },
+  5: {
+    rehearsal: {
+      img: { widthPct: 104, xPx: 0, yPct: -60 },
+      buttons: { gapPx: 7, sizePx: 33, iconPx: 16, xPx: 8, yPx: 2, scale: 1 }
+    }
   }
 };
 function _homeMergePresentation(base, override){
@@ -26615,7 +26622,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-25-home-band-image-05-refresh-r586';
+var WHATS_NEW_VERSION = '2026-05-25-image-05-rehearsal-registry-tune-r587';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26908,6 +26915,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-25-image-05-rehearsal-registry-tune-r587', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Image 05 rehearsal registry tune', body:'Adds an Image 05 Rehearsal On Deck override to the Home Image Presentation Registry. This slightly zooms out, moves the image up a bit to improve lower-body/feet clearance, shifts the image slightly left for better balance between the keyboard edge and the left side, and uses smaller/tucked social buttons. Image 05 normal mode remains unchanged.', items:['Upload index_r587.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Home image 05 with Rehearsal On Deck visible.'] },
   { version:'2026-05-25-home-band-image-05-refresh-r586', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home image 05 asset refresh', body:'Replaces only the Home image 05 asset with the newly supplied revised band_image_05.png and bumps the cache marker so phones load the file. No Home layout/registry/CSS, Band Chat/Band tab, Calendar, Songs, Setlists, Pay, flyer, notification, or service-worker logic changes.', items:['Upload the revised band_image_05.png to GitHub root.', 'Upload index_r586.html as index.html.', 'Tests should check Home image 05 with and without Rehearsal On Deck visible.'] },
   { version:'2026-05-25-image-04-registry-tune-r585', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Image 04 registry tune', body:'Adds Image 04 overrides to the Home Image Presentation Registry. Normal mode keeps framing mostly intact with smaller/tucked social buttons. Rehearsal On Deck mode slightly zooms out, lifts the vertical anchor, and shifts the crop left from the prior default so the keyboard edge and Ed right foot balance better horizontally.', items:['Upload index_r585.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 04 in both normal and Rehearsal On Deck modes.'] },
   { version:'2026-05-25-image-03-registry-tune-r584', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Image 03 registry tune', body:'Adds Image 03 overrides to the Home Image Presentation Registry. Normal mode gets smaller/tucked social buttons while leaving framing essentially intact. Rehearsal On Deck mode gets slightly reduced zoom, a slightly higher vertical anchor, and smaller/tucked social buttons so the band reads better in the shorter frame.', items:['Upload index_r584.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 03 in both normal and Rehearsal On Deck modes.'] },
