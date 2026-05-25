@@ -170,6 +170,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r609: Home image 09 asset refresh + registry framing. Updates HOME_BAND_IMAGES[8] to band_image_09.png?v=r609 so phones load the newly supplied Image 09 asset, and adds a Home Image Presentation entry for image 09 using the approved footline and centering baseline from the prior image. Changes only Home image 09 framing in normal and Rehearsal On Deck modes; no social button, non-Home, or unrelated logic changes. Upload index_r609.html as index.html plus band_image_09.png. -->
 <!-- r610: Home image 10 asset refresh + registry framing. Updates HOME_BAND_IMAGES[9] to band_image_10.png?v=r610 so phones load the newly supplied Image 10 asset, and adds a Home Image Presentation entry for image 10 using the same approved footline and horizontal centering baseline as image 09. Changes only Home image 10 framing in normal and Rehearsal On Deck modes; no social button, non-Home, or unrelated logic changes. Upload index_r610.html as index.html plus band_image_10.png. -->
 <!-- r611: Home image 10 horizontal shift left. Changes only Home image 10 x-offset in normal and Rehearsal On Deck modes by moving the band image 10 pixels left. No vertical, size, button, asset, or non-Home changes. Upload index_r611.html as index.html. -->
+<!-- r612: Home image 11 asset refresh + registry framing. Updates HOME_BAND_IMAGES[10] to band_image_11.png?v=r612 so phones load the newly supplied Image 11 asset, and adds a Home Image Presentation entry for image 11 using the approved image 10 baseline: same feet level and the same horizontal centering/left shift in normal and Rehearsal On Deck modes. Changes only Home image 11 framing in normal and Rehearsal On Deck modes; no social button, non-Home, or unrelated logic changes. Upload index_r612.html as index.html plus band_image_11.png. -->
 <!-- r595: Image 01 rehearsal registry tune. Changes only Home image 01 in Rehearsal On Deck mode: nudges the scenic band image upward for less bottom-heavy framing and slightly tucks/reduces the social buttons to reduce lower-right artwork interference. No asset, Calendar, Songs, Setlists, Chat, Band, Pay, notification, or service-worker changes. Upload index_r595.html as index.html. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
 <!-- r559: Home band image 17 added. Adds exact supplied Home-only band_image_17.png to HOME_BAND_IMAGES with cache-bust v=r559; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r559.html as index.html plus band_image_17.png after phone test. -->
@@ -24189,7 +24190,7 @@ var DEFAULT_BAND_GROUP_IMAGE_INDEX = 14;
 
 
 var CHAT_BAND_GROUP_IMAGE = 'band_group_chat.png?v=r565';
-var HOME_BAND_IMAGES = ['band_image_01.png?v=r576','band_image_02.png?v=r577','band_image_03.png?v=r578','band_image_04.png?v=r579','band_image_05.png?v=r586','band_image_06.png?v=r588','band_image_07.png?v=r604','band_image_08.png?v=r604','band_image_09.png?v=r609','band_image_10.png?v=r610','band_image_11.png?v=r552','band_image_12.png?v=r554','band_image_13.png?v=r555','band_image_14.png?v=r556','band_image_15.png?v=r557','band_image_16.png?v=r558','band_image_17.png?v=r559','band_image_18.png?v=r560','band_image_19.png?v=r561','band_image_20.png?v=r562'];
+var HOME_BAND_IMAGES = ['band_image_01.png?v=r576','band_image_02.png?v=r577','band_image_03.png?v=r578','band_image_04.png?v=r579','band_image_05.png?v=r586','band_image_06.png?v=r588','band_image_07.png?v=r604','band_image_08.png?v=r604','band_image_09.png?v=r609','band_image_10.png?v=r610','band_image_11.png?v=r612','band_image_12.png?v=r554','band_image_13.png?v=r555','band_image_14.png?v=r556','band_image_15.png?v=r557','band_image_16.png?v=r558','band_image_17.png?v=r559','band_image_18.png?v=r560','band_image_19.png?v=r561','band_image_20.png?v=r562'];
 var DEFAULT_HOME_BAND_IMAGE_INDEX = 1;
 
 /* r582 Home Image Presentation Registry
@@ -24293,6 +24294,16 @@ var HOME_IMAGE_PRESENTATION = {
     }
   },
   10: {
+    normal: {
+      img: { widthPct: 110, xPx: -4, yPct: -58 },
+      buttons: { gapPx: 7, sizePx: 33, iconPx: 16, xPx: 8, yPx: 3, scale: 1 }
+    },
+    rehearsal: {
+      img: { widthPct: 106, xPx: -4, yPct: -60 },
+      buttons: { gapPx: 7, sizePx: 30, iconPx: 15, xPx: 8, yPx: -2, scale: 1 }
+    }
+  },
+  11: {
     normal: {
       img: { widthPct: 110, xPx: -4, yPct: -58 },
       buttons: { gapPx: 7, sizePx: 33, iconPx: 16, xPx: 8, yPx: 3, scale: 1 }
@@ -26784,7 +26795,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-25-home-image-10-shift-left-r611';
+var WHATS_NEW_VERSION = '2026-05-25-home-image-11-framing-r612';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -27083,6 +27094,7 @@ var WHATS_NEW_LOG = [
   { version:'2026-05-25-home-image-qa-registry-guard-r590', date:'May 25, 2026', importance:'fix', emoji:'🧪', title:'Home image QA registry guard', body:'Adds a reliability guard for Home image presentation tuning. A MutationObserver now refreshes the presentation registry whenever the Rehearsal On Deck cue changes visibility/content/style, the band image refreshes again after image load, and a temporary QA badge shows IMG / MODE / W / X / Y so we can verify that the phone is using the intended presentation values.', items:['Upload index_r590.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 5 with Rehearsal On Deck visible and confirm the badge reads IMG 05 / REHEARSAL.'] },
   { version:'2026-05-25-home-presentation-registry-timing-r589', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home presentation registry timing fix', body:'Fixes the root cause where Rehearsal On Deck visibility could be set after the Home image presentation registry had already applied normal-mode values. The app now refreshes registry variables after every rehearsal-cue display change and during Home render, so rehearsal-mode image overrides take effect reliably.', items:['Upload index_r589.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 5 with Rehearsal On Deck visible before continuing image uploads.'] },
   { version:'2026-05-25-home-band-image-06-refresh-r588', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home image 06 asset refresh', body:'Replaces only the Home image 06 asset with the newly supplied revised band_image_06.png and bumps the cache marker so phones load the file. No Home layout/registry/CSS, Band Chat/Band tab, Calendar, Songs, Setlists, Pay, flyer, notification, or service-worker logic changes.', items:['Upload the revised band_image_06.png to GitHub root.', 'Upload index_r588.html as index.html.', 'Tests should check Home image 06 with and without Rehearsal On Deck visible.'] },
+  { version:'2026-05-25-home-image-11-framing-r612', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home image 11 framing', body:'Loads the newly supplied Home image 11 asset and applies the approved image 10 baseline: same feet level and the same horizontal centering/left shift in both normal and Rehearsal On Deck modes. Social button settings are unchanged.', items:['Upload index_r612.html as index.html plus band_image_11.png.', 'Home image 11 now uses the same approved footline and horizontal position as image 10.', 'Retest Home image 11 in normal mode and with Rehearsal On Deck visible.'] },
   { version:'2026-05-25-home-image-10-shift-left-r611', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home image 10 shift left', body:'Moves Home image 10 ten pixels left in both normal and Rehearsal On Deck modes. No vertical, scale, social button, asset, or non-Home changes.', items:['Upload index_r611.html as index.html.', 'No image asset upload required for this build.', 'Retest Home image 10 and confirm only the horizontal position changed.'] },
   { version:'2026-05-25-home-image-10-framing-r610', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home image 10 framing', body:'Loads the newly supplied Home image 10 asset and adds Home-only framing so the band feet follow the approved image 09 footline and the band sits centered horizontally in both normal and Rehearsal On Deck modes. Social button settings are unchanged.', items:['Upload index_r610.html as index.html plus band_image_10.png.', 'Home image 10 now uses the approved footline baseline and centered horizontal placement.', 'Retest Home image 10 in normal mode and with Rehearsal On Deck visible.'] },
   { version:'2026-05-25-home-image-09-framing-r609', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home image 09 framing', body:'Loads the newly supplied Home image 09 asset and adds Home-only framing so the band feet follow the approved prior-image footline and the band sits centered horizontally in both normal and Rehearsal On Deck modes. Social button settings are unchanged.', items:['Upload index_r609.html as index.html plus band_image_09.png.', 'Home image 09 now uses the approved footline baseline and centered horizontal placement.', 'Retest Home image 09 in normal mode and with Rehearsal On Deck visible.'] },
