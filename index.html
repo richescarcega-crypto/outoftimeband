@@ -20,6 +20,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r630: Update banner false-positive guard. Requires a deployed-version mismatch to be confirmed by a second fresh no-store fetch before showing the green update banner or critical update overlay. Prevents transient CDN/cache/visibility-check mismatches from flashing update banners when no real update is available. Chat tab composer r629 retained; no tab/content/image changes. Upload index_r630.html as index.html. -->
 <!-- r647: Rollback to r645 Home layout. Reverts the bad r646 Home spacing/header CSS by rebuilding from clean r645 source, preserving all approved changes through r645 and bumping WHATS_NEW_VERSION so phones detect the rollback. No visual/logic changes beyond reverting r646. Upload index_r647.html as index.html. -->
 <!-- r648: Home header structural alignment. Moves the Home header controls into the logo/hero card so the blue strip above the logo is removed, overlays menu/bell/name on the logo with readable contrast, and tightens only Home stack spacing via scoped CSS without touching Home band-image registry/framing. Upload index_r648.html as index.html. -->
+<!-- r649: Version-marker correction for r648. r648 contained the Home header structural alignment CSS/DOM work but accidentally left WHATS_NEW_VERSION at r647, so phones already on r647 would not detect/load it. No additional visual/behavior changes beyond carrying forward r648 and bumping the version marker. Upload index_r649.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -27333,7 +27334,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-home-layout-rollback-to-r645-r647';
+var WHATS_NEW_VERSION = '2026-05-25-home-header-structure-r649';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
