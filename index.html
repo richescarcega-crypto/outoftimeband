@@ -157,6 +157,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r594: Home image registry control-path repair. Removes the r593 visible QA badge/code overlay and makes the registry renderer write direct inline !important styles to the Home image/buttons so older high-specificity rehearsal CSS cannot override registry values. Keeps Image 05 rehearsal values from r592. Upload index_r594.html as index.html; no image assets changed. -->
 <!-- r596: Version-marker correction for r595. r595 contained the Image 01 rehearsal registry tune but left WHATS_NEW_VERSION at r594, so phones would not detect/load the build. No new visual/app behavior changes beyond carrying forward r595. Upload index_r596.html as index.html. -->
 <!-- r597: Image 05 rehearsal width/button correction. Fixes black side bars by widening only Image 05 rehearsal rendering while preserving its x/y band positioning, and repositions social buttons inward/up so they are not clipped. No asset or unrelated app changes. Upload index_r597.html as index.html. -->
+<!-- r598: Image 06 rehearsal button-size tune. Leaves Image 06 framing unchanged and makes only the social media buttons smaller so they fit cleanly without clipping. No other image or app changes. Upload index_r598.html as index.html. -->
 <!-- r595: Image 01 rehearsal registry tune. Changes only Home image 01 in Rehearsal On Deck mode: nudges the scenic band image upward for less bottom-heavy framing and slightly tucks/reduces the social buttons to reduce lower-right artwork interference. No asset, Calendar, Songs, Setlists, Chat, Band, Pay, notification, or service-worker changes. Upload index_r595.html as index.html. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
 <!-- r559: Home band image 17 added. Adds exact supplied Home-only band_image_17.png to HOME_BAND_IMAGES with cache-bust v=r559; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r559.html as index.html plus band_image_17.png after phone test. -->
@@ -24243,6 +24244,11 @@ var HOME_IMAGE_PRESENTATION = {
       img: { widthPct: 104, xPx: -8, yPct: -60 },
       buttons: { gapPx: 5, sizePx: 26, iconPx: 13, xPx: -2, yPx: -8, scale: 1 }
     }
+  },
+  6: {
+    rehearsal: {
+      buttons: { gapPx: 8, sizePx: 30, iconPx: 15, xPx: 6, yPx: 1, scale: .94 }
+    }
   }
 };
 function _homeMergePresentation(base, override){
@@ -26726,7 +26732,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-25-home-image-05-rehearsal-width-buttons-r597';
+var WHATS_NEW_VERSION = '2026-05-25-home-image-06-rehearsal-smaller-buttons-r598';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
