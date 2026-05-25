@@ -142,6 +142,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r642: Pay tab blue canvas test. Adds the Calendar-style blue background treatment only to the deepest/furthest-back Pay tab canvas, using a light-dark-light vertical gradient variation. Foreground Pay cards/pills/header/text remain unchanged; Songs/Setlists/Chat/Mates blue canvases remain unchanged. Upload index_r642.html as index.html after phone test. -->
 <!-- r643: Light-dark-light blue canvas rollout. Applies the approved Pay-tab light/dark/light blue gradient to Songs, Setlists, Chat, Mates/Band, and Pay, and adds the same test gradient to the Home tab furthest-back canvas. Foreground cards/pills/search/header elements remain unchanged; Calendar is untouched. Upload index_r643.html as index.html after phone test. -->
 <!-- r644: Home logo/header overlay test. Keeps the r643 blue canvas but removes the visible blue strip above the Home logo by taking the Home header controls out of document flow and overlaying the menu/bell/name on top of the logo image. Logo image proportions, centering, and hero dimensions remain unchanged. Scope: Home tab CSS only. Upload index_r644.html as index.html after phone test. -->
+<!-- r646: Home vertical stack tightening. Removes the visible blue strip above the Home logo by overlaying top controls on the logo, tightens Home vertical gaps to a consistent small rhythm, and makes the band image card sit flush to the tab bar. Home CSS only; no Home logic, images, or other tabs changed. Upload index_r646.html as index.html after phone test. -->
 <!-- r636: Hybrid gig-to-setlist linking UX. Setlists tab now surfaces upcoming gigs without setlists, lets Add Setlist choose an optional Linked Gig at creation time, and marks unlinked setlists so users can connect them later. Calendar drawer auto-link behavior from r633 remains. No Home/Chat/Band/Songs library/Pay/flyer/assets/service-worker/notification changes. Upload index_r636.html as index.html after phone test. -->
 <!-- r637: Band tab label/header rename. Changes the bottom tab label and Band tab hero title from Band to Bandmates, preserving the tab id/routes/data keys and all roster/contact behavior. No layout, Home, Calendar, Songs, Setlists, Chat, Pay, flyer, assets, service-worker, or notification changes. Upload index_r637.html as index.html after phone test. -->
 <!-- r566: Home scenic band image 01 full-resolution test. Updates only HOME_BAND_IMAGES[0] to band_image_01.png?v=r568 using the supplied 2400x2000 asset; preserves r565 Chat/Band/member images including band_group_chat.png?v=r565; no Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r566.html as index.html plus band_image_01.png after phone test. -->
@@ -7068,6 +7069,113 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   font-size:8px;
   letter-spacing:.7px;
   box-shadow:0 3px 12px rgba(0,0,0,.38);
+}
+
+
+/* r646: Home vertical stack tightening — Home CSS only.
+   Goals: no blue strip above logo, consistent small gaps between Home cards,
+   and no visible gap between the band image card and bottom tab row. */
+body:not(.light) #sc-home{
+  position:relative !important;
+  padding:0 12px 0 12px !important;
+  gap:0 !important;
+  overflow:hidden !important;
+}
+body:not(.light) #home-header-row{
+  position:absolute !important;
+  top:10px !important;
+  left:12px !important;
+  right:12px !important;
+  z-index:40 !important;
+  margin:0 !important;
+  padding:0 !important;
+  height:34px !important;
+  pointer-events:none !important;
+}
+body:not(.light) #home-header-row > *{
+  pointer-events:auto !important;
+}
+body:not(.light) #home-menu-btn{
+  background:rgba(3,13,32,.34) !important;
+  border:1px solid rgba(138,168,214,.42) !important;
+  box-shadow:0 4px 12px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08) !important;
+  color:#9fc2ff !important;
+}
+body:not(.light) #ann-bell{
+  box-shadow:0 4px 14px rgba(0,0,0,.28),0 0 14px rgba(245,197,24,.22) !important;
+}
+body:not(.light) #who-am-i{
+  color:#d8e8ff !important;
+  opacity:.92 !important;
+  text-shadow:0 2px 8px rgba(0,0,0,.78),0 0 10px rgba(0,0,0,.45) !important;
+  -webkit-text-fill-color:#d8e8ff !important;
+  padding-right:2px !important;
+}
+body:not(.light) #sc-home .hero{
+  margin-top:0 !important;
+  margin-bottom:5px !important;
+  height:210px !important;
+  flex:0 0 210px !important;
+  border-radius:12px !important;
+}
+body:not(.light) #sc-home .hero-l img{
+  object-fit:cover !important;
+  object-position:center center !important;
+}
+body:not(.light) #announce-card,
+body:not(.light) #birthday-banner,
+body:not(.light) #home-song-vote-cue{
+  margin-bottom:5px !important;
+}
+body:not(.light) #home-rehearsal-cue{
+  margin:0 0 5px 0 !important;
+  flex:0 0 auto !important;
+}
+body:not(.light) #home-rehearsal-cue > button{
+  margin:0 !important;
+}
+body:not(.light) #next-gig-countdown,
+body:not(.light) #no-gigs-card{
+  margin-top:0 !important;
+  margin-bottom:5px !important;
+  flex:0 0 auto !important;
+}
+body:not(.light) #home-social-row{
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+  padding:3px 9px 0 9px !important;
+  border-radius:8px 8px 0 0 !important;
+  flex:1 1 auto !important;
+  min-height:0 !important;
+}
+body:not(.light) #home-social-row a{
+  margin-bottom:4px !important;
+}
+@media (max-width:520px){
+  body:not(.light) #sc-home{
+    padding:0 12px 0 12px !important;
+  }
+  body:not(.light) #home-header-row{
+    top:10px !important;
+    left:12px !important;
+    right:12px !important;
+  }
+  body:not(.light) #sc-home .hero{
+    height:204px !important;
+    flex-basis:204px !important;
+    margin-bottom:5px !important;
+  }
+  body:not(.light) #home-rehearsal-cue,
+  body:not(.light) #next-gig-countdown,
+  body:not(.light) #no-gigs-card{
+    margin-bottom:5px !important;
+  }
+  body:not(.light) #home-social-row{
+    padding:3px 8px 0 8px !important;
+  }
+  body:not(.light) #home-social-row a{
+    margin-bottom:4px !important;
+  }
 }
 
 </style>
@@ -27261,7 +27369,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-chat-mates-member-pill-cleanup-r645';
+var WHATS_NEW_VERSION = '2026-05-26-home-vertical-stack-tighten-r646';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -27606,6 +27714,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  {version:'2026-05-26-home-vertical-stack-tighten-r646', date:'May 26, 2026', importance:'fix', title:'Home spacing tightened', items:['Removes the visible blue strip above the Home logo by overlaying the top controls on the logo area.', 'Tightens the Home vertical stack so Logo, Rehearsal On Deck, Next Gig, and band image use a consistent small gap.', 'Makes the bottom band image card sit flush to the tab row with no visible blue gap.', 'Home CSS only; no Home data/image logic or other tabs changed.']},
   {version:'2026-05-26-chat-mates-member-pill-cleanup-r645', date:'May 26, 2026', importance:'fix', title:'Chat and Mates member pill cleanup', items:['Removes instrument-name text from Chat and Mates member pills/cards.', 'Keeps member names and avatars/photos intact.', 'Standardizes member-name typography between Chat and Mates.', 'Underlying member instrument data and edit fields remain available.']},
   {version:'2026-05-26-bandmates-to-mates-r640', date:'May 26, 2026', importance:'fix', title:'Bandmates renamed to Mates', items:['Changes only the visible tab label and header from Bandmates to Mates.', 'Keeps the internal band tab route/data key unchanged so roster/contact behavior is preserved.', 'No other app sections changed.']},
   { version:'2026-05-25-setlist-gig-link-hybrid-r636', date:'May 25, 2026', importance:'major', emoji:'🎵', title:'Hybrid gig-to-setlist linking', body:'Setlists now help prevent orphaned gig setlists. The Setlists tab surfaces upcoming gigs that do not have linked setlists, Add Setlist now includes an optional Linked Gig selector during creation, and unlinked setlists are clearly marked so they can be connected later.', items:['Upcoming gigs without linked setlists appear at the top of Setlists with CREATE shortcuts.', 'New Setlist includes an optional Linked Gig field.', 'Unlinked setlists show a No Gig Linked cue and can still be linked in the edit view.'] },
