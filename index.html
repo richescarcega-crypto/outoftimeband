@@ -163,6 +163,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r601: Image 07 rehearsal extra downshift. Moves only Image 07 in Rehearsal On Deck mode farther down while preserving horizontal centering, scale, and social buttons. Intent is to lower the band without cutting off any members' feet. Upload index_r601.html as index.html. -->
 <!-- r602: Image 07 rehearsal further downshift. Moves only Image 07 in Rehearsal On Deck mode a little farther down while preserving horizontal centering, scale, and social buttons. Intent is to lower the band more without cutting off any members' feet. Upload index_r602.html as index.html. -->
 <!-- r603: Image 08 initial footline placement for both modes. Adds a dedicated Image 08 registry entry using Image 07's corrected feet placement as the baseline, so member feet sit at the same visual level in both normal and Rehearsal On Deck states. No other image or app changes. Upload index_r603.html as index.html. -->
+<!-- r604: Home image 07 and 08 asset refresh. Uses the newly supplied band_image_07.png and band_image_08.png by bumping their HOME_BAND_IMAGES cache markers to r604; preserves r603 registry placement/framing values. Upload index_r604.html as index.html plus band_image_07.png and band_image_08.png. -->
 <!-- r595: Image 01 rehearsal registry tune. Changes only Home image 01 in Rehearsal On Deck mode: nudges the scenic band image upward for less bottom-heavy framing and slightly tucks/reduces the social buttons to reduce lower-right artwork interference. No asset, Calendar, Songs, Setlists, Chat, Band, Pay, notification, or service-worker changes. Upload index_r595.html as index.html. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
 <!-- r559: Home band image 17 added. Adds exact supplied Home-only band_image_17.png to HOME_BAND_IMAGES with cache-bust v=r559; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r559.html as index.html plus band_image_17.png after phone test. -->
@@ -24182,7 +24183,7 @@ var DEFAULT_BAND_GROUP_IMAGE_INDEX = 14;
 
 
 var CHAT_BAND_GROUP_IMAGE = 'band_group_chat.png?v=r565';
-var HOME_BAND_IMAGES = ['band_image_01.png?v=r576','band_image_02.png?v=r577','band_image_03.png?v=r578','band_image_04.png?v=r579','band_image_05.png?v=r586','band_image_06.png?v=r588','band_image_07.png?v=r548','band_image_08.png?v=r549','band_image_09.png?v=r550','band_image_10.png?v=r551','band_image_11.png?v=r552','band_image_12.png?v=r554','band_image_13.png?v=r555','band_image_14.png?v=r556','band_image_15.png?v=r557','band_image_16.png?v=r558','band_image_17.png?v=r559','band_image_18.png?v=r560','band_image_19.png?v=r561','band_image_20.png?v=r562'];
+var HOME_BAND_IMAGES = ['band_image_01.png?v=r576','band_image_02.png?v=r577','band_image_03.png?v=r578','band_image_04.png?v=r579','band_image_05.png?v=r586','band_image_06.png?v=r588','band_image_07.png?v=r604','band_image_08.png?v=r604','band_image_09.png?v=r550','band_image_10.png?v=r551','band_image_11.png?v=r552','band_image_12.png?v=r554','band_image_13.png?v=r555','band_image_14.png?v=r556','band_image_15.png?v=r557','band_image_16.png?v=r558','band_image_17.png?v=r559','band_image_18.png?v=r560','band_image_19.png?v=r561','band_image_20.png?v=r562'];
 var DEFAULT_HOME_BAND_IMAGE_INDEX = 1;
 
 /* r582 Home Image Presentation Registry
@@ -26757,7 +26758,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-25-home-image-08-both-modes-footline-r603';
+var WHATS_NEW_VERSION = '2026-05-25-home-images-07-08-asset-refresh-r604';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
