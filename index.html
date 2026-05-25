@@ -140,6 +140,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r640: Bandmates label refinement. Changes visible Bandmates tab label and Band tab hero title to Mates only, preserving the tab id/routes/data keys and all roster/contact behavior. No layout, Home, Calendar, Songs, Setlists, Chat, Pay, flyer, assets, service-worker, or notification changes. Upload index_r640.html as index.html after phone test. -->
 <!-- r641: Version-marker correction for r640. r640 contained the Bandmates-to-Mates label/header change but accidentally left WHATS_NEW_VERSION at r639, so phones already on r639 would not detect/load it. No behavior or visual changes beyond carrying forward r640 and bumping the version marker. Upload index_r641.html as index.html after phone test. -->
 <!-- r642: Pay tab blue canvas test. Adds the Calendar-style blue background treatment only to the deepest/furthest-back Pay tab canvas, using a light-dark-light vertical gradient variation. Foreground Pay cards/pills/header/text remain unchanged; Songs/Setlists/Chat/Mates blue canvases remain unchanged. Upload index_r642.html as index.html after phone test. -->
+<!-- r643: Light-dark-light blue canvas rollout. Applies the approved Pay-tab light/dark/light blue gradient to Songs, Setlists, Chat, Mates/Band, and Pay, and adds the same test gradient to the Home tab furthest-back canvas. Foreground cards/pills/search/header elements remain unchanged; Calendar is untouched. Upload index_r643.html as index.html after phone test. -->
 <!-- r636: Hybrid gig-to-setlist linking UX. Setlists tab now surfaces upcoming gigs without setlists, lets Add Setlist choose an optional Linked Gig at creation time, and marks unlinked setlists so users can connect them later. Calendar drawer auto-link behavior from r633 remains. No Home/Chat/Band/Songs library/Pay/flyer/assets/service-worker/notification changes. Upload index_r636.html as index.html after phone test. -->
 <!-- r637: Band tab label/header rename. Changes the bottom tab label and Band tab hero title from Band to Bandmates, preserving the tab id/routes/data keys and all roster/contact behavior. No layout, Home, Calendar, Songs, Setlists, Chat, Pay, flyer, assets, service-worker, or notification changes. Upload index_r637.html as index.html after phone test. -->
 <!-- r566: Home scenic band image 01 full-resolution test. Updates only HOME_BAND_IMAGES[0] to band_image_01.png?v=r568 using the supplied 2400x2000 asset; preserves r565 Chat/Band/member images including band_group_chat.png?v=r565; no Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r566.html as index.html plus band_image_01.png after phone test. -->
@@ -3687,20 +3688,16 @@ body.light #sc-cal #calendar-hero-date-row .mlbl{
   padding-top:2px !important;
 }
 
-/* r632: Calendar-style blue canvas on approved dark content tabs.
-   Scope: deepest/furthest-back background only for Songs, Setlists, Chat, and Band.
-   Foreground pills/cards/search/header elements remain unchanged. */
+/* r643: Approved light/dark/light blue canvas rollout.
+   Scope: deepest/furthest-back tab background only.
+   Applies the Pay-tested gradient to Songs, Setlists, Chat, Mates/Band, and Pay.
+   Adds the same test canvas to Home so it can be judged in context.
+   Foreground cards/pills/search/header/image elements remain unchanged; Calendar is untouched. */
+body:not(.light) #sc-home,
 body:not(.light) #sc-songs,
 body:not(.light) #sc-sets,
 body:not(.light) #sc-chat,
-body:not(.light) #sc-band{
-  background:
-    radial-gradient(circle at 45% 28%,rgba(0,150,255,.72) 0%,rgba(0,92,220,.88) 42%,rgba(6,45,125,.96) 72%,rgba(7,18,45,.98) 100%),
-    linear-gradient(180deg,#006cff 0%,#0054d6 46%,#06388f 100%) !important;
-}
-
-/* r642: Pay tab blue canvas test — light / dark / light vertical variant.
-   Scope: deepest/furthest-back Pay tab background only. */
+body:not(.light) #sc-band,
 body:not(.light) #sc-pay{
   background:
     radial-gradient(circle at 50% 10%,rgba(80,184,255,.70) 0%,rgba(0,114,235,.42) 35%,transparent 66%),
@@ -27266,7 +27263,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-pay-blue-canvas-test-r642';
+var WHATS_NEW_VERSION = '2026-05-26-blue-canvas-rollout-home-test-r643';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
