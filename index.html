@@ -143,6 +143,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r579: Home image 04 asset refresh. Replaces only the GitHub asset band_image_04.png with the newly supplied revised image and bumps HOME_BAND_IMAGES[3] cache-bust plus WHATS_NEW_VERSION to r579 so phones load it. No Home CSS/framing, Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r579.html as index.html plus band_image_04.png. -->
 <!-- r580: Home image-specific framing follow-up. Makes two narrow Home-only phone-test adjustments: (1) Image 01, no Rehearsal On Deck — shrink/tuck the Facebook and Instagram buttons deeper into the lower-right corner to reduce overlap; (2) Image 02, Rehearsal On Deck visible — ease the crop/zoom and recenter horizontally so the full band body reads better. No asset changes; upload index_r580.html only. -->
 <!-- r581: Image 02 Rehearsal On Deck framing correction. Replaces the incremental r580 Image 02 rehearsal crop with a stronger explicit per-image rule: full-width 100% image scale, deeper vertical anchor to recover lower bodies/feet, centered horizontally, and smaller/tucked social buttons for this state only. No asset changes; upload index_r581.html only. -->
+<!-- r582: Home Image Presentation Registry / QA framework. Centralizes all Home band-image framing/button values in one JS registry with normal/rehearsal modes for all 20 images, applies those values through final CSS variables, preserves existing tested defaults, carries forward Image 01 normal button and Image 02 rehearsal framing corrections, and adds an optional QA badge/console helper. No asset changes; upload index_r582.html only. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
 <!-- r559: Home band image 17 added. Adds exact supplied Home-only band_image_17.png to HOME_BAND_IMAGES with cache-bust v=r559; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r559.html as index.html plus band_image_17.png after phone test. -->
 <!-- r558: Home band image 16 added. Adds exact supplied Home-only band_image_16.png to HOME_BAND_IMAGES with cache-bust v=r558; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r558.html as index.html plus band_image_16.png after phone test. -->
@@ -6937,6 +6938,61 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
     width:16px !important;
     height:16px !important;
   }
+}
+
+/* r582 Home Image Presentation Registry final renderer
+   From this build forward, Home image framing should be tuned in the JS
+   HOME_IMAGE_PRESENTATION registry instead of adding more one-off CSS blocks.
+   These final CSS-variable rules intentionally win over prior r568-r581
+   experimental CSS while preserving the same visual model. */
+#home-social-row{
+  gap:var(--oot-home-button-gap, 8px) !important;
+}
+#home-social-row .home-band-backdrop{
+  position:absolute !important;
+  left:50% !important;
+  top:50% !important;
+  right:auto !important;
+  bottom:auto !important;
+  width:var(--oot-home-img-width, 114%) !important;
+  height:auto !important;
+  max-width:none !important;
+  max-height:none !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  transform:translate(calc(-50% + var(--oot-home-img-x, 8px)), var(--oot-home-img-y, -55%)) !important;
+  transform-origin:center center !important;
+  border-radius:8px !important;
+  pointer-events:none !important;
+  z-index:1 !important;
+}
+#home-social-row a{
+  width:var(--oot-home-button-size, 38px) !important;
+  height:var(--oot-home-button-size, 38px) !important;
+  transform:translate(var(--oot-home-button-x, 4px), var(--oot-home-button-y, 0px)) scale(var(--oot-home-button-scale, 1)) !important;
+  transform-origin:center center !important;
+  position:relative !important;
+  z-index:3 !important;
+}
+#home-social-row a svg{
+  width:var(--oot-home-button-icon, 20px) !important;
+  height:var(--oot-home-button-icon, 20px) !important;
+}
+.oot-home-image-qa-badge{
+  position:absolute;
+  left:8px;
+  bottom:8px;
+  z-index:5;
+  pointer-events:none;
+  background:rgba(6,14,28,.78);
+  border:1px solid rgba(245,197,24,.45);
+  color:#f5c518;
+  border-radius:999px;
+  padding:4px 8px;
+  font-family:"Russo One",sans-serif;
+  font-size:8px;
+  letter-spacing:.7px;
+  box-shadow:0 3px 12px rgba(0,0,0,.35);
 }
 
 </style>
@@ -17876,13 +17932,12 @@ function _ensureHomeBandBackdrop(){
     bg.setAttribute('aria-hidden','true');
     row.insertBefore(bg, row.firstChild);
   }
-  // r83: enforce this every render so prior inline styles/cache cannot keep cover/cropping.
-  bg.style.cssText = 'position:absolute;left:0;right:0;top:0;bottom:auto;margin:0 auto;width:100%;height:auto;max-width:100%;object-fit:contain;object-position:center top;pointer-events:none;z-index:1;border-radius:16px 16px 0 0;transform:none;transform-origin:center top;';
+  // r83/r582: enforce the baseline each render, then apply registry-driven CSS vars.
+  bg.style.cssText = 'position:absolute;left:50%;right:auto;top:50%;bottom:auto;margin:0;width:var(--oot-home-img-width,114%);height:auto;max-width:none;max-height:none;object-fit:contain;object-position:center center;pointer-events:none;z-index:1;border-radius:8px;transform:translate(calc(-50% + var(--oot-home-img-x,8px)),var(--oot-home-img-y,-55%));transform-origin:center center;';
   bg.src = src;
   try {
-    var homeIdx = (typeof _resolveHomeBandImageIndex === 'function') ? _resolveHomeBandImageIndex() : null;
-    if(homeIdx) row.setAttribute('data-home-image-index', String(homeIdx));
-    else row.removeAttribute('data-home-image-index');
+    var homeIdx = (typeof _resolveHomeBandImageIndex === 'function') ? _resolveHomeBandImageIndex() : 1;
+    if(typeof _applyHomeImagePresentation === 'function') _applyHomeImagePresentation(row, homeIdx);
   } catch(e){}
 
   // r297: single-tap the Home band image area to open the Band Image selector.
@@ -24102,6 +24157,130 @@ var DEFAULT_BAND_GROUP_IMAGE_INDEX = 14;
 var CHAT_BAND_GROUP_IMAGE = 'band_group_chat.png?v=r565';
 var HOME_BAND_IMAGES = ['band_image_01.png?v=r576','band_image_02.png?v=r577','band_image_03.png?v=r578','band_image_04.png?v=r579','band_image_05.png?v=r546','band_image_06.png?v=r547','band_image_07.png?v=r548','band_image_08.png?v=r549','band_image_09.png?v=r550','band_image_10.png?v=r551','band_image_11.png?v=r552','band_image_12.png?v=r554','band_image_13.png?v=r555','band_image_14.png?v=r556','band_image_15.png?v=r557','band_image_16.png?v=r558','band_image_17.png?v=r559','band_image_18.png?v=r560','band_image_19.png?v=r561','band_image_20.png?v=r562'];
 var DEFAULT_HOME_BAND_IMAGE_INDEX = 1;
+
+/* r582 Home Image Presentation Registry
+   Edit this one object for Home band-image fit work.
+   Values are intentionally numeric/tunable:
+   - img.widthPct: displayed image width percentage of Home frame
+   - img.xPx: horizontal nudge in pixels; positive moves image right
+   - img.yPct: vertical translate percentage; more negative moves image up
+   - buttons: social button size/position for that presentation
+   Modes:
+   - normal = no Rehearsal On Deck pill
+   - rehearsal = Rehearsal On Deck pill visible
+*/
+var HOME_IMAGE_PRESENTATION_DEFAULTS = {
+  normal: {
+    img: { widthPct: 114, xPx: 8, yPct: -55 },
+    buttons: { gapPx: 8, sizePx: 38, iconPx: 20, xPx: 4, yPx: 0, scale: 1 }
+  },
+  rehearsal: {
+    img: { widthPct: 110, xPx: 8, yPct: -58 },
+    buttons: { gapPx: 8, sizePx: 36, iconPx: 18, xPx: 6, yPx: 1, scale: .94 }
+  }
+};
+var HOME_IMAGE_PRESENTATION = {
+  1: {
+    normal: {
+      buttons: { gapPx: 7, sizePx: 33, iconPx: 16, xPx: 7, yPx: 3, scale: 1 }
+    }
+  },
+  2: {
+    rehearsal: {
+      img: { widthPct: 100, xPx: 0, yPct: -62.5 },
+      buttons: { gapPx: 7, sizePx: 33, iconPx: 16, xPx: 8, yPx: 2, scale: 1 }
+    }
+  }
+};
+function _homeMergePresentation(base, override){
+  base = base || {};
+  override = override || {};
+  return {
+    img: Object.assign({}, base.img || {}, override.img || {}),
+    buttons: Object.assign({}, base.buttons || {}, override.buttons || {})
+  };
+}
+function _homeRehearsalCueVisible(){
+  try {
+    var cue = document.getElementById('home-rehearsal-cue');
+    if(!cue) return false;
+    var ds = (cue.style && cue.style.display) ? String(cue.style.display) : '';
+    if(ds && ds !== 'none') return true;
+    var cs = window.getComputedStyle ? window.getComputedStyle(cue) : null;
+    return !!(cs && cs.display !== 'none' && cs.visibility !== 'hidden' && cue.offsetParent !== null);
+  } catch(e){}
+  return false;
+}
+function _homeImagePresentationMode(){
+  return _homeRehearsalCueVisible() ? 'rehearsal' : 'normal';
+}
+function _getHomeImagePresentation(idx, mode){
+  mode = mode || 'normal';
+  var base = (HOME_IMAGE_PRESENTATION_DEFAULTS && HOME_IMAGE_PRESENTATION_DEFAULTS[mode]) || HOME_IMAGE_PRESENTATION_DEFAULTS.normal || {};
+  var byImage = (HOME_IMAGE_PRESENTATION && HOME_IMAGE_PRESENTATION[idx] && HOME_IMAGE_PRESENTATION[idx][mode]) || {};
+  return _homeMergePresentation(base, byImage);
+}
+function _setHomeCssVar(row, name, value){
+  if(!row || value === undefined || value === null || value === '') return;
+  try { row.style.setProperty(name, String(value)); } catch(e){}
+}
+function _applyHomeImagePresentation(row, idx){
+  if(!row) return;
+  var mode = _homeImagePresentationMode();
+  var p = _getHomeImagePresentation(idx, mode);
+  row.setAttribute('data-home-image-index', String(idx || 1));
+  row.setAttribute('data-home-image-mode', mode);
+  _setHomeCssVar(row, '--oot-home-img-width', (p.img.widthPct || 114) + '%');
+  _setHomeCssVar(row, '--oot-home-img-x', (p.img.xPx || 0) + 'px');
+  _setHomeCssVar(row, '--oot-home-img-y', (p.img.yPct || -55) + '%');
+  _setHomeCssVar(row, '--oot-home-button-gap', ((p.buttons.gapPx === 0 ? 0 : (p.buttons.gapPx || 8))) + 'px');
+  _setHomeCssVar(row, '--oot-home-button-size', (p.buttons.sizePx || 38) + 'px');
+  _setHomeCssVar(row, '--oot-home-button-icon', (p.buttons.iconPx || 20) + 'px');
+  _setHomeCssVar(row, '--oot-home-button-x', ((p.buttons.xPx === 0 ? 0 : (p.buttons.xPx || 0))) + 'px');
+  _setHomeCssVar(row, '--oot-home-button-y', ((p.buttons.yPx === 0 ? 0 : (p.buttons.yPx || 0))) + 'px');
+  _setHomeCssVar(row, '--oot-home-button-scale', (p.buttons.scale === 0 ? 0 : (p.buttons.scale || 1)));
+  _renderHomeImageQaBadge(row, idx, mode, p);
+}
+function _homeImageQaEnabled(){
+  try {
+    return /(?:\?|&)homeImageQa=1(?:&|$)/.test(location.search || '') ||
+      localStorage.getItem('oot_home_image_qa') === '1';
+  } catch(e){}
+  return false;
+}
+function _renderHomeImageQaBadge(row, idx, mode, p){
+  if(!row) return;
+  var badge = row.querySelector('.oot-home-image-qa-badge');
+  if(!_homeImageQaEnabled()){
+    if(badge) badge.remove();
+    return;
+  }
+  if(!badge){
+    badge = document.createElement('div');
+    badge.className = 'oot-home-image-qa-badge';
+    row.appendChild(badge);
+  }
+  badge.textContent = 'IMG ' + String(idx).padStart(2,'0') + ' / ' + mode.toUpperCase() +
+    ' / W ' + (p.img.widthPct || '') + ' / X ' + (p.img.xPx || 0) + ' / Y ' + (p.img.yPct || '');
+}
+window.OOT_HOME_IMAGE_QA = window.OOT_HOME_IMAGE_QA || {
+  enable: function(){ try { localStorage.setItem('oot_home_image_qa','1'); location.reload(); } catch(e){} },
+  disable: function(){ try { localStorage.removeItem('oot_home_image_qa'); location.reload(); } catch(e){} },
+  current: function(){
+    try {
+      var row = document.getElementById('home-social-row');
+      return row ? {
+        image: row.getAttribute('data-home-image-index'),
+        mode: row.getAttribute('data-home-image-mode'),
+        vars: {
+          width: row.style.getPropertyValue('--oot-home-img-width'),
+          x: row.style.getPropertyValue('--oot-home-img-x'),
+          y: row.style.getPropertyValue('--oot-home-img-y')
+        }
+      } : null;
+    } catch(e){ return null; }
+  }
+};
 function _currentMemberBandImagePref(){
   try {
     if(typeof ME !== 'undefined' && ME && typeof members !== 'undefined' && members && members[ME-1]){
@@ -26410,7 +26589,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-25-image-02-rehearsal-framing-r581';
+var WHATS_NEW_VERSION = '2026-05-25-home-image-presentation-registry-r582';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26703,6 +26882,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-25-home-image-presentation-registry-r582', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home image presentation registry', body:'Adds a central Home Image Presentation Registry so all 20 Home band images can be tuned in normal and Rehearsal On Deck modes without adding one-off CSS patches. Preserves the existing defaults, carries forward Image 01 normal-mode button tuning and Image 02 rehearsal-mode framing/button tuning, and adds an optional QA badge/helper.', items:['Upload index_r582.html as index.html.', 'No image assets need to be uploaded for this build.', 'Future Home image presentation fixes should update HOME_IMAGE_PRESENTATION instead of adding scattered CSS blocks.'] },
   { version:'2026-05-25-image-02-rehearsal-framing-r581', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Image 02 rehearsal framing correction', body:'Corrects Image 02 in Rehearsal On Deck mode with an explicit per-image Home framing rule: reset horizontal centering, reduce over-zoom to full-width scale, move the vertical anchor deeper to keep lower bodies/feet visible, and tuck smaller social buttons in that state. No image assets changed.', items:['Upload index_r581.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 02 with Rehearsal On Deck visible.'] },
   { version:'2026-05-25-home-image-framing-followup-r580', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home image-specific framing follow-up', body:'Applies two narrow Home-only phone-test follow-ups with no asset changes: Image 01 in no-Rehearsal mode gets smaller, more tucked social buttons; Image 02 in Rehearsal-On-Deck mode gets an eased crop/zoom plus horizontal recentering so the full band body reads better.', items:['Upload index_r580.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 01 without Rehearsal On Deck and Image 02 with Rehearsal On Deck visible.'] },
   { version:'2026-05-25-home-band-image-04-refresh-r579', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home image 04 asset refresh', body:'Replaces only the Home image 04 asset with the newly supplied revised band_image_04.png and bumps the cache marker so phones load the file. No Home layout/CSS, Band Chat/Band tab, Calendar, Songs, Setlists, Pay, flyer, notification, or service-worker logic changes.', items:['Upload the revised band_image_04.png to GitHub root.', 'Upload index_r579.html as index.html.', 'Tests should check Home with and without Rehearsal On Deck visible.'] },
