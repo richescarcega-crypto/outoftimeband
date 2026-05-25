@@ -178,7 +178,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r617: Home image 16 asset refresh + registry framing. Updates HOME_BAND_IMAGES[15] to band_image_16.png?v=r617 so phones load the newly supplied Image 16 asset, and adds a Home Image Presentation entry for image 16 using the approved image 10 baseline: same feet level and horizontal centering/left shift in normal and Rehearsal On Deck modes. Changes only Home image 16 framing in normal and Rehearsal On Deck modes; no social button, non-Home, or unrelated logic changes. Upload index_r617.html as index.html plus band_image_16.png. -->
 <!-- r618: Home image 17 asset refresh + registry framing. Updates HOME_BAND_IMAGES[16] to band_image_17.png?v=r618 so phones load the newly supplied Image 17 asset, and adds a Home Image Presentation entry for image 17 using the approved image 10 baseline: same feet level and horizontal centering/left shift in normal and Rehearsal On Deck modes. Changes only Home image 17 framing in normal and Rehearsal On Deck modes; no social button, non-Home, or unrelated logic changes. Upload index_r618.html as index.html plus band_image_17.png. -->
 <!-- r620: Home image 19 asset refresh + registry framing. Updates HOME_BAND_IMAGES[18] to band_image_19.png?v=r620 so phones load the newly supplied Image 19 asset, and adds Home Image Presentation entry for image 19 using the approved image 10 baseline: same feet level and horizontal centering/left shift in normal and Rehearsal On Deck modes. Changes only Home image 19 framing in normal and Rehearsal On Deck modes; no social button, non-Home, or unrelated logic changes. Upload index_r620.html as index.html plus band_image_19.png. -->
-<!-- r621: Home image 20 asset refresh + registry framing. Updates HOME_BAND_IMAGES[19] to band_image_20.png?v=r621 so phones load the newly supplied Image 20 asset, and adds a Home Image Presentation entry for image 20 using the approved image 10 baseline: same feet level and horizontal centering/left shift in normal and Rehearsal On Deck modes. Changes only Home image 20 framing in normal and Rehearsal On Deck modes; no social button, non-Home, or unrelated logic changes. Upload index_r621.html as index.html plus band_image_20.png. -->
+<!-- r622: Home image 20 safe rebuild from r620. Updates only HOME_BAND_IMAGES[19] to band_image_20.png?v=r622, assigns Image 20 to the approved image 10 presentation baseline after the registry object, and bumps WHATS_NEW_VERSION. Built fresh because r621 produced a black screen on phone. Upload index_r622.html as index.html plus band_image_20.png. -->
 <!-- r619: Home image 18 asset refresh + registry framing. Updates HOME_BAND_IMAGES[17] to band_image_18.png?v=r619 so phones load the newly supplied Image 18 asset, and adds a Home Image Presentation entry for image 18 using the approved image 10 baseline: same feet level and horizontal centering/left shift in normal and Rehearsal On Deck modes. Changes only Home image 18 framing in normal and Rehearsal On Deck modes; no social button, non-Home, or unrelated logic changes. Upload index_r619.html as index.html plus band_image_18.png. -->
 <!-- r595: Image 01 rehearsal registry tune. Changes only Home image 01 in Rehearsal On Deck mode: nudges the scenic band image upward for less bottom-heavy framing and slightly tucks/reduces the social buttons to reduce lower-right artwork interference. No asset, Calendar, Songs, Setlists, Chat, Band, Pay, notification, or service-worker changes. Upload index_r595.html as index.html. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
@@ -24199,7 +24199,7 @@ var DEFAULT_BAND_GROUP_IMAGE_INDEX = 14;
 
 
 var CHAT_BAND_GROUP_IMAGE = 'band_group_chat.png?v=r565';
-var HOME_BAND_IMAGES = ['band_image_01.png?v=r576','band_image_02.png?v=r577','band_image_03.png?v=r578','band_image_04.png?v=r579','band_image_05.png?v=r586','band_image_06.png?v=r588','band_image_07.png?v=r604','band_image_08.png?v=r604','band_image_09.png?v=r609','band_image_10.png?v=r610','band_image_11.png?v=r612','band_image_12.png?v=r613','band_image_13.png?v=r614','band_image_14.png?v=r615','band_image_15.png?v=r616','band_image_16.png?v=r617','band_image_17.png?v=r618','band_image_18.png?v=r619','band_image_19.png?v=r620','band_image_20.png?v=r621'];
+var HOME_BAND_IMAGES = ['band_image_01.png?v=r576','band_image_02.png?v=r577','band_image_03.png?v=r578','band_image_04.png?v=r579','band_image_05.png?v=r586','band_image_06.png?v=r588','band_image_07.png?v=r604','band_image_08.png?v=r604','band_image_09.png?v=r609','band_image_10.png?v=r610','band_image_11.png?v=r612','band_image_12.png?v=r613','band_image_13.png?v=r614','band_image_14.png?v=r615','band_image_15.png?v=r616','band_image_16.png?v=r617','band_image_17.png?v=r618','band_image_18.png?v=r619','band_image_19.png?v=r620','band_image_20.png?v=r622'];
 var DEFAULT_HOME_BAND_IMAGE_INDEX = 1;
 
 /* r582 Home Image Presentation Registry
@@ -24402,18 +24402,18 @@ var HOME_IMAGE_PRESENTATION = {
       buttons: { gapPx: 7, sizePx: 30, iconPx: 15, xPx: 8, yPx: -2, scale: 1 }
     }
   }
-  },
-  20: {
-    normal: {
-      img: { widthPct: 110, xPx: -4, yPct: -58 },
-      buttons: { gapPx: 7, sizePx: 33, iconPx: 16, xPx: 8, yPx: 3, scale: 1 }
-    },
-    rehearsal: {
-      img: { widthPct: 106, xPx: -4, yPct: -60 },
-      buttons: { gapPx: 7, sizePx: 30, iconPx: 15, xPx: 8, yPx: -2, scale: 1 }
-    }
-  }
 
+};
+// r622: safe post-registry assignment for Image 20, avoiding literal-object surgery.
+HOME_IMAGE_PRESENTATION[20] = {
+  normal: {
+    img: { widthPct: 110, xPx: -4, yPct: -58 },
+    buttons: { gapPx: 7, sizePx: 33, iconPx: 16, xPx: 8, yPx: 3, scale: 1 }
+  },
+  rehearsal: {
+    img: { widthPct: 106, xPx: -4, yPct: -60 },
+    buttons: { gapPx: 7, sizePx: 30, iconPx: 15, xPx: 8, yPx: -2, scale: 1 }
+  }
 };
 function _homeMergePresentation(base, override){
   base = base || {};
@@ -26896,7 +26896,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-25-home-image-20-framing-r621';
+var WHATS_NEW_VERSION = '2026-05-25-home-image-20-safe-rebuild-r622';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -27233,7 +27233,7 @@ var WHATS_NEW_LOG = [
   { version:'2026-05-24-home-band-image-01-test-r566', date:'May 24, 2026', importance:'fix', emoji:'🖼️', title:'Home band image test', body:'Tests the first Home scenic band image using the corrected 2400×2000 source asset while preserving Chat/Band/member images and all non-Home sections.' },
   {version:'2026-05-23-member-images-5-pack-r564', date:'May 23, 2026', importance:'fix', title:'Five member images updated', items:['Uses the exact supplied full-scene Ed.png, Jim.png, Rachel.png, Rich.png, and Zach.png for their matching member image placements.', 'Ed replaces Ed only, Jim replaces Jim only, Rachel replaces Rachel only, Rich replaces Rich only, and Zach replaces Zach only.', 'Adds cache-bust v=r564 to those five member image references so phones load the new assets.', 'Amy remains on the prior Amy.png?v=r563 asset. Home band images 1 through 20 remain unchanged.', 'No Calendar, Songs, Setlists, Pay, flyer, service-worker, notification, or unrelated layout changes.']},
   {version:'2026-05-23-amy-member-image-r563', date:'May 23, 2026', importance:'fix', title:'Amy member image updated', items:['Uses the exact supplied full-scene Amy.png as the Amy image for Band Chat/Band tab/member image placements.', 'Adds cache-bust Amy.png?v=r563 so phones load the new asset instead of the old cached Amy image.', 'Keeps Home band images 1 through 20 unchanged.', 'No Calendar, Songs, Setlists, Pay, flyer, service-worker, notification, or unrelated layout changes.']},
-  {version:'2026-05-23-home-band-image-20-r562', date:'May 23, 2026', importance:'fix', title:'Home band image 20 added', items:['Adds the new Home-only asset band_image_20.png using the exact supplied image.', 'Updates HOME_BAND_IMAGES to include band_image_20.png?v=r621.', 'Keeps band_image_01 through band_image_19 unchanged.', 'Band Chat and Band tab remain unchanged.']},
+  {version:'2026-05-23-home-band-image-20-r562', date:'May 23, 2026', importance:'fix', title:'Home band image 20 added', items:['Adds the new Home-only asset band_image_20.png using the exact supplied image.', 'Updates HOME_BAND_IMAGES to include band_image_20.png?v=r562.', 'Keeps band_image_01 through band_image_19 unchanged.', 'Band Chat and Band tab remain unchanged.']},
   {version:'2026-05-23-home-band-image-19-r561', date:'May 23, 2026', importance:'fix', title:'Home band image 19 added', items:['Adds the new Home-only asset band_image_19.png using the exact supplied image.', 'Updates HOME_BAND_IMAGES to include band_image_19.png?v=r561.', 'Keeps band_image_01 through band_image_18 unchanged.', 'Band Chat and Band tab remain unchanged.']},
   {version:'2026-05-23-home-band-image-18-r560', date:'May 23, 2026', importance:'fix', title:'Home band image 18 added', items:['Adds the new Home-only asset band_image_18.png using the exact supplied image.', 'Updates HOME_BAND_IMAGES to include band_image_18.png?v=r560.', 'Keeps band_image_01 through band_image_17 unchanged.', 'Band Chat and Band tab remain unchanged.']},
   {version:'2026-05-23-home-band-image-17-r559', date:'May 23, 2026', importance:'fix', title:'Home band image 17 added', items:['Adds the new Home-only asset band_image_17.png using the exact supplied image.', 'Updates HOME_BAND_IMAGES to include band_image_17.png?v=r559.', 'Keeps band_image_01 through band_image_16 unchanged.', 'Band Chat and Band tab remain unchanged.']},
