@@ -135,6 +135,8 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r632: Calendar-style blue canvas extended to Setlists, Chat, and Band tabs. Keeps the same approved Songs-tab background treatment and applies it only to the deepest/furthest-back background layer on Setlists, Chat, and Band. No foreground cards/pills/search/header elements, no Home/Calendar/Pay, no layout, no assets, and no logic changes. Upload index_r632.html as index.html after phone test. -->
 <!-- r633: Calendar gig-to-setlist linking. Adds linkedGigId support on setlists, shows linked gig metadata on Setlist cards/edit header, and adds equal-width Flyer + Setlist/Add Setlist action pills to Calendar Event Details gig cards. No Home/Chat/Band/Pay/flyer rendering/assets/service-worker/notification changes. Upload index_r633.html as index.html after phone test. -->
 <!-- r634: Calendar Event Details saved-flyer action cleanup. Removes the duplicate yellow GIG FLYER pill when a saved flyer card exists, and presents the saved flyer thumbnail/action and Setlist action as matching side-by-side cards. No setlist data model, Home, Chat, Band, Songs, Pay, flyer rendering, assets, service-worker, or notification changes. Upload index_r634.html as index.html after phone test. -->
+<!-- r635: Calendar linked-setlist action polish + setlist delete. Calendar Event Details now labels linked Setlist actions with the actual setlist name and colors the Setlist action border/accent from that setlist's stripe color. Adds a red trash-can Delete Setlist action in the expanded Setlist actions sheet. No Home, Chat, Band, Songs library, Pay, flyer rendering/assets, service-worker, or notification changes. Upload index_r635.html as index.html after phone test. -->
+<!-- r636: Hybrid gig-to-setlist linking UX. Setlists tab now surfaces upcoming gigs without setlists, lets Add Setlist choose an optional Linked Gig at creation time, and marks unlinked setlists so users can connect them later. Calendar drawer auto-link behavior from r633 remains. No Home/Chat/Band/Songs library/Pay/flyer/assets/service-worker/notification changes. Upload index_r636.html as index.html after phone test. -->
 <!-- r566: Home scenic band image 01 full-resolution test. Updates only HOME_BAND_IMAGES[0] to band_image_01.png?v=r568 using the supplied 2400x2000 asset; preserves r565 Chat/Band/member images including band_group_chat.png?v=r565; no Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r566.html as index.html plus band_image_01.png after phone test. -->
 <!-- r567: Home scenic band image framing zoom. Keeps the same 2400x2000 band_image_01.png asset, moderately enlarges/reframes the Home image app-side only, and uses a shorter-frame rehearsal-present override so the band stays visible when the Rehearsal on Deck pill is shown. No source artwork, Chat/Band/member images, flyers, Calendar, Songs, Setlists, Band, Pay, notification, or service-worker logic changes. Upload index_r567.html as index.html; band_image_01.png remains the same asset from r566. -->
 <!-- r568: Home scenic band image rehearsal-state tuning. Keeps the r567 no-rehearsal framing nearly unchanged, softens the Rehearsal On Deck override with slightly less zoom and a lower vertical anchor, and reduces rehearsal-state social-button intrusion. No source artwork, Chat/Band/member images, flyers, Calendar, Songs, Setlists, Band, Pay, notification, or service-worker logic changes. Upload index_r568.html as index.html; band_image_01.png remains the same asset. -->
@@ -19246,11 +19248,13 @@ function openDayDrawer(day, de, opts){
           if(typeof openFlyerForGig === 'function') openFlyerForGig(ev);
         }; })(e);
         var linkedSetlist = _r633SetlistForGig(e.id);
+        var setlistAccent = linkedSetlist ? _slGradientForId(linkedSetlist.id).stripe : '#4a9eff';
+        var setlistLabel = linkedSetlist ? (linkedSetlist.name || 'Setlist') : 'ADD SETLIST';
         var setlistBtn = document.createElement('button');
         setlistBtn.type = 'button';
         setlistBtn.className = 'r633-gig-action-pill r633-setlist-pill r634-setlist-action-card';
-        setlistBtn.style.cssText = 'flex:1;min-width:0;background:linear-gradient(135deg,rgba(74,158,255,.16),rgba(5,18,42,.90));border:1px solid rgba(74,158,255,.78);border-radius:10px;padding:8px 7px;color:#9dccff;font-family:Russo One,sans-serif;font-size:9.5px;letter-spacing:.8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;touch-action:manipulation;box-shadow:0 0 14px rgba(74,158,255,.12);';
-        setlistBtn.innerHTML = '<span style="font-size:13px;line-height:1;">&#9835;</span><span>' + (linkedSetlist ? 'SETLIST' : 'ADD SETLIST') + '</span>';
+        setlistBtn.style.cssText = 'flex:1;min-width:0;background:linear-gradient(135deg,rgba(74,158,255,.16),rgba(5,18,42,.90));border:1px solid '+setlistAccent+';border-radius:10px;padding:8px 7px;color:'+setlistAccent+';font-family:Russo One,sans-serif;font-size:9.5px;letter-spacing:.8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;touch-action:manipulation;box-shadow:0 0 14px '+setlistAccent+'26;text-align:center;';
+        setlistBtn.innerHTML = '<span style="font-size:13px;line-height:1;">&#9835;</span><span style="min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + _r366Esc(setlistLabel) + '</span>';
         setlistBtn.onclick = (function(ev){ return function(evt){
           evt.stopPropagation();
           _r633OpenSetlistFromGig(ev.id);
@@ -21097,6 +21101,28 @@ function openSetlistRemoveSongMenu(setId){
   wrap.appendChild(sheet);
   document.body.appendChild(wrap);
 }
+
+function _r635DeleteSetlist(setId){
+  var s = (typeof sets !== 'undefined' && sets) ? sets.find(function(x){ return String(x.id) === String(setId); }) : null;
+  if(!s){ toast('Setlist not found', {tone:'error'}); return; }
+  appConfirm({
+    title: 'Delete setlist?',
+    message: 'Delete "' + (s.name || 'this setlist') + '"? This removes the setlist and its gig link. Songs stay in the song library.',
+    okLabel: 'DELETE'
+  }).then(function(ok){
+    if(!ok) return;
+    db.collection('setlists').doc(String(s.id)).delete().then(function(){
+      if(String(window._expandedSetlistId || '') === String(s.id)) window._expandedSetlistId = null;
+      if(String(aSL || '') === String(s.id)){ aSL = null; setsViewState = 'list'; }
+      try { document.getElementById('si').style.display='block'; document.getElementById('se').style.display='none'; } catch(e){}
+      toast('Setlist deleted', {tone:'success'});
+      try { rSets(); } catch(e){}
+    }).catch(function(err){
+      toast('Delete failed: ' + (err && err.message ? err.message : 'unknown'), {tone:'error', duration:4500});
+    });
+  });
+}
+
 function toggleExpandedSetlistMenu(ev, setId){
   if(ev){
     if(ev.preventDefault) ev.preventDefault();
@@ -21193,6 +21219,18 @@ function toggleExpandedSetlistMenu(ev, setId){
     }, 0);
   };
   sheet.appendChild(reorderBtn);
+
+  var deleteBtn = document.createElement('button');
+  deleteBtn.type = 'button';
+  deleteBtn.className = 'songs-sheet-btn';
+  deleteBtn.style.cssText = 'border-color:rgba(255,71,87,.30);background:rgba(255,71,87,.08);';
+  deleteBtn.innerHTML = '<span class="songs-sheet-btn-icon" style="color:#ff4757;display:inline-flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg></span><span style="flex:1;"><span class="songs-sheet-btn-label" style="color:#ff8a98;">Delete Setlist</span><span class="songs-sheet-btn-sub">Remove this setlist; songs remain in the library</span></span>';
+  deleteBtn.onclick = function(e){
+    e.stopPropagation();
+    closeExpandedSetlistMenu();
+    setTimeout(function(){ _r635DeleteSetlist(s.id); }, 0);
+  };
+  sheet.appendChild(deleteBtn);
 
   wrap.appendChild(sheet);
   document.body.appendChild(wrap);
@@ -22297,8 +22335,15 @@ function rSets() {
   var el = document.getElementById('sll');
   var countEl = document.getElementById('sl-count');
   if(countEl) countEl.textContent = sets.length ? ('— ' + sets.length + ' setlist' + (sets.length===1?'':'s')) : '';
-  if(!sets.length){ el.innerHTML='<div style="color:#aaa;font-style:italic;padding:8px">No setlists yet.</div>'; return; }
   el.innerHTML = '';
+  _r636RenderSetlistGigPrompt(el);
+  if(!sets.length){
+    var empty = document.createElement('div');
+    empty.style.cssText = 'color:#aaa;font-style:italic;padding:8px';
+    empty.textContent = 'No setlists yet.';
+    el.appendChild(empty);
+    return;
+  }
   if(typeof window._expandedSetlistId === 'undefined') window._expandedSetlistId = null;
 
   var stripeColors = _SL_STRIPE_COLORS;
@@ -22319,7 +22364,7 @@ function rSets() {
       '<img src="Logo.png?v=r142" class="setlist-title-logo" alt="Out of Time" style="width:38px !important;height:38px !important;">'+
       '<div style="flex:1;min-width:0;">'+
         '<div style="background:'+titleGrad+';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:700;text-shadow:0 0 18px '+titleGlow+';font-family:\'Russo One\',sans-serif;font-size:17px;letter-spacing:.5px;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+s.name+'</div>'+
-        (_r633SetlistGigLine(s)?'<div style="font-size:10px;color:#f5c518;margin:-1px 0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:Russo One,sans-serif;letter-spacing:.4px;">'+_r366Esc(_r633SetlistGigLine(s))+'</div>':'')+
+        (_r633SetlistGigLine(s)?'<div style="font-size:10px;color:#f5c518;margin:-1px 0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:Russo One,sans-serif;letter-spacing:.4px;">'+_r366Esc(_r633SetlistGigLine(s))+'</div>':'<div style="font-size:10px;color:#8aa8d6;margin:-1px 0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:Russo One,sans-serif;letter-spacing:.4px;opacity:.88;">NO GIG LINKED · OPEN TO LINK</div>')+
         '<div style="display:flex;align-items:center;gap:10px;font-size:11px;color:#8aa8d6;">'+
           '<span style="display:inline-flex;align-items:center;gap:4px;">'+
             '<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:'+stripe+';opacity:.8;"></span>'+
@@ -22537,12 +22582,13 @@ function _r633CalendarGigActionRowHtml(ev){
   // sits beside the Setlist action in the thumbnail block below.
   if(hasFlyer) return '';
   var sl = _r633SetlistForGig(ev.id);
-  var setLabel = sl ? 'SETLIST' : 'ADD SETLIST';
+  var setLabel = sl ? (sl.name || 'Setlist') : 'ADD SETLIST';
+  var setAccent = sl ? _slGradientForId(sl.id).stripe : '#4a9eff';
   return '<div class="r633-gig-action-row" style="display:flex;gap:8px;width:100%;margin-top:2px;">'+
     '<button type="button" class="r633-gig-action-pill r633-flyer-pill" style="flex:1;min-width:0;background:rgba(245,197,24,.12);border:1px solid #f5c518;border-radius:8px;padding:8px 6px;color:#f5c518;font-family:Russo One,sans-serif;font-size:9.5px;letter-spacing:.7px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;touch-action:manipulation;">'+
       '<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" focusable="false"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM5 5h14v9.59l-3.29-3.3a1 1 0 0 0-1.42 0L10 15.59l-2.29-2.3a1 1 0 0 0-1.42 0L5 14.59V5z" fill="currentColor"/></svg><span>MAKE FLYER</span></button>'+
-    '<button type="button" class="r633-gig-action-pill r633-setlist-pill" style="flex:1;min-width:0;background:rgba(74,158,255,.12);border:1px solid #4a9eff;border-radius:8px;padding:8px 6px;color:#8ec5ff;font-family:Russo One,sans-serif;font-size:9.5px;letter-spacing:.7px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;touch-action:manipulation;">'+
-      '<span style="font-size:12px;line-height:1;">&#9835;</span><span>'+setLabel+'</span></button>'+
+    '<button type="button" class="r633-gig-action-pill r633-setlist-pill" style="flex:1;min-width:0;background:rgba(74,158,255,.12);border:1px solid '+setAccent+';border-radius:8px;padding:8px 6px;color:'+setAccent+';font-family:Russo One,sans-serif;font-size:9.5px;letter-spacing:.7px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;touch-action:manipulation;box-shadow:0 0 12px '+setAccent+'22;text-align:center;">'+
+      '<span style="font-size:12px;line-height:1;">&#9835;</span><span style="min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_r366Esc(setLabel)+'</span></button>'+
   '</div>';
 }
 function _r633WireCalendarGigActions(card, ev){
@@ -22553,27 +22599,137 @@ function _r633WireCalendarGigActions(card, ev){
   if(setlist){ setlist.onclick = function(evt){ evt.stopPropagation(); _r633OpenSetlistFromGig(ev.id); }; }
 }
 
-function nwSL() {
-  appPrompt({
-    title: 'New Setlist',
-    message: 'Give it a name.',
-    defaultValue: '',
-    placeholder: 'e.g. Friday Night Set 1',
-    required: true,
-    okLabel: 'CREATE'
-  }).then(function(name){
-    if(!name) return;
-    name = name.trim();
-    if(!name) return;
-    var n={id:Date.now(),name:name,gd:"",songs:[],created:Date.now()};
-    saveSet(n);
-    setTimeout(function(){
-      var sl=sets.find(function(s){return s.name===name;});
-      if(sl) opSL(sl.id);
-      else setTimeout(function(){var sl2=sets[sets.length-1];if(sl2)opSL(sl2.id);},500);
-    },800);
+
+/* r636: Hybrid gig-to-setlist linking from Setlists tab. */
+function _r636TodayKey(){
+  var d = new Date();
+  var m = String(d.getMonth()+1).padStart(2,'0');
+  var day = String(d.getDate()).padStart(2,'0');
+  return d.getFullYear() + '-' + m + '-' + day;
+}
+function _r636GigLabel(ev){
+  if(!ev) return 'Gig';
+  var det = (gigDetails && gigDetails[String(ev.id)]) || {};
+  var parts = [ev.date || '', ev.title || 'Gig', det.venue || ev.note || '', det.city || ''].filter(Boolean);
+  return parts.join(' · ');
+}
+function _r636UpcomingUnlinkedGigs(){
+  var today = _r636TodayKey();
+  return _r633GigList().filter(function(ev){
+    if(!ev || ev.type !== 'gig') return false;
+    if(ev.date && ev.date < today) return false;
+    return !_r633SetlistForGig(ev.id);
+  }).sort(function(a,b){
+    var da = _r633GigDateSortValue(a), db = _r633GigDateSortValue(b);
+    if(da !== db) return da - db;
+    return String(a.title||'').localeCompare(String(b.title||''));
   });
 }
+function closeR636SetlistCreateModal(){
+  var m = document.getElementById('r636-setlist-create-backdrop');
+  if(m) m.remove();
+}
+function _r636CreateSetlistModal(prefillGigId){
+  closeR636SetlistCreateModal();
+  var gigs = _r633GigList().slice().sort(function(a,b){
+    var da = _r633GigDateSortValue(a), db = _r633GigDateSortValue(b);
+    if(da !== db) return da - db;
+    return String(a.title||'').localeCompare(String(b.title||''));
+  });
+  var wrap = document.createElement('div');
+  wrap.id = 'r636-setlist-create-backdrop';
+  wrap.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9000;display:flex;align-items:center;justify-content:center;padding:18px;';
+  wrap.onclick = function(e){ if(e.target === wrap) closeR636SetlistCreateModal(); };
+  var card = document.createElement('div');
+  card.style.cssText = 'width:min(420px,calc(100vw - 28px));border-radius:18px;background:linear-gradient(180deg,rgba(8,20,48,.98),rgba(5,13,30,.99));border:1px solid rgba(74,158,255,.40);box-shadow:0 20px 46px rgba(0,0,0,.62),0 0 24px rgba(74,158,255,.16);padding:14px;';
+  card.onclick = function(e){ e.stopPropagation(); };
+  var options = '<option value="">No linked gig yet</option>';
+  gigs.forEach(function(g){
+    var selected = (prefillGigId && String(g.id) === String(prefillGigId)) ? ' selected' : '';
+    options += '<option value="'+_escAttr(g.id)+'"'+selected+'>'+_r366Esc(_r636GigLabel(g))+'</option>';
+  });
+  card.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'+
+      '<img src="Logo.png?v=r142" alt="Out of Time" style="width:38px;height:38px;border-radius:50%;object-fit:contain;filter:drop-shadow(0 0 10px rgba(245,197,24,.22));">'+
+      '<div style="flex:1;min-width:0;">'+
+        '<div style="font-family:Russo One,sans-serif;color:#f5c518;font-size:13px;letter-spacing:1.4px;">NEW SETLIST</div>'+
+        '<div style="font-size:11px;color:#8aa8d6;margin-top:2px;">Optional: connect it to a Calendar gig now</div>'+
+      '</div>'+
+      '<button type="button" id="r636-create-x" aria-label="Close" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(245,197,24,.38);background:rgba(5,15,38,.78);color:#f5c518;font-size:20px;line-height:1;cursor:pointer;">×</button>'+
+    '</div>'+
+    '<label style="display:block;font-family:Russo One,sans-serif;font-size:9px;letter-spacing:1.3px;color:#8aa8d6;margin:8px 0 5px;">SETLIST NAME</label>'+ 
+    '<input id="r636-setlist-name" class="mi" placeholder="e.g. Venice Beach Summerfest Set" style="width:100%;margin:0 0 10px;font-size:13px;">'+
+    '<label style="display:block;font-family:Russo One,sans-serif;font-size:9px;letter-spacing:1.3px;color:#f5c518;margin:8px 0 5px;">LINKED GIG</label>'+ 
+    '<select id="r636-setlist-gig" class="mi" style="width:100%;margin:0;font-size:12px;">'+options+'</select>'+ 
+    '<div style="font-size:10px;color:#8aa8d6;line-height:1.35;margin-top:6px;">If you link a gig here, that gig’s Calendar Event Details drawer will open this setlist directly.</div>'+ 
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;">'+
+      '<button type="button" id="r636-create-cancel" style="height:38px;border-radius:12px;border:1px solid rgba(138,168,214,.36);background:rgba(6,14,28,.35);color:#8aa8d6;font-family:Russo One,sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;">CANCEL</button>'+ 
+      '<button type="button" id="r636-create-save" style="height:38px;border-radius:12px;border:1px solid rgba(245,197,24,.80);background:linear-gradient(135deg,#f5c518,#d49a10);color:#06101f;font-family:Russo One,sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;">CREATE</button>'+ 
+    '</div>';
+  wrap.appendChild(card);
+  document.body.appendChild(wrap);
+  var nameInput = document.getElementById('r636-setlist-name');
+  var gigSel = document.getElementById('r636-setlist-gig');
+  var pref = prefillGigId ? _r633GigById(prefillGigId) : null;
+  if(pref){
+    var det = (gigDetails && gigDetails[String(pref.id)]) || {};
+    nameInput.value = (pref.title || det.venue || 'Gig Setlist') + (pref.date ? (' · ' + fmtGigDateForNotif(pref.date)) : '');
+  }
+  document.getElementById('r636-create-x').onclick = closeR636SetlistCreateModal;
+  document.getElementById('r636-create-cancel').onclick = closeR636SetlistCreateModal;
+  document.getElementById('r636-create-save').onclick = function(){
+    var name = (nameInput.value || '').trim();
+    if(!name){ toast('Setlist name required', {tone:'error'}); nameInput.focus(); return; }
+    var linkedGigId = gigSel ? (gigSel.value || '') : '';
+    var n = {id:Date.now(), name:name, gd:'', songs:[], created:Date.now()};
+    if(linkedGigId) n.linkedGigId = String(linkedGigId);
+    saveSet(n);
+    closeR636SetlistCreateModal();
+    toast(linkedGigId ? 'Linked setlist created' : 'Setlist created', {tone:'success'});
+    setTimeout(function(){
+      var sl = sets.find(function(s){ return String(s.id) === String(n.id) || s.name === name; });
+      if(sl) opSL(sl.id);
+      else { aSL = n.id; setsViewState = 'edit'; }
+    }, 650);
+  };
+  setTimeout(function(){ try { nameInput.focus(); nameInput.select(); } catch(e){} }, 60);
+}
+function _r636RenderSetlistGigPrompt(container){
+  if(!container) return;
+  var gigs = _r636UpcomingUnlinkedGigs();
+  if(!gigs.length) return;
+  var box = document.createElement('div');
+  box.className = 'r636-setlist-gig-prompt';
+  box.style.cssText = 'margin:0 0 10px;padding:10px 11px;border-radius:14px;border:1px solid rgba(245,197,24,.45);background:linear-gradient(135deg,rgba(13,39,97,.98),rgba(6,18,45,.94));box-shadow:0 8px 18px rgba(0,0,0,.22),0 0 16px rgba(245,197,24,.12);';
+  var title = document.createElement('div');
+  title.style.cssText = 'font-family:Russo One,sans-serif;color:#f5c518;font-size:10px;letter-spacing:1.3px;margin-bottom:4px;';
+  title.textContent = gigs.length === 1 ? 'UPCOMING GIG NEEDS A SETLIST' : 'UPCOMING GIGS NEED SETLISTS';
+  box.appendChild(title);
+  gigs.slice(0,3).forEach(function(g){
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:7px;';
+    var label = document.createElement('div');
+    label.style.cssText = 'flex:1;min-width:0;color:#dbe8ff;font-size:11px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+    label.textContent = _r636GigLabel(g);
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = 'CREATE';
+    btn.style.cssText = 'height:28px;padding:0 10px;border-radius:999px;border:1px solid rgba(74,158,255,.75);background:rgba(74,158,255,.14);color:#7ab5ff;font-family:Russo One,sans-serif;font-size:8px;letter-spacing:1px;cursor:pointer;flex-shrink:0;';
+    btn.onclick = function(e){ e.stopPropagation(); _r636CreateSetlistModal(g.id); };
+    row.appendChild(label);
+    row.appendChild(btn);
+    box.appendChild(row);
+  });
+  if(gigs.length > 3){
+    var more = document.createElement('div');
+    more.style.cssText = 'font-size:10px;color:#8aa8d6;margin-top:7px;';
+    more.textContent = '+' + (gigs.length - 3) + ' more upcoming gig' + (gigs.length-3===1?'':'s') + ' without setlists';
+    box.appendChild(more);
+  }
+  container.appendChild(box);
+}
+
+function nwSL() { _r636CreateSetlistModal(); }
 function opSL(id){aSL=id;setsViewState='edit';document.getElementById('si').style.display='none';document.getElementById('se').style.display='block';rEd();}
 function clEd(){setsViewState='list';document.getElementById('si').style.display='block';document.getElementById('se').style.display='none';eSID=null;reorderMode=false;rSets();}
 function rEd() {
@@ -27074,7 +27230,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-25-calendar-gig-actions-cleanup-r634';
+var WHATS_NEW_VERSION = '2026-05-25-calendar-setlist-action-polish-r635';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -27419,6 +27575,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-25-setlist-gig-link-hybrid-r636', date:'May 25, 2026', importance:'major', emoji:'🎵', title:'Hybrid gig-to-setlist linking', body:'Setlists now help prevent orphaned gig setlists. The Setlists tab surfaces upcoming gigs that do not have linked setlists, Add Setlist now includes an optional Linked Gig selector during creation, and unlinked setlists are clearly marked so they can be connected later.', items:['Upcoming gigs without linked setlists appear at the top of Setlists with CREATE shortcuts.', 'New Setlist includes an optional Linked Gig field.', 'Unlinked setlists show a No Gig Linked cue and can still be linked in the edit view.'] },
+  { version:'2026-05-25-calendar-setlist-action-polish-r635', date:'May 25, 2026', importance:'fix', emoji:'🎵', title:'Setlist link polish + delete setlist', body:'Calendar Event Details now shows the linked setlist action using the actual setlist name, with the action border/accent matching that setlist color. Expanded setlist actions now include a red trash-can Delete Setlist action.', items:['Linked Setlist pill shows the setlist name instead of generic SETLIST.', 'Setlist action border/accent matches the setlist color.', 'Delete Setlist is available from the expanded setlist kebab/action sheet and keeps songs in the library.'] },
   { version:'2026-05-25-calendar-gig-actions-cleanup-r634', date:'May 25, 2026', importance:'fix', emoji:'🎵', title:'Calendar gig action pills cleaned up', body:'When a gig already has a saved flyer, Event Details no longer shows the duplicate yellow Gig Flyer pill. The saved flyer action card and Setlist action now sit side by side as matching, equal-width actions.', items:['Saved flyer thumbnail/action is kept.', 'Duplicate yellow Gig Flyer pill is removed for gigs that already have a flyer.', 'Setlist/Add Setlist remains next to the flyer action.'] },
   { version:'2026-05-25-calendar-gig-setlist-link-r633', date:'May 25, 2026', importance:'major', emoji:'🎵', title:'Link gig events to setlists', body:'Calendar gig Event Details now has equal-width Flyer and Setlist action pills. Setlists can be linked to a Calendar gig, show the linked gig information on their cards, and can be opened directly from the Calendar event.', items:['Setlists now have an optional Linked Gig selector in the setlist edit view.', 'Calendar gig details show Flyer + Setlist/Add Setlist actions in one row.', 'If no setlist is linked yet, Add Setlist creates one pre-linked to that gig.'] },
   { version:'2026-05-25-blue-canvas-songs-sets-chat-band-r632', date:'May 25, 2026', importance:'fix', emoji:'🎨', title:'Blue canvas extended to Setlists, Chat, and Band', body:'Keeps the approved Calendar-style blue background from the Songs test and applies that same deepest-back canvas to Setlists, Chat, and Band only. Foreground cards, pills, search bars, buttons, text, spacing, and layout are unchanged.', items:['Upload index_r632.html as index.html.', 'Check Songs, Setlists, Chat, and Band only.', 'Home, Calendar, Pay, and all foreground elements should remain unchanged.'] },
