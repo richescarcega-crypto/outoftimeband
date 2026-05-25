@@ -150,6 +150,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r586: Home image 05 asset refresh. Replaces only the GitHub asset band_image_05.png with the newly supplied revised image and bumps HOME_BAND_IMAGES[4] cache-bust plus WHATS_NEW_VERSION to r586 so phones load it. No Home registry/CSS changes, Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r586.html as index.html plus band_image_05.png. -->
 <!-- r587: Image 05 rehearsal registry tune. Adds an Image 05 / Rehearsal On Deck override to the Home Image Presentation Registry: slight zoom-out, slightly higher vertical anchor, slight left shift for better horizontal balance, and smaller/tucked social buttons. Normal mode remains unchanged. No asset changes; upload index_r587.html only. -->
 <!-- r588: Home image 06 asset refresh. Replaces only the GitHub asset band_image_06.png with the newly supplied revised image and bumps HOME_BAND_IMAGES[5] cache-bust plus WHATS_NEW_VERSION to r588 so phones load it. No Home registry/CSS changes, Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r588.html as index.html plus band_image_06.png. -->
+<!-- r589: Home presentation registry timing fix. Fixes the root cause where Rehearsal On Deck visibility was changed after the Home band image registry had already applied normal-mode values, so rehearsal-mode overrides could appear unchanged. Adds _refreshHomeImagePresentation(), calls it after every renderHomeRehearsalCue display-state change, and calls renderHomeRehearsalCue during rHome. No asset changes; upload index_r589.html only. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
 <!-- r559: Home band image 17 added. Adds exact supplied Home-only band_image_17.png to HOME_BAND_IMAGES with cache-bust v=r559; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r559.html as index.html plus band_image_17.png after phone test. -->
 <!-- r558: Home band image 16 added. Adds exact supplied Home-only band_image_16.png to HOME_BAND_IMAGES with cache-bust v=r558; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r558.html as index.html plus band_image_16.png after phone test. -->
@@ -10792,12 +10793,14 @@ function renderHomeRehearsalCue(){
   if(!_eventsHasInit && (!events || !events.length)){
     el.style.display = 'none';
     el.innerHTML = '';
+    try { _refreshHomeImagePresentation(); } catch(e){}
     return;
   }
   var ev = _r535NextUpcomingRehearsal();
   if(!ev){
     el.style.display = 'none';
     el.innerHTML = '';
+    try { _refreshHomeImagePresentation(); } catch(e){}
     return;
   }
   var times = _r535RehearsalTimes(ev);
@@ -10818,6 +10821,7 @@ function renderHomeRehearsalCue(){
         (note ? '<span style="display:block;color:#8aa8d6;font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_r535HomeEscape(note)+'</span>' : '')+
       '</span>'+
     '</button>';
+  try { _refreshHomeImagePresentation(); } catch(e){}
 }
 
 function renderHomeSongVoteCue(){
@@ -18004,6 +18008,7 @@ function rHome() {
     }
   }
   try { renderHomeSongVoteCue(); } catch(e){}
+  try { renderHomeRehearsalCue(); } catch(e){}
   var wi = document.getElementById('who-am-i');
   if (wi && myName) {
     var m = gM(ME);
@@ -24275,6 +24280,15 @@ function _applyHomeImagePresentation(row, idx){
   _setHomeCssVar(row, '--oot-home-button-scale', (p.buttons.scale === 0 ? 0 : (p.buttons.scale || 1)));
   _renderHomeImageQaBadge(row, idx, mode, p);
 }
+function _refreshHomeImagePresentation(){
+  try {
+    var row = document.getElementById('home-social-row');
+    if(!row || typeof _applyHomeImagePresentation !== 'function') return;
+    var idx = (typeof _resolveHomeBandImageIndex === 'function') ? _resolveHomeBandImageIndex() : parseInt(row.getAttribute('data-home-image-index') || '1', 10);
+    if(!idx || isNaN(idx)) idx = 1;
+    _applyHomeImagePresentation(row, idx);
+  } catch(e){}
+}
 function _homeImageQaEnabled(){
   try {
     return /(?:\?|&)homeImageQa=1(?:&|$)/.test(location.search || '') ||
@@ -26623,7 +26637,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-25-home-band-image-06-refresh-r588';
+var WHATS_NEW_VERSION = '2026-05-25-home-presentation-registry-timing-r589';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -26916,6 +26930,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-25-home-presentation-registry-timing-r589', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home presentation registry timing fix', body:'Fixes the root cause where Rehearsal On Deck visibility could be set after the Home image presentation registry had already applied normal-mode values. The app now refreshes registry variables after every rehearsal-cue display change and during Home render, so rehearsal-mode image overrides take effect reliably.', items:['Upload index_r589.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Image 5 with Rehearsal On Deck visible before continuing image uploads.'] },
   { version:'2026-05-25-home-band-image-06-refresh-r588', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home image 06 asset refresh', body:'Replaces only the Home image 06 asset with the newly supplied revised band_image_06.png and bumps the cache marker so phones load the file. No Home layout/registry/CSS, Band Chat/Band tab, Calendar, Songs, Setlists, Pay, flyer, notification, or service-worker logic changes.', items:['Upload the revised band_image_06.png to GitHub root.', 'Upload index_r588.html as index.html.', 'Tests should check Home image 06 with and without Rehearsal On Deck visible.'] },
   { version:'2026-05-25-image-05-rehearsal-registry-tune-r587', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Image 05 rehearsal registry tune', body:'Adds an Image 05 Rehearsal On Deck override to the Home Image Presentation Registry. This slightly zooms out, moves the image up a bit to improve lower-body/feet clearance, shifts the image slightly left for better balance between the keyboard edge and the left side, and uses smaller/tucked social buttons. Image 05 normal mode remains unchanged.', items:['Upload index_r587.html as index.html.', 'No image assets need to be uploaded for this build.', 'Retest Home image 05 with Rehearsal On Deck visible.'] },
   { version:'2026-05-25-home-band-image-05-refresh-r586', date:'May 25, 2026', importance:'fix', emoji:'🖼️', title:'Home image 05 asset refresh', body:'Replaces only the Home image 05 asset with the newly supplied revised band_image_05.png and bumps the cache marker so phones load the file. No Home layout/registry/CSS, Band Chat/Band tab, Calendar, Songs, Setlists, Pay, flyer, notification, or service-worker logic changes.', items:['Upload the revised band_image_05.png to GitHub root.', 'Upload index_r586.html as index.html.', 'Tests should check Home image 05 with and without Rehearsal On Deck visible.'] },
