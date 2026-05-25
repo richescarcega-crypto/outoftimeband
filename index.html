@@ -19,6 +19,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r506: Story Flyer 14 asset cleanup. Uses cleaned oot_flyer_story_14_r506.png and forces stale saved Flyer 14 JPEG refresh; no text-position or unrelated flyer changes. Upload index.html plus oot_flyer_story_14_r506.png after phone test. -->
 <!-- r630: Update banner false-positive guard. Requires a deployed-version mismatch to be confirmed by a second fresh no-store fetch before showing the green update banner or critical update overlay. Prevents transient CDN/cache/visibility-check mismatches from flashing update banners when no real update is available. Chat tab composer r629 retained; no tab/content/image changes. Upload index_r630.html as index.html. -->
 <!-- r647: Rollback to r645 Home layout. Reverts the bad r646 Home spacing/header CSS by rebuilding from clean r645 source, preserving all approved changes through r645 and bumping WHATS_NEW_VERSION so phones detect the rollback. No visual/logic changes beyond reverting r646. Upload index_r647.html as index.html. -->
+<!-- r648: Home header structural alignment. Moves the Home header controls into the logo/hero card so the blue strip above the logo is removed, overlays menu/bell/name on the logo with readable contrast, and tightens only Home stack spacing via scoped CSS without touching Home band-image registry/framing. Upload index_r648.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -7071,6 +7072,76 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   box-shadow:0 3px 12px rgba(0,0,0,.38);
 }
 
+
+
+/* r648 Home header structural alignment + controlled stack spacing.
+   Structural fix from clean r647: header controls are now inside the logo/hero
+   card. This removes the separate blue strip above the logo without forcing
+   the Home band-image registry or social-row framing. */
+#sc-home{
+  padding:0 12px 0 12px !important;
+  gap:0 !important;
+}
+#sc-home .hero.home-hero-with-controls{
+  margin:0 0 4px 0 !important;
+  height:200px !important;
+  flex:0 0 auto !important;
+}
+#sc-home .hero.home-hero-with-controls #home-header-row{
+  position:absolute !important;
+  top:10px !important;
+  left:10px !important;
+  right:10px !important;
+  z-index:8 !important;
+  margin:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  pointer-events:auto !important;
+}
+#sc-home .hero.home-hero-with-controls #home-menu-btn{
+  background:rgba(3,8,20,.50) !important;
+  border-color:rgba(126,176,255,.46) !important;
+  color:#d8e7ff !important;
+  box-shadow:0 6px 14px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+#sc-home .hero.home-hero-with-controls #ann-bell{
+  box-shadow:0 6px 14px rgba(0,0,0,.34), 0 0 12px rgba(245,197,24,.24) !important;
+}
+#sc-home .hero.home-hero-with-controls #who-am-i{
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+  font-weight:700 !important;
+  text-shadow:0 2px 7px rgba(0,0,0,.95), 0 0 12px rgba(0,0,0,.7) !important;
+  opacity:.96 !important;
+  padding-right:2px !important;
+}
+#home-song-vote-cue > button,
+#home-rehearsal-cue > button{
+  margin:0 0 4px 0 !important;
+}
+#next-gig-countdown{
+  margin-bottom:4px !important;
+}
+#home-social-row{
+  margin-top:0 !important;
+}
+@media (max-width:520px){
+  #sc-home{
+    padding:0 12px 0 12px !important;
+  }
+  #sc-home .hero.home-hero-with-controls{
+    height:200px !important;
+    margin-bottom:4px !important;
+  }
+  #sc-home .hero.home-hero-with-controls #home-header-row{
+    top:9px !important;
+    left:9px !important;
+    right:9px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -7079,18 +7150,18 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 <div id="cnt">
 
 <div id="sc-home" class="sc on">
-  <div id="home-header-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:10px;">
-    <!-- r48: hamburger removed; Arrange Tabs is now in the Home ⋮ menu -->
-    <button id="home-menu-btn" type="button" title="App menu" aria-label="App menu" style="background:transparent;border:1px solid rgba(74,158,255,.4);border-radius:50%;width:30px;height:30px;color:#8aa8d6;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;font-size:16px;line-height:1;touch-action:manipulation;flex-shrink:0;" onclick="toggleHomeMenu(event)">&#8942;</button>
-    <button id="ann-bell" onclick="openAnnouncementsModal()" title="Announcements" style="background:#f5c518;border:1px solid #c99a00;border-radius:18px;padding:4px 10px;color:#0d2050;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;position:relative;line-height:1;touch-action:manipulation;font-weight:700;">
-      <span id="ann-bell-icon" style="display:inline-flex;align-items:center;line-height:1;"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22a2 2 0 002-2h-4a2 2 0 002 2zm6-6V11a6 6 0 00-5-5.91V4a1 1 0 00-2 0v1.09A6 6 0 006 11v5l-2 2v1h16v-1l-2-2z"/></svg></span>
-      <span id="ann-bell-count" style="font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;">0</span>
-      <span id="ann-bell-badge" style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#ff4757;color:#fff;font-size:9px;font-weight:700;font-family:Russo One,sans-serif;display:none;align-items:center;justify-content:center;border:2px solid #060e1c;line-height:1;"></span>
-    </button>
-    <div id="who-am-i" onclick="whoAmITap()" style="font-size:11px;cursor:pointer;flex:1;text-align:right;"></div>
-  </div>
   <div id="announce-card" style="display:none;"></div>
-  <div class="hero">
+  <div class="hero home-hero-with-controls">
+    <div id="home-header-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:10px;">
+      <!-- r48: hamburger removed; Arrange Tabs is now in the Home ⋮ menu -->
+      <button id="home-menu-btn" type="button" title="App menu" aria-label="App menu" style="background:transparent;border:1px solid rgba(74,158,255,.4);border-radius:50%;width:30px;height:30px;color:#8aa8d6;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;font-size:16px;line-height:1;touch-action:manipulation;flex-shrink:0;" onclick="toggleHomeMenu(event)">&#8942;</button>
+      <button id="ann-bell" onclick="openAnnouncementsModal()" title="Announcements" style="background:#f5c518;border:1px solid #c99a00;border-radius:18px;padding:4px 10px;color:#0d2050;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;position:relative;line-height:1;touch-action:manipulation;font-weight:700;">
+        <span id="ann-bell-icon" style="display:inline-flex;align-items:center;line-height:1;"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22a2 2 0 002-2h-4a2 2 0 002 2zm6-6V11a6 6 0 00-5-5.91V4a1 1 0 00-2 0v1.09A6 6 0 006 11v5l-2 2v1h16v-1l-2-2z"/></svg></span>
+        <span id="ann-bell-count" style="font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;">0</span>
+        <span id="ann-bell-badge" style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#ff4757;color:#fff;font-size:9px;font-weight:700;font-family:Russo One,sans-serif;display:none;align-items:center;justify-content:center;border:2px solid #060e1c;line-height:1;"></span>
+      </button>
+      <div id="who-am-i" onclick="whoAmITap()" style="font-size:11px;cursor:pointer;flex:1;text-align:right;"></div>
+    </div>
     <div class="hero-l"><img src="logo.jpg" alt="OOT"></div>
     <div class="hero-tagline">Where Rock &amp; Roll Meets the Dance Floor</div>
   </div>
@@ -27607,6 +27678,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-25-home-header-structure-r648', date:'May 25, 2026', importance:'fix', emoji:'🏠', title:'Home header structure test', body:'Moves the Home menu, bell, and member identifier into the logo/hero card instead of leaving them in a separate blue strip. Also tightens the Home stack gaps while leaving the Home band-image registry/framing untouched.', items:['Upload index_r648.html as index.html.', 'Check Home top logo/header area first.', 'Confirm band image is not clipped and no large dark bottom void returns.'] },
   {version:'2026-05-26-home-layout-rollback-to-r645-r647', date:'May 26, 2026', importance:'fix', title:'Home layout rollback to r645', items:['Rebuilds from clean r645 source after r646 Home spacing/header attempt caused layout breakage.', 'Preserves approved changes through r645, including Mates label and Chat/Mates member pill cleanup.', 'Removes the bad r646 Home layout override by not carrying it forward.', 'No asset upload required.']},
   {version:'2026-05-26-chat-mates-member-pill-cleanup-r645', date:'May 26, 2026', importance:'fix', title:'Chat and Mates member pill cleanup', items:['Removes instrument-name text from Chat and Mates member pills/cards.', 'Keeps member names and avatars/photos intact.', 'Standardizes member-name typography between Chat and Mates.', 'Underlying member instrument data and edit fields remain available.']},
   {version:'2026-05-26-bandmates-to-mates-r640', date:'May 26, 2026', importance:'fix', title:'Bandmates renamed to Mates', items:['Changes only the visible tab label and header from Bandmates to Mates.', 'Keeps the internal band tab route/data key unchanged so roster/contact behavior is preserved.', 'No other app sections changed.']},
