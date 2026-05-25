@@ -136,7 +136,9 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r633: Calendar gig-to-setlist linking. Adds linkedGigId support on setlists, shows linked gig metadata on Setlist cards/edit header, and adds equal-width Flyer + Setlist/Add Setlist action pills to Calendar Event Details gig cards. No Home/Chat/Band/Pay/flyer rendering/assets/service-worker/notification changes. Upload index_r633.html as index.html after phone test. -->
 <!-- r634: Calendar Event Details saved-flyer action cleanup. Removes the duplicate yellow GIG FLYER pill when a saved flyer card exists, and presents the saved flyer thumbnail/action and Setlist action as matching side-by-side cards. No setlist data model, Home, Chat, Band, Songs, Pay, flyer rendering, assets, service-worker, or notification changes. Upload index_r634.html as index.html after phone test. -->
 <!-- r635: Calendar linked-setlist action polish + setlist delete. Calendar Event Details now labels linked Setlist actions with the actual setlist name and colors the Setlist action border/accent from that setlist's stripe color. Adds a red trash-can Delete Setlist action in the expanded Setlist actions sheet. No Home, Chat, Band, Songs library, Pay, flyer rendering/assets, service-worker, or notification changes. Upload index_r635.html as index.html after phone test. -->
+<!-- r639: Combined post-r635 setlist workflow test build. Carries forward r636 hybrid gig-to-setlist prompts, r637 Bandmates label, and r638 Calendar Setlist pill label; adds an empty linked-setlist action panel so newly created 0-song setlists immediately show Add Songs and Setlist Actions instead of a dead-looking blank page. No Home, Chat, Songs library, Pay, flyer, assets, service-worker, or notification changes. Upload index_r639.html as index.html after phone test. -->
 <!-- r636: Hybrid gig-to-setlist linking UX. Setlists tab now surfaces upcoming gigs without setlists, lets Add Setlist choose an optional Linked Gig at creation time, and marks unlinked setlists so users can connect them later. Calendar drawer auto-link behavior from r633 remains. No Home/Chat/Band/Songs library/Pay/flyer/assets/service-worker/notification changes. Upload index_r636.html as index.html after phone test. -->
+<!-- r637: Band tab label/header rename. Changes the bottom tab label and Band tab hero title from Band to Bandmates, preserving the tab id/routes/data keys and all roster/contact behavior. No layout, Home, Calendar, Songs, Setlists, Chat, Pay, flyer, assets, service-worker, or notification changes. Upload index_r637.html as index.html after phone test. -->
 <!-- r566: Home scenic band image 01 full-resolution test. Updates only HOME_BAND_IMAGES[0] to band_image_01.png?v=r568 using the supplied 2400x2000 asset; preserves r565 Chat/Band/member images including band_group_chat.png?v=r565; no Calendar, Songs, Setlists, Chat, Band, Pay, flyer, notification, or service-worker logic changes. Upload index_r566.html as index.html plus band_image_01.png after phone test. -->
 <!-- r567: Home scenic band image framing zoom. Keeps the same 2400x2000 band_image_01.png asset, moderately enlarges/reframes the Home image app-side only, and uses a shorter-frame rehearsal-present override so the band stays visible when the Rehearsal on Deck pill is shown. No source artwork, Chat/Band/member images, flyers, Calendar, Songs, Setlists, Band, Pay, notification, or service-worker logic changes. Upload index_r567.html as index.html; band_image_01.png remains the same asset from r566. -->
 <!-- r568: Home scenic band image rehearsal-state tuning. Keeps the r567 no-rehearsal framing nearly unchanged, softens the Rehearsal On Deck override with slightly less zoom and a lower vertical anchor, and reduces rehearsal-state social-button intrusion. No source artwork, Chat/Band/member images, flyers, Calendar, Songs, Setlists, Band, Pay, notification, or service-worker logic changes. Upload index_r568.html as index.html; band_image_01.png remains the same asset. -->
@@ -7274,7 +7276,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
     <div class="oot-hero-inner">
       <img src="Logo.png?v=r142" class="oot-hero-logo" alt="Out of Time">
       <div class="oot-hero-copy">
-        <div class="oot-hero-title">Band</div>
+        <div class="oot-hero-title">Bandmates</div>
         <div class="oot-hero-sub">ROSTER & CONTACTS</div>
         <div class="oot-hero-rule"><span class="oot-hero-star">✦</span></div>
         <span id="ml-count" class="oot-hero-count"></span>
@@ -7366,7 +7368,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   <button class="tb" id="tb-songs" onclick="go('songs',this)" data-sc="songs"><span class="i">&#127908;</span><span>Songs</span></button>
   <button class="tb" id="tb-sets" onclick="go('sets',this)" data-sc="sets"><span class="i">&#127925;</span><span>Setlists</span></button>
   <button class="tb" id="tb-chat" onclick="go('chat',this)" data-sc="chat"><span class="i">&#128172;</span><span>Chat</span></button>
-  <button class="tb" id="tb-band" onclick="go('band',this)" data-sc="band"><span class="i">&#128101;</span><span>Band</span></button>
+  <button class="tb" id="tb-band" onclick="go('band',this)" data-sc="band"><span class="i">&#128101;</span><span>Bandmates</span></button>
   <button class="tb" id="tb-pay" onclick="go('pay',this)" data-sc="pay"><span class="i">&#128176;</span><span>Pay</span></button>
 </div>
 </div>
@@ -19253,8 +19255,8 @@ function openDayDrawer(day, de, opts){
         var setlistBtn = document.createElement('button');
         setlistBtn.type = 'button';
         setlistBtn.className = 'r633-gig-action-pill r633-setlist-pill r634-setlist-action-card';
-        setlistBtn.style.cssText = 'flex:1;min-width:0;background:linear-gradient(135deg,rgba(74,158,255,.16),rgba(5,18,42,.90));border:1px solid '+setlistAccent+';border-radius:10px;padding:8px 7px;color:'+setlistAccent+';font-family:Russo One,sans-serif;font-size:9.5px;letter-spacing:.8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;touch-action:manipulation;box-shadow:0 0 14px '+setlistAccent+'26;text-align:center;';
-        setlistBtn.innerHTML = '<span style="font-size:13px;line-height:1;">&#9835;</span><span style="min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + _r366Esc(setlistLabel) + '</span>';
+        setlistBtn.style.cssText = 'flex:1;min-width:0;background:linear-gradient(135deg,rgba(74,158,255,.16),rgba(5,18,42,.90));border:1px solid '+setlistAccent+';border-radius:10px;padding:7px 8px;color:'+setlistAccent+';font-family:Exo 2,sans-serif;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;touch-action:manipulation;box-shadow:0 0 14px '+setlistAccent+'26;text-align:left;';
+        setlistBtn.innerHTML = '<span style="font-size:14px;line-height:1;color:'+setlistAccent+';flex:0 0 auto;">&#9835;</span><span style="min-width:0;display:flex;flex-direction:column;align-items:flex-start;line-height:1.05;"><span style="font-family:Russo One,sans-serif;font-size:8px;letter-spacing:1.3px;color:#8aa8d6;white-space:nowrap;">SETLIST</span><span style="font-family:Russo One,sans-serif;font-size:10px;letter-spacing:.7px;color:'+setlistAccent+';max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;">' + _r366Esc(setlistLabel) + '</span></span>';
         setlistBtn.onclick = (function(ev){ return function(evt){
           evt.stopPropagation();
           _r633OpenSetlistFromGig(ev.id);
@@ -22748,13 +22750,35 @@ function rEd() {
     '</div>'+
     '<div style="font-size:12px;color:#aaa;margin-bottom:4px;">'+s.songs.length+' songs'+durStr+'</div>'+
     _r633SetlistGigSelectHtml(s)+
-    '<div style="font-size:10px;color:'+(reorderMode?'#f5c518':'#4a6a9a')+';margin-bottom:10px;">'+(reorderMode?'Hold ≡ and drag to reorder · tap the thumb-drive save icon to finish':'Use the expanded setlist ⋮ for add, share, manage, and reorder')+'</div>';
+    '<div style="font-size:10px;color:'+(reorderMode?'#f5c518':'#c7d6f3')+';margin-bottom:10px;line-height:1.35;">'+(reorderMode?'Hold ≡ and drag to reorder · tap the thumb-drive save icon to finish':'Use Add Songs below or Setlist Actions for share, manage, rename, reorder, and delete')+'</div>';
 
   var linkedGigSel = document.getElementById('sl-linked-gig');
   if(linkedGigSel){ linkedGigSel.onchange = _r633SaveLinkedGigForActiveSetlist; }
 
   var container = document.getElementById('ssl');
   container.innerHTML = '';
+
+  // r639: A newly-created linked setlist with zero songs used to look like a dead end.
+  // Show clear primary actions directly on the empty edit screen.
+  if(!s.songs || !s.songs.length){
+    var empty = document.createElement('div');
+    empty.className = 'r639-empty-setlist-actions';
+    empty.style.cssText = 'margin-top:12px;border:1px solid rgba(245,197,24,.34);border-radius:16px;padding:13px;background:linear-gradient(135deg,rgba(6,18,45,.72),rgba(8,27,70,.64));box-shadow:0 10px 24px rgba(0,0,0,.18),0 0 18px rgba(245,197,24,.08);';
+    empty.innerHTML =
+      '<div style="font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1.4px;color:#f5c518;margin-bottom:5px;">READY TO BUILD THIS SETLIST</div>'+
+      '<div style="font-size:12px;line-height:1.4;color:#dbe8ff;margin-bottom:11px;">This setlist is linked to the gig. Add songs now, or open the full Setlist Actions menu for share, manage, rename, reorder, or delete.</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+
+        '<button type="button" id="r639-empty-add-songs" style="height:40px;border-radius:13px;border:1px solid rgba(245,197,24,.75);background:linear-gradient(135deg,rgba(245,197,24,.24),rgba(6,14,28,.72));color:#f5c518;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;touch-action:manipulation;">+ ADD SONGS</button>'+
+        '<button type="button" id="r639-empty-actions" style="height:40px;border-radius:13px;border:1px solid rgba(74,158,255,.72);background:linear-gradient(135deg,rgba(74,158,255,.18),rgba(6,14,28,.72));color:#7ab5ff;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;touch-action:manipulation;">SETLIST ACTIONS</button>'+
+      '</div>';
+    container.appendChild(empty);
+    setTimeout(function(){
+      var add = document.getElementById('r639-empty-add-songs');
+      var actions = document.getElementById('r639-empty-actions');
+      if(add){ add.onclick = function(e){ e.stopPropagation(); aSL = s.id; showPicker(); }; }
+      if(actions){ actions.onclick = function(e){ e.stopPropagation(); toggleExpandedSetlistMenu(e, s.id); }; }
+    }, 0);
+  }
 
   s.songs.forEach(function(sg, i){
     var div = document.createElement('div');
@@ -27230,7 +27254,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-25-calendar-setlist-action-polish-r635';
+var WHATS_NEW_VERSION = '2026-05-26-post-r635-setlist-workflow-r639';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
