@@ -155,6 +155,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r591: Image 05 rehearsal visual tune + QA badge default-off. Keeps the r590 registry reliability guard, disables the visible QA badge by default so diagnostics do not cover the artwork, and strengthens the Image 05 / Rehearsal On Deck registry override: smaller scale, slight left shift, higher vertical anchor, and smaller/tucked social buttons. No asset changes; upload index_r591.html only. -->
 <!-- r592: Image 05 rehearsal stronger visible tune. Keeps QA badge default-off and registry guard active. Applies a clearly stronger Image 05 / Rehearsal On Deck override: larger zoom-out, stronger left shift, balanced vertical anchor, and smaller/tucked social buttons so the result should visibly differ from r591. No asset changes; upload index_r592.html only. -->
 <!-- r594: Home image registry control-path repair. Removes the r593 visible QA badge/code overlay and makes the registry renderer write direct inline !important styles to the Home image/buttons so older high-specificity rehearsal CSS cannot override registry values. Keeps Image 05 rehearsal values from r592. Upload index_r594.html as index.html; no image assets changed. -->
+<!-- r595: Image 01 rehearsal registry tune. Changes only Home image 01 in Rehearsal On Deck mode: nudges the scenic band image upward for less bottom-heavy framing and slightly tucks/reduces the social buttons to reduce lower-right artwork interference. No asset, Calendar, Songs, Setlists, Chat, Band, Pay, notification, or service-worker changes. Upload index_r595.html as index.html. -->
 <!-- r560: Home band image 18 added. Adds exact supplied Home-only band_image_18.png to HOME_BAND_IMAGES with cache-bust v=r560; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r560.html as index.html plus band_image_18.png after phone test. -->
 <!-- r559: Home band image 17 added. Adds exact supplied Home-only band_image_17.png to HOME_BAND_IMAGES with cache-bust v=r559; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r559.html as index.html plus band_image_17.png after phone test. -->
 <!-- r558: Home band image 16 added. Adds exact supplied Home-only band_image_16.png to HOME_BAND_IMAGES with cache-bust v=r558; no Home layout/CSS, Band Chat/Band tab, flyer, Calendar, or unrelated app changes. Upload index_r558.html as index.html plus band_image_16.png after phone test. -->
@@ -24201,6 +24202,10 @@ var HOME_IMAGE_PRESENTATION = {
   1: {
     normal: {
       buttons: { gapPx: 7, sizePx: 33, iconPx: 16, xPx: 7, yPx: 3, scale: 1 }
+    },
+    rehearsal: {
+      img: { widthPct: 110, xPx: 8, yPct: -61 },
+      buttons: { gapPx: 7, sizePx: 34, iconPx: 17, xPx: 8, yPx: -2, scale: 1 }
     }
   },
   2: {
