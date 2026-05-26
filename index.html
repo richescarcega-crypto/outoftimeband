@@ -1,3 +1,4 @@
+<!-- r733: Setlists sticky header. Makes the Setlists main hero header sticky while the Setlists tab scrolls, and keeps the Setlist edit header sticky while editing. Scope is Setlists headers only; no Setlists data/actions, Songs, Home, Calendar, Chat, Mates, Pay, flyers, assets, or app logic changed. Upload index_r733.html as index.html after phone test. -->
 <!-- r732: Home alerts row logic. Wraps Home song-vote and rehearsal cues in a reusable alert row so a single alert remains full width, while both visible alerts render as two compact half-width pills sharing one row. Preserves Home locked gaps/image/social buttons, alert tap behavior, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r732.html as index.html after phone test. -->
 <!-- r729: Calendar Add/Edit Event form sticky header hardening. Fixes the actual Calendar event-form header behavior by making #evm header/X sticky at the top of the scrolling modal, keeping the form visually balanced when closed, and adding a modest keyboard-focus viewport improvement for editable fields. No event fields, save logic, Calendar layout/gaps, Home, Chat, Songs, Setlists, Mates, Pay, flyers, assets, or app data changed. Upload index_r729.html as index.html after phone test. -->
 <!-- r728: Image lightbox premium polish. Applies premium gold-accented, scroll-safe styling only to the shared generic image lightbox and Mates/Band member photo lightbox; preserves all image sources, captions, share/download actions, member photo behavior, Home, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r728.html as index.html after phone test. -->
@@ -8725,6 +8726,25 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   }
 }
 
+/* r733: Setlists sticky header only.
+   Keeps Setlists header affordance visible while list/edit content scrolls.
+   Does not alter Setlists data/actions or other tabs. */
+#sc-sets #sets-hero{
+  position:sticky !important;
+  top:0 !important;
+  z-index:120 !important;
+}
+#sc-sets #eh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:130 !important;
+  background:linear-gradient(180deg,rgba(6,14,28,.98),rgba(8,20,46,.94)) !important;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+body.light #sc-sets #eh{
+  background:linear-gradient(180deg,rgba(245,247,251,.98),rgba(232,238,248,.96)) !important;
+}
 
 
 /* r665: Songs sticky header only — keep hero/search fixed; song list scrolls. */
@@ -31081,7 +31101,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-home-alerts-row-r732';
+var WHATS_NEW_VERSION = '2026-05-26-setlists-sticky-header-r733';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -31426,6 +31446,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-setlists-sticky-header-r733', date:'May 26, 2026', importance:'fix', emoji:'📋', title:'Setlists sticky header', body:'Keeps the Setlists main hero header sticky while the Setlists tab scrolls, and keeps the Setlist edit header sticky while editing a setlist. Setlists actions/data, Home, Calendar, Chat, Songs, Mates, Pay, flyers, assets, and app logic are unchanged.', items:['Upload index_r733.html as index.html.', 'Confirm Build Version reports r733.', 'Phone-test Setlists: scroll the Setlists list and edit a setlist; the Setlists header/edit header should remain visible while list content scrolls underneath.'] },
   { version:'2026-05-26-home-alerts-row-r732', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home alerts row', body:'Adds a reusable Home alerts row so one alert remains full-width, while both Song Vote Pending and Rehearsal On Deck visible together become two compact half-width pills in the same row. Home locked gaps, band image/framing, social buttons, alert tap behavior, Next Gig, all other tabs, flyers, assets, and app data are unchanged.', items:['Upload index_r732.html as index.html.', 'Confirm Build Version reports r732.', 'Phone-test Home in three states: only rehearsal, only song vote pending, and both together. Both together should share one row with two tappable half-width pills without pushing down Next Gig or the band image.'] },
   { version:'2026-05-26-deep-caret-cleanup-r731', date:'May 26, 2026', importance:'fix', emoji:'✨', title:'Deep caret cleanup', body:'Removes remaining visual caret/chevron affordances from tappable pill/card/list rows and legacy accordion indicators while preserving full-row tap behavior and true controls such as month navigation, reorder buttons, filters, and data logic.', items:['Upload index_r731.html as index.html.', 'Confirm Build Version reports r731.', 'Phone-test likely spots: Home song vote cue, Calendar All Events rows/custom dates/blackouts/filter pill, Flyer template summary, and expandable sections. The whole pill/card/row should remain tappable without a right-side caret.'] },
   { version:'2026-05-26-custom-date-sticky-header-r730', date:'May 26, 2026', importance:'fix', emoji:'⭐', title:'Custom date header stays visible', body:'Extends the sticky header/X and modest keyboard-focus scroll-room treatment to Calendar Custom/Important Date only. Title/date/time/all-day/recurring/notes/save/delete behavior, Calendar layout/gaps, Home, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r730.html as index.html.', 'Confirm Build Version reports r730.', 'Phone-test Calendar → Custom/Important Date: header/X should remain visible while scrolling and fields should be easier to see while editing.'] },
