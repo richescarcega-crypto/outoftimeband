@@ -41,6 +41,8 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r668: Pay side-gutter calibration. Applies the approved side-gutter treatment to the Pay tab only by reducing #sc-pay left/right padding to 2px while preserving Pay vertical spacing/content, all locked Home gaps/gutters, Songs/Setlists/Chat/Mates gutters, all other tabs, and tab row. Upload index_r668.html as index.html. -->
 <!-- r669: Pay section-heading text inset. Moves only the Pay tab GIG PAYOUTS and GIG HISTORY section-label text slightly right after r668 side-gutter expansion, preserving Pay boxes, vertical spacing, all locked gutters/gaps, all other tabs, and tab row. Upload index_r669.html as index.html. -->
 <!-- r670: Calendar side-gutter calibration. Applies the approved side-gutter treatment to the Calendar tab only by reducing #sc-cal left/right padding to 2px while preserving Calendar vertical spacing/content, all locked Home gaps/gutters, other tab gutters, Pay label inset, and tab row. Upload index_r670.html as index.html. -->
+<!-- r671: Calendar blue gradient canvas. Applies the same approved light/dark/light blue page-canvas gradient used on Home/Songs/Setlists/Chat/Mates/Pay to Calendar only, preserving Calendar side gutters, vertical gaps, cards, grid, All Events/Rehearsal Proposals, and all other tabs. Upload index_r671.html as index.html. -->
+<!-- r672: Pay Gig History caret cleanup. Removes only the Pay tab Gig History caret while keeping the Gig History heading row tappable/expandable. Preserves r671 Calendar gradient, Pay side gutters/label inset, locked Home gaps/gutters, all other tabs, and tab row. Upload index_r672.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -7287,6 +7289,14 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   }
 }
 
+/* r671: Calendar blue canvas only — match approved page background from other tabs. */
+body:not(.light) #sc-cal{
+  background:
+    radial-gradient(circle at 50% 10%,rgba(80,184,255,.70) 0%,rgba(0,114,235,.42) 35%,transparent 66%),
+    radial-gradient(circle at 50% 92%,rgba(80,184,255,.62) 0%,rgba(0,112,230,.36) 34%,transparent 64%),
+    linear-gradient(180deg,#1c98ff 0%,#0754c6 32%,#061a52 54%,#0754c6 76%,#1c98ff 100%) !important;
+}
+
 </style>
 </head>
 <body>
@@ -7582,7 +7592,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   <button class="ab" onclick="document.getElementById('pf').style.display='flex';document.getElementById('pf').style.flexDirection='column'">+ Log Gig Pay</button>
 
   <div class="sh" style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;">
-    <span onclick="toggleCard('gig-history-list','gig-history-arrow')" style="cursor:pointer;display:flex;align-items:center;gap:6px;flex:1;"><span class="tt-gold" style="font-size:12px;letter-spacing:2px;font-family:Russo One,sans-serif;">GIG HISTORY</span><span id="gig-history-arrow" style="color:#f5c518;font-size:14px;font-weight:700;">&#8964;</span><span id="gig-history-count" style="font-size:10px;color:#4a9eff;font-family:'Exo 2',sans-serif;"></span></span>
+    <span onclick="toggleCard('gig-history-list')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleCard('gig-history-list');}" style="cursor:pointer;display:flex;align-items:center;gap:6px;flex:1;"><span class="tt-gold" style="font-size:12px;letter-spacing:2px;font-family:Russo One,sans-serif;">GIG HISTORY</span><span id="gig-history-count" style="font-size:10px;color:#4a9eff;font-family:'Exo 2',sans-serif;"></span></span>
   </div>
   <div id="gig-history-list"></div>
 
@@ -27478,7 +27488,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-calendar-side-gutter-calibration-r670';
+var WHATS_NEW_VERSION = '2026-05-26-pay-gig-history-caret-cleanup-r672';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -27823,6 +27833,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-pay-gig-history-caret-cleanup-r672', date:'May 26, 2026', importance:'fix', emoji:'💸', title:'Pay Gig History caret removed', body:'Removes only the caret from the Pay tab Gig History heading while keeping the heading row tappable/expandable. Calendar blue gradient from r671, Pay side gutters and label inset, locked Home gaps/gutters, all other tabs, and the tab row stay unchanged.', items:['Upload index_r672.html as index.html.', 'Confirm Build Version reports r672.', 'Check only Pay tab → Gig History: no caret, heading still expands/collapses when tapped.'] },
+  { version:'2026-05-26-calendar-blue-gradient-canvas-r671', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Calendar blue canvas added', body:'Applies the same approved blue light/dark/light page-canvas gradient used on the other main tabs to the Calendar tab only. Calendar side gutters, vertical gaps, header/card content, month grid, All Events, Rehearsal Proposals, tab row, and all other tabs stay unchanged.', items:['Upload index_r671.html as index.html.', 'Confirm Build Version reports r671.', 'Check Calendar background only; do not retest locked gaps unless something appears off.'] },
   { version:'2026-05-26-calendar-side-gutter-calibration-r670', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Calendar side gutters calibrated', body:'Applies the approved side-gutter treatment to the Calendar tab only. Calendar cards/sections expand evenly left and right while vertical spacing, Calendar content, locked Home gaps/gutters, other tab gutters, Pay label inset, and the tab row stay unchanged.', items:['Upload index_r670.html as index.html.', 'Confirm Build Version reports r670.', 'Check only the left and right blue gutters on the Calendar tab against the locked reference gap.'] },
   { version:'2026-05-26-pay-section-heading-inset-r669', date:'May 26, 2026', importance:'fix', emoji:'💸', title:'Pay section labels inset', body:'Moves only the Pay tab GIG PAYOUTS and GIG HISTORY section-label text slightly right after the side-gutter expansion so those labels feel balanced again. Pay boxes, Pay vertical spacing, all locked Home gaps/gutters, other tab gutters, all other tabs, and the tab row stay unchanged.', items:['Upload index_r669.html as index.html.', 'Confirm Build Version reports r669.', 'Check only the two Pay section labels: GIG PAYOUTS and GIG HISTORY.'] },
   { version:'2026-05-26-pay-side-gutter-calibration-r668', date:'May 26, 2026', importance:'fix', emoji:'💸', title:'Pay side gutters calibrated', body:'Applies the approved side-gutter treatment to the Pay tab only. Pay boxes expand evenly left and right while vertical spacing, Pay content, Home locked gaps/gutters, Songs/Setlists/Chat/Mates gutters, all other tabs, and the tab row stay unchanged.', items:['Upload index_r668.html as index.html.', 'Confirm Build Version reports r668.', 'Check only the left and right blue gutters on the Pay tab against the locked reference gap.'] },
