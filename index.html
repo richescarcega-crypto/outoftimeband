@@ -1,3 +1,4 @@
+<!-- r734: Songs library row flex-shrink fix. Fixes the collapsed Songs rows by preventing song-list flex children from shrinking inside the scrollable flex-column list, and restores explicit row min-height/display/visible content flow. Preserves r718 premium row styling, Songs search/header, song data/resources, Setlists r733 sticky header, Home, Calendar, Chat, Mates, Pay, flyers, assets, and app logic. Upload index_r734.html as index.html after phone test. -->
 <!-- r733: Setlists sticky header. Makes the Setlists main hero header sticky while the Setlists tab scrolls, and keeps the Setlist edit header sticky while editing. Scope is Setlists headers only; no Setlists data/actions, Songs, Home, Calendar, Chat, Mates, Pay, flyers, assets, or app logic changed. Upload index_r733.html as index.html after phone test. -->
 <!-- r732: Home alerts row logic. Wraps Home song-vote and rehearsal cues in a reusable alert row so a single alert remains full width, while both visible alerts render as two compact half-width pills sharing one row. Preserves Home locked gaps/image/social buttons, alert tap behavior, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r732.html as index.html after phone test. -->
 <!-- r729: Calendar Add/Edit Event form sticky header hardening. Fixes the actual Calendar event-form header behavior by making #evm header/X sticky at the top of the scrolling modal, keeping the form visually balanced when closed, and adding a modest keyboard-focus viewport improvement for editable fields. No event fields, save logic, Calendar layout/gaps, Home, Chat, Songs, Setlists, Mates, Pay, flyers, assets, or app data changed. Upload index_r729.html as index.html after phone test. -->
@@ -10894,6 +10895,34 @@ body.light #img-lightbox-download{
   display:none !important;
 }
 
+
+
+/* r734: Songs library row flex-shrink fix.
+   Root cause: #library-list is both the scroll container and a flex column.
+   Song rows were flex children with default flex-shrink:1; with many songs,
+   the browser compressed every row to fit instead of letting the list scroll.
+   r718 then hid the overflow, making text/art appear sliced.
+   This final scoped rule makes rows non-shrinking scroll items and restores
+   the intended content height without changing song behavior. */
+#sc-songs #library-list{
+  align-items:stretch !important;
+}
+#sc-songs #library-list > .song-lib-card{
+  flex:0 0 auto !important;
+  min-height:56px !important;
+  display:flex !important;
+  align-items:center !important;
+  overflow:visible !important;
+}
+#sc-songs #library-list > .song-lib-card .song-card-shell{
+  flex:1 1 auto !important;
+  min-height:40px !important;
+  align-items:center !important;
+}
+#sc-songs #library-list > .song-lib-card .song-cover-box,
+#sc-songs #library-list > .song-lib-card .song-badge-box{
+  flex:0 0 40px !important;
+}
 </style>
 </head>
 <body>
@@ -30151,7 +30180,7 @@ function rLib() {
   songs.forEach(function(s){
     var row=document.createElement('div');
     row.className='song-lib-card';
-    row.style.cssText='padding:7px 10px 7px 8px;margin:0;cursor:pointer;';
+    row.style.cssText='padding:7px 10px 7px 8px;margin:0;cursor:pointer;min-height:56px;display:flex;align-items:center;overflow:visible;flex:0 0 auto;';
 
     row.innerHTML =
       '<div class="song-card-shell">'
@@ -31101,7 +31130,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-setlists-sticky-header-r733';
+var WHATS_NEW_VERSION = '2026-05-26-songs-row-flex-shrink-fix-r734';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -31446,6 +31475,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-songs-row-flex-shrink-fix-r734', date:'May 26, 2026', importance:'fix', emoji:'🎤', title:'Songs rows restored', body:'Fixes the collapsed Songs library rows by stopping flex-shrink inside the scrollable song list and restoring explicit row height/display. Preserves r718 premium styling, Songs search/header, song data/resources, Setlists sticky header, and all other tabs.', items:['Upload index_r734.html as index.html.', 'Confirm Build Version reports r734.', 'Phone-test Songs tab: rows should be full height with album art/text visible; search and song/resource taps should still work.'] },
   { version:'2026-05-26-setlists-sticky-header-r733', date:'May 26, 2026', importance:'fix', emoji:'📋', title:'Setlists sticky header', body:'Keeps the Setlists main hero header sticky while the Setlists tab scrolls, and keeps the Setlist edit header sticky while editing a setlist. Setlists actions/data, Home, Calendar, Chat, Songs, Mates, Pay, flyers, assets, and app logic are unchanged.', items:['Upload index_r733.html as index.html.', 'Confirm Build Version reports r733.', 'Phone-test Setlists: scroll the Setlists list and edit a setlist; the Setlists header/edit header should remain visible while list content scrolls underneath.'] },
   { version:'2026-05-26-home-alerts-row-r732', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home alerts row', body:'Adds a reusable Home alerts row so one alert remains full-width, while both Song Vote Pending and Rehearsal On Deck visible together become two compact half-width pills in the same row. Home locked gaps, band image/framing, social buttons, alert tap behavior, Next Gig, all other tabs, flyers, assets, and app data are unchanged.', items:['Upload index_r732.html as index.html.', 'Confirm Build Version reports r732.', 'Phone-test Home in three states: only rehearsal, only song vote pending, and both together. Both together should share one row with two tappable half-width pills without pushing down Next Gig or the band image.'] },
   { version:'2026-05-26-deep-caret-cleanup-r731', date:'May 26, 2026', importance:'fix', emoji:'✨', title:'Deep caret cleanup', body:'Removes remaining visual caret/chevron affordances from tappable pill/card/list rows and legacy accordion indicators while preserving full-row tap behavior and true controls such as month navigation, reorder buttons, filters, and data logic.', items:['Upload index_r731.html as index.html.', 'Confirm Build Version reports r731.', 'Phone-test likely spots: Home song vote cue, Calendar All Events rows/custom dates/blackouts/filter pill, Flyer template summary, and expandable sections. The whole pill/card/row should remain tappable without a right-side caret.'] },
