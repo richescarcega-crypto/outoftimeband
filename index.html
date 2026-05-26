@@ -1,3 +1,32 @@
+<!-- r732: Home alerts row logic. Wraps Home song-vote and rehearsal cues in a reusable alert row so a single alert remains full width, while both visible alerts render as two compact half-width pills sharing one row. Preserves Home locked gaps/image/social buttons, alert tap behavior, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r732.html as index.html after phone test. -->
+<!-- r729: Calendar Add/Edit Event form sticky header hardening. Fixes the actual Calendar event-form header behavior by making #evm header/X sticky at the top of the scrolling modal, keeping the form visually balanced when closed, and adding a modest keyboard-focus viewport improvement for editable fields. No event fields, save logic, Calendar layout/gaps, Home, Chat, Songs, Setlists, Mates, Pay, flyers, assets, or app data changed. Upload index_r729.html as index.html after phone test. -->
+<!-- r728: Image lightbox premium polish. Applies premium gold-accented, scroll-safe styling only to the shared generic image lightbox and Mates/Band member photo lightbox; preserves all image sources, captions, share/download actions, member photo behavior, Home, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r728.html as index.html after phone test. -->
+<!-- r726: Mates Contacts pill polish. Applies subtle premium gold-accented styling only to the Mates/Band CONTACTS expandable pill/header; preserves Contacts drawer rows, Add/Edit/Delete contact behavior, roster cards, Home, Calendar, Chat, Songs, Setlists, Pay, flyers, assets, and app data. Upload index_r726.html as index.html after phone test. -->
+<!-- r725: Setlists linked-gig prompt polish. Applies subtle premium gold-accented styling only to Setlists linked-gig prompt and linked-gig selector card; preserves linked-gig creation/link behavior, Setlists cards/songs/actions, Home, Calendar, Chat, Songs, Mates, Pay, flyers, assets, and app data. Upload index_r725.html as index.html after phone test. -->
+<!-- r724: Songs search bar premium polish. Applies a subtle gold-accented premium treatment only to the Songs search bar wrapper, icon, input, and hidden filter button styling; preserves Songs search behavior, filter button hidden state, song rows, Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r724.html as index.html after phone test. -->
+<!-- r723: Calendar key legend premium polish. Applies subtle gold-accented premium styling only to the Calendar key/legend row and its icon chips; preserves legend toggle/dismiss behavior, Calendar layout/gaps/grid/pills, all event data/logic, Home, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r723.html as index.html after phone test. -->
+<!-- r722: Home summary card premium polish. Applies subtle gold-accented premium styling to Home summary/alert cards only: announcements, rehearsal/song cues, and Next Gig. Preserves Home locked gaps, Home image/framing/social buttons, card visibility logic, countdown logic, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r722.html as index.html after phone test. -->
+<!-- r721: Bottom tab bar premium polish. Applies a subtle gold-accented premium treatment to the bottom tab bar and active tab state only; preserves tab order, tap behavior, active-tab logic, all tab content, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r721.html as index.html after phone test. -->
+<!-- r716: Calendar Rehearsal Proposals list-card polish. Applies premium gold-accented styling to Rehearsal Proposals cards only; preserves proposal voting/reminder/cancel/confirm behavior, Calendar layout/gaps/pills, Home, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r716.html as index.html after phone test. -->
+<!-- r714: Setlists list-card polish. Applies premium gold-accented styling to Setlists top-level setlist cards only; preserves expand/collapse, linked-gig prompt, Setlists song panels/actions, Home, Calendar, Chat, Songs, Mates, Pay, flyers, assets, and app data. Upload index_r714.html as index.html after phone test. -->
+<!-- r713: Chat thread list card polish. Applies premium gold-accented styling to Chat thread list rows only; preserves Chat header/composer r712, message/thread behavior, Home, Calendar, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r713.html as index.html after phone test. -->
+<!-- r711: Mates Contacts list-card consistency. Applies premium gold-accented card styling to expanded Mates/Band Contacts list rows only; preserves contact expand/collapse, add/edit/delete behavior, Contacts drawer positioning, all other tabs, flyers, assets, and app data. Upload index_r711.html as index.html after phone test. -->
+<!-- r710: Pay summary cards consistency. Applies premium gold-accented styling to Pay tab BAND TOTAL and YOUR CUT summary cards only; preserves totals/data calculations, Pay rows, Add Pay form, Gig History behavior, all other tabs, flyers, assets, and app data. Upload index_r710.html as index.html after phone test. -->
+<!-- r709: Pay list card consistency. Applies premium gold-accented card styling to Pay tab payout entries and Gig History rows only; preserves Pay totals, Add Pay form from r708, Gig History expand/collapse/navigation, all other tabs, flyers, assets, and app data. Upload index_r709.html as index.html after phone test. -->
+<!-- r708: Pay Log Gig Pay card consistency. Applies premium gold-accented inline-card styling to the Pay tab Log Gig Pay form only, preserving Add Pay fields, save behavior, Pay history, all other tabs, flyers, assets, and app data. Upload index_r708.html as index.html after phone test. -->
+<!-- r707: Calendar event form modal premium consistency. Applies sticky header/X, scroll-safe mobile height, and premium dark/light styling to the Calendar Add/Edit Event form modal (#evm) only; preserves event type selection, fields, save behavior, Calendar layout, and all non-target sections. Upload index_r707.html as index.html after phone test. -->
+<!-- r706: Add Member modal premium consistency. Applies sticky header/X, scroll-safe mobile height, and premium dark/light styling to the Mates/Band Add Member modal only; preserves member creation fields/logic and all non-target sections. Upload index_r706.html as index.html after phone test. -->
+<!-- r705: Setlists song picker premium consistency. Applies sticky header/X, scroll-safe song list, and premium dark/light styling to the Setlists Pick Songs overlay only; preserves song picker selection/add behavior and all non-target sections. Upload index_r705.html as index.html after phone test. -->
+<!-- r704: Band Image selector premium consistency. Applies gold-accented premium shell/header/X styling to the existing Band Image selector only; preserves selector logic, image registry, preview/select behavior, Home image/framing/gaps/social buttons, and all other tabs. Upload index_r704.html as index.html after phone test. -->
+<!-- r702: Songs Import File modal consistency. Applies premium sticky header/X and scroll-safe mobile modal styling to the CSV Import File modal only; preserves CSV parsing, duplicate resolution, import behavior, song data, and all non-target sections. Upload index_r702.html as index.html after phone test. -->
+<!-- r701: Quick Paste modal consistency. Applies premium sticky header/X and scroll-safe mobile modal styling to Songs Quick Paste/Paste Songs import modal only; preserves paste parsing, preview, import behavior, song data, and all non-target sections. Upload index_r701.html as index.html after phone test. -->
+<!-- r700: Delete Songs modal consistency. Applies premium sticky header/X and scroll-safe mobile modal styling to Songs Delete Songs multi-select modal only; preserves song deletion logic, list selection, confirmation behavior, and all non-target sections. Upload index_r700.html as index.html after phone test. -->
+<!-- r699: Song Info modal consistency. Applies premium sticky header/X and scroll-safe mobile modal styling to Songs Add/Edit Song only; preserves song data fields, save/delete/YouTube actions, keyboard behavior, and all non-Songs sections. Upload index_r699.html as index.html after phone test. -->
+<!-- r698: Important Date notes field. Adds a Notes field to Calendar Custom/Important Date events, saves it to the existing importantDates document as note, hydrates it on edit, and displays it in Calendar custom event rows/details. No Home, Calendar layout/gaps/grid/pills, Chat, Songs, Setlists, Mates, Pay, flyers, assets, or unrelated data changed. Upload index_r698.html as index.html after phone test. -->
+<!-- r697: Important Date modal consistency. Applies premium sticky-header/X and scroll-safe mobile treatment to the Calendar Important Date modal only. No Important Date save/delete/all-day/recurring logic, Home, Calendar layout/gaps/grid/pills, Chat, Songs, Setlists, Mates, Pay, flyers, assets, or app data changed. Upload index_r697.html as index.html after phone test. -->
+<!-- r696: Rehearsal Proposal modal consistency. Applies premium sticky-header/X and scroll-safe mobile treatment to the Propose Rehearsal modal only. No proposal logic, Home, Calendar layout/gaps, Chat, Songs, Setlists, Mates, Pay, flyers, assets, or app data changed. Upload index_r696.html as index.html after phone test. -->
+<!-- r695: Rehearsal Agenda modal consistency. Applies premium sticky header/X and scroll-safe modal treatment to the Rehearsal Agenda modal only, preserving agenda content/behavior and all Home, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r695.html as index.html. -->
+<!-- r694: Contact modal consistency. Applies premium sticky header/X and scroll-safe mobile treatment to the Mates/Band Contact modal only, preserving contact add/edit logic, contact fields, Mates roster/Contacts layout, Home, Calendar, Chat, Songs, Setlists, Pay, flyers, assets, and app data. Upload index_r694.html as index.html. -->
 <!-- r693: Announcements modal consistency. Applies premium sticky header/X and scroll-safe mobile treatment to the Home Announcements modal only, preserving announcement view toggles, list scrolling, compose box, post action, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r693.html as index.html. -->
 <!--
 OOT APP BUILD NOTE
@@ -63,6 +92,10 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r687: Settings modal consistency. Applies sticky header/X and scroll-safe premium-modal treatment to Home Display Mode, Notifications, and Privacy & Data modals only. No settings logic, Home image/framing/gaps, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, or data changed. Upload index_r687.html as index.html. -->
 <!-- r688: Arrange Tabs modal consistency. Applies the premium sticky header/X treatment to the Home Arrange Tabs modal only while preserving its static/no-bounce tab-order behavior and save logic. No Home image/framing/gaps, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, or data changed. Upload index_r688.html as index.html. -->
 <!-- r689: Member Activity modal consistency. Applies the premium sticky header/X and scroll-safe modal treatment to the Home Member Activity modal only. No activity-tracking logic, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, or app data changed. Upload index_r689.html as index.html. -->
+<!-- r720: Mates roster card polish. Applies subtle premium gold-accented styling only to Mates/Band top-level member roster cards; preserves roster expand/collapse, member photo lightbox, edit/delete/contact behavior, Home, Calendar, Chat, Songs, Setlists, Pay, flyers, assets, and app data. Upload index_r720.html as index.html after phone test. -->
+<!-- r719: Setlists expanded song-row polish. Applies premium gold-accented styling only to expanded Setlist song rows/panel; preserves Setlist expand/collapse, song taps, artwork/YouTube actions, Home, Calendar, Chat, Songs, Mates, Pay, flyers, assets, and app data. Upload index_r719.html as index.html after phone test. -->
+<!-- r718: Songs library list-card gold accent polish. Applies a subtle gold top accent and warmer premium border/glow only to Songs library rows; song list behavior, search, album-art taps/resources, Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, and app data unchanged. Upload index_r718.html as index.html after phone test. -->
+<!-- r717: Calendar All Events filter drawer premium polish. Applies gold-accented scroll-safe filter sheet styling only; filter logic, All Events rows, Calendar layout/gaps/pills, Home, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data unchanged. Upload index_r717.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -2420,6 +2453,812 @@ body.light #member-activity-modal .moh .mot{
   color:#1a3a8a !important;
 }
 body.light #member-activity-modal .moh button{
+  color:#1a3a8a !important;
+  border-color:rgba(26,58,138,.25) !important;
+  background:rgba(26,58,138,.06) !important;
+}
+
+
+
+
+
+
+/* r707: Calendar Add/Edit Event modal premium consistency.
+   Presentation-only: align #evm with the premium modal family while preserving
+   event type selection, inputs, date-range controls, and Add/Save behavior. */
+#evm .mo{
+  max-width:390px !important;
+  max-height:82vh !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  background:linear-gradient(180deg,rgba(11,25,55,.98) 0%,rgba(6,14,32,.98) 100%) !important;
+  border:1px solid rgba(245,197,24,.34) !important;
+  border-radius:16px !important;
+  box-shadow:0 20px 56px rgba(0,0,0,.60),0 0 20px rgba(245,197,24,.10),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#evm .moh{
+  position:sticky !important;
+  top:-18px !important;
+  z-index:5 !important;
+  margin:-18px -14px 14px -14px !important;
+  padding:14px 14px 12px !important;
+  min-height:54px !important;
+  background:linear-gradient(135deg,rgba(10,25,58,.98),rgba(5,13,32,.98)) !important;
+  border-bottom:1px solid rgba(245,197,24,.38) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.25),0 0 14px rgba(245,197,24,.08) !important;
+}
+#evm .moh .mot{
+  color:#f5c518 !important;
+  font-family:'Russo One',sans-serif !important;
+  font-size:15px !important;
+  letter-spacing:1.8px !important;
+  text-transform:uppercase !important;
+  text-shadow:0 0 12px rgba(245,197,24,.28) !important;
+}
+#evm .moh button{
+  width:34px !important;
+  height:34px !important;
+  padding:0 !important;
+  border-radius:50% !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  background:rgba(255,255,255,.08) !important;
+  color:#fff !important;
+  font-size:22px !important;
+  line-height:1 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 12px rgba(0,0,0,.22) !important;
+  flex-shrink:0 !important;
+}
+#evm .moh button:hover{
+  border-color:rgba(245,197,24,.48) !important;
+  color:#f5c518 !important;
+  background:rgba(245,197,24,.08) !important;
+}
+#evm .etr{
+  gap:6px !important;
+  margin-bottom:12px !important;
+}
+#evm .etb{
+  min-height:36px !important;
+}
+#evm .mi{
+  margin-bottom:10px !important;
+}
+#evm #blackout-range{
+  margin-bottom:10px !important;
+}
+body.light #evm .mo,
+body.light #evm .moh{
+  background:linear-gradient(180deg,#ffffff 0%,#edf4ff 100%) !important;
+  border-color:#c8d4e8 !important;
+  box-shadow:0 18px 44px rgba(20,40,80,.22),0 0 20px rgba(74,158,255,.10) !important;
+}
+body.light #evm .moh{
+  border-bottom-color:rgba(26,58,138,.20) !important;
+}
+body.light #evm .moh .mot{
+  color:#1a3a8a !important;
+  text-shadow:none !important;
+}
+body.light #evm .moh button{
+  color:#1a3a8a !important;
+  border-color:rgba(26,58,138,.25) !important;
+  background:rgba(26,58,138,.07) !important;
+}
+
+/* r706: Add Member modal premium consistency.
+   Presentation-only: align the Mates/Band Add Member modal with the premium modal family
+   while preserving member creation fields and Add to Band behavior. */
+#mm .mo{
+  max-width:380px !important;
+  max-height:82vh !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  background:linear-gradient(180deg,rgba(11,25,55,.98) 0%,rgba(6,14,32,.98) 100%) !important;
+  border:1px solid rgba(245,197,24,.34) !important;
+  border-radius:16px !important;
+  box-shadow:0 20px 56px rgba(0,0,0,.60),0 0 20px rgba(245,197,24,.10),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#mm .moh{
+  position:sticky !important;
+  top:-18px !important;
+  z-index:5 !important;
+  margin:-18px -14px 14px -14px !important;
+  padding:14px 14px 12px !important;
+  min-height:54px !important;
+  background:linear-gradient(135deg,rgba(10,25,58,.98),rgba(5,13,32,.98)) !important;
+  border-bottom:1px solid rgba(245,197,24,.38) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.25),0 0 14px rgba(245,197,24,.08) !important;
+}
+#mm .moh .mot{
+  color:#f5c518 !important;
+  font-family:'Russo One',sans-serif !important;
+  font-size:15px !important;
+  letter-spacing:1.8px !important;
+  text-transform:uppercase !important;
+  text-shadow:0 0 12px rgba(245,197,24,.28) !important;
+}
+#mm .moh button{
+  width:34px !important;
+  height:34px !important;
+  padding:0 !important;
+  border-radius:50% !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  background:rgba(255,255,255,.08) !important;
+  color:#fff !important;
+  font-size:22px !important;
+  line-height:1 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 12px rgba(0,0,0,.22) !important;
+  flex-shrink:0 !important;
+}
+#mm .moh button:hover{
+  border-color:rgba(245,197,24,.48) !important;
+  color:#f5c518 !important;
+  background:rgba(245,197,24,.08) !important;
+}
+#mm .mi{
+  margin-bottom:10px !important;
+}
+#mm .sb{
+  margin-top:2px !important;
+}
+body.light #mm .mo,
+body.light #mm .moh{
+  background:linear-gradient(180deg,#ffffff 0%,#edf4ff 100%) !important;
+  border-color:#c8d4e8 !important;
+  box-shadow:0 18px 44px rgba(20,40,80,.22),0 0 20px rgba(74,158,255,.10) !important;
+}
+body.light #mm .moh{
+  border-bottom-color:rgba(26,58,138,.20) !important;
+}
+body.light #mm .moh .mot{
+  color:#1a3a8a !important;
+  text-shadow:none !important;
+}
+body.light #mm .moh button{
+  color:#1a3a8a !important;
+  border-color:rgba(26,58,138,.25) !important;
+  background:rgba(26,58,138,.06) !important;
+}
+
+/* r705: Setlists Pick Songs overlay premium consistency.
+   Presentation-only: align the Setlists song picker with the premium modal/sheet family
+   while preserving search, selection, and Add Selected Songs behavior. */
+#song-picker{
+  padding:0 !important;
+  background:radial-gradient(circle at 50% 0%,rgba(22,45,96,.40),rgba(0,0,0,.92) 58%,rgba(0,0,0,.96)) !important;
+  border-left:1px solid rgba(245,197,24,.20) !important;
+  border-right:1px solid rgba(245,197,24,.20) !important;
+  box-shadow:0 0 28px rgba(245,197,24,.14), inset 0 1px 0 rgba(255,255,255,.05) !important;
+  overflow:hidden !important;
+}
+#song-picker > div:first-child{
+  position:sticky !important;
+  top:0 !important;
+  z-index:5 !important;
+  margin:0 !important;
+  padding:14px 14px 12px !important;
+  min-height:54px !important;
+  background:linear-gradient(135deg,rgba(10,25,58,.98),rgba(5,13,32,.98)) !important;
+  border-bottom:1px solid rgba(245,197,24,.38) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.25),0 0 14px rgba(245,197,24,.08) !important;
+}
+#song-picker > div:first-child span{
+  color:#f5c518 !important;
+  font-family:'Russo One',sans-serif !important;
+  font-size:15px !important;
+  letter-spacing:1.8px !important;
+  text-transform:uppercase !important;
+  text-shadow:0 0 12px rgba(245,197,24,.28) !important;
+}
+#song-picker > div:first-child button{
+  width:34px !important;
+  height:34px !important;
+  border-radius:50% !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:rgba(6,14,28,.88) !important;
+  border:1px solid rgba(245,197,24,.55) !important;
+  color:#f5c518 !important;
+  font-size:17px !important;
+  line-height:1 !important;
+  box-shadow:0 0 12px rgba(245,197,24,.16) !important;
+}
+#song-picker > div:first-child button:hover{
+  background:rgba(245,197,24,.14) !important;
+  color:#fff1a8 !important;
+}
+#song-picker #picker-search{
+  flex:0 0 auto !important;
+  margin:12px 14px 10px !important;
+  width:calc(100% - 28px) !important;
+}
+#song-picker #picker-list{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding:0 14px 10px !important;
+}
+#song-picker > button.sb{
+  flex:0 0 auto !important;
+  margin:10px 14px calc(14px + env(safe-area-inset-bottom)) !important;
+  width:calc(100% - 28px) !important;
+  box-shadow:0 0 16px rgba(245,197,24,.18) !important;
+}
+body.light #song-picker{
+  background:rgba(0,0,0,.38) !important;
+  border-color:rgba(212,160,23,.35) !important;
+}
+body.light #song-picker > div:first-child{
+  background:linear-gradient(135deg,#ffffff,#eef4ff) !important;
+  border-bottom-color:rgba(184,134,11,.45) !important;
+  box-shadow:0 8px 18px rgba(20,40,80,.12) !important;
+}
+body.light #song-picker > div:first-child span{
+  color:#9a6a00 !important;
+  text-shadow:none !important;
+}
+body.light #song-picker > div:first-child button{
+  background:#fff !important;
+  border-color:rgba(184,134,11,.55) !important;
+  color:#9a6a00 !important;
+}
+
+/* r704: Band Image selector premium consistency.
+   Presentation-only: align the existing Band Image selector with the current
+   premium modal family using a stronger gold-accented shell/header/X. Selector
+   logic, image registry, preview/select flow, Home image/framing/gaps/social
+   buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and
+   app data are unchanged. */
+#band-image-modal{
+  align-items:flex-start !important;
+  justify-content:center !important;
+  padding:calc(58px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom)) !important;
+  box-sizing:border-box !important;
+  background:rgba(0,0,0,.48) !important;
+  backdrop-filter:blur(3px) !important;
+}
+#band-image-modal .band-image-modal-card{
+  width:min(460px,100%) !important;
+  max-width:460px !important;
+  max-height:calc(100dvh - 76px - env(safe-area-inset-bottom)) !important;
+  overflow:hidden !important;
+  border-radius:22px !important;
+  border:1px solid rgba(245,197,24,.36) !important;
+  background:
+    radial-gradient(circle at 88% 4%, rgba(74,158,255,.20), transparent 34%),
+    linear-gradient(180deg, rgba(7,26,62,.99) 0%, rgba(4,13,31,.99) 100%) !important;
+  box-shadow:0 18px 44px rgba(0,0,0,.58),0 0 28px rgba(74,158,255,.14),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#band-image-modal .band-image-modal-head{
+  position:sticky !important;
+  top:0 !important;
+  z-index:8 !important;
+  padding:12px 52px 12px 12px !important;
+  background:
+    radial-gradient(circle at 88% 4%, rgba(74,158,255,.20), transparent 34%),
+    linear-gradient(180deg, rgba(7,26,62,.99) 0%, rgba(4,13,31,.99) 100%) !important;
+  border-bottom:1px solid rgba(245,197,24,.24) !important;
+  border-radius:20px 20px 0 0 !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.22) !important;
+}
+#band-image-modal .band-image-modal-head .mot{
+  color:#f5c518 !important;
+}
+#band-image-modal .band-image-modal-x{
+  position:absolute !important;
+  top:10px !important;
+  right:12px !important;
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+  min-height:32px !important;
+  padding:0 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:50% !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  background:rgba(255,255,255,.08) !important;
+  color:#fff !important;
+  font-size:22px !important;
+  line-height:1 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 12px rgba(0,0,0,.22) !important;
+}
+#band-image-modal .band-image-modal-x:hover{
+  border-color:rgba(245,197,24,.48) !important;
+  color:#f5c518 !important;
+  background:rgba(245,197,24,.08) !important;
+}
+#band-image-modal .band-image-modal-body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior:contain !important;
+  padding:12px 12px 14px !important;
+}
+body.light #band-image-modal .band-image-modal-card,
+body.light #band-image-modal .band-image-modal-head{
+  background:linear-gradient(180deg,#ffffff 0%,#edf4ff 100%) !important;
+  border-color:#c8d4e8 !important;
+  box-shadow:0 18px 44px rgba(20,40,80,.22),0 0 20px rgba(74,158,255,.10) !important;
+}
+body.light #band-image-modal .band-image-modal-head{
+  border-bottom-color:rgba(26,58,138,.20) !important;
+}
+body.light #band-image-modal .band-image-modal-head .mot{
+  color:#1a3a8a !important;
+}
+body.light #band-image-modal .band-image-modal-x{
+  color:#1a3a8a !important;
+  border-color:rgba(26,58,138,.25) !important;
+  background:rgba(26,58,138,.06) !important;
+}
+@media (max-width:520px){
+  #band-image-modal{
+    padding:calc(52px + env(safe-area-inset-top)) 10px calc(12px + env(safe-area-inset-bottom)) !important;
+  }
+  #band-image-modal .band-image-modal-card{
+    width:100% !important;
+    max-height:calc(100dvh - 68px - env(safe-area-inset-bottom)) !important;
+  }
+}
+
+
+/* r703: Calendar Event Detail modal consistency.
+   Presentation-only: align #gig-detail-modal with the premium modal family using
+   a stronger gold-accented shell, sticky header/X, and scroll-safe mobile height.
+   Event forms, save/delete/share/flyer behavior, Calendar layout/gaps/grid/pills,
+   Home, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged. */
+#gig-detail-modal{
+  align-items:flex-start !important;
+  justify-content:center !important;
+  padding:calc(58px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom)) !important;
+  box-sizing:border-box !important;
+  background:rgba(0,0,0,.48) !important;
+  backdrop-filter:blur(3px) !important;
+}
+#gig-detail-modal .mo{
+  width:min(520px,100%) !important;
+  max-width:520px !important;
+  max-height:calc(100dvh - 76px - env(safe-area-inset-bottom)) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior:contain !important;
+  border-radius:22px !important;
+  border:1px solid rgba(245,197,24,.36) !important;
+  background:
+    radial-gradient(circle at 88% 4%, rgba(74,158,255,.20), transparent 34%),
+    linear-gradient(180deg, rgba(7,26,62,.99) 0%, rgba(4,13,31,.99) 100%) !important;
+  box-shadow:0 18px 44px rgba(0,0,0,.58),0 0 28px rgba(74,158,255,.14),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#gig-detail-modal .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:8 !important;
+  background:
+    radial-gradient(circle at 88% 4%, rgba(74,158,255,.20), transparent 34%),
+    linear-gradient(180deg, rgba(7,26,62,.99) 0%, rgba(4,13,31,.99) 100%) !important;
+  border-bottom:1px solid rgba(245,197,24,.24) !important;
+  border-radius:20px 20px 0 0 !important;
+  flex-shrink:0 !important;
+}
+#gig-detail-modal .moh .mot{
+  color:#f5c518 !important;
+}
+#gig-detail-modal .moh button{
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+  min-height:32px !important;
+  padding:0 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:50% !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  background:rgba(255,255,255,.08) !important;
+  color:#fff !important;
+  font-size:22px !important;
+  line-height:1 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 12px rgba(0,0,0,.22) !important;
+}
+#gig-detail-modal .moh button:hover{
+  border-color:rgba(245,197,24,.48) !important;
+  color:#f5c518 !important;
+  background:rgba(245,197,24,.08) !important;
+}
+body.light #gig-detail-modal .mo,
+body.light #gig-detail-modal .moh{
+  background:linear-gradient(180deg,#ffffff 0%,#edf4ff 100%) !important;
+  border-color:#c8d4e8 !important;
+  box-shadow:0 18px 44px rgba(20,40,80,.22),0 0 20px rgba(74,158,255,.10) !important;
+}
+body.light #gig-detail-modal .moh{
+  border-bottom-color:rgba(26,58,138,.20) !important;
+}
+body.light #gig-detail-modal .moh .mot{
+  color:#1a3a8a !important;
+}
+body.light #gig-detail-modal .moh button{
+  color:#1a3a8a !important;
+  border-color:rgba(26,58,138,.25) !important;
+  background:rgba(26,58,138,.06) !important;
+}
+
+
+/* r702: Songs Import File modal consistency.
+   Presentation-only: align the dynamic #csv-import-modal with the premium modal
+   family using a sticky header/X and scroll-safe mobile height. CSV parsing,
+   duplicate resolution, import behavior, song data, Home, Calendar, Chat,
+   Setlists, Mates, Pay, flyers, assets, and app data are unchanged. */
+#csv-import-modal{
+  align-items:flex-start !important;
+  justify-content:center !important;
+  padding:calc(58px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom)) !important;
+  box-sizing:border-box !important;
+  background:rgba(0,0,0,.48) !important;
+  backdrop-filter:blur(3px) !important;
+}
+#csv-import-modal .mo{
+  width:min(520px,100%) !important;
+  max-width:520px !important;
+  max-height:calc(100dvh - 76px - env(safe-area-inset-bottom)) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior:contain !important;
+  border-radius:22px !important;
+  border:1px solid rgba(245,197,24,.34) !important;
+  background:
+    radial-gradient(circle at 88% 4%, rgba(74,158,255,.22), transparent 34%),
+    linear-gradient(180deg, rgba(7,26,62,.99) 0%, rgba(4,13,31,.99) 100%) !important;
+  box-shadow:0 18px 44px rgba(0,0,0,.58),0 0 28px rgba(74,158,255,.16),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  padding:0 12px 12px !important;
+}
+#csv-import-modal .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:6 !important;
+  margin:0 -12px 10px -12px !important;
+  padding:12px 52px 12px 12px !important;
+  align-items:flex-start !important;
+  background:
+    radial-gradient(circle at 88% 4%, rgba(74,158,255,.22), transparent 34%),
+    linear-gradient(180deg, rgba(7,26,62,.99) 0%, rgba(4,13,31,.99) 100%) !important;
+  border-bottom:1px solid rgba(245,197,24,.22) !important;
+  border-radius:20px 20px 0 0 !important;
+  flex-shrink:0 !important;
+}
+#csv-import-modal .moh .mot{
+  color:#f5c518 !important;
+}
+#csv-import-modal .moh button{
+  position:absolute !important;
+  top:10px !important;
+  right:12px !important;
+  width:32px !important;
+  height:32px !important;
+  padding:0 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:50% !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  background:rgba(255,255,255,.08) !important;
+  color:#fff !important;
+  font-size:22px !important;
+  line-height:1 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 12px rgba(0,0,0,.22) !important;
+}
+#csv-import-modal .moh button:hover{
+  border-color:rgba(245,197,24,.48) !important;
+  color:#f5c518 !important;
+  background:rgba(245,197,24,.08) !important;
+}
+#csv-import-modal #csv-import-body{
+  padding-bottom:2px !important;
+}
+body.light #csv-import-modal .mo,
+body.light #csv-import-modal .moh{
+  background:linear-gradient(180deg,#ffffff 0%,#edf4ff 100%) !important;
+  border-color:#c8d4e8 !important;
+  box-shadow:0 18px 44px rgba(20,40,80,.22),0 0 20px rgba(74,158,255,.10) !important;
+}
+body.light #csv-import-modal .moh{
+  border-bottom-color:rgba(26,58,138,.20) !important;
+}
+body.light #csv-import-modal .moh .mot{
+  color:#1a3a8a !important;
+}
+body.light #csv-import-modal .moh button{
+  color:#1a3a8a !important;
+  border-color:rgba(26,58,138,.25) !important;
+  background:rgba(26,58,138,.06) !important;
+}
+
+/* r701: Songs Quick Paste modal consistency.
+   Presentation-only: align #import-songs-modal with the premium modal family using
+   a sticky header/X and scroll-safe mobile height. Paste parsing, preview, import
+   behavior, song data, Home, Calendar, Chat, Setlists, Mates, Pay, flyers,
+   assets, and app data are unchanged. */
+#import-songs-modal{
+  align-items:flex-start !important;
+  justify-content:center !important;
+  padding:calc(58px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom)) !important;
+  box-sizing:border-box !important;
+  background:rgba(0,0,0,.48) !important;
+  backdrop-filter:blur(3px) !important;
+}
+#import-songs-modal .mo{
+  width:min(460px,100%) !important;
+  max-width:460px !important;
+  max-height:calc(100dvh - 76px - env(safe-area-inset-bottom)) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior:contain !important;
+  border-radius:22px !important;
+  border:1px solid rgba(245,197,24,.34) !important;
+  background:
+    radial-gradient(circle at 88% 4%, rgba(74,158,255,.22), transparent 34%),
+    linear-gradient(180deg, rgba(7,26,62,.99) 0%, rgba(4,13,31,.99) 100%) !important;
+  box-shadow:0 18px 44px rgba(0,0,0,.58),0 0 28px rgba(74,158,255,.16),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  padding:0 12px 12px !important;
+}
+#import-songs-modal .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:6 !important;
+  margin:0 -12px 10px -12px !important;
+  padding:12px 52px 12px 12px !important;
+  align-items:flex-start !important;
+  background:
+    radial-gradient(circle at 88% 4%, rgba(74,158,255,.22), transparent 34%),
+    linear-gradient(180deg, rgba(7,26,62,.99) 0%, rgba(4,13,31,.99) 100%) !important;
+  border-bottom:1px solid rgba(245,197,24,.22) !important;
+  border-radius:20px 20px 0 0 !important;
+  flex-shrink:0 !important;
+}
+#import-songs-modal .moh .mot{
+  color:#f5c518 !important;
+}
+#import-songs-modal .moh button{
+  position:absolute !important;
+  top:10px !important;
+  right:12px !important;
+  width:32px !important;
+  height:32px !important;
+  padding:0 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:50% !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  background:rgba(255,255,255,.08) !important;
+  color:#fff !important;
+  font-size:22px !important;
+  line-height:1 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 12px rgba(0,0,0,.22) !important;
+}
+#import-songs-modal .moh button:hover{
+  border-color:rgba(245,197,24,.48) !important;
+  color:#f5c518 !important;
+  background:rgba(245,197,24,.08) !important;
+}
+#import-songs-modal #import-songs-textarea{
+  max-height:min(30dvh, 220px) !important;
+}
+#import-songs-modal #import-songs-preview-list{
+  max-height:min(38dvh, 320px) !important;
+  overscroll-behavior:contain !important;
+}
+body.light #import-songs-modal .mo,
+body.light #import-songs-modal .moh{
+  background:linear-gradient(180deg,#ffffff 0%,#edf4ff 100%) !important;
+  border-color:#c8d4e8 !important;
+  box-shadow:0 18px 44px rgba(20,40,80,.22),0 0 20px rgba(74,158,255,.10) !important;
+}
+body.light #import-songs-modal .moh{
+  border-bottom-color:rgba(26,58,138,.20) !important;
+}
+body.light #import-songs-modal .moh .mot{
+  color:#1a3a8a !important;
+}
+body.light #import-songs-modal .moh button{
+  color:#1a3a8a !important;
+  border-color:rgba(26,58,138,.25) !important;
+  background:rgba(26,58,138,.06) !important;
+}
+
+
+/* r700: Songs Delete Songs modal consistency.
+   Presentation-only: align #delete-songs-modal with the premium modal family using
+   a sticky header/X and scroll-safe mobile height. Song deletion, selection,
+   confirmation behavior, Home, Calendar, Chat, Setlists, Mates, Pay, flyers,
+   assets, and app data are unchanged. */
+#delete-songs-modal{
+  align-items:flex-start !important;
+  justify-content:center !important;
+  padding:calc(58px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom)) !important;
+  box-sizing:border-box !important;
+  background:rgba(0,0,0,.48) !important;
+  backdrop-filter:blur(3px) !important;
+}
+#delete-songs-modal .mo{
+  width:min(460px,100%) !important;
+  max-width:460px !important;
+  max-height:calc(100dvh - 76px - env(safe-area-inset-bottom)) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior:contain !important;
+  border-radius:22px !important;
+  border:1px solid rgba(245,197,24,.34) !important;
+  background:
+    radial-gradient(circle at 88% 4%, rgba(74,158,255,.22), transparent 34%),
+    linear-gradient(180deg, rgba(7,26,62,.99) 0%, rgba(4,13,31,.99) 100%) !important;
+  box-shadow:0 18px 44px rgba(0,0,0,.58),0 0 28px rgba(74,158,255,.16),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  padding:0 12px 12px !important;
+}
+#delete-songs-modal .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:6 !important;
+  margin:0 -12px 10px -12px !important;
+  padding:12px 52px 12px 12px !important;
+  align-items:flex-start !important;
+  background:
+    radial-gradient(circle at 88% 4%, rgba(74,158,255,.22), transparent 34%),
+    linear-gradient(180deg, rgba(7,26,62,.99) 0%, rgba(4,13,31,.99) 100%) !important;
+  border-bottom:1px solid rgba(245,197,24,.22) !important;
+  border-radius:20px 20px 0 0 !important;
+  flex-shrink:0 !important;
+}
+#delete-songs-modal .moh .mot{
+  color:#f5c518 !important;
+}
+#delete-songs-modal .moh button{
+  position:absolute !important;
+  top:10px !important;
+  right:12px !important;
+  width:32px !important;
+  height:32px !important;
+  padding:0 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:50% !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  background:rgba(255,255,255,.08) !important;
+  color:#fff !important;
+  font-size:22px !important;
+  line-height:1 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 12px rgba(0,0,0,.22) !important;
+}
+#delete-songs-modal .moh button:hover{
+  border-color:rgba(245,197,24,.48) !important;
+  color:#f5c518 !important;
+  background:rgba(245,197,24,.08) !important;
+}
+#delete-songs-modal #delete-songs-list{
+  max-height:min(46dvh, 360px) !important;
+  overscroll-behavior:contain !important;
+}
+body.light #delete-songs-modal .mo,
+body.light #delete-songs-modal .moh{
+  background:linear-gradient(180deg,#ffffff 0%,#edf4ff 100%) !important;
+  border-color:#c8d4e8 !important;
+  box-shadow:0 18px 44px rgba(20,40,80,.22),0 0 20px rgba(74,158,255,.10) !important;
+}
+body.light #delete-songs-modal .moh{
+  border-bottom-color:rgba(26,58,138,.20) !important;
+}
+body.light #delete-songs-modal .moh .mot{
+  color:#1a3a8a !important;
+}
+body.light #delete-songs-modal .moh button{
+  color:#1a3a8a !important;
+  border-color:rgba(26,58,138,.25) !important;
+  background:rgba(26,58,138,.06) !important;
+}
+
+/* r699: Songs Add/Edit Song modal consistency.
+   Presentation-only: align #song-info-modal with the premium modal family using
+   a sticky header/X and scroll-safe mobile height. Song fields, save/delete,
+   YouTube/resource actions, notes behavior, and app data are unchanged. */
+#song-info-modal{
+  align-items:flex-start !important;
+  justify-content:center !important;
+  padding:calc(58px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom)) !important;
+  box-sizing:border-box !important;
+  background:rgba(0,0,0,.48) !important;
+  backdrop-filter:blur(3px) !important;
+}
+#song-info-modal .mo{
+  width:min(460px,100%) !important;
+  max-width:460px !important;
+  max-height:calc(100dvh - 76px - env(safe-area-inset-bottom)) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior:contain !important;
+  border-radius:22px !important;
+  border:1px solid rgba(245,197,24,.34) !important;
+  background:
+    radial-gradient(circle at 88% 4%, rgba(74,158,255,.22), transparent 34%),
+    linear-gradient(180deg, rgba(7,26,62,.99) 0%, rgba(4,13,31,.99) 100%) !important;
+  box-shadow:0 18px 44px rgba(0,0,0,.58),0 0 28px rgba(74,158,255,.16),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  padding:0 12px 12px !important;
+}
+#song-info-modal .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:6 !important;
+  margin:0 -12px 10px -12px !important;
+  padding:12px 52px 12px 12px !important;
+  align-items:flex-start !important;
+  background:
+    radial-gradient(circle at 88% 4%, rgba(74,158,255,.22), transparent 34%),
+    linear-gradient(180deg, rgba(7,26,62,.99) 0%, rgba(4,13,31,.99) 100%) !important;
+  border-bottom:1px solid rgba(245,197,24,.22) !important;
+  border-radius:20px 20px 0 0 !important;
+  flex-shrink:0 !important;
+}
+#song-info-modal .moh .mot{
+  color:#f5c518 !important;
+}
+#song-info-modal #si-artist-display{
+  color:#f3d77b !important;
+}
+#song-info-modal .moh button{
+  position:absolute !important;
+  top:10px !important;
+  right:12px !important;
+  width:32px !important;
+  height:32px !important;
+  padding:0 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:50% !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  background:rgba(255,255,255,.08) !important;
+  color:#fff !important;
+  font-size:22px !important;
+  line-height:1 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 12px rgba(0,0,0,.22) !important;
+}
+#song-info-modal .moh button:hover{
+  border-color:rgba(245,197,24,.48) !important;
+  color:#f5c518 !important;
+  background:rgba(245,197,24,.08) !important;
+}
+#song-info-modal #si-edit-label{
+  color:#f5c518 !important;
+  opacity:.86 !important;
+}
+body.light #song-info-modal .mo,
+body.light #song-info-modal .moh{
+  background:linear-gradient(180deg,#ffffff 0%,#edf4ff 100%) !important;
+  border-color:#c8d4e8 !important;
+  box-shadow:0 18px 44px rgba(20,40,80,.22),0 0 20px rgba(74,158,255,.10) !important;
+}
+body.light #song-info-modal .moh{
+  border-bottom-color:rgba(26,58,138,.20) !important;
+}
+body.light #song-info-modal .moh .mot,
+body.light #song-info-modal #si-edit-label{
+  color:#1a3a8a !important;
+}
+body.light #song-info-modal #si-artist-display{
+  color:#b8860b !important;
+}
+body.light #song-info-modal .moh button{
   color:#1a3a8a !important;
   border-color:rgba(26,58,138,.25) !important;
   background:rgba(26,58,138,.06) !important;
@@ -7981,6 +8820,147 @@ body:not(.light) #sc-cal{
 
 
 
+
+
+/* r695: Rehearsal Agenda modal consistency only.
+   Presentation-only: aligns Agenda with the premium modal family while preserving agenda content and behavior. */
+#agenda-modal{
+  align-items:center !important;
+  justify-content:center !important;
+  padding:14px !important;
+}
+#agenda-modal .mo{
+  width:min(94vw,460px) !important;
+  max-height:calc(100dvh - 28px) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  background:linear-gradient(180deg,rgba(10,24,56,.98),rgba(6,14,32,.99)) !important;
+  border:1px solid rgba(245,197,24,.46) !important;
+  border-radius:18px !important;
+  box-shadow:0 18px 44px rgba(0,0,0,.48),0 0 24px rgba(74,158,255,.16),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  padding:0 14px 14px !important;
+}
+#agenda-modal .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:4 !important;
+  margin:0 -14px 14px !important;
+  padding:12px 14px !important;
+  background:linear-gradient(180deg,rgba(10,24,56,.99),rgba(7,16,38,.98)) !important;
+  border-bottom:1px solid rgba(245,197,24,.34) !important;
+  border-radius:18px 18px 0 0 !important;
+}
+#agenda-modal .mot{
+  color:#f5c518 !important;
+  text-shadow:0 0 12px rgba(245,197,24,.28) !important;
+}
+#agenda-modal .moh button{
+  width:34px !important;
+  height:34px !important;
+  border-radius:999px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  color:#f5c518 !important;
+  background:rgba(245,197,24,.10) !important;
+  border:1px solid rgba(245,197,24,.42) !important;
+  box-shadow:0 0 14px rgba(245,197,24,.16) !important;
+  padding:0 !important;
+  line-height:1 !important;
+}
+body.light #agenda-modal .mo{
+  background:#fff !important;
+  border-color:#d4a017 !important;
+  box-shadow:0 18px 36px rgba(20,40,80,.18),0 0 0 1px rgba(212,160,23,.12) !important;
+}
+body.light #agenda-modal .moh{
+  background:linear-gradient(180deg,#fff,#f8fbff) !important;
+  border-bottom-color:rgba(180,134,11,.35) !important;
+}
+body.light #agenda-modal .mot{
+  color:#9a6a00 !important;
+  text-shadow:none !important;
+}
+body.light #agenda-modal .moh button{
+  color:#9a6a00 !important;
+  background:rgba(180,134,11,.10) !important;
+  border-color:rgba(180,134,11,.38) !important;
+  box-shadow:none !important;
+}
+
+/* r694: Mates/Band Contact modal consistency only.
+   Presentation-only: preserves contact fields, add/edit logic, roster, Contacts drawer, and all other tabs. */
+#contact-modal{
+  align-items:center !important;
+  justify-content:center !important;
+  padding:14px !important;
+}
+#contact-modal .mo{
+  width:min(94vw,460px) !important;
+  max-height:calc(100dvh - 28px) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  background:linear-gradient(180deg,rgba(10,24,56,.98),rgba(6,14,32,.99)) !important;
+  border:1px solid rgba(245,197,24,.46) !important;
+  border-radius:18px !important;
+  box-shadow:0 18px 44px rgba(0,0,0,.48),0 0 24px rgba(74,158,255,.16),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  padding:0 14px 14px !important;
+}
+#contact-modal .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:4 !important;
+  margin:0 -14px 14px !important;
+  padding:12px 14px !important;
+  background:linear-gradient(180deg,rgba(10,24,56,.99),rgba(7,16,38,.98)) !important;
+  border-bottom:1px solid rgba(245,197,24,.34) !important;
+  border-radius:18px 18px 0 0 !important;
+}
+#contact-modal .mot{
+  color:#f5c518 !important;
+  text-shadow:0 0 12px rgba(245,197,24,.28) !important;
+}
+#contact-modal .moh button{
+  width:34px !important;
+  height:34px !important;
+  border-radius:999px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  color:#f5c518 !important;
+  background:rgba(245,197,24,.10) !important;
+  border:1px solid rgba(245,197,24,.42) !important;
+  box-shadow:0 0 14px rgba(245,197,24,.16) !important;
+  padding:0 !important;
+  line-height:1 !important;
+}
+#contact-modal .mi{
+  width:100% !important;
+  margin-bottom:10px !important;
+}
+#contact-modal .sb{
+  margin-top:2px !important;
+}
+body.light #contact-modal .mo{
+  background:#fff !important;
+  border-color:#d4a017 !important;
+  box-shadow:0 18px 36px rgba(20,40,80,.18),0 0 0 1px rgba(212,160,23,.12) !important;
+}
+body.light #contact-modal .moh{
+  background:linear-gradient(180deg,#fff,#f8fbff) !important;
+  border-bottom-color:rgba(180,134,11,.35) !important;
+}
+body.light #contact-modal .mot{
+  color:#9a6a00 !important;
+  text-shadow:none !important;
+}
+body.light #contact-modal .moh button{
+  color:#9a6a00 !important;
+  background:rgba(180,134,11,.10) !important;
+  border-color:rgba(180,134,11,.38) !important;
+  box-shadow:none !important;
+}
+
 /* r693: Home Announcements modal consistency only.
    Presentation-only: premium sticky header/X and scroll-safe body while preserving
    active/dismissed toggles, announcement list scrolling, compose box, and post action. */
@@ -8321,6 +9301,1579 @@ body.light #whats-new-version-line{
   border-bottom-color:rgba(212,160,23,.32) !important;
 }
 
+
+
+/* r697: Important Date modal consistency — premium sticky header/X and scroll-safe card only */
+#idate-modal.r453-idate-visual .mo{
+  max-height:calc(100vh - 28px) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  border:1px solid rgba(245,197,24,.46) !important;
+  box-shadow:0 18px 36px rgba(0,0,0,.45),0 0 22px rgba(245,197,24,.12),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#idate-modal.r453-idate-visual .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:5 !important;
+  background:linear-gradient(135deg,rgba(13,39,97,.98),rgba(7,18,45,.98) 65%,rgba(10,22,40,.98)) !important;
+  border-bottom:1px solid rgba(245,197,24,.32) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  padding:12px 14px !important;
+  margin:-12px -13px 10px -13px !important;
+}
+#idate-modal.r453-idate-visual .mot{
+  color:#f5c518 !important;
+  letter-spacing:1.5px !important;
+  text-shadow:0 0 12px rgba(245,197,24,.28) !important;
+}
+#idate-modal.r453-idate-visual .moh button{
+  width:32px !important;
+  height:32px !important;
+  border-radius:999px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:rgba(255,255,255,.08) !important;
+  border:1px solid rgba(245,197,24,.38) !important;
+  color:#ffffff !important;
+  font-size:18px !important;
+  line-height:1 !important;
+  padding:0 !important;
+  box-shadow:0 0 12px rgba(245,197,24,.12) !important;
+}
+body.light #idate-modal.r453-idate-visual .mo{
+  background:#ffffff !important;
+  border-color:#d4a017 !important;
+  box-shadow:0 14px 30px rgba(20,40,80,.16),0 0 0 1px rgba(212,160,23,.12) !important;
+}
+body.light #idate-modal.r453-idate-visual .moh{
+  background:linear-gradient(135deg,#f8fbff,#deeaff) !important;
+  border-bottom-color:rgba(180,134,11,.32) !important;
+  box-shadow:0 8px 16px rgba(20,40,80,.10) !important;
+}
+body.light #idate-modal.r453-idate-visual .mot{
+  color:#9a6a00 !important;
+  text-shadow:none !important;
+}
+body.light #idate-modal.r453-idate-visual .moh button{
+  background:#ffffff !important;
+  border-color:#d4a017 !important;
+  color:#1a3a8a !important;
+  box-shadow:0 2px 8px rgba(20,40,80,.10) !important;
+}
+@media (max-width:520px){
+  #idate-modal.r453-idate-visual .mo{
+    max-height:calc(100vh - 18px - env(safe-area-inset-bottom)) !important;
+  }
+  #idate-modal.r453-idate-visual .moh{
+    padding:11px 12px !important;
+  }
+}
+
+
+/* r696: Rehearsal Proposal modal consistency — premium sticky header/X, scroll-safe body only */
+#proposal-modal .mo{
+  max-height:calc(100vh - 28px) !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+  border:1px solid rgba(245,197,24,.46) !important;
+  box-shadow:0 18px 36px rgba(0,0,0,.45),0 0 22px rgba(245,197,24,.12),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#proposal-modal .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:5 !important;
+  background:linear-gradient(135deg,rgba(13,39,97,.98),rgba(7,18,45,.98) 65%,rgba(10,22,40,.98)) !important;
+  border-bottom:1px solid rgba(245,197,24,.32) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  padding:12px 14px !important;
+  margin:-16px -16px 12px -16px !important;
+}
+#proposal-modal .mot{
+  color:#f5c518 !important;
+  letter-spacing:1.5px !important;
+  text-shadow:0 0 12px rgba(245,197,24,.28) !important;
+}
+#proposal-modal .moh button{
+  width:32px !important;
+  height:32px !important;
+  border-radius:999px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:rgba(255,255,255,.08) !important;
+  border:1px solid rgba(245,197,24,.38) !important;
+  color:#ffffff !important;
+  font-size:18px !important;
+  line-height:1 !important;
+  padding:0 !important;
+  box-shadow:0 0 12px rgba(245,197,24,.12) !important;
+}
+#proposal-modal #proposal-body{
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  min-height:0 !important;
+  padding:0 2px 8px 2px !important;
+}
+body.light #proposal-modal .mo{
+  background:#ffffff !important;
+  border-color:#d4a017 !important;
+  box-shadow:0 14px 30px rgba(20,40,80,.16),0 0 0 1px rgba(212,160,23,.12) !important;
+}
+body.light #proposal-modal .moh{
+  background:linear-gradient(135deg,#f8fbff,#deeaff) !important;
+  border-bottom-color:rgba(180,134,11,.32) !important;
+  box-shadow:0 8px 16px rgba(20,40,80,.10) !important;
+}
+body.light #proposal-modal .mot{
+  color:#9a6a00 !important;
+  text-shadow:none !important;
+}
+body.light #proposal-modal .moh button{
+  background:#ffffff !important;
+  border-color:#d4a017 !important;
+  color:#1a3a8a !important;
+  box-shadow:0 2px 8px rgba(20,40,80,.10) !important;
+}
+@media (max-width:520px){
+  #proposal-modal .mo{
+    max-height:calc(100vh - 18px - env(safe-area-inset-bottom)) !important;
+  }
+  #proposal-modal .moh{
+    padding:11px 12px !important;
+  }
+}
+
+
+
+
+/* r712: Chat thread chrome polish only.
+   Presentation-only: make the open-chat header and composer bar match the
+   premium gold-accented app family while preserving message/send behavior. */
+#chat-thread-screen .chat-thread-header{
+  background:linear-gradient(135deg,rgba(13,39,97,.98),rgba(8,22,54,.99) 58%,rgba(13,41,104,.96)) !important;
+  border-bottom:1px solid rgba(245,197,24,.34) !important;
+  box-shadow:0 8px 20px rgba(0,0,0,.26),0 0 14px rgba(245,197,24,.08),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#chat-thread-screen .chat-thread-header::after{
+  content:"";
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:0;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg,transparent,rgba(245,197,24,.72),transparent);
+  pointer-events:none;
+}
+#chat-thread-screen .chat-back-btn{
+  border-color:rgba(245,197,24,.42) !important;
+  color:#fff2b8 !important;
+  background:linear-gradient(135deg,rgba(10,22,40,.92),rgba(13,43,107,.78)) !important;
+  box-shadow:0 7px 16px rgba(0,0,0,.26),0 0 12px rgba(245,197,24,.08),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#chat-thread-screen #thread-av{
+  border:1px solid rgba(245,197,24,.34) !important;
+  box-shadow:0 0 14px rgba(245,197,24,.13),0 6px 14px rgba(0,0,0,.24) !important;
+}
+#chat-thread-screen #thread-name{
+  color:#fff7d6 !important;
+  text-shadow:0 0 10px rgba(245,197,24,.16),0 1px 3px rgba(0,0,0,.45) !important;
+}
+#chat-thread-screen #thread-sub{
+  color:#c7d6f3 !important;
+}
+#chat-thread-screen .chat-input-bar{
+  background:linear-gradient(180deg,rgba(8,22,54,.99),rgba(4,12,28,.99)) !important;
+  border-top:1px solid rgba(245,197,24,.32) !important;
+  box-shadow:0 -8px 20px rgba(0,0,0,.28),0 -1px 0 rgba(245,197,24,.13),inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+#chat-thread-screen #cin{
+  background:rgba(6,14,28,.94) !important;
+  border:1px solid rgba(245,197,24,.30) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 0 12px rgba(74,158,255,.08) !important;
+}
+body.light #chat-thread-screen .chat-thread-header{
+  background:linear-gradient(135deg,#ffffff,#eef5ff) !important;
+  border-bottom-color:rgba(184,134,11,.34) !important;
+  box-shadow:0 6px 14px rgba(20,40,80,.10),0 0 10px rgba(184,134,11,.06) !important;
+}
+body.light #chat-thread-screen .chat-thread-header::after{
+  background:linear-gradient(90deg,transparent,rgba(184,134,11,.62),transparent);
+}
+body.light #chat-thread-screen .chat-back-btn{
+  background:#ffffff !important;
+  border-color:#d4a017 !important;
+  color:#1a3a8a !important;
+  box-shadow:0 4px 12px rgba(20,40,80,.09) !important;
+}
+body.light #chat-thread-screen #thread-av{
+  border-color:#d4a017 !important;
+  box-shadow:0 4px 12px rgba(20,40,80,.10),0 0 10px rgba(184,134,11,.08) !important;
+}
+body.light #chat-thread-screen #thread-name{
+  color:#1a2a4a !important;
+  text-shadow:none !important;
+}
+body.light #chat-thread-screen #thread-sub{
+  color:#5a6a85 !important;
+}
+body.light #chat-thread-screen .chat-input-bar{
+  background:#ffffff !important;
+  border-top-color:rgba(184,134,11,.28) !important;
+  box-shadow:0 -5px 14px rgba(20,40,80,.07) !important;
+}
+body.light #chat-thread-screen #cin{
+  background:#ffffff !important;
+  border-color:#d4a017 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 0 8px rgba(184,134,11,.06) !important;
+}
+
+
+/* r713: Chat thread list card polish only. Keeps thread actions/data unchanged. */
+#chat-threads .chat-thread-row{
+  border:1px solid rgba(245,197,24,.24) !important;
+  border-left:3px solid rgba(245,197,24,.72) !important;
+  border-radius:12px !important;
+  background:linear-gradient(135deg,rgba(17,34,64,.98),rgba(8,18,37,.98)) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.22),0 0 13px rgba(245,197,24,.08),inset 0 1px 0 rgba(255,255,255,.05) !important;
+  margin:0 0 8px !important;
+  overflow:hidden !important;
+}
+#chat-threads .chat-thread-row:hover{
+  background:linear-gradient(135deg,rgba(22,46,88,.99),rgba(10,24,50,.99)) !important;
+  border-color:rgba(245,197,24,.38) !important;
+}
+#chat-threads .chat-thread-row:active{
+  transform:scale(.992);
+}
+#chat-threads .chat-thread-row.chat-band-row{
+  border-left-color:#ffbf00 !important;
+  box-shadow:0 9px 19px rgba(0,0,0,.24),0 0 16px rgba(255,191,0,.12),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#chat-threads .chat-thread-art.member,
+#chat-threads .chat-thread-art.band{
+  border-color:rgba(245,197,24,.34) !important;
+  box-shadow:0 6px 13px rgba(0,0,0,.24),0 0 10px rgba(245,197,24,.10),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+body.light #chat-threads .chat-thread-row{
+  background:linear-gradient(135deg,#ffffff,#f6f8ff) !important;
+  border-color:rgba(184,134,11,.28) !important;
+  border-left-color:#b8860b !important;
+  box-shadow:0 6px 14px rgba(20,40,80,.10),0 0 10px rgba(184,134,11,.06),inset 0 1px 0 rgba(255,255,255,.85) !important;
+}
+body.light #chat-threads .chat-thread-row:hover{
+  background:linear-gradient(135deg,#ffffff,#eef3ff) !important;
+  border-color:rgba(184,134,11,.42) !important;
+}
+body.light #chat-threads .chat-thread-row.chat-band-row{
+  border-left-color:#b8860b !important;
+}
+body.light #chat-threads .chat-thread-art.member,
+body.light #chat-threads .chat-thread-art.band{
+  background:#f6f8ff !important;
+  border-color:rgba(184,134,11,.24) !important;
+  box-shadow:0 4px 10px rgba(20,40,80,.08),inset 0 1px 0 rgba(255,255,255,.75) !important;
+}
+
+
+
+/* r715: Calendar All Events list-card polish only. Keeps All Events filtering, row taps, and event data unchanged. */
+#evl .er{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(180deg,rgba(8,24,56,.96) 0%,rgba(5,15,34,.98) 100%) !important;
+  border:1px solid rgba(245,197,24,.30) !important;
+  border-left:4px solid rgba(245,197,24,.66) !important;
+  border-radius:16px !important;
+  padding:10px 11px 10px 10px !important;
+  margin-bottom:8px !important;
+  box-shadow:0 10px 22px rgba(0,0,0,.28),0 0 16px rgba(74,158,255,.10),inset 0 1px 0 rgba(255,255,255,.055) !important;
+  transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease;
+}
+#evl .er:before{
+  content:'';
+  position:absolute;
+  left:10px;
+  right:10px;
+  top:0;
+  height:2px;
+  background:linear-gradient(90deg,transparent,rgba(245,197,24,.72),rgba(255,216,74,.42),transparent);
+  pointer-events:none;
+}
+#evl .er:hover{
+  transform:translateY(-1px);
+  border-color:rgba(245,197,24,.52) !important;
+  box-shadow:0 14px 28px rgba(0,0,0,.32),0 0 22px rgba(245,197,24,.08),0 0 16px rgba(74,158,255,.12),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#evl .er .ebdg{
+  border:1px solid currentColor !important;
+  border-radius:999px !important;
+  padding:3px 8px !important;
+  box-shadow:0 0 10px currentColor;
+}
+#evl .er > div[style*="flex:1"] > div:first-child{
+  font-size:13.5px !important;
+  font-weight:800 !important;
+  color:#ffffff !important;
+  text-shadow:0 0 12px rgba(255,255,255,.08);
+}
+#evl .er > div[style*="flex:1"] > div:nth-child(2){
+  color:#9fb4d6 !important;
+  line-height:1.35 !important;
+}
+body.light #evl .er{
+  background:linear-gradient(180deg,#ffffff 0%,#f6f9ff 100%) !important;
+  border-color:rgba(184,134,11,.34) !important;
+  border-left-color:#b8860b !important;
+  box-shadow:0 8px 18px rgba(20,40,80,.10),inset 0 1px 0 rgba(255,255,255,.75) !important;
+}
+body.light #evl .er:before{
+  background:linear-gradient(90deg,transparent,rgba(184,134,11,.62),rgba(212,160,23,.36),transparent);
+}
+body.light #evl .er:hover{
+  border-color:rgba(184,134,11,.48) !important;
+  box-shadow:0 12px 24px rgba(20,40,80,.14),0 0 14px rgba(184,134,11,.08),inset 0 1px 0 rgba(255,255,255,.85) !important;
+}
+body.light #evl .er > div[style*="flex:1"] > div:first-child{
+  color:#1a2a4a !important;
+  text-shadow:none !important;
+}
+body.light #evl .er > div[style*="flex:1"] > div:nth-child(2){
+  color:#5a6a85 !important;
+}
+
+/* r714: Setlists top-level list-card polish only. Keeps setlist data, expansion, and actions unchanged. */
+#sc-sets #sll > .slc{
+  box-shadow:0 12px 26px rgba(0,0,0,.26),0 0 16px rgba(245,197,24,.08),0 0 14px rgba(74,158,255,.07),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  border-top-color:rgba(245,197,24,.38) !important;
+  border-right-color:rgba(245,197,24,.22) !important;
+  border-bottom-color:rgba(74,158,255,.25) !important;
+  overflow:hidden !important;
+}
+#sc-sets #sll > .slc::after{
+  content:'';
+  position:absolute;
+  left:58px;
+  right:14px;
+  top:0;
+  height:2px;
+  background:linear-gradient(90deg,transparent,rgba(255,191,0,.72),rgba(245,197,24,.46),transparent);
+  pointer-events:none;
+  opacity:.9;
+}
+#sc-sets #sll > .slc:hover{
+  box-shadow:0 14px 30px rgba(0,0,0,.30),0 0 18px rgba(245,197,24,.10),0 0 16px rgba(74,158,255,.10),inset 0 1px 0 rgba(255,255,255,.07) !important;
+}
+#sc-sets #sll > .slc .setlist-title-logo{
+  border:1px solid rgba(245,197,24,.34) !important;
+  border-radius:50% !important;
+  background:rgba(4,14,32,.45) !important;
+  box-shadow:0 5px 12px rgba(0,0,0,.24),0 0 10px rgba(245,197,24,.10) !important;
+}
+body.light #sc-sets #sll > .slc{
+  box-shadow:0 8px 18px rgba(20,40,80,.10),0 0 10px rgba(184,134,11,.06),inset 0 1px 0 rgba(255,255,255,.85) !important;
+  border-top-color:rgba(184,134,11,.34) !important;
+  border-right-color:rgba(184,134,11,.20) !important;
+  border-bottom-color:rgba(21,101,192,.16) !important;
+}
+body.light #sc-sets #sll > .slc::after{
+  background:linear-gradient(90deg,transparent,rgba(184,134,11,.58),rgba(212,160,23,.34),transparent);
+}
+body.light #sc-sets #sll > .slc .setlist-title-logo{
+  background:#ffffff !important;
+  border-color:rgba(184,134,11,.24) !important;
+  box-shadow:0 4px 10px rgba(20,40,80,.08),0 0 8px rgba(184,134,11,.06) !important;
+}
+
+/* r711: Mates Contacts list-card consistency only.
+   Presentation-only: make Contacts drawer rows match the premium list-card
+   family while preserving contact expand/collapse and add/edit/delete logic. */
+#sc-band #contacts-list .mc{
+  background:linear-gradient(135deg,rgba(16,30,52,.98),rgba(8,18,37,.98)) !important;
+  border:1px solid rgba(245,197,24,.28) !important;
+  border-left:4px solid rgba(245,197,24,.76) !important;
+  border-radius:12px !important;
+  box-shadow:0 9px 18px rgba(0,0,0,.22),0 0 14px rgba(245,197,24,.09),inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+#sc-band #contacts-list .mc > div:first-child{
+  min-height:44px;
+  background:linear-gradient(90deg,rgba(245,197,24,.08),rgba(74,158,255,.04),transparent) !important;
+}
+#sc-band #contacts-list .mc > div:first-child:active{
+  filter:brightness(1.08);
+}
+#sc-band #contacts-list .mc > div:nth-child(2){
+  border-top:1px solid rgba(245,197,24,.18) !important;
+  background:linear-gradient(180deg,rgba(10,22,40,.78),rgba(6,14,28,.42)) !important;
+}
+body.light #sc-band #contacts-list .mc{
+  background:linear-gradient(135deg,#ffffff,#f8fbff) !important;
+  border-color:#d8e0ee !important;
+  border-left-color:#b8860b !important;
+  box-shadow:0 6px 14px rgba(20,40,80,.09),0 0 10px rgba(184,134,11,.08),inset 0 1px 0 rgba(255,255,255,.85) !important;
+}
+body.light #sc-band #contacts-list .mc > div:first-child{
+  background:linear-gradient(90deg,rgba(184,134,11,.08),rgba(26,58,138,.035),transparent) !important;
+}
+body.light #sc-band #contacts-list .mc > div:nth-child(2){
+  border-top:1px solid #e3e8f2 !important;
+  background:linear-gradient(180deg,#fbfdff,#f6f8ff) !important;
+}
+
+/* r710: Pay summary cards consistency only.
+   Presentation-only: polish the Pay tab BAND TOTAL / YOUR CUT cards while
+   preserving the existing total calculations and IDs (#bt, #mc2, #cs). */
+#sc-pay .fs{
+  gap:8px !important;
+  margin:8px 0 10px !important;
+}
+#sc-pay .fs .fc{
+  position:relative !important;
+  overflow:hidden !important;
+  background:linear-gradient(180deg,rgba(10,30,68,.98),rgba(5,16,36,.99)) !important;
+  border:1px solid rgba(245,197,24,.32) !important;
+  border-top-color:rgba(255,216,74,.44) !important;
+  border-radius:15px !important;
+  padding:12px 10px 11px !important;
+  box-shadow:0 10px 22px rgba(0,0,0,.24),0 0 16px rgba(245,197,24,.08),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#sc-pay .fs .fc::before{
+  content:"";
+  position:absolute;
+  left:10px;
+  right:10px;
+  top:0;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg,transparent,rgba(245,197,24,.82),transparent);
+  pointer-events:none;
+}
+#sc-pay .fs .fcl{
+  color:#ffd761 !important;
+  font-family:"Russo One",sans-serif !important;
+  letter-spacing:1.7px !important;
+  text-shadow:0 0 12px rgba(245,197,24,.20) !important;
+}
+#sc-pay .fs .fca{
+  color:#fff2b8 !important;
+  text-shadow:0 0 16px rgba(245,197,24,.22),0 1px 3px rgba(0,0,0,.45) !important;
+}
+#sc-pay .fs .fcs{
+  color:#b9c8e6 !important;
+}
+body.light #sc-pay .fs .fc{
+  background:#fff !important;
+  border-color:rgba(180,132,0,.30) !important;
+  border-top-color:#d4a017 !important;
+  box-shadow:0 8px 18px rgba(20,40,80,.11) !important;
+}
+body.light #sc-pay .fs .fc::before{
+  background:linear-gradient(90deg,transparent,rgba(180,132,0,.65),transparent) !important;
+}
+body.light #sc-pay .fs .fcl{
+  color:#9a6a00 !important;
+  text-shadow:none !important;
+}
+body.light #sc-pay .fs .fca{
+  color:#1a3a8a !important;
+  text-shadow:none !important;
+}
+body.light #sc-pay .fs .fcs{
+  color:#5a6a85 !important;
+}
+
+
+/* r708: Pay Log Gig Pay inline-card consistency only.
+   Presentation-only: give #pf the premium gold-accented card treatment while
+   preserving its existing show/hide and Add Pay logic. */
+#sc-pay #pf.fb{
+  background:linear-gradient(180deg,rgba(8,24,56,.98) 0%,rgba(5,15,33,.99) 100%) !important;
+  border:1px solid rgba(245,197,24,.42) !important;
+  border-radius:18px !important;
+  padding:0 12px 12px !important;
+  margin-bottom:10px !important;
+  box-shadow:0 12px 28px rgba(0,0,0,.32),0 0 18px rgba(245,197,24,.10),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  overflow:hidden !important;
+}
+#sc-pay #pf > div:first-child{
+  position:sticky;
+  top:0;
+  z-index:2;
+  margin:0 -12px 10px !important;
+  padding:10px 12px 9px !important;
+  background:linear-gradient(135deg,rgba(11,28,66,.98),rgba(6,16,36,.98)) !important;
+  border-bottom:1px solid rgba(245,197,24,.30) !important;
+  box-shadow:0 4px 12px rgba(0,0,0,.18) !important;
+}
+#sc-pay #pf > div:first-child > span{
+  color:#ffd761 !important;
+  text-shadow:0 0 12px rgba(245,197,24,.24) !important;
+}
+#sc-pay #pf > div:first-child > button{
+  width:34px !important;
+  height:34px !important;
+  border-radius:50% !important;
+  border:1px solid rgba(245,197,24,.50) !important;
+  background:rgba(245,197,24,.12) !important;
+  color:#f5c518 !important;
+  box-shadow:0 0 14px rgba(245,197,24,.14) !important;
+}
+#sc-pay #pf > div:first-child > button:hover{
+  background:rgba(245,197,24,.20) !important;
+  transform:scale(1.03);
+}
+body.light #sc-pay #pf.fb{
+  background:#fff !important;
+  border-color:#d4a017 !important;
+  box-shadow:0 10px 22px rgba(20,40,80,.14) !important;
+}
+body.light #sc-pay #pf > div:first-child{
+  background:linear-gradient(135deg,#f8fbff,#eef4ff) !important;
+  border-bottom-color:rgba(180,132,0,.34) !important;
+}
+body.light #sc-pay #pf > div:first-child > span{
+  color:#9a6a00 !important;
+  text-shadow:none !important;
+}
+body.light #sc-pay #pf > div:first-child > button{
+  border-color:rgba(180,132,0,.45) !important;
+  background:rgba(180,132,0,.10) !important;
+  color:#9a6a00 !important;
+  box-shadow:none !important;
+}
+
+
+/* r709: Pay list card consistency only.
+   Presentation-only: polish generated Pay payout rows and Gig History rows.
+   Keeps data, totals, row tap behavior, and pay/history logic unchanged. */
+#sc-pay .pay-log-row,
+#sc-pay .pay-gig-history-row{
+  background:linear-gradient(180deg,rgba(10,28,64,.96),rgba(6,18,40,.98)) !important;
+  border:1px solid rgba(245,197,24,.26) !important;
+  border-left:3px solid rgba(245,197,24,.78) !important;
+  border-radius:13px !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.20),0 0 12px rgba(245,197,24,.06),inset 0 1px 0 rgba(255,255,255,.05) !important;
+  margin-bottom:7px !important;
+}
+#sc-pay .pay-log-row:hover,
+#sc-pay .pay-gig-history-row:hover{
+  border-color:rgba(245,197,24,.38) !important;
+  box-shadow:0 10px 20px rgba(0,0,0,.24),0 0 14px rgba(245,197,24,.10),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#sc-pay .pay-log-icon,
+#sc-pay .pay-history-icon{
+  background:linear-gradient(135deg,rgba(245,197,24,.18),rgba(245,197,24,.07)) !important;
+  border:1px solid rgba(245,197,24,.32) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 10px rgba(245,197,24,.08) !important;
+}
+body.light #sc-pay .pay-log-row,
+body.light #sc-pay .pay-gig-history-row{
+  background:#fff !important;
+  border-color:rgba(180,132,0,.28) !important;
+  border-left-color:#d4a017 !important;
+  box-shadow:0 7px 16px rgba(20,40,80,.10) !important;
+}
+body.light #sc-pay .pay-log-icon,
+body.light #sc-pay .pay-history-icon{
+  background:rgba(180,132,0,.10) !important;
+  border-color:rgba(180,132,0,.28) !important;
+  box-shadow:none !important;
+}
+
+
+/* r716: Calendar Rehearsal Proposals list-card polish only. Preserves proposal status colors, voting/reminder/cancel/confirm behavior, and lower Calendar stack geometry. */
+#proposals-list .proposal-card-premium{
+  border-radius:14px !important;
+  box-shadow:0 10px 24px rgba(0,0,0,.24),0 0 14px rgba(245,197,24,.10),inset 0 1px 0 rgba(255,255,255,.07) !important;
+}
+#proposals-list .proposal-card-premium:after{
+  content:"";
+  position:absolute;
+  top:0;left:12px;right:12px;
+  height:2px;
+  border-radius:0 0 999px 999px;
+  background:linear-gradient(90deg,transparent,rgba(245,197,24,.92),transparent);
+  box-shadow:0 0 10px rgba(245,197,24,.38);
+  pointer-events:none;
+}
+#proposals-list .proposal-card-premium:hover{
+  filter:brightness(1.03);
+}
+body.light #proposals-list .proposal-card-premium{
+  background:linear-gradient(135deg,#ffffff,#f5f8ff 70%,#eef4ff) !important;
+  box-shadow:0 7px 18px rgba(20,40,80,.12),0 0 0 1px rgba(212,160,23,.08),inset 0 1px 0 rgba(255,255,255,.85) !important;
+}
+body.light #proposals-list .proposal-card-premium:after{
+  background:linear-gradient(90deg,transparent,rgba(184,134,11,.88),transparent);
+  box-shadow:0 0 8px rgba(184,134,11,.20);
+}
+
+
+/* r717: Calendar All Events filter drawer premium polish only.
+   Scope: Filter Events drawer opened from Calendar → All Events options.
+   Preserves filter logic, event rows, Calendar geometry, and all other tabs. */
+#calendar-events-filter-backdrop.cal-filter-dot-backdrop{
+  background:rgba(0,0,0,.58) !important;
+  backdrop-filter:blur(6px) !important;
+  -webkit-backdrop-filter:blur(6px) !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:16px !important;
+}
+#calendar-events-filter-sheet.cal-filter-dot-sheet{
+  width:min(410px,calc(100vw - 30px)) !important;
+  max-height:min(78vh,560px) !important;
+  overflow:hidden !important;
+  border-radius:22px !important;
+  padding:0 !important;
+  background:
+    radial-gradient(circle at 92% 0%,rgba(245,197,24,.16),transparent 34%),
+    linear-gradient(180deg,rgba(8,24,56,.99) 0%,rgba(5,14,32,.99) 100%) !important;
+  border:1px solid rgba(245,197,24,.48) !important;
+  box-shadow:0 22px 54px rgba(0,0,0,.62),0 0 28px rgba(245,197,24,.10),0 0 24px rgba(74,158,255,.13),inset 0 1px 0 rgba(255,255,255,.07) !important;
+}
+#calendar-events-filter-sheet.cal-filter-dot-sheet > div:first-child{
+  height:auto !important;
+  min-height:54px !important;
+  padding:12px 14px !important;
+  border-bottom:1px solid rgba(245,197,24,.24) !important;
+  background:linear-gradient(135deg,rgba(13,43,107,.45),rgba(5,14,32,.30)) !important;
+}
+#calendar-events-filter-sheet.cal-filter-dot-sheet > div:first-child button{
+  width:32px !important;
+  height:32px !important;
+  border-radius:50% !important;
+  border:1px solid rgba(245,197,24,.70) !important;
+  background:rgba(6,14,30,.84) !important;
+  color:#f5c518 !important;
+  box-shadow:0 0 12px rgba(245,197,24,.16),inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+#calendar-events-filter-sheet.cal-filter-dot-sheet > div:nth-child(2),
+#calendar-events-filter-sheet.cal-filter-dot-sheet > div:nth-child(5){
+  height:32px !important;
+  padding:0 14px !important;
+  color:#f5c518 !important;
+  border-bottom:1px solid rgba(74,158,255,.16) !important;
+  background:rgba(245,197,24,.045) !important;
+}
+#calendar-events-filter-sheet.cal-filter-dot-sheet > button{
+  height:42px !important;
+  padding:0 14px !important;
+  border-bottom:1px solid rgba(74,158,255,.12) !important;
+  background:linear-gradient(90deg,rgba(9,24,56,.54),rgba(4,13,30,.20)) !important;
+}
+#calendar-events-filter-sheet.cal-filter-dot-sheet > button:hover{
+  border-color:rgba(245,197,24,.35) !important;
+  background:linear-gradient(90deg,rgba(245,197,24,.10),rgba(74,158,255,.06)) !important;
+}
+#calendar-events-filter-sheet.cal-filter-dot-sheet > div:last-child{
+  padding:12px 14px 14px !important;
+  background:linear-gradient(180deg,rgba(3,9,22,.52),rgba(5,15,33,.72)) !important;
+  border-top:1px solid rgba(245,197,24,.16) !important;
+}
+body.light #calendar-events-filter-backdrop.cal-filter-dot-backdrop{
+  background:rgba(8,18,38,.38) !important;
+}
+body.light #calendar-events-filter-sheet.cal-filter-dot-sheet{
+  background:linear-gradient(180deg,#ffffff 0%,#f5f8ff 100%) !important;
+  border-color:#d4a017 !important;
+  box-shadow:0 18px 44px rgba(20,40,80,.20),0 0 0 1px rgba(212,160,23,.14) !important;
+}
+body.light #calendar-events-filter-sheet.cal-filter-dot-sheet > div:first-child{
+  background:linear-gradient(135deg,#f8fbff,#deeaff) !important;
+  border-bottom-color:#d4a017 !important;
+}
+body.light #calendar-events-filter-sheet.cal-filter-dot-sheet > button{
+  background:#ffffff !important;
+  border-bottom-color:#d8e0ee !important;
+}
+body.light #calendar-events-filter-sheet.cal-filter-dot-sheet > div:nth-child(2),
+body.light #calendar-events-filter-sheet.cal-filter-dot-sheet > div:nth-child(5),
+body.light #calendar-events-filter-sheet.cal-filter-dot-sheet > div:last-child{
+  background:#f8fbff !important;
+  border-color:#d8e0ee !important;
+}
+
+
+/* r718: Songs library list-card gold accent polish only.
+   Scope: Songs tab library rows. Preserves search, resource taps, song data, and all other tabs. */
+#sc-songs #library-list .song-lib-card,
+#sc-songs #library-list .song-set-row{
+  position:relative !important;
+  overflow:hidden !important;
+  border-color:rgba(245,197,24,.42) !important;
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.24),
+    0 0 18px rgba(245,197,24,.08),
+    0 0 14px rgba(74,158,255,.10),
+    inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+#sc-songs #library-list .song-lib-card::before,
+#sc-songs #library-list .song-set-row::before{
+  content:"";
+  position:absolute;
+  left:12px;
+  right:12px;
+  top:0;
+  height:2px;
+  border-radius:0 0 999px 999px;
+  background:linear-gradient(90deg, transparent, rgba(245,197,24,.82), rgba(255,216,74,.92), rgba(245,197,24,.82), transparent);
+  box-shadow:0 0 10px rgba(245,197,24,.28);
+  pointer-events:none;
+}
+#sc-songs #library-list .song-lib-card:hover,
+#sc-songs #library-list .song-set-row:hover{
+  border-color:rgba(245,197,24,.62) !important;
+  box-shadow:
+    0 14px 32px rgba(0,0,0,.30),
+    0 0 22px rgba(245,197,24,.12),
+    0 0 16px rgba(74,158,255,.12),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+body.light #sc-songs #library-list .song-lib-card,
+body.light #sc-songs #library-list .song-set-row{
+  background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%) !important;
+  border-color:rgba(184,134,11,.38) !important;
+  box-shadow:0 8px 18px rgba(20,40,80,.10),0 0 0 1px rgba(255,255,255,.65) inset !important;
+}
+body.light #sc-songs #library-list .song-lib-card::before,
+body.light #sc-songs #library-list .song-set-row::before{
+  background:linear-gradient(90deg, transparent, rgba(184,134,11,.72), rgba(212,160,23,.90), rgba(184,134,11,.72), transparent);
+  box-shadow:0 0 8px rgba(184,134,11,.16);
+}
+
+
+
+/* r724: Songs search bar premium polish only.
+   Scope: Songs tab search bar wrapper/icon/input presentation. Preserves search behavior and song rows. */
+#sc-songs #song-search-wrap{
+  position:relative !important;
+  overflow:hidden !important;
+  border-color:rgba(245,197,24,.56) !important;
+  background:
+    radial-gradient(circle at 12% 20%, rgba(245,197,24,.12), transparent 34%),
+    radial-gradient(circle at 88% 20%, rgba(74,158,255,.14), transparent 34%),
+    linear-gradient(180deg, rgba(8,25,57,.99) 0%, rgba(4,15,34,.99) 100%) !important;
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.26),
+    0 0 22px rgba(245,197,24,.10),
+    0 0 16px rgba(74,158,255,.12),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#sc-songs #song-search-wrap::before{
+  content:"";
+  position:absolute;
+  left:14px;
+  right:14px;
+  top:0;
+  height:2px;
+  border-radius:0 0 999px 999px;
+  background:linear-gradient(90deg, transparent, rgba(245,197,24,.82), rgba(255,216,74,.96), rgba(245,197,24,.82), transparent);
+  box-shadow:0 0 10px rgba(245,197,24,.30);
+  pointer-events:none;
+}
+#sc-songs #song-search-wrap .song-search-icon{
+  color:#ffd84a !important;
+  filter:drop-shadow(0 0 8px rgba(245,197,24,.30));
+}
+#sc-songs #song-search{
+  color:#f7fbff !important;
+  text-shadow:0 0 8px rgba(74,158,255,.08);
+}
+#sc-songs #song-search::placeholder{
+  color:#a9c5f7 !important;
+  opacity:1 !important;
+}
+body.light #sc-songs #song-search-wrap{
+  background:
+    radial-gradient(circle at 12% 20%, rgba(212,160,23,.10), transparent 34%),
+    linear-gradient(180deg,#ffffff 0%,#f7faff 100%) !important;
+  border-color:rgba(184,134,11,.44) !important;
+  box-shadow:0 8px 18px rgba(20,40,80,.10),0 0 0 1px rgba(255,255,255,.65) inset !important;
+}
+body.light #sc-songs #song-search-wrap::before{
+  background:linear-gradient(90deg, transparent, rgba(184,134,11,.72), rgba(212,160,23,.90), rgba(184,134,11,.72), transparent);
+  box-shadow:0 0 8px rgba(184,134,11,.16);
+}
+body.light #sc-songs #song-search-wrap .song-search-icon{
+  color:#b8860b !important;
+  filter:none;
+}
+body.light #sc-songs #song-search{
+  color:#1a2a4a !important;
+  text-shadow:none;
+}
+body.light #sc-songs #song-search::placeholder{
+  color:#5a6a85 !important;
+}
+
+
+/* r719: Setlists expanded song-row gold accent polish only.
+   Scope: expanded Setlist song rows/panel. Preserves setlist behavior, song taps, artwork, and YouTube actions. */
+#sc-sets .setlist-expanded-panel{
+  border-color:rgba(245,197,24,.34) !important;
+  background:linear-gradient(180deg,rgba(7,20,44,.94),rgba(5,14,32,.90)) !important;
+  box-shadow:
+    0 12px 26px rgba(0,0,0,.22),
+    0 0 16px rgba(245,197,24,.06),
+    inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+#sc-sets .setlist-expanded-song{
+  position:relative !important;
+  margin:0 0 6px 0 !important;
+  padding:8px 8px 8px 9px !important;
+  border:1px solid rgba(245,197,24,.22) !important;
+  border-radius:10px !important;
+  background:linear-gradient(135deg,rgba(8,24,54,.90),rgba(6,16,36,.86)) !important;
+  box-shadow:
+    0 8px 18px rgba(0,0,0,.16),
+    inset 0 1px 0 rgba(255,255,255,.04) !important;
+  overflow:hidden !important;
+}
+#sc-sets .setlist-expanded-song::before{
+  content:"";
+  position:absolute;
+  left:9px;
+  right:9px;
+  top:0;
+  height:2px;
+  border-radius:0 0 999px 999px;
+  background:linear-gradient(90deg,transparent,rgba(245,197,24,.72),rgba(255,216,74,.88),rgba(245,197,24,.72),transparent);
+  box-shadow:0 0 8px rgba(245,197,24,.22);
+  pointer-events:none;
+}
+#sc-sets .setlist-expanded-song:last-child{margin-bottom:0 !important;}
+#sc-sets .setlist-expanded-num{
+  background:radial-gradient(circle at 35% 25%,rgba(255,216,74,.24),rgba(245,197,24,.10) 42%,rgba(74,158,255,.10) 100%) !important;
+  border-color:rgba(245,197,24,.42) !important;
+  box-shadow:0 0 10px rgba(245,197,24,.10), inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+#sc-sets .setlist-expanded-panel .song-cover-box{
+  border:1px solid rgba(245,197,24,.30) !important;
+  box-shadow:0 0 10px rgba(245,197,24,.08) !important;
+}
+body.light #sc-sets .setlist-expanded-panel{
+  background:#ffffff !important;
+  border-color:#d4a017 !important;
+  box-shadow:0 8px 18px rgba(20,40,80,.10), inset 0 1px 0 rgba(255,255,255,.8) !important;
+}
+body.light #sc-sets .setlist-expanded-song{
+  background:linear-gradient(135deg,#ffffff,#f8fbff) !important;
+  border-color:#d4a017 !important;
+  box-shadow:0 6px 14px rgba(20,40,80,.08), inset 0 1px 0 rgba(255,255,255,.8) !important;
+}
+body.light #sc-sets .setlist-expanded-title{color:#1a2a4a !important;}
+body.light #sc-sets .setlist-expanded-artist{color:#9a6a00 !important;}
+
+
+/* r720: Mates/Band top-level roster card premium polish only.
+   Scope: #ml direct member roster cards. Preserves Contacts drawer rows, roster expand/collapse,
+   photo lightbox, edit/delete behavior, and all member data. */
+#sc-band #ml > .mc{
+  position:relative !important;
+  border-radius:14px !important;
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.24),
+    0 0 18px rgba(245,197,24,.08),
+    0 0 14px rgba(74,158,255,.08),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#sc-band #ml > .mc::before{
+  content:"";
+  position:absolute;
+  left:12px;
+  right:12px;
+  top:0;
+  height:2px;
+  border-radius:0 0 999px 999px;
+  background:linear-gradient(90deg,transparent,rgba(245,197,24,.64),rgba(255,216,74,.86),rgba(245,197,24,.64),transparent);
+  box-shadow:0 0 9px rgba(245,197,24,.20);
+  pointer-events:none;
+  z-index:2;
+}
+#sc-band #ml > .mc > div:first-child{
+  min-height:60px !important;
+}
+#sc-band #ml > .mc .band-member-photo-tap{
+  border-color:rgba(245,197,24,.38) !important;
+  box-shadow:0 7px 14px rgba(0,0,0,.24),0 0 10px rgba(245,197,24,.08),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+body.light #sc-band #ml > .mc{
+  box-shadow:0 9px 20px rgba(20,40,80,.12),0 0 0 1px rgba(255,255,255,.72) inset !important;
+}
+body.light #sc-band #ml > .mc::before{
+  background:linear-gradient(90deg,transparent,rgba(184,134,11,.60),rgba(212,160,23,.88),rgba(184,134,11,.60),transparent);
+  box-shadow:0 0 8px rgba(184,134,11,.16);
+}
+body.light #sc-band #ml > .mc .band-member-photo-tap{
+  border-color:rgba(184,134,11,.36) !important;
+  box-shadow:0 6px 14px rgba(20,40,80,.12),inset 0 1px 0 rgba(255,255,255,.8) !important;
+}
+
+
+
+/* r721: Bottom tab bar premium polish only.
+   Visual treatment only: no tab order, tap handling, sizing, content, or routing changes. */
+#tabs{
+  background:linear-gradient(180deg,rgba(10,22,40,.98),rgba(5,12,28,.99)) !important;
+  border-top:1px solid rgba(245,197,24,.42) !important;
+  box-shadow:0 -10px 24px rgba(0,0,0,.36),0 -1px 0 rgba(245,197,24,.18),inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+.tb.on{
+  background:linear-gradient(180deg,rgba(245,197,24,.15),rgba(245,197,24,.035)) !important;
+  color:#f5c518 !important;
+  text-shadow:0 0 10px rgba(245,197,24,.35) !important;
+}
+.tb.on .i{
+  filter:drop-shadow(0 0 6px rgba(245,197,24,.35));
+}
+body.light #tabs{
+  background:linear-gradient(180deg,#ffffff,#eef4ff) !important;
+  border-top:1px solid rgba(184,134,11,.45) !important;
+  box-shadow:0 -8px 18px rgba(20,40,80,.12),0 -1px 0 rgba(184,134,11,.16) !important;
+}
+body.light .tb.on{
+  background:linear-gradient(180deg,rgba(184,134,11,.14),rgba(184,134,11,.035)) !important;
+  color:#b8860b !important;
+  text-shadow:none !important;
+}
+body.light .tb.on .i{
+  filter:drop-shadow(0 0 5px rgba(184,134,11,.18));
+}
+
+
+
+/* r723: Calendar key/legend premium polish only.
+   Scope: Calendar legend row and icon chips. Preserves legend toggle/dismiss behavior, Calendar geometry, and all other tabs. */
+#sc-cal #cal-legend-panel.cal-legend-row{
+  position:relative !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(245,197,24,.14), transparent 34%),
+    linear-gradient(135deg, rgba(9,25,58,.98), rgba(4,14,34,.98) 62%, rgba(9,24,56,.98)) !important;
+  border-color:rgba(245,197,24,.46) !important;
+  box-shadow:
+    0 10px 22px rgba(0,0,0,.20),
+    0 0 18px rgba(245,197,24,.10),
+    0 0 14px rgba(74,158,255,.08),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#sc-cal #cal-legend-panel.cal-legend-row::before{
+  content:"";
+  position:absolute;
+  left:12px;
+  right:12px;
+  top:0;
+  height:2px;
+  border-radius:0 0 999px 999px;
+  background:linear-gradient(90deg, transparent, rgba(245,197,24,.86), rgba(255,216,74,.96), rgba(245,197,24,.86), transparent);
+  box-shadow:0 0 10px rgba(245,197,24,.30);
+  pointer-events:none;
+}
+#sc-cal #cal-legend-panel.cal-legend-row .cal-legend-item{
+  position:relative !important;
+  z-index:1 !important;
+  padding:5px 8px !important;
+  border-radius:999px !important;
+  background:linear-gradient(180deg, rgba(7,24,56,.74), rgba(3,12,28,.56)) !important;
+  border:1px solid rgba(245,197,24,.20) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+#sc-cal #cal-legend-panel.cal-legend-row .cal-legend-ico,
+#sc-cal #cal-legend-panel.cal-legend-row .icon-cake,
+#sc-cal #cal-legend-panel.cal-legend-row .icon-usflag{
+  filter:drop-shadow(0 0 7px rgba(245,197,24,.20)) drop-shadow(0 0 5px rgba(74,158,255,.16)) !important;
+}
+body.light #sc-cal #cal-legend-panel.cal-legend-row{
+  background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%) !important;
+  border-color:rgba(184,134,11,.38) !important;
+  box-shadow:0 8px 18px rgba(20,40,80,.10),0 0 0 1px rgba(255,255,255,.65) inset !important;
+}
+body.light #sc-cal #cal-legend-panel.cal-legend-row::before{
+  background:linear-gradient(90deg, transparent, rgba(184,134,11,.72), rgba(212,160,23,.90), rgba(184,134,11,.72), transparent);
+  box-shadow:0 0 8px rgba(184,134,11,.16);
+}
+body.light #sc-cal #cal-legend-panel.cal-legend-row .cal-legend-item{
+  background:linear-gradient(180deg,#ffffff,#eef4ff) !important;
+  border-color:rgba(184,134,11,.22) !important;
+}
+
+/* r722: Home summary card premium polish only.
+   CSS presentation only: no Home locked gap, image/framing, social-button, or alert/countdown logic changes. */
+#announce-card,
+#home-song-vote-cue,
+#home-rehearsal-cue,
+#next-gig-countdown,
+.home-summary-card{
+  position:relative !important;
+  overflow:hidden !important;
+  border-color:rgba(245,197,24,.46) !important;
+  box-shadow:0 9px 20px rgba(0,0,0,.24),0 0 14px rgba(245,197,24,.08),inset 0 1px 0 rgba(255,255,255,.045) !important;
+}
+#announce-card::before,
+#home-song-vote-cue::before,
+#home-rehearsal-cue::before,
+#next-gig-countdown::before,
+.home-summary-card::before{
+  content:"";
+  position:absolute;
+  left:12px;
+  right:12px;
+  top:0;
+  height:2px;
+  border-radius:0 0 999px 999px;
+  background:linear-gradient(90deg,transparent,rgba(245,197,24,.72),rgba(255,216,74,.92),rgba(245,197,24,.72),transparent);
+  box-shadow:0 0 10px rgba(245,197,24,.22);
+  pointer-events:none;
+  z-index:2;
+}
+#announce-card > *,
+#home-song-vote-cue > *,
+#home-rehearsal-cue > *,
+#next-gig-countdown > *,
+.home-summary-card > *{
+  position:relative;
+  z-index:3;
+}
+body.light #announce-card,
+body.light #home-song-vote-cue,
+body.light #home-rehearsal-cue,
+body.light #next-gig-countdown,
+body.light .home-summary-card{
+  border-color:rgba(184,134,11,.38) !important;
+  box-shadow:0 8px 18px rgba(20,40,80,.10),0 0 0 1px rgba(255,255,255,.72) inset !important;
+}
+body.light #announce-card::before,
+body.light #home-song-vote-cue::before,
+body.light #home-rehearsal-cue::before,
+body.light #next-gig-countdown::before,
+body.light .home-summary-card::before{
+  background:linear-gradient(90deg,transparent,rgba(184,134,11,.58),rgba(212,160,23,.84),rgba(184,134,11,.58),transparent);
+  box-shadow:0 0 8px rgba(184,134,11,.15);
+}
+
+
+
+/* r725: Setlists linked-gig prompt/card premium polish only.
+   Presentation-only: preserves linked-gig creation/linking behavior. */
+#sc-sets .r636-setlist-gig-prompt,
+#sc-sets .r633-linked-gig-wrap{
+  position:relative !important;
+  overflow:hidden !important;
+  border:1px solid rgba(245,197,24,.50) !important;
+  border-radius:14px !important;
+  background:
+    linear-gradient(180deg,rgba(255,216,74,.075),rgba(255,216,74,0) 34%),
+    linear-gradient(135deg,rgba(15,42,102,.98),rgba(7,18,45,.96) 62%,rgba(12,31,76,.95)) !important;
+  box-shadow:
+    0 10px 22px rgba(0,0,0,.30),
+    0 0 18px rgba(245,197,24,.14),
+    inset 0 1px 0 rgba(255,255,255,.07) !important;
+}
+#sc-sets .r636-setlist-gig-prompt::before,
+#sc-sets .r633-linked-gig-wrap::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:3px;
+  background:linear-gradient(90deg,transparent,rgba(245,197,24,.92),rgba(255,216,74,.70),transparent);
+  pointer-events:none;
+}
+#sc-sets .r636-setlist-gig-prompt button{
+  border-color:rgba(245,197,24,.62) !important;
+  background:linear-gradient(135deg,rgba(245,197,24,.18),rgba(74,158,255,.12)) !important;
+  color:#f5c518 !important;
+  box-shadow:0 0 12px rgba(245,197,24,.14) !important;
+}
+#sc-sets .r633-linked-gig-wrap .mi,
+#sc-sets .r633-linked-gig-wrap select{
+  border-color:rgba(245,197,24,.38) !important;
+  background:rgba(6,14,28,.72) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 0 10px rgba(245,197,24,.08) !important;
+}
+body.light #sc-sets .r636-setlist-gig-prompt,
+body.light #sc-sets .r633-linked-gig-wrap{
+  background:linear-gradient(180deg,#fffaf0,#ffffff 42%,#f6f9ff) !important;
+  border-color:rgba(184,134,11,.45) !important;
+  box-shadow:0 8px 18px rgba(20,40,80,.10),0 0 0 1px rgba(255,255,255,.65) inset !important;
+}
+body.light #sc-sets .r636-setlist-gig-prompt button{
+  color:#9a6a00 !important;
+  border-color:rgba(184,134,11,.45) !important;
+  background:linear-gradient(135deg,rgba(245,197,24,.18),rgba(255,255,255,.92)) !important;
+}
+body.light #sc-sets .r633-linked-gig-wrap .mi,
+body.light #sc-sets .r633-linked-gig-wrap select{
+  background:#fff !important;
+  border-color:rgba(184,134,11,.35) !important;
+}
+
+
+
+/* r726: Mates/Band CONTACTS expandable pill premium polish only.
+   Scope: CONTACTS pill/header only. Preserves Contacts drawer rows, add/edit/delete behavior, roster cards, and all data logic. */
+#sc-band #contacts-pill.oot-band-contacts-pill{
+  position:relative !important;
+  overflow:hidden !important;
+  border-color:rgba(245,197,24,.46) !important;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(245,197,24,.13), transparent 34%),
+    linear-gradient(135deg, rgba(10,28,66,.98), rgba(5,15,35,.98) 62%, rgba(9,24,56,.96)) !important;
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.24),
+    0 0 18px rgba(245,197,24,.10),
+    0 0 14px rgba(74,158,255,.10),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#sc-band #contacts-pill.oot-band-contacts-pill::before{
+  content:"";
+  position:absolute;
+  left:14px;
+  right:14px;
+  top:0;
+  height:2px;
+  border-radius:0 0 999px 999px;
+  background:linear-gradient(90deg, transparent, rgba(245,197,24,.82), rgba(255,216,74,.96), rgba(245,197,24,.82), transparent);
+  box-shadow:0 0 10px rgba(245,197,24,.28);
+  pointer-events:none;
+  z-index:2;
+}
+#sc-band #contacts-pill.oot-band-contacts-pill .oot-expand-pill-title{
+  color:#ffd84a !important;
+  text-shadow:0 0 10px rgba(245,197,24,.26) !important;
+}
+#sc-band #contacts-pill.oot-band-contacts-pill .oot-expand-pill-sub{
+  color:#cfe0ff !important;
+}
+#sc-band #contacts-pill.oot-band-contacts-pill .oot-expand-pill-icon.contact-photo{
+  border-color:rgba(245,197,24,.44) !important;
+  background:radial-gradient(circle at 35% 25%, rgba(255,216,74,.18), rgba(74,158,255,.10) 48%, rgba(8,18,42,.80) 100%) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.24),0 0 12px rgba(245,197,24,.10),inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+#sc-band.contacts-open #contacts-pill.oot-band-contacts-pill{
+  border-color:rgba(245,197,24,.64) !important;
+  box-shadow:
+    0 14px 32px rgba(0,0,0,.30),
+    0 0 22px rgba(245,197,24,.14),
+    0 0 16px rgba(74,158,255,.12),
+    inset 0 1px 0 rgba(255,255,255,.07) !important;
+}
+body.light #sc-band #contacts-pill.oot-band-contacts-pill{
+  background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%) !important;
+  border-color:rgba(184,134,11,.42) !important;
+  box-shadow:0 8px 18px rgba(20,40,80,.10),0 0 0 1px rgba(255,255,255,.70) inset !important;
+}
+body.light #sc-band #contacts-pill.oot-band-contacts-pill::before{
+  background:linear-gradient(90deg, transparent, rgba(184,134,11,.70), rgba(212,160,23,.92), rgba(184,134,11,.70), transparent);
+  box-shadow:0 0 8px rgba(184,134,11,.16);
+}
+body.light #sc-band #contacts-pill.oot-band-contacts-pill .oot-expand-pill-title{
+  color:#9a6a00 !important;
+  text-shadow:none !important;
+}
+body.light #sc-band #contacts-pill.oot-band-contacts-pill .oot-expand-pill-sub{
+  color:#5a6a85 !important;
+}
+body.light #sc-band #contacts-pill.oot-band-contacts-pill .oot-expand-pill-icon.contact-photo{
+  border-color:rgba(184,134,11,.36) !important;
+  background:linear-gradient(180deg,#ffffff,#f3f7ff) !important;
+  box-shadow:0 6px 14px rgba(20,40,80,.12),inset 0 1px 0 rgba(255,255,255,.85) !important;
+}
+
+
+/* r727 Name Picker premium polish — presentation only */
+#name-picker-overlay{
+  background:
+    radial-gradient(circle at 50% 12%, rgba(245,197,24,.13), transparent 34%),
+    radial-gradient(circle at 50% 72%, rgba(74,158,255,.10), transparent 40%),
+    linear-gradient(180deg,#071224 0%,#050b18 100%) !important;
+  padding:24px 20px !important;
+  justify-content:center !important;
+  overflow:hidden !important;
+}
+#name-picker-overlay > img{
+  width:132px !important;
+  margin-bottom:16px !important;
+  filter:drop-shadow(0 0 22px rgba(245,197,24,.52)) drop-shadow(0 8px 18px rgba(0,0,0,.45)) !important;
+}
+#name-picker-overlay > div[style*="OUT OF TIME"],
+#name-picker-overlay > div:nth-of-type(1){
+  color:#f5c518 !important;
+  text-shadow:0 0 16px rgba(245,197,24,.42),0 2px 8px rgba(0,0,0,.45) !important;
+}
+#name-picker-overlay > div:nth-of-type(2){
+  color:#9fb9e6 !important;
+  letter-spacing:.8px !important;
+}
+#name-picker-overlay > div:nth-of-type(3){
+  width:100% !important;
+  max-width:320px !important;
+  color:#fff1b8 !important;
+  background:linear-gradient(135deg,rgba(245,197,24,.13),rgba(74,158,255,.07)) !important;
+  border:1px solid rgba(245,197,24,.34) !important;
+  border-radius:999px !important;
+  padding:9px 12px !important;
+  margin-bottom:12px !important;
+  box-shadow:0 0 18px rgba(245,197,24,.10), inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+#name-picker-list{
+  max-height:min(56vh,420px) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding:2px 2px 6px !important;
+  gap:8px !important;
+}
+#name-picker-list button{
+  position:relative !important;
+  overflow:hidden !important;
+  background:linear-gradient(135deg,rgba(16,30,52,.98),rgba(8,18,38,.98)) !important;
+  border:1px solid rgba(245,197,24,.26) !important;
+  border-radius:14px !important;
+  padding:11px 13px !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.28),0 0 14px rgba(74,158,255,.08), inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+#name-picker-list button::before{
+  content:"";
+  position:absolute;
+  left:0;right:0;top:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(245,197,24,.88),transparent);
+  opacity:.9;
+  pointer-events:none;
+}
+#name-picker-list button:active{
+  transform:scale(.985);
+}
+body.light #name-picker-overlay{
+  background:
+    radial-gradient(circle at 50% 10%, rgba(212,160,23,.18), transparent 35%),
+    linear-gradient(180deg,#f8fbff 0%,#edf3ff 100%) !important;
+}
+body.light #name-picker-overlay > div:nth-of-type(1){
+  color:#9a6a00 !important;
+  text-shadow:none !important;
+}
+body.light #name-picker-overlay > div:nth-of-type(2){
+  color:#5a6a85 !important;
+}
+body.light #name-picker-overlay > div:nth-of-type(3){
+  color:#7a5600 !important;
+  background:linear-gradient(135deg,rgba(212,160,23,.16),rgba(255,255,255,.85)) !important;
+  border-color:rgba(212,160,23,.42) !important;
+}
+body.light #name-picker-list button{
+  background:linear-gradient(135deg,#ffffff,#f3f7ff) !important;
+  border-color:rgba(212,160,23,.32) !important;
+  box-shadow:0 8px 18px rgba(20,40,80,.10), inset 0 1px 0 rgba(255,255,255,.8) !important;
+}
+body.light #name-picker-list button div[style*="color:#e8f0ff"]{
+  color:#1a2a4a !important;
+}
+
+
+/* r728 Image lightbox premium polish — presentation only */
+#img-lightbox{
+  background:
+    radial-gradient(circle at 50% 12%, rgba(245,197,24,.16), transparent 35%),
+    radial-gradient(circle at 50% 72%, rgba(74,158,255,.13), transparent 42%),
+    rgba(1,5,14,.94) !important;
+  padding:calc(18px + env(safe-area-inset-top)) 16px calc(22px + env(safe-area-inset-bottom)) !important;
+  gap:10px !important;
+}
+#img-lightbox::before{
+  content:"";
+  position:absolute;
+  left:50%;top:14px;
+  width:min(360px,78vw);height:3px;
+  transform:translateX(-50%);
+  background:linear-gradient(90deg, transparent, rgba(245,197,24,.92), rgba(255,216,74,.98), rgba(245,197,24,.92), transparent);
+  border-radius:999px;
+  box-shadow:0 0 16px rgba(245,197,24,.28);
+  pointer-events:none;
+}
+#img-lightbox > button[onclick*="_closeImageLightbox"],
+#member-lightbox #member-lightbox-close{
+  background:radial-gradient(circle at 35% 25%, rgba(255,216,74,.22), rgba(8,18,42,.96) 58%) !important;
+  border:1px solid rgba(245,197,24,.66) !important;
+  color:#f5c518 !important;
+  box-shadow:0 8px 22px rgba(0,0,0,.36),0 0 16px rgba(245,197,24,.22),inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+#img-lightbox-img{
+  border:1px solid rgba(245,197,24,.42) !important;
+  border-radius:16px !important;
+  background:rgba(6,14,28,.72) !important;
+  box-shadow:0 18px 46px rgba(0,0,0,.64),0 0 28px rgba(245,197,24,.12),inset 0 1px 0 rgba(255,255,255,.05) !important;
+  max-height:calc(100vh - 190px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
+}
+#img-lightbox-caption{
+  color:#fff1b8 !important;
+  font-family:'Russo One',sans-serif !important;
+  font-size:13px !important;
+  letter-spacing:.7px !important;
+  text-shadow:0 0 12px rgba(245,197,24,.22),0 2px 8px rgba(0,0,0,.55) !important;
+}
+#img-lightbox-share,
+#img-lightbox-download{
+  border-radius:999px !important;
+  min-height:38px !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.26),0 0 12px rgba(245,197,24,.10) !important;
+}
+#img-lightbox-download{
+  border-color:rgba(245,197,24,.54) !important;
+  color:#f5c518 !important;
+  background:rgba(8,18,42,.72) !important;
+}
+#member-lightbox{
+  background:
+    radial-gradient(circle at 50% 12%, rgba(245,197,24,.16), transparent 34%),
+    radial-gradient(circle at 50% 76%, rgba(74,158,255,.12), transparent 42%),
+    rgba(1,5,14,.94) !important;
+  padding:calc(16px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom)) !important;
+}
+#member-lightbox-card{
+  position:relative !important;
+  max-width:min(94vw,840px) !important;
+  max-height:calc(100vh - 34px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
+  overflow:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  background:linear-gradient(180deg,rgba(16,30,52,.96),rgba(5,11,24,.98)) !important;
+  border:1px solid rgba(245,197,24,.44) !important;
+  border-radius:22px !important;
+  box-shadow:0 20px 52px rgba(0,0,0,.56),0 0 30px rgba(245,197,24,.14),inset 0 1px 0 rgba(255,255,255,.07) !important;
+}
+#member-lightbox-card::before{
+  content:"";
+  position:absolute;
+  left:18px;right:18px;top:0;height:3px;
+  background:linear-gradient(90deg, transparent, rgba(245,197,24,.92), rgba(255,216,74,.98), rgba(245,197,24,.92), transparent);
+  border-radius:999px;
+  box-shadow:0 0 14px rgba(245,197,24,.22);
+  pointer-events:none;
+  z-index:2;
+}
+#member-lightbox-stage{
+  background:radial-gradient(circle at 50% 46%, rgba(245,197,24,.10), rgba(74,158,255,.07) 42%, transparent 68%) !important;
+}
+#member-lightbox-img{
+  max-height:min(72vh,720px) !important;
+  filter:drop-shadow(0 18px 30px rgba(0,0,0,.54)) drop-shadow(0 0 18px rgba(245,197,24,.12)) !important;
+}
+#member-lightbox-name{
+  color:#fff1b8 !important;
+  text-shadow:0 0 14px rgba(245,197,24,.24),0 2px 8px rgba(0,0,0,.55) !important;
+}
+#member-lightbox-inst{
+  color:#f5c518 !important;
+  text-shadow:0 0 12px rgba(245,197,24,.22) !important;
+}
+body.light #img-lightbox,
+body.light #member-lightbox{
+  background:
+    radial-gradient(circle at 50% 12%, rgba(212,160,23,.18), transparent 35%),
+    linear-gradient(180deg,rgba(10,30,70,.46),rgba(245,248,255,.96)) !important;
+}
+body.light #img-lightbox-img,
+body.light #member-lightbox-card{
+  background:linear-gradient(180deg,#ffffff,#f3f7ff) !important;
+  border-color:rgba(184,134,11,.42) !important;
+  box-shadow:0 18px 44px rgba(20,40,80,.22),0 0 20px rgba(184,134,11,.10),inset 0 1px 0 rgba(255,255,255,.85) !important;
+}
+body.light #img-lightbox-caption,
+body.light #member-lightbox-name{
+  color:#7a5600 !important;
+  text-shadow:none !important;
+}
+body.light #member-lightbox-inst,
+body.light #img-lightbox-download{
+  color:#9a6a00 !important;
+}
+
+
+
+/* r729: Calendar Add/Edit Event form sticky header + keyboard focus polish.
+   Scope: #evm only. Keeps the event form visually balanced while making the
+   header/X reliably sticky and giving focused fields more visible room above
+   the Android keyboard. */
+#evm .mo{
+  padding:0 14px calc(18px + env(safe-area-inset-bottom)) 14px !important;
+  max-height:min(82vh, calc(100dvh - 56px - env(safe-area-inset-bottom))) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior:contain !important;
+  scroll-padding-top:72px !important;
+  scroll-padding-bottom:150px !important;
+}
+#evm .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:12 !important;
+  margin:0 -14px 14px -14px !important;
+  padding:14px 52px 12px 14px !important;
+  min-height:56px !important;
+  border-radius:16px 16px 0 0 !important;
+  transform:translateZ(0) !important;
+}
+#evm .moh button{
+  position:absolute !important;
+  top:11px !important;
+  right:12px !important;
+}
+#evm .mi,
+#evm input,
+#evm textarea,
+#evm select,
+#evm button.sb{
+  scroll-margin-top:76px !important;
+  scroll-margin-bottom:150px !important;
+}
+#evm:focus-within{
+  align-items:center !important;
+  justify-content:center !important;
+}
+#evm:focus-within .mo{
+  max-height:min(86vh, calc(100dvh - 30px - env(safe-area-inset-bottom))) !important;
+  scroll-padding-bottom:190px !important;
+}
+@media (max-height:680px){
+  #evm .mo{max-height:calc(100dvh - 26px - env(safe-area-inset-bottom)) !important;}
+  #evm:focus-within .mo{max-height:calc(100dvh - 14px - env(safe-area-inset-bottom)) !important;}
+}
+
+
+/* r730: Calendar Custom/Important Date sticky header + keyboard focus polish.
+   Scope: #idate-modal only. Mirrors the r729 event-form header behavior for
+   custom/important dates without changing fields, save/delete logic, or Calendar layout. */
+#idate-modal.r453-idate-visual .mo{
+  padding:0 14px calc(18px + env(safe-area-inset-bottom)) 14px !important;
+  max-height:min(82vh, calc(100dvh - 56px - env(safe-area-inset-bottom))) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior:contain !important;
+  scroll-padding-top:72px !important;
+  scroll-padding-bottom:150px !important;
+}
+#idate-modal.r453-idate-visual .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:12 !important;
+  margin:0 -14px 14px -14px !important;
+  padding:14px 52px 12px 14px !important;
+  min-height:56px !important;
+  border-radius:16px 16px 0 0 !important;
+  transform:translateZ(0) !important;
+}
+#idate-modal.r453-idate-visual .moh button{
+  position:absolute !important;
+  top:11px !important;
+  right:12px !important;
+}
+#idate-modal.r453-idate-visual .mi,
+#idate-modal.r453-idate-visual input,
+#idate-modal.r453-idate-visual textarea,
+#idate-modal.r453-idate-visual button{
+  scroll-margin-top:76px !important;
+  scroll-margin-bottom:150px !important;
+}
+#idate-modal.r453-idate-visual:focus-within{
+  align-items:center !important;
+  justify-content:center !important;
+}
+#idate-modal.r453-idate-visual:focus-within .mo{
+  max-height:min(86vh, calc(100dvh - 30px - env(safe-area-inset-bottom))) !important;
+  scroll-padding-bottom:190px !important;
+}
+@media (max-height:680px){
+  #idate-modal.r453-idate-visual .mo{max-height:calc(100dvh - 26px - env(safe-area-inset-bottom)) !important;}
+  #idate-modal.r453-idate-visual:focus-within .mo{max-height:calc(100dvh - 14px - env(safe-area-inset-bottom)) !important;}
+}
+
+
+
+/* r732: Home alerts row.
+   Single alert remains full-width. When rehearsal and song-vote alerts are both visible,
+   they share one compact 50/50 row so Home geometry, Next Gig, band image, and social
+   buttons do not get pushed down. Built as a reusable alert-row pattern for future
+   pending actions / white-label group notices. */
+#home-alerts-row{
+  display:block !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  min-height:0 !important;
+}
+#home-alerts-row:has(#home-song-vote-cue[style*="display: block"]):has(#home-rehearsal-cue[style*="display: block"]),
+#home-alerts-row:has(#home-song-vote-cue[style*="display:block"]):has(#home-rehearsal-cue[style*="display:block"]){
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+  gap:2px !important;
+  align-items:stretch !important;
+  margin:0 0 2px 0 !important;
+}
+#home-alerts-row:has(#home-song-vote-cue[style*="display: block"]):has(#home-rehearsal-cue[style*="display: block"]) #home-song-vote-cue,
+#home-alerts-row:has(#home-song-vote-cue[style*="display: block"]):has(#home-rehearsal-cue[style*="display: block"]) #home-rehearsal-cue,
+#home-alerts-row:has(#home-song-vote-cue[style*="display:block"]):has(#home-rehearsal-cue[style*="display:block"]) #home-song-vote-cue,
+#home-alerts-row:has(#home-song-vote-cue[style*="display:block"]):has(#home-rehearsal-cue[style*="display:block"]) #home-rehearsal-cue{
+  min-width:0 !important;
+  width:100% !important;
+  height:100% !important;
+}
+#home-alerts-row:has(#home-song-vote-cue[style*="display: block"]):has(#home-rehearsal-cue[style*="display: block"]) .home-alert-pill,
+#home-alerts-row:has(#home-song-vote-cue[style*="display:block"]):has(#home-rehearsal-cue[style*="display:block"]) .home-alert-pill{
+  height:100% !important;
+  min-height:62px !important;
+  margin:0 !important;
+  padding:8px 7px !important;
+  gap:6px !important;
+  border-radius:14px !important;
+  align-items:center !important;
+}
+#home-alerts-row:has(#home-song-vote-cue[style*="display: block"]):has(#home-rehearsal-cue[style*="display: block"]) .home-alert-icon,
+#home-alerts-row:has(#home-song-vote-cue[style*="display:block"]):has(#home-rehearsal-cue[style*="display:block"]) .home-alert-icon{
+  width:28px !important;
+  height:28px !important;
+  font-size:13px !important;
+}
+#home-alerts-row:has(#home-song-vote-cue[style*="display: block"]):has(#home-rehearsal-cue[style*="display: block"]) .home-alert-kicker,
+#home-alerts-row:has(#home-song-vote-cue[style*="display:block"]):has(#home-rehearsal-cue[style*="display:block"]) .home-alert-kicker{
+  font-size:8.5px !important;
+  letter-spacing:1.1px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+#home-alerts-row:has(#home-song-vote-cue[style*="display: block"]):has(#home-rehearsal-cue[style*="display: block"]) .home-alert-main,
+#home-alerts-row:has(#home-song-vote-cue[style*="display:block"]):has(#home-rehearsal-cue[style*="display:block"]) .home-alert-main{
+  font-size:11px !important;
+  line-height:1.15 !important;
+  margin-top:2px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+#home-alerts-row:has(#home-song-vote-cue[style*="display: block"]):has(#home-rehearsal-cue[style*="display: block"]) .home-alert-sub,
+#home-alerts-row:has(#home-song-vote-cue[style*="display: block"]):has(#home-rehearsal-cue[style*="display: block"]) .home-alert-note,
+#home-alerts-row:has(#home-song-vote-cue[style*="display:block"]):has(#home-rehearsal-cue[style*="display:block"]) .home-alert-sub,
+#home-alerts-row:has(#home-song-vote-cue[style*="display:block"]):has(#home-rehearsal-cue[style*="display:block"]) .home-alert-note{
+  display:none !important;
+}
+
+/* r731: Deep caret cleanup — tappable pills/cards do not need right-side caret affordances.
+   Keep true controls such as month navigation and reorder arrows intact. */
+#evl-arrow,
+#proposals-arrow,
+#gig-history-arrow,
+#mem-arrow,
+#notif-settings-caret,
+#privacy-settings-caret,
+.cal-accordion-chev,
+.song-filter-pill .caret{
+  display:none !important;
+}
+
 </style>
 </head>
 <body>
@@ -8345,8 +10898,10 @@ body.light #whats-new-version-line{
     <div class="hero-tagline">Where Rock &amp; Roll Meets the Dance Floor</div>
   </div>
   <div id="birthday-banner" style="display:none;"></div>
-  <div id="home-song-vote-cue" style="display:none;"></div>
-  <div id="home-rehearsal-cue" style="display:none;"></div>
+  <div id="home-alerts-row" aria-label="Home alerts">
+    <div id="home-song-vote-cue" style="display:none;"></div>
+    <div id="home-rehearsal-cue" style="display:none;"></div>
+  </div>
   <div id="next-gig-countdown" style="display:none;background:#060e1c;border-radius:12px;padding:7px 14px;margin-bottom:8px;text-align:center;border:2px solid rgba(245,197,24,1);box-shadow:0 0 30px rgba(245,197,24,.4),inset 0 0 30px rgba(10,22,40,.8);">
     <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">
       <div style="height:1px;flex:1;background:linear-gradient(to right,transparent,rgba(245,197,24,.4));"></div>
@@ -8889,6 +11444,10 @@ body.light #whats-new-version-line{
         <div id="idate-rec-knob" style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;"></div>
       </div>
     </div>
+    <div style="margin-bottom:12px;">
+      <div style="color:#aaa;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;margin-bottom:5px;">NOTES</div>
+      <textarea id="idate-note" class="mi" style="width:100%;height:54px;min-height:54px;margin:0;resize:vertical;line-height:1.35;" placeholder="Optional notes or details"></textarea>
+    </div>
     <div id="idate-action-row" class="r453-idate-actions">
       <button id="idate-save-btn" class="r455-save-icon-btn r455-save-inline" onclick="saveImportantDate()" aria-label="Save important date" title="Save important date"><img src="save_icon_r461.png" alt="" aria-hidden="true"></button>
       <button id="idate-delete-btn" onclick="deleteImportantDate()" title="Delete important date" aria-label="Delete important date">
@@ -8947,7 +11506,7 @@ body.light #whats-new-version-line{
         <div style="font-family:Russo One,sans-serif;font-size:10px;color:#06d6a0;letter-spacing:1px;margin-bottom:2px;">TEMPLATE</div>
         <div id="flyer-summary-text" style="font-size:13px;color:#e8f0ff;"></div>
       </div>
-      <div style="flex-shrink:0;color:#8aa8d6;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;">CHANGE ›</div>
+      <div style="flex-shrink:0;color:#8aa8d6;font-size:11px;font-family:Russo One,sans-serif;letter-spacing:1px;">CHANGE</div>
     </div>
 
     <!-- SCROLLABLE MIDDLE: format / template / fields / preview -->
@@ -9342,11 +11901,11 @@ function toggleNotifSettings(){
   if(!body) return;
   if(body.style.display === 'none' || !body.style.display){
     body.style.display = 'block';
-    if(caret) caret.innerHTML = '&#8963;';
+    if(caret) caret.innerHTML = '';;
     renderNotifSettings();
   } else {
     body.style.display = 'none';
-    if(caret) caret.innerHTML = '&#8964;';
+    if(caret) caret.innerHTML = '';;
   }
 }
 
@@ -9703,10 +12262,10 @@ function togglePrivacySettings(){
   var open = body.style.display !== 'none';
   if(open){
     body.style.display = 'none';
-    if(caret) caret.innerHTML = '&#8964;'; // ⌄
+    if(caret) caret.innerHTML = '';; // ⌄
   } else {
     body.style.display = 'block';
-    if(caret) caret.innerHTML = '&#8963;'; // ⌃
+    if(caret) caret.innerHTML = '';; // ⌃
     renderPrivacySettings();
   }
 }
@@ -12130,14 +14689,14 @@ function renderHomeRehearsalCue(){
   var note = ev.note || ev.location || '';
   el.style.display = 'block';
   el.innerHTML =
-    '<button type="button" onclick="_r535OpenHomeRehearsal(\''+_r535HomeEscape(String(ev.id||''))+'\')" '+
+    '<button class="home-alert-pill home-alert-rehearsal" type="button" onclick="_r535OpenHomeRehearsal(\''+_r535HomeEscape(String(ev.id||''))+'\')" '+
     'style="width:100%;text-align:left;background:linear-gradient(135deg,rgba(11,31,76,.98),rgba(5,13,32,.98) 58%,rgba(32,14,57,.96));border:1px solid rgba(245,197,24,.55);border-radius:16px;padding:11px 12px;margin:0 0 10px 0;color:#e8f0ff;box-shadow:0 9px 22px rgba(0,0,0,.30),0 0 18px rgba(74,158,255,.14),inset 0 1px 0 rgba(255,255,255,.06);display:flex;gap:10px;align-items:center;cursor:pointer;touch-action:manipulation;overflow:hidden;position:relative;">'+
-      '<span style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 32% 24%,#fff7b8 0%,#f5c518 36%,#b77c00 100%);color:#06121f;display:flex;align-items:center;justify-content:center;font-family:Russo One,sans-serif;font-size:17px;flex-shrink:0;box-shadow:0 0 16px rgba(245,197,24,.34);">🎤</span>'+
-      '<span style="flex:1;min-width:0;position:relative;z-index:1;">'+
-        '<span style="display:block;font-family:Russo One,sans-serif;color:#f5c518;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;">Rehearsal on Deck</span>'+ 
-        '<span style="display:block;color:#fff;font-size:14px;font-weight:800;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_r535HomeEscape(title)+'</span>'+ 
-        '<span style="display:block;color:#9fc2ff;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_r535HomeEscape(sub)+'</span>'+ 
-        (note ? '<span style="display:block;color:#8aa8d6;font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_r535HomeEscape(note)+'</span>' : '')+
+      '<span class="home-alert-icon" style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 32% 24%,#fff7b8 0%,#f5c518 36%,#b77c00 100%);color:#06121f;display:flex;align-items:center;justify-content:center;font-family:Russo One,sans-serif;font-size:17px;flex-shrink:0;box-shadow:0 0 16px rgba(245,197,24,.34);">🎤</span>'+
+      '<span class="home-alert-copy" style="flex:1;min-width:0;position:relative;z-index:1;">'+
+        '<span class="home-alert-kicker" style="display:block;font-family:Russo One,sans-serif;color:#f5c518;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;">Rehearsal on Deck</span>'+ 
+        '<span class="home-alert-main" style="display:block;color:#fff;font-size:14px;font-weight:800;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_r535HomeEscape(title)+'</span>'+ 
+        '<span class="home-alert-sub" style="display:block;color:#9fc2ff;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_r535HomeEscape(sub)+'</span>'+ 
+        (note ? '<span class="home-alert-note" style="display:block;color:#8aa8d6;font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_r535HomeEscape(note)+'</span>' : '')+
       '</span>'+
     '</button>';
   try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue visible'); } catch(e){}
@@ -12157,15 +14716,14 @@ function renderHomeSongVoteCue(){
   var detail = first.title ? ('“' + first.title + '”' + (pending.length>1 ? ' + more' : '')) : 'Review the pending suggestion list.';
   el.style.display = 'block';
   el.innerHTML =
-    '<button type="button" onclick="try{go(\'songs\',document.getElementById(\'tb-songs\'));}catch(e){};setTimeout(function(){try{openSongVoteModal();}catch(e){}},80);" '+
+    '<button class="home-alert-pill home-alert-song" type="button" onclick="try{go(\'songs\',document.getElementById(\'tb-songs\'));}catch(e){};setTimeout(function(){try{openSongVoteModal();}catch(e){}},80);" '+
     'style="width:100%;text-align:left;background:linear-gradient(135deg,rgba(245,197,24,.20),rgba(74,158,255,.10));border:1px solid rgba(255,59,48,.85);border-radius:14px;padding:10px 12px;margin:0 0 10px 0;color:#e8f0ff;box-shadow:0 0 18px rgba(245,197,24,.16);display:flex;gap:10px;align-items:center;cursor:pointer;">'+
-      '<span style="width:34px;height:34px;border-radius:50%;background:#f5c518;color:#06121f;display:flex;align-items:center;justify-content:center;font-family:Russo One,sans-serif;font-size:17px;flex-shrink:0;">♪</span>'+
-      '<span style="flex:1;min-width:0;">'+
-        '<span style="display:block;font-family:Russo One,sans-serif;color:#f5c518;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;">Song Vote Pending</span>'+
-        '<span style="display:block;color:#fff;font-size:13px;font-weight:700;margin-top:2px;">'+label+'</span>'+
-        '<span style="display:block;color:#8aa8d6;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+detail+'</span>'+
+      '<span class="home-alert-icon" style="width:34px;height:34px;border-radius:50%;background:#f5c518;color:#06121f;display:flex;align-items:center;justify-content:center;font-family:Russo One,sans-serif;font-size:17px;flex-shrink:0;">♪</span>'+
+      '<span class="home-alert-copy" style="flex:1;min-width:0;">'+
+        '<span class="home-alert-kicker" style="display:block;font-family:Russo One,sans-serif;color:#f5c518;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;">Song Vote Pending</span>'+
+        '<span class="home-alert-main" style="display:block;color:#fff;font-size:13px;font-weight:700;margin-top:2px;">'+label+'</span>'+
+        '<span class="home-alert-sub" style="display:block;color:#8aa8d6;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+detail+'</span>'+
       '</span>'+
-      '<span style="color:#f5c518;font-size:20px;line-height:1;">›</span>'+
     '</button>';
 }
 
@@ -13447,7 +16005,7 @@ function _resetTransientUIForHomeDefault(reason){
     var gh = document.getElementById('gig-history-list');
     if(gh) gh.style.display = 'none';
     var gha = document.getElementById('gig-history-arrow');
-    if(gha) gha.innerHTML = '&#8964;';
+    if(gha) gha.innerHTML = '';;
   } catch(e){}
 
   // Reset Setlists to the list landing state.  This is critical because the
@@ -14430,6 +16988,8 @@ function openImportantDateModal(idateOrId){
   var endEl = document.getElementById('idate-end-time');
   if(startEl) startEl.value = existing ? (existing.startTime || '') : '';
   if(endEl) endEl.value = existing ? (existing.endTime || '') : '';
+  var noteEl = document.getElementById('idate-note');
+  if(noteEl) noteEl.value = existing ? (existing.note || existing.notes || '') : '';
   _applyIDateToggleVisual('idate-rec-toggle', 'idate-rec-knob', _editingIDateRecurring);
   _applyIDateAllDayState();
   // Show/hide delete based on edit vs create
@@ -14461,6 +17021,7 @@ function saveImportantDate(){
     : dateRaw;
   var startTime = (document.getElementById('idate-start-time') && document.getElementById('idate-start-time').value) || '';
   var endTime = (document.getElementById('idate-end-time') && document.getElementById('idate-end-time').value) || '';
+  var note = (document.getElementById('idate-note') && document.getElementById('idate-note').value || '').trim();
   if(_editingIDateAllDay){ startTime = ''; endTime = ''; }
   var data = {
     title: title,
@@ -14469,6 +17030,7 @@ function saveImportantDate(){
     allDay: _editingIDateAllDay,
     startTime: startTime,
     endTime: endTime,
+    note: note,
     color: IDATE_DEFAULT_COLOR,
     updated: firebase.firestore.FieldValue.serverTimestamp()
   };
@@ -14529,8 +17091,9 @@ function rImportantDatesList(){
     row.style.cssText = 'background:linear-gradient(135deg,'+color+'22 0%,'+color+'08 50%,#0a1628 100%);border:1px solid '+color+'55;border-left:4px solid '+color+';border-radius:10px;padding:10px 12px;margin-bottom:7px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:0 0 12px '+color+'22;';
     var timeLabel = x.allDay ? 'All Day' : ([x.startTime || '', x.endTime || ''].filter(Boolean).join('–'));
     var metaLabel = dateLabel + (x.recurring?' &middot; Annual':'') + (timeLabel ? ' &middot; ' + timeLabel : '');
+    var noteLabel = x.note || x.notes || '';
     row.innerHTML =
-      '<span style="color:'+color+';font-size:18px;line-height:1;">&#9733;</span>'+      '<div style="flex:1;min-width:0;">'+        '<div style="font-size:14px;font-weight:600;color:#fff;">'+(x.title||'Untitled')+'</div>'+        '<div style="font-size:11px;color:#aaa;margin-top:2px;">'+metaLabel+'</div>'+      '</div>'+      '<div style="color:'+color+';font-size:18px;line-height:1;flex-shrink:0;opacity:.7;">&#8250;</div>';
+      '<span style="color:'+color+';font-size:18px;line-height:1;">&#9733;</span>'+      '<div style="flex:1;min-width:0;">'+        '<div style="font-size:14px;font-weight:600;color:#fff;">'+(x.title||'Untitled')+'</div>'+        '<div style="font-size:11px;color:#aaa;margin-top:2px;">'+metaLabel+'</div>'+        (noteLabel ? '<div style="font-size:11px;color:#c7d6f3;margin-top:3px;white-space:normal;line-height:1.35;">'+noteLabel+'</div>' : '')+      '</div>'+      '';
     row.onclick = (function(id){ return function(){ openImportantDateModal(id); }; })(x.id);
     el.appendChild(row);
   });
@@ -16195,7 +18758,7 @@ function rProposals(){
   var ar = document.getElementById('proposals-arrow');
   var btn = document.getElementById('propose-btn');
   if(!el) return;
-  if(ar) ar.innerHTML = '&#8964;';
+  if(ar) ar.innerHTML = '';;
   el.style.display = collapsed ? 'none' : 'block';
   if(btn) btn.style.display = collapsed ? 'none' : 'block';
   // r166: Finalized proposals do not remain in the proposal drawer.
@@ -19104,7 +21667,7 @@ function toggleCard(contentId, arrowId) {
       var col = ar.getAttribute('data-color') || '#fff';
       ar.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="'+col+'" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
     } else {
-      ar.innerHTML = '&#8964;';
+      ar.innerHTML = '';;
     }
   }
   // Special case - contacts drawer on Band tab
@@ -19370,7 +21933,7 @@ function rBlackout(){
       row.style.display='flex';
       row.style.alignItems='center';
       row.style.gap='8px';
-      row.innerHTML='<div style="flex:1;min-width:0;"><div class="git">'+e.date+(e.note?' · '+e.note:'')+'</div></div><div style="color:#ff4757;font-size:20px;line-height:1;flex-shrink:0;opacity:.7;">&#8250;</div>';
+      row.innerHTML='<div style="flex:1;min-width:0;"><div class="git">'+e.date+(e.note?' · '+e.note:'')+'</div></div>';
       row.onclick = (function(eid){ return function(){ editEv(eid); }; })(e.id);
       boEl.appendChild(row);
     });
@@ -19401,7 +21964,7 @@ function rBlackout(){
         group.events.forEach(function(ev){
           var row=document.createElement('div');
           row.style.cssText='font-size:11px;color:#ff4757;padding:3px 8px;border-left:1px solid rgba(255,71,87,.3);margin-bottom:2px;cursor:pointer;display:flex;align-items:center;gap:8px;';
-          row.innerHTML = '<span style="flex:1;">'+(ev.date+(ev.note?' · '+ev.note:''))+'</span><span style="color:#ff4757;font-size:14px;line-height:1;opacity:.7;">&#8250;</span>';
+          row.innerHTML = '<span style="flex:1;">'+(ev.date+(ev.note?' · '+ev.note:''))+'</span>';
           row.onclick = (function(eid){ return function(e){ e.stopPropagation(); editEv(eid); }; })(ev.id);
           list.appendChild(row);
         });
@@ -19415,7 +21978,7 @@ function rBlackout(){
 function toggleMems() {
   memsOpen = !memsOpen;
   document.getElementById('mem-list').style.display = memsOpen ? 'block' : 'none';
-  document.getElementById('mem-arrow').innerHTML = memsOpen ? '&#8963;' : '&#8964;';
+  var _memArrow=document.getElementById('mem-arrow'); if(_memArrow) _memArrow.innerHTML = '';;
 }
 // CALENDAR
 
@@ -19957,11 +22520,9 @@ function _renderEvlFilterRow(){
   var pillBorder = _evlFilterOpen ? '#4a9eff' : (allOn ? '#1a3a8a' : '#f5c518');
   var pillColor = _evlFilterOpen ? '#4a9eff' : (allOn ? '#4a9eff' : '#f5c518');
   pill.style.cssText = 'background:'+pillBg+';border:1px solid '+pillBorder+';border-radius:14px;padding:5px 12px;color:'+pillColor+';font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation;';
-  var caret = _evlFilterOpen ? '&#9652;' : '&#9662;';
   var countLabel = allOn ? '' : ' ('+activeCount+'/'+totalCount+')';
   pill.innerHTML = '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="'+pillColor+'" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>'+
-    '<span>FILTER'+countLabel+'</span>'+
-    '<span style="font-size:11px;color:'+pillColor+';">'+caret+'</span>';
+    '<span>FILTER'+countLabel+'</span>';
   pill.onclick = function(ev){ ev.stopPropagation(); _toggleEvlFilterDropdown(); };
   host.appendChild(pill);
 
@@ -20054,7 +22615,7 @@ function _customEntriesAsRows(){
           date: ds,
           type: 'custom',
           title: x.title || 'Untitled',
-          note: x.allDay ? 'All Day · Annual' : 'Annual',
+          note: x.note || x.notes || '',
           startTime: x.startTime || '',
           endTime: x.endTime || '',
           allDay: !!x.allDay,
@@ -20069,7 +22630,7 @@ function _customEntriesAsRows(){
         date: x.date,
         type: 'custom',
         title: x.title || 'Untitled',
-        note: x.allDay ? 'All Day' : '',
+        note: x.note || x.notes || '',
         startTime: x.startTime || '',
         endTime: x.endTime || '',
         allDay: !!x.allDay,
@@ -20093,7 +22654,7 @@ function rEvL(){
   // Keep the old filter row hidden so it cannot be clipped/covered by the expanded list.
   if(filterRow) filterRow.style.display = 'none';
   _evlFilterOpen = false;
-  if(evlAr) evlAr.innerHTML = '&#8964;';
+  if(evlAr) evlAr.innerHTML = '';;
 
   var el = document.getElementById('evl');
   if(!el) return;
@@ -20138,7 +22699,7 @@ function rEvL(){
       '<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:#fff;">'+(e.title||'')+'</div>'+
       '<div style="font-size:11px;color:#aaa;margin-top:2px;">'+e.date+(e.note?' - '+e.note:'')+'</div></div>'+
       pill+
-      '<div style="color:'+color+';font-size:20px;line-height:1;flex-shrink:0;opacity:.7;">&#8250;</div>';
+      '';
     if(e.type === 'custom'){
       row.onclick = (function(srcId){ return function(){ openImportantDateModal(srcId); }; })(e._customSourceId);
     } else {
@@ -20211,7 +22772,8 @@ function _renderSpecialDayNotes(eexEl, ds, opts){
     var timeLabel = idate.allDay ? 'All Day' : ([idate.startTime || '', idate.endTime || ''].filter(Boolean).join('–'));
     var dCard = document.createElement('div');
     dCard.style.cssText = 'padding:8px 12px;background:linear-gradient(135deg,'+color+'2e 0%,'+color+'0d 50%,#0a1628 100%);border:1px solid '+color+'66;border-radius:8px;margin-bottom:6px;display:flex;align-items:center;gap:8px;';
-    dCard.innerHTML = '<span style="color:'+color+';font-size:16px;line-height:1;">&#9733;</span>'+      '<div style="flex:1;">'+        '<div style="font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1.5px;color:'+color+';">'+(idate.recurring?'ANNUAL · ':'')+'IMPORTANT DATE</div>'+        '<div style="font-size:13px;color:#fff;font-weight:600;margin-top:1px;">'+(idate.title||'')+'</div>'+        (timeLabel ? '<div style="font-size:11px;color:#aaa;margin-top:2px;">'+timeLabel+'</div>' : '')+      '</div>';
+    var noteLabel = idate.note || idate.notes || '';
+    dCard.innerHTML = '<span style="color:'+color+';font-size:16px;line-height:1;">&#9733;</span>'+      '<div style="flex:1;">'+        '<div style="font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1.5px;color:'+color+';">'+(idate.recurring?'ANNUAL · ':'')+'IMPORTANT DATE</div>'+        '<div style="font-size:13px;color:#fff;font-weight:600;margin-top:1px;">'+(idate.title||'')+'</div>'+        (timeLabel ? '<div style="font-size:11px;color:#aaa;margin-top:2px;">'+timeLabel+'</div>' : '')+        (noteLabel ? '<div style="font-size:11px;color:#c7d6f3;margin-top:3px;line-height:1.35;">'+noteLabel+'</div>' : '')+      '</div>';
     eexEl.appendChild(dCard);
   });
   // Visual separator before events
@@ -20420,7 +22982,7 @@ function openDayDrawer(day, de, opts){
     titleHtml += e.title;
     info.innerHTML = '<div class="cal-event-title" style="font-size:13px;font-weight:600;color:#fff;">' + titleHtml + '</div>' +
       (detailLine?'<div class="cal-event-meta" style="font-size:11px;color:'+(e.type==='custom'?leftBorder:'#f5c518')+';margin-top:2px;font-family:Russo One,sans-serif;letter-spacing:.3px;">'+detailLine+'</div>':'') +
-      (e.note && e.type !== 'custom' ?'<div class="cal-event-note" style="font-size:11px;color:#aaa;margin-top:2px;">'+e.note+'</div>':'');
+      (e.note ? '<div class="cal-event-note" style="font-size:11px;color:#aaa;margin-top:2px;white-space:normal;line-height:1.35;">'+e.note+'</div>' : '');
 
     var btnRow = document.createElement('div');
     btnRow.style.cssText = 'display:flex;gap:4px;flex-shrink:0;margin-left:8px;flex-wrap:wrap;justify-content:flex-end;';
@@ -28194,8 +30756,8 @@ function rPay(){
   document.getElementById('cs').textContent='/ '+members.length+' members';
   document.getElementById('pl').innerHTML = pay.length ? pay.map(function(g){
     var net=(g.gross||0)-(g.exp||0);
-    return '<div style="background:#101e34;border-radius:8px;padding:9px 11px;margin-bottom:6px;display:flex;align-items:center;gap:10px;">' +
-      '<div style="width:30px;height:30px;border-radius:7px;background:rgba(245,197,24,.1);color:#f5c518;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">$</div>' +
+    return '<div class="pay-log-row" style="background:#101e34;border-radius:8px;padding:9px 11px;margin-bottom:6px;display:flex;align-items:center;gap:10px;">' +
+      '<div class="pay-log-icon" style="width:30px;height:30px;border-radius:7px;background:rgba(245,197,24,.1);color:#f5c518;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">$</div>' +
       '<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:#fff;">'+g.venue+'</div><div style="font-size:11px;color:#aaa;margin-top:2px;">'+g.date+'</div></div>' +
       '<div style="text-align:right;flex-shrink:0;"><div style="font-family:Russo One,sans-serif;font-size:15px;color:#f5c518;">$'+net.toLocaleString()+'</div><div style="font-size:10px;color:#4a9eff;">You: $'+(net/members.length).toFixed(2)+'</div></div>' +
       '</div>';
@@ -28213,7 +30775,7 @@ function rGigHistory(){
   var ar = document.getElementById('gig-history-arrow');
   var countEl = document.getElementById('gig-history-count');
   if(!el) return;
-  if(ar) ar.innerHTML = '&#8964;';
+  if(ar) ar.innerHTML = '';;
   el.style.display = collapsed ? 'none' : 'block';
   // Filter past gigs
   var pastGigs = events.filter(function(e){
@@ -28253,6 +30815,7 @@ function rGigHistory(){
       }
     } catch(e){}
     var card = document.createElement('div');
+    card.className = 'pay-gig-history-row';
     card.style.cssText = 'background:#101e34;border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;cursor:pointer;border-left:3px solid #f5c518;touch-action:manipulation;';
     var vibeIcon = dbf.vibe && vibeEmojis[dbf.vibe] ? vibeEmojis[dbf.vibe] : '';
     var audLabel = dbf.audience && audLabels[dbf.audience] ? audLabels[dbf.audience] : '';
@@ -28262,7 +30825,7 @@ function rGigHistory(){
     if(!dbf.vibe && !dbf.audience && !dbf.well && !dbf.poorly && !dbf.payment){
       subBits.push('No notes yet');
     }
-    var leftCol = '<div style="flex-shrink:0;width:36px;height:36px;border-radius:8px;background:rgba(245,197,24,.1);display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;">' +
+    var leftCol = '<div class="pay-history-icon" style="flex-shrink:0;width:36px;height:36px;border-radius:8px;background:rgba(245,197,24,.1);display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;">' +
       (vibeIcon || '<span style="color:#f5c518;font-size:14px;font-family:Russo One,sans-serif;">' + (dateObj ? dateObj.getDate() : '?') + '</span>') +
       '</div>';
     var midCol = '<div style="flex:1;min-width:0;">' +
@@ -28518,7 +31081,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-announcements-modal-consistency-r693';
+var WHATS_NEW_VERSION = '2026-05-26-home-alerts-row-r732';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -28863,6 +31426,44 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-home-alerts-row-r732', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home alerts row', body:'Adds a reusable Home alerts row so one alert remains full-width, while both Song Vote Pending and Rehearsal On Deck visible together become two compact half-width pills in the same row. Home locked gaps, band image/framing, social buttons, alert tap behavior, Next Gig, all other tabs, flyers, assets, and app data are unchanged.', items:['Upload index_r732.html as index.html.', 'Confirm Build Version reports r732.', 'Phone-test Home in three states: only rehearsal, only song vote pending, and both together. Both together should share one row with two tappable half-width pills without pushing down Next Gig or the band image.'] },
+  { version:'2026-05-26-deep-caret-cleanup-r731', date:'May 26, 2026', importance:'fix', emoji:'✨', title:'Deep caret cleanup', body:'Removes remaining visual caret/chevron affordances from tappable pill/card/list rows and legacy accordion indicators while preserving full-row tap behavior and true controls such as month navigation, reorder buttons, filters, and data logic.', items:['Upload index_r731.html as index.html.', 'Confirm Build Version reports r731.', 'Phone-test likely spots: Home song vote cue, Calendar All Events rows/custom dates/blackouts/filter pill, Flyer template summary, and expandable sections. The whole pill/card/row should remain tappable without a right-side caret.'] },
+  { version:'2026-05-26-custom-date-sticky-header-r730', date:'May 26, 2026', importance:'fix', emoji:'⭐', title:'Custom date header stays visible', body:'Extends the sticky header/X and modest keyboard-focus scroll-room treatment to Calendar Custom/Important Date only. Title/date/time/all-day/recurring/notes/save/delete behavior, Calendar layout/gaps, Home, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r730.html as index.html.', 'Confirm Build Version reports r730.', 'Phone-test Calendar → Custom/Important Date: header/X should remain visible while scrolling and fields should be easier to see while editing.'] },
+  { version:'2026-05-26-calendar-event-form-sticky-header-r729', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Calendar event form header stays visible', body:'Hardens the Calendar Add/Edit Event form header so the title and X remain sticky while scrolling all event types, with modest keyboard-focus room for editable fields. Event fields, save behavior, Calendar layout/gaps, and all other app sections are unchanged.', items:['Upload index_r729.html as index.html.', 'Confirm Build Version reports r729.', 'Phone-test Calendar Add/Edit Event for Gig, Rehearsal, and Blackout: header/X should remain visible while scrolling and fields should be easier to see while editing.'] },
+  { version:'2026-05-26-image-lightbox-premium-polish-r728', date:'May 26, 2026', importance:'fix', emoji:'🖼️', title:'Image lightboxes polished', body:'Applies premium gold-accented, scroll-safe styling only to the shared generic image lightbox and the Mates/Band member photo lightbox. Image sources, captions, share/download actions, member photo behavior, Home, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r728.html as index.html.', 'Confirm Build Version reports r728.', 'Phone-test image lightboxes: open a member photo and a song/resource image; confirm the lightboxes look consistent and close/share/download behavior still works.'] },
+  { version:'2026-05-26-name-picker-premium-polish-r727', date:'May 26, 2026', importance:'fix', emoji:'👤', title:'Name picker polished', body:'Applies premium gold-accented styling only to the first-run/identity Name Picker overlay and member buttons. Identity selection logic, roster data, Home, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r727.html as index.html.', 'Confirm Build Version reports r727.', 'Phone-test the Name Picker/Who Are You screen if visible; confirm member selection still works.'] },
+  { version:'2026-05-26-mates-contacts-pill-polish-r726', date:'May 26, 2026', importance:'fix', emoji:'👥', title:'Contacts pill polished', body:'Applies subtle premium gold-accented styling to the Mates/Band CONTACTS expandable pill/header only. Contacts drawer rows, Add/Edit/Delete contact behavior, roster cards, Home, Calendar, Chat, Songs, Setlists, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r726.html as index.html.', 'Confirm Build Version reports r726.', 'Phone-test Mates/Band: the CONTACTS pill should look consistent with the premium app styling while still opening/closing the Contacts drawer normally.'] },
+  { version:'2026-05-26-setlists-linked-gig-polish-r725', date:'May 26, 2026', importance:'fix', emoji:'🎼', title:'Setlists linked-gig cards polished', body:'Applies subtle premium gold-accented styling to the Setlists upcoming-gig prompt and linked-gig selector card while preserving all linked-gig creation/linking behavior.', items:['Upload index_r725.html as index.html.', 'Confirm Build Version reports r725.', 'Phone-test Setlists: upcoming gigs needing setlists and the Linked Gig selector should look consistent, while CREATE and selector changes still work.'] },
+  { version:'2026-05-26-songs-search-bar-polish-r724', date:'May 26, 2026', importance:'fix', emoji:'🔎', title:'Songs search bar polished', body:'Applies a subtle premium gold-accented treatment to the Songs search bar only. Songs search behavior, the hidden filter control state, song rows, Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r724.html as index.html.', 'Confirm Build Version reports r724.', 'Phone-test Songs: the search bar should look more premium while search input and song list behavior remain unchanged.'] },
+  { version:'2026-05-26-calendar-key-legend-polish-r723', date:'May 26, 2026', importance:'fix', emoji:'🔑', title:'Calendar key legend polished', body:'Applies subtle premium gold-accented styling to the Calendar key/legend row and legend icon chips only. Legend toggle/dismiss behavior, Calendar layout/gaps/grid/pills, all event data/logic, Home, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r723.html as index.html.', 'Confirm Build Version reports r723.', 'Phone-test Calendar key/legend: tap the key icon and confirm the legend row feels consistent with the premium app styling while opening/closing normally.'] },
+  { version:'2026-05-26-home-summary-card-polish-r722', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home summary cards polished', body:'Applies subtle premium gold-accented styling to Home summary and alert cards only: announcements, rehearsal/song cues, and Next Gig. Home locked gaps, Home image/framing/social buttons, alert visibility, countdown logic, all other tabs, flyers, assets, and app data are unchanged.', items:['Upload index_r722.html as index.html.', 'Confirm Build Version reports r722.', 'Phone-test Home: announcement/rehearsal/song cue/Next Gig cards should feel consistent with the premium styling while Home gaps, image, social buttons, and card behavior remain unchanged.'] },
+  { version:'2026-05-26-bottom-tab-bar-polish-r721', date:'May 26, 2026', importance:'fix', emoji:'✨', title:'Bottom tab bar polished', body:'Applies a subtle premium gold-accented treatment to the bottom tab bar and active tab state only. Tab order, tap behavior, active-tab logic, all tab content, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r721.html as index.html.', 'Confirm Build Version reports r721.', 'Phone-test the bottom tab bar across several tabs: active tab should look more premium while tab taps/order still work normally.'] },
+  { version:'2026-05-26-setlists-expanded-song-row-polish-r719', date:'May 26, 2026', importance:'fix', emoji:'🎼', title:'Setlist song rows polished', body:'Applies a subtle gold-accented premium list-card treatment to expanded Setlist song rows only. Setlist expand/collapse, song taps, artwork/YouTube actions, Home, Calendar, Chat, Songs, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r719.html as index.html.', 'Confirm Build Version reports r719.', 'Phone-test Setlists: expand a setlist and confirm the song rows feel visually consistent while song taps, artwork taps, and YouTube actions still work.'] },
+  { version:'2026-05-26-songs-library-list-card-polish-r718', date:'May 26, 2026', importance:'fix', emoji:'🎵', title:'Songs library rows polished', body:'Applies a subtle gold-accented premium list-card treatment to Songs library rows only. Song search, album-art/resource taps, song data, Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r718.html as index.html.', 'Confirm Build Version reports r718.', 'Phone-test Songs library list: rows should feel visually consistent with the premium app styling while search, album-art taps, and opening songs still work.'] },
+  { version:'2026-05-26-calendar-filter-drawer-polish-r717', date:'May 26, 2026', importance:'fix', emoji:'🧭', title:'Calendar filter drawer polished', body:'Applies premium gold-accented, scroll-safe styling to Calendar → All Events → Filter Events only. Filter selections, All Events rows, Calendar layout/gaps/pills, Home, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r717.html as index.html.', 'Confirm Build Version reports r717.', 'Phone-test Calendar → All Events options → Filter Events: the drawer should feel consistent with the premium app styling and filters should still work.'] },
+  { version:'2026-05-26-calendar-proposals-list-card-polish-r716', date:'May 26, 2026', importance:'fix', emoji:'🗓️', title:'Calendar Rehearsal Proposals rows polished', body:'Applies premium gold-accented list-card styling to Rehearsal Proposals cards only. Proposal voting, reminder log, cancel, confirm-add-to-calendar behavior, Calendar layout/gaps/pills, Home, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r716.html as index.html.', 'Confirm Build Version reports r716.', 'Phone-test Calendar → Rehearsal Proposals: proposal cards should feel consistent with the premium app styling and voting/confirm/cancel should still work.'] },
+  { version:'2026-05-26-calendar-all-events-list-card-polish-r715', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Calendar All Events rows polished', body:'Applies premium gold-accented list-card styling to Calendar All Events rows only. All Events filtering, row taps, Calendar drawer/detail behavior, Home, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r715.html as index.html.', 'Confirm Build Version reports r715.', 'Phone-test Calendar → All Events: rows should feel consistent with the premium app styling and still open/edit normally.'] },
+  { version:'2026-05-26-setlists-list-card-polish-r714', date:'May 26, 2026', importance:'fix', emoji:'🎼', title:'Setlists cards polished', body:'Applies premium gold-accented styling to Setlists top-level setlist cards only. Expand/collapse, linked-gig prompt, Setlists song panels/actions, Home, Calendar, Chat, Songs, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r714.html as index.html.', 'Confirm Build Version reports r714.', 'Phone-test Setlists list: top-level setlist cards should feel consistent with the premium app styling while expand/collapse still works.'] },
+  { version:'2026-05-26-chat-thread-list-card-polish-r713', date:'May 26, 2026', importance:'fix', emoji:'💬', title:'Chat thread list polished', body:'Applies premium gold-accented card styling to Chat thread list rows only. Chat header/composer from r712, message/thread behavior, Home, Calendar, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r713.html as index.html.', 'Confirm Build Version reports r713.', 'Phone-test Chat thread list: Band Chat and member rows should feel consistent with the premium app styling while still opening normally.'] },
+  { version:'2026-05-26-chat-thread-chrome-polish-r712', date:'May 26, 2026', importance:'fix', emoji:'💬', title:'Chat thread chrome polished', body:'Applies premium gold-accented styling to the Chat thread header and composer bar only. Messages, send behavior, thread navigation, Home, Calendar, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r712.html as index.html.', 'Confirm Build Version reports r712.', 'Phone-test Chat: open Band Chat or a direct message and confirm the header/composer feel consistent while sending still works.'] },
+  { version:'2026-05-26-mates-contacts-list-card-consistency-r711', date:'May 26, 2026', importance:'fix', emoji:'👥', title:'Contacts list cards polished', body:'Applies premium gold-accented list-card styling to Mates/Band Contacts drawer rows only. Contact expand/collapse, add/edit/delete behavior, drawer positioning, all other tabs, flyers, assets, and app data are unchanged.', items:['Upload index_r711.html as index.html.', 'Confirm Build Version reports r711.', 'Phone-test Mates/Band → Contacts: contact rows should look more consistent while expand/collapse and edit/delete still work.'] },
+  { version:'2026-05-26-pay-summary-cards-consistency-r710', date:'May 26, 2026', importance:'fix', emoji:'💸', title:'Pay summary cards polished', body:'Applies the premium gold-accented styling to Pay tab BAND TOTAL and YOUR CUT summary cards only. Total calculations, Pay payout rows, Add Pay form, Gig History behavior, all other tabs, flyers, assets, and app data are unchanged.', items:['Upload index_r710.html as index.html.', 'Confirm Build Version reports r710.', 'Phone-test Pay tab: BAND TOTAL and YOUR CUT cards should feel visually consistent while the dollar amounts still calculate correctly.'] },
+  { version:'2026-05-26-pay-list-card-consistency-r709', date:'May 26, 2026', importance:'fix', emoji:'💸', title:'Pay list cards polished', body:'Applies the premium gold-accented card styling to Pay tab payout entries and Gig History rows only. Pay totals, Add Pay form, Gig History expand/collapse/navigation, all other tabs, flyers, assets, and app data are unchanged.', items:['Upload index_r709.html as index.html.', 'Confirm Build Version reports r709.', 'Phone-test Pay tab: payout rows and expanded Gig History rows should feel visually consistent while totals and row taps still work.'] },
+  { version:'2026-05-26-pay-log-gig-pay-card-consistency-r708', date:'May 26, 2026', importance:'fix', emoji:'💸', title:'Pay log form polished', body:'Applies the premium gold-accented card styling to the Pay tab Log Gig Pay form only. Venue, Gross Pay, Expenses, Add behavior, Pay history, all other tabs, flyers, assets, and app data are unchanged.', items:['Upload index_r708.html as index.html.', 'Confirm Build Version reports r708.', 'Phone-test Pay → Log Gig Pay: the inline form should feel consistent with the premium app styling and Add should still work.'] },
+  { version:'2026-05-26-event-form-modal-consistency-r707', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Event form modal consistency', body:'Applies the premium sticky-header/X, scroll-safe mobile height, and dark/light styling treatment to the Calendar Add/Edit Event form modal only. Event type selection, fields, blackout range controls, Add/Save behavior, Calendar layout, Home, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r707.html as index.html.', 'Confirm Build Version reports r707.', 'Phone-test Calendar → Add Gig/Rehearsal/Blackout or edit an event form: the header/X should match the premium modal family and fields should remain usable.'] },
+  { version:'2026-05-26-add-member-modal-consistency-r706', date:'May 26, 2026', importance:'fix', emoji:'👥', title:'Add Member modal consistency', body:'Applies the premium sticky-header/X, scroll-safe mobile height, and dark/light styling treatment to the Mates/Band Add Member modal only. Member creation fields, Add to Band behavior, Home, Calendar, Chat, Songs, Setlists, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r706.html as index.html.', 'Confirm Build Version reports r706.', 'Phone-test Mates/Band → Add Member: the header/X should match the premium modal family and Add to Band should still work normally.'] },
+  { version:'2026-05-26-setlists-song-picker-consistency-r705', date:'May 26, 2026', importance:'fix', emoji:'🎼', title:'Setlists song picker consistency', body:'Applies the premium sticky-header/X, scroll-safe list, and dark/light styling treatment to the Setlists Pick Songs overlay only. Search, song selection, Add Selected Songs behavior, Home, Calendar, Chat, Songs, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r705.html as index.html.', 'Confirm Build Version reports r705.', 'Phone-test Setlists → edit/add songs → Pick Songs: the header/X should match the premium modal family, the list should scroll safely, and Add Selected Songs should still work.'] },
+  { version:'2026-05-26-band-image-modal-consistency-r704', date:'May 26, 2026', importance:'fix', emoji:'🖼️', title:'Band Image selector consistency', body:'Applies the premium sticky-header/X, gold-accented shell, and scroll-safe mobile treatment to the existing Band Image selector only. Selector logic, image registry, preview/select behavior, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r704.html as index.html.', 'Confirm Build Version reports r704.', 'Phone-test Home → Band Image selector: the header/X should match the premium modal family while image selection and preview/select behavior remain unchanged.'] },
+  { version:'2026-05-26-calendar-event-detail-modal-consistency-r703', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Calendar event detail modal consistency', body:'Applies the premium sticky-header/X, gold-accented shell, and scroll-safe mobile treatment to the Calendar Gig/Rehearsal/Custom event detail modal only. Event forms, save/delete/share/flyer behavior, Calendar layout, Home, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r703.html as index.html.', 'Confirm Build Version reports r703.', 'Phone-test Calendar → open a gig, rehearsal, or custom event detail: the header/X should match the premium modal family and event controls should remain usable.'] },
+  { version:'2026-05-26-csv-import-modal-consistency-r702', date:'May 26, 2026', importance:'fix', emoji:'📄', title:'Import File modal consistency', body:'Applies the premium sticky-header/X and scroll-safe mobile treatment to the Songs Import File / CSV import modal only. CSV parsing, duplicate resolution, import behavior, song data, Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r702.html as index.html.', 'Confirm Build Version reports r702.', 'Phone-test Songs → Import File: the header/X should match the premium modal family, CSV selection and duplicate resolution should remain usable, and importing songs should still work normally.'] },
+  { version:'2026-05-26-quick-paste-modal-consistency-r701', date:'May 26, 2026', importance:'fix', emoji:'📋', title:'Quick Paste modal consistency', body:'Applies the premium sticky-header/X and scroll-safe mobile treatment to the Songs Quick Paste / Paste Songs import modal only. Paste parsing, preview, import behavior, song data, Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r701.html as index.html.', 'Confirm Build Version reports r701.', 'Phone-test Songs → Quick Paste: the header/X should match the premium modal family, the paste textarea and preview list should remain usable, and importing songs should still work normally.'] },
+  { version:'2026-05-26-delete-songs-modal-consistency-r700', date:'May 26, 2026', importance:'fix', emoji:'🗑️', title:'Delete Songs modal consistency', body:'Applies the premium sticky-header/X and scroll-safe mobile treatment to the Songs Delete Songs multi-select modal only. Song selection, delete confirmation, song data, Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r700.html as index.html.', 'Confirm Build Version reports r700.', 'Phone-test Songs → Delete Songs: the header/X should match the premium modal family, the list should scroll safely, and selecting/deleting songs should still require confirmation.'] },
+  { version:'2026-05-26-song-info-modal-consistency-r699', date:'May 26, 2026', importance:'fix', emoji:'🎵', title:'Song Info modal consistency', body:'Applies the premium sticky-header/X and scroll-safe mobile treatment to the Songs Add/Edit Song modal only. Song fields, notes behavior, save/delete controls, YouTube actions, Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r699.html as index.html.', 'Confirm Build Version reports r699.', 'Phone-test Songs → Add Song and edit an existing song: the header/X should match the premium modal family, the form should scroll safely, and Save/Delete/YouTube actions should remain usable.'] },
+  { version:'2026-05-26-important-date-notes-field-r698', date:'May 26, 2026', importance:'minor', emoji:'📝', title:'Important Date notes field', body:'Adds an optional Notes field to Calendar Custom / Important Date events and displays those notes in the related Calendar custom-event views. Home image/framing/gaps/social buttons, Calendar layout/gaps/grid/pills, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and unrelated app data are unchanged.', items:['Upload index_r698.html as index.html.', 'Confirm Build Version reports r698.', 'Phone-test Calendar → Add Important Date / Custom: enter notes, save, reopen, and confirm the notes persist and display in the custom event details.'] },
+  { version:'2026-05-26-important-date-modal-consistency-r697', date:'May 26, 2026', importance:'fix', emoji:'⭐', title:'Important Date modal consistency', body:'Applies the premium sticky-header/X and scroll-safe mobile treatment to the Calendar Important Date modal only. Important Date save/delete, all-day, recurring behavior, Home image/framing/gaps/social buttons, Calendar layout/gaps/grid/pills, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r697.html as index.html.', 'Confirm Build Version reports r697.', 'Phone-test Calendar → Important Date / Add Important Date: the header/X should match the premium modal family and the form should remain usable while scrolling.'] },
+  { version:'2026-05-26-proposal-modal-consistency-r696', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Proposal modal consistency', body:'Applies the premium sticky-header/X and scroll-safe mobile treatment to the Propose Rehearsal modal only. Proposal fields, proposal creation/edit behavior, Home image/framing/gaps/social buttons, Calendar layout/gaps/grid, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r696.html as index.html.', 'Confirm Build Version reports r696.', 'Phone-test Calendar → Rehearsal Proposals → Propose Rehearsal: the header/X should match the premium modal family and the form should remain usable while scrolling.'] },
+  { version:'2026-05-26-agenda-modal-consistency-r695', date:'May 26, 2026', importance:'fix', emoji:'📝', title:'Agenda modal consistency', body:'Applies the premium sticky-header/X and scroll-safe mobile treatment to the Rehearsal Agenda modal only. Agenda content, agenda behavior, Home, Calendar layout, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r695.html as index.html.', 'Confirm Build Version reports r695.', 'Phone-test Calendar/Rehearsal Agenda: the header/X should match the premium modal family and agenda content should remain usable.'] },
+  { version:'2026-05-26-contact-modal-consistency-r694', date:'May 26, 2026', importance:'fix', emoji:'👥', title:'Contact modal consistency', body:'Applies the premium sticky-header/X and scroll-safe mobile treatment to the Mates/Band Contact modal only. Contact fields, add/edit logic, Mates roster/Contacts layout, Home, Calendar, Chat, Songs, Setlists, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r694.html as index.html.', 'Confirm Build Version reports r694.', 'Phone-test Mates/Band → Contacts → Add/Edit Contact: the header/X should match the premium modal family and the contact form should remain usable.'] },
   { version:'2026-05-26-announcements-modal-consistency-r693', date:'May 26, 2026', importance:'fix', emoji:'📢', title:'Announcements modal consistency', body:'Applies the premium sticky-header/X and scroll-safe mobile treatment to the Home Announcements modal only. Active/dismissed toggles, announcement list scrolling, compose box, post action, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r693.html as index.html.', 'Confirm Build Version reports r693.', 'Phone-test Home → Announcements: the header/X should remain usable, the list should scroll safely, and posting/dismissing announcements should still work.'] },
   { version:'2026-05-26-song-suggestions-modal-consistency-r692', date:'May 26, 2026', importance:'fix', emoji:'🎸', title:'Song Suggestions modal consistency', body:'Applies the premium sticky-header/X and scroll-safe mobile treatment to the Songs Vote/Song Suggestions modal only. Voting, suggestion submission, keyboard-active suggestion behavior, Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r692.html as index.html.', 'Confirm Build Version reports r692.', 'Phone-test Songs → Vote/Song Suggestions: the modal header/X should remain usable, the list should scroll safely, and Suggest a Song should still work including keyboard entry.'] },
   { version:'2026-05-26-shared-dialog-consistency-r691', date:'May 26, 2026', importance:'fix', emoji:'✨', title:'Shared dialog consistency', body:'Applies the premium scroll-safe modal card styling to shared confirmation and prompt dialogs only. Dialog behavior, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r691.html as index.html.', 'Confirm Build Version reports r691.', 'Phone-test any confirmation or rename/edit prompt: the dialog card should feel consistent with the premium modal family and remain usable on phone.'] },
