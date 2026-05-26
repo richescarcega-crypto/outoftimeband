@@ -38,6 +38,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r665: Songs sticky header/list scroll. Locks the Songs hero header and search area in place by making only #library-list scroll inside #sc-songs. Scope is Songs tab only; side gutters from r663 and all other tabs/Home locked gaps remain unchanged. Upload index_r665.html as index.html. -->
 <!-- r666: Chat side-gutter calibration. Applies the approved side-gutter treatment to the Chat tab only by reducing #sc-chat left/right padding to 2px while preserving Chat vertical spacing/content, Home locked gaps/gutters, Songs/Setlists gutters, all other tabs, and tab row. Upload index_r666.html as index.html. -->
 <!-- r667: Mates side-gutter calibration. Applies the approved side-gutter treatment to the Mates/Band tab only by reducing #sc-band left/right padding to 2px while preserving Mates vertical spacing/content, all locked Home gaps/gutters, Songs/Setlists/Chat gutters, all other tabs, and tab row. Upload index_r667.html as index.html. -->
+<!-- r668: Pay side-gutter calibration. Applies the approved side-gutter treatment to the Pay tab only by reducing #sc-pay left/right padding to 2px while preserving Pay vertical spacing/content, all locked Home gaps/gutters, Songs/Setlists/Chat/Mates gutters, all other tabs, and tab row. Upload index_r668.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -7251,6 +7252,17 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 }
 @media (max-width:520px){
   #sc-band{
+    padding-left:2px !important;
+    padding-right:2px !important;
+  }
+}
+/* r668: Pay side gutters only — match locked reference side gap. */
+#sc-pay{
+  padding-left:2px !important;
+  padding-right:2px !important;
+}
+@media (max-width:520px){
+  #sc-pay{
     padding-left:2px !important;
     padding-right:2px !important;
   }
@@ -27447,7 +27459,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-mates-side-gutter-calibration-r667';
+var WHATS_NEW_VERSION = '2026-05-26-pay-side-gutter-calibration-r668';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -27792,6 +27804,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-pay-side-gutter-calibration-r668', date:'May 26, 2026', importance:'fix', emoji:'💸', title:'Pay side gutters calibrated', body:'Applies the approved side-gutter treatment to the Pay tab only. Pay boxes expand evenly left and right while vertical spacing, Pay content, Home locked gaps/gutters, Songs/Setlists/Chat/Mates gutters, all other tabs, and the tab row stay unchanged.', items:['Upload index_r668.html as index.html.', 'Confirm Build Version reports r668.', 'Check only the left and right blue gutters on the Pay tab against the locked reference gap.'] },
   { version:'2026-05-26-mates-side-gutter-calibration-r667', date:'May 26, 2026', importance:'fix', emoji:'👥', title:'Mates side gutters calibrated', body:'Applies the approved side-gutter treatment to the Mates tab only. Mates boxes expand evenly left and right while vertical spacing, Mates content, Home locked gaps/gutters, Songs/Setlists/Chat gutters, all other tabs, and the tab row stay unchanged.', items:['Upload index_r667.html as index.html.', 'Confirm Build Version reports r667.', 'Check only the left and right blue gutters on the Mates tab against the locked reference gap.'] },
   { version:'2026-05-26-chat-side-gutter-calibration-r666', date:'May 26, 2026', importance:'fix', emoji:'💬', title:'Chat side gutters calibrated', body:'Applies the approved side-gutter treatment to the Chat tab only. Chat boxes expand evenly left and right while vertical spacing, Chat content, Home locked gaps, Songs/Setlists gutters, all other tabs, and the tab row stay unchanged.', items:['Upload index_r666.html as index.html.', 'Confirm Build Version reports r666.', 'Check only the left and right blue gutters on the Chat tab against the locked reference gap.'] },
   { version:'2026-05-26-songs-sticky-header-r665', date:'May 26, 2026', importance:'fix', emoji:'🎤', title:'Songs header locked while list scrolls', body:'Keeps the Songs hero/header and search area fixed in place while only the song list scrolls. Scope is Songs tab only; Songs side gutters remain locked, Home gaps remain locked, and all other tabs are unchanged.', items:['Upload index_r665.html as index.html.', 'Confirm Build Version reports r665.', 'On Songs, scroll the song list and verify the header/search stay in place.'] },
