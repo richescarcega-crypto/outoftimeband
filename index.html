@@ -40,6 +40,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r667: Mates side-gutter calibration. Applies the approved side-gutter treatment to the Mates/Band tab only by reducing #sc-band left/right padding to 2px while preserving Mates vertical spacing/content, all locked Home gaps/gutters, Songs/Setlists/Chat gutters, all other tabs, and tab row. Upload index_r667.html as index.html. -->
 <!-- r668: Pay side-gutter calibration. Applies the approved side-gutter treatment to the Pay tab only by reducing #sc-pay left/right padding to 2px while preserving Pay vertical spacing/content, all locked Home gaps/gutters, Songs/Setlists/Chat/Mates gutters, all other tabs, and tab row. Upload index_r668.html as index.html. -->
 <!-- r669: Pay section-heading text inset. Moves only the Pay tab GIG PAYOUTS and GIG HISTORY section-label text slightly right after r668 side-gutter expansion, preserving Pay boxes, vertical spacing, all locked gutters/gaps, all other tabs, and tab row. Upload index_r669.html as index.html. -->
+<!-- r670: Calendar side-gutter calibration. Applies the approved side-gutter treatment to the Calendar tab only by reducing #sc-cal left/right padding to 2px while preserving Calendar vertical spacing/content, all locked Home gaps/gutters, other tab gutters, Pay label inset, and tab row. Upload index_r670.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -7272,6 +7273,18 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 /* r669: Pay section labels only — restore balanced text inset after side-gutter expansion. */
 #sc-pay > .sh{
   padding-left:10px !important;
+}
+
+/* r670: Calendar side gutters only — match locked reference side gap. */
+#sc-cal{
+  padding-left:2px !important;
+  padding-right:2px !important;
+}
+@media (max-width:520px){
+  #sc-cal{
+    padding-left:2px !important;
+    padding-right:2px !important;
+  }
 }
 
 </style>
@@ -27465,7 +27478,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-pay-section-heading-inset-r669';
+var WHATS_NEW_VERSION = '2026-05-26-calendar-side-gutter-calibration-r670';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -27810,6 +27823,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-calendar-side-gutter-calibration-r670', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Calendar side gutters calibrated', body:'Applies the approved side-gutter treatment to the Calendar tab only. Calendar cards/sections expand evenly left and right while vertical spacing, Calendar content, locked Home gaps/gutters, other tab gutters, Pay label inset, and the tab row stay unchanged.', items:['Upload index_r670.html as index.html.', 'Confirm Build Version reports r670.', 'Check only the left and right blue gutters on the Calendar tab against the locked reference gap.'] },
   { version:'2026-05-26-pay-section-heading-inset-r669', date:'May 26, 2026', importance:'fix', emoji:'💸', title:'Pay section labels inset', body:'Moves only the Pay tab GIG PAYOUTS and GIG HISTORY section-label text slightly right after the side-gutter expansion so those labels feel balanced again. Pay boxes, Pay vertical spacing, all locked Home gaps/gutters, other tab gutters, all other tabs, and the tab row stay unchanged.', items:['Upload index_r669.html as index.html.', 'Confirm Build Version reports r669.', 'Check only the two Pay section labels: GIG PAYOUTS and GIG HISTORY.'] },
   { version:'2026-05-26-pay-side-gutter-calibration-r668', date:'May 26, 2026', importance:'fix', emoji:'💸', title:'Pay side gutters calibrated', body:'Applies the approved side-gutter treatment to the Pay tab only. Pay boxes expand evenly left and right while vertical spacing, Pay content, Home locked gaps/gutters, Songs/Setlists/Chat/Mates gutters, all other tabs, and the tab row stay unchanged.', items:['Upload index_r668.html as index.html.', 'Confirm Build Version reports r668.', 'Check only the left and right blue gutters on the Pay tab against the locked reference gap.'] },
   { version:'2026-05-26-mates-side-gutter-calibration-r667', date:'May 26, 2026', importance:'fix', emoji:'👥', title:'Mates side gutters calibrated', body:'Applies the approved side-gutter treatment to the Mates tab only. Mates boxes expand evenly left and right while vertical spacing, Mates content, Home locked gaps/gutters, Songs/Setlists/Chat gutters, all other tabs, and the tab row stay unchanged.', items:['Upload index_r667.html as index.html.', 'Confirm Build Version reports r667.', 'Check only the left and right blue gutters on the Mates tab against the locked reference gap.'] },
