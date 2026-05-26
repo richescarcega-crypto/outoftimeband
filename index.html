@@ -6,6 +6,8 @@ GitHub web upload/processing below the apparent ~6.5 MB failure threshold.
 No runtime app code was removed.
 r305 adds scoped CSS-only non-Calendar header height normalization.
 -->
+<!-- r690: What's New modal consistency. Applies premium sticky header/X and scroll-safe visual treatment to the What's New modal only; no app logic, tabs, data, assets, Home, Calendar, Chat, Songs, Setlists, Mates, Pay, or flyer changes. Upload index_r690.html as index.html. -->
+
 <!-- r420: Lifecycle Reset Coverage. Normal reopen also clears non-.ov dynamic menus, Pay subwindows/forms, and Band/Chat image lightboxes. Upload as index.html after phone test. -->
 <!-- r311: Calendar All Events/Rehearsal Proposals stack gap tightened. Keeps Rehearsal Proposals locked to the tab row and moves All Events closer to it. Upload as index.html after phone test. -->
 <!-- r317: Calendar header dimension normalization; lower pill stack untouched. Upload as index.html after phone test. -->
@@ -7973,6 +7975,90 @@ body:not(.light) #sc-cal{
 
 /* r675 CSS lift was superseded by r676. Root cause: the r594 HOME_IMAGE_PRESENTATION
    inline-important renderer reapplies button transforms after CSS, so the lift must live in that renderer. */
+
+
+
+/* r690: What's New modal premium consistency only */
+#whats-new-overlay{
+  padding:10px !important;
+  overflow:hidden !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+#whats-new-card{
+  max-width:440px !important;
+  max-height:90vh !important;
+  border-radius:18px !important;
+  background:linear-gradient(180deg,rgba(13,31,58,.98),rgba(7,17,39,.98)) !important;
+  border:1px solid rgba(245,197,24,.42) !important;
+  box-shadow:0 24px 70px rgba(0,0,0,.72),0 0 24px rgba(245,197,24,.12),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+  padding:0 !important;
+}
+#whats-new-card:before{
+  content:"";
+  position:absolute;
+  top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,#f5c518,transparent);
+  opacity:.95;
+  pointer-events:none;
+}
+#whats-new-skip-pill{
+  position:absolute !important;
+  top:12px !important;
+  right:12px !important;
+  width:36px !important;
+  height:36px !important;
+  border-radius:50% !important;
+  background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.18),rgba(13,43,107,.92)) !important;
+  border:1px solid rgba(245,197,24,.52) !important;
+  color:#f5c518 !important;
+  box-shadow:0 0 14px rgba(245,197,24,.18),inset 0 1px 0 rgba(255,255,255,.08) !important;
+  z-index:30 !important;
+}
+#whats-new-card > div[style*="width:46px"]{
+  margin-top:18px !important;
+  margin-bottom:8px !important;
+  background:rgba(245,197,24,.12) !important;
+  box-shadow:0 0 22px rgba(245,197,24,.18) !important;
+  border:1px solid rgba(245,197,24,.22) !important;
+}
+#whats-new-title{
+  padding:0 52px !important;
+  color:#f5c518 !important;
+  text-shadow:0 0 14px rgba(245,197,24,.35) !important;
+  letter-spacing:2.2px !important;
+}
+#whats-new-version-line{
+  margin:0 18px 0 !important;
+  padding:7px 10px 11px !important;
+  border-bottom:1px solid rgba(245,197,24,.24) !important;
+  color:#c7d6f3 !important;
+}
+#whats-new-list{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding:12px 18px 0 !important;
+  margin-bottom:12px !important;
+}
+body.light #whats-new-card{
+  background:#fff !important;
+  border-color:#d4a017 !important;
+  box-shadow:0 18px 42px rgba(20,40,80,.22),0 0 0 1px rgba(212,160,23,.18) !important;
+}
+body.light #whats-new-skip-pill{
+  background:#fff !important;
+  color:#9a6a00 !important;
+  border-color:#d4a017 !important;
+}
+body.light #whats-new-version-line{
+  color:#5a6a85 !important;
+  border-bottom-color:rgba(212,160,23,.32) !important;
+}
 
 </style>
 </head>
@@ -28171,7 +28257,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-member-activity-modal-consistency-r689';
+var WHATS_NEW_VERSION = '2026-05-26-whats-new-modal-consistency-r690';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -28516,6 +28602,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-whats-new-modal-consistency-r690', date:'May 26, 2026', importance:'fix', emoji:'✨', title:'What's New modal consistency', body:'Applies the premium sticky header/X and scroll-safe modal presentation to the What's New update modal only. Update logic, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r690.html as index.html.', 'Confirm Build Version reports r690.', 'Phone-test the What's New modal after update: the header/X should match the premium modal family and remain usable while scrolling.'] },
   { version:'2026-05-26-member-activity-modal-consistency-r689', date:'May 26, 2026', importance:'fix', emoji:'📊', title:'Member Activity modal consistency', body:'Applies the premium sticky header/X and scroll-safe modal treatment to the Home Member Activity modal only. Activity-tracking logic, visibility rules, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r689.html as index.html.', 'Confirm Build Version reports r689.', 'Phone-test Home → Member Activity if visible: the modal header/X should match the premium modal family and remain usable while scrolling.'] },
   { version:'2026-05-26-arrange-tabs-modal-consistency-r688', date:'May 26, 2026', importance:'fix', emoji:'☰', title:'Arrange Tabs modal consistency', body:'Applies the premium sticky header/X treatment to the Home Arrange Tabs modal only while preserving its existing static/no-bounce reorder behavior and Save Order logic. Home image/framing/gaps, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r688.html as index.html.', 'Confirm Build Version reports r688.', 'Phone-test Home → Arrange Tabs: the modal header/X should match the premium modal family, Save Order should still work, and the modal should remain static/no-bounce.'] },
   { version:'2026-05-26-settings-modal-consistency-r687', date:'May 26, 2026', importance:'fix', emoji:'⚙️', title:'Settings modal consistency', body:'Applies sticky header/X and scroll-safe premium-modal presentation to Home Display Mode, Notifications, and Privacy & Data modals only. Settings logic, Home image/framing/gaps, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r687.html as index.html.', 'Confirm Build Version reports r687.', 'Phone-test Home → Display Mode, Notifications, and Privacy & Data: the header/X should remain usable and the modals should match the premium modal family.'] },
