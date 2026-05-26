@@ -43,6 +43,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r670: Calendar side-gutter calibration. Applies the approved side-gutter treatment to the Calendar tab only by reducing #sc-cal left/right padding to 2px while preserving Calendar vertical spacing/content, all locked Home gaps/gutters, other tab gutters, Pay label inset, and tab row. Upload index_r670.html as index.html. -->
 <!-- r671: Calendar blue gradient canvas. Applies the same approved light/dark/light blue page-canvas gradient used on Home/Songs/Setlists/Chat/Mates/Pay to Calendar only, preserving Calendar side gutters, vertical gaps, cards, grid, All Events/Rehearsal Proposals, and all other tabs. Upload index_r671.html as index.html. -->
 <!-- r672: Pay Gig History caret cleanup. Removes only the Pay tab Gig History caret while keeping the Gig History heading row tappable/expandable. Preserves r671 Calendar gradient, Pay side gutters/label inset, locked Home gaps/gutters, all other tabs, and tab row. Upload index_r672.html as index.html. -->
+<!-- r673: Calendar lower pills side-gutter calibration. Expands only the fixed bottom Calendar pills (All Events and Rehearsal Proposals) evenly left/right to match the locked 2px reference side gap; preserves Calendar content/vertical gaps, blue gradient, Pay Gig History caret cleanup, all locked Home gaps/gutters, other tab gutters, and tab row. Upload index_r673.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -7295,6 +7296,13 @@ body:not(.light) #sc-cal{
     radial-gradient(circle at 50% 10%,rgba(80,184,255,.70) 0%,rgba(0,114,235,.42) 35%,transparent 66%),
     radial-gradient(circle at 50% 92%,rgba(80,184,255,.62) 0%,rgba(0,112,230,.36) 34%,transparent 64%),
     linear-gradient(180deg,#1c98ff 0%,#0754c6 32%,#061a52 54%,#0754c6 76%,#1c98ff 100%) !important;
+}
+
+/* r673: Calendar lower pills only — match locked reference side gap. */
+#sc-cal.cal-header-fit .evl-head,
+#sc-cal.cal-header-fit .proposals-head{
+  left:max(2px, calc((100vw - 480px) / 2 + 2px)) !important;
+  right:max(2px, calc((100vw - 480px) / 2 + 2px)) !important;
 }
 
 </style>
@@ -27488,7 +27496,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-pay-gig-history-caret-cleanup-r672';
+var WHATS_NEW_VERSION = '2026-05-26-calendar-lower-pill-side-gutter-r673';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -27833,6 +27841,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-calendar-lower-pill-side-gutter-r673', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Calendar lower pills widened', body:'Expands only the fixed bottom Calendar pills — All Events and Rehearsal Proposals — evenly left and right so their side gaps match the locked reference/default gap. Calendar vertical gaps/content, Calendar blue gradient, Pay Gig History caret cleanup, locked Home gaps/gutters, all other tab gutters, and the tab row stay unchanged.', items:['Upload index_r673.html as index.html.', 'Confirm Build Version reports r673.', 'Check only Calendar lower pills: All Events and Rehearsal Proposals should have the same side gap as the locked reference/default gap.'] },
   { version:'2026-05-26-pay-gig-history-caret-cleanup-r672', date:'May 26, 2026', importance:'fix', emoji:'💸', title:'Pay Gig History caret removed', body:'Removes only the caret from the Pay tab Gig History heading while keeping the heading row tappable/expandable. Calendar blue gradient from r671, Pay side gutters and label inset, locked Home gaps/gutters, all other tabs, and the tab row stay unchanged.', items:['Upload index_r672.html as index.html.', 'Confirm Build Version reports r672.', 'Check only Pay tab → Gig History: no caret, heading still expands/collapses when tapped.'] },
   { version:'2026-05-26-calendar-blue-gradient-canvas-r671', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Calendar blue canvas added', body:'Applies the same approved blue light/dark/light page-canvas gradient used on the other main tabs to the Calendar tab only. Calendar side gutters, vertical gaps, header/card content, month grid, All Events, Rehearsal Proposals, tab row, and all other tabs stay unchanged.', items:['Upload index_r671.html as index.html.', 'Confirm Build Version reports r671.', 'Check Calendar background only; do not retest locked gaps unless something appears off.'] },
   { version:'2026-05-26-calendar-side-gutter-calibration-r670', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Calendar side gutters calibrated', body:'Applies the approved side-gutter treatment to the Calendar tab only. Calendar cards/sections expand evenly left and right while vertical spacing, Calendar content, locked Home gaps/gutters, other tab gutters, Pay label inset, and the tab row stay unchanged.', items:['Upload index_r670.html as index.html.', 'Confirm Build Version reports r670.', 'Check only the left and right blue gutters on the Calendar tab against the locked reference gap.'] },
