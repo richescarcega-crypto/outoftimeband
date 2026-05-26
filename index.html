@@ -54,6 +54,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r681: Calendar All Events action-sheet consistency. Applies the same sticky header/X and scroll-safe mobile action-window treatment to the Calendar All Events options sheet only. No Calendar layout/gaps/grid/pills, Home, Chat, Songs, Setlists, Mates, Pay, assets, data, or app logic changed. Upload index_r681.html as index.html. -->
 <!-- r682: Calendar Event Details action-sheet consistency. Applies the same sticky header/X and scroll-safe mobile action-window treatment to the Gig/Rehearsal Event Details options sheet only. No Calendar layout/gaps/grid/pills/events data, Home, Chat, Songs, Setlists, Mates, Pay, assets, or app logic changed. Upload index_r682.html as index.html. -->
 <!-- r683: Setlist internal action-sheet consistency. Applies the same sticky header/X and scroll-safe mobile action-window treatment to expanded-setlist, setlist-edit, and remove-song setlist action sheets only. No Setlists data/logic, Home, Calendar, Chat, Songs, Mates, Pay, assets, flyers, or app logic changed. Upload index_r683.html as index.html. -->
+<!-- r684: Song Resources sheet consistency. Makes only the Songs album-art Song Resources card scroll-safe with a sticky header/X so it matches the premium action-window family. No song data/library logic, Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, or app logic changed. Upload index_r684.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -1918,6 +1919,41 @@ body.light .oot-expand-pill-icon.contact-photo img{box-shadow:0 6px 14px rgba(20
   #setlist-edit-action-sheet,
   #setlist-remove-song-sheet{
     max-height:calc(100dvh - 76px - env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* r684: Song Resources consistency — sticky header/X and scroll-safe card only. */
+#song-resources-modal .song-resources-card{
+  max-height:calc(100vh - 96px) !important;
+  overflow:auto !important;
+}
+#song-resources-modal .song-resources-head{
+  position:sticky !important;
+  top:0 !important;
+  z-index:6 !important;
+  padding-right:54px !important;
+  border-bottom:1px solid rgba(245,197,24,.22) !important;
+}
+#song-resources-modal .song-resources-x{
+  position:absolute !important;
+  top:14px !important;
+  right:14px !important;
+  width:32px !important;
+  height:32px !important;
+  border-radius:50% !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  background:rgba(255,255,255,.08) !important;
+  color:#fff !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 12px rgba(0,0,0,.22) !important;
+}
+#song-resources-modal .song-resources-x:hover{
+  border-color:rgba(245,197,24,.48) !important;
+  color:#f5c518 !important;
+  background:rgba(245,197,24,.08) !important;
+}
+@media (max-width:520px){
+  #song-resources-modal .song-resources-card{
+    max-height:calc(100vh - 86px) !important;
   }
 }
 
@@ -27670,7 +27706,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-setlist-internal-sheet-consistency-r683';
+var WHATS_NEW_VERSION = '2026-05-26-song-resources-sheet-consistency-r684';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -28015,6 +28051,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-song-resources-sheet-consistency-r684', date:'May 26, 2026', importance:'fix', emoji:'🎵', title:'Song Resources sheet consistency', body:'Makes only the Songs album-art Song Resources card scroll-safe with a sticky header/X so it matches the premium action-window family. Song data, library logic, Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, and app logic are unchanged.', items:['Upload index_r684.html as index.html.', 'Confirm Build Version reports r684.', 'Phone-test Songs → tap album art/resource artwork: the Song Resources header/X should remain usable and the card should feel consistent with the premium action sheets.'] },
   { version:'2026-05-26-setlist-internal-sheet-consistency-r683', date:'May 26, 2026', importance:'fix', emoji:'🎸', title:'Setlist action sheet consistency', body:'Applies the same sticky header/X and scroll-safe mobile action-window treatment to expanded-setlist, setlist-edit, and remove-song setlist action sheets only. Setlists data and logic, Home, Calendar, Chat, Songs, Mates, Pay, assets, flyers, and app logic are unchanged.', items:['Upload index_r683.html as index.html.', 'Confirm Build Version reports r683.', 'Phone-test Setlists → expanded setlist menu, edit setlist menu, and remove-song sheet: header/X should remain usable and the sheets should match the premium action-sheet family.'] },
   { version:'2026-05-26-event-details-sheet-consistency-r682', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Event Details menu consistency', body:'Applies the same sticky header/X and scroll-safe mobile action-window treatment to the Gig/Rehearsal Event Details options sheet only. Calendar layout, gaps, grid, lower pills, event data, Home, Chat, Songs, Setlists, Mates, Pay, assets, and app logic are unchanged.', items:['Upload index_r682.html as index.html.', 'Confirm Build Version reports r682.', 'Phone-test Calendar → open a gig or rehearsal → options menu: header/X should remain usable and the sheet should feel consistent with the premium action-sheet family.'] },
   { version:'2026-05-26-calendar-events-sheet-consistency-r681', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'All Events menu consistency', body:'Applies the same sticky header/X and scroll-safe mobile action-window treatment to the Calendar All Events options sheet only. Calendar layout, gaps, grid, lower pills, Home, Chat, Songs, Setlists, Mates, Pay, assets, data, and app logic are unchanged.', items:['Upload index_r681.html as index.html.', 'Confirm Build Version reports r681.', 'Phone-test Calendar → All Events options: header/X should remain usable and the sheet should feel consistent with the Songs/Setlists/Mates/Pay premium action sheets.'] },
