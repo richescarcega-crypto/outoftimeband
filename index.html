@@ -45,6 +45,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r672: Pay Gig History caret cleanup. Removes only the Pay tab Gig History caret while keeping the Gig History heading row tappable/expandable. Preserves r671 Calendar gradient, Pay side gutters/label inset, locked Home gaps/gutters, all other tabs, and tab row. Upload index_r672.html as index.html. -->
 <!-- r673: Calendar lower pills side-gutter calibration. Expands only the fixed bottom Calendar pills (All Events and Rehearsal Proposals) evenly left/right to match the locked 2px reference side gap; preserves Calendar content/vertical gaps, blue gradient, Pay Gig History caret cleanup, all locked Home gaps/gutters, other tab gutters, and tab row. Upload index_r673.html as index.html. -->
 <!-- r674: Calendar vertical gap calibration. Tightens only the red-circled Calendar vertical gaps to the locked 2px reference/default gap: Calendar hero to month panel, calendar grid to All Events, All Events to Rehearsal Proposals, and Rehearsal Proposals to tab row. Preserves r673 lower pill side gutters, Calendar content, blue gradient, Pay Gig History caret cleanup, Home locked gaps/gutters, all other tabs, and tab row. Upload index_r674.html as index.html. -->
+<!-- r675: Home social buttons lift only. Moves only the Home Facebook/Instagram buttons upward so the circular buttons are fully visible above the bottom tab row; no Home image/framing, Home cards, Home vertical gaps, Calendar r674 gaps, other tabs, assets, or app logic changed. Upload index_r675.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -7309,6 +7310,31 @@ body:not(.light) #sc-cal{
 /* r674: Calendar vertical gaps only — match locked 2px reference/default gap. */
 #sc-cal.cal-header-fit #calendar-hero{
   margin-bottom:2px !important;
+}
+
+/* r675: Home social buttons only — lift controls above bottom clip.
+   Do not change Home image/framing, Home section gaps, or any non-Home tab. */
+#home-social-row a{
+  transform:translate(4px,-14px) scale(1) !important;
+}
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row a,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row a{
+  transform:translate(6px,-13px) scale(.94) !important;
+}
+#sc-home:not(:has(#home-rehearsal-cue[style*="display: block"]):not(:has(#home-rehearsal-cue[style*="display:block"]))) #home-social-row[data-home-image-index="1"] a{
+  transform:translate(7px,-12px) scale(1) !important;
+}
+@media (max-width:520px){
+  #home-social-row a{
+    transform:translate(4px,-14px) scale(1) !important;
+  }
+  #sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row a,
+  #sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row a{
+    transform:translate(6px,-13px) scale(.94) !important;
+  }
+  #sc-home:not(:has(#home-rehearsal-cue[style*="display: block"]):not(:has(#home-rehearsal-cue[style*="display:block"]))) #home-social-row[data-home-image-index="1"] a{
+    transform:translate(7px,-12px) scale(1) !important;
+  }
 }
 
 </style>
@@ -27502,7 +27528,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-calendar-vertical-gap-calibration-r674';
+var WHATS_NEW_VERSION = '2026-05-26-home-social-buttons-lift-r675';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -27847,6 +27873,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-home-social-buttons-lift-r675', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home social buttons lifted', body:'Moves only the Home Facebook and Instagram buttons upward so the circular buttons are fully visible above the bottom tab row. Home image/framing, Home cards, Home vertical gaps, Calendar r674 gap work, all other tabs, assets, and app logic stay unchanged.', items:['Upload index_r675.html as index.html.', 'Confirm Build Version reports r675.', 'Check Home only: Facebook/Instagram buttons should be fully visible; image framing and gaps should not move.'] },
   { version:'2026-05-26-calendar-vertical-gap-calibration-r674', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Calendar vertical gaps matched', body:'Tightens only the red-circled Calendar vertical gaps so the Calendar hero to month panel, calendar grid to All Events, All Events to Rehearsal Proposals, and Rehearsal Proposals to bottom tab row use the locked 2px reference/default gap. Calendar content, r673 lower pill side gutters, blue gradient, Pay Gig History caret cleanup, Home locked gaps/gutters, all other tabs, and the tab row stay unchanged.', items:['Upload index_r674.html as index.html.', 'Confirm Build Version reports r674.', 'Check only the four red-circled Calendar vertical gaps; each should match the thin locked reference/default gap.'] },
   { version:'2026-05-26-calendar-lower-pill-side-gutter-r673', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Calendar lower pills widened', body:'Expands only the fixed bottom Calendar pills — All Events and Rehearsal Proposals — evenly left and right so their side gaps match the locked reference/default gap. Calendar vertical gaps/content, Calendar blue gradient, Pay Gig History caret cleanup, locked Home gaps/gutters, all other tab gutters, and the tab row stay unchanged.', items:['Upload index_r673.html as index.html.', 'Confirm Build Version reports r673.', 'Check only Calendar lower pills: All Events and Rehearsal Proposals should have the same side gap as the locked reference/default gap.'] },
   { version:'2026-05-26-pay-gig-history-caret-cleanup-r672', date:'May 26, 2026', importance:'fix', emoji:'💸', title:'Pay Gig History caret removed', body:'Removes only the caret from the Pay tab Gig History heading while keeping the heading row tappable/expandable. Calendar blue gradient from r671, Pay side gutters and label inset, locked Home gaps/gutters, all other tabs, and the tab row stay unchanged.', items:['Upload index_r672.html as index.html.', 'Confirm Build Version reports r672.', 'Check only Pay tab → Gig History: no caret, heading still expands/collapses when tapped.'] },
