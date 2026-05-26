@@ -53,6 +53,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r680: Chat Band Chat divider color match. Changes only the emphasized divider beneath the Band Chat row to use the same warm gold family as the Chat header gold line while preserving its r679 size, Chat layout, rows, actions, Home, Calendar, other tabs, assets, data, and app logic. Upload index_r680.html as index.html. -->
 <!-- r681: Calendar All Events action-sheet consistency. Applies the same sticky header/X and scroll-safe mobile action-window treatment to the Calendar All Events options sheet only. No Calendar layout/gaps/grid/pills, Home, Chat, Songs, Setlists, Mates, Pay, assets, data, or app logic changed. Upload index_r681.html as index.html. -->
 <!-- r682: Calendar Event Details action-sheet consistency. Applies the same sticky header/X and scroll-safe mobile action-window treatment to the Gig/Rehearsal Event Details options sheet only. No Calendar layout/gaps/grid/pills/events data, Home, Chat, Songs, Setlists, Mates, Pay, assets, or app logic changed. Upload index_r682.html as index.html. -->
+<!-- r683: Setlist internal action-sheet consistency. Applies the same sticky header/X and scroll-safe mobile action-window treatment to expanded-setlist, setlist-edit, and remove-song setlist action sheets only. No Setlists data/logic, Home, Calendar, Chat, Songs, Mates, Pay, assets, flyers, or app logic changed. Upload index_r683.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -1873,6 +1874,49 @@ body.light .oot-expand-pill-icon.contact-photo img{box-shadow:0 6px 14px rgba(20
     padding-top:58px !important;
   }
   #detail-action-sheet{
+    max-height:calc(100dvh - 76px - env(safe-area-inset-bottom)) !important;
+  }
+}
+
+
+/* r683: Setlist internal action-sheet consistency only */
+#setlist-expanded-action-sheet .songs-sheet-head,
+#setlist-edit-action-sheet .songs-sheet-head,
+#setlist-remove-song-sheet .songs-sheet-head{
+  position:sticky !important;
+  top:-12px !important;
+  z-index:3 !important;
+  margin:-12px -12px 10px -12px !important;
+  padding:12px 52px 12px 12px !important;
+  background:
+    radial-gradient(circle at 88% 4%, rgba(74,158,255,.22), transparent 34%),
+    linear-gradient(180deg, rgba(7,26,62,.99) 0%, rgba(4,13,31,.99) 100%) !important;
+  border-bottom:1px solid rgba(245,197,24,.22) !important;
+  border-radius:20px 20px 0 0 !important;
+}
+#setlist-expanded-action-sheet .songs-sheet-x,
+#setlist-edit-action-sheet .songs-sheet-x,
+#setlist-remove-song-sheet .songs-sheet-x{
+  position:sticky !important;
+  top:0 !important;
+  float:right !important;
+  z-index:4 !important;
+  margin:0 0 -38px 0 !important;
+}
+#setlist-expanded-action-sheet .songs-sheet-btn,
+#setlist-edit-action-sheet .songs-sheet-btn,
+#setlist-remove-song-sheet .songs-sheet-btn{
+  min-height:54px !important;
+}
+@media (max-width:520px){
+  #setlist-expanded-action-backdrop,
+  #setlist-edit-action-backdrop,
+  #setlist-remove-song-backdrop{
+    padding-top:58px !important;
+  }
+  #setlist-expanded-action-sheet,
+  #setlist-edit-action-sheet,
+  #setlist-remove-song-sheet{
     max-height:calc(100dvh - 76px - env(safe-area-inset-bottom)) !important;
   }
 }
@@ -27626,7 +27670,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-event-details-sheet-consistency-r682';
+var WHATS_NEW_VERSION = '2026-05-26-setlist-internal-sheet-consistency-r683';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -27971,6 +28015,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-setlist-internal-sheet-consistency-r683', date:'May 26, 2026', importance:'fix', emoji:'🎸', title:'Setlist action sheet consistency', body:'Applies the same sticky header/X and scroll-safe mobile action-window treatment to expanded-setlist, setlist-edit, and remove-song setlist action sheets only. Setlists data and logic, Home, Calendar, Chat, Songs, Mates, Pay, assets, flyers, and app logic are unchanged.', items:['Upload index_r683.html as index.html.', 'Confirm Build Version reports r683.', 'Phone-test Setlists → expanded setlist menu, edit setlist menu, and remove-song sheet: header/X should remain usable and the sheets should match the premium action-sheet family.'] },
   { version:'2026-05-26-event-details-sheet-consistency-r682', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Event Details menu consistency', body:'Applies the same sticky header/X and scroll-safe mobile action-window treatment to the Gig/Rehearsal Event Details options sheet only. Calendar layout, gaps, grid, lower pills, event data, Home, Chat, Songs, Setlists, Mates, Pay, assets, and app logic are unchanged.', items:['Upload index_r682.html as index.html.', 'Confirm Build Version reports r682.', 'Phone-test Calendar → open a gig or rehearsal → options menu: header/X should remain usable and the sheet should feel consistent with the premium action-sheet family.'] },
   { version:'2026-05-26-calendar-events-sheet-consistency-r681', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'All Events menu consistency', body:'Applies the same sticky header/X and scroll-safe mobile action-window treatment to the Calendar All Events options sheet only. Calendar layout, gaps, grid, lower pills, Home, Chat, Songs, Setlists, Mates, Pay, assets, data, and app logic are unchanged.', items:['Upload index_r681.html as index.html.', 'Confirm Build Version reports r681.', 'Phone-test Calendar → All Events options: header/X should remain usable and the sheet should feel consistent with the Songs/Setlists/Mates/Pay premium action sheets.'] },
   { version:'2026-05-26-chat-band-divider-color-match-r680', date:'May 26, 2026', importance:'fix', emoji:'💬', title:'Chat divider color match', body:'Changes only the emphasized divider beneath the Band Chat row so its gold tone matches the warm gold line in the Chat header while keeping the r679 divider size and layout unchanged.', items:['Upload index_r680.html as index.html.', 'Confirm Build Version reports r680.', 'Phone-test Chat tab: the divider under Band Chat should match the Chat header gold tone and remain clear but tasteful.'] },
