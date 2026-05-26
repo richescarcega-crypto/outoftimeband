@@ -24,6 +24,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r650: Home header polish from r649. Adds a small top breathing gap matching the lower band-image/tab gap, softens the logo/header overlay controls with translucent backplates, reduces the forced logo crop slightly, and keeps the lower Home stack/band-image registry untouched. Upload index_r650.html as index.html. -->
 <!-- r652: Home top-gap direct source correction. Built cleanly from r650, directly changes only the r650 Home polish #sc-home top padding from 4px to 0px in both desktop and mobile rules; no logo/header-control/Home-stack/band-image/tab changes. Upload index_r652.html as index.html. -->
 <!-- r653: Home logo-to-Rehearsal gap correction. Changes only the r650/r652 Home hero bottom margin from 5px to 0px so the gap below the logo and above Rehearsal On Deck is tightened. Logo artwork, header controls, top screen gap, Home cards, band image, tab row, and all other tabs unchanged. Upload index_r653.html as index.html. -->
+<!-- r654: Home top gap matched to approved logo-to-Rehearsal gap. Restores only the Home page top padding to 4px so the space above the logo card uses the same thin-gap target as the approved logo-to-Rehearsal spacing. No logo, header controls, Home cards, band image, tab row, or other tabs changed. Upload index_r654.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -7078,12 +7079,12 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 
 
 
-/* r652 Home top-gap direct source correction.
-   Built cleanly from r650. Keeps the r648/r650 Home header structure and control polish,
-   but directly removes only the r650 #sc-home top padding so the logo card sits closer to the screen top.
-   No logo crop, header controls, Home stack, band-image registry/framing, social buttons, or tab row changes. */
+/* r654 Home top-gap match.
+   Keeps the approved r653 logo-to-Rehearsal gap, and adjusts only the Home page top padding
+   so the gap above the logo card uses the same thin-gap target.
+   No logo crop, header controls, Home cards, band-image registry/framing, social buttons, or tab row changes. */
 #sc-home{
-  padding:0 12px 0 12px !important;
+  padding:4px 12px 0 12px !important;
   gap:0 !important;
 }
 #sc-home .hero.home-hero-with-controls{
@@ -7155,7 +7156,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 }
 @media (max-width:520px){
   #sc-home{
-    padding:0 12px 0 12px !important;
+    padding:4px 12px 0 12px !important;
   }
   #sc-home .hero.home-hero-with-controls{
     height:196px !important;
@@ -27364,7 +27365,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-home-logo-rehearsal-gap-r653';
+var WHATS_NEW_VERSION = '2026-05-26-home-top-gap-match-r654';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -27709,6 +27710,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-home-top-gap-match-r654', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home top gap matched', body:'Adjusts only the Home page top padding above the logo/header card to use the same thin-gap target as the approved logo-to-Rehearsal spacing from r653. Logo artwork, header controls, Rehearsal On Deck, Next Gig, band image, social buttons, tab row, and other tabs are unchanged.', items:['Upload index_r654.html as index.html.', 'Confirm Build Version reports r654.', 'Check only the gap above the Home logo card against the approved gap below the logo card.'] },
   { version:'2026-05-26-home-logo-rehearsal-gap-r653', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home logo-to-Rehearsal gap tightened', body:'Tightens only the vertical gap below the Home logo/header card and above the Rehearsal On Deck pill by directly changing the Home hero bottom margin from 5px to 0px. Logo artwork, header controls, top screen gap, Rehearsal content, Next Gig, band image, social buttons, tab row, and other tabs are unchanged.', items:['Upload index_r653.html as index.html.', 'Confirm Build Version reports r653.', 'Check only the gap between the bottom of the logo card and the top of Rehearsal On Deck.'] },
   { version:'2026-05-26-home-top-gap-direct-r652', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home top gap tightened', body:'Directly removes the r650 Home top padding above the logo card by editing the original r650 Home polish rule instead of adding another override. Logo artwork, header controls, Rehearsal On Deck, Next Gig, band image, social buttons, tab row, and other tabs are unchanged.', items:['Upload index_r652.html as index.html.', 'Confirm Build Version reports r652.', 'Check only the gap above the Home logo card against the lower band-image/tab gap.'] },
   { version:'2026-05-25-home-header-structure-r648', date:'May 25, 2026', importance:'fix', emoji:'🏠', title:'Home header structure test', body:'Moves the Home menu, bell, and member identifier into the logo/hero card instead of leaving them in a separate blue strip. Also tightens the Home stack gaps while leaving the Home band-image registry/framing untouched.', items:['Upload index_r648.html as index.html.', 'Check Home top logo/header area first.', 'Confirm band image is not clipped and no large dark bottom void returns.'] },
