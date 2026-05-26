@@ -22,6 +22,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r648: Home header structural alignment. Moves the Home header controls into the logo/hero card so the blue strip above the logo is removed, overlays menu/bell/name on the logo with readable contrast, and tightens only Home stack spacing via scoped CSS without touching Home band-image registry/framing. Upload index_r648.html as index.html. -->
 <!-- r649: Version-marker correction for r648. r648 contained the Home header structural alignment CSS/DOM work but accidentally left WHATS_NEW_VERSION at r647, so phones already on r647 would not detect/load it. No additional visual/behavior changes beyond carrying forward r648 and bumping the version marker. Upload index_r649.html as index.html. -->
 <!-- r650: Home header polish from r649. Adds a small top breathing gap matching the lower band-image/tab gap, softens the logo/header overlay controls with translucent backplates, reduces the forced logo crop slightly, and keeps the lower Home stack/band-image registry untouched. Upload index_r650.html as index.html. -->
+<!-- r651: Home top-gap trim only. Reduces only the Home tab top padding above the logo/header card to match the lower band-image/tab gap; logo crop, header controls, Home stack, band-image registry/framing, and all other tabs untouched. Upload index_r651.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -7168,6 +7169,18 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   #sc-home .hero.home-hero-with-controls #who-am-i{
     max-width:58% !important;
     font-size:10.5px !important;
+  }
+}
+
+/* r651 Home top-gap trim only.
+   This intentionally overrides the r650 #sc-home padding shorthand after the media block.
+   Change scope: top padding above the logo/header card only. */
+#sc-home{
+  padding-top:0 !important;
+}
+@media (max-width:520px){
+  #sc-home{
+    padding-top:0 !important;
   }
 }
 
@@ -27362,7 +27375,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-25-home-header-polish-r650';
+var WHATS_NEW_VERSION = '2026-05-25-home-top-gap-trim-r651';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -27707,6 +27720,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-25-home-top-gap-trim-r651', date:'May 25, 2026', importance:'fix', emoji:'🏠', title:'Home top gap trim', body:'Reduces only the Home tab top padding above the logo/header card so the upper gap matches the lower band-image/tab gap. Logo crop, logo artwork, header controls, Home stack, band-image registry/framing, and all other tabs are unchanged.', items:['Upload index_r651.html as index.html.', 'Confirm Build Version reports r651.', 'Check only the top gap above the Home logo card.'] },
+
   { version:'2026-05-25-home-header-structure-r648', date:'May 25, 2026', importance:'fix', emoji:'🏠', title:'Home header structure test', body:'Moves the Home menu, bell, and member identifier into the logo/hero card instead of leaving them in a separate blue strip. Also tightens the Home stack gaps while leaving the Home band-image registry/framing untouched.', items:['Upload index_r648.html as index.html.', 'Check Home top logo/header area first.', 'Confirm band image is not clipped and no large dark bottom void returns.'] },
   {version:'2026-05-26-home-layout-rollback-to-r645-r647', date:'May 26, 2026', importance:'fix', title:'Home layout rollback to r645', items:['Rebuilds from clean r645 source after r646 Home spacing/header attempt caused layout breakage.', 'Preserves approved changes through r645, including Mates label and Chat/Mates member pill cleanup.', 'Removes the bad r646 Home layout override by not carrying it forward.', 'No asset upload required.']},
   {version:'2026-05-26-chat-mates-member-pill-cleanup-r645', date:'May 26, 2026', importance:'fix', title:'Chat and Mates member pill cleanup', items:['Removes instrument-name text from Chat and Mates member pills/cards.', 'Keeps member names and avatars/photos intact.', 'Standardizes member-name typography between Chat and Mates.', 'Underlying member instrument data and edit fields remain available.']},
