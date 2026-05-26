@@ -1,3 +1,4 @@
+<!-- r692: Song Suggestions modal consistency. Applies premium sticky header/X and scroll-safe mobile treatment to the Songs Vote/Song Suggestions modal only, preserving voting/suggestion logic and keyboard-active suggestion behavior. No Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, or app data changed. Upload index_r692.html as index.html. -->
 <!--
 OOT APP BUILD NOTE
 r303 built from confirmed phone-stable r300.
@@ -2696,7 +2697,7 @@ body.light #sc-band #contacts-list .oot-contact-trash-icon{background:rgba(255,7
 #band-activity-modal{display:none !important;}
 #member-activity-modal.on{display:flex !important;}
 
-/* r104: actual What's New sticky/header behavior — list scrolls, header stays */
+/* r104: actual What\'s New sticky/header behavior — list scrolls, header stays */
 #whats-new-overlay{
   overflow:hidden !important;
 }
@@ -3304,7 +3305,7 @@ body.light #flyer-save-banner{
 
 /* r208: targeted Light Mode readability pass for utility/admin surfaces.
    CSS-only. Covers Notifications, Notification Log, Activity, Privacy/Data,
-   Display Mode, Build Version, What's New, and tab-reorder/admin utility panels.
+   Display Mode, Build Version, What\'s New, and tab-reorder/admin utility panels.
    No behavior changes. */
 body.light #notifications-modal .mo,
 body.light #privacy-modal .mo,
@@ -7979,6 +7980,104 @@ body:not(.light) #sc-cal{
 
 
 
+
+/* r692: Songs Vote / Song Suggestions modal consistency only.
+   Presentation-only: premium sticky header/X and scroll-safe card while preserving
+   voting, suggestion submission, and the keyboard-active suggestion mode. */
+#votes-modal:not(.suggest-keyboard-active){
+  padding:10px !important;
+  overflow:hidden !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+#votes-modal:not(.suggest-keyboard-active) #votes-modal-card{
+  width:min(430px,calc(100vw - 28px)) !important;
+  max-height:86vh !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+  padding:0 !important;
+  border-radius:22px !important;
+  background:linear-gradient(180deg,rgba(9,24,54,.98) 0%,rgba(5,15,34,.99) 100%) !important;
+  border:1px solid rgba(245,197,24,.46) !important;
+  box-shadow:0 22px 60px rgba(0,0,0,.68),0 0 26px rgba(74,158,255,.13),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#votes-modal:not(.suggest-keyboard-active) #votes-modal-card > .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:20 !important;
+  flex:0 0 auto !important;
+  margin:0 !important;
+  padding:12px 14px 10px !important;
+  background:linear-gradient(180deg,rgba(12,31,70,.98),rgba(7,19,43,.98)) !important;
+  border-bottom:1px solid rgba(245,197,24,.30) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.24) !important;
+}
+#votes-modal:not(.suggest-keyboard-active) #votes-modal-title{
+  color:#f5c518 !important;
+  text-shadow:0 0 14px rgba(245,197,24,.25) !important;
+}
+#votes-modal:not(.suggest-keyboard-active) #votes-modal-card > .moh button{
+  width:34px !important;
+  height:34px !important;
+  border-radius:50% !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 !important;
+  color:#f5c518 !important;
+  background:rgba(6,14,28,.72) !important;
+  border:1px solid rgba(245,197,24,.38) !important;
+  box-shadow:0 0 14px rgba(245,197,24,.12) !important;
+}
+#votes-modal:not(.suggest-keyboard-active) #votes-modal-card > .moh button:hover{
+  background:rgba(245,197,24,.14) !important;
+  border-color:rgba(245,197,24,.72) !important;
+}
+#votes-modal:not(.suggest-keyboard-active) #votes-modal-subtitle,
+#votes-modal:not(.suggest-keyboard-active) #votes-list,
+#votes-modal:not(.suggest-keyboard-active) #suggest-form,
+#votes-modal:not(.suggest-keyboard-active) #votes-modal-suggest-inline{
+  margin-left:14px !important;
+  margin-right:14px !important;
+}
+#votes-modal:not(.suggest-keyboard-active) #votes-modal-subtitle{
+  flex:0 0 auto !important;
+  margin-top:12px !important;
+  color:#9fb9e8 !important;
+}
+#votes-modal:not(.suggest-keyboard-active) #votes-list{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding-right:2px !important;
+  margin-bottom:10px !important;
+}
+#votes-modal:not(.suggest-keyboard-active) #suggest-form{
+  flex:0 0 auto !important;
+}
+#votes-modal:not(.suggest-keyboard-active) #votes-modal-suggest-inline{
+  flex:0 0 auto !important;
+  margin-bottom:14px !important;
+}
+body.light #votes-modal:not(.suggest-keyboard-active) #votes-modal-card{
+  background:#fff !important;
+  border-color:#d4a017 !important;
+  box-shadow:0 18px 42px rgba(20,40,80,.22) !important;
+}
+body.light #votes-modal:not(.suggest-keyboard-active) #votes-modal-card > .moh{
+  background:linear-gradient(180deg,#f8fbff,#eef4ff) !important;
+  border-bottom-color:rgba(212,160,23,.40) !important;
+}
+body.light #votes-modal:not(.suggest-keyboard-active) #votes-modal-title{color:#9a6a00 !important;text-shadow:none !important;}
+body.light #votes-modal:not(.suggest-keyboard-active) #votes-modal-card > .moh button{
+  background:#fff !important;
+  border-color:#d4a017 !important;
+  color:#9a6a00 !important;
+}
+body.light #votes-modal:not(.suggest-keyboard-active) #votes-modal-subtitle{color:#5a6a85 !important;}
+
 /* r691: Shared confirm/prompt dialog premium consistency only */
 #app-confirm-card,
 #app-prompt-card{
@@ -8039,7 +8138,7 @@ body.light #app-prompt-input{background:#fff !important;border-color:#c8d4e8 !im
 body.light #app-confirm-cancel,
 body.light #app-prompt-cancel{color:#3a4a6a !important;border-color:#c8d4e8 !important;}
 
-/* r690: What's New modal premium consistency only */
+/* r690: What\'s New modal premium consistency only */
 #whats-new-overlay{
   padding:10px !important;
   overflow:hidden !important;
@@ -8712,7 +8811,7 @@ body.light #whats-new-version-line{
 <div id="whats-new-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:9300;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;opacity:0;transition:opacity .18s ease-out;overflow-y:auto;cursor:pointer;">
   <div id="whats-new-card" style="background:var(--n2);border:1px solid #4a9eff;border-radius:8px;padding:18px 20px 16px;max-width:440px;width:100%;margin:auto;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 0 1px rgba(74,158,255,.18);transform:scale(.92);opacity:0;transition:transform .2s ease-out,opacity .2s ease-out;position:relative;cursor:default;">
     <!-- r220: standard close-control cleanup — compact top-right X, no bottom close pill. -->
-    <button id="whats-new-skip-pill" onclick="dismissWhatsNew()" aria-label="Close What's New" style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:rgba(74,158,255,.10);border:1px solid rgba(74,158,255,.26);color:#8aa8d6;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;touch-action:manipulation;line-height:1;box-shadow:inset 0 1px 0 rgba(255,255,255,.06);">
+    <button id="whats-new-skip-pill" onclick="dismissWhatsNew()" aria-label="Close What\'s New" style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:rgba(74,158,255,.10);border:1px solid rgba(74,158,255,.26);color:#8aa8d6;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;touch-action:manipulation;line-height:1;box-shadow:inset 0 1px 0 rgba(255,255,255,.06);">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
     </button>
     <div style="display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:rgba(74,158,255,.16);margin:0 auto 10px;box-shadow:0 0 24px rgba(74,158,255,.25);">
@@ -11513,7 +11612,7 @@ function pickName(idx) {
       // Show the welcome flow after a tiny delay so initApp UI settles
       setTimeout(launchWelcomeFlow, 500);
       // Brand-new members get the welcome flow; they don't also need the
-      // "What's New" modal — mark this version as seen on their behalf.
+      // "What\'s New" modal — mark this version as seen on their behalf.
       try {
         if(typeof WHATS_NEW_VERSION !== 'undefined'){
           localStorage.setItem('oot_whats_new_seen', WHATS_NEW_VERSION);
@@ -13070,7 +13169,7 @@ function initApp() {
       });
     } catch(e){}
   }
-  // Show "What's New" modal once per version
+  // Show "What\'s New" modal once per version
   if(typeof maybeShowWhatsNew === 'function') maybeShowWhatsNew();
 }
 
@@ -28234,7 +28333,7 @@ function toggleHomeMenu(ev){
     b.onclick = function(ev2){ ev2.stopPropagation(); pop.remove(); onClick(); };
     return b;
   }
-  // r48: What's New
+  // r48: What\'s New
   pop.appendChild(mk("What\u2019s New",
     '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f5c518" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
     function(){ if(typeof showWhatsNewLog === 'function') showWhatsNewLog(); }
@@ -28318,7 +28417,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-shared-dialog-consistency-r691';
+var WHATS_NEW_VERSION = '2026-05-26-song-suggestions-modal-consistency-r692';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -28663,8 +28762,9 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-song-suggestions-modal-consistency-r692', date:'May 26, 2026', importance:'fix', emoji:'🎸', title:'Song Suggestions modal consistency', body:'Applies the premium sticky-header/X and scroll-safe mobile treatment to the Songs Vote/Song Suggestions modal only. Voting, suggestion submission, keyboard-active suggestion behavior, Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r692.html as index.html.', 'Confirm Build Version reports r692.', 'Phone-test Songs → Vote/Song Suggestions: the modal header/X should remain usable, the list should scroll safely, and Suggest a Song should still work including keyboard entry.'] },
   { version:'2026-05-26-shared-dialog-consistency-r691', date:'May 26, 2026', importance:'fix', emoji:'✨', title:'Shared dialog consistency', body:'Applies the premium scroll-safe modal card styling to shared confirmation and prompt dialogs only. Dialog behavior, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r691.html as index.html.', 'Confirm Build Version reports r691.', 'Phone-test any confirmation or rename/edit prompt: the dialog card should feel consistent with the premium modal family and remain usable on phone.'] },
-  { version:'2026-05-26-whats-new-modal-consistency-r690', date:'May 26, 2026', importance:'fix', emoji:'✨', title:'What's New modal consistency', body:'Applies the premium sticky header/X and scroll-safe modal presentation to the What's New update modal only. Update logic, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r690.html as index.html.', 'Confirm Build Version reports r690.', 'Phone-test the What's New modal after update: the header/X should match the premium modal family and remain usable while scrolling.'] },
+  { version:'2026-05-26-whats-new-modal-consistency-r690', date:'May 26, 2026', importance:'fix', emoji:'✨', title:'What\'s New modal consistency', body:'Applies the premium sticky header/X and scroll-safe modal presentation to the What\'s New update modal only. Update logic, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r690.html as index.html.', 'Confirm Build Version reports r690.', 'Phone-test the What\'s New modal after update: the header/X should match the premium modal family and remain usable while scrolling.'] },
   { version:'2026-05-26-member-activity-modal-consistency-r689', date:'May 26, 2026', importance:'fix', emoji:'📊', title:'Member Activity modal consistency', body:'Applies the premium sticky header/X and scroll-safe modal treatment to the Home Member Activity modal only. Activity-tracking logic, visibility rules, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r689.html as index.html.', 'Confirm Build Version reports r689.', 'Phone-test Home → Member Activity if visible: the modal header/X should match the premium modal family and remain usable while scrolling.'] },
   { version:'2026-05-26-arrange-tabs-modal-consistency-r688', date:'May 26, 2026', importance:'fix', emoji:'☰', title:'Arrange Tabs modal consistency', body:'Applies the premium sticky header/X treatment to the Home Arrange Tabs modal only while preserving its existing static/no-bounce reorder behavior and Save Order logic. Home image/framing/gaps, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r688.html as index.html.', 'Confirm Build Version reports r688.', 'Phone-test Home → Arrange Tabs: the modal header/X should match the premium modal family, Save Order should still work, and the modal should remain static/no-bounce.'] },
   { version:'2026-05-26-settings-modal-consistency-r687', date:'May 26, 2026', importance:'fix', emoji:'⚙️', title:'Settings modal consistency', body:'Applies sticky header/X and scroll-safe premium-modal presentation to Home Display Mode, Notifications, and Privacy & Data modals only. Settings logic, Home image/framing/gaps, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r687.html as index.html.', 'Confirm Build Version reports r687.', 'Phone-test Home → Display Mode, Notifications, and Privacy & Data: the header/X should remain usable and the modals should match the premium modal family.'] },
@@ -29791,9 +29891,9 @@ function maybeShowWhatsNew(){
   } catch(e){}
 }
 
-// r58: dismiss What's New on backdrop tap or ESC key (in addition to skip
+// r58: dismiss What\'s New on backdrop tap or ESC key (in addition to skip
 // pill + Got It). Modal is push-not-transactional, so light dismissal patterns
-// are appropriate. Re-access via Home ⋮ → What's New for users who skip too fast.
+// are appropriate. Re-access via Home ⋮ → What\'s New for users who skip too fast.
 (function(){
   var ov = document.getElementById('whats-new-overlay');
   if(ov && !ov._wnDismissBound){
