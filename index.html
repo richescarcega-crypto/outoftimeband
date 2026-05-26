@@ -44,6 +44,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r671: Calendar blue gradient canvas. Applies the same approved light/dark/light blue page-canvas gradient used on Home/Songs/Setlists/Chat/Mates/Pay to Calendar only, preserving Calendar side gutters, vertical gaps, cards, grid, All Events/Rehearsal Proposals, and all other tabs. Upload index_r671.html as index.html. -->
 <!-- r672: Pay Gig History caret cleanup. Removes only the Pay tab Gig History caret while keeping the Gig History heading row tappable/expandable. Preserves r671 Calendar gradient, Pay side gutters/label inset, locked Home gaps/gutters, all other tabs, and tab row. Upload index_r672.html as index.html. -->
 <!-- r673: Calendar lower pills side-gutter calibration. Expands only the fixed bottom Calendar pills (All Events and Rehearsal Proposals) evenly left/right to match the locked 2px reference side gap; preserves Calendar content/vertical gaps, blue gradient, Pay Gig History caret cleanup, all locked Home gaps/gutters, other tab gutters, and tab row. Upload index_r673.html as index.html. -->
+<!-- r674: Calendar vertical gap calibration. Tightens only the red-circled Calendar vertical gaps to the locked 2px reference/default gap: Calendar hero to month panel, calendar grid to All Events, All Events to Rehearsal Proposals, and Rehearsal Proposals to tab row. Preserves r673 lower pill side gutters, Calendar content, blue gradient, Pay Gig History caret cleanup, Home locked gaps/gutters, all other tabs, and tab row. Upload index_r674.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -7303,6 +7304,11 @@ body:not(.light) #sc-cal{
 #sc-cal.cal-header-fit .proposals-head{
   left:max(2px, calc((100vw - 480px) / 2 + 2px)) !important;
   right:max(2px, calc((100vw - 480px) / 2 + 2px)) !important;
+}
+
+/* r674: Calendar vertical gaps only — match locked 2px reference/default gap. */
+#sc-cal.cal-header-fit #calendar-hero{
+  margin-bottom:2px !important;
 }
 
 </style>
@@ -27496,7 +27502,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-calendar-lower-pill-side-gutter-r673';
+var WHATS_NEW_VERSION = '2026-05-26-calendar-vertical-gap-calibration-r674';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -27841,6 +27847,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-calendar-vertical-gap-calibration-r674', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Calendar vertical gaps matched', body:'Tightens only the red-circled Calendar vertical gaps so the Calendar hero to month panel, calendar grid to All Events, All Events to Rehearsal Proposals, and Rehearsal Proposals to bottom tab row use the locked 2px reference/default gap. Calendar content, r673 lower pill side gutters, blue gradient, Pay Gig History caret cleanup, Home locked gaps/gutters, all other tabs, and the tab row stay unchanged.', items:['Upload index_r674.html as index.html.', 'Confirm Build Version reports r674.', 'Check only the four red-circled Calendar vertical gaps; each should match the thin locked reference/default gap.'] },
   { version:'2026-05-26-calendar-lower-pill-side-gutter-r673', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Calendar lower pills widened', body:'Expands only the fixed bottom Calendar pills — All Events and Rehearsal Proposals — evenly left and right so their side gaps match the locked reference/default gap. Calendar vertical gaps/content, Calendar blue gradient, Pay Gig History caret cleanup, locked Home gaps/gutters, all other tab gutters, and the tab row stay unchanged.', items:['Upload index_r673.html as index.html.', 'Confirm Build Version reports r673.', 'Check only Calendar lower pills: All Events and Rehearsal Proposals should have the same side gap as the locked reference/default gap.'] },
   { version:'2026-05-26-pay-gig-history-caret-cleanup-r672', date:'May 26, 2026', importance:'fix', emoji:'💸', title:'Pay Gig History caret removed', body:'Removes only the caret from the Pay tab Gig History heading while keeping the heading row tappable/expandable. Calendar blue gradient from r671, Pay side gutters and label inset, locked Home gaps/gutters, all other tabs, and the tab row stay unchanged.', items:['Upload index_r672.html as index.html.', 'Confirm Build Version reports r672.', 'Check only Pay tab → Gig History: no caret, heading still expands/collapses when tapped.'] },
   { version:'2026-05-26-calendar-blue-gradient-canvas-r671', date:'May 26, 2026', importance:'fix', emoji:'📅', title:'Calendar blue canvas added', body:'Applies the same approved blue light/dark/light page-canvas gradient used on the other main tabs to the Calendar tab only. Calendar side gutters, vertical gaps, header/card content, month grid, All Events, Rehearsal Proposals, tab row, and all other tabs stay unchanged.', items:['Upload index_r671.html as index.html.', 'Confirm Build Version reports r671.', 'Check Calendar background only; do not retest locked gaps unless something appears off.'] },
@@ -29269,9 +29276,9 @@ if(savedName&&savedId){
     // Measure the stack as a single element: All Events + gap + Rehearsal Proposals.
     var evlH = Math.ceil(evl.getBoundingClientRect().height || 66);
     var proposalH = Math.ceil(proposal.getBoundingClientRect().height || 60);
-    var stackGap = 6;
-    var panelGap = 4;
-    var safeBottom = 4;
+    var stackGap = 2;
+    var panelGap = 2;
+    var safeBottom = 2;
     var stackH = evlH + stackGap + proposalH;
 
     document.documentElement.style.setProperty('--oot-cal-proposals-h', proposalH + 'px');
