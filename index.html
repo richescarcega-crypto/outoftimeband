@@ -6,7 +6,7 @@ GitHub web upload/processing below the apparent ~6.5 MB failure threshold.
 No runtime app code was removed.
 r305 adds scoped CSS-only non-Calendar header height normalization.
 -->
-<!-- r690: What's New modal consistency. Applies premium sticky header/X and scroll-safe visual treatment to the What's New modal only; no app logic, tabs, data, assets, Home, Calendar, Chat, Songs, Setlists, Mates, Pay, or flyer changes. Upload index_r690.html as index.html. -->
+<!-- r691: Shared confirm/prompt dialog consistency. Applies premium scroll-safe modal card styling to the shared app confirmation and prompt dialogs only; no app logic, tabs, data, assets, Home, Calendar, Chat, Songs, Setlists, Mates, Pay, or flyer changes. Upload index_r691.html as index.html. -->
 
 <!-- r420: Lifecycle Reset Coverage. Normal reopen also clears non-.ov dynamic menus, Pay subwindows/forms, and Band/Chat image lightboxes. Upload as index.html after phone test. -->
 <!-- r311: Calendar All Events/Rehearsal Proposals stack gap tightened. Keeps Rehearsal Proposals locked to the tab row and moves All Events closer to it. Upload as index.html after phone test. -->
@@ -7977,6 +7977,67 @@ body:not(.light) #sc-cal{
    inline-important renderer reapplies button transforms after CSS, so the lift must live in that renderer. */
 
 
+
+
+/* r691: Shared confirm/prompt dialog premium consistency only */
+#app-confirm-card,
+#app-prompt-card{
+  background:linear-gradient(145deg,rgba(10,22,40,.98) 0%,rgba(13,31,58,.98) 58%,rgba(8,18,36,.98) 100%) !important;
+  border:1px solid rgba(245,197,24,.52) !important;
+  border-radius:18px !important;
+  box-shadow:0 26px 80px rgba(0,0,0,.78),0 0 0 1px rgba(245,197,24,.14),0 0 28px rgba(74,158,255,.12) !important;
+  max-height:calc(100vh - 56px) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+}
+#app-confirm-card::before,
+#app-prompt-card::before{
+  content:"";
+  display:block;
+  height:3px;
+  border-radius:999px;
+  margin:-8px 0 18px 0;
+  background:linear-gradient(90deg,transparent 0%,#b8860b 12%,#f5c518 50%,#ffd84a 82%,transparent 100%);
+  box-shadow:0 0 18px rgba(245,197,24,.46);
+}
+#app-confirm-title,
+#app-prompt-title{
+  color:#f5c518 !important;
+  text-shadow:0 0 16px rgba(245,197,24,.24) !important;
+}
+#app-confirm-message,
+#app-prompt-message{
+  color:#d7e2f5 !important;
+}
+#app-prompt-input{
+  background:rgba(6,14,28,.72) !important;
+  border:1px solid rgba(74,158,255,.30) !important;
+  border-radius:12px !important;
+}
+#app-confirm-cancel,
+#app-prompt-cancel{
+  border-color:rgba(138,168,214,.45) !important;
+  color:#c7d6f3 !important;
+  border-radius:12px !important;
+}
+#app-confirm-ok,
+#app-prompt-ok{
+  border-radius:12px !important;
+  box-shadow:0 8px 20px rgba(0,0,0,.28),0 0 14px rgba(245,197,24,.16) !important;
+}
+body.light #app-confirm-card,
+body.light #app-prompt-card{
+  background:linear-gradient(145deg,#ffffff 0%,#f8fbff 62%,#eef4ff 100%) !important;
+  border-color:#d4a017 !important;
+  box-shadow:0 20px 58px rgba(20,40,80,.22),0 0 0 1px rgba(212,160,23,.18) !important;
+}
+body.light #app-confirm-title,
+body.light #app-prompt-title{color:#9a6a00 !important;text-shadow:none !important;}
+body.light #app-confirm-message,
+body.light #app-prompt-message{color:#3a4a6a !important;}
+body.light #app-prompt-input{background:#fff !important;border-color:#c8d4e8 !important;color:#1a2a4a !important;}
+body.light #app-confirm-cancel,
+body.light #app-prompt-cancel{color:#3a4a6a !important;border-color:#c8d4e8 !important;}
 
 /* r690: What's New modal premium consistency only */
 #whats-new-overlay{
@@ -28257,7 +28318,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-whats-new-modal-consistency-r690';
+var WHATS_NEW_VERSION = '2026-05-26-shared-dialog-consistency-r691';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -28602,6 +28663,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-shared-dialog-consistency-r691', date:'May 26, 2026', importance:'fix', emoji:'✨', title:'Shared dialog consistency', body:'Applies the premium scroll-safe modal card styling to shared confirmation and prompt dialogs only. Dialog behavior, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r691.html as index.html.', 'Confirm Build Version reports r691.', 'Phone-test any confirmation or rename/edit prompt: the dialog card should feel consistent with the premium modal family and remain usable on phone.'] },
   { version:'2026-05-26-whats-new-modal-consistency-r690', date:'May 26, 2026', importance:'fix', emoji:'✨', title:'What's New modal consistency', body:'Applies the premium sticky header/X and scroll-safe modal presentation to the What's New update modal only. Update logic, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r690.html as index.html.', 'Confirm Build Version reports r690.', 'Phone-test the What's New modal after update: the header/X should match the premium modal family and remain usable while scrolling.'] },
   { version:'2026-05-26-member-activity-modal-consistency-r689', date:'May 26, 2026', importance:'fix', emoji:'📊', title:'Member Activity modal consistency', body:'Applies the premium sticky header/X and scroll-safe modal treatment to the Home Member Activity modal only. Activity-tracking logic, visibility rules, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r689.html as index.html.', 'Confirm Build Version reports r689.', 'Phone-test Home → Member Activity if visible: the modal header/X should match the premium modal family and remain usable while scrolling.'] },
   { version:'2026-05-26-arrange-tabs-modal-consistency-r688', date:'May 26, 2026', importance:'fix', emoji:'☰', title:'Arrange Tabs modal consistency', body:'Applies the premium sticky header/X treatment to the Home Arrange Tabs modal only while preserving its existing static/no-bounce reorder behavior and Save Order logic. Home image/framing/gaps, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r688.html as index.html.', 'Confirm Build Version reports r688.', 'Phone-test Home → Arrange Tabs: the modal header/X should match the premium modal family, Save Order should still work, and the modal should remain static/no-bounce.'] },
