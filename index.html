@@ -30,6 +30,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r657: Home Rehearsal-to-Next-Gig gap matched. Preserves the locked top gap and locked logo-to-Rehearsal gap from r656, and changes only the Rehearsal On Deck bottom spacing so the gap above Next Gig matches the approved red-circled standard. Upload index_r657.html as index.html. -->
 <!-- r658: Home Rehearsal-to-Next-Gig gap calibration. Preserves locked gap 1 and gap 2, and changes only the Rehearsal On Deck bottom spacing from 0px to 2px after r657 made gap 3 disappear. Upload index_r658.html as index.html. -->
 <!-- r659: Home Next-Gig-to-band-image gap calibration. Preserves locked gaps 1, 2, and 3, and changes only the Next Gig bottom spacing from 5px to 2px so gap 4 matches the approved red-circled standard. Upload index_r659.html as index.html. -->
+<!-- r660: Home bottom-gap calibration. Preserves locked gaps 1, 2, 3, and 4, and changes only the Home band-image-to-tab-row bottom spacing by extending the band image frame downward via a small negative bottom margin so the bottom gap matches the locked gap 2 standard. Upload index_r660.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -7158,8 +7159,10 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 #next-gig-countdown{
   margin-bottom:2px !important;
 }
+/* r660: bottom gap only — extend Home band image frame downward without changing locked gaps 1-4. */
 #home-social-row{
   margin-top:0 !important;
+  margin-bottom:-4px !important;
 }
 @media (max-width:520px){
   #sc-home{
@@ -27372,7 +27375,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-home-nextgig-bandgap-calibration-r659';
+var WHATS_NEW_VERSION = '2026-05-26-home-bottom-gap-calibration-r660';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -27717,6 +27720,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-home-bottom-gap-calibration-r660', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home bottom gap calibrated', body:'Preserves locked gap 1 above the logo, locked gap 2 between logo and Rehearsal On Deck, locked gap 3 between Rehearsal On Deck and Next Gig, and locked gap 4 between Next Gig and the band image. Changes only the bottom spacing between the band image frame and the tab row by extending the band-image frame downward with a small negative bottom margin so the bottom gap matches the locked gap 2 standard. Logo artwork, header controls, Rehearsal content, Next Gig content, band image content, social buttons, tab row, and other tabs are unchanged.', items:['Upload index_r660.html as index.html.', 'Confirm Build Version reports r660.', 'Check only the bottom gap between the band image frame and the tab row against the locked gap 2 standard.'] },
   { version:'2026-05-26-home-nextgig-bandgap-calibration-r659', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home gap 4 calibrated', body:'Preserves locked gap 1 above the logo, locked gap 2 between the logo and Rehearsal On Deck, and locked gap 3 between Rehearsal On Deck and Next Gig. Changes only the Next Gig bottom spacing from 5px to 2px so gap 4 between Next Gig and the band image matches the approved red-circled gap standard. Logo artwork, header controls, Rehearsal content, Next Gig content, band image, social buttons, tab row, and other tabs are unchanged.', items:['Upload index_r659.html as index.html.', 'Confirm Build Version reports r659.', 'Check only gap 4 between Next Gig and the band image against the locked gap 2 standard.'] },
   { version:'2026-05-26-home-rehearsal-nextgap-calibration-r658', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home gap 3 calibrated', body:'Preserves locked gap 1 above the logo and locked gap 2 between the logo and Rehearsal On Deck, then changes only gap 3 between Rehearsal On Deck and Next Gig from 0px to 2px after r657 made it too tight. Logo artwork, header controls, Rehearsal content, Next Gig content, band image, social buttons, tab row, and other tabs are unchanged.', items:['Upload index_r658.html as index.html.', 'Confirm Build Version reports r658.', 'Check only gap 3 between Rehearsal On Deck and Next Gig against the locked gap 2 standard.'] },
   { version:'2026-05-26-home-rehearsal-nextgap-r657', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home Rehearsal-to-Next Gig gap matched', body:'Preserves the locked top Home gap and the locked logo-to-Rehearsal gap, then changes only the Rehearsal On Deck bottom spacing so the gap above Next Gig matches the approved red-circled standard. Logo artwork, header controls, Rehearsal content, Next Gig content, band image, social buttons, tab row, and other tabs are unchanged.', items:['Upload index_r657.html as index.html.', 'Confirm Build Version reports r657.', 'Check only the gap between Rehearsal On Deck and Next Gig; the top gap and logo-to-Rehearsal gap should remain locked.'] },
