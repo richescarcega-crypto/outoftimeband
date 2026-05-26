@@ -1,4 +1,4 @@
-<!-- r692: Song Suggestions modal consistency. Applies premium sticky header/X and scroll-safe mobile treatment to the Songs Vote/Song Suggestions modal only, preserving voting/suggestion logic and keyboard-active suggestion behavior. No Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, or app data changed. Upload index_r692.html as index.html. -->
+<!-- r693: Announcements modal consistency. Applies premium sticky header/X and scroll-safe mobile treatment to the Home Announcements modal only, preserving announcement view toggles, list scrolling, compose box, post action, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r693.html as index.html. -->
 <!--
 OOT APP BUILD NOTE
 r303 built from confirmed phone-stable r300.
@@ -7979,6 +7979,107 @@ body:not(.light) #sc-cal{
 
 
 
+
+
+/* r693: Home Announcements modal consistency only.
+   Presentation-only: premium sticky header/X and scroll-safe body while preserving
+   active/dismissed toggles, announcement list scrolling, compose box, and post action. */
+#announce-modal{
+  padding:10px !important;
+  overflow:hidden !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+#announce-modal .mo{
+  width:min(430px,calc(100vw - 28px)) !important;
+  max-height:86vh !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+  padding:0 !important;
+  border-radius:22px !important;
+  background:linear-gradient(180deg,rgba(9,24,54,.98) 0%,rgba(5,15,34,.99) 100%) !important;
+  border:1px solid rgba(245,197,24,.46) !important;
+  box-shadow:0 22px 60px rgba(0,0,0,.68),0 0 26px rgba(74,158,255,.13),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#announce-modal .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:20 !important;
+  flex:0 0 auto !important;
+  margin:0 !important;
+  padding:12px 14px 10px !important;
+  background:linear-gradient(180deg,rgba(12,31,70,.98),rgba(7,19,43,.98)) !important;
+  border-bottom:1px solid rgba(245,197,24,.30) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.24) !important;
+}
+#announce-modal .moh .mot{
+  color:#f5c518 !important;
+  text-shadow:0 0 14px rgba(245,197,24,.25) !important;
+}
+#announce-modal .moh button{
+  width:34px !important;
+  height:34px !important;
+  border-radius:50% !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 !important;
+  color:#f5c518 !important;
+  background:rgba(6,14,28,.72) !important;
+  border:1px solid rgba(245,197,24,.38) !important;
+  box-shadow:0 0 14px rgba(245,197,24,.12) !important;
+}
+#announce-modal .moh button:hover{
+  background:rgba(245,197,24,.14) !important;
+  border-color:rgba(245,197,24,.72) !important;
+}
+#announce-modal #ann-view-toggle,
+#announce-modal #ann-list,
+#announce-modal #ann-compose{
+  margin-left:14px !important;
+  margin-right:14px !important;
+}
+#announce-modal #ann-view-toggle{
+  flex:0 0 auto !important;
+  margin-top:12px !important;
+  background:rgba(6,14,28,.58) !important;
+  border-color:rgba(74,158,255,.35) !important;
+}
+#announce-modal #ann-list{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding-right:2px !important;
+  margin-bottom:10px !important;
+}
+#announce-modal #ann-compose{
+  flex:0 0 auto !important;
+  border-top:1px solid rgba(245,197,24,.24) !important;
+  padding-top:10px !important;
+  padding-bottom:14px !important;
+}
+body.light #announce-modal .mo{
+  background:#fff !important;
+  border-color:#d4a017 !important;
+  box-shadow:0 18px 42px rgba(20,40,80,.22) !important;
+}
+body.light #announce-modal .moh{
+  background:linear-gradient(180deg,#f8fbff,#eef4ff) !important;
+  border-bottom-color:rgba(212,160,23,.40) !important;
+}
+body.light #announce-modal .moh .mot{color:#9a6a00 !important;text-shadow:none !important;}
+body.light #announce-modal .moh button{
+  background:#fff !important;
+  border-color:#d4a017 !important;
+  color:#9a6a00 !important;
+}
+body.light #announce-modal #ann-view-toggle{
+  background:#f8fbff !important;
+  border-color:#d4dff2 !important;
+}
+body.light #announce-modal #ann-compose{border-top-color:rgba(212,160,23,.28) !important;}
 
 
 /* r692: Songs Vote / Song Suggestions modal consistency only.
@@ -28417,7 +28518,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-song-suggestions-modal-consistency-r692';
+var WHATS_NEW_VERSION = '2026-05-26-announcements-modal-consistency-r693';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -28762,6 +28863,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-announcements-modal-consistency-r693', date:'May 26, 2026', importance:'fix', emoji:'📢', title:'Announcements modal consistency', body:'Applies the premium sticky-header/X and scroll-safe mobile treatment to the Home Announcements modal only. Active/dismissed toggles, announcement list scrolling, compose box, post action, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r693.html as index.html.', 'Confirm Build Version reports r693.', 'Phone-test Home → Announcements: the header/X should remain usable, the list should scroll safely, and posting/dismissing announcements should still work.'] },
   { version:'2026-05-26-song-suggestions-modal-consistency-r692', date:'May 26, 2026', importance:'fix', emoji:'🎸', title:'Song Suggestions modal consistency', body:'Applies the premium sticky-header/X and scroll-safe mobile treatment to the Songs Vote/Song Suggestions modal only. Voting, suggestion submission, keyboard-active suggestion behavior, Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r692.html as index.html.', 'Confirm Build Version reports r692.', 'Phone-test Songs → Vote/Song Suggestions: the modal header/X should remain usable, the list should scroll safely, and Suggest a Song should still work including keyboard entry.'] },
   { version:'2026-05-26-shared-dialog-consistency-r691', date:'May 26, 2026', importance:'fix', emoji:'✨', title:'Shared dialog consistency', body:'Applies the premium scroll-safe modal card styling to shared confirmation and prompt dialogs only. Dialog behavior, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r691.html as index.html.', 'Confirm Build Version reports r691.', 'Phone-test any confirmation or rename/edit prompt: the dialog card should feel consistent with the premium modal family and remain usable on phone.'] },
   { version:'2026-05-26-whats-new-modal-consistency-r690', date:'May 26, 2026', importance:'fix', emoji:'✨', title:'What\'s New modal consistency', body:'Applies the premium sticky header/X and scroll-safe modal presentation to the What\'s New update modal only. Update logic, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r690.html as index.html.', 'Confirm Build Version reports r690.', 'Phone-test the What\'s New modal after update: the header/X should match the premium modal family and remain usable while scrolling.'] },
