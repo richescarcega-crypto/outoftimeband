@@ -29,6 +29,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r656: Home top gap calibrated to approved red-gap standard. Changes only the final Home page top padding above the logo/header card from 0px to 2px after r655 removed the gap entirely; preserves the r653 logo-to-Rehearsal gap and all other Home elements. Upload index_r656.html as index.html. -->
 <!-- r657: Home Rehearsal-to-Next-Gig gap matched. Preserves the locked top gap and locked logo-to-Rehearsal gap from r656, and changes only the Rehearsal On Deck bottom spacing so the gap above Next Gig matches the approved red-circled standard. Upload index_r657.html as index.html. -->
 <!-- r658: Home Rehearsal-to-Next-Gig gap calibration. Preserves locked gap 1 and gap 2, and changes only the Rehearsal On Deck bottom spacing from 0px to 2px after r657 made gap 3 disappear. Upload index_r658.html as index.html. -->
+<!-- r659: Home Next-Gig-to-band-image gap calibration. Preserves locked gaps 1, 2, and 3, and changes only the Next Gig bottom spacing from 5px to 2px so gap 4 matches the approved red-circled standard. Upload index_r659.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -7155,7 +7156,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   margin:0 0 2px 0 !important;
 }
 #next-gig-countdown{
-  margin-bottom:5px !important;
+  margin-bottom:2px !important;
 }
 #home-social-row{
   margin-top:0 !important;
@@ -27371,7 +27372,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-home-rehearsal-nextgap-calibration-r658';
+var WHATS_NEW_VERSION = '2026-05-26-home-nextgig-bandgap-calibration-r659';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -27716,6 +27717,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-home-nextgig-bandgap-calibration-r659', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home gap 4 calibrated', body:'Preserves locked gap 1 above the logo, locked gap 2 between the logo and Rehearsal On Deck, and locked gap 3 between Rehearsal On Deck and Next Gig. Changes only the Next Gig bottom spacing from 5px to 2px so gap 4 between Next Gig and the band image matches the approved red-circled gap standard. Logo artwork, header controls, Rehearsal content, Next Gig content, band image, social buttons, tab row, and other tabs are unchanged.', items:['Upload index_r659.html as index.html.', 'Confirm Build Version reports r659.', 'Check only gap 4 between Next Gig and the band image against the locked gap 2 standard.'] },
   { version:'2026-05-26-home-rehearsal-nextgap-calibration-r658', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home gap 3 calibrated', body:'Preserves locked gap 1 above the logo and locked gap 2 between the logo and Rehearsal On Deck, then changes only gap 3 between Rehearsal On Deck and Next Gig from 0px to 2px after r657 made it too tight. Logo artwork, header controls, Rehearsal content, Next Gig content, band image, social buttons, tab row, and other tabs are unchanged.', items:['Upload index_r658.html as index.html.', 'Confirm Build Version reports r658.', 'Check only gap 3 between Rehearsal On Deck and Next Gig against the locked gap 2 standard.'] },
   { version:'2026-05-26-home-rehearsal-nextgap-r657', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home Rehearsal-to-Next Gig gap matched', body:'Preserves the locked top Home gap and the locked logo-to-Rehearsal gap, then changes only the Rehearsal On Deck bottom spacing so the gap above Next Gig matches the approved red-circled standard. Logo artwork, header controls, Rehearsal content, Next Gig content, band image, social buttons, tab row, and other tabs are unchanged.', items:['Upload index_r657.html as index.html.', 'Confirm Build Version reports r657.', 'Check only the gap between Rehearsal On Deck and Next Gig; the top gap and logo-to-Rehearsal gap should remain locked.'] },
   { version:'2026-05-26-home-top-gap-calibrated-r656', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home top gap calibrated', body:'Calibrates only the Home page top padding above the logo/header card to 2px after r654 proved 4px was too large and r655 proved 0px removed the gap. The approved logo-to-Rehearsal gap from r653 is preserved; logo artwork, controls, Home cards, band image, social buttons, tab row, and other tabs are unchanged.', items:['Upload index_r656.html as index.html.', 'Confirm Build Version reports r656.', 'Check only the top gap above the Home logo card against the approved red-circled gap below the logo.'] },
