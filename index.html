@@ -34,6 +34,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r661: Home bottom gap second calibration. Changes only the existing r660 bottom-gap rule from -4px to -12px so the band-image-to-tab-row gap matches locked gap 2 more closely. Preserves locked gaps 1-4 and all Home content. Upload index_r661.html as index.html. -->
 <!-- r662: Home side-gutter calibration. Expands the Home cards/frames evenly left and right by reducing only #sc-home horizontal padding from 12px to 2px, preserving locked vertical gaps 1-5 and all content. Upload index_r662.html as index.html. -->
 <!-- r663: Songs side-gutter calibration. Applies the approved Home side-gutter treatment to the Songs tab only by reducing #sc-songs left/right padding to 2px while preserving Songs vertical spacing, all Home locked gaps, all other tabs, and all content. Upload index_r663.html as index.html. -->
+<!-- r664: Setlists side-gutter calibration. Applies the approved side-gutter treatment to the Setlists tab only by reducing #sc-sets left/right padding to 2px while preserving Setlists vertical spacing, all locked Home gaps/gutters, Songs side gutters, all other tabs, and all content. Upload index_r664.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -7195,6 +7196,18 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 }
 @media (max-width:520px){
   #sc-songs{
+    padding-left:2px !important;
+    padding-right:2px !important;
+  }
+}
+
+/* r664: Setlists side gutters only — match locked gap 2 standard on left/right edges. */
+#sc-sets{
+  padding-left:2px !important;
+  padding-right:2px !important;
+}
+@media (max-width:520px){
+  #sc-sets{
     padding-left:2px !important;
     padding-right:2px !important;
   }
@@ -27391,7 +27404,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-songs-side-gutter-calibration-r663';
+var WHATS_NEW_VERSION = '2026-05-26-setlists-side-gutter-calibration-r664';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -27736,6 +27749,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-setlists-side-gutter-calibration-r664', date:'May 26, 2026', importance:'fix', emoji:'🎵', title:'Setlists side gutters calibrated', body:'Applies the approved side-gutter treatment to the Setlists tab only. Setlists boxes expand evenly left and right while vertical spacing and all other tabs stay locked.', items:['Upload index_r664.html as index.html.', 'Confirm Build Version reports r664.', 'Check only the left and right blue gutters on the Setlists tab against the locked reference gap.'] },
   { version:'2026-05-26-songs-side-gutter-calibration-r663', date:'May 26, 2026', importance:'fix', emoji:'🎤', title:'Songs side gutters calibrated', body:'Applies the approved side-gutter treatment to the Songs tab only. The Songs hero, search bar, and song list expand evenly left and right so the side gaps match the locked gap 2 standard. Home locked gaps 1 through 5, all Home content, all Songs vertical spacing/content, and all other tabs are unchanged.', items:['Upload index_r663.html as index.html.', 'Confirm Build Version reports r663.', 'Check only the left and right blue gutters on the Songs tab against the locked gap 2 standard.'] },
   { version:'2026-05-26-home-side-gutter-calibration-r662', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home side gutters calibrated', body:'Preserves locked vertical gaps 1 through 5 and changes only the Home page left/right side gutters so the logo, Rehearsal, Next Gig, and band image frames expand evenly toward both edges. The target side gap is the locked gap 2 standard. No content, images, vertical spacing, tab row, or other tabs are changed.', items:['Upload index_r662.html as index.html.', 'Confirm Build Version reports r662.', 'Check only the left and right blue gutters beside the Home cards/frames against locked gap 2.'] },
   { version:'2026-05-26-home-bottom-gap-calibration-r661', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home bottom gap second calibration', body:'Preserves locked gaps 1 through 4 and changes only the bottom spacing between the Home band image frame and the tab row. Adjusts the existing bottom-gap rule farther so gap 5 better matches locked gap 2. Logo artwork, header controls, Rehearsal content, Next Gig content, band image content, social buttons, tab row, and other tabs are unchanged.', items:['Upload index_r661.html as index.html.', 'Confirm Build Version reports r661.', 'Check only gap 5 between the band image frame and the tab row against locked gap 2.'] },
