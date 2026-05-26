@@ -58,6 +58,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r685: Unified share sheet consistency. Applies sticky header/X and scroll-safe premium-sheet treatment to the shared Share and Send To member picker overlays only. No share destinations, export formats, Home, Calendar, Chat, Songs, Setlists, Mates, Pay, flyer rendering, assets, or app data changed. Upload index_r685.html as index.html. -->
 <!-- r686: Diagnostics modal consistency. Applies sticky header/X and scroll-safe premium-modal treatment to Build Version and Notification Log modals only. No app logic, Home, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, or data changed. Upload index_r686.html as index.html. -->
 <!-- r687: Settings modal consistency. Applies sticky header/X and scroll-safe premium-modal treatment to Home Display Mode, Notifications, and Privacy & Data modals only. No settings logic, Home image/framing/gaps, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, or data changed. Upload index_r687.html as index.html. -->
+<!-- r688: Arrange Tabs modal consistency. Applies the premium sticky header/X treatment to the Home Arrange Tabs modal only while preserving its static/no-bounce tab-order behavior and save logic. No Home image/framing/gaps, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, or data changed. Upload index_r688.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -2251,6 +2252,86 @@ body.light #privacy-modal .moh .mot{
 body.light #display-mode-modal .moh button,
 body.light #notifications-modal .moh button,
 body.light #privacy-modal .moh button{
+  color:#1a3a8a !important;
+  border-color:rgba(26,58,138,.25) !important;
+  background:rgba(26,58,138,.06) !important;
+}
+
+/* r688: Arrange Tabs modal consistency only.
+   Presentation-only: align the Arrange Tabs modal header/X with the premium
+   modal family while preserving the existing static/no-bounce reorder behavior
+   and Save Order logic from the prior approved implementation. */
+#reorder-modal{
+  align-items:flex-start !important;
+  justify-content:center !important;
+  padding:calc(58px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom)) !important;
+  box-sizing:border-box !important;
+  background:rgba(0,0,0,.48) !important;
+  backdrop-filter:blur(3px) !important;
+}
+#reorder-modal .mo{
+  width:min(460px,100%) !important;
+  max-width:460px !important;
+  border-radius:22px !important;
+  border:1px solid rgba(245,197,24,.34) !important;
+  background:
+    radial-gradient(circle at 88% 4%, rgba(74,158,255,.22), transparent 34%),
+    linear-gradient(180deg, rgba(7,26,62,.99) 0%, rgba(4,13,31,.99) 100%) !important;
+  box-shadow:0 18px 44px rgba(0,0,0,.58),0 0 28px rgba(74,158,255,.16),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  padding:0 12px 12px !important;
+}
+#reorder-modal .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:3 !important;
+  margin:0 -12px 10px -12px !important;
+  padding:12px 52px 12px 12px !important;
+  background:
+    radial-gradient(circle at 88% 4%, rgba(74,158,255,.22), transparent 34%),
+    linear-gradient(180deg, rgba(7,26,62,.99) 0%, rgba(4,13,31,.99) 100%) !important;
+  border-bottom:1px solid rgba(245,197,24,.22) !important;
+  border-radius:20px 20px 0 0 !important;
+  flex-shrink:0 !important;
+}
+#reorder-modal .moh .mot{
+  color:#f5c518 !important;
+}
+#reorder-modal .moh button{
+  position:absolute !important;
+  top:10px !important;
+  right:12px !important;
+  width:32px !important;
+  height:32px !important;
+  padding:0 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:50% !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  background:rgba(255,255,255,.08) !important;
+  color:#fff !important;
+  font-size:22px !important;
+  line-height:1 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 12px rgba(0,0,0,.22) !important;
+}
+#reorder-modal .moh button:hover{
+  border-color:rgba(245,197,24,.48) !important;
+  color:#f5c518 !important;
+  background:rgba(245,197,24,.08) !important;
+}
+body.light #reorder-modal .mo,
+body.light #reorder-modal .moh{
+  background:linear-gradient(180deg,#ffffff 0%,#edf4ff 100%) !important;
+  border-color:#c8d4e8 !important;
+  box-shadow:0 18px 44px rgba(20,40,80,.22),0 0 20px rgba(74,158,255,.10) !important;
+}
+body.light #reorder-modal .moh{
+  border-bottom-color:rgba(26,58,138,.20) !important;
+}
+body.light #reorder-modal .moh .mot{
+  color:#1a3a8a !important;
+}
+body.light #reorder-modal .moh button{
   color:#1a3a8a !important;
   border-color:rgba(26,58,138,.25) !important;
   background:rgba(26,58,138,.06) !important;
@@ -28005,7 +28086,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-settings-modal-consistency-r687';
+var WHATS_NEW_VERSION = '2026-05-26-arrange-tabs-modal-consistency-r688';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -28350,6 +28431,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-arrange-tabs-modal-consistency-r688', date:'May 26, 2026', importance:'fix', emoji:'☰', title:'Arrange Tabs modal consistency', body:'Applies the premium sticky header/X treatment to the Home Arrange Tabs modal only while preserving its existing static/no-bounce reorder behavior and Save Order logic. Home image/framing/gaps, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r688.html as index.html.', 'Confirm Build Version reports r688.', 'Phone-test Home → Arrange Tabs: the modal header/X should match the premium modal family, Save Order should still work, and the modal should remain static/no-bounce.'] },
   { version:'2026-05-26-settings-modal-consistency-r687', date:'May 26, 2026', importance:'fix', emoji:'⚙️', title:'Settings modal consistency', body:'Applies sticky header/X and scroll-safe premium-modal presentation to Home Display Mode, Notifications, and Privacy & Data modals only. Settings logic, Home image/framing/gaps, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r687.html as index.html.', 'Confirm Build Version reports r687.', 'Phone-test Home → Display Mode, Notifications, and Privacy & Data: the header/X should remain usable and the modals should match the premium modal family.'] },
   { version:'2026-05-26-diagnostics-modal-consistency-r686', date:'May 26, 2026', importance:'fix', emoji:'🔎', title:'Diagnostics modal consistency', body:'Applies sticky header/X and scroll-safe premium-modal presentation to the Build Version and Notification Log modals only. Diagnostic logic, app update behavior, notification log data, Home, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r686.html as index.html.', 'Confirm Build Version reports r686.', 'Phone-test Home → Build Version and, if admin-visible, Notification Log: the header/X should remain usable and the modal should match the premium modal family.'] },
   { version:'2026-05-26-unified-share-sheet-consistency-r685', date:'May 26, 2026', importance:'fix', emoji:'⇧', title:'Share sheet consistency', body:'Applies sticky header/X and scroll-safe premium-sheet presentation to the shared Share and Send To member picker overlays only. Share destinations, export formats, Home, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data are unchanged.', items:['Upload index_r685.html as index.html.', 'Confirm Build Version reports r685.', 'Phone-test any Share action and Send to a member: the header/X should remain usable and the sheet should match the premium action-sheet family.'] },
