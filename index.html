@@ -1,3 +1,4 @@
+<!-- r746: Setlists expanded-song blue-gradient panel + Songs search pill refinement. Changes only the expanded Setlist song-panel background to the approved app-wide blue gradient and replaces the Songs search pill color treatment with a darker premium navy/glass style, blue icon, white placeholder, and restrained gold edge. No Setlists data/actions, song rows, search behavior, Home, Calendar, Chat, Mates, Pay, assets, or app logic changed. Upload index_r746.html as index.html after phone test. -->
 <!-- r745: Member/image lightbox horizontal-overflow cleanup. Fixes the remaining gray line under Mates/Band member image lightboxes by preventing horizontal overflow/scrollbar rendering inside the gold-bordered lightbox card while preserving vertical scroll, gold border, image source/crop/framing, captions, and controls. Upload index_r745.html as index.html after phone test. -->
 <!-- r740: Songs list density and search-pill contrast. Reduces only the gap between Songs library row cards to the locked 2px reference spacing while preserving the existing search-to-first-song separation. Changes only the Songs search pill fill to a lighter blue gradient so it reads distinctly from song rows. No song data, row height, search behavior, Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, or app logic changes. Upload index_r740.html as index.html after phone test. -->
 <!-- r738: Setlists expanded view stable subview. Replaces the unstable sticky expanded-setlist header behavior with a fixed subview layout whenever a setlist is expanded: only the opened setlist header and its song panel remain in the Setlists internal viewport, the song panel becomes the only scrolling area, and the header no longer hits a sticky bottom boundary. Applies to all current and future setlists rendered through rSets. No Setlists data/actions, Songs, Home, Calendar, Chat, Mates, Pay, flyers, assets, or app logic changes. Upload index_r738.html as index.html after phone test. -->
@@ -11412,6 +11413,61 @@ body.light #sc-songs #song-search::placeholder{
 }
 body.light #contact-modal .moh{
   background:linear-gradient(180deg,#fff,#f8fbff) !important;
+}
+
+
+
+/* r746: Setlists expanded-song panel blue-gradient + Songs search pill refinement.
+   Scope locked to #sc-sets expanded setlist panel background and #sc-songs search pill only.
+   Preserves Setlists data/actions, song row behavior, and Songs search behavior. */
+body:not(.light) #sc-sets .setlist-expanded-panel{
+  background:
+    radial-gradient(circle at 50% 10%,rgba(80,184,255,.70) 0%,rgba(0,114,235,.42) 35%,transparent 66%),
+    radial-gradient(circle at 50% 92%,rgba(80,184,255,.62) 0%,rgba(0,112,230,.36) 34%,transparent 64%),
+    linear-gradient(180deg,#1c98ff 0%,#0754c6 32%,#061a52 54%,#0754c6 76%,#1c98ff 100%) !important;
+  border-color:rgba(245,197,24,.38) !important;
+  box-shadow:
+    0 12px 26px rgba(0,0,0,.20),
+    0 0 18px rgba(74,158,255,.16),
+    0 0 12px rgba(245,197,24,.06),
+    inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+body:not(.light) #sc-songs #song-search-wrap{
+  background:
+    radial-gradient(circle at 12% 22%,rgba(43,145,255,.28),transparent 34%),
+    radial-gradient(circle at 88% 20%,rgba(245,197,24,.06),transparent 36%),
+    linear-gradient(180deg,rgba(8,27,66,.98) 0%,rgba(5,18,45,.98) 52%,rgba(3,12,30,.99) 100%) !important;
+  border-color:rgba(245,197,24,.58) !important;
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.28),
+    0 0 18px rgba(74,158,255,.18),
+    0 0 10px rgba(245,197,24,.10),
+    inset 0 1px 0 rgba(255,255,255,.08),
+    inset 0 -1px 0 rgba(245,197,24,.16) !important;
+}
+body:not(.light) #sc-songs #song-search-wrap::before{
+  height:1px !important;
+  left:22px !important;
+  right:22px !important;
+  background:linear-gradient(90deg,transparent,rgba(74,158,255,.50),rgba(245,197,24,.45),rgba(74,158,255,.50),transparent) !important;
+  box-shadow:0 0 8px rgba(74,158,255,.20) !important;
+}
+body:not(.light) #sc-songs #song-search-wrap .song-search-icon{
+  color:#2f9bff !important;
+  filter:drop-shadow(0 0 9px rgba(47,155,255,.48)) !important;
+}
+body:not(.light) #sc-songs #song-search{
+  color:#f7fbff !important;
+  text-shadow:none !important;
+}
+body:not(.light) #sc-songs #song-search::placeholder{
+  color:#edf5ff !important;
+  opacity:.92 !important;
+}
+body.light #sc-sets .setlist-expanded-panel{
+  background:linear-gradient(180deg,#dbeaff 0%,#ffffff 50%,#dbeaff 100%) !important;
+  border-color:#d4a017 !important;
+  box-shadow:0 8px 18px rgba(20,80,160,.10), inset 0 1px 0 rgba(255,255,255,.85) !important;
 }
 
 </style>
@@ -31686,7 +31742,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-image-lightbox-overflow-cleanup-r745';
+var WHATS_NEW_VERSION = '2026-05-26-setlists-panel-search-pill-r746';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32031,6 +32087,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-setlists-panel-search-pill-r746', date:'May 26, 2026', importance:'fix', emoji:'🎼', title:'Setlists panel and Songs search polished', body:'Changes only the expanded Setlist song-panel background to the approved app-wide blue gradient and refines the Songs search pill to a darker premium navy/glass treatment with a blue icon, white placeholder text, and restrained gold edge. Setlist data/actions, song row behavior, Songs search behavior, Home, Calendar, Chat, Mates, Pay, assets, and app logic are unchanged.', items:['Upload index_r746.html as index.html.', 'Confirm Build Version reports r746.', 'Phone-test Setlists: open an individual setlist and confirm the song panel background uses the app-wide blue gradient while song rows/taps/YouTube actions still work. Phone-test Songs: search pill should look darker, cleaner, and premium; search input should still filter normally.'] },
   { version:'2026-05-26-image-lightbox-overflow-cleanup-r745', date:'May 26, 2026', importance:'fix', emoji:'🖼️', title:'Image lightbox gray line removed', body:'Fixes the remaining gray line under Mates/Band member image lightboxes by removing the horizontal overflow condition that caused the browser scrollbar to render inside the gold-bordered card. Gold borders, image sources, crop/framing, captions, close/share/download controls, and app data are unchanged.', items:['Upload index_r745.html as index.html.', 'Confirm Build Version reports r745.', 'Phone-test Mates/Band member image lightbox and Chat/shared image lightbox: gold border should remain, gray underline/scrollbar should be gone, image framing should be unchanged, and close/share/download controls should still work.'] },
   { version:'2026-05-26-image-gray-underline-cleanup-r744', date:'May 26, 2026', importance:'fix', emoji:'🖼️', title:'Image underline cleanup', body:'Removes the older gray/white underline/divider treatment from Chat image attachments and shared image/member lightbox surfaces while preserving the premium gold borders. Image files, crop, fit, framing, captions, share/download controls, close behavior, Home, Calendar, Songs, Setlists, Mates, Pay, and app data are unchanged.', items:['Upload index_r744.html as index.html.', 'Confirm Build Version reports r744.', 'Phone-test Mates/Band member image lightbox and a Chat image/lightbox: gold border should remain, the gray underline should be gone, framing/crop should be unchanged, and close/share/download controls should still work.'] },
   { version:'2026-05-26-contact-modal-keyboard-stabilization-r743', date:'May 26, 2026', importance:'fix', emoji:'👥', title:'Contact edit keyboard/header fixed', body:'Stabilizes Mates/Band Contacts Add/Edit so the title/X stays pinned while the form body scrolls and the modal remains inside the visible phone viewport when the Android keyboard opens. Contact fields, save/edit/delete behavior, Contacts drawer, and all other tabs are unchanged.', items:['Upload index_r743.html as index.html.', 'Confirm Build Version reports r743.', 'Phone-test Mates/Band → Contacts → Edit Contact: title should say Edit Contact, title/X should stay visible, and lower fields should be reachable above the keyboard.'] },
