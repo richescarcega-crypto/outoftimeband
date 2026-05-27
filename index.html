@@ -1,3 +1,4 @@
+<!-- r754: Suggest-a-Song YouTube return lifecycle shield. Fixes the r753 miss where the Suggest form could restore briefly but the global Home-default lifecycle timers/late Android return events could still force the app back to Home. Integrates Suggest-a-Song YouTube return with the existing external-return shield, extends the suggest-youtube restore window, and guards force-Home while the short-lived Suggest return payload is active. Scope is only Songs → Suggest a Song → YouTube return; preserves r753 trash icon, r752 single-X cleanup, r751 visible YouTube helper, r750 dictation/capitalization, suggestion submit/vote logic, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, and unrelated UI. Upload index_r754.html as index.html after phone test. -->
 <!-- r753: Suggest-a-Song YouTube return + suggestion delete icon. Adds a dedicated durable return restore for Songs → Suggest a Song → YouTube lookup so returning from YouTube restores the Suggest form instead of defaulting Home, and replaces the owned suggestion Remove Suggestion text pill with the app-standard red trash-can icon. Scope is Song Suggestions/Suggest a Song only; preserves r752 single-X cleanup, r751 visible YouTube helper, r750 dictation/capitalization, suggestion submit/vote logic, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, and unrelated UI. Upload index_r753.html as index.html after phone test. -->
 <!-- r752: Suggest-a-Song duplicate close cleanup. Removes only the lower/smaller duplicate X inside the Suggest a Song form, leaving the sticky modal header X as the single close control. Preserves r751 YouTube helper visibility, r750 voice-input capitalization behavior, suggestion submit/vote logic, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, and unrelated UI. Upload index_r752.html as index.html after phone test. -->
 <!-- r751: Suggest-a-Song YouTube helper visibility. Reworks only the Suggest a Song YouTube URL/helper area so the YouTube icon is visible when the modal opens by placing the existing red YouTube icon action inline with the URL field, tightening the suggest form vertical stack, and preserving sticky heading, draft/YouTube lookup behavior, voice input fixes, and all song suggestion submit/vote logic. No Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, or unrelated UI changed. Upload index_r751.html as index.html after phone test. -->
@@ -16051,15 +16052,36 @@ function _applySuggestYouTubeReturn(payload, reason){
     setTimeout(function(){ try { _restoreSuggestSongDraft(payload.draft); } catch(e){} }, 350);
     setTimeout(function(){ try { _restoreSuggestSongDraft(payload.draft); } catch(e){} }, 900);
     setTimeout(function(){ try { if(document.getElementById('sc-songs')) document.getElementById('sc-songs').scrollTop = Number(payload.songsScroll || 0); } catch(e){} }, 250);
-    window._ootSuggestYouTubeRestoreUntil = Date.now() + 6500;
+    window._ootSuggestYouTubeRestoreUntil = Date.now() + 12000;
     window._ootLastSuggestYouTubeReturn = payload;
+    // r754: Also arm the shared external-return shield. r753 restored the
+    // Suggest form, but Home-default lifecycle timers and late Android/PWA
+    // blur/pagehide events could still override it. This makes Suggest →
+    // YouTube behave like the proven Setlists/Vote YouTube return path.
+    try {
+      var shieldCtx = {
+        source:'oot-app-external-v1',
+        at: payload.at || Date.now(),
+        tab:'songs',
+        externalKind:'suggest-youtube',
+        openOverlays:['votes-modal'],
+        votesMode:'suggest',
+        suggestDraft: payload.draft || {},
+        songsScroll: Number(payload.songsScroll || 0)
+      };
+      window._ootLastExternalRestoreContext = shieldCtx;
+      window._ootExternalRestoreLockUntil = Date.now() + 12000;
+      window._ootExternalRestoreNormalCloseAfter = Date.now() + 12000;
+      window._ootLastExternalRestoreAt = Date.now();
+      if(typeof _cancelForceHomeDefaultTimers === 'function') _cancelForceHomeDefaultTimers();
+    } catch(eShield){}
     setTimeout(function(){
       try {
         if(window._ootSuggestYouTubeRestoreUntil && Date.now() >= window._ootSuggestYouTubeRestoreUntil){
           _clearSuggestYouTubeReturn('restore-window-expired');
         }
       } catch(e){}
-    }, 7000);
+    }, 12500);
     return true;
   } catch(e){ return false; }
 }
@@ -16070,6 +16092,22 @@ function _restoreSuggestYouTubeReturn(reason){
     var age = Date.now() - Number(payload.at || 0);
     if(age < 600) return false;
     return _applySuggestYouTubeReturn(payload, reason || 'suggest-youtube-return');
+  } catch(e){ return false; }
+}
+function _guardSuggestYouTubeReturnHomeDefault(reason){
+  try {
+    var payload = _loadSuggestYouTubeReturn();
+    if(!payload) return false;
+    var age = Date.now() - Number(payload.at || 0);
+    if(age < 0 || age > _ootSuggestYouTubeReturnTTL) return false;
+    var activeRestore = !!(window._ootSuggestYouTubeRestoreUntil && Date.now() <= window._ootSuggestYouTubeRestoreUntil);
+    var oldEnoughToRestore = age >= 600;
+    if(!activeRestore && !oldEnoughToRestore) return false;
+    if(typeof _cancelForceHomeDefaultTimers === 'function') _cancelForceHomeDefaultTimers();
+    setTimeout(function(){
+      try { _restoreSuggestYouTubeReturn((reason || 'force-home') + '-guarded'); } catch(e){}
+    }, activeRestore ? 30 : 120);
+    return true;
   } catch(e){ return false; }
 }
 function submitSuggestion(){
@@ -17157,6 +17195,11 @@ function _cancelForceHomeDefaultTimers(){
 
 function _forceHomeDefaultView(reason){
   try {
+    // r754: Suggest-a-Song YouTube return has its own short-lived payload.
+    // Guard it before the general Home-default reset can close the modal.
+    try {
+      if(typeof _guardSuggestYouTubeReturnHomeDefault === 'function' && _guardSuggestYouTubeReturnHomeDefault(reason || 'force-home')) return;
+    } catch(eSuggestHome){}
     // r425: A delayed Home timer must not override a just-consumed external
     // return restore. Normal close/reopen clears the lock before calling this,
     // so the hard Home-default rule is preserved for non-external launches.
@@ -17602,7 +17645,7 @@ function _externalRestoreShieldMs(ctx){
     // source screen is restored. Keep the longer shield only for the fragile
     // album-art contexts; Song Resources keeps the short r433 behavior.
     if(ctx && (ctx.externalKind === 'setlist-art' || ctx.externalKind === 'vote-art')) return 12000;
-    if(ctx && ctx.externalKind === 'suggest-youtube') return 5000;
+    if(ctx && ctx.externalKind === 'suggest-youtube') return 12000;
     if(ctx && ctx.externalKind === 'songs-art') return 5000;
   } catch(e){}
   return Number(_ootExternalReturnStabilizeWindow || 3200);
@@ -17618,7 +17661,7 @@ function _externalRestoreNormalCloseDelay(ctx){
     var overlays = (ctx && ctx.openOverlays) || [];
     if(overlays.indexOf('song-resources-modal') >= 0) return 1200;
     if(ctx && (ctx.externalKind === 'setlist-art' || ctx.externalKind === 'vote-art')) return (typeof _externalRestoreShieldMs === 'function' ? _externalRestoreShieldMs(ctx) : 12000);
-    if(ctx && ctx.externalKind === 'suggest-youtube') return 1800;
+    if(ctx && ctx.externalKind === 'suggest-youtube') return 12000;
     if(ctx && ctx.externalKind === 'songs-art') return 1800;
     if(ctx && (ctx.votesMode === 'vote' || ctx.votesMode === 'suggest')) return Number(_ootExternalReturnStabilizeWindow || 3200);
     if(ctx && ctx.tab === 'sets') return Number(_ootExternalReturnStabilizeWindow || 3200);
@@ -32251,7 +32294,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-suggest-youtube-return-trash-icon-r753';
+var WHATS_NEW_VERSION = '2026-05-26-suggest-youtube-return-shield-r754';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32596,6 +32639,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-suggest-youtube-return-shield-r754', date:'May 26, 2026', importance:'fix', emoji:'▶️', title:'Suggest Song YouTube return hardened', body:'Fixes the remaining Songs → Suggest a Song → YouTube return issue by integrating the Suggest form restore with the existing app external-return lifecycle shield. The previous patch stored the draft and tried to reopen Suggest mode, but the global Home-default lifecycle timers and late Android/PWA return events could still override it. This build guards the force-Home path during the short-lived Suggest YouTube return window and reopens the Suggest form with the draft intact. Suggest submission, voting, YouTube Find link, voice input/capitalization, delete icon behavior, and unrelated tabs are unchanged.', items:['Upload index_r754.html as index.html.', 'Confirm Build Version reports r754.', 'Phone-test Songs → Suggest a Song: enter a draft, tap Find link, go to YouTube, return to the app, and confirm the Suggest form remains open with the draft intact so the copied URL can be pasted.'] },
   { version:'2026-05-26-suggest-youtube-return-trash-icon-r753', date:'May 26, 2026', importance:'fix', emoji:'▶️', title:'Suggest Song return and delete icon fixed', body:'Fixes the Songs → Suggest a Song YouTube lookup handoff so returning from YouTube restores the Suggest a Song form instead of landing on Home, and replaces the owned suggestion Remove Suggestion text pill with the red trash-can icon style used elsewhere in the app. Suggest form draft values, YouTube Find link behavior, voice input/capitalization, submit/vote logic, and unrelated app sections are unchanged.', items:['Upload index_r753.html as index.html.', 'Confirm Build Version reports r753.', 'Phone-test Songs → Suggest a Song: enter a draft, tap Find link, go to YouTube, return to the app, and confirm the Suggest form reopens with the draft intact so the URL can be pasted.', 'Phone-test a suggestion you created: confirm the lower Remove Suggestion text pill is gone and the red trash-can icon removes it after confirmation.'] },
   { version:'2026-05-26-suggest-duplicate-close-cleanup-r752', date:'May 26, 2026', importance:'fix', emoji:'✕', title:'Suggest Song duplicate close cleanup', body:'Removes only the lower/smaller duplicate X inside the Songs → Suggest a Song form so the sticky modal header X is the single close control. Preserves the visible YouTube helper from r751, the voice-input capitalization behavior from r750, suggestion submit/vote logic, and all unrelated app sections.', items:['Upload index_r752.html as index.html.', 'Confirm Build Version reports r752.', 'Phone-test Songs → Suggest a Song: confirm only one X appears in the sticky heading, the YouTube Find link button remains visible, and Submit still works.'] },
   { version:'2026-05-26-suggest-youtube-helper-visible-r751', date:'May 26, 2026', importance:'fix', emoji:'▶️', title:'Suggest Song YouTube helper visibility', body:'Fixes only the Songs → Suggest a Song YouTube helper layout. The YouTube action is now an inline red YouTube icon/button beside the optional URL field with a compact label, so it is visible when the Suggest a Song window opens instead of falling below the bottom of the modal. Preserves the sticky heading, r750 voice-input capitalization fix, YouTube search handoff/draft preservation, submit behavior, voting logic, and all unrelated tabs.', items:['Upload index_r751.html as index.html.', 'Confirm Build Version reports r751.', 'Phone-test Songs → Suggest a Song: confirm the YouTube icon/button is visible immediately on open, opens YouTube search, and the URL field/Submit remain reachable.'] },
@@ -33891,7 +33935,7 @@ if(savedName&&savedId){
 // delivers lifecycle events in an order that first lands the app on Home.
 (function(){
   function scheduleSuggestYouTubeRestore(reason){
-    [40,180,520,1100,2200,4200].forEach(function(delay){
+    [40,180,520,1100,2200,4200,8000,11000].forEach(function(delay){
       setTimeout(function(){
         try { if(typeof _restoreSuggestYouTubeReturn === 'function') _restoreSuggestYouTubeReturn(reason || 'suggest-youtube-return'); } catch(e){}
       }, delay);
