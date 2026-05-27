@@ -1,4 +1,4 @@
-<!-- r773: Rollback to confirmed-good r763 before failed Home cleanup. Reverts/discards r764-r772 Home image/logo/layout/alert-row attempts by rebuilding from r763, the last phone-confirmed good build before Home cleanup started. Preserves r763 Home kebab viewport-level menu layering fix and proposal reminder sweep hardening from r762. No Home image framing, logo sizing, alert pill spacing, social button, Calendar, Songs, Chat, Mates, Pay, asset, or OneSignal worker changes beyond r763; only version/log metadata is updated so phones detect rollback. Upload index_r773.html as index.html after phone test. -->
+<!-- r774: Songs Suggestions admin delete override. Starts from r773 rollback base and changes only Vote on Suggestions rendering so admins can delete any suggested song using the existing red trash-can icon/confirm flow, while ordinary members can still delete only their own suggestions. No Home, Calendar, Setlists, Chat, Mates, Pay, notification, image, or proposal logic changed. Upload index_r774.html as index.html after phone test. -->
 <!-- r763: Home kebab menu layering fix. Moves the Home tab kebab popup out of the logo/header container and positions it as a fixed viewport-level menu so Song Vote Pending, Rehearsal On Deck, Next Gig, and other Home cards cannot cover or clip menu items. Scope is Home kebab popup placement only; no Home alert/gig/image/social-button logic, proposal reminder logic, Songs, Calendar, Chat, Mates, Pay, assets, or OneSignal worker files changed. Upload index_r763.html as index.html after phone test. -->
 <!-- r762: Pending response reminder opportunistic sweep hardening. Adds focus/visibility/online/app-resume sweep triggers to the existing rehearsal proposal reminder engine so overdue 24-hour and 10-hour non-responder nudges are checked promptly when an admin/member has the app open or returns to it. This does not pretend to be a true backend scheduler; Cloud Functions/backend scheduling is still required for guaranteed timing when nobody has the app open. No proposal data model, voting UI, Home, Songs, Calendar layout, Chat, Mates, Pay, assets, or OneSignal worker files changed. Upload index_r762.html as index.html after phone test. -->
 <!-- r761: Home social buttons visibility fix. Fixes the r760 Home lower-right Facebook/Instagram buttons being partially clipped after the restored tight Home bottom gap by adjusting the existing HOME_IMAGE_PRESENTATION inline renderer clamp only. Applies to all Home band images and both Home modes through the central registry renderer; does not change image assets/framing, alert pill colors, Next Gig, tabs, or unrelated sections. Upload index_r761.html as index.html after phone test. -->
@@ -15924,16 +15924,20 @@ function rVotes(){
 
     card.appendChild(voteRow);
 
-    // Delete (with confirm, only for suggester)
-    if(s.suggestedById===ME){
+    // Delete (with confirm). Suggesters can delete their own suggestions; admin can delete any suggestion.
+    var canDeleteSuggestion = (s.suggestedById===ME) || ((typeof _isAdmin === 'function') ? _isAdmin() : false);
+    if(canDeleteSuggestion){
       var del=document.createElement('button');
       del.className='suggestion-delete-icon';
-      del.title='Remove suggestion';
-      del.setAttribute('aria-label','Remove suggestion');
+      del.title=(s.suggestedById===ME) ? 'Remove suggestion' : 'Remove suggestion (admin)';
+      del.setAttribute('aria-label', del.title);
       del.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg>';
-      del.onclick=(function(id){ return function(){
-        appConfirm({title:'Remove suggestion?', message:'This will delete the song suggestion and all of its votes.'}).then(function(ok){ if(ok) db.collection('suggestions').doc(id).delete(); });
-      }; })(s.id);
+      del.onclick=(function(id, sg){ return function(){
+        var isOwnSuggestion = sg && sg.suggestedById===ME;
+        var title = isOwnSuggestion ? 'Remove suggestion?' : 'Remove suggestion as admin?';
+        var byLine = (sg && sg.suggestedBy) ? (' Suggested by '+sg.suggestedBy+'.') : '';
+        appConfirm({title:title, message:'This will delete the song suggestion and all of its votes.'+byLine}).then(function(ok){ if(ok) db.collection('suggestions').doc(id).delete(); });
+      }; })(s.id, s);
       card.appendChild(del);
     }
     el.appendChild(card);
@@ -32440,7 +32444,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-27-rollback-to-r763-before-home-cleanup-r773';
+var WHATS_NEW_VERSION = '2026-05-27-song-suggestions-admin-delete-r774';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32785,6 +32789,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-27-song-suggestions-admin-delete-r774', date:'May 27, 2026', importance:'fix', emoji:'🗑️', title:'Admin delete for song suggestions', body:'Adds an admin override in Songs → Vote on Suggestions so admins can remove any suggested song using the established red trash-can icon and confirmation flow. Members can still delete their own suggestions only. No Home rollback state, Calendar, Setlists, Chat, Mates, Pay, notification, image, or proposal logic changed.', items:['Upload index_r774.html as index.html.', 'Confirm Build Version reports r774.', 'As admin, open Songs → Vote on Suggestions and confirm a red trash icon appears on suggested songs, including suggestions made by another member.', 'Tap the icon and cancel first, then test delete only on a suggestion you actually want removed.'] },
   { version:'2026-05-27-rollback-to-r763-before-home-cleanup-r773', date:'May 27, 2026', importance:'fix', emoji:'↩️', title:'Rollback to r763 before Home cleanup', body:'Reverts the failed r764-r772 Home image/logo/layout/alert-row attempts by rebuilding from the last phone-confirmed good build before that workstream: r763. Preserves the r763 Home kebab viewport-level menu layering fix and r762 pending-response reminder sweep hardening. No new Home image framing, logo sizing, alert-pill spacing, social button, tab, asset, or worker changes are included.', items:['Upload index_r773.html as index.html.', 'Confirm Build Version reports r773.', 'Phone-test Home: menu still opens above Song Vote Pending / Rehearsal / Next Gig content as it did in r763.', 'Confirm Home layout is back to the pre-cleanup state, with no r764-r772 logo/image/alert-row changes.', 'Do not continue from r764-r772; they are rejected.'] },
   { version:'2026-05-27-home-kebab-layering-fix-r763', date:'May 27, 2026', importance:'fix', emoji:'⋮', title:'Home menu layering fixed', body:'Moves the Home tab kebab popup to a fixed viewport-level layer so the Song Vote Pending pill, Rehearsal On Deck pill, Next Gig counter, and other Home cards cannot cover or clip menu items. This changes only Home kebab popup placement and does not change Home alert logic, image framing, social buttons, proposal reminders, or other tabs.', items:['Upload index_r763.html as index.html.', 'Confirm Build Version reports r763.', 'Phone-test Home: open the top-left kebab while Song Vote Pending and Next Gig are visible; all menu items should be visible and scrollable above the Home content.', 'Confirm tapping outside the menu still dismisses it.'] },
   { version:'2026-05-27-proposal-reminder-sweep-hardening-r762', date:'May 27, 2026', importance:'fix', emoji:'🔔', title:'Proposal reminder sweep hardened', body:'Hardens the existing rehearsal proposal reminder engine by checking for overdue non-responder nudges when the app becomes visible, regains focus, comes online, or initializes after the proposal listener starts. The existing policy remains first reminder after 24 hours and follow-ups every 10 hours only to non-responders, stopping when everyone responds or the proposal closes. This is still an opportunistic client-side sweep, not a guaranteed backend scheduler; Firebase Cloud Functions or another scheduled backend remains the correct long-term implementation for exact timing when nobody has the app open.', items:['Upload index_r762.html as index.html.', 'Confirm Build Version reports r762.', 'Phone-test Calendar → Rehearsal Proposals: confirm proposal cards still render, voting still works, and the notification log/manual reminder dropdown still opens.', 'For true guaranteed reminders, next step remains backend scheduled implementation or Cloud Functions audit.'] },
