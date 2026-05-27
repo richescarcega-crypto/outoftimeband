@@ -1,3 +1,4 @@
+<!-- r748: Suggest-a-Song YouTube lookup link. Adds a targeted Open YouTube button below the optional YouTube URL field in the Songs suggestion form, preserves the suggestion form/draft during external YouTube handoff, and restores Suggest mode on return. No song data, voting logic, Setlists, Home, Calendar, Chat, Mates, Pay, assets, or unrelated UI changed. Upload index_r748.html as index.html after phone test. -->
 <!-- r747: Songs bottom gap calibration. Changes only the Songs tab bottom list-to-tab gap by removing inherited section bottom padding and setting the library-list bottom breathing room to the same 2px reference gap used between song rows. Preserves Songs search pill r746, song rows/search behavior, Setlists r746 panel gradient, Home, Calendar, Chat, Mates, Pay, assets, and app logic. Upload index_r747.html as index.html after phone test. -->
 <!-- r746: Setlists expanded-song blue-gradient panel + Songs search pill refinement. Changes only the expanded Setlist song-panel background to the approved app-wide blue gradient and replaces the Songs search pill color treatment with a darker premium navy/glass style, blue icon, white placeholder, and restrained gold edge. No Setlists data/actions, song rows, search behavior, Home, Calendar, Chat, Mates, Pay, assets, or app logic changed. Upload index_r746.html as index.html after phone test. -->
 <!-- r745: Member/image lightbox horizontal-overflow cleanup. Fixes the remaining gray line under Mates/Band member image lightboxes by preventing horizontal overflow/scrollbar rendering inside the gold-bordered lightbox card while preserving vertical scroll, gold border, image source/crop/framing, captions, and controls. Upload index_r745.html as index.html after phone test. -->
@@ -11976,6 +11977,8 @@ body.light #sc-sets .setlist-expanded-panel{
       <input class="fi2" id="suggest-artist" placeholder="Artist" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" onblur="_ootSuggestKeyboardMode(false,this)" oninput="_ootTitleCaseField(this)">
       <input class="fi2" id="suggest-note" placeholder="Why this song? (optional)" autocomplete="off" autocorrect="on" spellcheck="true" inputmode="text" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" onblur="_ootSuggestKeyboardMode(false,this)" oninput="_ootSentenceCaseField(this)">
       <input class="fi2" id="suggest-url" placeholder="YouTube URL (optional)" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="url" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" onblur="_ootSuggestKeyboardMode(false,this)">
+      <button type="button" id="suggest-youtube-open" onclick="openSuggestYouTubeLookup()" style="margin-top:8px;width:100%;border-radius:12px;border:1px solid rgba(245,197,24,.50);background:linear-gradient(135deg,rgba(10,22,40,.96),rgba(15,48,112,.86));color:#f8fbff;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:1.2px;padding:10px 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 0 14px rgba(74,158,255,.14);">🔎 Open YouTube to copy URL</button>
+      <div style="font-size:10px;color:#8aa8d6;margin:5px 2px 0;line-height:1.35;">Search YouTube, copy the video URL, then return here and paste it above.</div>
       <div class="r2" style="margin-top:8px;">
         <button class="sb" onclick="submitSuggestion()" style="width:100%;">Submit</button>
       </div>
@@ -15650,6 +15653,44 @@ function removeMySongVote(id){
   });
 }
 
+function _getSuggestSongDraft(){
+  try {
+    return {
+      title: (document.getElementById('suggest-title') ? document.getElementById('suggest-title').value : ''),
+      artist: (document.getElementById('suggest-artist') ? document.getElementById('suggest-artist').value : ''),
+      note: (document.getElementById('suggest-note') ? document.getElementById('suggest-note').value : ''),
+      url: (document.getElementById('suggest-url') ? document.getElementById('suggest-url').value : '')
+    };
+  } catch(e){ return {title:'',artist:'',note:'',url:''}; }
+}
+function _restoreSuggestSongDraft(draft){
+  try {
+    if(!draft) return;
+    var map = { 'suggest-title':'title', 'suggest-artist':'artist', 'suggest-note':'note', 'suggest-url':'url' };
+    Object.keys(map).forEach(function(id){
+      var el = document.getElementById(id);
+      if(el && draft[map[id]] != null) el.value = String(draft[map[id]] || '');
+    });
+  } catch(e){}
+}
+function openSuggestYouTubeLookup(){
+  try {
+    var draft = _getSuggestSongDraft();
+    var q = ((draft.title || '') + ' ' + (draft.artist || '')).trim();
+    var url = q ? ('https://www.youtube.com/results?search_query=' + encodeURIComponent(q)) : 'https://www.youtube.com/';
+    _openExternalUrl(url, {
+      externalKind:'suggest-youtube',
+      tab:'songs',
+      openOverlays:['votes-modal'],
+      votesMode:'suggest',
+      suggestDraft:draft,
+      songsScroll:(document.getElementById('sc-songs') ? document.getElementById('sc-songs').scrollTop : 0),
+      restoreAfterMs:1200
+    });
+  } catch(e){
+    try { _openExternalUrl('https://www.youtube.com/'); } catch(e2){}
+  }
+}
 function submitSuggestion(){
   var titleEl=document.getElementById('suggest-title');
   var artistEl=document.getElementById('suggest-artist');
@@ -17141,7 +17182,7 @@ function _captureExternalReturnContext(extraCtx){
       openOverlays: openOverlays,
       songResourceId: songResourceId,
       songInfoId: songInfoId,
-      votesMode: (document.getElementById('votes-modal') && document.getElementById('votes-modal').classList.contains('on') ? 'vote' : ''),
+      votesMode: (document.getElementById('votes-modal') && document.getElementById('votes-modal').classList.contains('on') ? ((document.getElementById('suggest-form') && document.getElementById('suggest-form').style.display !== 'none') ? 'suggest' : 'vote') : ''),
       setsViewState: (typeof setsViewState !== 'undefined' ? setsViewState : ''),
       activeSetlistId: (typeof aSL !== 'undefined' && aSL != null ? String(aSL) : ''),
       expandedSetlistId: (window._expandedSetlistId != null ? String(window._expandedSetlistId) : ''),
@@ -17177,6 +17218,7 @@ function _externalRestoreShieldMs(ctx){
     // source screen is restored. Keep the longer shield only for the fragile
     // album-art contexts; Song Resources keeps the short r433 behavior.
     if(ctx && (ctx.externalKind === 'setlist-art' || ctx.externalKind === 'vote-art')) return 12000;
+    if(ctx && ctx.externalKind === 'suggest-youtube') return 5000;
     if(ctx && ctx.externalKind === 'songs-art') return 5000;
   } catch(e){}
   return Number(_ootExternalReturnStabilizeWindow || 3200);
@@ -17192,8 +17234,9 @@ function _externalRestoreNormalCloseDelay(ctx){
     var overlays = (ctx && ctx.openOverlays) || [];
     if(overlays.indexOf('song-resources-modal') >= 0) return 1200;
     if(ctx && (ctx.externalKind === 'setlist-art' || ctx.externalKind === 'vote-art')) return (typeof _externalRestoreShieldMs === 'function' ? _externalRestoreShieldMs(ctx) : 12000);
+    if(ctx && ctx.externalKind === 'suggest-youtube') return 1800;
     if(ctx && ctx.externalKind === 'songs-art') return 1800;
-    if(ctx && ctx.votesMode === 'vote') return Number(_ootExternalReturnStabilizeWindow || 3200);
+    if(ctx && (ctx.votesMode === 'vote' || ctx.votesMode === 'suggest')) return Number(_ootExternalReturnStabilizeWindow || 3200);
     if(ctx && ctx.tab === 'sets') return Number(_ootExternalReturnStabilizeWindow || 3200);
   } catch(e){}
   return 1200;
@@ -17274,8 +17317,27 @@ function _restoreExternalOpenOverlays(ctx){
           showSongInfo(ctx.songInfoId);
           return;
         }
-        if(id === 'votes-modal' && typeof openSongVoteModal === 'function'){
-          openSongVoteModal();
+        if(id === 'votes-modal'){
+          if(ctx && ctx.votesMode === 'suggest'){
+            var vm = document.getElementById('votes-modal');
+            var sf = document.getElementById('suggest-form');
+            var alreadySuggest = !!(vm && vm.classList.contains('on') && sf && sf.style.display !== 'none');
+            if(!alreadySuggest && typeof openSongSuggestModal === 'function'){
+              openSongSuggestModal();
+            } else if(vm){
+              vm.classList.add('on');
+            }
+            if(ctx.suggestDraft){
+              setTimeout(function(){
+                try { _restoreSuggestSongDraft(ctx.suggestDraft); ctx.suggestDraft = null; } catch(e){}
+              }, 120);
+            }
+          } else if(typeof openSongVoteModal === 'function'){
+            openSongVoteModal();
+          } else {
+            var vm2 = document.getElementById('votes-modal');
+            if(vm2) vm2.classList.add('on');
+          }
           return;
         }
         var el = document.getElementById(id);
@@ -17302,7 +17364,7 @@ function _restoreExternalReturnContext(reason){
       if(ctx.tab === 'songs' && typeof rLib === 'function') rLib();
       if(ctx.tab === 'home' && typeof rHome === 'function') rHome();
     }
-    (ctx && (ctx.externalKind === 'setlist-art' || ctx.externalKind === 'vote-art') ? [80,350,900,1600,3000,5000,8000,11000] : [80,350,900,1600,3000]).forEach(function(delay){
+    (ctx && (ctx.externalKind === 'setlist-art' || ctx.externalKind === 'vote-art') ? [80,350,900,1600,3000,5000,8000,11000] : (ctx && ctx.externalKind === 'suggest-youtube' ? [80,350,900,1600,3000,5000] : [80,350,900,1600,3000])).forEach(function(delay){
       setTimeout(function(){
         try {
           if(!window._ootExternalRestoreLockUntil || Date.now() > window._ootExternalRestoreLockUntil) return;
@@ -17339,7 +17401,7 @@ function _reapplyLastExternalReturnContext(reason){
       var btn = document.getElementById('tb-' + ctx.tab);
       if(typeof go === 'function') go(ctx.tab, btn);
     }
-    (ctx && (ctx.externalKind === 'setlist-art' || ctx.externalKind === 'vote-art') ? [0,120,450,1000,2200,4200,7000,10500] : [0,120,450,1000,2200]).forEach(function(delay){
+    (ctx && (ctx.externalKind === 'setlist-art' || ctx.externalKind === 'vote-art') ? [0,120,450,1000,2200,4200,7000,10500] : (ctx && ctx.externalKind === 'suggest-youtube' ? [0,120,450,1000,2200,4200] : [0,120,450,1000,2200])).forEach(function(delay){
       setTimeout(function(){
         try {
           if(!window._ootExternalRestoreLockUntil || Date.now() > window._ootExternalRestoreLockUntil) return;
@@ -31761,7 +31823,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-songs-bottom-gap-r747';
+var WHATS_NEW_VERSION = '2026-05-26-suggest-song-youtube-link-r748';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32106,6 +32168,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-suggest-song-youtube-link-r748', date:'May 26, 2026', importance:'fix', emoji:'🔎', title:'Suggest Song YouTube link', body:'Adds a targeted Open YouTube helper to the Songs → Suggest a Song form so a member can search YouTube, copy a video URL, return to the app, and paste it into the optional YouTube URL field. The external-return context now restores Suggest mode and preserves the current draft values during that handoff. No song submission data model, vote logic, Songs list layout, Setlists, Home, Calendar, Chat, Mates, Pay, or assets changed.', items:['Upload index_r748.html as index.html.', 'Confirm Build Version reports r748.', 'Phone-test Songs → kebab → Vote/Suggest → Suggest a Song: tap Open YouTube, copy a video URL, return to the app, confirm the suggestion form remains open with existing draft text, paste into YouTube URL, and submit normally.'] },
   { version:'2026-05-26-songs-bottom-gap-r747', date:'May 26, 2026', importance:'fix', emoji:'🎵', title:'Songs bottom gap tightened', body:'Changes only the Songs tab bottom list-to-tab gap. The fix targets the actual spacing stack: inherited Songs section bottom padding plus the library-list scroll container bottom padding. The visible bottom gap is now calibrated to the same 2px reference used between Songs rows while preserving the r746 search pill, song row styling, search behavior, Setlists panel gradient, and all other tabs.', items:['Upload index_r747.html as index.html.', 'Confirm Build Version reports r747.', 'Phone-test Songs: scroll near the bottom and confirm the blue gap above the bottom tab bar is the same thin 2px spacing used between song rows; search and YouTube buttons should still work normally.'] },
   { version:'2026-05-26-setlists-panel-search-pill-r746', date:'May 26, 2026', importance:'fix', emoji:'🎼', title:'Setlists panel and Songs search polished', body:'Changes only the expanded Setlist song-panel background to the approved app-wide blue gradient and refines the Songs search pill to a darker premium navy/glass treatment with a blue icon, white placeholder text, and restrained gold edge. Setlist data/actions, song row behavior, Songs search behavior, Home, Calendar, Chat, Mates, Pay, assets, and app logic are unchanged.', items:['Upload index_r746.html as index.html.', 'Confirm Build Version reports r746.', 'Phone-test Setlists: open an individual setlist and confirm the song panel background uses the app-wide blue gradient while song rows/taps/YouTube actions still work. Phone-test Songs: search pill should look darker, cleaner, and premium; search input should still filter normally.'] },
   { version:'2026-05-26-image-lightbox-overflow-cleanup-r745', date:'May 26, 2026', importance:'fix', emoji:'🖼️', title:'Image lightbox gray line removed', body:'Fixes the remaining gray line under Mates/Band member image lightboxes by removing the horizontal overflow condition that caused the browser scrollbar to render inside the gold-bordered card. Gold borders, image sources, crop/framing, captions, close/share/download controls, and app data are unchanged.', items:['Upload index_r745.html as index.html.', 'Confirm Build Version reports r745.', 'Phone-test Mates/Band member image lightbox and Chat/shared image lightbox: gold border should remain, gray underline/scrollbar should be gone, image framing should be unchanged, and close/share/download controls should still work.'] },
