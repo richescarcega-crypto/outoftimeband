@@ -1,4 +1,4 @@
-<!-- r735: Setlists stable scroll/header architecture. Converts Setlists to fixed header + internal scroll containers so the main Setlists hero no longer bumps, the opened/expanded setlist header stays visible while its song list scrolls, and the edit-setlist header remains fixed above its editable song list. Preserves Setlists actions/data, Songs r734 row fix, Home, Calendar, Chat, Mates, Pay, flyers, assets, and app logic. Upload index_r735.html as index.html after phone test. -->
+<!-- r736: Setlists expanded-header bottom-scroll stabilization. Carries forward r735 fixed header/internal scroll architecture and adds an expanded-setlist scroll-state class plus extra bottom scroll runway/overscroll containment so the specific opened setlist header does not jump when the song list reaches the bottom. Applies to all current and future setlists rendered through rSets. Upload index_r736.html as index.html after phone test. -->
 <!-- r734: Songs library row flex-shrink fix. Fixes the collapsed Songs rows by preventing song-list flex children from shrinking inside the scrollable flex-column list, and restores explicit row min-height/display/visible content flow. Preserves r718 premium row styling, Songs search/header, song data/resources, Setlists r733 sticky header, Home, Calendar, Chat, Mates, Pay, flyers, assets, and app logic. Upload index_r734.html as index.html after phone test. -->
 <!-- r733: Setlists sticky header. Makes the Setlists main hero header sticky while the Setlists tab scrolls, and keeps the Setlist edit header sticky while editing. Scope is Setlists headers only; no Setlists data/actions, Songs, Home, Calendar, Chat, Mates, Pay, flyers, assets, or app logic changed. Upload index_r733.html as index.html after phone test. -->
 <!-- r732: Home alerts row logic. Wraps Home song-vote and rehearsal cues in a reusable alert row so a single alert remains full width, while both visible alerts render as two compact half-width pills sharing one row. Preserves Home locked gaps/image/social buttons, alert tap behavior, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r732.html as index.html after phone test. -->
@@ -8791,6 +8791,28 @@ body.light #sc-sets #eh{
 }
 body.light #sc-sets #sll > .slc.expanded-setlist-header{
   z-index:40 !important;
+}
+/* r736: expanded Setlist header bottom-scroll stabilization.
+   The opened setlist header is shared by all current/future setlists rendered by rSets.
+   Extra bottom runway prevents Android sticky-boundary jump at the end of the song list. */
+#sc-sets #sll.has-expanded-setlist{
+  overscroll-behavior-y:contain !important;
+  padding-bottom:calc(116px + env(safe-area-inset-bottom)) !important;
+  scroll-padding-top:0 !important;
+}
+#sc-sets #sll.has-expanded-setlist > .slc.expanded-setlist-header{
+  flex:0 0 auto !important;
+  align-self:stretch !important;
+  transform:translateZ(0) !important;
+  -webkit-transform:translateZ(0) !important;
+  will-change:transform !important;
+  backface-visibility:hidden !important;
+  -webkit-backface-visibility:hidden !important;
+  margin-bottom:0 !important;
+}
+#sc-sets #sll.has-expanded-setlist > .setlist-expanded-panel{
+  flex:0 0 auto !important;
+  margin-bottom:0 !important;
 }
 
 
@@ -26256,6 +26278,7 @@ function rSets() {
   var countEl = document.getElementById('sl-count');
   if(countEl) countEl.textContent = sets.length ? ('— ' + sets.length + ' setlist' + (sets.length===1?'':'s')) : '';
   el.innerHTML = '';
+  try { el.classList.toggle('has-expanded-setlist', !!window._expandedSetlistId); } catch(e){}
   _r636RenderSetlistGigPrompt(el);
   if(!sets.length){
     var empty = document.createElement('div');
@@ -31176,7 +31199,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-setlists-stable-expanded-header-r735';
+var WHATS_NEW_VERSION = '2026-05-26-setlists-expanded-header-bottom-stable-r736';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -31521,7 +31544,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  { version:'2026-05-26-setlists-stable-expanded-header-r735', date:'May 26, 2026', importance:'fix', emoji:'📋', title:'Setlists headers stabilized', body:'Reworks the Setlists tab scroll architecture so the main Setlists hero stays stable, the expanded setlist header remains visible while its songs scroll, and the edit-setlist header stays fixed above the editable song list. Preserves Setlists actions/data, Songs r734 row fix, and all other tabs.', items:['Upload index_r735.html as index.html.', 'Confirm Build Version reports r735.', 'Phone-test Setlists: expand a setlist and scroll; the main hero should not bump and the expanded setlist header should stay visible while songs scroll. Also check edit-setlist view header remains visible.'] },
+  { version:'2026-05-26-setlists-expanded-header-bottom-stable-r736', date:'May 26, 2026', importance:'fix', emoji:'📋', title:'Setlists expanded header stabilized at bottom', body:'Adds expanded-setlist scroll-state handling and extra bottom scroll runway so the opened setlist header stays stable even when scrolling to the bottom of the song list. Applies to all current and future setlists rendered by the shared Setlists renderer.', items:['Upload index_r736.html as index.html.', 'Confirm Build Version reports r736.', 'Phone-test Setlists: expand several current setlists and scroll to the very bottom; the main hero and specific setlist header should remain stable.'] },
   { version:'2026-05-26-songs-row-flex-shrink-fix-r734', date:'May 26, 2026', importance:'fix', emoji:'🎤', title:'Songs rows restored', body:'Fixes the collapsed Songs library rows by stopping flex-shrink inside the scrollable song list and restoring explicit row height/display. Preserves r718 premium styling, Songs search/header, song data/resources, Setlists sticky header, and all other tabs.', items:['Upload index_r734.html as index.html.', 'Confirm Build Version reports r734.', 'Phone-test Songs tab: rows should be full height with album art/text visible; search and song/resource taps should still work.'] },
   { version:'2026-05-26-setlists-sticky-header-r733', date:'May 26, 2026', importance:'fix', emoji:'📋', title:'Setlists sticky header', body:'Keeps the Setlists main hero header sticky while the Setlists tab scrolls, and keeps the Setlist edit header sticky while editing a setlist. Setlists actions/data, Home, Calendar, Chat, Songs, Mates, Pay, flyers, assets, and app logic are unchanged.', items:['Upload index_r733.html as index.html.', 'Confirm Build Version reports r733.', 'Phone-test Setlists: scroll the Setlists list and edit a setlist; the Setlists header/edit header should remain visible while list content scrolls underneath.'] },
   { version:'2026-05-26-home-alerts-row-r732', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home alerts row', body:'Adds a reusable Home alerts row so one alert remains full-width, while both Song Vote Pending and Rehearsal On Deck visible together become two compact half-width pills in the same row. Home locked gaps, band image/framing, social buttons, alert tap behavior, Next Gig, all other tabs, flyers, assets, and app data are unchanged.', items:['Upload index_r732.html as index.html.', 'Confirm Build Version reports r732.', 'Phone-test Home in three states: only rehearsal, only song vote pending, and both together. Both together should share one row with two tappable half-width pills without pushing down Next Gig or the band image.'] },
