@@ -1,3 +1,4 @@
+<!-- r755: Suggest-a-Song paste stability and submit close. Fixes the r754 issue where late YouTube-return restore timers could overwrite the first pasted YouTube URL after returning to the Suggest a Song form, and closes the Suggest modal after Submit so the user remains on the Songs tab instead of being dropped back into the Song Suggestions list page. Scope is Songs → Suggest a Song only; preserves sticky heading, single X, visible YouTube Find link icon, voice input/capitalization, red trash suggestion delete icon, suggestion save/vote logic, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, and unrelated UI. Upload index_r755.html as index.html after phone test. -->
 <!-- r754: Suggest-a-Song YouTube return lifecycle shield. Fixes the r753 miss where the Suggest form could restore briefly but the global Home-default lifecycle timers/late Android return events could still force the app back to Home. Integrates Suggest-a-Song YouTube return with the existing external-return shield, extends the suggest-youtube restore window, and guards force-Home while the short-lived Suggest return payload is active. Scope is only Songs → Suggest a Song → YouTube return; preserves r753 trash icon, r752 single-X cleanup, r751 visible YouTube helper, r750 dictation/capitalization, suggestion submit/vote logic, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, and unrelated UI. Upload index_r754.html as index.html after phone test. -->
 <!-- r753: Suggest-a-Song YouTube return + suggestion delete icon. Adds a dedicated durable return restore for Songs → Suggest a Song → YouTube lookup so returning from YouTube restores the Suggest form instead of defaulting Home, and replaces the owned suggestion Remove Suggestion text pill with the app-standard red trash-can icon. Scope is Song Suggestions/Suggest a Song only; preserves r752 single-X cleanup, r751 visible YouTube helper, r750 dictation/capitalization, suggestion submit/vote logic, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, and unrelated UI. Upload index_r753.html as index.html after phone test. -->
 <!-- r752: Suggest-a-Song duplicate close cleanup. Removes only the lower/smaller duplicate X inside the Suggest a Song form, leaving the sticky modal header X as the single close control. Preserves r751 YouTube helper visibility, r750 voice-input capitalization behavior, suggestion submit/vote logic, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, and unrelated UI. Upload index_r752.html as index.html after phone test. -->
@@ -12258,7 +12259,7 @@ body.light #votes-modal .suggestion-delete-icon{
       <input class="fi2" id="suggest-note" placeholder="Why this song? (optional)" autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true" inputmode="text" enterkeyhint="next" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" oninput="_ootSuggestSentenceInput(this)" onchange="_ootSuggestSentenceCommit(this)" onblur="_ootSuggestSentenceCommit(this);_ootSuggestKeyboardMode(false,this)">
       <div class="suggest-youtube-field-label">YouTube link <span>(optional)</span></div>
       <div class="suggest-youtube-url-row">
-        <input class="fi2" id="suggest-url" placeholder="Paste YouTube URL" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="url" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" onblur="_ootSuggestKeyboardMode(false,this)">
+        <input class="fi2" id="suggest-url" placeholder="Paste YouTube URL" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="url" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" oninput="_markSuggestManualEditAfterReturn('url-input')" onchange="_markSuggestManualEditAfterReturn('url-change')" onblur="_ootSuggestKeyboardMode(false,this)">
         <button type="button" id="suggest-youtube-open" class="suggest-youtube-link-control" onclick="openSuggestYouTubeLookup()" aria-label="Find a YouTube link for this song suggestion">
           <span class="suggest-youtube-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="1.5" y="5" width="21" height="14" rx="3.5" fill="#ff0000"></rect><polygon points="10,9 16,12 10,15" fill="#fff"></polygon></svg></span>
           <span class="suggest-youtube-label">Find link</span>
@@ -15953,11 +15954,33 @@ function _getSuggestSongDraft(){
 function _restoreSuggestSongDraft(draft){
   try {
     if(!draft) return;
+    // r755: Once the user starts editing/pasting after returning from YouTube,
+    // do not let late lifecycle restore timers overwrite the fresh paste.
+    if(window._ootSuggestManualEditAfterReturn) return;
     var map = { 'suggest-title':'title', 'suggest-artist':'artist', 'suggest-note':'note', 'suggest-url':'url' };
     Object.keys(map).forEach(function(id){
       var el = document.getElementById(id);
       if(el && draft[map[id]] != null) el.value = String(draft[map[id]] || '');
     });
+  } catch(e){}
+}
+function _markSuggestManualEditAfterReturn(reason){
+  try {
+    // r755: A user edit/paste means the restored form is now the source of truth.
+    // Keep the external-return shield alive, but remove stale draft payloads so
+    // delayed reapply timers cannot revert the field values.
+    window._ootSuggestManualEditAfterReturn = true;
+    try { sessionStorage.removeItem(_ootSuggestYouTubeReturnKey); } catch(e1){}
+    try { localStorage.removeItem(_ootSuggestYouTubeReturnKey); } catch(e2){}
+    try { window._ootLastSuggestYouTubeReturn = null; } catch(e3){}
+    try {
+      if(window._ootLastExternalRestoreContext && window._ootLastExternalRestoreContext.externalKind === 'suggest-youtube'){
+        window._ootLastExternalRestoreContext.suggestDraft = null;
+      }
+      if(window._ootExternalReturnContext && window._ootExternalReturnContext.externalKind === 'suggest-youtube'){
+        window._ootExternalReturnContext.suggestDraft = null;
+      }
+    } catch(e4){}
   } catch(e){}
 }
 function openSuggestYouTubeLookup(){
@@ -16003,6 +16026,7 @@ function _storeSuggestYouTubeReturn(draft, url){
     try { sessionStorage.setItem(_ootSuggestYouTubeReturnKey, raw); } catch(e1){}
     try { localStorage.setItem(_ootSuggestYouTubeReturnKey, raw); } catch(e2){}
     window._ootLastSuggestYouTubeReturn = payload;
+    window._ootSuggestManualEditAfterReturn = false;
   } catch(e){}
 }
 function _readSuggestYouTubeReturnFrom(storage){
@@ -16040,6 +16064,7 @@ function _clearSuggestYouTubeReturn(reason){
   try { localStorage.removeItem(_ootSuggestYouTubeReturnKey); } catch(e2){}
   try { window._ootLastSuggestYouTubeReturn = null; } catch(e3){}
   try { window._ootSuggestYouTubeRestoreUntil = 0; } catch(e4){}
+  try { window._ootSuggestManualEditAfterReturn = false; } catch(e5){}
 }
 function _applySuggestYouTubeReturn(payload, reason){
   try {
@@ -16138,7 +16163,20 @@ function submitSuggestion(){
   if(artistEl) artistEl.value='';
   if(noteEl) noteEl.value='';
   if(urlEl) urlEl.value='';
-  document.getElementById('suggest-form').style.display='none';
+  try { _clearSuggestYouTubeReturn('suggest-submit'); } catch(eClear){}
+  try {
+    if(window._ootLastExternalRestoreContext && window._ootLastExternalRestoreContext.externalKind === 'suggest-youtube'){
+      window._ootLastExternalRestoreContext = null;
+      window._ootExternalRestoreLockUntil = 0;
+      window._ootExternalRestoreNormalCloseAfter = 0;
+    }
+  } catch(eShield){}
+  try {
+    var sf = document.getElementById('suggest-form');
+    if(sf) sf.style.display='none';
+    if(typeof clM === 'function') clM('votes-modal');
+    if(typeof go === 'function') go('songs', document.getElementById('tb-songs'));
+  } catch(eClose){}
   try{ toast('Song suggestion submitted', {tone:'success'}); }catch(e){}
 }
 // ── REHEARSAL AGENDA ───────────────────────────────────────────────────────
@@ -26470,6 +26508,7 @@ function _ootSentenceCaseField(el){ _ootPreserveCursorTransform(el, _ootSentence
    change/blur/submit. The Why field uses sentence-case only. */
 function _ootSuggestTitleInput(el){
   if(!el) return;
+  try{ if(typeof _markSuggestManualEditAfterReturn === 'function') _markSuggestManualEditAfterReturn('title-input'); }catch(e0){}
   try{
     if(el._ootSuggestCapTimer) clearTimeout(el._ootSuggestCapTimer);
     el._ootSuggestCapTimer = setTimeout(function(){
@@ -26489,6 +26528,7 @@ function _ootSuggestTitleCommit(el){
 }
 function _ootSuggestSentenceInput(el){
   if(!el) return;
+  try{ if(typeof _markSuggestManualEditAfterReturn === 'function') _markSuggestManualEditAfterReturn('sentence-input'); }catch(e0){}
   try{
     if(el._ootSuggestCapTimer) clearTimeout(el._ootSuggestCapTimer);
     el._ootSuggestCapTimer = setTimeout(function(){
@@ -32294,7 +32334,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-suggest-youtube-return-shield-r754';
+var WHATS_NEW_VERSION = '2026-05-26-suggest-paste-submit-close-r755';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32639,6 +32679,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-suggest-paste-submit-close-r755', date:'May 26, 2026', importance:'fix', emoji:'🎸', title:'Suggest Song paste and submit fixed', body:'Fixes the Suggest a Song YouTube URL paste path by preventing late YouTube-return restore timers from overwriting the first pasted URL after returning from YouTube. Also closes the Suggest modal after Submit so the user remains on the Songs tab instead of being shown the Song Suggestions list page. Suggest YouTube Find link, sticky heading, single X, voice input/capitalization, delete icon, and voting behavior remain unchanged.', items:['Upload index_r755.html as index.html.', 'Confirm Build Version reports r755.', 'Phone-test Songs → Suggest a Song: return from YouTube, paste the URL once, submit, and confirm the modal closes while staying on Songs.'] },
   { version:'2026-05-26-suggest-youtube-return-shield-r754', date:'May 26, 2026', importance:'fix', emoji:'▶️', title:'Suggest Song YouTube return hardened', body:'Fixes the remaining Songs → Suggest a Song → YouTube return issue by integrating the Suggest form restore with the existing app external-return lifecycle shield. The previous patch stored the draft and tried to reopen Suggest mode, but the global Home-default lifecycle timers and late Android/PWA return events could still override it. This build guards the force-Home path during the short-lived Suggest YouTube return window and reopens the Suggest form with the draft intact. Suggest submission, voting, YouTube Find link, voice input/capitalization, delete icon behavior, and unrelated tabs are unchanged.', items:['Upload index_r754.html as index.html.', 'Confirm Build Version reports r754.', 'Phone-test Songs → Suggest a Song: enter a draft, tap Find link, go to YouTube, return to the app, and confirm the Suggest form remains open with the draft intact so the copied URL can be pasted.'] },
   { version:'2026-05-26-suggest-youtube-return-trash-icon-r753', date:'May 26, 2026', importance:'fix', emoji:'▶️', title:'Suggest Song return and delete icon fixed', body:'Fixes the Songs → Suggest a Song YouTube lookup handoff so returning from YouTube restores the Suggest a Song form instead of landing on Home, and replaces the owned suggestion Remove Suggestion text pill with the red trash-can icon style used elsewhere in the app. Suggest form draft values, YouTube Find link behavior, voice input/capitalization, submit/vote logic, and unrelated app sections are unchanged.', items:['Upload index_r753.html as index.html.', 'Confirm Build Version reports r753.', 'Phone-test Songs → Suggest a Song: enter a draft, tap Find link, go to YouTube, return to the app, and confirm the Suggest form reopens with the draft intact so the URL can be pasted.', 'Phone-test a suggestion you created: confirm the lower Remove Suggestion text pill is gone and the red trash-can icon removes it after confirmation.'] },
   { version:'2026-05-26-suggest-duplicate-close-cleanup-r752', date:'May 26, 2026', importance:'fix', emoji:'✕', title:'Suggest Song duplicate close cleanup', body:'Removes only the lower/smaller duplicate X inside the Songs → Suggest a Song form so the sticky modal header X is the single close control. Preserves the visible YouTube helper from r751, the voice-input capitalization behavior from r750, suggestion submit/vote logic, and all unrelated app sections.', items:['Upload index_r752.html as index.html.', 'Confirm Build Version reports r752.', 'Phone-test Songs → Suggest a Song: confirm only one X appears in the sticky heading, the YouTube Find link button remains visible, and Submit still works.'] },
