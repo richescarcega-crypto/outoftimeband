@@ -1,3 +1,4 @@
+<!-- r762: Pending response reminder opportunistic sweep hardening. Adds focus/visibility/online/app-resume sweep triggers to the existing rehearsal proposal reminder engine so overdue 24-hour and 10-hour non-responder nudges are checked promptly when an admin/member has the app open or returns to it. This does not pretend to be a true backend scheduler; Cloud Functions/backend scheduling is still required for guaranteed timing when nobody has the app open. No proposal data model, voting UI, Home, Songs, Calendar layout, Chat, Mates, Pay, assets, or OneSignal worker files changed. Upload index_r762.html as index.html after phone test. -->
 <!-- r761: Home social buttons visibility fix. Fixes the r760 Home lower-right Facebook/Instagram buttons being partially clipped after the restored tight Home bottom gap by adjusting the existing HOME_IMAGE_PRESENTATION inline renderer clamp only. Applies to all Home band images and both Home modes through the central registry renderer; does not change image assets/framing, alert pill colors, Next Gig, tabs, or unrelated sections. Upload index_r761.html as index.html after phone test. -->
 <!-- r760: Emergency rollback/fix from r758 after r759 invalid inline onclick string broke Home rendering. Keeps r758 stable logic, adds only a CSS-level premium override for the Home Song Vote Pending pill, and preserves r757 bottom-gap plus r758 Suggest URL paste stability. Upload index_r760.html as index.html after phone test. -->
 <!-- r758: Suggest-a-Song YouTube URL first-paste stability. Fixes the remaining first-paste miss after returning from YouTube by canceling stale Suggest restore/reopen timers as soon as the URL field is touched/focused, preventing late reopen/clear routines from stealing focus or clearing the pasted URL. Scope is Songs → Suggest a Song URL field/YouTube-return lifecycle only; preserves r757 Home bottom-gap fix, r756 Song Vote Pending color scheme, suggestion submit/vote/delete behavior, and all other tabs. Upload index_r758.html as index.html after phone test. -->
@@ -19411,6 +19412,7 @@ function listenProposals(){
       setTimeout(_checkProposalsAtBoot, 1800);
       setTimeout(_runProposalReminderSweep, 3200);
       _ensureProposalReminderTimer();
+      _ensureProposalReminderResumeHooks();
     } else {
       // r109: proposals can become due while the app is open; keep the check light and deduped.
       setTimeout(_runProposalReminderSweep, 1200);
@@ -19482,6 +19484,34 @@ var _proposalReminderLastSweepAt = 0;
 function _ensureProposalReminderTimer(){
   if(_proposalReminderTimer) return;
   _proposalReminderTimer = setInterval(_runProposalReminderSweep, PROPOSAL_REMINDER_SWEEP_MS);
+}
+
+// r762: opportunistic reminder hardening. This does not replace backend scheduling;
+// it makes the existing client-side reminder engine check promptly when a device
+// that can send reminders wakes up, returns to the app, or regains network.
+var _proposalReminderResumeHooksBound = false;
+function _runProposalReminderSweepSoon(reason, delayMs){
+  try {
+    delayMs = Number(delayMs || 0);
+    setTimeout(function(){
+      try { _runProposalReminderSweep(); }
+      catch(e){ try { console.warn('[r762 proposal-reminder] resume sweep failed', reason, e); } catch(e2){} }
+    }, delayMs);
+  } catch(e){}
+}
+function _ensureProposalReminderResumeHooks(){
+  if(_proposalReminderResumeHooksBound) return;
+  _proposalReminderResumeHooksBound = true;
+  try {
+    document.addEventListener('visibilitychange', function(){
+      if(document.visibilityState === 'visible') _runProposalReminderSweepSoon('visible', 900);
+    });
+  } catch(e){}
+  try { window.addEventListener('focus', function(){ _runProposalReminderSweepSoon('focus', 1200); }); } catch(e){}
+  try { window.addEventListener('online', function(){ _runProposalReminderSweepSoon('online', 1600); }); } catch(e){}
+  // One extra delayed pass after app startup/listener hydration catches overdue
+  // reminders without waiting for the 30-minute interval.
+  _runProposalReminderSweepSoon('startup-delayed', 12000);
 }
 
 function _proposalDateIsStale(p){
@@ -32399,7 +32429,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-home-social-buttons-visible-r761';
+var WHATS_NEW_VERSION = '2026-05-27-proposal-reminder-sweep-hardening-r762';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32744,6 +32774,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-27-proposal-reminder-sweep-hardening-r762', date:'May 27, 2026', importance:'fix', emoji:'🔔', title:'Proposal reminder sweep hardened', body:'Hardens the existing rehearsal proposal reminder engine by checking for overdue non-responder nudges when the app becomes visible, regains focus, comes online, or initializes after the proposal listener starts. The existing policy remains first reminder after 24 hours and follow-ups every 10 hours only to non-responders, stopping when everyone responds or the proposal closes. This is still an opportunistic client-side sweep, not a guaranteed backend scheduler; Firebase Cloud Functions or another scheduled backend remains the correct long-term implementation for exact timing when nobody has the app open.', items:['Upload index_r762.html as index.html.', 'Confirm Build Version reports r762.', 'Phone-test Calendar → Rehearsal Proposals: confirm proposal cards still render, voting still works, and the notification log/manual reminder dropdown still opens.', 'For true guaranteed reminders, next step remains backend scheduled implementation or Cloud Functions audit.'] },
   { version:'2026-05-26-home-social-buttons-visible-r761', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home social buttons visible', body:'Fixes the Home lower-right Facebook and Instagram buttons being partially clipped after the tight Home bottom gap was restored. The fix is made in the central HOME_IMAGE_PRESENTATION inline renderer, not scattered CSS, so it applies consistently across all 20 Home images and both normal and Rehearsal on Deck modes. Home image assets/framing, Song Vote Pending styling, Rehearsal on Deck, Next Gig, and all other tabs remain unchanged.', items:['Upload index_r761.html as index.html.', 'Confirm Build Version reports r761.', 'Phone-test Home images: confirm Facebook and Instagram buttons are fully visible in the lower-right corner, both with and without Rehearsal on Deck visible.'] },
   { version:'2026-05-26-home-song-vote-css-fix-r760', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home rendering restored and vote pill refined', body:'Emergency fix after r759 broke Home rendering with an invalid inline onclick string while attempting to restyle Song Vote Pending. r760 rebuilds from the stable r758 logic and applies the premium Song Vote Pending color scheme as a CSS-only override, preserving Rehearsal on Deck, Home bottom-gap behavior, and Suggest URL paste stability.', items:['Upload index_r760.html as index.html.', 'Confirm Build Version reports r760.', 'Phone-test Home: confirm Next Gig, band image, both alert pills, and bottom gap render normally; confirm Song Vote Pending has the refined premium color scheme.', 'Phone-test Songs → Suggest a Song URL paste path to confirm r758 behavior remains intact.'] },
   { version:'2026-05-26-suggest-url-first-paste-r758', date:'May 26, 2026', importance:'fix', emoji:'▶️', title:'Suggest Song URL first paste stabilized', body:'Fixes the remaining Songs → Suggest a Song YouTube URL first-paste issue after returning from YouTube. Touching or focusing the URL field now immediately cancels stale Suggest YouTube restore/reopen payloads so delayed timers cannot scroll the form, clear the URL, or steal focus back toward the Song field. Home r757 bottom-gap fix and r756 Song Vote Pending styling remain unchanged.', items:['Upload index_r758.html as index.html.', 'Confirm Build Version reports r758.', 'Phone-test Songs → Suggest a Song: tap Find link, return from YouTube, tap the YouTube URL field once, paste once, and confirm the URL sticks without the form jumping or focus moving to Song.'] },
