@@ -1,3 +1,4 @@
+<!-- r745: Member/image lightbox horizontal-overflow cleanup. Fixes the remaining gray line under Mates/Band member image lightboxes by preventing horizontal overflow/scrollbar rendering inside the gold-bordered lightbox card while preserving vertical scroll, gold border, image source/crop/framing, captions, and controls. Upload index_r745.html as index.html after phone test. -->
 <!-- r740: Songs list density and search-pill contrast. Reduces only the gap between Songs library row cards to the locked 2px reference spacing while preserving the existing search-to-first-song separation. Changes only the Songs search pill fill to a lighter blue gradient so it reads distinctly from song rows. No song data, row height, search behavior, Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, or app logic changes. Upload index_r740.html as index.html after phone test. -->
 <!-- r738: Setlists expanded view stable subview. Replaces the unstable sticky expanded-setlist header behavior with a fixed subview layout whenever a setlist is expanded: only the opened setlist header and its song panel remain in the Setlists internal viewport, the song panel becomes the only scrolling area, and the header no longer hits a sticky bottom boundary. Applies to all current and future setlists rendered through rSets. No Setlists data/actions, Songs, Home, Calendar, Chat, Mates, Pay, flyers, assets, or app logic changes. Upload index_r738.html as index.html after phone test. -->
 <!-- r737: Songs Add/Edit keyboard viewport polish. Adds focus-aware scroll margins and bottom breathing room to the Songs Add/Edit Song modal so focused fields sit more comfortably above the Android keyboard without moving the modal to the top or changing song fields/data. Preserves Songs behavior, r734 row fix, Setlists r736 stabilization, Home, Calendar, Chat, Mates, Pay, flyers, assets, and app logic. Upload index_r737.html as index.html after phone test. -->
@@ -10959,6 +10960,43 @@ body.light #img-lightbox-img,
 body.light #member-lightbox-card{
   box-shadow:0 18px 44px rgba(20,40,80,.22),0 0 20px rgba(184,134,11,.10) !important;
   border-bottom-color:rgba(184,134,11,.42) !important;
+}
+
+/* r745: Member/image lightbox horizontal-overflow cleanup — presentation only.
+   r744 removed decorative underline candidates, but the phone screenshot showed
+   the remaining gray line was the browser's horizontal overflow scrollbar.
+   Keep vertical scrolling where needed, prevent horizontal overflow, and make
+   the stage/image box model stay inside the gold card without changing crop,
+   image source, caption text, controls, or gold border treatment. */
+#member-lightbox-card{
+  width:min(94vw,840px) !important;
+  box-sizing:border-box !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  scrollbar-width:none !important;
+}
+#member-lightbox-card::-webkit-scrollbar{
+  width:0 !important;
+  height:0 !important;
+}
+#member-lightbox-stage{
+  width:100% !important;
+  max-width:100% !important;
+  box-sizing:border-box !important;
+  overflow:hidden !important;
+  min-width:0 !important;
+}
+#member-lightbox-img{
+  max-width:100% !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+}
+#img-lightbox{
+  overflow-x:hidden !important;
+}
+#img-lightbox-img{
+  max-width:100% !important;
+  box-sizing:border-box !important;
 }
 
 /* r729: Calendar Add/Edit Event form sticky header + keyboard focus polish.
@@ -31648,7 +31686,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-image-gray-underline-cleanup-r744';
+var WHATS_NEW_VERSION = '2026-05-26-image-lightbox-overflow-cleanup-r745';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -31993,6 +32031,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-image-lightbox-overflow-cleanup-r745', date:'May 26, 2026', importance:'fix', emoji:'🖼️', title:'Image lightbox gray line removed', body:'Fixes the remaining gray line under Mates/Band member image lightboxes by removing the horizontal overflow condition that caused the browser scrollbar to render inside the gold-bordered card. Gold borders, image sources, crop/framing, captions, close/share/download controls, and app data are unchanged.', items:['Upload index_r745.html as index.html.', 'Confirm Build Version reports r745.', 'Phone-test Mates/Band member image lightbox and Chat/shared image lightbox: gold border should remain, gray underline/scrollbar should be gone, image framing should be unchanged, and close/share/download controls should still work.'] },
   { version:'2026-05-26-image-gray-underline-cleanup-r744', date:'May 26, 2026', importance:'fix', emoji:'🖼️', title:'Image underline cleanup', body:'Removes the older gray/white underline/divider treatment from Chat image attachments and shared image/member lightbox surfaces while preserving the premium gold borders. Image files, crop, fit, framing, captions, share/download controls, close behavior, Home, Calendar, Songs, Setlists, Mates, Pay, and app data are unchanged.', items:['Upload index_r744.html as index.html.', 'Confirm Build Version reports r744.', 'Phone-test Mates/Band member image lightbox and a Chat image/lightbox: gold border should remain, the gray underline should be gone, framing/crop should be unchanged, and close/share/download controls should still work.'] },
   { version:'2026-05-26-contact-modal-keyboard-stabilization-r743', date:'May 26, 2026', importance:'fix', emoji:'👥', title:'Contact edit keyboard/header fixed', body:'Stabilizes Mates/Band Contacts Add/Edit so the title/X stays pinned while the form body scrolls and the modal remains inside the visible phone viewport when the Android keyboard opens. Contact fields, save/edit/delete behavior, Contacts drawer, and all other tabs are unchanged.', items:['Upload index_r743.html as index.html.', 'Confirm Build Version reports r743.', 'Phone-test Mates/Band → Contacts → Edit Contact: title should say Edit Contact, title/X should stay visible, and lower fields should be reachable above the keyboard.'] },
   { version:'2026-05-26-pay-log-keyboard-r742', date:'May 26, 2026', importance:'fix', emoji:'💸', title:'Pay log keyboard view improved', body:'Adds keyboard-safe internal scrolling to Pay → Log Gig Pay so the header/X stays visible and focused fields get more room above the Android keyboard. Pay totals, Add Pay behavior, Gig History, and all other tabs are unchanged.', items:['Upload index_r742.html as index.html.', 'Confirm Build Version reports r742.', 'Phone-test Pay → + Log Gig Pay: focus Venue, Gross Pay, and Expenses; the title/X should stay visible and the focused field/Add button should be easier to reach above the keyboard.'] },
