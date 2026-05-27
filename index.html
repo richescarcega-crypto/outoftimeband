@@ -1,4 +1,4 @@
-<!-- r759: Home Song Vote Pending premium color refresh. Refines only the Home Song Vote Pending pill styling to a darker premium midnight-sapphire / gold scheme that better matches the app model and Rehearsal on Deck visual language. No wording, tap behavior, geometry, Home band image framing, or other tabs/sections changed. Upload index_r759.html as index.html after phone test. -->
+<!-- r760: Emergency rollback/fix from r758 after r759 invalid inline onclick string broke Home rendering. Keeps r758 stable logic, adds only a CSS-level premium override for the Home Song Vote Pending pill, and preserves r757 bottom-gap plus r758 Suggest URL paste stability. Upload index_r760.html as index.html after phone test. -->
 <!-- r758: Suggest-a-Song YouTube URL first-paste stability. Fixes the remaining first-paste miss after returning from YouTube by canceling stale Suggest restore/reopen timers as soon as the URL field is touched/focused, preventing late reopen/clear routines from stealing focus or clearing the pasted URL. Scope is Songs → Suggest a Song URL field/YouTube-return lifecycle only; preserves r757 Home bottom-gap fix, r756 Song Vote Pending color scheme, suggestion submit/vote/delete behavior, and all other tabs. Upload index_r758.html as index.html after phone test. -->
 <!-- r757: Home bottom-gap restoration for dual-alert state. Restores the locked thin Home band-image-to-tab gap when Song Vote Pending and Rehearsal on Deck are both visible, preserving the r756 Song Vote Pending color scheme and leaving Home image assets/framing/social buttons and all other tabs unchanged. Upload index_r757.html as index.html after phone test. -->
 <!-- r756: Home Song Vote Pending pill color-scheme update. Changes only the Home Song Vote Pending pill visual styling to the approved first mockup blue/gold scheme while leaving the Rehearsal on Deck pill, wording, behavior, geometry, and all other tabs/sections unchanged. Upload index_r756.html as index.html after phone test. -->
@@ -11192,6 +11192,35 @@ body.light #member-lightbox-card{
   display:none !important;
 }
 
+
+/* r760: Premium Song Vote Pending pill styling — CSS-only override.
+   This intentionally does NOT rewrite renderHomeSongVoteCue() HTML/onclick.
+   r759 broke because a JS string edit unescaped the onclick quotes; this override
+   changes presentation only and cannot affect Home rendering logic. */
+#home-song-vote-cue .home-alert-song{
+  background:linear-gradient(135deg,rgba(8,22,54,.98),rgba(10,37,90,.98) 46%,rgba(20,70,160,.95)) !important;
+  border:1px solid rgba(245,197,24,.62) !important;
+  color:#f7fbff !important;
+  box-shadow:0 9px 22px rgba(0,0,0,.30),0 0 18px rgba(74,158,255,.16),inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+#home-song-vote-cue .home-alert-song .home-alert-icon{
+  background:radial-gradient(circle at 32% 24%,#fff7b8 0%,#f5c518 42%,#b77c00 100%) !important;
+  border:none !important;
+  color:#081426 !important;
+  box-shadow:0 0 14px rgba(245,197,24,.28) !important;
+}
+#home-song-vote-cue .home-alert-song .home-alert-kicker{
+  color:#f5c518 !important;
+  text-shadow:none !important;
+}
+#home-song-vote-cue .home-alert-song .home-alert-main{
+  color:#ffffff !important;
+  font-weight:800 !important;
+}
+#home-song-vote-cue .home-alert-song .home-alert-sub{
+  color:#a9caff !important;
+}
+
 /* r731: Deep caret cleanup — tappable pills/cards do not need right-side caret affordances.
    Keep true controls such as month navigation and reorder arrows intact. */
 #evl-arrow,
@@ -15705,13 +15734,13 @@ function renderHomeSongVoteCue(){
   var detail = first.title ? ('“' + first.title + '”' + (pending.length>1 ? ' + more' : '')) : 'Review the pending suggestion list.';
   el.style.display = 'block';
   el.innerHTML =
-    '<button class="home-alert-pill home-alert-song" type="button" onclick="try{go('songs',document.getElementById('tb-songs'));}catch(e){};setTimeout(function(){try{openSongVoteModal();}catch(e){}},80);" '+
-    'style="width:100%;text-align:left;background:linear-gradient(135deg,rgba(8,22,54,.98),rgba(10,37,90,.98) 46%,rgba(20,70,160,.95));border:1px solid rgba(245,197,24,.60);border-radius:14px;padding:10px 12px;margin:0 0 10px 0;color:#f7fbff;box-shadow:0 9px 22px rgba(0,0,0,.30),0 0 18px rgba(74,158,255,.16),inset 0 1px 0 rgba(255,255,255,.08);display:flex;gap:10px;align-items:center;cursor:pointer;overflow:hidden;position:relative;">'+
-      '<span class="home-alert-icon" style="width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 32% 24%,#fff7b8 0%,#f5c518 42%,#b77c00 100%);color:#081426;display:flex;align-items:center;justify-content:center;font-family:Russo One,sans-serif;font-size:17px;flex-shrink:0;box-shadow:0 0 14px rgba(245,197,24,.28);">♪</span>'+
-      '<span class="home-alert-copy" style="flex:1;min-width:0;position:relative;z-index:1;">'+
-        '<span class="home-alert-kicker" style="display:block;font-family:Russo One,sans-serif;color:#f5c518;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;">Song Vote Pending</span>'+
-        '<span class="home-alert-main" style="display:block;color:#ffffff;font-size:13px;font-weight:800;margin-top:2px;">'+label+'</span>'+
-        '<span class="home-alert-sub" style="display:block;color:#a9caff;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+detail+'</span>'+
+    '<button class="home-alert-pill home-alert-song" type="button" onclick="try{go(\'songs\',document.getElementById(\'tb-songs\'));}catch(e){};setTimeout(function(){try{openSongVoteModal();}catch(e){}},80);" '+
+    'style="width:100%;text-align:left;background:linear-gradient(135deg,rgba(35,111,255,.98),rgba(24,84,235,.98) 54%,rgba(10,49,166,.98));border:1px solid rgba(245,197,24,.88);border-radius:14px;padding:10px 12px;margin:0 0 10px 0;color:#f7fbff;box-shadow:0 10px 24px rgba(0,0,0,.28),0 0 20px rgba(58,137,255,.26),0 0 10px rgba(245,197,24,.10),inset 0 1px 0 rgba(255,255,255,.20);display:flex;gap:10px;align-items:center;cursor:pointer;overflow:hidden;position:relative;">'+
+      '<span class="home-alert-icon" style="width:34px;height:34px;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.24),rgba(210,231,255,.14));border:1px solid rgba(255,255,255,.42);color:#ffffff;display:flex;align-items:center;justify-content:center;font-family:Russo One,sans-serif;font-size:17px;flex-shrink:0;box-shadow:0 0 12px rgba(255,255,255,.10);">♪</span>'+
+      '<span class="home-alert-copy" style="flex:1;min-width:0;">'+
+        '<span class="home-alert-kicker" style="display:block;font-family:Russo One,sans-serif;color:#ffffff;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;text-shadow:0 1px 6px rgba(10,34,92,.24);">Song Vote Pending</span>'+
+        '<span class="home-alert-main" style="display:block;color:#ffffff;font-size:13px;font-weight:700;margin-top:2px;">'+label+'</span>'+
+        '<span class="home-alert-sub" style="display:block;color:#d8e8ff;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+detail+'</span>'+
       '</span>'+
     '</button>';
 }
@@ -32368,7 +32397,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-home-song-vote-premium-r759';
+var WHATS_NEW_VERSION = '2026-05-26-home-song-vote-css-fix-r760';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32713,7 +32742,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  { version:'2026-05-26-home-song-vote-premium-r759', date:'May 26, 2026', importance:'polish', emoji:'🎵', title:'Home Song Vote Pending refined', body:'Refreshes only the Home Song Vote Pending pill to a darker premium midnight-sapphire and gold scheme that better matches the app model. Rehearsal on Deck, wording, tap behavior, geometry, Home image framing, and all other tabs remain unchanged.', items:['Upload index_r759.html as index.html.', 'Confirm Build Version reports r759.', 'Phone-test Home with Song Vote Pending visible by itself and beside Rehearsal on Deck; confirm only Song Vote Pending changed visually.'] },
+  { version:'2026-05-26-home-song-vote-css-fix-r760', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home rendering restored and vote pill refined', body:'Emergency fix after r759 broke Home rendering with an invalid inline onclick string while attempting to restyle Song Vote Pending. r760 rebuilds from the stable r758 logic and applies the premium Song Vote Pending color scheme as a CSS-only override, preserving Rehearsal on Deck, Home bottom-gap behavior, and Suggest URL paste stability.', items:['Upload index_r760.html as index.html.', 'Confirm Build Version reports r760.', 'Phone-test Home: confirm Next Gig, band image, both alert pills, and bottom gap render normally; confirm Song Vote Pending has the refined premium color scheme.', 'Phone-test Songs → Suggest a Song URL paste path to confirm r758 behavior remains intact.'] },
   { version:'2026-05-26-suggest-url-first-paste-r758', date:'May 26, 2026', importance:'fix', emoji:'▶️', title:'Suggest Song URL first paste stabilized', body:'Fixes the remaining Songs → Suggest a Song YouTube URL first-paste issue after returning from YouTube. Touching or focusing the URL field now immediately cancels stale Suggest YouTube restore/reopen payloads so delayed timers cannot scroll the form, clear the URL, or steal focus back toward the Song field. Home r757 bottom-gap fix and r756 Song Vote Pending styling remain unchanged.', items:['Upload index_r758.html as index.html.', 'Confirm Build Version reports r758.', 'Phone-test Songs → Suggest a Song: tap Find link, return from YouTube, tap the YouTube URL field once, paste once, and confirm the URL sticks without the form jumping or focus moving to Song.'] },
   { version:'2026-05-26-home-bottom-gap-restore-r757', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home bottom gap restored', body:'Restores the locked thin Home bottom gap between the band image/social area and the bottom tab bar when Song Vote Pending and Rehearsal on Deck are both visible. The r756 Song Vote Pending color scheme remains, Rehearsal on Deck remains unchanged, and no Home image asset/framing or other tabs are changed.', items:['Upload index_r757.html as index.html.', 'Confirm Build Version reports r757.', 'Phone-test Home with both Song Vote Pending and Rehearsal on Deck visible; confirm the bottom gap is back to the prior thin/default thickness and the new Song Vote Pending colors remain.'] },
   { version:'2026-05-26-home-song-vote-pill-blue-gold-r756', date:'May 26, 2026', importance:'polish', emoji:'🔵', title:'Home Song Vote Pending pill refreshed', body:'Updates only the Home Song Vote Pending pill to the approved first-mockup blue/gold color scheme. Rehearsal on Deck, wording, behavior, geometry, and all other tabs remain unchanged.', items:['Upload index_r756.html as index.html.', 'Confirm Build Version reports r756.', 'Phone-test Home with Song Vote Pending visible alone and beside Rehearsal on Deck; confirm only the Song Vote Pending pill colors changed.'] },
