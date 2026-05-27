@@ -1,3 +1,4 @@
+<!-- r765: Home band-image frame height trim. Uses the confirmed-good r764 footline/positioning as the base and reduces only the visible height of the Home band-image frame slightly so less of the scenic image shows. Scope is Home frame height only; Bell notification, You identifier, Home kebab/menu, logo/header controls, Song Vote Pending, Rehearsal On Deck, Next Gig, social buttons, reminders, assets, and other tabs are unchanged. Upload index_r765.html as index.html after phone test. -->
 <!-- r764: Home image 09 footline tune. Moves only the current/default Home band image 09 lower within the Home image frame so the members’ feet sit closer to the bottom while remaining fully visible. Scope is HOME_IMAGE_PRESENTATION image 09 normal/rehearsal y-position only; no logo/header controls, Bell notification, You identifier, Song Vote Pending, Rehearsal On Deck, Next Gig, social buttons, reminders, other Home images, tabs, assets, or data logic changed. Upload index_r764.html as index.html after phone test. -->
 <!-- r763: Home kebab menu layering fix. Moves the Home tab kebab popup out of the logo/header container and positions it as a fixed viewport-level menu so Song Vote Pending, Rehearsal On Deck, Next Gig, and other Home cards cannot cover or clip menu items. Scope is Home kebab popup placement only; no Home alert/gig/image/social-button logic, proposal reminder logic, Songs, Calendar, Chat, Mates, Pay, assets, or OneSignal worker files changed. Upload index_r763.html as index.html after phone test. -->
 <!-- r762: Pending response reminder opportunistic sweep hardening. Adds focus/visibility/online/app-resume sweep triggers to the existing rehearsal proposal reminder engine so overdue 24-hour and 10-hour non-responder nudges are checked promptly when an admin/member has the app open or returns to it. This does not pretend to be a true backend scheduler; Cloud Functions/backend scheduling is still required for guaranteed timing when nobody has the app open. No proposal data model, voting UI, Home, Songs, Calendar layout, Chat, Mates, Pay, assets, or OneSignal worker files changed. Upload index_r762.html as index.html after phone test. -->
@@ -11819,6 +11820,24 @@ body.light #votes-modal .suggestion-delete-icon{
   border-color:#d83245 !important;
   color:#d83245 !important;
   box-shadow:0 0 10px rgba(216,50,69,.10) !important;
+}
+
+
+
+/* r765 Home band-image frame height trim.
+   Keep the approved r764 image-09 footline and all Home controls untouched.
+   Reduce only the visible height of the Home band-image frame slightly so less
+   of the scenic image shows on screen. */
+#home-social-row{
+  --oot-home-frame-h: clamp(272px, 31vh, 304px);
+  flex:0 0 var(--oot-home-frame-h) !important;
+  height:var(--oot-home-frame-h) !important;
+  min-height:var(--oot-home-frame-h) !important;
+}
+@media (max-width:520px){
+  #home-social-row{
+    --oot-home-frame-h: clamp(258px, 30vh, 292px);
+  }
 }
 
 </style>
@@ -32440,7 +32459,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-27-home-image-09-footline-tune-r764';
+var WHATS_NEW_VERSION = '2026-05-27-home-frame-height-trim-r765';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32785,6 +32804,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-27-home-frame-height-trim-r765', date:'May 27, 2026', importance:'fix', emoji:'🏠', title:'Home image frame height trimmed', body:'Uses the confirmed-good r764 Home image 09 footline/positioning as the base and reduces only the visible height of the Home band-image frame slightly so less of the scenic image shows. This is a one-step Home cleanup change and does not move the Bell notification, You identifier, Home kebab/menu, logo/header controls, Song Vote Pending, Rehearsal On Deck, Next Gig, social buttons, reminders, image assets, or other tabs.', items:['Upload index_r765.html as index.html.', 'Confirm Build Version reports r765.', 'Phone-test Home with Song Vote Pending and Rehearsal On Deck visible: confirm the band-image section is slightly shorter while the approved feet placement from r764 remains good.', 'Confirm Bell notification, You identifier, Home kebab/menu, logo/header controls, Next Gig, and social buttons remain unchanged.'] },
   { version:'2026-05-27-home-image-09-footline-tune-r764', date:'May 27, 2026', importance:'fix', emoji:'🖼️', title:'Home image footline tuned', body:'Moves only Home band image 09 lower in the Home image frame so the members’ feet sit closer to the bottom while remaining fully visible. This is a one-step cleanup change and does not move the Bell notification, You identifier, Home logo/header controls, Song Vote Pending, Rehearsal On Deck, Next Gig counter, social buttons, proposal reminders, other images, or other tabs.', items:['Upload index_r764.html as index.html.', 'Confirm Build Version reports r764.', 'Phone-test Home with Song Vote Pending and Rehearsal On Deck visible: confirm the band image sits lower and the feet remain fully visible with a small bottom margin.', 'Confirm Bell notification, You identifier, Home kebab, Song Vote Pending, Rehearsal On Deck, Next Gig, and social buttons remain unchanged.'] },
   { version:'2026-05-27-home-kebab-layering-fix-r763', date:'May 27, 2026', importance:'fix', emoji:'⋮', title:'Home menu layering fixed', body:'Moves the Home tab kebab popup to a fixed viewport-level layer so the Song Vote Pending pill, Rehearsal On Deck pill, Next Gig counter, and other Home cards cannot cover or clip menu items. This changes only Home kebab popup placement and does not change Home alert logic, image framing, social buttons, proposal reminders, or other tabs.', items:['Upload index_r763.html as index.html.', 'Confirm Build Version reports r763.', 'Phone-test Home: open the top-left kebab while Song Vote Pending and Next Gig are visible; all menu items should be visible and scrollable above the Home content.', 'Confirm tapping outside the menu still dismisses it.'] },
   { version:'2026-05-27-proposal-reminder-sweep-hardening-r762', date:'May 27, 2026', importance:'fix', emoji:'🔔', title:'Proposal reminder sweep hardened', body:'Hardens the existing rehearsal proposal reminder engine by checking for overdue non-responder nudges when the app becomes visible, regains focus, comes online, or initializes after the proposal listener starts. The existing policy remains first reminder after 24 hours and follow-ups every 10 hours only to non-responders, stopping when everyone responds or the proposal closes. This is still an opportunistic client-side sweep, not a guaranteed backend scheduler; Firebase Cloud Functions or another scheduled backend remains the correct long-term implementation for exact timing when nobody has the app open.', items:['Upload index_r762.html as index.html.', 'Confirm Build Version reports r762.', 'Phone-test Calendar → Rehearsal Proposals: confirm proposal cards still render, voting still works, and the notification log/manual reminder dropdown still opens.', 'For true guaranteed reminders, next step remains backend scheduled implementation or Cloud Functions audit.'] },
