@@ -1,3 +1,4 @@
+<!-- r758: Suggest-a-Song YouTube URL first-paste stability. Fixes the remaining first-paste miss after returning from YouTube by canceling stale Suggest restore/reopen timers as soon as the URL field is touched/focused, preventing late reopen/clear routines from stealing focus or clearing the pasted URL. Scope is Songs → Suggest a Song URL field/YouTube-return lifecycle only; preserves r757 Home bottom-gap fix, r756 Song Vote Pending color scheme, suggestion submit/vote/delete behavior, and all other tabs. Upload index_r758.html as index.html after phone test. -->
 <!-- r757: Home bottom-gap restoration for dual-alert state. Restores the locked thin Home band-image-to-tab gap when Song Vote Pending and Rehearsal on Deck are both visible, preserving the r756 Song Vote Pending color scheme and leaving Home image assets/framing/social buttons and all other tabs unchanged. Upload index_r757.html as index.html after phone test. -->
 <!-- r756: Home Song Vote Pending pill color-scheme update. Changes only the Home Song Vote Pending pill visual styling to the approved first mockup blue/gold scheme while leaving the Rehearsal on Deck pill, wording, behavior, geometry, and all other tabs/sections unchanged. Upload index_r756.html as index.html after phone test. -->
 <!-- r755: Suggest-a-Song paste stability and submit close. Fixes the r754 issue where late YouTube-return restore timers could overwrite the first pasted YouTube URL after returning to the Suggest a Song form, and closes the Suggest modal after Submit so the user remains on the Songs tab instead of being dropped back into the Song Suggestions list page. Scope is Songs → Suggest a Song only; preserves sticky heading, single X, visible YouTube Find link icon, voice input/capitalization, red trash suggestion delete icon, suggestion save/vote logic, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, and unrelated UI. Upload index_r755.html as index.html after phone test. -->
@@ -12273,7 +12274,7 @@ body.light #votes-modal .suggestion-delete-icon{
       <input class="fi2" id="suggest-note" placeholder="Why this song? (optional)" autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true" inputmode="text" enterkeyhint="next" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" oninput="_ootSuggestSentenceInput(this)" onchange="_ootSuggestSentenceCommit(this)" onblur="_ootSuggestSentenceCommit(this);_ootSuggestKeyboardMode(false,this)">
       <div class="suggest-youtube-field-label">YouTube link <span>(optional)</span></div>
       <div class="suggest-youtube-url-row">
-        <input class="fi2" id="suggest-url" placeholder="Paste YouTube URL" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="url" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" oninput="_markSuggestManualEditAfterReturn('url-input')" onchange="_markSuggestManualEditAfterReturn('url-change')" onblur="_ootSuggestKeyboardMode(false,this)">
+        <input class="fi2" id="suggest-url" placeholder="Paste YouTube URL" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="url" data-lpignore="true" data-form-type="other" onpointerdown="_markSuggestManualEditAfterReturn('url-pointer')" ontouchstart="_markSuggestManualEditAfterReturn('url-touch')" onmousedown="_markSuggestManualEditAfterReturn('url-mouse')" onfocus="_markSuggestManualEditAfterReturn('url-focus');_ootSuggestKeyboardMode(true,this)" onbeforeinput="_markSuggestManualEditAfterReturn('url-beforeinput')" onpaste="_markSuggestManualEditAfterReturn('url-paste')" oninput="_markSuggestManualEditAfterReturn('url-input')" onchange="_markSuggestManualEditAfterReturn('url-change')" onblur="_ootSuggestKeyboardMode(false,this)">
         <button type="button" id="suggest-youtube-open" class="suggest-youtube-link-control" onclick="openSuggestYouTubeLookup()" aria-label="Find a YouTube link for this song suggestion">
           <span class="suggest-youtube-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="1.5" y="5" width="21" height="14" rx="3.5" fill="#ff0000"></rect><polygon points="10,9 16,12 10,15" fill="#fff"></polygon></svg></span>
           <span class="suggest-youtube-label">Find link</span>
@@ -15968,7 +15969,7 @@ function _getSuggestSongDraft(){
 function _restoreSuggestSongDraft(draft){
   try {
     if(!draft) return;
-    // r755: Once the user starts editing/pasting after returning from YouTube,
+    // r755/r758: Once the user starts editing/pasting after returning from YouTube,
     // do not let late lifecycle restore timers overwrite the fresh paste.
     if(window._ootSuggestManualEditAfterReturn) return;
     var map = { 'suggest-title':'title', 'suggest-artist':'artist', 'suggest-note':'note', 'suggest-url':'url' };
@@ -15980,19 +15981,26 @@ function _restoreSuggestSongDraft(draft){
 }
 function _markSuggestManualEditAfterReturn(reason){
   try {
-    // r755: A user edit/paste means the restored form is now the source of truth.
-    // Keep the external-return shield alive, but remove stale draft payloads so
-    // delayed reapply timers cannot revert the field values.
+    // r758: First-paste fix. Touch/focus/paste in the URL field means the form
+    // currently on screen is now the source of truth. Kill every stale Suggest
+    // YouTube restore/reopen payload so a late lifecycle timer cannot reopen the
+    // modal, scroll it upward, clear fields, or steal focus back toward Song.
     window._ootSuggestManualEditAfterReturn = true;
+    window._ootSuggestYouTubeRestoreUntil = 0;
+    window._ootSuppressSuggestClearOnOpenUntil = Date.now() + 15000;
     try { sessionStorage.removeItem(_ootSuggestYouTubeReturnKey); } catch(e1){}
     try { localStorage.removeItem(_ootSuggestYouTubeReturnKey); } catch(e2){}
     try { window._ootLastSuggestYouTubeReturn = null; } catch(e3){}
     try {
       if(window._ootLastExternalRestoreContext && window._ootLastExternalRestoreContext.externalKind === 'suggest-youtube'){
         window._ootLastExternalRestoreContext.suggestDraft = null;
+        window._ootLastExternalRestoreContext.openOverlays = [];
+        window._ootLastExternalRestoreContext.votesMode = '';
       }
       if(window._ootExternalReturnContext && window._ootExternalReturnContext.externalKind === 'suggest-youtube'){
         window._ootExternalReturnContext.suggestDraft = null;
+        window._ootExternalReturnContext.openOverlays = [];
+        window._ootExternalReturnContext.votesMode = '';
       }
     } catch(e4){}
   } catch(e){}
@@ -16083,14 +16091,19 @@ function _clearSuggestYouTubeReturn(reason){
 function _applySuggestYouTubeReturn(payload, reason){
   try {
     if(!payload) return false;
+    if(window._ootSuggestManualEditAfterReturn) return false;
     try { if(typeof _cancelForceHomeDefaultTimers === 'function') _cancelForceHomeDefaultTimers(); } catch(e0){}
     var btn = document.getElementById('tb-songs');
     if(typeof go === 'function') go('songs', btn);
-    if(typeof openSongSuggestModal === 'function') openSongSuggestModal();
+    var vm = document.getElementById('votes-modal');
+    var sf = document.getElementById('suggest-form');
+    var alreadySuggest = !!(vm && vm.classList.contains('on') && sf && sf.style.display !== 'none');
+    window._ootSuppressSuggestClearOnOpenUntil = Date.now() + 15000;
+    if(!alreadySuggest && typeof openSongSuggestModal === 'function') openSongSuggestModal();
     setTimeout(function(){ try { _restoreSuggestSongDraft(payload.draft); } catch(e){} }, 80);
     setTimeout(function(){ try { _restoreSuggestSongDraft(payload.draft); } catch(e){} }, 350);
     setTimeout(function(){ try { _restoreSuggestSongDraft(payload.draft); } catch(e){} }, 900);
-    setTimeout(function(){ try { if(document.getElementById('sc-songs')) document.getElementById('sc-songs').scrollTop = Number(payload.songsScroll || 0); } catch(e){} }, 250);
+    setTimeout(function(){ try { if(document.getElementById('sc-songs') && !window._ootSuggestManualEditAfterReturn) document.getElementById('sc-songs').scrollTop = Number(payload.songsScroll || 0); } catch(e){} }, 250);
     window._ootSuggestYouTubeRestoreUntil = Date.now() + 12000;
     window._ootLastSuggestYouTubeReturn = payload;
     // r754: Also arm the shared external-return shield. r753 restored the
@@ -26576,10 +26589,13 @@ function _ootSuggestKeyboardMode(active, el){
       var h = Math.min(340, Math.max(240, Math.floor(viewportH - top - 10)));
       card.style.setProperty('--oot-suggest-keyboard-top', top + 'px');
       card.style.setProperty('--oot-suggest-keyboard-height', h + 'px');
-      card.scrollTop = 0;
-      ov.scrollTop = 0;
-      if(document.scrollingElement) document.scrollingElement.scrollTop = 0;
-      try{ window.scrollTo(0,0); }catch(e){}
+      var isUrlField = !!(el && el.id === 'suggest-url');
+      if(!isUrlField){
+        card.scrollTop = 0;
+        ov.scrollTop = 0;
+        if(document.scrollingElement) document.scrollingElement.scrollTop = 0;
+        try{ window.scrollTo(0,0); }catch(e){}
+      }
     }catch(e){}
   }
 
@@ -26636,7 +26652,10 @@ function openSongSuggestModal(){
   _setSongSuggestionsModalMode('suggest');
   try{ if(typeof opM === 'function') opM('votes-modal'); else { var vm=document.getElementById('votes-modal'); if(vm) vm.classList.add('on'); } }catch(e){}
   setTimeout(function(){
-    ['suggest-title','suggest-artist','suggest-note','suggest-url'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+    var suppressClear = !!(window._ootSuppressSuggestClearOnOpenUntil && Date.now() <= window._ootSuppressSuggestClearOnOpenUntil);
+    if(!suppressClear && !window._ootSuggestManualEditAfterReturn){
+      ['suggest-title','suggest-artist','suggest-note','suggest-url'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+    }
     // Do not auto-focus: prevents the mobile keyboard from covering the suggestion form on open.
   }, 60);
 }
@@ -32348,7 +32367,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-home-bottom-gap-restore-r757';
+var WHATS_NEW_VERSION = '2026-05-26-suggest-url-first-paste-r758';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32693,6 +32712,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-suggest-url-first-paste-r758', date:'May 26, 2026', importance:'fix', emoji:'▶️', title:'Suggest Song URL first paste stabilized', body:'Fixes the remaining Songs → Suggest a Song YouTube URL first-paste issue after returning from YouTube. Touching or focusing the URL field now immediately cancels stale Suggest YouTube restore/reopen payloads so delayed timers cannot scroll the form, clear the URL, or steal focus back toward the Song field. Home r757 bottom-gap fix and r756 Song Vote Pending styling remain unchanged.', items:['Upload index_r758.html as index.html.', 'Confirm Build Version reports r758.', 'Phone-test Songs → Suggest a Song: tap Find link, return from YouTube, tap the YouTube URL field once, paste once, and confirm the URL sticks without the form jumping or focus moving to Song.'] },
   { version:'2026-05-26-home-bottom-gap-restore-r757', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home bottom gap restored', body:'Restores the locked thin Home bottom gap between the band image/social area and the bottom tab bar when Song Vote Pending and Rehearsal on Deck are both visible. The r756 Song Vote Pending color scheme remains, Rehearsal on Deck remains unchanged, and no Home image asset/framing or other tabs are changed.', items:['Upload index_r757.html as index.html.', 'Confirm Build Version reports r757.', 'Phone-test Home with both Song Vote Pending and Rehearsal on Deck visible; confirm the bottom gap is back to the prior thin/default thickness and the new Song Vote Pending colors remain.'] },
   { version:'2026-05-26-home-song-vote-pill-blue-gold-r756', date:'May 26, 2026', importance:'polish', emoji:'🔵', title:'Home Song Vote Pending pill refreshed', body:'Updates only the Home Song Vote Pending pill to the approved first-mockup blue/gold color scheme. Rehearsal on Deck, wording, behavior, geometry, and all other tabs remain unchanged.', items:['Upload index_r756.html as index.html.', 'Confirm Build Version reports r756.', 'Phone-test Home with Song Vote Pending visible alone and beside Rehearsal on Deck; confirm only the Song Vote Pending pill colors changed.'] },
   { version:'2026-05-26-suggest-paste-submit-close-r755', date:'May 26, 2026', importance:'fix', emoji:'🎸', title:'Suggest Song paste and submit fixed', body:'Fixes the Suggest a Song YouTube URL paste path by preventing late YouTube-return restore timers from overwriting the first pasted URL after returning from YouTube. Also closes the Suggest modal after Submit so the user remains on the Songs tab instead of being shown the Song Suggestions list page. Suggest YouTube Find link, sticky heading, single X, voice input/capitalization, delete icon, and voting behavior remain unchanged.', items:['Upload index_r755.html as index.html.', 'Confirm Build Version reports r755.', 'Phone-test Songs → Suggest a Song: return from YouTube, paste the URL once, submit, and confirm the modal closes while staying on Songs.'] },
