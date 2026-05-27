@@ -1,3 +1,4 @@
+<!-- r763: Home kebab menu layering fix. Moves the Home tab kebab popup out of the logo/header container and positions it as a fixed viewport-level menu so Song Vote Pending, Rehearsal On Deck, Next Gig, and other Home cards cannot cover or clip menu items. Scope is Home kebab popup placement only; no Home alert/gig/image/social-button logic, proposal reminder logic, Songs, Calendar, Chat, Mates, Pay, assets, or OneSignal worker files changed. Upload index_r763.html as index.html after phone test. -->
 <!-- r762: Pending response reminder opportunistic sweep hardening. Adds focus/visibility/online/app-resume sweep triggers to the existing rehearsal proposal reminder engine so overdue 24-hour and 10-hour non-responder nudges are checked promptly when an admin/member has the app open or returns to it. This does not pretend to be a true backend scheduler; Cloud Functions/backend scheduling is still required for guaranteed timing when nobody has the app open. No proposal data model, voting UI, Home, Songs, Calendar layout, Chat, Mates, Pay, assets, or OneSignal worker files changed. Upload index_r762.html as index.html after phone test. -->
 <!-- r761: Home social buttons visibility fix. Fixes the r760 Home lower-right Facebook/Instagram buttons being partially clipped after the restored tight Home bottom gap by adjusting the existing HOME_IMAGE_PRESENTATION inline renderer clamp only. Applies to all Home band images and both Home modes through the central registry renderer; does not change image assets/framing, alert pill colors, Next Gig, tabs, or unrelated sections. Upload index_r761.html as index.html after phone test. -->
 <!-- r760: Emergency rollback/fix from r758 after r759 invalid inline onclick string broke Home rendering. Keeps r758 stable logic, adds only a CSS-level premium override for the Home Song Vote Pending pill, and preserves r757 bottom-gap plus r758 Suggest URL paste stability. Upload index_r760.html as index.html after phone test. -->
@@ -32331,7 +32332,7 @@ function toggleHomeMenu(ev){
   if(!btn) return;
   var pop = document.createElement('div');
   pop.id = 'home-menu-popup';
-  pop.style.cssText = 'position:absolute;background:#0a1628;border:1px solid #1a3a8a;border-radius:10px;padding:5px;min-width:220px;max-height:80vh;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.55);z-index:50;';
+  pop.style.cssText = 'position:fixed;left:8px;top:8px;background:#0a1628;border:1px solid #1a3a8a;border-radius:10px;padding:5px;min-width:220px;max-height:80vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;box-shadow:0 10px 30px rgba(0,0,0,.68);z-index:25000;';
   function mk(label, iconSvg, onClick, opts){
     opts = opts || {};
     var b = document.createElement('button');
@@ -32400,12 +32401,21 @@ function toggleHomeMenu(ev){
     function(){ if(typeof confirmSignOut === 'function') confirmSignOut(); },
     {color:'#ff8a99', divider:true}
   ));
-  if(btn.parentNode){
-    var parent = btn.parentNode;
-    if(getComputedStyle(parent).position === 'static'){ parent.style.position = 'relative'; }
-    pop.style.left = btn.offsetLeft + 'px';
-    pop.style.top = (btn.offsetTop + btn.offsetHeight + 6) + 'px';
-    parent.appendChild(pop);
+  // r763: append at viewport level so Home alert cards / Next Gig cannot cover or clip the menu.
+  document.body.appendChild(pop);
+  try{
+    var r = btn.getBoundingClientRect();
+    var vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+    var vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+    var top = Math.max(8, r.bottom + 6);
+    pop.style.maxHeight = Math.max(160, vh - top - 8) + 'px';
+    var w = pop.offsetWidth || 220;
+    var left = Math.max(8, Math.min(r.left, vw - w - 8));
+    pop.style.left = left + 'px';
+    pop.style.top = top + 'px';
+  } catch(e){
+    pop.style.left = '8px';
+    pop.style.top = '48px';
   }
   setTimeout(function(){
     var dismiss = function(e){
@@ -32429,7 +32439,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-27-proposal-reminder-sweep-hardening-r762';
+var WHATS_NEW_VERSION = '2026-05-27-home-kebab-layering-fix-r763';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32774,6 +32784,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-27-home-kebab-layering-fix-r763', date:'May 27, 2026', importance:'fix', emoji:'⋮', title:'Home menu layering fixed', body:'Moves the Home tab kebab popup to a fixed viewport-level layer so the Song Vote Pending pill, Rehearsal On Deck pill, Next Gig counter, and other Home cards cannot cover or clip menu items. This changes only Home kebab popup placement and does not change Home alert logic, image framing, social buttons, proposal reminders, or other tabs.', items:['Upload index_r763.html as index.html.', 'Confirm Build Version reports r763.', 'Phone-test Home: open the top-left kebab while Song Vote Pending and Next Gig are visible; all menu items should be visible and scrollable above the Home content.', 'Confirm tapping outside the menu still dismisses it.'] },
   { version:'2026-05-27-proposal-reminder-sweep-hardening-r762', date:'May 27, 2026', importance:'fix', emoji:'🔔', title:'Proposal reminder sweep hardened', body:'Hardens the existing rehearsal proposal reminder engine by checking for overdue non-responder nudges when the app becomes visible, regains focus, comes online, or initializes after the proposal listener starts. The existing policy remains first reminder after 24 hours and follow-ups every 10 hours only to non-responders, stopping when everyone responds or the proposal closes. This is still an opportunistic client-side sweep, not a guaranteed backend scheduler; Firebase Cloud Functions or another scheduled backend remains the correct long-term implementation for exact timing when nobody has the app open.', items:['Upload index_r762.html as index.html.', 'Confirm Build Version reports r762.', 'Phone-test Calendar → Rehearsal Proposals: confirm proposal cards still render, voting still works, and the notification log/manual reminder dropdown still opens.', 'For true guaranteed reminders, next step remains backend scheduled implementation or Cloud Functions audit.'] },
   { version:'2026-05-26-home-social-buttons-visible-r761', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home social buttons visible', body:'Fixes the Home lower-right Facebook and Instagram buttons being partially clipped after the tight Home bottom gap was restored. The fix is made in the central HOME_IMAGE_PRESENTATION inline renderer, not scattered CSS, so it applies consistently across all 20 Home images and both normal and Rehearsal on Deck modes. Home image assets/framing, Song Vote Pending styling, Rehearsal on Deck, Next Gig, and all other tabs remain unchanged.', items:['Upload index_r761.html as index.html.', 'Confirm Build Version reports r761.', 'Phone-test Home images: confirm Facebook and Instagram buttons are fully visible in the lower-right corner, both with and without Rehearsal on Deck visible.'] },
   { version:'2026-05-26-home-song-vote-css-fix-r760', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home rendering restored and vote pill refined', body:'Emergency fix after r759 broke Home rendering with an invalid inline onclick string while attempting to restyle Song Vote Pending. r760 rebuilds from the stable r758 logic and applies the premium Song Vote Pending color scheme as a CSS-only override, preserving Rehearsal on Deck, Home bottom-gap behavior, and Suggest URL paste stability.', items:['Upload index_r760.html as index.html.', 'Confirm Build Version reports r760.', 'Phone-test Home: confirm Next Gig, band image, both alert pills, and bottom gap render normally; confirm Song Vote Pending has the refined premium color scheme.', 'Phone-test Songs → Suggest a Song URL paste path to confirm r758 behavior remains intact.'] },
