@@ -1,3 +1,4 @@
+<!-- r738: Setlists expanded view stable subview. Replaces the unstable sticky expanded-setlist header behavior with a fixed subview layout whenever a setlist is expanded: only the opened setlist header and its song panel remain in the Setlists internal viewport, the song panel becomes the only scrolling area, and the header no longer hits a sticky bottom boundary. Applies to all current and future setlists rendered through rSets. No Setlists data/actions, Songs, Home, Calendar, Chat, Mates, Pay, flyers, assets, or app logic changes. Upload index_r738.html as index.html after phone test. -->
 <!-- r737: Songs Add/Edit keyboard viewport polish. Adds focus-aware scroll margins and bottom breathing room to the Songs Add/Edit Song modal so focused fields sit more comfortably above the Android keyboard without moving the modal to the top or changing song fields/data. Preserves Songs behavior, r734 row fix, Setlists r736 stabilization, Home, Calendar, Chat, Mates, Pay, flyers, assets, and app logic. Upload index_r737.html as index.html after phone test. -->
 <!-- r736: Setlists expanded-header bottom-scroll stabilization. Carries forward r735 fixed header/internal scroll architecture and adds an expanded-setlist scroll-state class plus extra bottom scroll runway/overscroll containment so the specific opened setlist header does not jump when the song list reaches the bottom. Applies to all current and future setlists rendered through rSets. Upload index_r736.html as index.html after phone test. -->
 <!-- r734: Songs library row flex-shrink fix. Fixes the collapsed Songs rows by preventing song-list flex children from shrinking inside the scrollable flex-column list, and restores explicit row min-height/display/visible content flow. Preserves r718 premium row styling, Songs search/header, song data/resources, Setlists r733 sticky header, Home, Calendar, Chat, Mates, Pay, flyers, assets, and app logic. Upload index_r734.html as index.html after phone test. -->
@@ -8844,6 +8845,47 @@ body.light #sc-sets #sll > .slc.expanded-setlist-header{
   flex:0 0 auto !important;
   margin-bottom:0 !important;
 }
+
+/* r738: Setlists expanded subview stabilization.
+   r736 still relied on sticky positioning, which can jump at the bottom boundary
+   on Android/PWA. When a setlist is open, make the expanded setlist a true
+   subview: hide non-target siblings, keep the opened setlist header fixed as
+   a normal flex child, and let only the song panel scroll. Applies to all
+   current/future setlists because it targets the shared rSets() classes. */
+#sc-sets #sll.has-expanded-setlist{
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+  -webkit-overflow-scrolling:auto !important;
+  padding-bottom:0 !important;
+  overscroll-behavior-y:contain !important;
+}
+#sc-sets #sll.has-expanded-setlist > :not(.expanded-setlist-header):not(.setlist-expanded-panel){
+  display:none !important;
+}
+#sc-sets #sll.has-expanded-setlist > .slc.expanded-setlist-header{
+  position:relative !important;
+  top:auto !important;
+  flex:0 0 auto !important;
+  align-self:stretch !important;
+  z-index:60 !important;
+  margin-bottom:0 !important;
+  transform:none !important;
+  -webkit-transform:none !important;
+  will-change:auto !important;
+  backface-visibility:visible !important;
+  -webkit-backface-visibility:visible !important;
+}
+#sc-sets #sll.has-expanded-setlist > .setlist-expanded-panel{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior-y:contain !important;
+  padding-bottom:calc(28px + env(safe-area-inset-bottom)) !important;
+  margin-bottom:0 !important;
+}
+
 
 
 /* r665: Songs sticky header only — keep hero/search fixed; song list scrolls. */
@@ -31229,7 +31271,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-songs-edit-keyboard-polish-r737';
+var WHATS_NEW_VERSION = '2026-05-26-setlists-expanded-subview-stability-r738';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -31574,6 +31616,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-setlists-expanded-subview-stability-r738', date:'May 26, 2026', importance:'fix', emoji:'📋', title:'Setlists expanded header fully stabilized', body:'Replaces the remaining sticky-boundary approach with a fixed expanded-setlist subview: the opened setlist header stays as a normal fixed row while the song panel alone scrolls, preventing the header jump at the bottom of the list. Applies to all current and future setlists rendered through the shared Setlists renderer.', items:['Upload index_r738.html as index.html.', 'Confirm Build Version reports r738.', 'Phone-test Setlists: open several setlists and scroll to the very bottom; the main Setlists header and the specific opened setlist header should stay stable with no jump.'] },
   { version:'2026-05-26-songs-edit-keyboard-polish-r737', date:'May 26, 2026', importance:'fix', emoji:'🎹', title:'Songs edit keyboard view improved', body:'Adds focus-aware scroll margins and modest viewport breathing room to the Songs Add/Edit Song modal so editable fields are easier to keep visible above the Android keyboard, while keeping the modal visually balanced. No song fields, save/delete/YouTube behavior, row layout, or app data changed.', items:['Upload index_r737.html as index.html.', 'Confirm Build Version reports r737.', 'Phone-test Songs: Add/Edit Song, focus fields near the middle and bottom such as YouTube, practice link, and Notes; confirm the focused field is easier to see above the keyboard and Save/Delete/YouTube still work.'] },
   { version:'2026-05-26-setlists-expanded-header-bottom-stable-r736', date:'May 26, 2026', importance:'fix', emoji:'📋', title:'Setlists expanded header stabilized at bottom', body:'Adds expanded-setlist scroll-state handling and extra bottom scroll runway so the opened setlist header stays stable even when scrolling to the bottom of the song list. Applies to all current and future setlists rendered by the shared Setlists renderer.', items:['Upload index_r736.html as index.html.', 'Confirm Build Version reports r736.', 'Phone-test Setlists: expand several current setlists and scroll to the very bottom; the main hero and specific setlist header should remain stable.'] },
   { version:'2026-05-26-songs-row-flex-shrink-fix-r734', date:'May 26, 2026', importance:'fix', emoji:'🎤', title:'Songs rows restored', body:'Fixes the collapsed Songs library rows by stopping flex-shrink inside the scrollable song list and restoring explicit row height/display. Preserves r718 premium styling, Songs search/header, song data/resources, Setlists sticky header, and all other tabs.', items:['Upload index_r734.html as index.html.', 'Confirm Build Version reports r734.', 'Phone-test Songs tab: rows should be full height with album art/text visible; search and song/resource taps should still work.'] },
