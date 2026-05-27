@@ -34,6 +34,7 @@
 <!-- r695: Rehearsal Agenda modal consistency. Applies premium sticky header/X and scroll-safe modal treatment to the Rehearsal Agenda modal only, preserving agenda content/behavior and all Home, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r695.html as index.html. -->
 <!-- r694: Contact modal consistency. Applies premium sticky header/X and scroll-safe mobile treatment to the Mates/Band Contact modal only, preserving contact add/edit logic, contact fields, Mates roster/Contacts layout, Home, Calendar, Chat, Songs, Setlists, Pay, flyers, assets, and app data. Upload index_r694.html as index.html. -->
 <!-- r693: Announcements modal consistency. Applies premium sticky header/X and scroll-safe mobile treatment to the Home Announcements modal only, preserving announcement view toggles, list scrolling, compose box, post action, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r693.html as index.html. -->
+<!-- r741: Contact edit title + keyboard-safe editable modal pass. Fixes Mates/Band Contacts edit mode title/save label, makes Contacts Add/Edit use a fixed header plus internal scroll body, and adds targeted keyboard viewport polish for Contacts, Add Member, and Announcements compose without changing data logic. Upload index_r741.html as index.html. -->
 <!--
 OOT APP BUILD NOTE
 r303 built from confirmed phone-stable r300.
@@ -11147,6 +11148,77 @@ body.light #sc-songs #song-search::placeholder{
   color:#315f9f !important;
 }
 
+
+
+/* r741: Editable modal keyboard/title hardening.
+   Fixes the Contacts Add/Edit modal real title/save state and uses fixed headers
+   with internal scroll bodies for editable modal content. Also adds targeted
+   keyboard viewport breathing room for Contacts, Add Member, and Announcements compose. */
+#contact-modal,
+#mm{
+  overflow:hidden !important;
+}
+#contact-modal .mo,
+#mm .mo{
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+}
+#contact-modal .moh,
+#mm .moh{
+  flex:0 0 auto !important;
+}
+#contact-modal .contact-modal-body,
+#mm .member-modal-body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding:0 0 calc(14px + env(safe-area-inset-bottom)) !important;
+  scroll-padding-top:12px !important;
+  scroll-padding-bottom:calc(210px + env(safe-area-inset-bottom)) !important;
+}
+#contact-modal .contact-modal-body .mi,
+#mm .member-modal-body .mi{
+  width:100% !important;
+}
+#contact-modal .contact-modal-body input,
+#contact-modal .contact-modal-body textarea,
+#contact-modal .contact-modal-body select,
+#mm .member-modal-body input,
+#mm .member-modal-body textarea,
+#mm .member-modal-body select,
+#announce-modal #ann-txt{
+  scroll-margin-top:16px !important;
+  scroll-margin-bottom:calc(220px + env(safe-area-inset-bottom)) !important;
+}
+#contact-modal:focus-within .mo,
+#mm:focus-within .mo,
+#announce-modal:focus-within .mo{
+  max-height:calc(100dvh - 56px - env(safe-area-inset-bottom)) !important;
+}
+#announce-modal:focus-within #ann-list{
+  min-height:42px !important;
+}
+#announce-modal:focus-within #ann-compose{
+  padding-bottom:calc(22px + env(safe-area-inset-bottom)) !important;
+}
+@media (max-width:520px){
+  #contact-modal:focus-within,
+  #mm:focus-within,
+  #announce-modal:focus-within{
+    align-items:center !important;
+    justify-content:center !important;
+    padding-top:calc(8px + env(safe-area-inset-top)) !important;
+    padding-bottom:calc(8px + env(safe-area-inset-bottom)) !important;
+  }
+  #contact-modal:focus-within .mo,
+  #mm:focus-within .mo,
+  #announce-modal:focus-within .mo{
+    max-height:calc(100dvh - 18px - env(safe-area-inset-bottom)) !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -11381,7 +11453,7 @@ body.light #sc-songs #song-search::placeholder{
     <div class="oot-expand-pill-icon contact-photo contact-icon-img" aria-hidden="true"><img src="contact_icon.png?v=r444" alt="" loading="eager" decoding="async" onerror="this.onerror=null;this.onerror=null;this.src='Contact%20Icon.png?v=r444';"></div>
   </div>
   <div id="contacts-list"></div>
-  <div id="contacts-add-btn"><button class="ab" onclick="opM('contact-modal')">+ Add Contact</button></div>
+  <div id="contacts-add-btn"><button class="ab" onclick="openAddContactModal()">+ Add Contact</button></div>
 </div>
 
 <div id="sc-songs" class="sc">
@@ -11660,21 +11732,25 @@ body.light #sc-songs #song-search::placeholder{
 <div class="ov" id="contact-modal">
   <div class="mo">
     <div class="moh"><span class="mot" id="contact-modal-title">Add Contact</span><button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="clM('contact-modal')">&#10005;</button></div>
-    <input class="mi" id="ct-name" placeholder="Name *">
-    <input class="mi" id="ct-role" placeholder="Role (Venue, Sound Engineer, Promoter)">
-    <input class="mi" id="ct-ph" placeholder="Phone">
-    <input class="mi" id="ct-em" placeholder="Email">
-    <input class="mi" id="ct-note" placeholder="Notes">
-    <button class="sb" onclick="addContact()" style="width:100%">Add Contact</button>
+    <div class="contact-modal-body">
+      <input class="mi" id="ct-name" placeholder="Name *">
+      <input class="mi" id="ct-role" placeholder="Role (Venue, Sound Engineer, Promoter)">
+      <input class="mi" id="ct-ph" placeholder="Phone">
+      <input class="mi" id="ct-em" placeholder="Email">
+      <input class="mi" id="ct-note" placeholder="Notes">
+      <button class="sb" id="contact-save-btn" onclick="addContact()" style="width:100%">Add Contact</button>
+    </div>
   </div>
 </div>
 
 <div class="ov" id="mm">
   <div class="mo">
     <div class="moh"><span class="mot">Add Member</span><button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="clM('mm')">&#10005;</button></div>
-    <input class="mi" id="mnam" placeholder="Name *">
-    <input class="mi" id="mrol" placeholder="Role">
-    <button class="sb" onclick="adMem()" style="width:100%">Add to Band</button>
+    <div class="member-modal-body">
+      <input class="mi" id="mnam" placeholder="Name *">
+      <input class="mi" id="mrol" placeholder="Role">
+      <button class="sb" onclick="adMem()" style="width:100%">Add to Band</button>
+    </div>
   </div>
 </div>
 
@@ -14762,6 +14838,35 @@ function closeWelcomeFlow(){
 // ── SONG VOTING ────────────────────────────────────────────────────────────
 var suggestions = [];
 var editingContactId = null;
+
+function _setContactModalMode(mode){
+  var isEdit = (mode === 'edit');
+  var title = document.getElementById('contact-modal-title');
+  var btn = document.getElementById('contact-save-btn');
+  if(title) title.textContent = isEdit ? 'Edit Contact' : 'Add Contact';
+  if(btn) btn.textContent = isEdit ? 'Save Contact' : 'Add Contact';
+}
+function openAddContactModal(){
+  editingContactId = null;
+  ['ct-name','ct-role','ct-ph','ct-em','ct-note'].forEach(function(fid){
+    var el = document.getElementById(fid);
+    if(el) el.value = '';
+  });
+  _setContactModalMode('add');
+  opM('contact-modal');
+}
+function openEditContactModal(contact){
+  if(!contact) return;
+  document.getElementById('ct-name').value = contact.name || '';
+  document.getElementById('ct-role').value = contact.role || '';
+  document.getElementById('ct-ph').value = contact.ph || '';
+  document.getElementById('ct-em').value = contact.em || '';
+  document.getElementById('ct-note').value = contact.note || '';
+  editingContactId = contact.id;
+  _setContactModalMode('edit');
+  opM('contact-modal');
+}
+
 
 function listenSuggestions(){
   db.collection('suggestions').orderBy('votes','desc').onSnapshot(function(snap){
@@ -29708,13 +29813,7 @@ function rContacts() {
       editBtn.setAttribute('aria-label','Edit contact');
       editBtn.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>';
       editBtn.onclick=(function(contact){ return function(){
-        document.getElementById('ct-name').value=contact.name||'';
-        document.getElementById('ct-role').value=contact.role||'';
-        document.getElementById('ct-ph').value=contact.ph||'';
-        document.getElementById('ct-em').value=contact.em||'';
-        document.getElementById('ct-note').value=contact.note||'';
-        editingContactId=contact.id;
-        opM('contact-modal');
+        openEditContactModal(contact);
       }; })(c);
       var actionRow=document.createElement('div');
       actionRow.className='oot-contact-actions';
@@ -29749,6 +29848,7 @@ function addContact(){
   db.collection('contacts').doc(String(id)).set(c);
   ['ct-name','ct-role','ct-ph','ct-em','ct-note'].forEach(function(fid){document.getElementById(fid).value='';});
   editingContactId = null;
+  _setContactModalMode('add');
   clM('contact-modal');
   notifyBand('contacts',
     wasEditing ? 'Contact updated' : 'New contact added',
@@ -31355,7 +31455,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-songs-density-search-blue-r740';
+var WHATS_NEW_VERSION = '2026-05-26-contact-edit-title-keyboard-r741';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -31700,6 +31800,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-contact-edit-title-keyboard-r741', date:'May 26, 2026', importance:'fix', emoji:'📇', title:'Contact edit title and keyboard view fixed', body:'Fixes Mates/Band Contacts so editing a contact opens as Edit Contact with a Save Contact action instead of looking like Add Contact. Rebuilds the Contact modal as a fixed-header/internal-scroll editable form so the title/X stays visible while using the keyboard, and adds the same targeted keyboard breathing-room pattern to Add Member and Announcements compose. Contact/member/announcement data logic is unchanged.', items:['Upload index_r741.html as index.html.', 'Confirm Build Version reports r741.', 'Phone-test Mates/Band → Contacts → Edit Contact: title should say Edit Contact, fields should hydrate, header/X should stay visible while scrolling with keyboard open, and Save Contact should update the existing contact. Also spot-check Add Contact, Add Member, and Announcements compose keyboard behavior.'] },
   { version:'2026-05-26-songs-density-search-blue-r740', date:'May 26, 2026', importance:'fix', emoji:'🎵', title:'Songs list tightened and search pill differentiated', body:'Reduces only the gap between Songs library rows to the locked 2px reference spacing while preserving the search-to-first-song separation. Changes only the Songs search pill fill to a lighter blue gradient so it reads apart from the song rows. Song row height, song data, search behavior, and all other tabs are unchanged.', items:['Upload index_r740.html as index.html.', 'Confirm Build Version reports r740.', 'Phone-test Songs: rows should be grouped tighter, the search-to-first-song gap should remain as before, and the search pill should read as a lighter blue control distinct from song rows.'] },
   { version:'2026-05-26-songs-density-search-blue-r740', date:'May 26, 2026', importance:'fix', emoji:'⌨️', title:'Contact edit keyboard view improved', body:'Adds focus-aware scroll margins and modest viewport breathing room to the Mates/Band Contacts Add/Edit Contact modal so editable fields are easier to keep visible above the Android keyboard, while keeping the modal visually balanced. Contact fields, add/edit/delete logic, roster, Contacts drawer, and app data are unchanged.', items:['Upload index_r739.html as index.html.', 'Confirm Build Version reports r739.', 'Phone-test Mates/Band → Contacts → Add/Edit Contact, focus lower fields; confirm the focused field is easier to see above the keyboard and save/edit behavior still works.'] },
   { version:'2026-05-26-setlists-expanded-subview-stability-r738', date:'May 26, 2026', importance:'fix', emoji:'📋', title:'Setlists expanded header fully stabilized', body:'Replaces the remaining sticky-boundary approach with a fixed expanded-setlist subview: the opened setlist header stays as a normal fixed row while the song panel alone scrolls, preventing the header jump at the bottom of the list. Applies to all current and future setlists rendered through the shared Setlists renderer.', items:['Upload index_r738.html as index.html.', 'Confirm Build Version reports r738.', 'Phone-test Setlists: open several setlists and scroll to the very bottom; the main Setlists header and the specific opened setlist header should stay stable with no jump.'] },
