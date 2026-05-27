@@ -1,3 +1,4 @@
+<!-- r751: Suggest-a-Song YouTube helper visibility. Reworks only the Suggest a Song YouTube URL/helper area so the YouTube icon is visible when the modal opens by placing the existing red YouTube icon action inline with the URL field, tightening the suggest form vertical stack, and preserving sticky heading, draft/YouTube lookup behavior, voice input fixes, and all song suggestion submit/vote logic. No Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, or unrelated UI changed. Upload index_r751.html as index.html after phone test. -->
 <!-- r750: Suggest-a-Song voice input normalization. Fixes speech-dictation capture on Suggest Song title/artist by removing live value mutation during input, adds word capitalization on blur/submit for Song and Artist, and keeps Why this song sentence-style capitalization only. Scope is Songs Suggest form input handling only; no song data/vote logic, YouTube helper behavior, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, or unrelated UI changed. Upload index_r750.html as index.html after phone test. -->
 <!-- r749: Suggest-a-Song modal capacity/sticky heading + YouTube icon helper. Replaces the r748 full-width Open YouTube text pill with the same red YouTube icon language used on Songs rows, adds a clear link-helper label, and makes Suggest mode use a sticky modal heading with a scroll-safe form body so the helper/Submit controls remain reachable. No song data, voting logic, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, or unrelated UI changed. Upload index_r749.html as index.html after phone test. -->
 <!-- r748: Suggest-a-Song YouTube lookup link. Adds a targeted Open YouTube button below the optional YouTube URL field in the Songs suggestion form, preserves the suggestion form/draft during external YouTube handoff, and restores Suggest mode on return. No song data, voting logic, Setlists, Home, Calendar, Chat, Mates, Pay, assets, or unrelated UI changed. Upload index_r748.html as index.html after phone test. -->
@@ -11628,6 +11629,115 @@ body.light #suggest-youtube-open .suggest-youtube-icon{
   background:linear-gradient(135deg,#f8fbff,#eef4ff) !important;
   border-color:rgba(212,160,23,.52) !important;
 }
+
+/* r751: Suggest-a-Song YouTube helper visibility.
+   Deep-dive: r749 placed the YouTube helper as a full-width control below the URL field.
+   In the fixed-height Suggest modal that made the helper fall below the initial visible area.
+   This late-scoped override changes only Suggest mode: compact form spacing, an inline URL row,
+   and a visible YouTube icon/action beside the URL field. It is placed after the r749 helper CSS
+   so those older full-width button rules cannot win the cascade. */
+#votes-modal.suggest-mode #suggest-form{
+  gap:7px !important;
+  padding-top:28px !important;
+  padding-bottom:12px !important;
+}
+#votes-modal.suggest-mode #suggest-form .fi2{
+  min-height:36px !important;
+  padding-top:8px !important;
+  padding-bottom:8px !important;
+}
+#votes-modal.suggest-mode .suggest-youtube-field-label{
+  display:block !important;
+  flex:0 0 auto !important;
+  margin:1px 0 -3px !important;
+  font-family:'Russo One',sans-serif !important;
+  font-size:9.5px !important;
+  letter-spacing:1.1px !important;
+  color:#f5c518 !important;
+  text-transform:uppercase !important;
+}
+#votes-modal.suggest-mode .suggest-youtube-field-label span{
+  color:#8aa8d6 !important;
+  font-family:'Exo 2',sans-serif !important;
+  font-size:10px !important;
+  letter-spacing:.2px !important;
+  text-transform:none !important;
+}
+#votes-modal.suggest-mode .suggest-youtube-url-row{
+  display:flex !important;
+  align-items:stretch !important;
+  gap:7px !important;
+  width:100% !important;
+  flex:0 0 auto !important;
+  min-height:38px !important;
+}
+#votes-modal.suggest-mode .suggest-youtube-url-row #suggest-url{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  width:auto !important;
+  margin:0 !important;
+}
+#votes-modal.suggest-mode #suggest-youtube-open.suggest-youtube-link-control{
+  width:auto !important;
+  min-width:94px !important;
+  height:38px !important;
+  margin:0 !important;
+  padding:0 9px !important;
+  border-radius:10px !important;
+  border:1px solid rgba(245,197,24,.42) !important;
+  background:linear-gradient(135deg,rgba(10,22,40,.96),rgba(13,31,58,.94)) !important;
+  box-shadow:0 0 12px rgba(245,197,24,.10), inset 0 1px 0 rgba(255,255,255,.06) !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:6px !important;
+  flex:0 0 auto !important;
+  color:#f5c518 !important;
+}
+#votes-modal.suggest-mode #suggest-youtube-open .suggest-youtube-icon{
+  width:24px !important;
+  height:24px !important;
+  min-width:24px !important;
+  border:none !important;
+  border-radius:7px !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+#votes-modal.suggest-mode #suggest-youtube-open .suggest-youtube-icon svg{
+  width:24px !important;
+  height:24px !important;
+}
+#votes-modal.suggest-mode #suggest-youtube-open .suggest-youtube-label{
+  display:inline-block !important;
+  font-family:'Russo One',sans-serif !important;
+  font-size:9.5px !important;
+  letter-spacing:.7px !important;
+  line-height:1 !important;
+  color:#f5c518 !important;
+  white-space:nowrap !important;
+}
+#votes-modal.suggest-keyboard-active.suggest-mode #suggest-form{
+  gap:6px !important;
+  padding-top:24px !important;
+  padding-bottom:10px !important;
+}
+#votes-modal.suggest-keyboard-active.suggest-mode .suggest-youtube-url-row{
+  min-height:36px !important;
+}
+#votes-modal.suggest-keyboard-active.suggest-mode #suggest-youtube-open.suggest-youtube-link-control{
+  height:36px !important;
+}
+body.light #votes-modal.suggest-mode .suggest-youtube-field-label{color:#9a6a00 !important;}
+body.light #votes-modal.suggest-mode .suggest-youtube-field-label span{color:#5a6a85 !important;}
+body.light #votes-modal.suggest-mode #suggest-youtube-open.suggest-youtube-link-control{
+  background:linear-gradient(135deg,#f8fbff,#eef4ff) !important;
+  border-color:rgba(212,160,23,.52) !important;
+  color:#9a6a00 !important;
+}
+
 </style>
 </head>
 <body>
@@ -12114,11 +12224,14 @@ body.light #suggest-youtube-open .suggest-youtube-icon{
       <input class="fi2" id="suggest-title" placeholder="Song *" autocomplete="on" autocorrect="on" autocapitalize="words" spellcheck="true" inputmode="text" enterkeyhint="next" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" oninput="_ootSuggestTitleInput(this)" onchange="_ootSuggestTitleCommit(this)" onblur="_ootSuggestTitleCommit(this);_ootSuggestKeyboardMode(false,this)">
       <input class="fi2" id="suggest-artist" placeholder="Artist" autocomplete="on" autocorrect="on" autocapitalize="words" spellcheck="true" inputmode="text" enterkeyhint="next" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" oninput="_ootSuggestTitleInput(this)" onchange="_ootSuggestTitleCommit(this)" onblur="_ootSuggestTitleCommit(this);_ootSuggestKeyboardMode(false,this)">
       <input class="fi2" id="suggest-note" placeholder="Why this song? (optional)" autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true" inputmode="text" enterkeyhint="next" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" oninput="_ootSuggestSentenceInput(this)" onchange="_ootSuggestSentenceCommit(this)" onblur="_ootSuggestSentenceCommit(this);_ootSuggestKeyboardMode(false,this)">
-      <input class="fi2" id="suggest-url" placeholder="YouTube URL (optional)" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="url" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" onblur="_ootSuggestKeyboardMode(false,this)">
-      <button type="button" id="suggest-youtube-open" class="suggest-youtube-link-control" onclick="openSuggestYouTubeLookup()" aria-label="Find a YouTube link for this song suggestion">
-        <span class="suggest-youtube-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="1.5" y="5" width="21" height="14" rx="3.5" fill="#ff0000"></rect><polygon points="10,9 16,12 10,15" fill="#fff"></polygon></svg></span>
-        <span class="suggest-youtube-copy"><span class="suggest-youtube-label">Find YouTube link</span><span class="suggest-youtube-help">Opens YouTube search so you can copy a video URL for this suggestion.</span></span>
-      </button>
+      <div class="suggest-youtube-field-label">YouTube link <span>(optional)</span></div>
+      <div class="suggest-youtube-url-row">
+        <input class="fi2" id="suggest-url" placeholder="Paste YouTube URL" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="url" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" onblur="_ootSuggestKeyboardMode(false,this)">
+        <button type="button" id="suggest-youtube-open" class="suggest-youtube-link-control" onclick="openSuggestYouTubeLookup()" aria-label="Find a YouTube link for this song suggestion">
+          <span class="suggest-youtube-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="1.5" y="5" width="21" height="14" rx="3.5" fill="#ff0000"></rect><polygon points="10,9 16,12 10,15" fill="#fff"></polygon></svg></span>
+          <span class="suggest-youtube-label">Find link</span>
+        </button>
+      </div>
       <div class="r2" style="margin-top:8px;">
         <button class="sb" onclick="submitSuggestion()" style="width:100%;">Submit</button>
       </div>
@@ -32010,7 +32123,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-suggest-song-voice-input-r750';
+var WHATS_NEW_VERSION = '2026-05-26-suggest-youtube-helper-visible-r751';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32355,6 +32468,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-suggest-youtube-helper-visible-r751', date:'May 26, 2026', importance:'fix', emoji:'▶️', title:'Suggest Song YouTube helper visibility', body:'Fixes only the Songs → Suggest a Song YouTube helper layout. The YouTube action is now an inline red YouTube icon/button beside the optional URL field with a compact label, so it is visible when the Suggest a Song window opens instead of falling below the bottom of the modal. Preserves the sticky heading, r750 voice-input capitalization fix, YouTube search handoff/draft preservation, submit behavior, voting logic, and all unrelated tabs.', items:['Upload index_r751.html as index.html.', 'Confirm Build Version reports r751.', 'Phone-test Songs → Suggest a Song: confirm the YouTube icon/button is visible immediately on open, opens YouTube search, and the URL field/Submit remain reachable.'] },
   { version:'2026-05-26-suggest-song-voice-input-r750', date:'May 26, 2026', importance:'fix', emoji:'🎙️', title:'Suggest Song voice input fix', body:'Fixes only the Songs → Suggest a Song text-entry behavior. Song and Artist no longer rewrite the field value on every input event, which should prevent Android/Samsung microphone dictation from stopping after the first word and first letter of the second word. Song and Artist are normalized to capitalize the first letter of each word on blur/submit, while Why this song remains sentence-style with only the first word capitalized. No song suggestion data model, voting logic, YouTube helper behavior, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, or unrelated UI changed.', items:['Upload index_r750.html as index.html.', 'Confirm Build Version reports r750.', 'Phone-test Songs → Suggest a Song: use the microphone in Song and Artist and confirm the full spoken title/artist is captured; confirm Song/Artist word capitalization and Why this song sentence capitalization; then submit normally.'] },
   { version:'2026-05-26-suggest-song-youtube-helper-r749', date:'May 26, 2026', importance:'fix', emoji:'▶️', title:'Suggest Song YouTube helper polished', body:'Refines only the Songs → Suggest a Song form. The full-width Open YouTube text pill is replaced with the same red YouTube icon language used on Songs rows plus a clear helper label, and Suggest mode now uses a sticky modal heading with a scroll-safe form body so the YouTube helper and Submit control remain reachable. The YouTube lookup/return draft-preservation behavior from r748 is retained. No song suggestion data, voting logic, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, or unrelated UI changed.', items:['Upload index_r749.html as index.html.', 'Confirm Build Version reports r749.', 'Phone-test Songs → Suggest a Song: confirm the heading stays visible, the YouTube icon/helper row is visible and tappable, YouTube opens with the song search, returning restores the form draft, and Submit remains reachable.'] },
   { version:'2026-05-26-suggest-song-youtube-link-r748', date:'May 26, 2026', importance:'fix', emoji:'🔎', title:'Suggest Song YouTube link', body:'Adds a targeted Open YouTube helper to the Songs → Suggest a Song form so a member can search YouTube, copy a video URL, return to the app, and paste it into the optional YouTube URL field. The external-return context now restores Suggest mode and preserves the current draft values during that handoff. No song submission data model, vote logic, Songs list layout, Setlists, Home, Calendar, Chat, Mates, Pay, or assets changed.', items:['Upload index_r748.html as index.html.', 'Confirm Build Version reports r748.', 'Phone-test Songs → kebab → Vote/Suggest → Suggest a Song: tap Open YouTube, copy a video URL, return to the app, confirm the suggestion form remains open with existing draft text, paste into YouTube URL, and submit normally.'] },
