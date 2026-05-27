@@ -34,6 +34,7 @@
 <!-- r695: Rehearsal Agenda modal consistency. Applies premium sticky header/X and scroll-safe modal treatment to the Rehearsal Agenda modal only, preserving agenda content/behavior and all Home, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r695.html as index.html. -->
 <!-- r694: Contact modal consistency. Applies premium sticky header/X and scroll-safe mobile treatment to the Mates/Band Contact modal only, preserving contact add/edit logic, contact fields, Mates roster/Contacts layout, Home, Calendar, Chat, Songs, Setlists, Pay, flyers, assets, and app data. Upload index_r694.html as index.html. -->
 <!-- r693: Announcements modal consistency. Applies premium sticky header/X and scroll-safe mobile treatment to the Home Announcements modal only, preserving announcement view toggles, list scrolling, compose box, post action, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r693.html as index.html. -->
+<!-- r744: Image gray underline cleanup. Removes legacy gray/white underline/divider treatment from Chat image attachments and shared image/member lightbox surfaces while preserving the premium gold borders, image sources, crop, fit, framing, captions, share/download controls, close behavior, and all unrelated tabs/data. Upload index_r744.html as index.html after phone test. -->
 <!-- r743: Contact modal keyboard/header stabilization. Fixes Mates/Band Contacts Add/Edit so the title/X stays pinned outside the scrollable form body and the modal remains inside the visible viewport when Android keyboard opens; no contact fields, save/edit/delete logic, roster, Contacts drawer, or other tabs changed. Upload index_r743.html as index.html after phone test. -->
 <!-- r742: Pay Log Gig Pay keyboard-safe inline card. Adds fixed-header/internal-scroll behavior and keyboard breathing room to Pay → Log Gig Pay only; no Pay logic, totals, history, or other app sections changed. Upload index_r742.html as index.html. -->
 <!-- r741: Contact edit title + keyboard-safe editable modal pass. Fixes Mates/Band Contacts edit mode title/save label, makes Contacts Add/Edit use a fixed header plus internal scroll body, and adds targeted keyboard viewport polish for Contacts, Add Member, and Announcements compose without changing data logic. Upload index_r741.html as index.html. -->
@@ -10925,6 +10926,40 @@ body.light #img-lightbox-download{
 }
 
 
+/* r744: Image gray underline cleanup — presentation only.
+   Removes older gray/white underline/divider artifacts from shared image surfaces
+   without changing image sources, crop/fit, sizing, gold borders, captions,
+   lightbox actions, close behavior, or unrelated app sections. */
+#img-lightbox-img,
+#member-lightbox-card,
+#member-lightbox-stage,
+#member-lightbox-img{
+  border-bottom-color:rgba(245,197,24,.42) !important;
+}
+#img-lightbox-img{
+  box-shadow:0 18px 46px rgba(0,0,0,.64),0 0 28px rgba(245,197,24,.12) !important;
+}
+#member-lightbox-card{
+  box-shadow:0 20px 52px rgba(0,0,0,.56),0 0 30px rgba(245,197,24,.14) !important;
+}
+#member-lightbox-stage{
+  border-bottom:0 !important;
+  box-shadow:none !important;
+}
+#member-lightbox-stage::before,
+#member-lightbox-stage::after,
+#img-lightbox::after,
+#member-lightbox-card::after{
+  content:none !important;
+  display:none !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+body.light #img-lightbox-img,
+body.light #member-lightbox-card{
+  box-shadow:0 18px 44px rgba(20,40,80,.22),0 0 20px rgba(184,134,11,.10) !important;
+  border-bottom-color:rgba(184,134,11,.42) !important;
+}
 
 /* r729: Calendar Add/Edit Event form sticky header + keyboard focus polish.
    Scope: #evm only. Keeps the event form visually balanced while making the
@@ -28727,7 +28762,7 @@ function rChat() {
     // Image attachment (if any) — render above text caption
     if(m.image){
       var imgWrap = document.createElement('div');
-      imgWrap.style.cssText = 'border-radius:10px;overflow:hidden;margin-bottom:'+(m.txt?'6px':'0')+';max-width:280px;cursor:pointer;border:1px solid rgba(255,255,255,.1);';
+      imgWrap.style.cssText = 'border-radius:10px;overflow:hidden;margin-bottom:'+(m.txt?'6px':'0')+';max-width:280px;cursor:pointer;border:1px solid rgba(245,197,24,.42);box-shadow:none;';
       var imgEl = document.createElement('img');
       imgEl.src = m.image;
       imgEl.style.cssText = 'display:block;width:100%;height:auto;';
@@ -31613,7 +31648,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-contact-modal-keyboard-stabilization-r743';
+var WHATS_NEW_VERSION = '2026-05-26-image-gray-underline-cleanup-r744';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -31958,6 +31993,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-image-gray-underline-cleanup-r744', date:'May 26, 2026', importance:'fix', emoji:'🖼️', title:'Image underline cleanup', body:'Removes the older gray/white underline/divider treatment from Chat image attachments and shared image/member lightbox surfaces while preserving the premium gold borders. Image files, crop, fit, framing, captions, share/download controls, close behavior, Home, Calendar, Songs, Setlists, Mates, Pay, and app data are unchanged.', items:['Upload index_r744.html as index.html.', 'Confirm Build Version reports r744.', 'Phone-test Mates/Band member image lightbox and a Chat image/lightbox: gold border should remain, the gray underline should be gone, framing/crop should be unchanged, and close/share/download controls should still work.'] },
   { version:'2026-05-26-contact-modal-keyboard-stabilization-r743', date:'May 26, 2026', importance:'fix', emoji:'👥', title:'Contact edit keyboard/header fixed', body:'Stabilizes Mates/Band Contacts Add/Edit so the title/X stays pinned while the form body scrolls and the modal remains inside the visible phone viewport when the Android keyboard opens. Contact fields, save/edit/delete behavior, Contacts drawer, and all other tabs are unchanged.', items:['Upload index_r743.html as index.html.', 'Confirm Build Version reports r743.', 'Phone-test Mates/Band → Contacts → Edit Contact: title should say Edit Contact, title/X should stay visible, and lower fields should be reachable above the keyboard.'] },
   { version:'2026-05-26-pay-log-keyboard-r742', date:'May 26, 2026', importance:'fix', emoji:'💸', title:'Pay log keyboard view improved', body:'Adds keyboard-safe internal scrolling to Pay → Log Gig Pay so the header/X stays visible and focused fields get more room above the Android keyboard. Pay totals, Add Pay behavior, Gig History, and all other tabs are unchanged.', items:['Upload index_r742.html as index.html.', 'Confirm Build Version reports r742.', 'Phone-test Pay → + Log Gig Pay: focus Venue, Gross Pay, and Expenses; the title/X should stay visible and the focused field/Add button should be easier to reach above the keyboard.'] },
   { version:'2026-05-26-contact-edit-title-keyboard-r741', date:'May 26, 2026', importance:'fix', emoji:'📇', title:'Contact edit title and keyboard view fixed', body:'Fixes Mates/Band Contacts so editing a contact opens as Edit Contact with a Save Contact action instead of looking like Add Contact. Rebuilds the Contact modal as a fixed-header/internal-scroll editable form so the title/X stays visible while using the keyboard, and adds the same targeted keyboard breathing-room pattern to Add Member and Announcements compose. Contact/member/announcement data logic is unchanged.', items:['Upload index_r741.html as index.html.', 'Confirm Build Version reports r741.', 'Phone-test Mates/Band → Contacts → Edit Contact: title should say Edit Contact, fields should hydrate, header/X should stay visible while scrolling with keyboard open, and Save Contact should update the existing contact. Also spot-check Add Contact, Add Member, and Announcements compose keyboard behavior.'] },
