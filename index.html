@@ -1,6 +1,4 @@
-<!-- r768: Home image 09 feet restoration hotfix. Built from r767 and changes only the Home Image Presentation Registry values for Home image 09 (normal and Rehearsal On Deck) to restore the approved r764 feet placement. No other Home layout, logo area, alerts, menu, social buttons, reminders, or other-tab changes. Upload index_r768.html as index.html after phone test. -->
-<!-- r767: Home visible logo expansion and band-image top crop. Corrects r766 by making the Home logo/hero visibly taller/lower and actually condensing the Home band-image view from the top while preserving the r764-approved feet placement. Scope is Home logo hero height/scale and Home image 09 presentation only; Bell, You identifier, Home kebab/menu, alert pills, Next Gig, social buttons, reminders, assets, and other tabs are unchanged. Upload index_r767.html as index.html after phone test. -->
-<!-- r766: Home band-image frame trim with logo-space recovery. Rebuilds from confirmed-good r764, keeps the approved image 09 footline, reduces the Home band-image frame slightly, and gives the reclaimed vertical space to the top logo/hero area so r765’s empty blue gap below the image is eliminated. Scope is Home layout only; Bell notification, You identifier, Home kebab/menu, Song Vote Pending, Rehearsal On Deck, Next Gig, social buttons, reminders, assets, and other tabs are unchanged. Upload index_r766.html as index.html after phone test. -->
+<!-- r769: Home image rollback to confirmed-good r764 visual state. Reverts the failed r765-r768 Home image/layout attempts by rebuilding from r764, the last confirmed-good feet/social-button state. No Home CSS/layout/registry changes beyond r764 are included; only the build comment, WHATS_NEW_VERSION, and WHATS_NEW_LOG are updated. Upload index_r769.html as index.html after phone test. -->
 <!-- r764: Home image 09 footline tune. Moves only the current/default Home band image 09 lower within the Home image frame so the members’ feet sit closer to the bottom while remaining fully visible. Scope is HOME_IMAGE_PRESENTATION image 09 normal/rehearsal y-position only; no logo/header controls, Bell notification, You identifier, Song Vote Pending, Rehearsal On Deck, Next Gig, social buttons, reminders, other Home images, tabs, assets, or data logic changed. Upload index_r764.html as index.html after phone test. -->
 <!-- r763: Home kebab menu layering fix. Moves the Home tab kebab popup out of the logo/header container and positions it as a fixed viewport-level menu so Song Vote Pending, Rehearsal On Deck, Next Gig, and other Home cards cannot cover or clip menu items. Scope is Home kebab popup placement only; no Home alert/gig/image/social-button logic, proposal reminder logic, Songs, Calendar, Chat, Mates, Pay, assets, or OneSignal worker files changed. Upload index_r763.html as index.html after phone test. -->
 <!-- r762: Pending response reminder opportunistic sweep hardening. Adds focus/visibility/online/app-resume sweep triggers to the existing rehearsal proposal reminder engine so overdue 24-hour and 10-hour non-responder nudges are checked promptly when an admin/member has the app open or returns to it. This does not pretend to be a true backend scheduler; Cloud Functions/backend scheduling is still required for guaranteed timing when nobody has the app open. No proposal data model, voting UI, Home, Songs, Calendar layout, Chat, Mates, Pay, assets, or OneSignal worker files changed. Upload index_r762.html as index.html after phone test. -->
@@ -11822,42 +11820,6 @@ body.light #votes-modal .suggestion-delete-icon{
   border-color:#d83245 !important;
   color:#d83245 !important;
   box-shadow:0 0 10px rgba(216,50,69,.10) !important;
-}
-
-
-
-/* r767 Home visible logo expansion + band-image top crop.
-   r766 removed the blue gap but was not visually strong enough. This pass makes
-   the logo/hero area visibly larger and lower, and pairs that with a shorter
-   band-image frame. Bell / You / kebab controls remain pinned by their existing
-   absolute header rule. */
-#sc-home .hero.home-hero-with-controls{
-  height:255px !important;
-  flex:0 0 255px !important;
-}
-#sc-home .hero.home-hero-with-controls .hero-l img{
-  object-position:center 62% !important;
-  transform:scale(1.12) !important;
-  transform-origin:center center !important;
-}
-#home-social-row{
-  --oot-home-frame-h: clamp(240px, 27vh, 268px);
-  flex:0 0 var(--oot-home-frame-h) !important;
-  height:var(--oot-home-frame-h) !important;
-  min-height:var(--oot-home-frame-h) !important;
-}
-@media (max-width:520px){
-  #sc-home .hero.home-hero-with-controls{
-    height:255px !important;
-    flex:0 0 255px !important;
-  }
-  #sc-home .hero.home-hero-with-controls .hero-l img{
-    object-position:center 63% !important;
-    transform:scale(1.13) !important;
-  }
-  #home-social-row{
-    --oot-home-frame-h: clamp(230px, 26vh, 255px);
-  }
 }
 
 </style>
@@ -32479,7 +32441,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-27-home-image-09-feet-restore-r768';
+var WHATS_NEW_VERSION = '2026-05-27-home-image-rollback-r769';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32824,9 +32786,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  { version:'2026-05-27-home-image-09-feet-restore-r768', date:'May 27, 2026', importance:'fix', emoji:'🖼️', title:'Home image 09 feet restoration', body:'Hotfix built from r767 that uses the Home Image Presentation Registry only. Restores Home image 09 normal and Rehearsal On Deck framing to the approved r764 feet placement so member feet are fully visible again. No other Home layout, logo/header, Home controls, social buttons, reminders, or other-tab changes are included.', items:['Upload index_r768.html as index.html.', 'Confirm Build Version reports r768.', 'Phone-test Home image 09 with Rehearsal On Deck visible and confirm the feet are fully visible again.', 'No other visual areas should be judged changed in this hotfix.'] },
-  { version:'2026-05-27-home-logo-expand-band-top-crop-r767', date:'May 27, 2026', importance:'fix', emoji:'🏠', title:'Home logo expanded and band image cropped from top', body:'Makes the Home logo/hero visibly taller and lower, while actually condensing the Home band-image view from the top. Keeps the r764-approved feet placement target by tuning only Home image 09 presentation values and leaves Bell notification, You identifier, Home kebab/menu, Song Vote Pending, Rehearsal On Deck, Next Gig, social buttons, reminders, image assets, and other tabs unchanged.', items:['Upload index_r767.html as index.html.', 'Confirm Build Version reports r767.', 'Phone-test Home with Song Vote Pending and Rehearsal On Deck visible: logo/hero should look visibly larger/lower than r766, and the band image should show less top scenic area.', 'Confirm the feet remain fully visible with a small bottom margin and there is no empty blue gap below the image.', 'Confirm Bell notification, You identifier, Home kebab/menu, Next Gig, and social buttons remain unchanged.'] },
-  { version:'2026-05-27-home-frame-trim-logo-recovery-r766', date:'May 27, 2026', importance:'fix', emoji:'🏠', title:'Home image frame trimmed without blue gap', body:'Corrects the r765 empty-blue-gap problem by rebuilding from confirmed-good r764, keeping the approved Home image 09 footline, reducing the Home band-image frame slightly, and reallocating that vertical space to the top logo/hero area. Bell notification, You identifier, Home kebab/menu, Song Vote Pending, Rehearsal On Deck, Next Gig, social buttons, reminders, image assets, and other tabs remain unchanged.', items:['Upload index_r766.html as index.html.', 'Confirm Build Version reports r766.', 'Phone-test Home with Song Vote Pending and Rehearsal On Deck visible: confirm there is no empty blue gap below the band image and the band-image section is slightly shorter than r764.', 'Confirm the r764-approved feet placement still looks good.', 'Confirm Bell notification, You identifier, Home kebab/menu, Next Gig, and social buttons remain unchanged.'] },
+  { version:'2026-05-27-home-image-rollback-r769', date:'May 27, 2026', importance:'fix', emoji:'↩️', title:'Home image rollback to good feet/social state', body:'Rolls the Home visual image state back to the confirmed-good r764 build after r765-r768 caused hidden feet and moved social buttons. This build intentionally uses r764 as the source and changes only the build version/log metadata. Feet placement and social button placement should match r764 again.', items:['Upload index_r769.html as index.html.', 'Confirm Build Version reports r769.', 'Phone-test Home: feet should be fully visible again and Facebook/Instagram buttons should be back to the r764 placement.', 'Do not judge any new top-crop/logo changes in this build; this is a rollback/hotfix only.'] },
   { version:'2026-05-27-home-image-09-footline-tune-r764', date:'May 27, 2026', importance:'fix', emoji:'🖼️', title:'Home image footline tuned', body:'Moves only Home band image 09 lower in the Home image frame so the members’ feet sit closer to the bottom while remaining fully visible. This is a one-step cleanup change and does not move the Bell notification, You identifier, Home logo/header controls, Song Vote Pending, Rehearsal On Deck, Next Gig counter, social buttons, proposal reminders, other images, or other tabs.', items:['Upload index_r764.html as index.html.', 'Confirm Build Version reports r764.', 'Phone-test Home with Song Vote Pending and Rehearsal On Deck visible: confirm the band image sits lower and the feet remain fully visible with a small bottom margin.', 'Confirm Bell notification, You identifier, Home kebab, Song Vote Pending, Rehearsal On Deck, Next Gig, and social buttons remain unchanged.'] },
   { version:'2026-05-27-home-kebab-layering-fix-r763', date:'May 27, 2026', importance:'fix', emoji:'⋮', title:'Home menu layering fixed', body:'Moves the Home tab kebab popup to a fixed viewport-level layer so the Song Vote Pending pill, Rehearsal On Deck pill, Next Gig counter, and other Home cards cannot cover or clip menu items. This changes only Home kebab popup placement and does not change Home alert logic, image framing, social buttons, proposal reminders, or other tabs.', items:['Upload index_r763.html as index.html.', 'Confirm Build Version reports r763.', 'Phone-test Home: open the top-left kebab while Song Vote Pending and Next Gig are visible; all menu items should be visible and scrollable above the Home content.', 'Confirm tapping outside the menu still dismisses it.'] },
   { version:'2026-05-27-proposal-reminder-sweep-hardening-r762', date:'May 27, 2026', importance:'fix', emoji:'🔔', title:'Proposal reminder sweep hardened', body:'Hardens the existing rehearsal proposal reminder engine by checking for overdue non-responder nudges when the app becomes visible, regains focus, comes online, or initializes after the proposal listener starts. The existing policy remains first reminder after 24 hours and follow-ups every 10 hours only to non-responders, stopping when everyone responds or the proposal closes. This is still an opportunistic client-side sweep, not a guaranteed backend scheduler; Firebase Cloud Functions or another scheduled backend remains the correct long-term implementation for exact timing when nobody has the app open.', items:['Upload index_r762.html as index.html.', 'Confirm Build Version reports r762.', 'Phone-test Calendar → Rehearsal Proposals: confirm proposal cards still render, voting still works, and the notification log/manual reminder dropdown still opens.', 'For true guaranteed reminders, next step remains backend scheduled implementation or Cloud Functions audit.'] },
