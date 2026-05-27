@@ -34,6 +34,8 @@
 <!-- r695: Rehearsal Agenda modal consistency. Applies premium sticky header/X and scroll-safe modal treatment to the Rehearsal Agenda modal only, preserving agenda content/behavior and all Home, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r695.html as index.html. -->
 <!-- r694: Contact modal consistency. Applies premium sticky header/X and scroll-safe mobile treatment to the Mates/Band Contact modal only, preserving contact add/edit logic, contact fields, Mates roster/Contacts layout, Home, Calendar, Chat, Songs, Setlists, Pay, flyers, assets, and app data. Upload index_r694.html as index.html. -->
 <!-- r693: Announcements modal consistency. Applies premium sticky header/X and scroll-safe mobile treatment to the Home Announcements modal only, preserving announcement view toggles, list scrolling, compose box, post action, Home image/framing/gaps/social buttons, Calendar, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data. Upload index_r693.html as index.html. -->
+<!-- r743: Contact modal keyboard/header stabilization. Fixes Mates/Band Contacts Add/Edit so the title/X stays pinned outside the scrollable form body and the modal remains inside the visible viewport when Android keyboard opens; no contact fields, save/edit/delete logic, roster, Contacts drawer, or other tabs changed. Upload index_r743.html as index.html after phone test. -->
+<!-- r742: Pay Log Gig Pay keyboard-safe inline card. Adds fixed-header/internal-scroll behavior and keyboard breathing room to Pay → Log Gig Pay only; no Pay logic, totals, history, or other app sections changed. Upload index_r742.html as index.html. -->
 <!-- r741: Contact edit title + keyboard-safe editable modal pass. Fixes Mates/Band Contacts edit mode title/save label, makes Contacts Add/Edit use a fixed header plus internal scroll body, and adds targeted keyboard viewport polish for Contacts, Add Member, and Announcements compose without changing data logic. Upload index_r741.html as index.html. -->
 <!--
 OOT APP BUILD NOTE
@@ -10037,6 +10039,44 @@ body.light #sc-pay #pf > div:first-child > button{
 }
 
 
+/* r742: Pay Log Gig Pay keyboard-safe inline-card polish.
+   Target only #pf on the Pay tab. Keep the header/X visible and give focused
+   fields room above the Android keyboard without changing Pay data logic. */
+#sc-pay #pf.fb{
+  max-height:min(58vh,420px) !important;
+  overflow-y:auto !important;
+  overscroll-behavior:contain !important;
+  -webkit-overflow-scrolling:touch !important;
+  scroll-padding-bottom:150px !important;
+  flex-shrink:0 !important;
+}
+#sc-pay #pf.fb:focus-within{
+  max-height:min(46vh,350px) !important;
+  padding-bottom:calc(18px + env(safe-area-inset-bottom)) !important;
+}
+#sc-pay #pf.fb > div:first-child{
+  position:sticky !important;
+  top:0 !important;
+  z-index:6 !important;
+}
+#sc-pay #pf.fb input.fi2,
+#sc-pay #pf.fb .r2{
+  flex:0 0 auto !important;
+}
+#sc-pay #pf.fb .r2{
+  padding-bottom:calc(6px + env(safe-area-inset-bottom)) !important;
+}
+@media (max-height:760px){
+  #sc-pay #pf.fb:focus-within{
+    max-height:42vh !important;
+  }
+}
+body.light #sc-pay #pf.fb:focus-within{
+  background:#fff !important;
+}
+
+
+
 /* r709: Pay list card consistency only.
    Presentation-only: polish generated Pay payout rows and Gig History rows.
    Keeps data, totals, row tap behavior, and pay/history logic unchanged. */
@@ -11217,6 +11257,88 @@ body.light #sc-songs #song-search::placeholder{
   #announce-modal:focus-within .mo{
     max-height:calc(100dvh - 18px - env(safe-area-inset-bottom)) !important;
   }
+}
+
+
+/* r743: Contact Add/Edit modal true fixed-header + keyboard viewport stabilization.
+   Target only #contact-modal. Fixes the r741/r739 cascade conflict where the
+   overlay padding/focus rules could move the card off-screen and allow the
+   title area to scroll away. Header is outside the scroll body; only the form
+   body scrolls. Contact data/save/edit/delete logic is unchanged. */
+#contact-modal.ov{
+  position:fixed !important;
+  inset:0 !important;
+  overflow:hidden !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:10px !important;
+  overscroll-behavior:contain !important;
+}
+#contact-modal.ov.on{
+  display:flex !important;
+}
+#contact-modal .mo{
+  position:relative !important;
+  width:min(94vw,460px) !important;
+  height:auto !important;
+  max-height:calc(100dvh - 22px - env(safe-area-inset-bottom)) !important;
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+  padding:0 !important;
+  margin:0 auto !important;
+  transform:translateZ(0) !important;
+  overscroll-behavior:contain !important;
+}
+#contact-modal .moh{
+  position:relative !important;
+  top:auto !important;
+  left:auto !important;
+  right:auto !important;
+  flex:0 0 auto !important;
+  z-index:20 !important;
+  margin:0 !important;
+  padding:12px 14px !important;
+  border-radius:18px 18px 0 0 !important;
+  transform:translateZ(0) !important;
+}
+#contact-modal .contact-modal-body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior:contain !important;
+  padding:14px 14px calc(18px + env(safe-area-inset-bottom)) !important;
+  scroll-padding-top:18px !important;
+  scroll-padding-bottom:calc(180px + env(safe-area-inset-bottom)) !important;
+}
+#contact-modal .contact-modal-body input,
+#contact-modal .contact-modal-body textarea,
+#contact-modal .contact-modal-body select{
+  scroll-margin-top:18px !important;
+  scroll-margin-bottom:calc(200px + env(safe-area-inset-bottom)) !important;
+}
+#contact-modal.contact-keyboard-active,
+#contact-modal:focus-within{
+  align-items:flex-start !important;
+  justify-content:center !important;
+  padding-top:calc(8px + env(safe-area-inset-top)) !important;
+  padding-bottom:calc(8px + env(safe-area-inset-bottom)) !important;
+}
+#contact-modal.contact-keyboard-active .mo,
+#contact-modal:focus-within .mo{
+  max-height:var(--contact-visible-height, calc(100dvh - 18px - env(safe-area-inset-bottom))) !important;
+  height:auto !important;
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+  transform:translateZ(0) !important;
+}
+#contact-modal.contact-keyboard-active .contact-modal-body,
+#contact-modal:focus-within .contact-modal-body{
+  padding-bottom:calc(210px + env(safe-area-inset-bottom)) !important;
+}
+body.light #contact-modal .moh{
+  background:linear-gradient(180deg,#fff,#f8fbff) !important;
 }
 
 </style>
@@ -14846,6 +14968,40 @@ function _setContactModalMode(mode){
   if(title) title.textContent = isEdit ? 'Edit Contact' : 'Add Contact';
   if(btn) btn.textContent = isEdit ? 'Save Contact' : 'Add Contact';
 }
+
+
+/* r743: Contact modal keyboard viewport detector.
+   Keeps the Contact Add/Edit modal inside the visible Android/PWA viewport while
+   preserving a fixed title/X and an internally scrollable form body. */
+(function(){
+  function _contactKeyboardActive(){
+    var ov = document.getElementById('contact-modal');
+    if(!ov) return;
+    var ae = document.activeElement;
+    var active = !!(ov.classList.contains('on') && ae && ov.contains(ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName || ''));
+    ov.classList.toggle('contact-keyboard-active', active);
+    if(active && window.visualViewport){
+      var h = Math.max(320, Math.floor(window.visualViewport.height - 16));
+      ov.style.setProperty('--contact-visible-height', h + 'px');
+    }else{
+      ov.style.removeProperty('--contact-visible-height');
+    }
+  }
+  window._contactKeyboardActive = _contactKeyboardActive;
+  document.addEventListener('focusin', function(e){
+    var ov = document.getElementById('contact-modal');
+    if(ov && ov.contains(e.target)) setTimeout(_contactKeyboardActive, 60);
+  });
+  document.addEventListener('focusout', function(e){
+    var ov = document.getElementById('contact-modal');
+    if(ov && ov.contains(e.target)) setTimeout(_contactKeyboardActive, 180);
+  });
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', function(){ setTimeout(_contactKeyboardActive, 30); });
+    window.visualViewport.addEventListener('scroll', function(){ setTimeout(_contactKeyboardActive, 30); });
+  }
+})();
+
 function openAddContactModal(){
   editingContactId = null;
   ['ct-name','ct-role','ct-ph','ct-em','ct-note'].forEach(function(fid){
@@ -14854,6 +15010,7 @@ function openAddContactModal(){
   });
   _setContactModalMode('add');
   opM('contact-modal');
+  try{ var body=document.querySelector('#contact-modal .contact-modal-body'); if(body) body.scrollTop=0; setTimeout(function(){ if(window._contactKeyboardActive) window._contactKeyboardActive(); },80); }catch(e){}
 }
 function openEditContactModal(contact){
   if(!contact) return;
@@ -14865,6 +15022,7 @@ function openEditContactModal(contact){
   editingContactId = contact.id;
   _setContactModalMode('edit');
   opM('contact-modal');
+  try{ var body=document.querySelector('#contact-modal .contact-modal-body'); if(body) body.scrollTop=0; setTimeout(function(){ if(window._contactKeyboardActive) window._contactKeyboardActive(); },80); }catch(e){}
 }
 
 
@@ -31455,7 +31613,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-contact-edit-title-keyboard-r741';
+var WHATS_NEW_VERSION = '2026-05-26-contact-modal-keyboard-stabilization-r743';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -31800,6 +31958,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-contact-modal-keyboard-stabilization-r743', date:'May 26, 2026', importance:'fix', emoji:'👥', title:'Contact edit keyboard/header fixed', body:'Stabilizes Mates/Band Contacts Add/Edit so the title/X stays pinned while the form body scrolls and the modal remains inside the visible phone viewport when the Android keyboard opens. Contact fields, save/edit/delete behavior, Contacts drawer, and all other tabs are unchanged.', items:['Upload index_r743.html as index.html.', 'Confirm Build Version reports r743.', 'Phone-test Mates/Band → Contacts → Edit Contact: title should say Edit Contact, title/X should stay visible, and lower fields should be reachable above the keyboard.'] },
+  { version:'2026-05-26-pay-log-keyboard-r742', date:'May 26, 2026', importance:'fix', emoji:'💸', title:'Pay log keyboard view improved', body:'Adds keyboard-safe internal scrolling to Pay → Log Gig Pay so the header/X stays visible and focused fields get more room above the Android keyboard. Pay totals, Add Pay behavior, Gig History, and all other tabs are unchanged.', items:['Upload index_r742.html as index.html.', 'Confirm Build Version reports r742.', 'Phone-test Pay → + Log Gig Pay: focus Venue, Gross Pay, and Expenses; the title/X should stay visible and the focused field/Add button should be easier to reach above the keyboard.'] },
   { version:'2026-05-26-contact-edit-title-keyboard-r741', date:'May 26, 2026', importance:'fix', emoji:'📇', title:'Contact edit title and keyboard view fixed', body:'Fixes Mates/Band Contacts so editing a contact opens as Edit Contact with a Save Contact action instead of looking like Add Contact. Rebuilds the Contact modal as a fixed-header/internal-scroll editable form so the title/X stays visible while using the keyboard, and adds the same targeted keyboard breathing-room pattern to Add Member and Announcements compose. Contact/member/announcement data logic is unchanged.', items:['Upload index_r741.html as index.html.', 'Confirm Build Version reports r741.', 'Phone-test Mates/Band → Contacts → Edit Contact: title should say Edit Contact, fields should hydrate, header/X should stay visible while scrolling with keyboard open, and Save Contact should update the existing contact. Also spot-check Add Contact, Add Member, and Announcements compose keyboard behavior.'] },
   { version:'2026-05-26-songs-density-search-blue-r740', date:'May 26, 2026', importance:'fix', emoji:'🎵', title:'Songs list tightened and search pill differentiated', body:'Reduces only the gap between Songs library rows to the locked 2px reference spacing while preserving the search-to-first-song separation. Changes only the Songs search pill fill to a lighter blue gradient so it reads apart from the song rows. Song row height, song data, search behavior, and all other tabs are unchanged.', items:['Upload index_r740.html as index.html.', 'Confirm Build Version reports r740.', 'Phone-test Songs: rows should be grouped tighter, the search-to-first-song gap should remain as before, and the search pill should read as a lighter blue control distinct from song rows.'] },
   { version:'2026-05-26-songs-density-search-blue-r740', date:'May 26, 2026', importance:'fix', emoji:'⌨️', title:'Contact edit keyboard view improved', body:'Adds focus-aware scroll margins and modest viewport breathing room to the Mates/Band Contacts Add/Edit Contact modal so editable fields are easier to keep visible above the Android keyboard, while keeping the modal visually balanced. Contact fields, add/edit/delete logic, roster, Contacts drawer, and app data are unchanged.', items:['Upload index_r739.html as index.html.', 'Confirm Build Version reports r739.', 'Phone-test Mates/Band → Contacts → Add/Edit Contact, focus lower fields; confirm the focused field is easier to see above the keyboard and save/edit behavior still works.'] },
