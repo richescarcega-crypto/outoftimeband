@@ -1,3 +1,4 @@
+<!-- r749: Suggest-a-Song modal capacity/sticky heading + YouTube icon helper. Replaces the r748 full-width Open YouTube text pill with the same red YouTube icon language used on Songs rows, adds a clear link-helper label, and makes Suggest mode use a sticky modal heading with a scroll-safe form body so the helper/Submit controls remain reachable. No song data, voting logic, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, or unrelated UI changed. Upload index_r749.html as index.html after phone test. -->
 <!-- r748: Suggest-a-Song YouTube lookup link. Adds a targeted Open YouTube button below the optional YouTube URL field in the Songs suggestion form, preserves the suggestion form/draft during external YouTube handoff, and restores Suggest mode on return. No song data, voting logic, Setlists, Home, Calendar, Chat, Mates, Pay, assets, or unrelated UI changed. Upload index_r748.html as index.html after phone test. -->
 <!-- r747: Songs bottom gap calibration. Changes only the Songs tab bottom list-to-tab gap by removing inherited section bottom padding and setting the library-list bottom breathing room to the same 2px reference gap used between song rows. Preserves Songs search pill r746, song rows/search behavior, Setlists r746 panel gradient, Home, Calendar, Chat, Mates, Pay, assets, and app logic. Upload index_r747.html as index.html after phone test. -->
 <!-- r746: Setlists expanded-song blue-gradient panel + Songs search pill refinement. Changes only the expanded Setlist song-panel background to the approved app-wide blue gradient and replaces the Songs search pill color treatment with a darker premium navy/glass style, blue icon, white placeholder, and restrained gold edge. No Setlists data/actions, song rows, search behavior, Home, Calendar, Chat, Mates, Pay, assets, or app logic changed. Upload index_r746.html as index.html after phone test. -->
@@ -11490,6 +11491,142 @@ body.light #sc-sets .setlist-expanded-panel{
   scroll-padding-bottom:2px !important;
 }
 
+
+
+/* r749: Suggest-a-Song modal: sticky heading, visible form capacity, YouTube icon helper */
+#votes-modal.suggest-mode{
+  padding:10px !important;
+  overflow:hidden !important;
+  align-items:flex-start !important;
+  justify-content:center !important;
+}
+#votes-modal.suggest-mode #votes-modal-card{
+  width:min(430px,calc(100vw - 28px)) !important;
+  max-height:calc(100dvh - 22px) !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+  padding:0 !important;
+}
+@supports not (height:100dvh){
+  #votes-modal.suggest-mode #votes-modal-card{max-height:calc(100vh - 22px) !important;}
+}
+#votes-modal.suggest-mode #votes-modal-card > .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:40 !important;
+  flex:0 0 auto !important;
+}
+#votes-modal.suggest-mode #votes-modal-subtitle{
+  flex:0 0 auto !important;
+  margin-left:14px !important;
+  margin-right:14px !important;
+  margin-top:10px !important;
+  margin-bottom:8px !important;
+}
+#votes-modal.suggest-mode #suggest-form{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding-top:30px !important;
+  padding-bottom:18px !important;
+  margin-left:14px !important;
+  margin-right:14px !important;
+}
+#votes-modal.suggest-mode #suggest-form .fi2{
+  flex:0 0 auto !important;
+}
+#votes-modal.suggest-mode #suggest-form .r2{
+  flex:0 0 auto !important;
+  margin-top:8px !important;
+  padding-bottom:2px !important;
+}
+#votes-modal.suggest-keyboard-active.suggest-mode #votes-modal-card{
+  max-height:var(--oot-suggest-keyboard-height,calc(100dvh - 112px)) !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+}
+#votes-modal.suggest-keyboard-active.suggest-mode #votes-modal-card > .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:45 !important;
+  flex:0 0 auto !important;
+  margin-bottom:0 !important;
+}
+#votes-modal.suggest-keyboard-active.suggest-mode #suggest-form{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding-top:24px !important;
+  padding-bottom:16px !important;
+}
+#suggest-youtube-open.suggest-youtube-link-control{
+  width:100% !important;
+  border:none !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  padding:7px 2px 6px !important;
+  margin:5px 0 2px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:9px !important;
+  text-align:left !important;
+  cursor:pointer !important;
+  color:#e8f0ff !important;
+  flex:0 0 auto !important;
+}
+#suggest-youtube-open .suggest-youtube-icon{
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+  border-radius:11px !important;
+  border:1px solid rgba(245,197,24,.34) !important;
+  background:linear-gradient(135deg,rgba(12,31,65,.92),rgba(7,18,39,.95)) !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-shadow:0 0 12px rgba(245,197,24,.10) !important;
+}
+#suggest-youtube-open .suggest-youtube-icon svg{
+  width:21px !important;
+  height:21px !important;
+  display:block !important;
+}
+#suggest-youtube-open .suggest-youtube-copy{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:1px !important;
+  min-width:0 !important;
+}
+#suggest-youtube-open .suggest-youtube-label{
+  font-family:'Russo One',sans-serif !important;
+  font-size:10.5px !important;
+  letter-spacing:1.1px !important;
+  color:#f5c518 !important;
+  line-height:1.15 !important;
+}
+#suggest-youtube-open .suggest-youtube-help{
+  font-size:10px !important;
+  letter-spacing:.1px !important;
+  color:#9fb9e8 !important;
+  line-height:1.25 !important;
+  white-space:normal !important;
+}
+#suggest-youtube-open.suggest-youtube-link-control:active .suggest-youtube-icon{
+  transform:scale(.96) !important;
+}
+body.light #suggest-youtube-open .suggest-youtube-label{color:#9a6a00 !important;}
+body.light #suggest-youtube-open .suggest-youtube-help{color:#5a6a85 !important;}
+body.light #suggest-youtube-open .suggest-youtube-icon{
+  background:linear-gradient(135deg,#f8fbff,#eef4ff) !important;
+  border-color:rgba(212,160,23,.52) !important;
+}
 </style>
 </head>
 <body>
@@ -11977,8 +12114,10 @@ body.light #sc-sets .setlist-expanded-panel{
       <input class="fi2" id="suggest-artist" placeholder="Artist" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" onblur="_ootSuggestKeyboardMode(false,this)" oninput="_ootTitleCaseField(this)">
       <input class="fi2" id="suggest-note" placeholder="Why this song? (optional)" autocomplete="off" autocorrect="on" spellcheck="true" inputmode="text" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" onblur="_ootSuggestKeyboardMode(false,this)" oninput="_ootSentenceCaseField(this)">
       <input class="fi2" id="suggest-url" placeholder="YouTube URL (optional)" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="url" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" onblur="_ootSuggestKeyboardMode(false,this)">
-      <button type="button" id="suggest-youtube-open" onclick="openSuggestYouTubeLookup()" style="margin-top:8px;width:100%;border-radius:12px;border:1px solid rgba(245,197,24,.50);background:linear-gradient(135deg,rgba(10,22,40,.96),rgba(15,48,112,.86));color:#f8fbff;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:1.2px;padding:10px 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 0 14px rgba(74,158,255,.14);">🔎 Open YouTube to copy URL</button>
-      <div style="font-size:10px;color:#8aa8d6;margin:5px 2px 0;line-height:1.35;">Search YouTube, copy the video URL, then return here and paste it above.</div>
+      <button type="button" id="suggest-youtube-open" class="suggest-youtube-link-control" onclick="openSuggestYouTubeLookup()" aria-label="Find a YouTube link for this song suggestion">
+        <span class="suggest-youtube-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="1.5" y="5" width="21" height="14" rx="3.5" fill="#ff0000"></rect><polygon points="10,9 16,12 10,15" fill="#fff"></polygon></svg></span>
+        <span class="suggest-youtube-copy"><span class="suggest-youtube-label">Find YouTube link</span><span class="suggest-youtube-help">Opens YouTube search so you can copy a video URL for this suggestion.</span></span>
+      </button>
       <div class="r2" style="margin-top:8px;">
         <button class="sb" onclick="submitSuggestion()" style="width:100%;">Submit</button>
       </div>
@@ -26086,11 +26225,11 @@ function _setSongSuggestionsModalMode(mode){
   var list = document.getElementById('votes-list');
   var form = document.getElementById('suggest-form');
   var inlineBtn = document.getElementById('votes-modal-suggest-inline');
-  if(ov){ ov.classList.remove('suggest-keyboard-active'); }
+  if(ov){ ov.classList.remove('suggest-keyboard-active'); ov.classList.remove('suggest-mode'); }
   if(card){ card.style.removeProperty('--oot-suggest-keyboard-height'); }
   if(mode === 'suggest'){
-    if(ov){ ov.style.alignItems = 'flex-start'; ov.style.paddingTop = '10px'; }
-    if(card){ card.style.maxHeight = 'calc(100vh - 24px)'; card.style.overflowY = 'auto'; card.scrollTop = 0; }
+    if(ov){ ov.classList.add('suggest-mode'); ov.style.alignItems = 'flex-start'; ov.style.paddingTop = '10px'; }
+    if(card){ card.style.maxHeight = 'calc(100vh - 24px)'; card.style.overflowY = 'hidden'; card.scrollTop = 0; }
     if(title) title.textContent = '🎸 Suggest a Song';
     if(subtitle) subtitle.textContent = 'Submit a song suggestion for the band to vote on.';
     if(list) list.style.display = 'none';
@@ -31823,7 +31962,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-suggest-song-youtube-link-r748';
+var WHATS_NEW_VERSION = '2026-05-26-suggest-song-youtube-helper-r749';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32168,6 +32307,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-suggest-song-youtube-helper-r749', date:'May 26, 2026', importance:'fix', emoji:'▶️', title:'Suggest Song YouTube helper polished', body:'Refines only the Songs → Suggest a Song form. The full-width Open YouTube text pill is replaced with the same red YouTube icon language used on Songs rows plus a clear helper label, and Suggest mode now uses a sticky modal heading with a scroll-safe form body so the YouTube helper and Submit control remain reachable. The YouTube lookup/return draft-preservation behavior from r748 is retained. No song suggestion data, voting logic, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, or unrelated UI changed.', items:['Upload index_r749.html as index.html.', 'Confirm Build Version reports r749.', 'Phone-test Songs → Suggest a Song: confirm the heading stays visible, the YouTube icon/helper row is visible and tappable, YouTube opens with the song search, returning restores the form draft, and Submit remains reachable.'] },
   { version:'2026-05-26-suggest-song-youtube-link-r748', date:'May 26, 2026', importance:'fix', emoji:'🔎', title:'Suggest Song YouTube link', body:'Adds a targeted Open YouTube helper to the Songs → Suggest a Song form so a member can search YouTube, copy a video URL, return to the app, and paste it into the optional YouTube URL field. The external-return context now restores Suggest mode and preserves the current draft values during that handoff. No song submission data model, vote logic, Songs list layout, Setlists, Home, Calendar, Chat, Mates, Pay, or assets changed.', items:['Upload index_r748.html as index.html.', 'Confirm Build Version reports r748.', 'Phone-test Songs → kebab → Vote/Suggest → Suggest a Song: tap Open YouTube, copy a video URL, return to the app, confirm the suggestion form remains open with existing draft text, paste into YouTube URL, and submit normally.'] },
   { version:'2026-05-26-songs-bottom-gap-r747', date:'May 26, 2026', importance:'fix', emoji:'🎵', title:'Songs bottom gap tightened', body:'Changes only the Songs tab bottom list-to-tab gap. The fix targets the actual spacing stack: inherited Songs section bottom padding plus the library-list scroll container bottom padding. The visible bottom gap is now calibrated to the same 2px reference used between Songs rows while preserving the r746 search pill, song row styling, search behavior, Setlists panel gradient, and all other tabs.', items:['Upload index_r747.html as index.html.', 'Confirm Build Version reports r747.', 'Phone-test Songs: scroll near the bottom and confirm the blue gap above the bottom tab bar is the same thin 2px spacing used between song rows; search and YouTube buttons should still work normally.'] },
   { version:'2026-05-26-setlists-panel-search-pill-r746', date:'May 26, 2026', importance:'fix', emoji:'🎼', title:'Setlists panel and Songs search polished', body:'Changes only the expanded Setlist song-panel background to the approved app-wide blue gradient and refines the Songs search pill to a darker premium navy/glass treatment with a blue icon, white placeholder text, and restrained gold edge. Setlist data/actions, song row behavior, Songs search behavior, Home, Calendar, Chat, Mates, Pay, assets, and app logic are unchanged.', items:['Upload index_r746.html as index.html.', 'Confirm Build Version reports r746.', 'Phone-test Setlists: open an individual setlist and confirm the song panel background uses the app-wide blue gradient while song rows/taps/YouTube actions still work. Phone-test Songs: search pill should look darker, cleaner, and premium; search input should still filter normally.'] },
