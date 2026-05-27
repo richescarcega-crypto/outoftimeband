@@ -1,3 +1,4 @@
+<!-- r747: Songs bottom gap calibration. Changes only the Songs tab bottom list-to-tab gap by removing inherited section bottom padding and setting the library-list bottom breathing room to the same 2px reference gap used between song rows. Preserves Songs search pill r746, song rows/search behavior, Setlists r746 panel gradient, Home, Calendar, Chat, Mates, Pay, assets, and app logic. Upload index_r747.html as index.html after phone test. -->
 <!-- r746: Setlists expanded-song blue-gradient panel + Songs search pill refinement. Changes only the expanded Setlist song-panel background to the approved app-wide blue gradient and replaces the Songs search pill color treatment with a darker premium navy/glass style, blue icon, white placeholder, and restrained gold edge. No Setlists data/actions, song rows, search behavior, Home, Calendar, Chat, Mates, Pay, assets, or app logic changed. Upload index_r746.html as index.html after phone test. -->
 <!-- r745: Member/image lightbox horizontal-overflow cleanup. Fixes the remaining gray line under Mates/Band member image lightboxes by preventing horizontal overflow/scrollbar rendering inside the gold-bordered lightbox card while preserving vertical scroll, gold border, image source/crop/framing, captions, and controls. Upload index_r745.html as index.html after phone test. -->
 <!-- r740: Songs list density and search-pill contrast. Reduces only the gap between Songs library row cards to the locked 2px reference spacing while preserving the existing search-to-first-song separation. Changes only the Songs search pill fill to a lighter blue gradient so it reads distinctly from song rows. No song data, row height, search behavior, Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, or app logic changes. Upload index_r740.html as index.html after phone test. -->
@@ -11468,6 +11469,24 @@ body.light #sc-sets .setlist-expanded-panel{
   background:linear-gradient(180deg,#dbeaff 0%,#ffffff 50%,#dbeaff 100%) !important;
   border-color:#d4a017 !important;
   box-shadow:0 8px 18px rgba(20,80,160,.10), inset 0 1px 0 rgba(255,255,255,.85) !important;
+}
+
+
+
+/* r747: Songs bottom list-to-tab gap calibration.
+   Deep-dive result: the circled blue band was not a row-card border. Songs uses
+   #library-list as the internal scroll container, and the visible bottom band was
+   produced by the spacing stack: inherited .sc bottom padding plus r665's
+   #library-list padding-bottom:10px. r740 already locked row gaps to 2px, so this
+   late scoped rule removes the parent bottom padding and sets the scroll-container
+   breathing room to that same 2px reference. Placed after r746 so prior r665/r740
+   rules cannot override it. */
+#sc-songs{
+  padding-bottom:0 !important;
+}
+#sc-songs #library-list{
+  padding-bottom:2px !important;
+  scroll-padding-bottom:2px !important;
 }
 
 </style>
@@ -31742,7 +31761,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-setlists-panel-search-pill-r746';
+var WHATS_NEW_VERSION = '2026-05-26-songs-bottom-gap-r747';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32087,6 +32106,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-songs-bottom-gap-r747', date:'May 26, 2026', importance:'fix', emoji:'🎵', title:'Songs bottom gap tightened', body:'Changes only the Songs tab bottom list-to-tab gap. The fix targets the actual spacing stack: inherited Songs section bottom padding plus the library-list scroll container bottom padding. The visible bottom gap is now calibrated to the same 2px reference used between Songs rows while preserving the r746 search pill, song row styling, search behavior, Setlists panel gradient, and all other tabs.', items:['Upload index_r747.html as index.html.', 'Confirm Build Version reports r747.', 'Phone-test Songs: scroll near the bottom and confirm the blue gap above the bottom tab bar is the same thin 2px spacing used between song rows; search and YouTube buttons should still work normally.'] },
   { version:'2026-05-26-setlists-panel-search-pill-r746', date:'May 26, 2026', importance:'fix', emoji:'🎼', title:'Setlists panel and Songs search polished', body:'Changes only the expanded Setlist song-panel background to the approved app-wide blue gradient and refines the Songs search pill to a darker premium navy/glass treatment with a blue icon, white placeholder text, and restrained gold edge. Setlist data/actions, song row behavior, Songs search behavior, Home, Calendar, Chat, Mates, Pay, assets, and app logic are unchanged.', items:['Upload index_r746.html as index.html.', 'Confirm Build Version reports r746.', 'Phone-test Setlists: open an individual setlist and confirm the song panel background uses the app-wide blue gradient while song rows/taps/YouTube actions still work. Phone-test Songs: search pill should look darker, cleaner, and premium; search input should still filter normally.'] },
   { version:'2026-05-26-image-lightbox-overflow-cleanup-r745', date:'May 26, 2026', importance:'fix', emoji:'🖼️', title:'Image lightbox gray line removed', body:'Fixes the remaining gray line under Mates/Band member image lightboxes by removing the horizontal overflow condition that caused the browser scrollbar to render inside the gold-bordered card. Gold borders, image sources, crop/framing, captions, close/share/download controls, and app data are unchanged.', items:['Upload index_r745.html as index.html.', 'Confirm Build Version reports r745.', 'Phone-test Mates/Band member image lightbox and Chat/shared image lightbox: gold border should remain, gray underline/scrollbar should be gone, image framing should be unchanged, and close/share/download controls should still work.'] },
   { version:'2026-05-26-image-gray-underline-cleanup-r744', date:'May 26, 2026', importance:'fix', emoji:'🖼️', title:'Image underline cleanup', body:'Removes the older gray/white underline/divider treatment from Chat image attachments and shared image/member lightbox surfaces while preserving the premium gold borders. Image files, crop, fit, framing, captions, share/download controls, close behavior, Home, Calendar, Songs, Setlists, Mates, Pay, and app data are unchanged.', items:['Upload index_r744.html as index.html.', 'Confirm Build Version reports r744.', 'Phone-test Mates/Band member image lightbox and a Chat image/lightbox: gold border should remain, the gray underline should be gone, framing/crop should be unchanged, and close/share/download controls should still work.'] },
