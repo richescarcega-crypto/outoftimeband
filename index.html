@@ -1,4 +1,4 @@
-<!-- r771: Global Home image top-condense pass. Applies to all Home images, not just image 09. Increases the Home logo/hero area while shortening the Home band-image frame by a matching amount, and uses a small global downward image-y offset in the registry renderer so the visible crop comes from the top while protecting feet/bottom spacing and leaving social-button settings unchanged. Bell, You identifier, Home menu, alerts, Next Gig, and tabs stay untouched. Upload index_r771.html as index.html after phone test. -->
+<!-- r772: Home alert-pill clipping fix. Starts from r771 and preserves the approved expanded Home logo/hero area. Fixes only the clipped Song Vote Pending and Rehearsal On Deck pills by making the Home alerts row non-shrinking/visible and taking the needed space from the lower band-image frame, not from the logo. Social-button registry values, image registry values, Bell, You identifier, Next Gig content, and other tabs unchanged. Upload index_r772.html as index.html after phone test. -->
 <!-- r764: Home image 09 footline tune. Moves only the current/default Home band image 09 lower within the Home image frame so the members’ feet sit closer to the bottom while remaining fully visible. Scope is HOME_IMAGE_PRESENTATION image 09 normal/rehearsal y-position only; no logo/header controls, Bell notification, You identifier, Song Vote Pending, Rehearsal On Deck, Next Gig, social buttons, reminders, other Home images, tabs, assets, or data logic changed. Upload index_r764.html as index.html after phone test. -->
 <!-- r763: Home kebab menu layering fix. Moves the Home tab kebab popup out of the logo/header container and positions it as a fixed viewport-level menu so Song Vote Pending, Rehearsal On Deck, Next Gig, and other Home cards cannot cover or clip menu items. Scope is Home kebab popup placement only; no Home alert/gig/image/social-button logic, proposal reminder logic, Songs, Calendar, Chat, Mates, Pay, assets, or OneSignal worker files changed. Upload index_r763.html as index.html after phone test. -->
 <!-- r762: Pending response reminder opportunistic sweep hardening. Adds focus/visibility/online/app-resume sweep triggers to the existing rehearsal proposal reminder engine so overdue 24-hour and 10-hour non-responder nudges are checked promptly when an admin/member has the app open or returns to it. This does not pretend to be a true backend scheduler; Cloud Functions/backend scheduling is still required for guaranteed timing when nobody has the app open. No proposal data model, voting UI, Home, Songs, Calendar layout, Chat, Mates, Pay, assets, or OneSignal worker files changed. Upload index_r762.html as index.html after phone test. -->
@@ -11843,6 +11843,53 @@ body.light #votes-modal .suggestion-delete-icon{
   #home-social-row{
     min-height:312px !important;
     height:312px !important;
+  }
+}
+
+
+
+/* r772 Home alert-pill clipping fix.
+   Keep r771's expanded logo/hero area. The failure was the alert row shrinking
+   under the Next Gig card. Lock the alerts row as a non-shrinking flex item and
+   reduce only the lower image frame to pay for the restored pill height. */
+#home-alerts-row{
+  flex:0 0 auto !important;
+  position:relative !important;
+  z-index:4 !important;
+  overflow:visible !important;
+  margin:0 0 6px 0 !important;
+  min-height:0 !important;
+}
+#home-alerts-row:has(#home-song-vote-cue[style*="display: block"]):has(#home-rehearsal-cue[style*="display: block"]),
+#home-alerts-row:has(#home-song-vote-cue[style*="display:block"]):has(#home-rehearsal-cue[style*="display:block"]){
+  min-height:66px !important;
+  margin:0 0 6px 0 !important;
+  align-items:stretch !important;
+  overflow:visible !important;
+}
+#home-alerts-row #home-song-vote-cue,
+#home-alerts-row #home-rehearsal-cue{
+  overflow:visible !important;
+}
+#home-alerts-row .home-alert-pill{
+  min-height:64px !important;
+  height:auto !important;
+  margin:0 !important;
+}
+#next-gig-countdown{
+  flex:0 0 auto !important;
+  position:relative !important;
+  z-index:2 !important;
+  margin-top:0 !important;
+}
+#home-social-row{
+  min-height:296px !important;
+  height:296px !important;
+}
+@media (max-width:520px){
+  #home-social-row{
+    min-height:296px !important;
+    height:296px !important;
   }
 }
 
@@ -32473,7 +32520,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-27-home-global-top-condense-r771';
+var WHATS_NEW_VERSION = '2026-05-27-home-alert-pill-clipping-fix-r772';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32818,6 +32865,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-27-home-alert-pill-clipping-fix-r772', date:'May 27, 2026', importance:'fix', emoji:'🏠', title:'Home alert pills unclipped', body:'Preserves the r771 expanded Home logo/hero area and fixes the actual visible issue: Song Vote Pending and Rehearsal On Deck were clipped under the Next Gig card. The alerts row is now a non-shrinking visible flex item, with the needed space taken from the lower band-image frame rather than the logo. No social-button registry values or image registry values changed.', items:['Upload index_r772.html as index.html.', 'Confirm Build Version reports r772.', 'Phone-test Home with both Song Vote Pending and Rehearsal On Deck visible: both pills should be fully visible and not hidden by Next Gig.', 'Confirm the expanded logo area remains like r771.', 'Confirm Facebook/Instagram settings and other tabs are unchanged.'] },
   { version:'2026-05-27-home-global-top-condense-r771', date:'May 27, 2026', importance:'fix', emoji:'🏠', title:'Global Home image top-condense pass', body:'Applies the Home cleanup globally across all Home images instead of only image 09. The top logo hero is taller, the Home band-image frame is shorter by the matching amount, and the registry renderer adds a small global downward Y compensation so less of the top scenic area shows while feet/bottom spacing stay protected. Social-button settings are unchanged.', items:['Upload index_r771.html as index.html.', 'Phone-test the current Home image and confirm less of the top sky/pier strip is visible.', 'Feet should remain fully visible with the bottom zone protected.', 'Facebook and Instagram button settings were not changed in this build.', 'If the current image still shows too much top area, tune again in another single Home-only step.'] },
   { version:'2026-05-27-home-image-09-downward-nudge-r770', date:'May 27, 2026', importance:'fix', emoji:'🖼️', title:'Home image 09 moved slightly downward', body:'Uses the image registry only to nudge Home image 09 slightly lower without touching the social button settings. The active rehearsal state moves from yPct -54 to -53 and the normal state moves from -52 to -51, giving the feet a little less bottom gap while keeping them fully visible.', items:['Upload index_r770.html as index.html.', 'No social button registry values changed in this build.', 'Phone-test the current Home image: the band should sit slightly lower than r769, but the feet should remain fully visible.', 'If the feet are still too high or become clipped, stop and tune the registry again in another single-step build.'] },
   { version:'2026-05-27-home-image-rollback-r769', date:'May 27, 2026', importance:'fix', emoji:'↩️', title:'Home image rollback to good feet/social state', body:'Rolls the Home visual image state back to the confirmed-good r764 build after r765-r768 caused hidden feet and moved social buttons. This build intentionally uses r764 as the source and changes only the build version/log metadata. Feet placement and social button placement should match r764 again.', items:['Upload index_r769.html as index.html.', 'Confirm Build Version reports r769.', 'Phone-test Home: feet should be fully visible again and Facebook/Instagram buttons should be back to the r764 placement.', 'Do not judge any new top-crop/logo changes in this build; this is a rollback/hotfix only.'] },
