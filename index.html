@@ -1,4 +1,4 @@
-<!-- r739: Contact modal keyboard viewport polish. Adds focus-aware scroll margins and mobile viewport breathing room to Mates/Band Contacts Add/Edit Contact so focused fields sit more comfortably above the Android keyboard without moving the modal to the top or changing contact fields/data. Preserves contact add/edit/delete logic, roster, Contacts drawer, Home, Calendar, Chat, Songs, Setlists, Pay, flyers, assets, and app logic. Upload index_r739.html as index.html after phone test. -->
+<!-- r740: Songs list density and search-pill contrast. Reduces only the gap between Songs library row cards to the locked 2px reference spacing while preserving the existing search-to-first-song separation. Changes only the Songs search pill fill to a lighter blue gradient so it reads distinctly from song rows. No song data, row height, search behavior, Home, Calendar, Chat, Setlists, Mates, Pay, flyers, assets, or app logic changes. Upload index_r740.html as index.html after phone test. -->
 <!-- r738: Setlists expanded view stable subview. Replaces the unstable sticky expanded-setlist header behavior with a fixed subview layout whenever a setlist is expanded: only the opened setlist header and its song panel remain in the Setlists internal viewport, the song panel becomes the only scrolling area, and the header no longer hits a sticky bottom boundary. Applies to all current and future setlists rendered through rSets. No Setlists data/actions, Songs, Home, Calendar, Chat, Mates, Pay, flyers, assets, or app logic changes. Upload index_r738.html as index.html after phone test. -->
 <!-- r737: Songs Add/Edit keyboard viewport polish. Adds focus-aware scroll margins and bottom breathing room to the Songs Add/Edit Song modal so focused fields sit more comfortably above the Android keyboard without moving the modal to the top or changing song fields/data. Preserves Songs behavior, r734 row fix, Setlists r736 stabilization, Home, Calendar, Chat, Mates, Pay, flyers, assets, and app logic. Upload index_r737.html as index.html after phone test. -->
 <!-- r736: Setlists expanded-header bottom-scroll stabilization. Carries forward r735 fixed header/internal scroll architecture and adds an expanded-setlist scroll-state class plus extra bottom scroll runway/overscroll containment so the specific opened setlist header does not jump when the song list reaches the bottom. Applies to all current and future setlists rendered through rSets. Upload index_r736.html as index.html after phone test. -->
@@ -11093,6 +11093,60 @@ body.light #img-lightbox-download{
 #sc-songs #library-list > .song-lib-card .song-badge-box{
   flex:0 0 40px !important;
 }
+
+
+/* r740: Songs list density + search-pill contrast.
+   Scope: Songs tab only. Keep the search-to-first-song separation untouched because
+   #song-search-wrap is outside #library-list; tighten only the gap between song rows.
+   Final scoped rules sit late in the cascade so prior r718/r724/r734 rules cannot override them. */
+#sc-songs #library-list{
+  gap:2px !important;
+  row-gap:2px !important;
+}
+#sc-songs #song-search-wrap{
+  background:
+    radial-gradient(circle at 14% 18%, rgba(170,215,255,.52), transparent 36%),
+    radial-gradient(circle at 86% 22%, rgba(120,190,255,.34), transparent 34%),
+    linear-gradient(180deg, rgba(78,166,255,.56) 0%, rgba(36,104,190,.62) 52%, rgba(18,60,132,.68) 100%) !important;
+  border-color:rgba(145,205,255,.72) !important;
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.24),
+    0 0 20px rgba(74,158,255,.22),
+    0 0 12px rgba(245,197,24,.07),
+    inset 0 1px 0 rgba(255,255,255,.16) !important;
+}
+#sc-songs #song-search-wrap::before{
+  background:linear-gradient(90deg, transparent, rgba(245,197,24,.84), rgba(255,216,74,.98), rgba(245,197,24,.84), transparent) !important;
+}
+#sc-songs #song-search-wrap .song-search-icon{
+  color:#fff0a8 !important;
+  filter:drop-shadow(0 0 8px rgba(245,197,24,.28)) drop-shadow(0 0 6px rgba(74,158,255,.22)) !important;
+}
+#sc-songs #song-search{
+  color:#ffffff !important;
+}
+#sc-songs #song-search::placeholder{
+  color:#d7eaff !important;
+  opacity:1 !important;
+}
+body.light #sc-songs #song-search-wrap{
+  background:
+    radial-gradient(circle at 14% 18%, rgba(255,255,255,.78), transparent 36%),
+    linear-gradient(180deg,#dff0ff 0%,#bcdcff 58%,#a8cff7 100%) !important;
+  border-color:rgba(59,130,246,.42) !important;
+  box-shadow:0 8px 18px rgba(20,80,160,.12),0 0 0 1px rgba(255,255,255,.70) inset !important;
+}
+body.light #sc-songs #song-search-wrap .song-search-icon{
+  color:#1a5fbf !important;
+  filter:none !important;
+}
+body.light #sc-songs #song-search{
+  color:#10213f !important;
+}
+body.light #sc-songs #song-search::placeholder{
+  color:#315f9f !important;
+}
+
 </style>
 </head>
 <body>
@@ -31301,7 +31355,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-contact-edit-keyboard-polish-r739';
+var WHATS_NEW_VERSION = '2026-05-26-songs-density-search-blue-r740';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -31646,7 +31700,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  { version:'2026-05-26-contact-edit-keyboard-polish-r739', date:'May 26, 2026', importance:'fix', emoji:'⌨️', title:'Contact edit keyboard view improved', body:'Adds focus-aware scroll margins and modest viewport breathing room to the Mates/Band Contacts Add/Edit Contact modal so editable fields are easier to keep visible above the Android keyboard, while keeping the modal visually balanced. Contact fields, add/edit/delete logic, roster, Contacts drawer, and app data are unchanged.', items:['Upload index_r739.html as index.html.', 'Confirm Build Version reports r739.', 'Phone-test Mates/Band → Contacts → Add/Edit Contact, focus lower fields; confirm the focused field is easier to see above the keyboard and save/edit behavior still works.'] },
+  { version:'2026-05-26-songs-density-search-blue-r740', date:'May 26, 2026', importance:'fix', emoji:'🎵', title:'Songs list tightened and search pill differentiated', body:'Reduces only the gap between Songs library rows to the locked 2px reference spacing while preserving the search-to-first-song separation. Changes only the Songs search pill fill to a lighter blue gradient so it reads apart from the song rows. Song row height, song data, search behavior, and all other tabs are unchanged.', items:['Upload index_r740.html as index.html.', 'Confirm Build Version reports r740.', 'Phone-test Songs: rows should be grouped tighter, the search-to-first-song gap should remain as before, and the search pill should read as a lighter blue control distinct from song rows.'] },
+  { version:'2026-05-26-songs-density-search-blue-r740', date:'May 26, 2026', importance:'fix', emoji:'⌨️', title:'Contact edit keyboard view improved', body:'Adds focus-aware scroll margins and modest viewport breathing room to the Mates/Band Contacts Add/Edit Contact modal so editable fields are easier to keep visible above the Android keyboard, while keeping the modal visually balanced. Contact fields, add/edit/delete logic, roster, Contacts drawer, and app data are unchanged.', items:['Upload index_r739.html as index.html.', 'Confirm Build Version reports r739.', 'Phone-test Mates/Band → Contacts → Add/Edit Contact, focus lower fields; confirm the focused field is easier to see above the keyboard and save/edit behavior still works.'] },
   { version:'2026-05-26-setlists-expanded-subview-stability-r738', date:'May 26, 2026', importance:'fix', emoji:'📋', title:'Setlists expanded header fully stabilized', body:'Replaces the remaining sticky-boundary approach with a fixed expanded-setlist subview: the opened setlist header stays as a normal fixed row while the song panel alone scrolls, preventing the header jump at the bottom of the list. Applies to all current and future setlists rendered through the shared Setlists renderer.', items:['Upload index_r738.html as index.html.', 'Confirm Build Version reports r738.', 'Phone-test Setlists: open several setlists and scroll to the very bottom; the main Setlists header and the specific opened setlist header should stay stable with no jump.'] },
   { version:'2026-05-26-songs-edit-keyboard-polish-r737', date:'May 26, 2026', importance:'fix', emoji:'🎹', title:'Songs edit keyboard view improved', body:'Adds focus-aware scroll margins and modest viewport breathing room to the Songs Add/Edit Song modal so editable fields are easier to keep visible above the Android keyboard, while keeping the modal visually balanced. No song fields, save/delete/YouTube behavior, row layout, or app data changed.', items:['Upload index_r737.html as index.html.', 'Confirm Build Version reports r737.', 'Phone-test Songs: Add/Edit Song, focus fields near the middle and bottom such as YouTube, practice link, and Notes; confirm the focused field is easier to see above the keyboard and Save/Delete/YouTube still work.'] },
   { version:'2026-05-26-setlists-expanded-header-bottom-stable-r736', date:'May 26, 2026', importance:'fix', emoji:'📋', title:'Setlists expanded header stabilized at bottom', body:'Adds expanded-setlist scroll-state handling and extra bottom scroll runway so the opened setlist header stays stable even when scrolling to the bottom of the song list. Applies to all current and future setlists rendered by the shared Setlists renderer.', items:['Upload index_r736.html as index.html.', 'Confirm Build Version reports r736.', 'Phone-test Setlists: expand several current setlists and scroll to the very bottom; the main hero and specific setlist header should remain stable.'] },
