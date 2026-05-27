@@ -1,3 +1,4 @@
+<!-- r761: Home social buttons visibility fix. Fixes the r760 Home lower-right Facebook/Instagram buttons being partially clipped after the restored tight Home bottom gap by adjusting the existing HOME_IMAGE_PRESENTATION inline renderer clamp only. Applies to all Home band images and both Home modes through the central registry renderer; does not change image assets/framing, alert pill colors, Next Gig, tabs, or unrelated sections. Upload index_r761.html as index.html after phone test. -->
 <!-- r760: Emergency rollback/fix from r758 after r759 invalid inline onclick string broke Home rendering. Keeps r758 stable logic, adds only a CSS-level premium override for the Home Song Vote Pending pill, and preserves r757 bottom-gap plus r758 Suggest URL paste stability. Upload index_r760.html as index.html after phone test. -->
 <!-- r758: Suggest-a-Song YouTube URL first-paste stability. Fixes the remaining first-paste miss after returning from YouTube by canceling stale Suggest restore/reopen timers as soon as the URL field is touched/focused, preventing late reopen/clear routines from stealing focus or clearing the pasted URL. Scope is Songs → Suggest a Song URL field/YouTube-return lifecycle only; preserves r757 Home bottom-gap fix, r756 Song Vote Pending color scheme, suggestion submit/vote/delete behavior, and all other tabs. Upload index_r758.html as index.html after phone test. -->
 <!-- r757: Home bottom-gap restoration for dual-alert state. Restores the locked thin Home band-image-to-tab gap when Song Vote Pending and Rehearsal on Deck are both visible, preserving the r756 Song Vote Pending color scheme and leaving Home image assets/framing/social buttons and all other tabs unchanged. Upload index_r757.html as index.html after phone test. -->
@@ -29963,10 +29964,11 @@ function _applyHomeImagePresentation(row, idx){
   var btnIcon = (p.buttons.iconPx || 20) + 'px';
   var btnX = ((p.buttons.xPx === 0 ? 0 : (p.buttons.xPx || 0))) + 'px';
   var btnYNum = (p.buttons.yPx === 0 ? 0 : (p.buttons.yPx || 0));
-  // r676: keep this in the registry renderer. r675 CSS did not work because this
-  // r594 inline-important renderer reapplies button transforms after CSS. Clamp every
-  // Home image/mode to a safe upward Y so social buttons clear the bottom tab row.
-  var HOME_SOCIAL_BUTTON_MIN_UP_Y_PX = -14;
+  // r761: keep this in the registry renderer. CSS-only social-button lifts get
+  // overwritten by this inline-important renderer. The restored tight Home bottom gap
+  // requires a stronger global upward clamp so Facebook/Instagram stay fully visible
+  // across all 20 Home images and both normal/rehearsal modes.
+  var HOME_SOCIAL_BUTTON_MIN_UP_Y_PX = -30;
   if(btnYNum > HOME_SOCIAL_BUTTON_MIN_UP_Y_PX) btnYNum = HOME_SOCIAL_BUTTON_MIN_UP_Y_PX;
   var btnY = btnYNum + 'px';
   var btnScale = (p.buttons.scale === 0 ? 0 : (p.buttons.scale || 1));
@@ -32397,7 +32399,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-home-song-vote-css-fix-r760';
+var WHATS_NEW_VERSION = '2026-05-26-home-social-buttons-visible-r761';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32742,6 +32744,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-home-social-buttons-visible-r761', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home social buttons visible', body:'Fixes the Home lower-right Facebook and Instagram buttons being partially clipped after the tight Home bottom gap was restored. The fix is made in the central HOME_IMAGE_PRESENTATION inline renderer, not scattered CSS, so it applies consistently across all 20 Home images and both normal and Rehearsal on Deck modes. Home image assets/framing, Song Vote Pending styling, Rehearsal on Deck, Next Gig, and all other tabs remain unchanged.', items:['Upload index_r761.html as index.html.', 'Confirm Build Version reports r761.', 'Phone-test Home images: confirm Facebook and Instagram buttons are fully visible in the lower-right corner, both with and without Rehearsal on Deck visible.'] },
   { version:'2026-05-26-home-song-vote-css-fix-r760', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home rendering restored and vote pill refined', body:'Emergency fix after r759 broke Home rendering with an invalid inline onclick string while attempting to restyle Song Vote Pending. r760 rebuilds from the stable r758 logic and applies the premium Song Vote Pending color scheme as a CSS-only override, preserving Rehearsal on Deck, Home bottom-gap behavior, and Suggest URL paste stability.', items:['Upload index_r760.html as index.html.', 'Confirm Build Version reports r760.', 'Phone-test Home: confirm Next Gig, band image, both alert pills, and bottom gap render normally; confirm Song Vote Pending has the refined premium color scheme.', 'Phone-test Songs → Suggest a Song URL paste path to confirm r758 behavior remains intact.'] },
   { version:'2026-05-26-suggest-url-first-paste-r758', date:'May 26, 2026', importance:'fix', emoji:'▶️', title:'Suggest Song URL first paste stabilized', body:'Fixes the remaining Songs → Suggest a Song YouTube URL first-paste issue after returning from YouTube. Touching or focusing the URL field now immediately cancels stale Suggest YouTube restore/reopen payloads so delayed timers cannot scroll the form, clear the URL, or steal focus back toward the Song field. Home r757 bottom-gap fix and r756 Song Vote Pending styling remain unchanged.', items:['Upload index_r758.html as index.html.', 'Confirm Build Version reports r758.', 'Phone-test Songs → Suggest a Song: tap Find link, return from YouTube, tap the YouTube URL field once, paste once, and confirm the URL sticks without the form jumping or focus moving to Song.'] },
   { version:'2026-05-26-home-bottom-gap-restore-r757', date:'May 26, 2026', importance:'fix', emoji:'🏠', title:'Home bottom gap restored', body:'Restores the locked thin Home bottom gap between the band image/social area and the bottom tab bar when Song Vote Pending and Rehearsal on Deck are both visible. The r756 Song Vote Pending color scheme remains, Rehearsal on Deck remains unchanged, and no Home image asset/framing or other tabs are changed.', items:['Upload index_r757.html as index.html.', 'Confirm Build Version reports r757.', 'Phone-test Home with both Song Vote Pending and Rehearsal on Deck visible; confirm the bottom gap is back to the prior thin/default thickness and the new Song Vote Pending colors remain.'] },
