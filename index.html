@@ -1,3 +1,4 @@
+<!-- r753: Suggest-a-Song YouTube return + suggestion delete icon. Adds a dedicated durable return restore for Songs → Suggest a Song → YouTube lookup so returning from YouTube restores the Suggest form instead of defaulting Home, and replaces the owned suggestion Remove Suggestion text pill with the app-standard red trash-can icon. Scope is Song Suggestions/Suggest a Song only; preserves r752 single-X cleanup, r751 visible YouTube helper, r750 dictation/capitalization, suggestion submit/vote logic, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, and unrelated UI. Upload index_r753.html as index.html after phone test. -->
 <!-- r752: Suggest-a-Song duplicate close cleanup. Removes only the lower/smaller duplicate X inside the Suggest a Song form, leaving the sticky modal header X as the single close control. Preserves r751 YouTube helper visibility, r750 voice-input capitalization behavior, suggestion submit/vote logic, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, and unrelated UI. Upload index_r752.html as index.html after phone test. -->
 <!-- r751: Suggest-a-Song YouTube helper visibility. Reworks only the Suggest a Song YouTube URL/helper area so the YouTube icon is visible when the modal opens by placing the existing red YouTube icon action inline with the URL field, tightening the suggest form vertical stack, and preserving sticky heading, draft/YouTube lookup behavior, voice input fixes, and all song suggestion submit/vote logic. No Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, or unrelated UI changed. Upload index_r751.html as index.html after phone test. -->
 <!-- r750: Suggest-a-Song voice input normalization. Fixes speech-dictation capture on Suggest Song title/artist by removing live value mutation during input, adds word capitalization on blur/submit for Song and Artist, and keeps Why this song sentence-style capitalization only. Scope is Songs Suggest form input handling only; no song data/vote logic, YouTube helper behavior, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, or unrelated UI changed. Upload index_r750.html as index.html after phone test. -->
@@ -11739,6 +11740,36 @@ body.light #votes-modal.suggest-mode #suggest-youtube-open.suggest-youtube-link-
   color:#9a6a00 !important;
 }
 
+
+/* r753: Song Suggestions remove action consistency.
+   Replace the old lower "Remove suggestion" text pill with the same red trash-can
+   icon language used elsewhere in the app. Scoped to the Songs vote/suggestion modal only. */
+#votes-modal .suggestion-delete-icon{
+  width:34px !important;
+  height:34px !important;
+  min-width:34px !important;
+  border-radius:999px !important;
+  background:rgba(255,71,87,.14) !important;
+  border:1.5px solid rgba(255,71,87,.82) !important;
+  color:#ff4757 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 !important;
+  margin:7px 0 0 auto !important;
+  cursor:pointer !important;
+  box-shadow:0 0 14px rgba(255,71,87,.16) !important;
+  touch-action:manipulation !important;
+}
+#votes-modal .suggestion-delete-icon:active{transform:scale(.96) !important;}
+#votes-modal .suggestion-delete-icon svg{display:block !important;width:18px !important;height:18px !important;}
+body.light #votes-modal .suggestion-delete-icon{
+  background:rgba(255,71,87,.10) !important;
+  border-color:#d83245 !important;
+  color:#d83245 !important;
+  box-shadow:0 0 10px rgba(216,50,69,.10) !important;
+}
+
 </style>
 </head>
 <body>
@@ -15845,8 +15876,10 @@ function rVotes(){
     // Delete (with confirm, only for suggester)
     if(s.suggestedById===ME){
       var del=document.createElement('button');
-      del.style.cssText='background:none;border:none;color:#4a6a9a;font-size:11px;cursor:pointer;margin-top:6px;display:block;font-family:Russo One,sans-serif;';
-      del.textContent='Remove suggestion';
+      del.className='suggestion-delete-icon';
+      del.title='Remove suggestion';
+      del.setAttribute('aria-label','Remove suggestion');
+      del.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg>';
       del.onclick=(function(id){ return function(){
         appConfirm({title:'Remove suggestion?', message:'This will delete the song suggestion and all of its votes.'}).then(function(ok){ if(ok) db.collection('suggestions').doc(id).delete(); });
       }; })(s.id);
@@ -15931,18 +15964,113 @@ function openSuggestYouTubeLookup(){
     var draft = _getSuggestSongDraft();
     var q = ((draft.title || '') + ' ' + (draft.artist || '')).trim();
     var url = q ? ('https://www.youtube.com/results?search_query=' + encodeURIComponent(q)) : 'https://www.youtube.com/';
+    try { _storeSuggestYouTubeReturn(draft, url); } catch(eStore){}
     _openExternalUrl(url, {
       externalKind:'suggest-youtube',
       tab:'songs',
       openOverlays:['votes-modal'],
       votesMode:'suggest',
       suggestDraft:draft,
+      suggestReturn:true,
       songsScroll:(document.getElementById('sc-songs') ? document.getElementById('sc-songs').scrollTop : 0),
       restoreAfterMs:1200
     });
   } catch(e){
     try { _openExternalUrl('https://www.youtube.com/'); } catch(e2){}
   }
+}
+
+// r753: Dedicated restore path for Suggest-a-Song → YouTube lookup.
+// The general app lifecycle correctly defaults normal reopen to Home, but this
+// specific flow must return the user to the Suggest form so they can paste the
+// URL they copied. Keep this scoped, TTL-bound, and cleared after the restore
+// shield expires so it does not become general state persistence.
+var _ootSuggestYouTubeReturnKey = 'oot_suggest_youtube_return_v1';
+var _ootSuggestYouTubeReturnTTL = 10 * 60 * 1000;
+var _ootSuggestYouTubeRestoreUntil = 0;
+var _ootLastSuggestYouTubeReturn = null;
+function _storeSuggestYouTubeReturn(draft, url){
+  try {
+    var payload = {
+      source:'oot-suggest-youtube-v1',
+      at:Date.now(),
+      draft:draft || _getSuggestSongDraft(),
+      url:url || '',
+      songsScroll:(document.getElementById('sc-songs') ? document.getElementById('sc-songs').scrollTop : 0)
+    };
+    var raw = JSON.stringify(payload);
+    try { sessionStorage.setItem(_ootSuggestYouTubeReturnKey, raw); } catch(e1){}
+    try { localStorage.setItem(_ootSuggestYouTubeReturnKey, raw); } catch(e2){}
+    window._ootLastSuggestYouTubeReturn = payload;
+  } catch(e){}
+}
+function _readSuggestYouTubeReturnFrom(storage){
+  try {
+    var raw = storage && storage.getItem(_ootSuggestYouTubeReturnKey);
+    if(!raw) return null;
+    var payload = JSON.parse(raw);
+    if(!payload || payload.source !== 'oot-suggest-youtube-v1' || !payload.at) return null;
+    var age = Date.now() - Number(payload.at || 0);
+    if(age < 0 || age > _ootSuggestYouTubeReturnTTL){
+      try { storage.removeItem(_ootSuggestYouTubeReturnKey); } catch(e1){}
+      return null;
+    }
+    return payload;
+  } catch(e){ return null; }
+}
+function _loadSuggestYouTubeReturn(){
+  try {
+    var payload = window._ootLastSuggestYouTubeReturn || null;
+    if(payload && payload.at){
+      var age = Date.now() - Number(payload.at || 0);
+      if(age >= 0 && age <= _ootSuggestYouTubeReturnTTL) return payload;
+    }
+    payload = _readSuggestYouTubeReturnFrom(sessionStorage) || _readSuggestYouTubeReturnFrom(localStorage);
+    if(payload){
+      window._ootLastSuggestYouTubeReturn = payload;
+      try { sessionStorage.setItem(_ootSuggestYouTubeReturnKey, JSON.stringify(payload)); } catch(e2){}
+      return payload;
+    }
+  } catch(e){}
+  return null;
+}
+function _clearSuggestYouTubeReturn(reason){
+  try { sessionStorage.removeItem(_ootSuggestYouTubeReturnKey); } catch(e1){}
+  try { localStorage.removeItem(_ootSuggestYouTubeReturnKey); } catch(e2){}
+  try { window._ootLastSuggestYouTubeReturn = null; } catch(e3){}
+  try { window._ootSuggestYouTubeRestoreUntil = 0; } catch(e4){}
+}
+function _applySuggestYouTubeReturn(payload, reason){
+  try {
+    if(!payload) return false;
+    try { if(typeof _cancelForceHomeDefaultTimers === 'function') _cancelForceHomeDefaultTimers(); } catch(e0){}
+    var btn = document.getElementById('tb-songs');
+    if(typeof go === 'function') go('songs', btn);
+    if(typeof openSongSuggestModal === 'function') openSongSuggestModal();
+    setTimeout(function(){ try { _restoreSuggestSongDraft(payload.draft); } catch(e){} }, 80);
+    setTimeout(function(){ try { _restoreSuggestSongDraft(payload.draft); } catch(e){} }, 350);
+    setTimeout(function(){ try { _restoreSuggestSongDraft(payload.draft); } catch(e){} }, 900);
+    setTimeout(function(){ try { if(document.getElementById('sc-songs')) document.getElementById('sc-songs').scrollTop = Number(payload.songsScroll || 0); } catch(e){} }, 250);
+    window._ootSuggestYouTubeRestoreUntil = Date.now() + 6500;
+    window._ootLastSuggestYouTubeReturn = payload;
+    setTimeout(function(){
+      try {
+        if(window._ootSuggestYouTubeRestoreUntil && Date.now() >= window._ootSuggestYouTubeRestoreUntil){
+          _clearSuggestYouTubeReturn('restore-window-expired');
+        }
+      } catch(e){}
+    }, 7000);
+    return true;
+  } catch(e){ return false; }
+}
+function _restoreSuggestYouTubeReturn(reason){
+  try {
+    var payload = _loadSuggestYouTubeReturn();
+    if(!payload) return false;
+    var age = Date.now() - Number(payload.at || 0);
+    if(age < 600) return false;
+    return _applySuggestYouTubeReturn(payload, reason || 'suggest-youtube-return');
+  } catch(e){ return false; }
 }
 function submitSuggestion(){
   var titleEl=document.getElementById('suggest-title');
@@ -32123,7 +32251,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-26-suggest-duplicate-close-cleanup-r752';
+var WHATS_NEW_VERSION = '2026-05-26-suggest-youtube-return-trash-icon-r753';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32468,6 +32596,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-26-suggest-youtube-return-trash-icon-r753', date:'May 26, 2026', importance:'fix', emoji:'▶️', title:'Suggest Song return and delete icon fixed', body:'Fixes the Songs → Suggest a Song YouTube lookup handoff so returning from YouTube restores the Suggest a Song form instead of landing on Home, and replaces the owned suggestion Remove Suggestion text pill with the red trash-can icon style used elsewhere in the app. Suggest form draft values, YouTube Find link behavior, voice input/capitalization, submit/vote logic, and unrelated app sections are unchanged.', items:['Upload index_r753.html as index.html.', 'Confirm Build Version reports r753.', 'Phone-test Songs → Suggest a Song: enter a draft, tap Find link, go to YouTube, return to the app, and confirm the Suggest form reopens with the draft intact so the URL can be pasted.', 'Phone-test a suggestion you created: confirm the lower Remove Suggestion text pill is gone and the red trash-can icon removes it after confirmation.'] },
   { version:'2026-05-26-suggest-duplicate-close-cleanup-r752', date:'May 26, 2026', importance:'fix', emoji:'✕', title:'Suggest Song duplicate close cleanup', body:'Removes only the lower/smaller duplicate X inside the Songs → Suggest a Song form so the sticky modal header X is the single close control. Preserves the visible YouTube helper from r751, the voice-input capitalization behavior from r750, suggestion submit/vote logic, and all unrelated app sections.', items:['Upload index_r752.html as index.html.', 'Confirm Build Version reports r752.', 'Phone-test Songs → Suggest a Song: confirm only one X appears in the sticky heading, the YouTube Find link button remains visible, and Submit still works.'] },
   { version:'2026-05-26-suggest-youtube-helper-visible-r751', date:'May 26, 2026', importance:'fix', emoji:'▶️', title:'Suggest Song YouTube helper visibility', body:'Fixes only the Songs → Suggest a Song YouTube helper layout. The YouTube action is now an inline red YouTube icon/button beside the optional URL field with a compact label, so it is visible when the Suggest a Song window opens instead of falling below the bottom of the modal. Preserves the sticky heading, r750 voice-input capitalization fix, YouTube search handoff/draft preservation, submit behavior, voting logic, and all unrelated tabs.', items:['Upload index_r751.html as index.html.', 'Confirm Build Version reports r751.', 'Phone-test Songs → Suggest a Song: confirm the YouTube icon/button is visible immediately on open, opens YouTube search, and the URL field/Submit remain reachable.'] },
   { version:'2026-05-26-suggest-song-voice-input-r750', date:'May 26, 2026', importance:'fix', emoji:'🎙️', title:'Suggest Song voice input fix', body:'Fixes only the Songs → Suggest a Song text-entry behavior. Song and Artist no longer rewrite the field value on every input event, which should prevent Android/Samsung microphone dictation from stopping after the first word and first letter of the second word. Song and Artist are normalized to capitalize the first letter of each word on blur/submit, while Why this song remains sentence-style with only the first word capitalized. No song suggestion data model, voting logic, YouTube helper behavior, Songs list/search styling, Setlists, Home, Calendar, Chat, Mates, Pay, assets, or unrelated UI changed.', items:['Upload index_r750.html as index.html.', 'Confirm Build Version reports r750.', 'Phone-test Songs → Suggest a Song: use the microphone in Song and Artist and confirm the full spoken title/artist is captured; confirm Song/Artist word capitalization and Why this song sentence capitalization; then submit normally.'] },
@@ -33755,6 +33884,25 @@ if(savedName&&savedId){
   });
   window.addEventListener('pagehide', function(){ _handleLifecycleLeaving('pagehide'); });
   window.addEventListener('pageshow', function(){ _handleLifecycleReturn('pageshow'); });
+})();
+
+
+// r753: Restore Suggest-a-Song after the YouTube handoff even if Android/PWA
+// delivers lifecycle events in an order that first lands the app on Home.
+(function(){
+  function scheduleSuggestYouTubeRestore(reason){
+    [40,180,520,1100,2200,4200].forEach(function(delay){
+      setTimeout(function(){
+        try { if(typeof _restoreSuggestYouTubeReturn === 'function') _restoreSuggestYouTubeReturn(reason || 'suggest-youtube-return'); } catch(e){}
+      }, delay);
+    });
+  }
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'visible') scheduleSuggestYouTubeRestore('visibility-visible');
+  });
+  window.addEventListener('focus', function(){ scheduleSuggestYouTubeRestore('window-focus'); });
+  window.addEventListener('pageshow', function(){ scheduleSuggestYouTubeRestore('pageshow'); });
+  setTimeout(function(){ scheduleSuggestYouTubeRestore('initial-load'); }, 900);
 })();
 
 // r367: Do not preserve a previously open Calendar Event Details/day drawer
