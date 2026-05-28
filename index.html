@@ -8968,6 +8968,55 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   margin-bottom:-22px !important;
 }
 
+
+/* r796: Home alert overlay mode.
+   Song Vote / Rehearsal pills no longer consume Home stack height or trigger the
+   old downstream compression. When either pill is visible, overlay the existing
+   alert row over the lower logo artwork; keep the catch phrase above it and keep
+   No Gig/Gig Counter + band image positions unchanged. */
+#sc-home{
+  position:relative !important;
+}
+#home-alerts-row{
+  position:absolute !important;
+  left:10px !important;
+  right:10px !important;
+  top:252px !important;
+  z-index:9 !important;
+  margin:0 !important;
+  padding:0 !important;
+  min-height:0 !important;
+  pointer-events:none !important;
+}
+#home-alerts-row #home-song-vote-cue,
+#home-alerts-row #home-rehearsal-cue{
+  pointer-events:auto !important;
+}
+#home-alerts-row .home-alert-pill{
+  margin:0 !important;
+  min-height:58px !important;
+  padding:8px 10px !important;
+  border-radius:14px !important;
+}
+#sc-home:has(#home-song-vote-cue[style*="display: block"]) .hero.home-hero-with-controls .hero-l img,
+#sc-home:has(#home-song-vote-cue[style*="display:block"]) .hero.home-hero-with-controls .hero-l img,
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) .hero.home-hero-with-controls .hero-l img,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) .hero.home-hero-with-controls .hero-l img{
+  top:-42px !important;
+}
+#sc-home:has(#home-song-vote-cue[style*="display: block"]) .hero.home-hero-with-controls .hero-tagline,
+#sc-home:has(#home-song-vote-cue[style*="display:block"]) .hero.home-hero-with-controls .hero-tagline,
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) .hero.home-hero-with-controls .hero-tagline,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) .hero.home-hero-with-controls .hero-tagline{
+  bottom:76px !important;
+}
+#sc-home:has(#home-song-vote-cue[style*="display: block"]) #home-social-row,
+#sc-home:has(#home-song-vote-cue[style*="display:block"]) #home-social-row,
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row{
+  margin-bottom:0 !important;
+}
+
 /* r663: Songs side gutters only — match locked gap 2 standard on left/right edges. */
 #sc-songs{
   padding-left:2px !important;
@@ -30159,7 +30208,10 @@ function _homeRehearsalCueVisible(){
   return false;
 }
 function _homeImagePresentationMode(){
-  return _homeRehearsalCueVisible() ? 'rehearsal' : 'normal';
+  // r796: Home alert pills are now overlayed on the lower logo area instead of
+  // consuming vertical layout space. Rehearsal visibility must no longer switch
+  // the Home band image into the old compressed/rehearsal framing mode.
+  return 'normal';
 }
 function _getHomeImagePresentation(idx, mode){
   mode = mode || 'normal';
@@ -32654,7 +32706,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-home-band-image-selected-y-lift-r795';;
+var WHATS_NEW_VERSION = '2026-05-28-home-alert-overlay-r796';;
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
