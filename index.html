@@ -8868,6 +8868,76 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 #no-gigs-card{
   margin-bottom:2px !important;
 }
+
+/* r791: Home logo bottom-trim + true transparent top overlay.
+   Starts from r790. Keep the logo's rendered width/top anchor by leaving the inner
+   logo image at the r790/r788 size, but shorten only the visible hero window from
+   the bottom. Also remove the top mask so the blue circular logo border can show
+   through the now-transparent control row. */
+#sc-home .hero.home-hero-with-controls{
+  height:318px !important;
+  max-height:318px !important;
+}
+#sc-home .hero.home-hero-with-controls .hero-l img{
+  height:min(398px, calc(100vw - 14px)) !important;
+  min-height:min(398px, calc(100vw - 14px)) !important;
+  object-position:center top !important;
+  -webkit-mask-image:linear-gradient(to bottom,
+    #000 0%,
+    #000 85%,
+    transparent 85%,
+    transparent 100%) !important;
+  mask-image:linear-gradient(to bottom,
+    #000 0%,
+    #000 85%,
+    transparent 85%,
+    transparent 100%) !important;
+}
+#sc-home .hero.home-hero-with-controls .hero-tagline{
+  bottom:18px !important;
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.42) !important;
+}
+#sc-home .hero.home-hero-with-controls #home-header-row,
+#sc-home .hero.home-hero-with-controls #home-header-row::before,
+#sc-home .hero.home-hero-with-controls #home-header-row::after{
+  background:transparent !important;
+  background-color:transparent !important;
+  background-image:none !important;
+  border:none !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  filter:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+#sc-home .hero.home-hero-with-controls #home-header-row *,
+#sc-home .hero.home-hero-with-controls #home-menu-btn,
+#sc-home .hero.home-hero-with-controls #ann-bell,
+#sc-home .hero.home-hero-with-controls #who-am-i,
+#sc-home .hero.home-hero-with-controls #who-am-i *{
+  background:transparent !important;
+  background-color:transparent !important;
+  background-image:none !important;
+  box-shadow:none !important;
+  filter:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+#sc-home .hero.home-hero-with-controls #ann-bell,
+#sc-home .hero.home-hero-with-controls #who-am-i,
+#sc-home .hero.home-hero-with-controls #who-am-i *{
+  border-color:transparent !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.42) !important;
+}
+@media (max-width:520px){
+  #sc-home .hero.home-hero-with-controls{
+    height:318px !important;
+    max-height:318px !important;
+  }
+}
 /* r661: bottom gap only — extend Home band image frame farther downward without changing locked gaps 1-4. */
 #home-social-row{
   margin-top:0 !important;
@@ -32579,7 +32649,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-home-logo-overlay-transparency-r790';
+var WHATS_NEW_VERSION = '2026-05-28-home-logo-bottom-trim-transparent-overlay-r791';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
