@@ -1,4 +1,3 @@
-<!-- r812: Home cue diagnostic build. Adds runtime Home Cue Debug instrumentation only; no attempted fix to alert data/layout, no Home visual changes except a menu item and diagnostic modal. Upload index_r812.html as index.html. -->
 <!-- r810: Home cue fallback listeners + social button lower-safe adjustment. Starts from r809. Adds unordered Firestore fallback listeners for Home song/rehearsal cue data so ordered-query/data-field issues cannot leave Home pills empty, broadens future proposal matching, and lowers social buttons slightly while keeping them visible. -->
 <!-- r807: Rollback from r806. Reverts the failed r806 rehearsal-alert overlay clearance change because r806 caused the Home alert pills to disappear on phone. Restores the phone-visible r805 Home alert behavior exactly and bumps WHATS_NEW_VERSION so phones detect the rollback. Upload index_r807.html as index.html. -->
 <!-- r805: Home catchphrase micro-lift. Starts from phone-tested r804 and moves only the Home logo catchphrase up 4px in both normal and alert states. No logo movement, gap changes, top overlay changes, alert pill changes, Next Gig/No Gig, band image, social buttons, downstream Home layout, or non-Home sections changed. Upload index_r805.html as index.html. -->
@@ -12142,6 +12141,35 @@ body.light #votes-modal .suggestion-delete-icon{
 #sc-home:has(#home-rehearsal-cue[style*="display: block"]) .hero.home-hero-with-controls .hero-tagline,
 #sc-home:has(#home-rehearsal-cue[style*="display:block"]) .hero.home-hero-with-controls .hero-tagline{
   bottom:88px !important;
+}
+
+
+/* r813: Restore Home alert pill height while keeping zero-height overlay row.
+   Diagnostic r812 proved both cue divs were populated and display:block, but their
+   rect height was 0 because the zero-height overlay row plus earlier two-alert
+   CSS forced the cue containers to height:100% of a 0px parent. Keep the row as
+   a zero-height overlay so downstream layout is not pushed, but let the cue
+   containers and pills keep their natural/min height and paint visibly. */
+#sc-home:has(#home-song-vote-cue[style*="display: block"]) #home-alerts-row #home-song-vote-cue,
+#sc-home:has(#home-song-vote-cue[style*="display:block"]) #home-alerts-row #home-song-vote-cue,
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-alerts-row #home-rehearsal-cue,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-alerts-row #home-rehearsal-cue{
+  height:auto !important;
+  min-height:58px !important;
+  max-height:none !important;
+  overflow:visible !important;
+  align-self:start !important;
+  position:relative !important;
+  z-index:19 !important;
+}
+#sc-home:has(#home-song-vote-cue[style*="display: block"]) #home-alerts-row .home-alert-pill,
+#sc-home:has(#home-song-vote-cue[style*="display:block"]) #home-alerts-row .home-alert-pill,
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-alerts-row .home-alert-pill,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-alerts-row .home-alert-pill{
+  height:auto !important;
+  min-height:58px !important;
+  max-height:none !important;
+  overflow:visible !important;
 }
 
 </style>
@@ -32835,110 +32863,6 @@ try {
 } catch(e){}
 
 
-
-// r812: Home cue diagnostic instrumentation. This does not change pill rendering.
-function _homeCueDebugValue(v){
-  try{
-    if(v === undefined) return 'undefined';
-    if(v === null) return 'null';
-    if(typeof v === 'object'){
-      if(v.seconds) return 'Timestamp(' + v.seconds + ')';
-      return JSON.stringify(v).slice(0,220);
-    }
-    return String(v).slice(0,220);
-  }catch(e){ return '[unreadable]'; }
-}
-function _homeCueDebugRecords(list, type){
-  try{
-    return (list || []).slice(0,8).map(function(x,i){
-      if(!x) return (i+1)+'. null';
-      if(type === 'suggestion'){
-        return (i+1)+'. id=' + _homeCueDebugValue(x.id) +
-          ' title=' + _homeCueDebugValue(x.title || x.name) +
-          ' status=' + _homeCueDebugValue(x.status || x.state) +
-          ' yes=' + _homeCueDebugValue((x.yesVoters||[]).length) +
-          ' no=' + _homeCueDebugValue((x.noVoters||[]).length) +
-          ' myVote=' + (typeof _songSuggestionMyVote === 'function' ? _songSuggestionMyVote(x) : 'n/a');
-      }
-      if(type === 'event'){
-        return (i+1)+'. id=' + _homeCueDebugValue(x.id) +
-          ' date=' + _homeCueDebugValue(x.date) +
-          ' type=' + _homeCueDebugValue(x.type) +
-          ' title=' + _homeCueDebugValue(x.title) +
-          ' start=' + _homeCueDebugValue(x.startTime || x.start) +
-          ' end=' + _homeCueDebugValue(x.endTime || x.end) +
-          ' looksReh=' + (typeof _ootLooksLikeRehearsalRecord === 'function' ? _ootLooksLikeRehearsalRecord(x) : 'n/a');
-      }
-      if(type === 'proposal'){
-        return (i+1)+'. id=' + _homeCueDebugValue(x.id) +
-          ' date=' + _homeCueDebugValue(x.date) +
-          ' status=' + _homeCueDebugValue(x.status || x.state) +
-          ' title=' + _homeCueDebugValue(x.title) +
-          ' start=' + _homeCueDebugValue(x.startTime) +
-          ' proposedAt=' + _homeCueDebugValue(x.proposedAt || x.createdAt);
-      }
-      return (i+1)+'. ' + _homeCueDebugValue(x);
-    }).join('\n');
-  }catch(e){ return '[records error: ' + (e && e.message || e) + ']'; }
-}
-function _homeCueDebugSnapshot(){
-  var songEl = document.getElementById('home-song-vote-cue');
-  var rehEl = document.getElementById('home-rehearsal-cue');
-  var rowEl = document.getElementById('home-alerts-row');
-  function elInfo(el){
-    if(!el) return 'missing';
-    var cs = window.getComputedStyle ? getComputedStyle(el) : null;
-    var r = el.getBoundingClientRect ? el.getBoundingClientRect() : {top:0,left:0,width:0,height:0};
-    return 'inlineDisplay=' + (el.style && el.style.display || '') +
-      ' computedDisplay=' + (cs ? cs.display : 'n/a') +
-      ' htmlLen=' + (el.innerHTML || '').length +
-      ' rect=' + Math.round(r.left)+','+Math.round(r.top)+' '+Math.round(r.width)+'x'+Math.round(r.height) +
-      ' z=' + (cs ? cs.zIndex : 'n/a') +
-      ' overflow=' + (cs ? cs.overflow : 'n/a');
-  }
-  var pending = [], openSongs = [], activeSongs = [], nextReh = null, openProp = null;
-  try{ pending = (typeof _pendingSongSuggestionsForMe === 'function') ? _pendingSongSuggestionsForMe() : []; }catch(e){ pending = ['ERR '+e.message]; }
-  try{ openSongs = (typeof _homeOpenSongSuggestions === 'function') ? _homeOpenSongSuggestions() : []; }catch(e){ openSongs = ['ERR '+e.message]; }
-  try{ activeSongs = (typeof _homeAnyActiveSongSuggestions === 'function') ? _homeAnyActiveSongSuggestions() : []; }catch(e){ activeSongs = ['ERR '+e.message]; }
-  try{ nextReh = (typeof _r535NextUpcomingRehearsal === 'function') ? _r535NextUpcomingRehearsal() : null; }catch(e){ nextReh = 'ERR '+e.message; }
-  try{ openProp = (typeof _ootNextOpenRehearsalProposal === 'function') ? _ootNextOpenRehearsalProposal() : null; }catch(e){ openProp = 'ERR '+e.message; }
-  var rehEvents = [];
-  try{ rehEvents = (events||[]).filter(function(ev){ return typeof _ootLooksLikeRehearsalRecord === 'function' && _ootLooksLikeRehearsalRecord(ev); }); }catch(e){}
-  var lines = [];
-  lines.push('VERSION: ' + (typeof WHATS_NEW_VERSION !== 'undefined' ? WHATS_NEW_VERSION : 'unknown'));
-  lines.push('ME=' + _homeCueDebugValue(typeof ME !== 'undefined' ? ME : '') + ' myName=' + _homeCueDebugValue(typeof myName !== 'undefined' ? myName : ''));
-  lines.push('members=' + ((typeof members !== 'undefined' && members) ? members.length : 'n/a'));
-  lines.push('eventsHasInit=' + (typeof _eventsHasInit !== 'undefined' ? _eventsHasInit : 'n/a') + ' events=' + ((events||[]).length) + ' rehearsalLikeEvents=' + rehEvents.length);
-  lines.push('suggestions=' + ((suggestions||[]).length) + ' pendingForMe=' + pending.length + ' openIncomplete=' + openSongs.length + ' activeAny=' + activeSongs.length);
-  lines.push('proposals=' + ((typeof proposals !== 'undefined' && proposals) ? proposals.length : 'n/a'));
-  lines.push('nextRehearsal=' + _homeCueDebugValue(nextReh));
-  lines.push('nextOpenProposal=' + _homeCueDebugValue(openProp));
-  lines.push('songCue: ' + elInfo(songEl));
-  lines.push('rehearsalCue: ' + elInfo(rehEl));
-  lines.push('alertsRow: ' + elInfo(rowEl));
-  lines.push('\nSUGGESTIONS SAMPLE:\n' + _homeCueDebugRecords(suggestions, 'suggestion'));
-  lines.push('\nREHEARSAL EVENTS SAMPLE:\n' + _homeCueDebugRecords(rehEvents, 'event'));
-  lines.push('\nPROPOSALS SAMPLE:\n' + _homeCueDebugRecords((typeof proposals !== 'undefined' ? proposals : []), 'proposal'));
-  return lines.join('\n');
-}
-function showHomeCueDebugModal(){
-  try{ if(typeof renderHomeSongVoteCue === 'function') renderHomeSongVoteCue(); }catch(e){}
-  try{ if(typeof renderHomeRehearsalCue === 'function') renderHomeRehearsalCue(); }catch(e){}
-  var existing = document.getElementById('home-cue-debug-modal');
-  if(existing) existing.remove();
-  var ov = document.createElement('div');
-  ov.id = 'home-cue-debug-modal';
-  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:26000;display:flex;align-items:flex-start;justify-content:center;padding:18px 10px;overflow:auto;';
-  var card = document.createElement('div');
-  card.style.cssText = 'width:min(460px,96vw);max-height:88vh;overflow:auto;background:#081630;border:1px solid rgba(245,197,24,.55);border-radius:14px;box-shadow:0 12px 38px rgba(0,0,0,.7);padding:12px;color:#e8f0ff;';
-  var txt = _homeCueDebugSnapshot();
-  card.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;position:sticky;top:0;background:#081630;padding-bottom:8px;border-bottom:1px solid rgba(245,197,24,.25);"><div style="font-family:Russo One,sans-serif;color:#f5c518;font-size:13px;letter-spacing:1.4px;">HOME CUE DEBUG</div><button type="button" style="background:transparent;border:none;color:#fff;font-size:24px;line-height:1;" onclick="document.getElementById(\'home-cue-debug-modal\').remove()">×</button></div>'+
-    '<button type="button" style="width:100%;margin:0 0 8px;padding:8px 10px;border-radius:10px;border:1px solid rgba(74,158,255,.45);background:#0d2050;color:#fff;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;" onclick="navigator.clipboard&&navigator.clipboard.writeText(_homeCueDebugSnapshot()).then(function(){toast&&toast(\'Debug copied\',{tone:\'success\'});})">COPY DEBUG TEXT</button>'+
-    '<pre style="white-space:pre-wrap;word-break:break-word;font-size:11px;line-height:1.35;background:#050b16;border-radius:10px;padding:10px;border:1px solid rgba(74,158,255,.2);">'+_r535HomeEscape(txt)+'</pre>';
-  ov.appendChild(card);
-  document.body.appendChild(ov);
-}
-
 // ── Home tab kebab menu (r36) ─────────────────────────────────────
 function toggleHomeMenu(ev){
   if(ev) ev.stopPropagation();
@@ -32972,11 +32896,6 @@ function toggleHomeMenu(ev){
   pop.appendChild(mk("Build Version",
     '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#8aa8d6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>',
     function(){ if(typeof showVersionModal === 'function') showVersionModal(); }
-  ));
-  // r812: Home Cue Debug diagnostic — temporary, no layout changes
-  pop.appendChild(mk("Home Cue Debug",
-    '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#ffb86b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>',
-    function(){ if(typeof showHomeCueDebugModal === 'function') showHomeCueDebugModal(); }
   ));
   // r48: Arrange Tabs (promoted from hamburger)
   pop.appendChild(mk("Arrange Tabs",
@@ -33064,7 +32983,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-home-cue-diagnostic-r812';
+var WHATS_NEW_VERSION = '2026-05-28-home-alert-height-restore-r813';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
