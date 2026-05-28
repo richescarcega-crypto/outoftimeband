@@ -1,3 +1,4 @@
+<!-- r779: Home logo vertical reveal + top-gap match. Starts from phone-approved r778 and adjusts only the Home logo/header slot: reduces the Home top gap to the default thin gap, increases the Home logo card height symmetrically so more top and bottom logo artwork is revealed, and keeps the logo-to-gig-card gap, gig-card height, gig-card-to-band-image-box gap, band image renderer, social buttons, tabs, and other sections unchanged. Upload index_r779.html as index.html after phone test. -->
 <!-- r778: Home gig-slot hard lock. Starts from phone-approved r776 plus r777 and fixes the r777 miss by locking #next-gig-countdown and #no-gigs-card to one shared physical height instead of letting different inner content auto-size the cards. Tightens only the no-gig empty-state inner content so it fits inside the same countdown footprint. Preserves r776 Home image bottom-gap calibration, r774 admin suggestion delete, Home logo/header, alerts, tabs, social buttons, Calendar, Songs, Setlists, Chat, Mates, Pay, assets, and notification logic. Upload index_r778.html as index.html after phone test. -->
 <!-- r777: Home no-gig card footprint normalization. Starts from phone-approved r776 and makes the no-gig empty-state card use the same countdown-slot footprint as the normal Next Gig countdown card, so Home layout calibration remains stable whether a gig exists or not. Changes only the Home no-gig card presentation/renderer plus version/log metadata; preserves r776 Home image bottom-gap calibration, r774 admin suggestion delete, Home logo/header, alerts, tabs, social buttons, Calendar, Songs, Setlists, Chat, Mates, Pay, assets, and notification logic. Upload index_r777.html as index.html after phone test. -->
 <!-- r776: Home Image Registry bottom-gap calibration. Starts from r775 and corrects the central registry-renderer safe downward cap so the Home band image can sit at the default thin-gap position instead of being held too high and leaving an oversized blue bottom gap. Changes only the Home image presentation renderer policy plus version/log metadata; preserves r774 admin delete, logo, Next Gig, alert pills, tabs, social-button values, and other sections. Upload index_r776.html as index.html after phone test. -->
@@ -8744,18 +8745,18 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
    No logo crop, header controls, Home cards, band-image registry/framing, social buttons, or tab row changes. */
 /* r662: horizontal side gutters only — match locked gap 2 standard on left/right edges. */
 #sc-home{
-  padding:2px 2px 0 2px !important;
+  padding:0 2px 0 2px !important;
   gap:0 !important;
 }
 #sc-home .hero.home-hero-with-controls{
   margin:0 0 0 0 !important;
-  height:196px !important;
+  height:230px !important;
   flex:0 0 auto !important;
   border-radius:12px !important;
 }
 #sc-home .hero.home-hero-with-controls .hero-l img{
   object-fit:cover !important;
-  object-position:center 48% !important;
+  object-position:center 50% !important;
   transform:scale(.985) !important;
   transform-origin:center center !important;
 }
@@ -8821,10 +8822,10 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 }
 @media (max-width:520px){
   #sc-home{
-    padding:2px 2px 0 2px !important;
+    padding:0 2px 0 2px !important;
   }
   #sc-home .hero.home-hero-with-controls{
-    height:196px !important;
+    height:230px !important;
     margin-bottom:0 !important;
   }
   #sc-home .hero.home-hero-with-controls #home-header-row{
@@ -32521,7 +32522,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-27-home-gig-slot-hard-lock-r778';
+var WHATS_NEW_VERSION = '2026-05-27-home-logo-reveal-gap-match-r779';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -32866,6 +32867,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-27-home-logo-reveal-gap-match-r779', date:'May 27, 2026', importance:'fix', emoji:'🏠', title:'Home logo reveal and top gap matched', body:'Reduces the Home top gap to the default thin gap and increases only the Home logo/header card height so more of the existing logo artwork is revealed vertically, top and bottom. The logo-to-gig-card gap, locked gig/no-gig card height, gig-card-to-band-image-box gap, Home image renderer, social buttons, tabs, and unrelated sections are preserved.', items:['Upload index_r779.html as index.html.', 'Confirm Build Version reports r779.', 'Confirm Gap 1 above the logo now matches the default thin gap.', 'Confirm Gap 2 between logo and No Gig/Next Gig remains unchanged.', 'Confirm Gap 3 between the No Gig/Next Gig card and the band image box remains unchanged.', 'Confirm more of the gold clock/logo artwork is visible without clipping the logo card.'] },
   { version:'2026-05-27-home-gig-slot-hard-lock-r778', date:'May 27, 2026', importance:'fix', emoji:'🏠', title:'Home gig slot locked', body:'Locks the Home Next Gig countdown card and the No Gig Scheduled empty-state card to the same physical height instead of allowing different inner content to auto-size the cards. This corrects the r777 miss and keeps the Home layout stable whether or not a gig exists.', items:['Upload index_r778.html as index.html.', 'Confirm Build Version reports r778.', 'With no gigs on the calendar, confirm the No Gig Scheduled card height matches the Next Gig countdown card height.', 'Add or use a test future gig and confirm the countdown card occupies the same Home footprint.', 'Confirm Home band image/social buttons and Songs admin suggestion trash icon remain intact.'] },
   { version:'2026-05-27-home-no-gig-slot-match-r777', date:'May 27, 2026', importance:'fix', emoji:'🏠', title:'No-gig card matches countdown slot', body:'Makes the Home No Gig Scheduled empty-state card use the same countdown-slot footprint as the normal Next Gig countdown card. This stabilizes the Home layout so spacing tuned with no gigs should remain valid when a real gig countdown appears. Scope is only the Home no-gig card presentation and renderer; r776 Home image bottom-gap calibration, r774 admin suggestion delete, logo/header, alert pills, tabs, social buttons, and unrelated sections are preserved.', items:['Upload index_r777.html as index.html.', 'Confirm Build Version reports r777.', 'With no gigs/rehearsals on the calendar, confirm the No Gig Scheduled card is now the thinner countdown-slot height.', 'Add or use a test future gig only if needed and confirm the Next Gig countdown occupies the same Home footprint.', 'Confirm Home band image/social buttons and Songs → Vote on Suggestions admin trash icon remain intact.'] },
   { version:'2026-05-27-home-registry-bottom-gap-r776', date:'May 27, 2026', importance:'fix', emoji:'🏠', title:'Home bottom gap calibrated', body:'Refines the central Home Image Presentation renderer from r775 so the band image can sit at the default thin bottom-gap position instead of being held too high and leaving an oversized blue strip. This changes the renderer cap only; social-button values, logo, Next Gig, alert pills, tabs, and the r774 admin suggestion delete remain unchanged.', items:['Upload index_r776.html as index.html.', 'Confirm Build Version reports r776.', 'Phone-test Home with the alert pills hidden as in the screenshot: bottom gap should match the default thin gap.', 'Confirm feet remain visible and Facebook/Instagram remain usable.', 'Confirm Songs → Vote on Suggestions still shows the admin red trash icon.'] },
