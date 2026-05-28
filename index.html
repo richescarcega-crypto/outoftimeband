@@ -15908,6 +15908,23 @@ function _pendingSongSuggestionsForMe(){
     return (suggestions||[]).filter(function(s){ return !_songSuggestionMyVote(s); });
   }catch(e){ return []; }
 }
+// r808: Home Song Vote cue fallback. The primary cue remains member-specific
+// pending votes, but if the current member has already voted while suggestions
+// are still open/incomplete, keep a Home cue visible so admins/members can still
+// see that song-vote workflow activity is pending.
+function _homeOpenSongSuggestions(){
+  try{
+    var bandSize = (members && members.length) ? members.length : 6;
+    return (suggestions||[]).filter(function(s){
+      if(!s) return false;
+      var status = String(s.status || '').toLowerCase();
+      if(status === 'closed' || status === 'cancelled' || status === 'canceled' || status === 'deleted') return false;
+      var y = Array.isArray(s.yesVoters) ? s.yesVoters.length : 0;
+      var n = Array.isArray(s.noVoters) ? s.noVoters.length : 0;
+      return (y + n) < bandSize;
+    });
+  }catch(e){ return []; }
+}
 function _r535HomeEscape(s){
   return String(s == null ? '' : s).replace(/[&<>'"]/g, function(ch){
     return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch] || ch;
@@ -15963,10 +15980,25 @@ function _r535RehearsalStartSort(ev){
 function _r535NextUpcomingRehearsal(){
   try{
     var now = new Date();
-    return (events || []).filter(function(ev){
-      if(!ev || ev.type !== 'rehearsal' || !ev.date) return false;
+    var primary = (events || []).filter(function(ev){
+      if(!ev || String(ev.type || '').toLowerCase() !== 'rehearsal' || !ev.date) return false;
       var deadline = _r535RehearsalDeadline(ev);
       return !!(deadline && deadline.getTime() >= now.getTime());
+    }).sort(function(a,b){
+      return _r535RehearsalStartSort(a) - _r535RehearsalStartSort(b);
+    })[0] || null;
+    if(primary) return primary;
+    // r808 fallback: if time/deadline parsing or capitalization prevents the
+    // primary path from finding the rehearsal, use date-level upcoming matching.
+    var today = new Date();
+    today.setHours(0,0,0,0);
+    return (events || []).filter(function(ev){
+      if(!ev || !ev.date) return false;
+      var typ = String(ev.type || '').toLowerCase();
+      if(typ.indexOf('rehearsal') < 0) return false;
+      var d = new Date(String(ev.date) + 'T00:00:00');
+      if(isNaN(d.getTime())) return false;
+      return d.getTime() >= today.getTime();
     }).sort(function(a,b){
       return _r535RehearsalStartSort(a) - _r535RehearsalStartSort(b);
     })[0] || null;
@@ -16045,14 +16077,22 @@ function renderHomeSongVoteCue(){
   var el = document.getElementById('home-song-vote-cue');
   if(!el) return;
   var pending = _pendingSongSuggestionsForMe();
-  if(!pending.length){
+  var cueItems = pending;
+  var userSpecific = true;
+  if(!cueItems.length && typeof _homeOpenSongSuggestions === 'function'){
+    cueItems = _homeOpenSongSuggestions();
+    userSpecific = false;
+  }
+  if(!cueItems.length){
     el.style.display = 'none';
     el.innerHTML = '';
     return;
   }
-  var label = pending.length === 1 ? '1 song suggestion needs your vote' : (pending.length + ' song suggestions need your vote');
-  var first = pending[0] || {};
-  var detail = first.title ? ('“' + first.title + '”' + (pending.length>1 ? ' + more' : '')) : 'Review the pending suggestion list.';
+  var label = userSpecific
+    ? (cueItems.length === 1 ? '1 song suggestion needs your vote' : (cueItems.length + ' song suggestions need your vote'))
+    : (cueItems.length === 1 ? '1 song vote still in progress' : (cueItems.length + ' song votes still in progress'));
+  var first = cueItems[0] || {};
+  var detail = first.title ? ('“' + first.title + '”' + (cueItems.length>1 ? ' + more' : '')) : 'Review the pending suggestion list.';
   el.style.display = 'block';
   el.innerHTML =
     '<button class="home-alert-pill home-alert-song" type="button" onclick="try{go(\'songs\',document.getElementById(\'tb-songs\'));}catch(e){};setTimeout(function(){try{openSongVoteModal();}catch(e){}},80);" '+
@@ -32771,7 +32811,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-rollback-r806-to-r805-r807';
+var WHATS_NEW_VERSION = '2026-05-28-home-alert-data-gate-fallback-r808';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
