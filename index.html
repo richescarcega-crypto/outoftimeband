@@ -1,4 +1,4 @@
-<!-- r782: Home logo prominence / full reveal. Starts from r781 and changes the Home logo image presentation mechanism from cover-crop to contain-fit, because further height increases alone were being swallowed by the cover algorithm. Enlarges the logo/header slot and reveals almost the full logo while preserving Gap 1, Gap 2, Gap 3, the locked r778 gig-status card height, band image renderer, social buttons, tabs, and non-Home sections. Upload index_r782.html as index.html after phone test. -->
+<!-- r782: Home logo prominence / full reveal. Starts from r781 and changes the Home logo image presentation mechanism from cover-crop to contain-fit, because further height increases alone were being swallowed by the cover algorithm. Enlarges the logo/header slot and reveals almost the full logo while preserving Gap 1, Gap 2, Gap 3, the locked r778 gig-status card height, band image renderer, social buttons, tabs, and non-Home sections. Upload index_r783.html as index.html after phone test. -->
 <!-- r779: Home logo vertical reveal + top-gap match. Starts from phone-approved r778 and adjusts only the Home logo/header slot: reduces the Home top gap to the default thin gap, increases the Home logo card height symmetrically so more top and bottom logo artwork is revealed, and keeps the logo-to-gig-card gap, gig-card height, gig-card-to-band-image-box gap, band image renderer, social buttons, tabs, and other sections unchanged. Upload index_r779.html as index.html after phone test. -->
 <!-- r778: Home gig-slot hard lock. Starts from phone-approved r776 plus r777 and fixes the r777 miss by locking #next-gig-countdown and #no-gigs-card to one shared physical height instead of letting different inner content auto-size the cards. Tightens only the no-gig empty-state inner content so it fits inside the same countdown footprint. Preserves r776 Home image bottom-gap calibration, r774 admin suggestion delete, Home logo/header, alerts, tabs, social buttons, Calendar, Songs, Setlists, Chat, Mates, Pay, assets, and notification logic. Upload index_r778.html as index.html after phone test. -->
 <!-- r777: Home no-gig card footprint normalization. Starts from phone-approved r776 and makes the no-gig empty-state card use the same countdown-slot footprint as the normal Next Gig countdown card, so Home layout calibration remains stable whether a gig exists or not. Changes only the Home no-gig card presentation/renderer plus version/log metadata; preserves r776 Home image bottom-gap calibration, r774 admin suggestion delete, Home logo/header, alerts, tabs, social buttons, Calendar, Songs, Setlists, Chat, Mates, Pay, assets, and notification logic. Upload index_r777.html as index.html after phone test. -->
@@ -8760,6 +8760,30 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   object-position:center center !important;
   transform:none !important;
   transform-origin:center center !important;
+}
+#sc-home .hero.home-hero-with-controls .hero-l{
+  position:relative !important;
+  overflow:hidden !important;
+  isolation:isolate !important;
+  background:linear-gradient(135deg,#0b1f52 0%, #081630 100%) !important;
+}
+#sc-home .hero.home-hero-with-controls .hero-l::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:url('logo.jpg');
+  background-repeat:no-repeat;
+  background-size:cover;
+  background-position:center center;
+  filter:blur(14px) saturate(1.06) brightness(.78);
+  transform:scale(1.08);
+  opacity:.98;
+  z-index:0;
+  pointer-events:none;
+}
+#sc-home .hero.home-hero-with-controls .hero-l img{
+  position:relative !important;
+  z-index:1 !important;
 }
 #sc-home .hero.home-hero-with-controls #home-header-row{
   position:absolute !important;
