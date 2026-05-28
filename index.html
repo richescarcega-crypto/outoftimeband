@@ -1,3 +1,4 @@
+<!-- r799: Home alert-state logo visual-centering + Next Gig bottom shimmer. Starts from phone-tested r798. Adds a bottom shimmer to the Next Gig card, and only when Song Vote/Rehearsal alerts are visible, shifts the foreground logo artwork upward so the visible logo area remains optically centered above the overlay pills. Also refines alert-state tagline placement so it sits below TIME instead of on top of it. No no-alert Home framing, Home band image registry, social buttons, downstream layout, or non-Home sections changed. Upload index_r799.html as index.html. -->
 <!-- r798: Safe Home alert overlay retry. Starts from rollback-stable r797 and keeps the no-alert Home state unchanged. When Song Vote/Rehearsal alerts are visible, the existing alert row becomes a zero-height relative overlay pulled upward over the lower logo area instead of consuming stack height. The catch phrase moves above the overlay only in alert state. Rehearsal visibility no longer switches Home band image into old rehearsal/compressed mode, and alert-state social-row bottom margin is locked to the r797 no-alert value. Upload index_r798.html as index.html. -->
 <!-- r797: Rollback to phone-approved r795 after r796 Home alert-overlay attempt broke Home band-image area. Visual/content baseline is r795, with only WHATS_NEW_VERSION bumped so phones detect the rollback. Upload index_r797.html as index.html. -->
 <!-- r785: Home logo frame geometry correction. Starts from phone-loaded r784 and fixes the remaining right-side logo underfill by changing the logo/header frame from a wide rectangle toward a square-ish responsive frame that matches the circular logo aspect. The foreground logo itself remains unaltered: same image, same border, same lettering, same contain fit, no distortion/crop. Gap 1, Gap 2, Gap 3 rules, gig/no-gig card height, band image, social buttons, tabs, and non-Home sections are unchanged. Upload index_r785.html as index.html. -->
@@ -10804,6 +10805,25 @@ body.light #sc-cal #cal-legend-panel.cal-legend-row .cal-legend-item{
   position:relative;
   z-index:3;
 }
+
+/* r799: Match the Next Gig card's top gold shimmer on the bottom edge too. */
+#next-gig-countdown::after{
+  content:"";
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:0;
+  height:2px;
+  border-radius:999px 999px 0 0;
+  background:linear-gradient(90deg,transparent,rgba(245,197,24,.72),rgba(255,216,74,.92),rgba(245,197,24,.72),transparent);
+  box-shadow:0 0 10px rgba(245,197,24,.22);
+  pointer-events:none;
+  z-index:2;
+}
+body.light #next-gig-countdown::after{
+  background:linear-gradient(90deg,transparent,rgba(184,134,11,.58),rgba(212,160,23,.84),rgba(184,134,11,.58),transparent);
+  box-shadow:0 0 8px rgba(184,134,11,.15);
+}
 body.light #announce-card,
 body.light #home-song-vote-cue,
 body.light #home-rehearsal-cue,
@@ -12076,6 +12096,22 @@ body.light #votes-modal .suggestion-delete-icon{
 #sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row{
   margin-top:0 !important;
   margin-bottom:-12px !important;
+}
+
+/* r799: Alert-state optical centering only. When alert pills cover the lower
+   logo area, move the foreground logo artwork upward so the visible remainder
+   reads centered to the eye. No-alert Home stays exactly as r798/r795. */
+#sc-home:has(#home-song-vote-cue[style*="display: block"]) .hero.home-hero-with-controls .hero-l img,
+#sc-home:has(#home-song-vote-cue[style*="display:block"]) .hero.home-hero-with-controls .hero-l img,
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) .hero.home-hero-with-controls .hero-l img,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) .hero.home-hero-with-controls .hero-l img{
+  top:-44px !important;
+}
+#sc-home:has(#home-song-vote-cue[style*="display: block"]) .hero.home-hero-with-controls .hero-tagline,
+#sc-home:has(#home-song-vote-cue[style*="display:block"]) .hero.home-hero-with-controls .hero-tagline,
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) .hero.home-hero-with-controls .hero-tagline,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) .hero.home-hero-with-controls .hero-tagline{
+  bottom:84px !important;
 }
 
 </style>
@@ -32711,7 +32747,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-home-alert-overlay-safe-r798';
+var WHATS_NEW_VERSION = '2026-05-28-home-alert-logo-centering-r799';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
