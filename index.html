@@ -1,4 +1,4 @@
-<!-- r804: Home top overlay micro-position. Starts from phone-tested r803 and moves only the Home announcement bell/count and the user identity text upward inside the logo hero. The kebab/menu button is intentionally not moved. No logo image, tagline, gaps, alert pills, Next Gig, No Gig, band image, social buttons, downstream Home layout, or non-Home sections changed. Upload index_r804.html as index.html. -->
+<!-- r805: Home catchphrase micro-lift. Starts from phone-tested r804 and moves only the Home logo catchphrase up 4px in both normal and alert states. No logo movement, gap changes, top overlay changes, alert pill changes, Next Gig/No Gig, band image, social buttons, downstream Home layout, or non-Home sections changed. Upload index_r805.html as index.html. -->
 <!-- r803: Next Gig title line lift. Starts from phone-tested r802 and moves only the #ngc-title venue/date line up 8px inside the Next Gig card so it has more breathing room above the raised countdown tiles. No logo, tagline, gaps, alert pills, card size, tiles, band image registry, social buttons, downstream Home layout, or non-Home sections changed. Upload index_r803.html as index.html. -->
 <!-- r798: Safe Home alert overlay retry. Starts from rollback-stable r797 and keeps the no-alert Home state unchanged. When Song Vote/Rehearsal alerts are visible, the existing alert row becomes a zero-height relative overlay pulled upward over the lower logo area instead of consuming stack height. The catch phrase moves above the overlay only in alert state. Rehearsal visibility no longer switches Home band image into old rehearsal/compressed mode, and alert-state social-row bottom margin is locked to the r797 no-alert value. Upload index_r798.html as index.html. -->
 <!-- r797: Rollback to phone-approved r795 after r796 Home alert-overlay attempt broke Home band-image area. Visual/content baseline is r795, with only WHATS_NEW_VERSION bumped so phones detect the rollback. Upload index_r797.html as index.html. -->
@@ -8906,7 +8906,7 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   mask-image:none !important;
 }
 #sc-home .hero.home-hero-with-controls .hero-tagline{
-  bottom:34px !important;
+  bottom:38px !important;
   background:transparent !important;
   border:none !important;
   box-shadow:none !important;
@@ -12134,7 +12134,7 @@ body.light #votes-modal .suggestion-delete-icon{
 #sc-home:has(#home-song-vote-cue[style*="display:block"]) .hero.home-hero-with-controls .hero-tagline,
 #sc-home:has(#home-rehearsal-cue[style*="display: block"]) .hero.home-hero-with-controls .hero-tagline,
 #sc-home:has(#home-rehearsal-cue[style*="display:block"]) .hero.home-hero-with-controls .hero-tagline{
-  bottom:84px !important;
+  bottom:88px !important;
 }
 
 </style>
@@ -32770,7 +32770,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-home-top-overlay-lift-r804';
+var WHATS_NEW_VERSION = '2026-05-28-home-catchphrase-micro-lift-r805';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
