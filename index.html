@@ -1,3 +1,4 @@
+<!-- r809: Home pill data fallback, Next Gig one-line title, social button clipping fix. Starts from r808. Broadens Home cue gates so active song suggestions and open future rehearsal proposals can surface on Home, caps long Next Gig titles to one line, and raises social buttons globally through the central renderer. -->
 <!-- r807: Rollback from r806. Reverts the failed r806 rehearsal-alert overlay clearance change because r806 caused the Home alert pills to disappear on phone. Restores the phone-visible r805 Home alert behavior exactly and bumps WHATS_NEW_VERSION so phones detect the rollback. Upload index_r807.html as index.html. -->
 <!-- r805: Home catchphrase micro-lift. Starts from phone-tested r804 and moves only the Home logo catchphrase up 4px in both normal and alert states. No logo movement, gap changes, top overlay changes, alert pill changes, Next Gig/No Gig, band image, social buttons, downstream Home layout, or non-Home sections changed. Upload index_r805.html as index.html. -->
 <!-- r803: Next Gig title line lift. Starts from phone-tested r802 and moves only the #ngc-title venue/date line up 8px inside the Next Gig card so it has more breathing room above the raised countdown tiles. No logo, tagline, gaps, alert pills, card size, tiles, band image registry, social buttons, downstream Home layout, or non-Home sections changed. Upload index_r803.html as index.html. -->
@@ -615,6 +616,10 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
    and all Home layout/gaps remain unchanged. */
 #next-gig-countdown #ngc-title{
   transform:translateY(-8px) !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  line-height:1.05 !important;
 }
 body.light .ngc-tile{
   background:linear-gradient(180deg,#4a9eff 0%,#2563d6 50%,#1a4daa 100%) !important;
@@ -15925,6 +15930,63 @@ function _homeOpenSongSuggestions(){
     });
   }catch(e){ return []; }
 }
+
+// r809: Broad Home song cue fallback. Some suggestion docs can be fully voted
+// or use nonstandard vote/status fields while still representing an active
+// suggestion workflow the user expects to see on Home. Keep this as a final
+// fallback only after the member-specific and incomplete-vote paths.
+function _homeAnyActiveSongSuggestions(){
+  try{
+    return (suggestions||[]).filter(function(s){
+      if(!s) return false;
+      var status = String(s.status || s.state || '').toLowerCase();
+      if(status === 'closed' || status === 'cancelled' || status === 'canceled' || status === 'deleted' || status === 'archived') return false;
+      if(s.deleted || s.archived) return false;
+      return true;
+    });
+  }catch(e){ return []; }
+}
+
+function _ootLooksLikeRehearsalRecord(ev){
+  try{
+    if(!ev) return false;
+    var hay = [ev.type, ev.kind, ev.category, ev.title, ev.name, ev.note, ev.location, ev.focus].map(function(v){ return String(v || '').toLowerCase(); }).join(' ');
+    return hay.indexOf('rehearsal') >= 0 || hay.indexOf('practice') >= 0;
+  }catch(e){ return false; }
+}
+function _ootProposalDeadline(p){
+  try{
+    if(!p || !p.date) return null;
+    var minutes = _r535ParseTimeToMinutes(p.endTime || p.startTime || '');
+    if(minutes === null) minutes = 23*60 + 59;
+    var d = new Date(String(p.date) + 'T00:00:00');
+    if(isNaN(d.getTime())) return null;
+    d.setHours(Math.floor(minutes/60), minutes%60, 59, 999);
+    return d;
+  }catch(e){ return null; }
+}
+function _ootNextOpenRehearsalProposal(){
+  try{
+    var now = new Date();
+    return (proposals || []).filter(function(p){
+      if(!p || !p.date) return false;
+      var status = String(p.status || 'open').toLowerCase();
+      if(status !== 'open' && status !== 'pending') return false;
+      var deadline = _ootProposalDeadline(p);
+      return !!(deadline && deadline.getTime() >= now.getTime());
+    }).sort(function(a,b){
+      return (_ootProposalDeadline(a)||0) - (_ootProposalDeadline(b)||0);
+    })[0] || null;
+  }catch(e){ return null; }
+}
+function _ootShortNextGigTitle(title){
+  try{
+    var words = String(title || '').trim().split(/\s+/).filter(Boolean);
+    if(words.length <= 4) return words.join(' ');
+    return words.slice(0,4).join(' ') + '…';
+  }catch(e){ return String(title || ''); }
+}
+
 function _r535HomeEscape(s){
   return String(s == null ? '' : s).replace(/[&<>'"]/g, function(ch){
     return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch] || ch;
@@ -15981,27 +16043,44 @@ function _r535NextUpcomingRehearsal(){
   try{
     var now = new Date();
     var primary = (events || []).filter(function(ev){
-      if(!ev || String(ev.type || '').toLowerCase() !== 'rehearsal' || !ev.date) return false;
+      if(!ev || !ev.date) return false;
+      if(!_ootLooksLikeRehearsalRecord(ev)) return false;
       var deadline = _r535RehearsalDeadline(ev);
       return !!(deadline && deadline.getTime() >= now.getTime());
     }).sort(function(a,b){
       return _r535RehearsalStartSort(a) - _r535RehearsalStartSort(b);
     })[0] || null;
     if(primary) return primary;
-    // r808 fallback: if time/deadline parsing or capitalization prevents the
-    // primary path from finding the rehearsal, use date-level upcoming matching.
     var today = new Date();
     today.setHours(0,0,0,0);
-    return (events || []).filter(function(ev){
+    var eventFallback = (events || []).filter(function(ev){
       if(!ev || !ev.date) return false;
-      var typ = String(ev.type || '').toLowerCase();
-      if(typ.indexOf('rehearsal') < 0) return false;
+      if(!_ootLooksLikeRehearsalRecord(ev)) return false;
       var d = new Date(String(ev.date) + 'T00:00:00');
       if(isNaN(d.getTime())) return false;
       return d.getTime() >= today.getTime();
     }).sort(function(a,b){
       return _r535RehearsalStartSort(a) - _r535RehearsalStartSort(b);
     })[0] || null;
+    if(eventFallback) return eventFallback;
+    // r809: final fallback to open future rehearsal proposals so the Home cue
+    // does not disappear when the rehearsal workflow exists but no confirmed
+    // event document has been created/loaded yet.
+    var prop = (typeof _ootNextOpenRehearsalProposal === 'function') ? _ootNextOpenRehearsalProposal() : null;
+    if(prop){
+      return {
+        id: prop.id,
+        type: 'rehearsal-proposal',
+        title: prop.title || 'Rehearsal',
+        date: prop.date,
+        startTime: prop.startTime || '',
+        endTime: prop.endTime || '',
+        location: prop.location || '',
+        note: prop.note || prop.location || '',
+        _proposalHomeCue: true
+      };
+    }
+    return null;
   }catch(e){ return null; }
 }
 function _r535PrettyRehearsalDate(ev){
@@ -16081,6 +16160,10 @@ function renderHomeSongVoteCue(){
   var userSpecific = true;
   if(!cueItems.length && typeof _homeOpenSongSuggestions === 'function'){
     cueItems = _homeOpenSongSuggestions();
+    userSpecific = false;
+  }
+  if(!cueItems.length && typeof _homeAnyActiveSongSuggestions === 'function'){
+    cueItems = _homeAnyActiveSongSuggestions();
     userSpecific = false;
   }
   if(!cueItems.length){
@@ -17201,7 +17284,8 @@ function updateCountdown(){
   var formattedDate = parseInt(parts[1])+'/'+parseInt(parts[2])+'/'+parts[0];
   var titleEl = document.getElementById('ngc-title');
   if(titleEl){
-    titleEl.innerHTML = next.title + '<span style="color:#a0c0ff;font-weight:400;"> &nbsp;&ndash;&nbsp; </span><span style="color:#ff4757;font-size:14px;">'+formattedDate+'</span>';
+    var shortTitle = (typeof _ootShortNextGigTitle === 'function') ? _ootShortNextGigTitle(next.title) : String(next.title || '');
+    titleEl.innerHTML = '<span style="display:inline-block;max-width:68%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom;">'+_r535HomeEscape(shortTitle)+'</span>' + '<span style="color:#a0c0ff;font-weight:400;"> &nbsp;&ndash;&nbsp; </span><span style="color:#ff4757;font-size:14px;white-space:nowrap;">'+formattedDate+'</span>';
   }
   var detailEl = document.getElementById('ngc-detail');
   if(detailEl){
@@ -19747,6 +19831,8 @@ function listenProposals(){
     }
     _proposalsHasInit = true;
     if(document.getElementById('sc-cal').classList.contains('on')) rProposals();
+    try { renderHomeRehearsalCue(); } catch(e){}
+    try { renderHomeSongVoteCue(); } catch(e){}
     // First snapshot after boot: surface any open proposals the user hasn't voted on yet.
     if(!_propsBootChecked){
       _propsBootChecked = true;
@@ -30367,7 +30453,7 @@ function _applyHomeImagePresentation(row, idx){
   // across all 20 Home images and both normal/rehearsal modes.
   // r794: the Home logo/card height changes restored enough lower-right room;
   // keep social buttons protected from clipping but let them sit lower again.
-  var HOME_SOCIAL_BUTTON_MIN_UP_Y_PX = -12;
+  var HOME_SOCIAL_BUTTON_MIN_UP_Y_PX = -30;
   if(btnYNum > HOME_SOCIAL_BUTTON_MIN_UP_Y_PX) btnYNum = HOME_SOCIAL_BUTTON_MIN_UP_Y_PX;
   var btnY = btnYNum + 'px';
   var btnScale = (p.buttons.scale === 0 ? 0 : (p.buttons.scale || 1));
@@ -32811,7 +32897,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-home-alert-data-gate-fallback-r808';
+var WHATS_NEW_VERSION = '2026-05-28-home-pills-title-social-fix-r809';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
