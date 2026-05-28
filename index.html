@@ -8760,22 +8760,22 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   object-position:center center !important;
   transform:none !important;
   transform-origin:center center !important;
-  /* r787: keep r785 full-width logo geometry, but visually condense 5% top/bottom
-     by masking the image vertically instead of shrinking the frame height. This
-     preserves the approved right-edge fill and all existing Home gaps. */
+  /* r788: keep the approved full-width logo geometry and further condense only
+     the top and bottom by expanding the vertical mask to 15%/15%. Width behavior,
+     gaps, and downstream layout remain untouched. */
   -webkit-mask-image:linear-gradient(to bottom,
     transparent 0%,
-    transparent 5%,
-    #000 5%,
-    #000 95%,
-    transparent 95%,
+    transparent 15%,
+    #000 15%,
+    #000 85%,
+    transparent 85%,
     transparent 100%) !important;
   mask-image:linear-gradient(to bottom,
     transparent 0%,
-    transparent 5%,
-    #000 5%,
-    #000 95%,
-    transparent 95%,
+    transparent 15%,
+    #000 15%,
+    #000 85%,
+    transparent 85%,
     transparent 100%) !important;
   -webkit-mask-size:100% 100% !important;
   mask-size:100% 100% !important;
@@ -32559,10 +32559,10 @@ function toggleHomeMenu(ev){
 }
 
 // ── WHAT'S NEW BANNER ─────────────────────────────────────────────────────
-// r787: Home logo top/bottom condense fix. Built from the approved r785 geometry.
-// Keeps the r785 full-width/right-edge logo fill intact and applies a 5% top/bottom
-// vertical mask to the foreground logo image instead of reducing the hero frame height.
-// Result: no right-side underfill regression, no gap changes, no downstream layout shift.
+// r788: Home logo further top/bottom-only condense. Built from r787.
+// Keeps the approved full-width/right-edge fill and increases the vertical mask
+// so the top 15% and bottom 15% of the foreground logo are hidden. Width, gaps,
+// and downstream layout remain untouched.
 // Bump WHATS_NEW_VERSION when shipping any change. Banner ONLY fires for users
 // who haven't seen all 'major' entries. Minor/fix entries appear in the full
 // changelog (Home tab kebab → "What\u2019s New") but don't auto-pop.
@@ -32572,7 +32572,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-home-logo-vertical-mask-r787';
+var WHATS_NEW_VERSION = '2026-05-28-home-logo-vertical-mask-r788';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
