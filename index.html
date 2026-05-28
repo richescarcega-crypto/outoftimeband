@@ -1,4 +1,4 @@
-<!-- r806: Rehearsal alert overlay clearance. Starts from phone-tested r805 and adjusts only the Home alert overlay Y position when Rehearsal On Deck is visible, moving the taller rehearsal pill upward so it no longer overlaps the Next Gig header. Song Vote-only overlay, logo, tagline, gaps, Next Gig card, band image, social buttons, and non-Home sections are unchanged. Upload index_r806.html as index.html. -->
+<!-- r807: Rollback from r806. Reverts the failed r806 rehearsal-alert overlay clearance change because r806 caused the Home alert pills to disappear on phone. Restores the phone-visible r805 Home alert behavior exactly and bumps WHATS_NEW_VERSION so phones detect the rollback. Upload index_r807.html as index.html. -->
 <!-- r805: Home catchphrase micro-lift. Starts from phone-tested r804 and moves only the Home logo catchphrase up 4px in both normal and alert states. No logo movement, gap changes, top overlay changes, alert pill changes, Next Gig/No Gig, band image, social buttons, downstream Home layout, or non-Home sections changed. Upload index_r805.html as index.html. -->
 <!-- r803: Next Gig title line lift. Starts from phone-tested r802 and moves only the #ngc-title venue/date line up 8px inside the Next Gig card so it has more breathing room above the raised countdown tiles. No logo, tagline, gaps, alert pills, card size, tiles, band image registry, social buttons, downstream Home layout, or non-Home sections changed. Upload index_r803.html as index.html. -->
 <!-- r798: Safe Home alert overlay retry. Starts from rollback-stable r797 and keeps the no-alert Home state unchanged. When Song Vote/Rehearsal alerts are visible, the existing alert row becomes a zero-height relative overlay pulled upward over the lower logo area instead of consuming stack height. The catch phrase moves above the overlay only in alert state. Rehearsal visibility no longer switches Home band image into old rehearsal/compressed mode, and alert-state social-row bottom margin is locked to the r797 no-alert value. Upload index_r798.html as index.html. -->
@@ -12136,16 +12136,6 @@ body.light #votes-modal .suggestion-delete-icon{
 #sc-home:has(#home-rehearsal-cue[style*="display: block"]) .hero.home-hero-with-controls .hero-tagline,
 #sc-home:has(#home-rehearsal-cue[style*="display:block"]) .hero.home-hero-with-controls .hero-tagline{
   bottom:88px !important;
-}
-
-/* r806: Rehearsal On Deck overlay clearance only.
-   The rehearsal pill is taller than the song-vote pill and was overlapping the
-   Next Gig header. Keep the song-only r798 offset unchanged; when rehearsal is
-   visible, pull the alert row farther upward so the pill covers only the lower
-   logo area and clears the Next Gig label/card. */
-#sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-alerts-row,
-#sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-alerts-row{
-  transform:translateY(-88px) !important;
 }
 
 </style>
@@ -32781,7 +32771,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-rehearsal-alert-overlay-clearance-r806';
+var WHATS_NEW_VERSION = '2026-05-28-rollback-r806-to-r805-r807';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
