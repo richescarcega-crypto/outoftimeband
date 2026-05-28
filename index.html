@@ -696,7 +696,7 @@ body.light .ngc-lbl{ color:#fff !important; }
 .hero-r{overflow:hidden;position:relative;}
 .hero-r img{width:100%;height:130px;object-fit:cover;object-position:top;}
 .hero-tagline{position:absolute;left:0;right:0;bottom:7px;padding:6px 10px;text-align:center;font-family:"Russo One",sans-serif;font-size:10px;color:#f5c518;letter-spacing:1.5px;text-shadow:0 0 10px rgba(0,0,0,.95),0 0 4px rgba(0,0,0,.95),0 1px 3px rgba(0,0,0,.9);font-style:italic;pointer-events:none;}
-#sc-home .hero.home-hero-with-controls .hero-tagline{bottom:34px !important;padding:0 10px !important;background:transparent !important;border:none !important;box-shadow:none !important;z-index:6 !important;}
+#sc-home .hero.home-hero-with-controls .hero-tagline{bottom:62px !important;padding:0 10px !important;background:transparent !important;border:none !important;box-shadow:none !important;text-shadow:0 1px 3px rgba(0,0,0,.78),0 0 5px rgba(0,0,0,.45) !important;z-index:6 !important;}
 .gi{position:relative;padding:10px 12px;background:linear-gradient(135deg,rgba(245,197,24,.22) 0%,rgba(245,197,24,.06) 45%,#0a1628 100%);border-radius:10px;margin-bottom:7px;border-left:4px solid #f5c518;box-shadow:0 0 18px rgba(245,197,24,.18),inset 0 0 22px rgba(245,197,24,.06);}
 .git{font-size:14px;font-weight:600;color:#fff;}
 .gim{font-size:11px;color:var(--b);margin-top:2px;}
@@ -3971,9 +3971,10 @@ body.light .chat-photo-avatar{background:#f6f8ff !important;border-color:#d8e0ee
 /* r206: targeted Light Mode Home tab readability pass.
    CSS-only: Home summary/header/countdown cards get explicit light-mode contrast without changing Home behavior. */
 body.light #sc-home{background:#f5f7fb !important;color:#1a2a4a !important;}
-body.light #home-header-row{background:#ffffff !important;border:1px solid #d8e0ee !important;box-shadow:0 4px 12px rgba(20,40,80,.08) !important;color:#1a2a4a !important;}
-body.light #home-header-row #who-am-i{color:#1a2a4a !important;-webkit-text-fill-color:#1a2a4a !important;text-shadow:none !important;}
-body.light #home-menu-btn{background:#ffffff !important;border-color:#c8d4e8 !important;color:#1a3a8a !important;box-shadow:0 2px 8px rgba(20,40,80,.08) !important;}
+body.light #sc-home .hero.home-hero-with-controls #home-header-row{background:transparent !important;border:none !important;box-shadow:none !important;color:#1a2a4a !important;}
+body.light #sc-home .hero.home-hero-with-controls #home-header-row #who-am-i{color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;text-shadow:0 2px 7px rgba(0,0,0,.85) !important;background:transparent !important;border:none !important;}
+body.light #sc-home .hero.home-hero-with-controls #home-menu-btn{background:transparent !important;border-color:rgba(255,255,255,.18) !important;color:#ffffff !important;box-shadow:none !important;}
+body.light #sc-home .hero.home-hero-with-controls #ann-bell{background:transparent !important;border-color:transparent !important;color:#f5c518 !important;box-shadow:none !important;}
 body.light #announce-card{background:#ffffff !important;border-color:#d8e0ee !important;color:#1a2a4a !important;box-shadow:0 5px 14px rgba(20,40,80,.08) !important;}
 body.light #announce-card [style*="color:#fff"],
 body.light #announce-card [style*="color:#ffffff"],
@@ -8815,28 +8816,30 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   z-index:8 !important;
   margin:0 !important;
   padding:4px 6px !important;
-  background:linear-gradient(90deg,rgba(3,8,20,.12),rgba(3,8,20,.035),rgba(3,8,20,.10)) !important;
-  border:1px solid rgba(126,176,255,.10) !important;
-  border-radius:999px !important;
-  box-shadow:0 6px 16px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.035) !important;
+  background:transparent !important;
+  border:none !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
   pointer-events:auto !important;
-  backdrop-filter:blur(1.5px);
-  -webkit-backdrop-filter:blur(1.5px);
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
 }
 #sc-home .hero.home-hero-with-controls #home-menu-btn{
   width:28px !important;
   height:28px !important;
-  background:rgba(3,8,20,.18) !important;
-  border-color:rgba(126,176,255,.36) !important;
+  background:transparent !important;
+  border-color:rgba(255,255,255,.18) !important;
   color:#e5f0ff !important;
-  box-shadow:0 3px 9px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.045) !important;
+  box-shadow:none !important;
+  text-shadow:0 1px 4px rgba(0,0,0,.8) !important;
 }
 #sc-home .hero.home-hero-with-controls #ann-bell{
   padding:4px 10px !important;
-  background:rgba(3,8,20,.18) !important;
-  border-color:rgba(245,197,24,.48) !important;
+  background:transparent !important;
+  border-color:transparent !important;
   color:#f5c518 !important;
-  box-shadow:0 3px 9px rgba(0,0,0,.22), 0 0 10px rgba(245,197,24,.16), inset 0 1px 0 rgba(255,255,255,.04) !important;
+  box-shadow:none !important;
+  text-shadow:0 1px 4px rgba(0,0,0,.85),0 0 7px rgba(245,197,24,.28) !important;
 }
 #sc-home .hero.home-hero-with-controls #who-am-i{
   flex:0 1 auto !important;
@@ -8845,12 +8848,12 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
   font-weight:800 !important;
-  text-shadow:0 2px 7px rgba(0,0,0,.95), 0 0 12px rgba(0,0,0,.75) !important;
+  text-shadow:0 2px 7px rgba(0,0,0,.95), 0 0 10px rgba(0,0,0,.65) !important;
   opacity:.98 !important;
-  background:rgba(3,8,20,.28) !important;
-  border:1px solid rgba(255,255,255,.13) !important;
-  border-radius:999px !important;
-  padding:4px 8px !important;
+  background:transparent !important;
+  border:none !important;
+  border-radius:0 !important;
+  padding:4px 2px !important;
   white-space:nowrap !important;
   overflow:hidden !important;
   text-overflow:ellipsis !important;
@@ -32563,10 +32566,10 @@ function toggleHomeMenu(ev){
 }
 
 // ── WHAT'S NEW BANNER ─────────────────────────────────────────────────────
-// r789: Home logo overlay polish. Built from locked r788.
-// Keeps r788 logo width/mask/gaps intact, moves only the tagline overlay upward
-// inside the logo border and makes the tagline/header control backgrounds more transparent.
-// No downstream Home layout or non-Home sections changed.
+// r790: Home logo overlay transparency correction. Built from r789.
+// Keeps locked r788 logo width/mask/gaps intact, moves the tagline farther upward,
+// removes the tagline capsule-like shadow treatment, and makes the top Home controls
+// truly transparent instead of lightly filled glass pills.
 // Bump WHATS_NEW_VERSION when shipping any change. Banner ONLY fires for users
 // who haven't seen all 'major' entries. Minor/fix entries appear in the full
 // changelog (Home tab kebab → "What\u2019s New") but don't auto-pop.
@@ -32576,7 +32579,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-home-logo-overlay-polish-r789';
+var WHATS_NEW_VERSION = '2026-05-28-home-logo-overlay-transparency-r790';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
