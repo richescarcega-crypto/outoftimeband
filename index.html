@@ -1,4 +1,4 @@
-<!-- r809: Home pill data fallback, Next Gig one-line title, social button clipping fix. Starts from r808. Broadens Home cue gates so active song suggestions and open future rehearsal proposals can surface on Home, caps long Next Gig titles to one line, and raises social buttons globally through the central renderer. -->
+<!-- r810: Home cue fallback listeners + social button lower-safe adjustment. Starts from r809. Adds unordered Firestore fallback listeners for Home song/rehearsal cue data so ordered-query/data-field issues cannot leave Home pills empty, broadens future proposal matching, and lowers social buttons slightly while keeping them visible. -->
 <!-- r807: Rollback from r806. Reverts the failed r806 rehearsal-alert overlay clearance change because r806 caused the Home alert pills to disappear on phone. Restores the phone-visible r805 Home alert behavior exactly and bumps WHATS_NEW_VERSION so phones detect the rollback. Upload index_r807.html as index.html. -->
 <!-- r805: Home catchphrase micro-lift. Starts from phone-tested r804 and moves only the Home logo catchphrase up 4px in both normal and alert states. No logo movement, gap changes, top overlay changes, alert pill changes, Next Gig/No Gig, band image, social buttons, downstream Home layout, or non-Home sections changed. Upload index_r805.html as index.html. -->
 <!-- r803: Next Gig title line lift. Starts from phone-tested r802 and moves only the #ngc-title venue/date line up 8px inside the Next Gig card so it has more breathing room above the raised countdown tiles. No logo, tagline, gaps, alert pills, card size, tiles, band image registry, social buttons, downstream Home layout, or non-Home sections changed. Upload index_r803.html as index.html. -->
@@ -15971,7 +15971,7 @@ function _ootNextOpenRehearsalProposal(){
     return (proposals || []).filter(function(p){
       if(!p || !p.date) return false;
       var status = String(p.status || 'open').toLowerCase();
-      if(status !== 'open' && status !== 'pending') return false;
+      if(status === 'closed' || status === 'cancelled' || status === 'canceled' || status === 'deleted' || status === 'archived') return false;
       var deadline = _ootProposalDeadline(p);
       return !!(deadline && deadline.getTime() >= now.getTime());
     }).sort(function(a,b){
@@ -16119,10 +16119,13 @@ function renderHomeRehearsalCue(){
   var el = document.getElementById('home-rehearsal-cue');
   if(!el) return;
   if(!_eventsHasInit && (!events || !events.length)){
-    el.style.display = 'none';
-    el.innerHTML = '';
-    try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue hidden no events'); } catch(e){}
-    return;
+    var earlyProp = (typeof _ootNextOpenRehearsalProposal === 'function') ? _ootNextOpenRehearsalProposal() : null;
+    if(!earlyProp){
+      el.style.display = 'none';
+      el.innerHTML = '';
+      try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue hidden no events'); } catch(e){}
+      return;
+    }
   }
   var ev = _r535NextUpcomingRehearsal();
   if(!ev){
@@ -16187,6 +16190,59 @@ function renderHomeSongVoteCue(){
         '<span class="home-alert-sub" style="display:block;color:#d8e8ff;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+detail+'</span>'+
       '</span>'+
     '</button>';
+}
+
+
+// r810: unordered fallback listeners for Home cue data.
+// If the ordered suggestions/proposals listeners ever return empty, fail, or are
+// blocked by inconsistent fields, these lightweight unordered listeners keep the
+// Home alert cues fed from the same collections. They do not replace the primary
+// renderers; they only refresh the shared arrays and re-render the Home cue row.
+var __ootHomeCueFallbackBound = false;
+function _ensureHomeCueFallbackListeners(){
+  try{
+    if(__ootHomeCueFallbackBound) return;
+    if(typeof db === 'undefined' || !db || !db.collection) return;
+    __ootHomeCueFallbackBound = true;
+    try{
+      db.collection('suggestions').onSnapshot(function(snap){
+        try{
+          var list = [];
+          snap.forEach(function(doc){ list.push(Object.assign({id:doc.id}, doc.data())); });
+          // r811: Always merge/refresh from the unordered listener, not only when
+          // the ordered listener produced an empty array. This protects Home cues when
+          // the ordered query returns a partial/stale set or misses records due to field
+          // inconsistency while preserving the same collection as the source of truth.
+          if(list.length){
+            var byId = {};
+            (suggestions || []).forEach(function(s){ if(s && s.id) byId[String(s.id)] = s; });
+            list.forEach(function(s){ if(s && s.id) byId[String(s.id)] = Object.assign({}, byId[String(s.id)] || {}, s); });
+            suggestions = Object.keys(byId).map(function(k){ return byId[k]; });
+            try { updateVoteBadge(); } catch(_e){}
+          }
+          try { renderHomeSongVoteCue(); } catch(_e){}
+        }catch(e){ try{ console.warn('[r810 home cue fallback] suggestions render failed', e); }catch(_e){} }
+      }, function(err){ try{ console.warn('[r810 home cue fallback] suggestions listener failed', err); }catch(_e){} });
+    }catch(e){ try{ console.warn('[r810 home cue fallback] suggestions bind failed', e); }catch(_e){} }
+    try{
+      db.collection('proposals').onSnapshot(function(snap){
+        try{
+          var list = [];
+          snap.forEach(function(doc){ list.push(Object.assign({}, doc.data(), {id:doc.id})); });
+          // r811: Same merge rule for proposals. Do not wait for proposals[] to be
+          // empty; keep Home Rehearsal cue fed even when the ordered listener is partial
+          // or stale.
+          if(list.length){
+            var byId = {};
+            (proposals || []).forEach(function(p){ if(p && p.id) byId[String(p.id)] = p; });
+            list.forEach(function(p){ if(p && p.id) byId[String(p.id)] = Object.assign({}, byId[String(p.id)] || {}, p); });
+            proposals = Object.keys(byId).map(function(k){ return byId[k]; });
+          }
+          try { renderHomeRehearsalCue(); } catch(_e){}
+        }catch(e){ try{ console.warn('[r810 home cue fallback] proposals render failed', e); }catch(_e){} }
+      }, function(err){ try{ console.warn('[r810 home cue fallback] proposals listener failed', err); }catch(_e){} });
+    }catch(e){ try{ console.warn('[r810 home cue fallback] proposals bind failed', e); }catch(_e){} }
+  }catch(e){ try{ console.warn('[r810 home cue fallback] bind failed', e); }catch(_e){} }
 }
 
 
@@ -23617,6 +23673,7 @@ function rHome() {
       bbEl.innerHTML = '';
     }
   }
+  try { _ensureHomeCueFallbackListeners(); } catch(e){}
   try { renderHomeSongVoteCue(); } catch(e){}
   try { renderHomeRehearsalCue(); } catch(e){}
   try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rHome final'); } catch(e){}
@@ -30453,7 +30510,7 @@ function _applyHomeImagePresentation(row, idx){
   // across all 20 Home images and both normal/rehearsal modes.
   // r794: the Home logo/card height changes restored enough lower-right room;
   // keep social buttons protected from clipping but let them sit lower again.
-  var HOME_SOCIAL_BUTTON_MIN_UP_Y_PX = -30;
+  var HOME_SOCIAL_BUTTON_MIN_UP_Y_PX = -18;
   if(btnYNum > HOME_SOCIAL_BUTTON_MIN_UP_Y_PX) btnYNum = HOME_SOCIAL_BUTTON_MIN_UP_Y_PX;
   var btnY = btnYNum + 'px';
   var btnScale = (p.buttons.scale === 0 ? 0 : (p.buttons.scale || 1));
@@ -32897,7 +32954,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-home-pills-title-social-fix-r809';
+var WHATS_NEW_VERSION = '2026-05-28-home-alert-listener-marker-fix-r811';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -33242,6 +33299,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-home-cue-fallbacks-social-r810', date:'May 28, 2026', importance:'fix', emoji:'🏠', title:'Home cue fallbacks and social button adjustment', body:'Adds unordered fallback listeners for Home song/rehearsal cue data so the Home pills can surface even if ordered query/data-field paths fail, broadens future rehearsal proposal matching, and lowers the Home social buttons slightly while keeping them visible. Next Gig title containment from r809 is preserved.', items:['Upload index_r810.html as index.html.', 'Confirm Build Version reports r810.', 'Phone-test Home with song suggestion/rehearsal data: pills should return if matching Firestore data exists.', 'Confirm social buttons sit lower without being clipped.', 'Confirm long Next Gig title remains one line.'] },
   { version:'2026-05-27-home-logo-frame-geometry-r785', date:'May 27, 2026', importance:'fix', emoji:'🏠', title:'Home logo frame geometry corrected', body:'Fixes the remaining right-side logo underfill by changing the Home logo/header frame from a wide rectangle toward a square-ish responsive frame that better matches the circular logo. The foreground logo itself remains unchanged: same image, same blue border, same lettering scale, same contain fit, no distortion and no crop. Gap 1, Gap 2, Gap 3, the gig/no-gig card height, band image renderer, social buttons, tabs, and non-Home sections are unchanged.', items:['Upload index_r785.html as index.html.', 'Confirm Build Version reports r785.', 'Phone-test Home: the actual logo should now fill much more of the frame width, especially on the right side, while the logo remains uncropped/undistorted and Gap 1, Gap 2, and Gap 3 remain unchanged.'] },
   { version:'2026-05-27-home-logo-reveal-gap-match-r779', date:'May 27, 2026', importance:'fix', emoji:'🏠', title:'Home logo reveal and top gap matched', body:'Reduces the Home top gap to the default thin gap and increases only the Home logo/header card height so more of the existing logo artwork is revealed vertically, top and bottom. The logo-to-gig-card gap, locked gig/no-gig card height, gig-card-to-band-image-box gap, Home image renderer, social buttons, tabs, and unrelated sections are preserved.', items:['Upload index_r779.html as index.html.', 'Confirm Build Version reports r779.', 'Confirm Gap 1 above the logo now matches the default thin gap.', 'Confirm Gap 2 between logo and No Gig/Next Gig remains unchanged.', 'Confirm Gap 3 between the No Gig/Next Gig card and the band image box remains unchanged.', 'Confirm more of the gold clock/logo artwork is visible without clipping the logo card.'] },
   { version:'2026-05-27-home-gig-slot-hard-lock-r778', date:'May 27, 2026', importance:'fix', emoji:'🏠', title:'Home gig slot locked', body:'Locks the Home Next Gig countdown card and the No Gig Scheduled empty-state card to the same physical height instead of allowing different inner content to auto-size the cards. This corrects the r777 miss and keeps the Home layout stable whether or not a gig exists.', items:['Upload index_r778.html as index.html.', 'Confirm Build Version reports r778.', 'With no gigs on the calendar, confirm the No Gig Scheduled card height matches the Next Gig countdown card height.', 'Add or use a test future gig and confirm the countdown card occupies the same Home footprint.', 'Confirm Home band image/social buttons and Songs admin suggestion trash icon remain intact.'] },
