@@ -1,3 +1,4 @@
+<!-- r797: Rollback to phone-approved r795 after r796 Home alert-overlay attempt broke Home band-image area. Visual/content baseline is r795, with only WHATS_NEW_VERSION bumped so phones detect the rollback. Upload index_r797.html as index.html. -->
 <!-- r785: Home logo frame geometry correction. Starts from phone-loaded r784 and fixes the remaining right-side logo underfill by changing the logo/header frame from a wide rectangle toward a square-ish responsive frame that matches the circular logo aspect. The foreground logo itself remains unaltered: same image, same border, same lettering, same contain fit, no distortion/crop. Gap 1, Gap 2, Gap 3 rules, gig/no-gig card height, band image, social buttons, tabs, and non-Home sections are unchanged. Upload index_r785.html as index.html. -->
 <!-- r779: Home logo vertical reveal + top-gap match. Starts from phone-approved r778 and adjusts only the Home logo/header slot: reduces the Home top gap to the default thin gap, increases the Home logo card height symmetrically so more top and bottom logo artwork is revealed, and keeps the logo-to-gig-card gap, gig-card height, gig-card-to-band-image-box gap, band image renderer, social buttons, tabs, and other sections unchanged. Upload index_r779.html as index.html after phone test. -->
 <!-- r778: Home gig-slot hard lock. Starts from phone-approved r776 plus r777 and fixes the r777 miss by locking #next-gig-countdown and #no-gigs-card to one shared physical height instead of letting different inner content auto-size the cards. Tightens only the no-gig empty-state inner content so it fits inside the same countdown footprint. Preserves r776 Home image bottom-gap calibration, r774 admin suggestion delete, Home logo/header, alerts, tabs, social buttons, Calendar, Songs, Setlists, Chat, Mates, Pay, assets, and notification logic. Upload index_r778.html as index.html after phone test. -->
@@ -8966,55 +8967,6 @@ body.light .r366-gig-hero{background:linear-gradient(135deg,#173b8c,#245ecf 58%,
 #sc-home:has(#home-song-vote-cue[style*="display: block"]):has(#home-rehearsal-cue[style*="display: block"]) #home-social-row,
 #sc-home:has(#home-song-vote-cue[style*="display:block"]):has(#home-rehearsal-cue[style*="display:block"]) #home-social-row{
   margin-bottom:-22px !important;
-}
-
-
-/* r796: Home alert overlay mode.
-   Song Vote / Rehearsal pills no longer consume Home stack height or trigger the
-   old downstream compression. When either pill is visible, overlay the existing
-   alert row over the lower logo artwork; keep the catch phrase above it and keep
-   No Gig/Gig Counter + band image positions unchanged. */
-#sc-home{
-  position:relative !important;
-}
-#home-alerts-row{
-  position:absolute !important;
-  left:10px !important;
-  right:10px !important;
-  top:252px !important;
-  z-index:9 !important;
-  margin:0 !important;
-  padding:0 !important;
-  min-height:0 !important;
-  pointer-events:none !important;
-}
-#home-alerts-row #home-song-vote-cue,
-#home-alerts-row #home-rehearsal-cue{
-  pointer-events:auto !important;
-}
-#home-alerts-row .home-alert-pill{
-  margin:0 !important;
-  min-height:58px !important;
-  padding:8px 10px !important;
-  border-radius:14px !important;
-}
-#sc-home:has(#home-song-vote-cue[style*="display: block"]) .hero.home-hero-with-controls .hero-l img,
-#sc-home:has(#home-song-vote-cue[style*="display:block"]) .hero.home-hero-with-controls .hero-l img,
-#sc-home:has(#home-rehearsal-cue[style*="display: block"]) .hero.home-hero-with-controls .hero-l img,
-#sc-home:has(#home-rehearsal-cue[style*="display:block"]) .hero.home-hero-with-controls .hero-l img{
-  top:-42px !important;
-}
-#sc-home:has(#home-song-vote-cue[style*="display: block"]) .hero.home-hero-with-controls .hero-tagline,
-#sc-home:has(#home-song-vote-cue[style*="display:block"]) .hero.home-hero-with-controls .hero-tagline,
-#sc-home:has(#home-rehearsal-cue[style*="display: block"]) .hero.home-hero-with-controls .hero-tagline,
-#sc-home:has(#home-rehearsal-cue[style*="display:block"]) .hero.home-hero-with-controls .hero-tagline{
-  bottom:76px !important;
-}
-#sc-home:has(#home-song-vote-cue[style*="display: block"]) #home-social-row,
-#sc-home:has(#home-song-vote-cue[style*="display:block"]) #home-social-row,
-#sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row,
-#sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row{
-  margin-bottom:0 !important;
 }
 
 /* r663: Songs side gutters only — match locked gap 2 standard on left/right edges. */
@@ -30208,10 +30160,7 @@ function _homeRehearsalCueVisible(){
   return false;
 }
 function _homeImagePresentationMode(){
-  // r796: Home alert pills are now overlayed on the lower logo area instead of
-  // consuming vertical layout space. Rehearsal visibility must no longer switch
-  // the Home band image into the old compressed/rehearsal framing mode.
-  return 'normal';
+  return _homeRehearsalCueVisible() ? 'rehearsal' : 'normal';
 }
 function _getHomeImagePresentation(idx, mode){
   mode = mode || 'normal';
@@ -32706,7 +32655,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-home-alert-overlay-r796';;
+var WHATS_NEW_VERSION = '2026-05-28-rollback-to-r795-r797';;;
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
