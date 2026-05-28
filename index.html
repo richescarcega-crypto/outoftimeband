@@ -1,4 +1,4 @@
-<!-- r801: Next Gig countdown tile vertical lift. Starts from phone-approved r800 and changes only the Next Gig countdown tile internals: lifts the days/hours/minutes number+label content slightly upward and lifts the colon separators slightly to preserve spacing. No Home logo, tagline, gaps, alert pills, band image registry, social buttons, card size, or non-Home sections changed. Upload index_r801.html as index.html. -->
+<!-- r802: Next Gig countdown tile block lift. Starts from phone-tested r801 and fixes the r801 limitation: instead of only changing tile padding, moves the actual countdown tile boxes and colon separators up 10px so the tile shadows clear the bottom gold shimmer. No Home logo, tagline, gaps, alert pills, band image registry, social buttons, card size, or non-Home sections changed. Upload index_r802.html as index.html. -->
 <!-- r798: Safe Home alert overlay retry. Starts from rollback-stable r797 and keeps the no-alert Home state unchanged. When Song Vote/Rehearsal alerts are visible, the existing alert row becomes a zero-height relative overlay pulled upward over the lower logo area instead of consuming stack height. The catch phrase moves above the overlay only in alert state. Rehearsal visibility no longer switches Home band image into old rehearsal/compressed mode, and alert-state social-row bottom margin is locked to the r797 no-alert value. Upload index_r798.html as index.html. -->
 <!-- r797: Rollback to phone-approved r795 after r796 Home alert-overlay attempt broke Home band-image area. Visual/content baseline is r795, with only WHATS_NEW_VERSION bumped so phones detect the rollback. Upload index_r797.html as index.html. -->
 <!-- r785: Home logo frame geometry correction. Starts from phone-loaded r784 and fixes the remaining right-side logo underfill by changing the logo/header frame from a wide rectangle toward a square-ish responsive frame that matches the circular logo aspect. The foreground logo itself remains unaltered: same image, same border, same lettering, same contain fit, no distortion/crop. Gap 1, Gap 2, Gap 3 rules, gig/no-gig card height, band image, social buttons, tabs, and non-Home sections are unchanged. Upload index_r785.html as index.html. -->
@@ -599,12 +599,14 @@ body.light #ann-bell-badge{border-color:#0d2050 !important;}
   letter-spacing:2.5px; margin-top:6px; opacity:.95;
   text-shadow:0 1px 0 rgba(0,0,0,.5);
 }
-/* r801: Next Gig only — lift countdown tile content away from bottom shimmer/border without changing card size. */
+/* r802: Next Gig only — move the actual countdown tile boxes/shadows up 10px.
+   r801 only adjusted padding, which left the 3D tile shadow too close to the bottom shimmer. */
 #next-gig-countdown .ngc-tile{
   padding:8px 10px 14px !important;
+  transform:translateY(-10px) !important;
 }
 #next-gig-countdown .ngc-sep{
-  transform:translateY(-4px) !important;
+  transform:translateY(-10px) !important;
 }
 body.light .ngc-tile{
   background:linear-gradient(180deg,#4a9eff 0%,#2563d6 50%,#1a4daa 100%) !important;
@@ -32754,7 +32756,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-next-gig-tile-vertical-lift-r801';
+var WHATS_NEW_VERSION = '2026-05-28-next-gig-tile-block-lift-r802';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
