@@ -30182,7 +30182,11 @@ function _applyHomeImagePresentation(row, idx){
   var imgYNum = (p.img.yPct === 0 ? 0 : (p.img.yPct || -55));
   imgYNum = parseFloat(imgYNum);
   if(!isFinite(imgYNum)) imgYNum = -55;
-  imgYNum += 6;
+  // r794: after the Home top/logo compression work, the Home band image sits
+  // a touch too low in its frame. Use the central registry renderer, not scattered
+  // CSS, to lift the rendered band image slightly while preserving each image's
+  // registry width/x framing and the Home frame/gaps.
+  imgYNum += 3;
   // r776: default thin-gap calibration. r775's cap held some images too high,
   // recreating a large blue bottom strip. Allow the registry renderer to settle
   // one step lower while still capping at the previously safe no-clip band.
@@ -30198,7 +30202,9 @@ function _applyHomeImagePresentation(row, idx){
   // overwritten by this inline-important renderer. The restored tight Home bottom gap
   // requires a stronger global upward clamp so Facebook/Instagram stay fully visible
   // across all 20 Home images and both normal/rehearsal modes.
-  var HOME_SOCIAL_BUTTON_MIN_UP_Y_PX = -30;
+  // r794: the Home logo/card height changes restored enough lower-right room;
+  // keep social buttons protected from clipping but let them sit lower again.
+  var HOME_SOCIAL_BUTTON_MIN_UP_Y_PX = -12;
   if(btnYNum > HOME_SOCIAL_BUTTON_MIN_UP_Y_PX) btnYNum = HOME_SOCIAL_BUTTON_MIN_UP_Y_PX;
   var btnY = btnYNum + 'px';
   var btnScale = (p.buttons.scale === 0 ? 0 : (p.buttons.scale || 1));
@@ -32642,7 +32648,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-home-logo-upshift-band-cleanup-r793';
+var WHATS_NEW_VERSION = '2026-05-28-home-band-image-foot-clearance-r794';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
