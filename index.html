@@ -168,6 +168,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r847: Band Image page adopts What’s-New-style header. Applies the same star badge, centered title, premium card, and gold close X treatment to the Band Image selector page. -->
 <!-- r848: What’s-New-style action sheets and share pages. Applies the same star badge, centered title, premium card, and gold close X treatment to Setlists/Pay action sheets and the unified share chooser. -->
 <!-- r849: Song Resources adopts What’s-New-style header. Applies the star badge, centered gold title, premium card, and gold circular X to the song-options page opened from Songs and Setlists song taps. -->
+<!-- r850: Song Resources option cleanup. Removes Practice Reference from the song-options page and makes Edit Song Links open the Song Details page at the top instead of auto-scrolling to link fields. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -35016,8 +35017,7 @@ function openSongResources(id){
   body.innerHTML =
     _resourceBtnHtml('lyrics','♪','Lyrics', lyricsSaved ? 'Open saved lyrics link' : 'Search Genius for this song', !!lyricsSaved) +
     _resourceBtnHtml('discog','◉','Discography / Album Info', discogSaved ? 'Open saved album or artist page' : 'Search AllMusic by artist', !!discogSaved) +
-    _resourceBtnHtml('practice','▶','Practice Reference', practiceSaved ? 'Open saved practice reference' : 'Search web for a rehearsal reference', !!practiceSaved) +
-    _resourceBtnHtml('edit','✎','Edit Song Links','Save direct URLs for faster access next time', true);
+    _resourceBtnHtml('edit','✎','Edit Song Links','Open Song Details at the top', true);
   Array.prototype.slice.call(body.querySelectorAll('.song-resource-btn')).forEach(function(btn){
     btn.onclick = function(e){
       e.stopPropagation();
@@ -35026,10 +35026,15 @@ function openSongResources(id){
         clM('song-resources-modal');
         // r275: showSongInfo uses strict id matching, so pass the actual library id type.
         showSongInfo(song.id);
+        // r850: open Song Details at the top; do not auto-scroll down to link fields.
         setTimeout(function(){
-          var linkEl = document.getElementById('si-lyrics');
-          if(linkEl && linkEl.scrollIntoView) linkEl.scrollIntoView({behavior:'smooth', block:'center'});
-        }, 180);
+          try{
+            var body = document.getElementById('si-body');
+            var modal = document.querySelector('#song-info-modal .mo');
+            if(body) body.scrollTop = 0;
+            if(modal) modal.scrollTop = 0;
+          }catch(_e){}
+        }, 80);
         return;
       }
       var saved = '';
@@ -35897,7 +35902,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-song-resources-whats-new-header-r849';
+var WHATS_NEW_VERSION = '2026-05-28-song-resources-option-cleanup-r850';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -36242,6 +36247,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-song-resources-option-cleanup-r850', date:'May 28, 2026', importance:'fix', emoji:'🎵', title:'Song options cleaned up', body:'Removes the Practice Reference option from the song-options page opened from Songs and Setlists. Edit Song Links now opens Song Details at the top instead of auto-scrolling down to the link fields. Song data and saved link behavior are unchanged.', items:['Upload index_r850.html as index.html.','Confirm Build Version reports r850.','Tap a song in Songs and in an expanded Setlist: confirm Practice Reference is gone and Edit Song Links opens the Song Details page at the top.'] },
   { version:'2026-05-28-song-resources-whats-new-header-r849', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Song options restyled', body:'Applies the What’s New header/card style to the song-options page opened when tapping a song in Songs or an expanded Setlist. The page now uses the star accent, centered gold title, premium card, and gold circular X. Resource buttons and song/link behavior are unchanged.', items:['Upload index_r849.html as index.html.','Confirm Build Version reports r849.','Tap a song in Songs and confirm the song-options page has the What’s New-style header.','Tap a song in an expanded Setlist and confirm the same style appears.'] },
   { version:'2026-05-28-whats-new-style-action-sheets-r848', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Action sheets get What’s New styling', body:'Continues the app-wide What’s New style standardization. Setlists, Pay, top-tab action sheets, setlist action sheets, and the unified Share page now use the star accent, centered gold title, premium card, and gold circular X treatment. Existing share/export/menu actions are unchanged.', items:['Upload index_r848.html as index.html.','Confirm Build Version reports r848.','Open Setlists kebab, Setlist Actions, Pay kebab, and Share pages; confirm the headers/X match the What’s New style and close cleanly.'] },
   { version:'2026-05-28-band-image-whats-new-header-r847', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Band Image page restyled', body:'Applies the What’s New style language to the Band Image selector page: star accent, centered gold title, gold circular X, premium card treatment, and cleaner spacing. Picker, preview, and select behavior are unchanged.', items:['Upload index_r847.html as index.html.','Confirm Build Version reports r847.','Open Home band image selector and confirm the header/card style matches the What’s New look.','Confirm image preview/select still works.'] },
