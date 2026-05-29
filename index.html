@@ -147,6 +147,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r825: Mates naming cleanup. Updates remaining visible tab/roster/member-management labels from Band to Mates where they refer to the renamed Mates tab, while preserving real Band Chat, Band Image, Pay band-total, and internal data ids. -->
 <!-- r826: Pending-response reminder audit and test visibility. Adds a compact rehearsal-proposal reminder audit panel plus a safe Check Due Now control so the existing 24h/10h non-responder reminder engine can be verified before modularization. No backend scheduler or unrelated UI changes. -->
 <!-- r827: Rehearsal proposal workspace polish. Makes the expanded Rehearsal Proposals drawer use a taller page-like workspace, makes the Propose Rehearsal CTA smaller/premium, and makes the proposal modal full-screen/scroll-safe without changing reminder logic. -->
+<!-- r828: Rehearsal proposal workspace controls. Moves Propose Rehearsal inside the proposal workspace, adds a real X close button, hides the Calendar key while the workspace is open, compacts Notification Log, and adds proposer/admin edit controls. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -12834,6 +12835,133 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
   scroll-padding-bottom:130px !important;
 }
 
+
+/* r828: Rehearsal proposal workspace controls and internal actions.
+   Scope: Rehearsal Proposals presentation + proposer/admin edit only.
+   Reminder timing/targets, voting logic, Calendar grid, Home, Songs, Setlists,
+   Chat, Mates, and Pay are unchanged. */
+#sc-cal.cal-header-fit.on:has(#proposals-list[style*="display: block"]) #cal-legend-btn,
+#sc-cal.cal-header-fit.on:has(#proposals-list[style*="display:block"]) #cal-legend-btn,
+#sc-cal.cal-header-fit.on:has(#proposals-list[style*="display: block"]) #cal-legend-panel,
+#sc-cal.cal-header-fit.on:has(#proposals-list[style*="display:block"]) #cal-legend-panel{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list[style*="display: block"]::before,
+#sc-cal.cal-header-fit.on #proposals-list[style*="display:block"]::before{
+  display:none !important;
+  content:none !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list[style*="display: block"],
+#sc-cal.cal-header-fit.on #proposals-list[style*="display:block"]{
+  padding:8px 8px 12px !important;
+}
+.r828-proposal-workspace-head{
+  position:sticky;
+  top:-8px;
+  z-index:8;
+  margin:-8px -8px 10px -8px;
+  padding:11px 10px 10px 12px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:linear-gradient(180deg,rgba(8,18,44,.98),rgba(8,18,44,.91));
+  border-bottom:1px solid rgba(239,183,255,.18);
+  border-radius:18px 18px 0 0;
+  box-shadow:0 8px 20px rgba(0,0,0,.24);
+}
+.r828-proposal-head-copy{
+  flex:1;
+  min-width:0;
+}
+.r828-proposal-head-title{
+  font-family:"Russo One",sans-serif;
+  font-size:11px;
+  letter-spacing:1.55px;
+  color:#f5c518;
+  text-shadow:0 0 12px rgba(245,197,24,.22);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.r828-proposal-head-sub{
+  margin-top:2px;
+  font-size:10px;
+  color:#8aa8d6;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.r828-proposal-add-btn{
+  flex:0 0 auto;
+  height:31px;
+  min-width:86px;
+  border-radius:999px;
+  border:1px solid rgba(245,197,24,.50);
+  background:linear-gradient(135deg,rgba(13,39,97,.98),rgba(6,18,48,.98));
+  color:#f5c518;
+  font-family:"Russo One",sans-serif;
+  font-size:8.5px;
+  letter-spacing:.85px;
+  padding:0 10px;
+  box-shadow:0 8px 18px rgba(0,0,0,.32),0 0 12px rgba(245,197,24,.10),inset 0 1px 0 rgba(255,255,255,.06);
+}
+.r828-proposal-close-btn{
+  flex:0 0 auto;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.08);
+  color:#ffffff;
+  font-family:Arial,sans-serif;
+  font-size:24px;
+  line-height:1;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+  box-shadow:0 8px 18px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.05);
+}
+.r828-proposals-empty{
+  color:#8aa8d6;
+  font-style:italic;
+  padding:10px 8px 12px;
+  font-size:13px;
+}
+#sc-cal.cal-header-fit.on #propose-btn{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list [data-proposal-reminder-log]{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+}
+#sc-cal.cal-header-fit.on #proposals-list [data-proposal-reminder-log] > button{
+  width:auto !important;
+  min-width:132px !important;
+  height:36px !important;
+  padding:0 10px !important;
+  justify-content:center !important;
+  text-align:center !important;
+  gap:6px !important;
+  flex:0 0 auto !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list [data-proposal-reminder-log] > button span:last-child{
+  display:none !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list [data-proposal-reminder-log] > div{
+  flex:1 0 100% !important;
+}
+#proposal-modal .mo{
+  max-height:100dvh !important;
+}
+
 </style>
 </head>
 <body>
@@ -21327,7 +21455,7 @@ function rProposals(){
   if(!el) return;
   if(ar) ar.innerHTML = '';;
   el.style.display = collapsed ? 'none' : 'block';
-  if(btn) btn.style.display = collapsed ? 'none' : 'block';
+  if(btn) btn.style.display = 'none';
   // r166: Finalized proposals do not remain in the proposal drawer.
   // Confirmed proposals live as calendar rehearsal events; cancelled/voted-down proposals are removed from view.
   var visible = proposals.filter(function(p){
@@ -21339,11 +21467,15 @@ function rProposals(){
   var countEl = document.getElementById('proposals-count');
   if(countEl) countEl.textContent = openCount ? ' — ' + openCount + ' open' : '';
   if(collapsed) return; // skip rendering cards when collapsed
+  el.innerHTML = '';
+  el.appendChild(_renderProposalsWorkspaceHeader());
   if(!visible.length){
-    el.innerHTML = '<div style="color:#aaa;font-style:italic;padding:8px;font-size:13px;">No active proposals. Tap below to propose a rehearsal.</div>';
+    var empty = document.createElement('div');
+    empty.className = 'r828-proposals-empty';
+    empty.textContent = 'No active proposals. Tap + PROPOSE to propose a rehearsal.';
+    el.appendChild(empty);
     return;
   }
-  el.innerHTML = '';
   visible.forEach(function(p){
     var status = _propStatus(p);
     var card = document.createElement('div');
@@ -21469,7 +21601,7 @@ function rProposals(){
       var iAmProposerOrAdmin = (String(p.proposedBy) === String(ME)) || _isAdmin();
       var nonResponderIds = _proposalNonResponderIds(p);
       var actRow = document.createElement('div');
-      actRow.style.cssText = 'display:flex;gap:6px;margin-top:8px;';
+      actRow.style.cssText = 'display:flex;gap:6px;margin-top:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap;';
       if(_proposalEveryoneRespondedYes(p) && iAmProposerOrAdmin){
         var confirmBtn = document.createElement('button');
         confirmBtn.style.cssText = 'flex:2;background:#06d6a0;border:none;border-radius:7px;padding:9px;color:#062021;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;font-weight:700;touch-action:manipulation;';
@@ -21478,6 +21610,20 @@ function rProposals(){
         actRow.appendChild(confirmBtn);
       }
       if(iAmProposerOrAdmin){
+        var editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.title = 'Edit proposal';
+        editBtn.setAttribute('aria-label', 'Edit proposal');
+        editBtn.style.cssText = 'background:rgba(74,158,255,.10);border:1px solid rgba(74,158,255,.62);border-radius:8px;width:36px;height:36px;color:#8fc2ff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation;flex:0 0 36px;';
+        editBtn.innerHTML = '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false"><path d="M4 17.5V20h2.5L17.1 9.4l-2.5-2.5L4 17.5zM18.8 7.7c.4-.4.4-1 0-1.4l-1.1-1.1c-.4-.4-1-.4-1.4 0l-.9.9 2.5 2.5.9-.9z" fill="currentColor"/></svg>';
+        editBtn.onclick = function(ev){
+          if(ev){
+            ev.preventDefault();
+            ev.stopPropagation();
+          }
+          openEditProposalModal(p.id);
+        };
+        actRow.appendChild(editBtn);
         var cancelBtn = document.createElement('button');
         cancelBtn.type = 'button';
         cancelBtn.title = 'Cancel proposal';
@@ -21868,6 +22014,8 @@ function _renderRehearsalForm(container, initial, opts){
 var _activeRehearsalForm = null;
 
 function openNewProposalModal(){
+  var title = document.getElementById('proposal-modal-title');
+  if(title) title.textContent = 'Propose Rehearsal';
   var d = new Date();
   d.setDate(d.getDate() + 3);
   var iso = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -24222,6 +24370,101 @@ function toggleCalLegend(forceOpen){
   // document.addEventListener('touchend', _handleCalendarKeyTap, {capture:true, passive:false});
   // document.addEventListener('click', _handleCalendarKeyTap, true);
 })();
+
+
+// r828: explicit controls for the page-like Rehearsal Proposals workspace.
+function closeRehearsalProposalsWorkspace(){
+  try {
+    if(typeof cardStates !== 'undefined') cardStates['proposals-list'] = true;
+    var el = document.getElementById('proposals-list');
+    if(el) el.style.display = 'none';
+    var btn = document.getElementById('propose-btn');
+    if(btn) btn.style.display = 'none';
+    if(typeof _closeProposalNotifLog === 'function') _closeProposalNotifLog();
+    if(typeof _layoutCalendarLowerStack === 'function') _layoutCalendarLowerStack();
+  } catch(e){
+    try { console.warn('[r828 proposals close] failed', e); } catch(_e){}
+  }
+}
+
+function _canEditProposal(p){
+  return !!(p && (!p.status || p.status === 'open') && (String(p.proposedBy) === String(ME) || _isAdmin()));
+}
+
+function openEditProposalModal(propId){
+  var p = proposals.find(function(x){ return String(x.id) === String(propId); });
+  if(!p || !_canEditProposal(p)){
+    toast('Only the proposer or an admin can edit this proposal.', {tone:'error'});
+    return;
+  }
+  var body = document.getElementById('proposal-body');
+  var title = document.getElementById('proposal-modal-title');
+  if(!body) return;
+  if(title) title.textContent = 'Edit Rehearsal Proposal';
+  _activeRehearsalForm = _renderRehearsalForm(body, {
+    date: p.date || '',
+    title: p.title || 'Rehearsal',
+    location: p.location || '',
+    startTime: p.startTime || '',
+    endTime: p.endTime || '',
+    focus: p.focus || '',
+    songs: Array.isArray(p.songs) ? p.songs.slice() : [],
+    notes: p.notes || p.note || ''
+  }, {
+    idPrefix: 'prop-edit',
+    showDate: true
+  });
+  var btn = document.createElement('button');
+  btn.className = 'sb';
+  btn.style.cssText = 'width:100%;margin-top:8px;';
+  btn.textContent = 'Save Proposal';
+  btn.onclick = function(){ saveEditedProposal(p.id); };
+  body.appendChild(btn);
+  opM('proposal-modal');
+}
+
+function saveEditedProposal(propId){
+  if(!_activeRehearsalForm){ toast('Form not ready', {tone:'error'}); return; }
+  var p = proposals.find(function(x){ return String(x.id) === String(propId); });
+  if(!p || !_canEditProposal(p)){
+    toast('Only the proposer or an admin can edit this proposal.', {tone:'error'});
+    return;
+  }
+  var v = _activeRehearsalForm.getValues();
+  if(!v.date){ toast('Pick a date', {tone:'error'}); return; }
+  var patch = {
+    date: v.date,
+    title: v.title || 'Rehearsal',
+    location: v.location || '',
+    startTime: v.startTime || '',
+    endTime: v.endTime || '',
+    focus: v.focus || '',
+    songs: v.songs || [],
+    notes: v.notes || '',
+    updatedAt: Date.now(),
+    updatedAtIso: new Date().toISOString(),
+    updatedBy: ME
+  };
+  db.collection('proposals').doc(String(p.id)).update(patch).then(function(){
+    toast('Proposal updated', {tone:'success'});
+    clM('proposal-modal');
+  }).catch(function(err){
+    toast('Failed to update: ' + (err && err.message ? err.message : 'unknown'), {tone:'error'});
+  });
+}
+
+function _renderProposalsWorkspaceHeader(){
+  var head = document.createElement('div');
+  head.className = 'r828-proposal-workspace-head';
+  head.innerHTML =
+    '<div class="r828-proposal-head-copy">'+
+      '<div class="r828-proposal-head-title">REHEARSAL PROPOSALS</div>'+
+      '<div class="r828-proposal-head-sub">Review responses · edit proposals · send nudges</div>'+
+    '</div>'+
+    '<button type="button" class="r828-proposal-add-btn" onclick="openNewProposalModal()">+ PROPOSE</button>'+
+    '<button type="button" class="r828-proposal-close-btn" aria-label="Close rehearsal proposals" onclick="closeRehearsalProposalsWorkspace()">×</button>';
+  return head;
+}
 
 function toggleCard(contentId, arrowId) {
   // r75: arrowId is optional because calendar accordions now use full-pill tap without caret.
@@ -33740,7 +33983,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-rehearsal-proposal-workspace-r827';
+var WHATS_NEW_VERSION = '2026-05-28-rehearsal-proposal-controls-r828';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -34085,6 +34328,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-rehearsal-proposal-controls-r828', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Rehearsal proposal controls refined', body:'Moves + Propose Rehearsal inside the Rehearsal Proposals workspace, adds a real circular X close control, hides the Calendar key while the proposal workspace is open, compacts the Notification Log pill, and adds Edit Proposal for the proposer and admins. Reminder timing/targets and voting behavior are unchanged.', items:['Upload index_r828.html as index.html.', 'Confirm Build Version reports r828.', 'Calendar → Rehearsal Proposals: confirm + PROPOSE is inside the workspace and the old floating outside pill is gone.', 'Confirm the circular X closes the proposal workspace and the Calendar key is not visible on top of it.', 'As proposer/admin, tap the blue edit icon and confirm the proposal form opens for editing and saves changes.'] },
   { version:'2026-05-28-rehearsal-proposal-workspace-r827', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Rehearsal proposal workspace polished', body:'Makes the expanded Rehearsal Proposals area feel more like a taller page/workspace so proposal details, reminder audit, and notification log are easier to read. The Propose Rehearsal CTA is smaller and more premium, and the Propose Rehearsal modal is made full-screen/scroll-safe. Proposal reminder logic, voting, sends, Calendar grid, Home, Songs, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r827.html as index.html.', 'Confirm Build Version reports r827.', 'Calendar → Rehearsal Proposals: open the drawer and confirm proposal details/audit/log have much more vertical room.', 'Tap Propose Rehearsal and confirm the form opens full-screen and all fields/buttons are reachable.', 'Confirm CHECK DUE NOW and SEND MANUAL REMINDER behavior did not change.'] },
   { version:'2026-05-28-proposal-reminder-audit-r826', date:'May 28, 2026', importance:'fix', emoji:'🔔', title:'Proposal reminder audit added', body:'Adds a compact Reminder Audit panel to each open Rehearsal Proposal showing expected responders, responded members, waiting members, next due reminder, and last reminder sent. Admin/proposer can tap CHECK DUE NOW to run the existing client-side sweep immediately without forcing a send unless reminders are actually due. Manual reminder and 24-hour/10-hour policy remain unchanged; backend scheduling is still a later post-modularization feature.', items:['Upload index_r826.html as index.html.', 'Confirm Build Version reports r826.', 'Calendar → Rehearsal Proposals: open a proposal and review REMINDER AUDIT.', 'Tap CHECK DUE NOW on a not-yet-due proposal: it should check but not send.', 'Use the existing SEND MANUAL REMINDER in the notification log to test immediate non-responder targeting.'] },
   { version:'2026-05-28-mates-naming-cleanup-r825', date:'May 28, 2026', importance:'fix', emoji:'👥', title:'Mates naming cleaned up', body:'Updates remaining visible tab/roster/member-management labels from Band to Mates where they refer to the renamed Mates tab, including Arrange Tabs, the member add button, announcement posting, and notification/privacy reference rows. Internal ids/routes remain unchanged and real Band Chat, Band Image, and Pay band-total wording are preserved.', items:['Upload index_r825.html as index.html.', 'Confirm Build Version reports r825.', 'Open Home → Arrange Tabs and confirm the tab row now says Mates, not Band.', 'Check Mates/Add Member and Announcements: labels should use Mates where they refer to the member group.'] },
