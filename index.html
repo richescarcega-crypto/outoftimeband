@@ -146,6 +146,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r824: Home logo-box backing behind alert pills. Leaves alert-pill position unchanged and paints a logo/hero-box bottom extension behind the alert row so the pills no longer sit over a dark seam. -->
 <!-- r825: Mates naming cleanup. Updates remaining visible tab/roster/member-management labels from Band to Mates where they refer to the renamed Mates tab, while preserving real Band Chat, Band Image, Pay band-total, and internal data ids. -->
 <!-- r826: Pending-response reminder audit and test visibility. Adds a compact rehearsal-proposal reminder audit panel plus a safe Check Due Now control so the existing 24h/10h non-responder reminder engine can be verified before modularization. No backend scheduler or unrelated UI changes. -->
+<!-- r827: Rehearsal proposal workspace polish. Makes the expanded Rehearsal Proposals drawer use a taller page-like workspace, makes the Propose Rehearsal CTA smaller/premium, and makes the proposal modal full-screen/scroll-safe without changing reminder logic. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -12720,6 +12721,117 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
 #sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-alerts-row > *{
   position:relative !important;
   z-index:2 !important;
+}
+
+
+/* r827: Rehearsal proposal workspace polish.
+   Scope: presentation/layout only for Rehearsal Proposals. Reminder logic,
+   proposal creation/voting data, notification sends, Calendar month grid,
+   All Events, Home, Songs, Setlists, Chat, Mates, and Pay are unchanged. */
+#sc-cal.cal-header-fit.on #proposals-list[style*="display: block"],
+#sc-cal.cal-header-fit.on #proposals-list[style*="display:block"]{
+  position:fixed !important;
+  top:calc(10px + env(safe-area-inset-top)) !important;
+  bottom:calc(70px + env(safe-area-inset-bottom)) !important;
+  max-height:none !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding:10px !important;
+  border-radius:18px !important;
+  background:
+    radial-gradient(ellipse at 50% -10%,rgba(162,103,255,.22),transparent 42%),
+    linear-gradient(145deg,rgba(8,18,44,.98),rgba(20,9,40,.97) 58%,rgba(3,8,18,.98)) !important;
+  border:1px solid rgba(239,183,255,.24) !important;
+  box-shadow:0 24px 70px rgba(0,0,0,.68),0 0 32px rgba(162,103,255,.18),inset 0 1px 0 rgba(255,255,255,.05) !important;
+  z-index:910 !important;
+  scroll-padding-bottom:90px !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list[style*="display: block"]::before,
+#sc-cal.cal-header-fit.on #proposals-list[style*="display:block"]::before{
+  content:"REHEARSAL PROPOSALS" !important;
+  display:block !important;
+  position:sticky !important;
+  top:-10px !important;
+  z-index:3 !important;
+  margin:-10px -10px 10px -10px !important;
+  padding:12px 44px 10px 12px !important;
+  border-radius:18px 18px 0 0 !important;
+  background:linear-gradient(180deg,rgba(8,18,44,.98),rgba(8,18,44,.90)) !important;
+  border-bottom:1px solid rgba(239,183,255,.18) !important;
+  color:#f5c518 !important;
+  font-family:"Russo One",sans-serif !important;
+  font-size:11px !important;
+  letter-spacing:1.6px !important;
+  text-shadow:0 0 12px rgba(245,197,24,.22) !important;
+}
+#sc-cal.cal-header-fit.on #propose-btn{
+  left:auto !important;
+  right:calc(var(--oot-cal-stack-side, 12px) + 8px) !important;
+  top:auto !important;
+  bottom:calc(23px + env(safe-area-inset-bottom)) !important;
+  width:auto !important;
+  min-width:0 !important;
+  height:34px !important;
+  padding:0 14px !important;
+  margin:0 !important;
+  border-radius:999px !important;
+  background:linear-gradient(135deg,rgba(13,39,97,.98),rgba(6,18,48,.98)) !important;
+  border:1px solid rgba(245,197,24,.48) !important;
+  color:#f5c518 !important;
+  font-family:"Russo One",sans-serif !important;
+  font-size:9px !important;
+  letter-spacing:.95px !important;
+  box-shadow:0 10px 24px rgba(0,0,0,.42),0 0 15px rgba(245,197,24,.12),inset 0 1px 0 rgba(255,255,255,.07) !important;
+  z-index:930 !important;
+}
+#sc-cal.cal-header-fit.on #propose-btn::first-letter{
+  color:#f5c518 !important;
+}
+#proposal-modal.ov.on,
+#proposal-modal[style*="display: flex"],
+#proposal-modal[style*="display:flex"]{
+  align-items:stretch !important;
+  justify-content:center !important;
+  padding:0 !important;
+}
+#proposal-modal .mo{
+  width:100% !important;
+  max-width:480px !important;
+  height:100dvh !important;
+  max-height:100dvh !important;
+  min-height:100dvh !important;
+  margin:0 auto !important;
+  border-radius:0 !important;
+  padding:0 14px calc(18px + env(safe-area-inset-bottom)) 14px !important;
+  background:linear-gradient(145deg,#08162f,#050b18 70%,#030710) !important;
+  border-left:1px solid rgba(74,158,255,.18) !important;
+  border-right:1px solid rgba(74,158,255,.18) !important;
+  overflow:hidden !important;
+}
+#proposal-modal .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:20 !important;
+  margin:0 -14px 12px -14px !important;
+  padding:14px 52px 12px 14px !important;
+  min-height:56px !important;
+  border-radius:0 !important;
+  background:linear-gradient(180deg,rgba(8,22,50,.98),rgba(5,12,28,.96)) !important;
+  border-bottom:1px solid rgba(245,197,24,.20) !important;
+  box-shadow:0 8px 22px rgba(0,0,0,.34) !important;
+}
+#proposal-modal .moh button{
+  position:absolute !important;
+  top:12px !important;
+  right:12px !important;
+}
+#proposal-modal #proposal-body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding-bottom:110px !important;
+  scroll-padding-bottom:130px !important;
 }
 
 </style>
@@ -33628,7 +33740,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-proposal-reminder-audit-r826';
+var WHATS_NEW_VERSION = '2026-05-28-rehearsal-proposal-workspace-r827';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -33973,6 +34085,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-rehearsal-proposal-workspace-r827', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Rehearsal proposal workspace polished', body:'Makes the expanded Rehearsal Proposals area feel more like a taller page/workspace so proposal details, reminder audit, and notification log are easier to read. The Propose Rehearsal CTA is smaller and more premium, and the Propose Rehearsal modal is made full-screen/scroll-safe. Proposal reminder logic, voting, sends, Calendar grid, Home, Songs, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r827.html as index.html.', 'Confirm Build Version reports r827.', 'Calendar → Rehearsal Proposals: open the drawer and confirm proposal details/audit/log have much more vertical room.', 'Tap Propose Rehearsal and confirm the form opens full-screen and all fields/buttons are reachable.', 'Confirm CHECK DUE NOW and SEND MANUAL REMINDER behavior did not change.'] },
   { version:'2026-05-28-proposal-reminder-audit-r826', date:'May 28, 2026', importance:'fix', emoji:'🔔', title:'Proposal reminder audit added', body:'Adds a compact Reminder Audit panel to each open Rehearsal Proposal showing expected responders, responded members, waiting members, next due reminder, and last reminder sent. Admin/proposer can tap CHECK DUE NOW to run the existing client-side sweep immediately without forcing a send unless reminders are actually due. Manual reminder and 24-hour/10-hour policy remain unchanged; backend scheduling is still a later post-modularization feature.', items:['Upload index_r826.html as index.html.', 'Confirm Build Version reports r826.', 'Calendar → Rehearsal Proposals: open a proposal and review REMINDER AUDIT.', 'Tap CHECK DUE NOW on a not-yet-due proposal: it should check but not send.', 'Use the existing SEND MANUAL REMINDER in the notification log to test immediate non-responder targeting.'] },
   { version:'2026-05-28-mates-naming-cleanup-r825', date:'May 28, 2026', importance:'fix', emoji:'👥', title:'Mates naming cleaned up', body:'Updates remaining visible tab/roster/member-management labels from Band to Mates where they refer to the renamed Mates tab, including Arrange Tabs, the member add button, announcement posting, and notification/privacy reference rows. Internal ids/routes remain unchanged and real Band Chat, Band Image, and Pay band-total wording are preserved.', items:['Upload index_r825.html as index.html.', 'Confirm Build Version reports r825.', 'Open Home → Arrange Tabs and confirm the tab row now says Mates, not Band.', 'Check Mates/Add Member and Announcements: labels should use Mates where they refer to the member group.'] },
   { version:'2026-05-28-home-alert-backing-r824', date:'May 28, 2026', importance:'fix', emoji:'🏠', title:'Home alert backing filled', body:'Leaves the Home alert pills exactly where they are and paints a logo/hero-box bottom extension behind them, removing the dark seam behind the pills while preserving the default thin gap to the Next Gig/No Gig card. Alert placement, Home logo artwork, Next Gig content, band image registry, social buttons, Calendar, Songs, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r824.html as index.html.', 'Confirm Build Version reports r824.', 'Phone-test Home with Song Vote Pending and Rehearsal On Deck visible: the pills should remain in the same place, but the logo box/background should visibly continue behind them with no dark seam.', 'Confirm the Next Gig/No Gig card and lower Home band image/social buttons did not move.'] },
