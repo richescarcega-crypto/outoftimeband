@@ -178,6 +178,8 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r857: Rehearsal Proposals workspace adopts What’s-New-style header. Applies the star badge, centered gold title, premium card shell, and gold close X to the Rehearsal Proposals page while preserving the + PROPOSE pill. -->
 <!-- r858: Song Details sticky header restore. Restores sticky behavior for the Song Details title/header after the What’s-New-style r855/r856 pass by making the full header a sticky in-flow header instead of an absolute header that scrolls away. -->
 <!-- r860: Song Details sticky-header jitter stabilization. Stabilizes the What’s-New-style Song Details sticky header during scroll, especially when opened from Setlists, by removing sticky threshold bump sources and adding compositor/overflow-anchor safeguards. -->
+<!-- r861: Jim one-time rehearsal response pill placement audit. Shows a disabled preview of the post-vote Your Response / Change Response pill stack only for Jim while he has not yet voted, so placement can be audited before he submits a real response. -->
+<!-- r862: Version-bump reload build. No functional changes from r861; forces phone/PWA update detection to pick up the r860 sticky-header stabilization and r861 Jim response-pill audit preview. -->
 <!-- r859: Rehearsal Proposals header collision and member log visibility fix. Moves + PROPOSE to the top-left of the What’s-New-style header and hides proposal Notification Log from non-admin members. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
@@ -15444,6 +15446,45 @@ body.light #song-info-modal .moh{
   box-shadow:0 6px 14px rgba(20,40,80,.10) !important;
 }
 
+
+/* r861: Jim-only disabled placement preview for post-vote response pills.
+   Visible only while Jim has not yet voted. It is intentionally noninteractive
+   and uses the real pill classes so placement can be audited. */
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium > .r861-jim-response-audit{
+  order:30 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-start !important;
+  justify-content:flex-start !important;
+  gap:6px !important;
+  width:auto !important;
+  margin-top:8px !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium > .r861-jim-response-audit > div{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-start !important;
+  justify-content:flex-start !important;
+  gap:6px !important;
+  width:auto !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .r861-audit-pill{
+  width:128px !important;
+  min-width:128px !important;
+  max-width:128px !important;
+  height:24px !important;
+  min-height:24px !important;
+  justify-content:center !important;
+  opacity:.82 !important;
+}
+@media (max-width:390px){
+  #sc-cal.cal-header-fit.on #proposals-list .r861-audit-pill{
+    width:122px !important;
+    min-width:122px !important;
+    max-width:122px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -24249,6 +24290,31 @@ function rProposals(){
         voteRow.appendChild(voteBtn('MAYBE', 'maybe', '#f5c518'));
         voteRow.appendChild(voteBtn('NO', 'no', '#ff4757'));
         card.appendChild(voteRow);
+
+        // r861: one-time placement audit for Jim before he votes.
+        // This is disabled preview UI only, using the same post-vote pill classes
+        // so Rich can audit where the real pills will sit after Jim responds.
+        if(String(ME) === '1'){
+          var auditWrap = document.createElement('div');
+          auditWrap.className = 'r861-jim-response-audit';
+          auditWrap.style.cssText = 'margin-top:8px;pointer-events:none;opacity:.82;';
+          var auditRow = document.createElement('div');
+          auditRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;';
+          var auditResponse = document.createElement('div');
+          auditResponse.className = 'r829-proposal-action-pill r829-response-pill r861-audit-pill';
+          auditResponse.style.cssText = 'display:inline-flex;align-items:center;border:1px solid rgba(49,224,183,.45);background:rgba(49,224,183,.045);border-radius:999px;padding:6px 9px;font-family:Russo One,sans-serif;font-size:9px;letter-spacing:.8px;color:#31e0b7;';
+          auditResponse.textContent = 'YOUR RESPONSE: YES';
+          var auditChange = document.createElement('button');
+          auditChange.type = 'button';
+          auditChange.disabled = true;
+          auditChange.className = 'r829-proposal-action-pill r829-change-pill r861-audit-pill';
+          auditChange.style.cssText = 'background:rgba(74,158,255,.065);border:1px solid rgba(74,158,255,.42);border-radius:999px;padding:6px 10px;color:#8fc2ff;font-family:Russo One,sans-serif;font-size:8.5px;letter-spacing:.9px;white-space:nowrap;';
+          auditChange.textContent = 'CHANGE RESPONSE';
+          auditRow.appendChild(auditResponse);
+          auditRow.appendChild(auditChange);
+          auditWrap.appendChild(auditRow);
+          card.appendChild(auditWrap);
+        }
       } else {
         var voteWrap = document.createElement('div');
         voteWrap.style.cssText = 'margin-top:10px;';
@@ -37162,6 +37228,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-reload-bump-r862', date:'May 28, 2026', importance:'fix', emoji:'🔄', title:'Reload bump', body:'Version-bump build to force phone/PWA update detection after r860 did not load on phone. No functional changes from r861. Carries forward the r860 Song Details sticky-header jitter stabilization and the r861 Jim response-pill audit preview.', items:['Upload index_r862.html as index.html.','Confirm Build Version reports r862.','Retest Song Details sticky header from Songs and Setlists.','Log in as Jim and confirm the disabled response-pill audit preview appears before voting.'] },
+  { version:'2026-05-28-jim-response-pill-audit-r861', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Jim response pill audit preview', body:'Adds a disabled one-time placement preview of the post-vote Your Response / Change Response pill stack only for Jim while he has not yet voted, so the layout can be audited before he submits a real response. The preview is noninteractive; real voting and change-response behavior are unchanged. Notification Log remains admin-only.', items:['Upload index_r861.html as index.html.','Confirm Build Version reports r861.','Log in as Jim before voting and open Rehearsal Proposals: confirm the disabled preview shows where Your Response and Change Response will sit.','After Jim votes, confirm the real pills replace the preview.'] },
   { version:'2026-05-28-song-details-sticky-jitter-r860', date:'May 28, 2026', importance:'fix', emoji:'🎵', title:'Song Details header stabilized', body:'Stabilizes the sticky Song Details header while scrolling, especially when Song Details is opened from a Setlist. The header remains sticky, but the scroll bump/jitter source is reduced with compositor and scroll-anchor safeguards. Song fields, save/delete/YouTube controls, keyboard behavior, and data are unchanged.', items:['Upload index_r860.html as index.html.','Confirm Build Version reports r860.','Open Song Details from Songs and from an expanded Setlist, scroll the fields, and confirm the header stays sticky without bumping.'] },
   { version:'2026-05-28-proposal-header-log-visibility-r859', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Proposal header and log visibility fixed', body:'Moves the + PROPOSE pill to the top-left of the Rehearsal Proposals What’s-New-style header so it no longer collides with the title. Proposal Notification Log is now admin-only, so normal members see response controls without diagnostic delivery logs. Proposal voting, reminders, edit/delete permissions, and Song Details sticky header behavior are unchanged.', items:['Upload index_r859.html as index.html.','Confirm Build Version reports r859.','Open Rehearsal Proposals and confirm + PROPOSE is top-left and no longer overlaps the title.','Log in as Jim and confirm Notification Log is hidden; log in as Rich/admin and confirm it remains visible.'] },
   { version:'2026-05-28-song-details-sticky-header-r858', date:'May 28, 2026', importance:'fix', emoji:'🎵', title:'Song Details sticky header restored', body:'Restores sticky behavior for the Song Details title/header after the What’s-New-style restyling. The title, star, and close button now stay pinned while the Song Details fields scroll. Song fields, save/delete/YouTube controls, keyboard behavior, and data are unchanged.', items:['Upload index_r858.html as index.html.','Confirm Build Version reports r858.','Open Song Details and scroll; confirm the title/header stays sticky.','Confirm Save/Delete/YouTube controls still work.'] },
