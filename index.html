@@ -169,6 +169,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r848: What’s-New-style action sheets and share pages. Applies the same star badge, centered title, premium card, and gold close X treatment to Setlists/Pay action sheets and the unified share chooser. -->
 <!-- r849: Song Resources adopts What’s-New-style header. Applies the star badge, centered gold title, premium card, and gold circular X to the song-options page opened from Songs and Setlists song taps. -->
 <!-- r850: Song Resources option cleanup. Removes Practice Reference from the song-options page and makes Edit Song Links open the Song Details page at the top instead of auto-scrolling to link fields. -->
+<!-- r851: Mates contact detail lighter surface. Lightens the expanded contact detail area with a premium blue surface while preserving Contacts drawer, edit/delete controls, and contact data behavior. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -14717,6 +14718,52 @@ body.light #song-resources-modal .song-resources-x{
     width:100% !important;
     max-height:88vh !important;
   }
+}
+
+
+/* r851: Mates contact detail lighter blue surface.
+   Scope: expanded contact detail area only. This addresses the too-dark contact
+   detail background without changing contact expand/collapse, add/edit/delete,
+   keyboard behavior, or data. */
+#sc-band #contacts-list .mc{
+  border-color:rgba(74,158,255,.30) !important;
+  background:linear-gradient(135deg,rgba(10,28,66,.96),rgba(6,18,43,.98)) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+#sc-band #contacts-list .mc > div:first-child{
+  background:linear-gradient(135deg,rgba(16,46,108,.92),rgba(9,29,72,.96)) !important;
+}
+#sc-band #contacts-list .mc > div:nth-child(2){
+  margin:0 !important;
+  padding:10px 12px 12px !important;
+  border-top:1px solid rgba(245,197,24,.22) !important;
+  background:
+    radial-gradient(circle at 85% 0%,rgba(74,158,255,.22),transparent 38%),
+    linear-gradient(135deg,rgba(24,68,142,.88),rgba(16,45,105,.86) 48%,rgba(11,30,72,.90)) !important;
+  color:#e8f0ff !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 -1px 0 rgba(74,158,255,.10) !important;
+}
+#sc-band #contacts-list .mc > div:nth-child(2) div{
+  color:#dce9ff !important;
+}
+#sc-band #contacts-list .mc > div:nth-child(2) div[style*="color:#aaa"]{
+  color:#b6c9ea !important;
+}
+body.light #sc-band #contacts-list .mc{
+  background:#ffffff !important;
+  border-color:rgba(26,58,138,.18) !important;
+  box-shadow:0 6px 14px rgba(20,40,80,.08) !important;
+}
+body.light #sc-band #contacts-list .mc > div:first-child{
+  background:linear-gradient(135deg,#f8fbff,#eef4ff) !important;
+}
+body.light #sc-band #contacts-list .mc > div:nth-child(2){
+  background:linear-gradient(135deg,#eef6ff,#f8fbff) !important;
+  border-top-color:rgba(26,58,138,.16) !important;
+  color:#1a2a4a !important;
+}
+body.light #sc-band #contacts-list .mc > div:nth-child(2) div{
+  color:#243856 !important;
 }
 
 </style>
@@ -35902,7 +35949,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-song-resources-option-cleanup-r850';
+var WHATS_NEW_VERSION = '2026-05-28-mates-contact-detail-lighten-r851';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -36247,6 +36294,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-mates-contact-detail-lighten-r851', date:'May 28, 2026', importance:'fix', emoji:'👥', title:'Mates contact detail lightened', body:'Lightens the expanded contact detail surface in Mates with a premium blue treatment so contact details separate better from the page. Contact expand/collapse, add/edit/delete controls, keyboard behavior, and data are unchanged.', items:['Upload index_r851.html as index.html.','Confirm Build Version reports r851.','Mates → Contacts → open a contact and confirm the expanded detail area is lighter and easier to read.'] },
   { version:'2026-05-28-song-resources-option-cleanup-r850', date:'May 28, 2026', importance:'fix', emoji:'🎵', title:'Song options cleaned up', body:'Removes the Practice Reference option from the song-options page opened from Songs and Setlists. Edit Song Links now opens Song Details at the top instead of auto-scrolling down to the link fields. Song data and saved link behavior are unchanged.', items:['Upload index_r850.html as index.html.','Confirm Build Version reports r850.','Tap a song in Songs and in an expanded Setlist: confirm Practice Reference is gone and Edit Song Links opens the Song Details page at the top.'] },
   { version:'2026-05-28-song-resources-whats-new-header-r849', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Song options restyled', body:'Applies the What’s New header/card style to the song-options page opened when tapping a song in Songs or an expanded Setlist. The page now uses the star accent, centered gold title, premium card, and gold circular X. Resource buttons and song/link behavior are unchanged.', items:['Upload index_r849.html as index.html.','Confirm Build Version reports r849.','Tap a song in Songs and confirm the song-options page has the What’s New-style header.','Tap a song in an expanded Setlist and confirm the same style appears.'] },
   { version:'2026-05-28-whats-new-style-action-sheets-r848', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Action sheets get What’s New styling', body:'Continues the app-wide What’s New style standardization. Setlists, Pay, top-tab action sheets, setlist action sheets, and the unified Share page now use the star accent, centered gold title, premium card, and gold circular X treatment. Existing share/export/menu actions are unchanged.', items:['Upload index_r848.html as index.html.','Confirm Build Version reports r848.','Open Setlists kebab, Setlist Actions, Pay kebab, and Share pages; confirm the headers/X match the What’s New style and close cleanly.'] },
