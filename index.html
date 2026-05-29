@@ -174,6 +174,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r853: Chat/Mates image viewer adopts What’s-New-style header. Replaces the circular close/action row with a What’s-New-style header and a kebab that opens Share / Copy / Download options. -->
 <!-- r854: Band Image selector share kebab. Adds a What’s-New-style header kebab to the Band Image selector for Share / Copy / Download of the currently selected Home band image. -->
 <!-- r855: Song Details modal adopts What’s-New-style header. Applies the star badge, centered gold title, premium card shell, and gold circular close button to the Add/Edit Song Details modal. -->
+<!-- r856: Song Resources external-return stale-restore fix. Cancels the short Android/PWA external-return restore lock when the user intentionally opens Song Details from Song Resources, preventing Lyrics/Discography return timers from reopening the options page over the edit modal. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -35590,6 +35591,32 @@ function _resourceBtnHtml(kind, icon, name, detail, saved){
     + '<span class="song-resource-state">'+(saved ? 'SAVED' : 'SEARCH')+'</span>'
     + '</button>';
 }
+
+function _cancelSongResourcesExternalRestore(reason){
+  // r856: If the user returned from Lyrics/Discography and then intentionally
+  // taps Edit Song Links, the old external-return restore timers can still be
+  // active for a short window. Those timers re-open song-resources-modal and
+  // cover the Song Details modal, which looked like Song Details flashed and
+  // disappeared. Explicitly cancel only that stale Song Resources restore state
+  // before opening Song Details.
+  try {
+    var ctx = window._ootLastExternalRestoreContext || null;
+    if(ctx && ctx.openOverlays && ctx.openOverlays.indexOf('song-resources-modal') >= 0){
+      window._ootLastExternalRestoreContext = null;
+      window._ootExternalRestoreLockUntil = 0;
+      window._ootExternalRestoreNormalCloseAfter = 0;
+      window._ootLastExternalRestoreAt = 0;
+    }
+  } catch(e){}
+  try {
+    var ctx2 = window._ootExternalReturnContext || null;
+    if(ctx2 && ctx2.openOverlays && ctx2.openOverlays.indexOf('song-resources-modal') >= 0){
+      if(typeof _clearExternalReturnContext === 'function') _clearExternalReturnContext(reason || 'song-resource-edit-open');
+      else window._ootExternalReturnContext = null;
+    }
+  } catch(e){}
+}
+
 function openSongResources(id){
   try { window._ootSongResourceId = id; } catch(e){}
   var song = library.find(function(x){ return String(x.id) === String(id); });
@@ -35613,10 +35640,11 @@ function openSongResources(id){
       e.stopPropagation();
       var kind = btn.getAttribute('data-kind');
       if(kind === 'edit'){
+        if(typeof _cancelSongResourcesExternalRestore === 'function') _cancelSongResourcesExternalRestore('edit-song-links-from-resources');
         clM('song-resources-modal');
         // r275: showSongInfo uses strict id matching, so pass the actual library id type.
         showSongInfo(song.id);
-        // r850: open Song Details at the top; do not auto-scroll down to link fields.
+        // r850/r856: open Song Details at the top; do not auto-scroll down to link fields or let stale resource-return timers reopen Song Resources.
         setTimeout(function(){
           try{
             var body = document.getElementById('si-body');
@@ -36492,7 +36520,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-song-details-whats-new-header-r855';
+var WHATS_NEW_VERSION = '2026-05-28-song-resource-edit-stale-restore-fix-r856';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -36837,6 +36865,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-song-resource-edit-stale-restore-fix-r856', date:'May 28, 2026', importance:'fix', emoji:'🎵', title:'Song edit reopen glitch fixed', body:'Fixes the case where opening Lyrics from Song Resources, returning to the app, and then tapping Edit Song Links caused Song Details to flash and disappear behind the Song Resources page. The stale external-return restore lock is now cleared when Edit Song Links is intentionally tapped. Song Resources, Lyrics/Discography links, Song Details fields, and save behavior are unchanged.', items:['Upload index_r856.html as index.html.','Confirm Build Version reports r856.','Songs → tap a song → Lyrics → return to app → Edit Song Links: Song Details should stay open.','Confirm direct Edit Song Links still opens normally.'] },
   { version:'2026-05-28-song-details-whats-new-header-r855', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Song Details restyled', body:'Applies the What’s New header/card style to the Add/Edit Song Details modal: star accent, centered gold title, premium card shell, and gold circular close button. Song fields, save/delete/YouTube controls, keyboard behavior, and song data are unchanged.', items:['Upload index_r855.html as index.html.','Confirm Build Version reports r855.','Open Song Details from Songs and from Edit Song Links; confirm the header/card uses the What’s New style and save/delete controls still work.'] },
   { version:'2026-05-28-band-image-share-kebab-r854', date:'May 28, 2026', importance:'fix', emoji:'🖼️', title:'Band Image share menu added', body:'Adds a What’s-New-style kebab to the Band Image selector header. The kebab opens Share, Copy, and Download options for the currently selected/default Home band image so it can be posted or sent outside the app. Picker, preview, select, and Home image behavior are unchanged.', items:['Upload index_r854.html as index.html.','Confirm Build Version reports r854.','Open the Band Image selector from Home, tap the kebab, and test Share / Copy / Download.','Confirm preview/select still works.'] },
   { version:'2026-05-28-image-viewer-whats-new-header-r853', date:'May 28, 2026', importance:'fix', emoji:'🖼️', title:'Image viewer restyled', body:'Restyles the Chat/Mates image viewer to use the Home What’s New modal language instead of a circular close control. The image viewer now uses the premium What’s New-style header with the built-in close button and a kebab that opens Share, Copy, and Download options. The viewer still stays open until dismissed.', items:['Upload index_r853.html as index.html.','Confirm Build Version reports r853.','Open a Chat or Mates image and confirm the What’s New-style header appears.','Use the kebab to access Share / Copy / Download.'] },
