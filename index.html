@@ -144,6 +144,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r822: Calendar header Next Gig pill visible right trim and caret removal. Removes the lingering caret pseudo-element and trims the right-side glow/width so the right-edge narrowing is visible while keeping the left edge fixed. -->
 <!-- r823: Home alert-to-Next-Gig gap correction. Expands only the Home logo/hero box downward in alert state, moves the alert pills with that box, and enforces the default thin gap to the Next Gig/No Gig card in both alert and no-alert states. -->
 <!-- r824: Home logo-box backing behind alert pills. Leaves alert-pill position unchanged and paints a logo/hero-box bottom extension behind the alert row so the pills no longer sit over a dark seam. -->
+<!-- r825: Mates naming cleanup. Updates remaining visible tab/roster/member-management labels from Band to Mates where they refer to the renamed Mates tab, while preserving real Band Chat, Band Image, Pay band-total, and internal data ids. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -13231,7 +13232,7 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
     <div id="ann-list" style="flex:1;overflow-y:auto;margin-bottom:10px;min-height:80px;"></div>
     <div id="ann-compose" style="flex-shrink:0;border-top:1px solid #0d1f3a;padding-top:10px;">
       <textarea class="mi" id="ann-txt" placeholder="Post a new announcement..." rows="3" style="resize:none;margin-bottom:8px;"></textarea>
-      <button class="sb" onclick="postAnnounce()" style="width:100%">Post to Band</button>
+      <button class="sb" onclick="postAnnounce()" style="width:100%">Post to Mates</button>
     </div>
   </div>
 </div>
@@ -13256,7 +13257,7 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
     <div class="member-modal-body">
       <input class="mi" id="mnam" placeholder="Name *">
       <input class="mi" id="mrol" placeholder="Role">
-      <button class="sb" onclick="adMem()" style="width:100%">Add to Band</button>
+      <button class="sb" onclick="adMem()" style="width:100%">Add to Mates</button>
     </div>
   </div>
 </div>
@@ -14219,7 +14220,7 @@ function renderNotifSettings(){
     { label:'Blackout Dates', group:'Calendar intelligence', status:'SILENT', tone:'danger' },
     { label:'Availability', group:'Calendar intelligence', status:'LOG ONLY', tone:'muted' },
     { label:'Contacts', group:'Reference data', status:'LOG ONLY', tone:'muted' },
-    { label:'Band Roster', group:'Reference data', status:'LOG ONLY', tone:'muted' },
+    { label:'Mates Roster', group:'Reference data', status:'LOG ONLY', tone:'muted' },
     { label:'Notification Log & Diagnostics', group:'Admin audit', status:'LOG ONLY', tone:'muted' },
     { label:'Future Reminder Nudges', group:'Scheduled reminders', status:'PLANNED', tone:'warn' }
   ];
@@ -17390,7 +17391,7 @@ var TAB_DEFS = [
   {id:'cal',   icon:'&#128197;', label:'Calendar'},
   {id:'sets',  icon:'&#127925;', label:'Setlists'},
   {id:'chat',  icon:'&#128172;', label:'Chat'},
-  {id:'band',  icon:'&#128101;', label:'Band'},
+  {id:'band',  icon:'&#128101;', label:'Mates'},
   {id:'songs', icon:'&#127908;', label:'Songs'},
   {id:'pay',   icon:'&#128176;', label:'Pay'},
 ];
@@ -33531,7 +33532,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-home-alert-backing-r824';
+var WHATS_NEW_VERSION = '2026-05-28-mates-naming-cleanup-r825';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -33876,6 +33877,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-mates-naming-cleanup-r825', date:'May 28, 2026', importance:'fix', emoji:'👥', title:'Mates naming cleaned up', body:'Updates remaining visible tab/roster/member-management labels from Band to Mates where they refer to the renamed Mates tab, including Arrange Tabs, the member add button, announcement posting, and notification/privacy reference rows. Internal ids/routes remain unchanged and real Band Chat, Band Image, and Pay band-total wording are preserved.', items:['Upload index_r825.html as index.html.', 'Confirm Build Version reports r825.', 'Open Home → Arrange Tabs and confirm the tab row now says Mates, not Band.', 'Check Mates/Add Member and Announcements: labels should use Mates where they refer to the member group.'] },
   { version:'2026-05-28-home-alert-backing-r824', date:'May 28, 2026', importance:'fix', emoji:'🏠', title:'Home alert backing filled', body:'Leaves the Home alert pills exactly where they are and paints a logo/hero-box bottom extension behind them, removing the dark seam behind the pills while preserving the default thin gap to the Next Gig/No Gig card. Alert placement, Home logo artwork, Next Gig content, band image registry, social buttons, Calendar, Songs, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r824.html as index.html.', 'Confirm Build Version reports r824.', 'Phone-test Home with Song Vote Pending and Rehearsal On Deck visible: the pills should remain in the same place, but the logo box/background should visibly continue behind them with no dark seam.', 'Confirm the Next Gig/No Gig card and lower Home band image/social buttons did not move.'] },
   { version:'2026-05-28-home-alert-next-gig-gap-r823', date:'May 28, 2026', importance:'fix', emoji:'🏠', title:'Home alert gap corrected', body:'Corrects the Home gap between the alert pills and the Next Gig/No Gig card by expanding only the Home logo/hero box downward in alert state, moving the alert pills with that box, and enforcing the default thin gap when no alert pills are present too. Home logo treatment, alert content, Next Gig content, band image registry, social buttons, Calendar, Songs, Setlists, Chat, Mates, and Pay are otherwise unchanged.', items:['Upload index_r823.html as index.html.', 'Confirm Build Version reports r823.', 'Phone-test Home with Song Vote Pending and Rehearsal On Deck visible: the logo box should extend down, both pills should move with it, and the gap above Next Gig should be the default thin gap.', 'Phone-test Home with no alert pills if possible: the logo-to-Next-Gig/No-Gig gap should still use the default thin gap.'] },
   { version:'2026-05-28-calendar-next-gig-pill-caret-right-trim-r822', date:'May 28, 2026', importance:'fix', emoji:'📅', title:'Calendar next-gig pill caret removed', body:'Removes the lingering caret pseudo-element from the Calendar header Next Gig pill and trims the right-side glow/width so the right-edge narrowing is visible. The left edge, vertical placement, thickness, live next-gig data, and tap-to-Event-Details behavior are unchanged.', items:['Upload index_r822.html as index.html.', 'Confirm Build Version reports r822.', 'Phone-test Calendar header: the Next Gig pill should have no caret and should look visibly narrower on the right while the left edge stays fixed.', 'Tap the pill and confirm it still opens the Event Details drawer.'] },
