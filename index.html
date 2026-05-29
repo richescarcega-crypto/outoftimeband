@@ -138,6 +138,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r814: Calendar header Next Gig pill redesign. Replaces the compact header widget visual with a dynamic glossy blue/gold event pill modeled on the supplied Firefly reference. Data remains live and tapping still opens the Calendar Event Details drawer. -->
 <!-- r815: Calendar header Next Gig pill compact fit. Shrinks only the r814 dynamic glossy header widget and drops it closer to the month panel/default gap. -->
 <!-- r818: Songs header logo size normalization. Matches the Songs header logo rendering to the other non-Home tab header logos by using the same contain fit, center position, dark circular backing, and padding; header size/layout and all other tabs unchanged. -->
+<!-- r819: Calendar header Next Gig pill upward nudge. Keeps the compact pill width and fuller height from r817 but moves the pill slightly back up so it sits cleanly between the gold decorative line and the header bottom without clipping. Calendar body, lower sections, Songs logo normalization, and all other tabs unchanged. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -12552,6 +12553,20 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
   background:#06142e !important;
   padding:3px !important;
   box-sizing:border-box !important;
+}
+
+/* r819: Calendar header Next Gig pill upward nudge.
+   Scope: Calendar header next-gig pill only. r817 moved the pill into the right
+   vertical zone but overshot downward on phone. Keep the narrower width and
+   fuller height; move only the pill slightly upward so it clears the header
+   bottom while staying below the gold decorative line. */
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
+  top:109px !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
+    top:108px !important;
+  }
 }
 
 
@@ -33366,7 +33381,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-songs-header-logo-normalize-r818';
+var WHATS_NEW_VERSION = '2026-05-28-calendar-next-gig-pill-upward-nudge-r819';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -33711,6 +33726,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-calendar-next-gig-pill-upward-nudge-r819', date:'May 28, 2026', importance:'fix', emoji:'📅', title:'Calendar next-gig pill nudged upward', body:'Moves only the Calendar header Next Gig pill slightly upward so it sits cleanly between the gold decorative line and the bottom of the header without clipping. The compact width, fuller pill height, live next-gig data, and tap-to-Event-Details behavior are preserved. Calendar body, All Events, Rehearsal Proposals, Songs logo normalization, Home, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r819.html as index.html.', 'Confirm Build Version reports r819.', 'Phone-test Calendar header: the Next Gig pill should sit below the gold decorative line with a clear gap above and below, stay fully inside the header, and no longer clip at the bottom.', 'Tap the pill and confirm it still opens the Event Details drawer.'] },
   { version:'2026-05-28-songs-header-logo-normalize-r818', date:'May 28, 2026', importance:'fix', emoji:'🎵', title:'Songs header logo matched', body:'Normalizes only the Songs tab header logo so it renders the same visual size as the other non-Home tab header logos. The Songs header card size, title, subtitle, action buttons, search area, library rows, and all other tabs are unchanged.', items:['Upload index_r818.html as index.html.', 'Confirm Build Version reports r818.', 'Phone-test Songs: the header logo should now visually match the logo size on Calendar, Setlists, Chat, Mates, and Pay.', 'Confirm Songs header height, search field, library list, and Songs menu/share buttons are unchanged.'] },
   { version:'2026-05-28-calendar-next-gig-pill-vertical-fit-r817', date:'May 28, 2026', importance:'fix', emoji:'📅', title:'Calendar next-gig pill vertical fit corrected', body:'Moves only the glossy Calendar header Next Gig pill down so it sits cleanly below the gold decorative line, restores fuller vertical height so it uses the open space under it, and keeps the compact width/live tap behavior. Calendar body, weekday row, date tiles, All Events, Rehearsal Proposals, Home, Songs, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r817.html as index.html.', 'Confirm Build Version reports r817.', 'Phone-test Calendar header: the Next Gig pill should sit clearly below the gold decorative line with a clean gap, keep a fuller pill height, remain inside the header above MAY 2026, and still open Event Details when tapped.', 'Confirm the date badge feels less cramped/heavy and the venue/time still truncate cleanly.'] },
   { version:'2026-05-28-calendar-next-gig-pill-fit-r816', date:'May 28, 2026', importance:'fix', emoji:'📅', title:'Calendar next-gig pill fit corrected', body:'Raises and narrows only the glossy Calendar header Next Gig pill so it sits fully below the gold decorative line and no longer clips into the May calendar panel. The pill still uses live next-gig data and still opens the Calendar Event Details drawer when tapped. Calendar body, weekday row, date tiles, All Events, Rehearsal Proposals, Home, Songs, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r816.html as index.html.', 'Confirm Build Version reports r816.', 'Phone-test Calendar header: the Next Gig pill should sit fully below the gold decorative line, be narrower left-to-right, and not be clipped by the header bottom or the MAY 2026 panel.', 'Tap the pill and confirm it still opens the upcoming gig Event Details drawer.'] },
