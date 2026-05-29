@@ -137,7 +137,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r717: Calendar All Events filter drawer premium polish. Applies gold-accented scroll-safe filter sheet styling only; filter logic, All Events rows, Calendar layout/gaps/pills, Home, Chat, Songs, Setlists, Mates, Pay, flyers, assets, and app data unchanged. Upload index_r717.html as index.html. -->
 <!-- r814: Calendar header Next Gig pill redesign. Replaces the compact header widget visual with a dynamic glossy blue/gold event pill modeled on the supplied Firefly reference. Data remains live and tapping still opens the Calendar Event Details drawer. -->
 <!-- r815: Calendar header Next Gig pill compact fit. Shrinks only the r814 dynamic glossy header widget and drops it closer to the month panel/default gap. -->
-<!-- r816: Calendar header Next Gig pill fit correction. Raises and narrows only the glossy Calendar header next-gig pill so it sits fully below the gold decorative line and inside the header without clipping; tap behavior and Calendar body/lower sections unchanged. -->
+<!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -12455,20 +12455,21 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
 }
 
 
-/* r816: Calendar header Next Gig pill fit correction.
-   Scope: Calendar header next-gig widget only. The r815 pill was too low and
-   clipped against the bottom of the header. This raises it into the open band
-   directly below the gold decorative rule, narrows it left-to-right, and keeps
-   the live-data/tap-to-event-details behavior intact. Calendar body, month
-   grid, lower pills, drawers, Home, Songs, Setlists, Chat, Mates, and Pay are
-   untouched. */
+/* r817: Calendar header Next Gig pill vertical-fit correction.
+   Scope: glossy Calendar header next-gig widget only. r816 stopped the clip but
+   left the pill crowding the gold decorative line and compressed vertically.
+   This keeps the compact narrow width, moves the pill down into the open band
+   under the decorative line, restores a fuller pill height, and slightly
+   softens the date badge emphasis while preserving live data and tap-to-event-
+   details behavior. Calendar body, month grid, lower pills, drawers, Home,
+   Songs, Setlists, Chat, Mates, and Pay are untouched. */
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
   left:16px !important;
-  top:106px !important;
-  width:154px !important;
-  height:31px !important;
-  min-height:31px !important;
-  grid-template-columns:36px 1fr !important;
+  top:114px !important;
+  width:156px !important;
+  height:37px !important;
+  min-height:37px !important;
+  grid-template-columns:35px 1fr !important;
   border-radius:999px !important;
   overflow:visible !important;
 }
@@ -12480,62 +12481,62 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
   font-size:18px !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-date{
-  width:29px !important;
-  min-width:29px !important;
-  height:29px !important;
+  width:28px !important;
+  min-width:28px !important;
+  height:28px !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-mo{
-  font-size:5.4px !important;
-  letter-spacing:.26px !important;
+  font-size:5.2px !important;
+  letter-spacing:.24px !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-day{
-  font-size:12px !important;
+  font-size:11.5px !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-dow{
-  font-size:5.2px !important;
-  letter-spacing:.18px !important;
+  font-size:5.0px !important;
+  letter-spacing:.16px !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-body{
-  padding:3px 18px 2px 7px !important;
+  padding:5px 18px 4px 7px !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{
-  max-width:88px !important;
-  font-size:8.4px !important;
-  line-height:1.02 !important;
+  max-width:90px !important;
+  font-size:8.5px !important;
+  line-height:1.04 !important;
 }
 #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
-  max-width:88px !important;
-  font-size:7.4px !important;
-  line-height:1.02 !important;
+  max-width:90px !important;
+  font-size:7.5px !important;
+  line-height:1.04 !important;
 }
 @media (max-width:420px){
   #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
     left:14px !important;
-    top:105px !important;
-    width:150px !important;
-    height:30px !important;
-    min-height:30px !important;
-    grid-template-columns:35px 1fr !important;
+    top:113px !important;
+    width:152px !important;
+    height:36px !important;
+    min-height:36px !important;
+    grid-template-columns:34px 1fr !important;
   }
   #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-date{
-    width:28px !important;
-    min-width:28px !important;
-    height:28px !important;
+    width:27px !important;
+    min-width:27px !important;
+    height:27px !important;
   }
   #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget::after{
     right:6px !important;
     font-size:17px !important;
   }
   #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-body{
-    padding-right:17px !important;
+    padding:5px 17px 4px 7px !important;
   }
   #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-venue{
-    max-width:85px !important;
-    font-size:8.1px !important;
+    max-width:87px !important;
+    font-size:8.2px !important;
   }
   #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-time{
-    max-width:85px !important;
-    font-size:7.2px !important;
+    max-width:87px !important;
+    font-size:7.3px !important;
   }
 }
 
@@ -33350,7 +33351,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-calendar-next-gig-pill-fit-r816';
+var WHATS_NEW_VERSION = '2026-05-28-calendar-next-gig-pill-vertical-fit-r817';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -33695,6 +33696,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-calendar-next-gig-pill-vertical-fit-r817', date:'May 28, 2026', importance:'fix', emoji:'📅', title:'Calendar next-gig pill vertical fit corrected', body:'Moves only the glossy Calendar header Next Gig pill down so it sits cleanly below the gold decorative line, restores fuller vertical height so it uses the open space under it, and keeps the compact width/live tap behavior. Calendar body, weekday row, date tiles, All Events, Rehearsal Proposals, Home, Songs, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r817.html as index.html.', 'Confirm Build Version reports r817.', 'Phone-test Calendar header: the Next Gig pill should sit clearly below the gold decorative line with a clean gap, keep a fuller pill height, remain inside the header above MAY 2026, and still open Event Details when tapped.', 'Confirm the date badge feels less cramped/heavy and the venue/time still truncate cleanly.'] },
   { version:'2026-05-28-calendar-next-gig-pill-fit-r816', date:'May 28, 2026', importance:'fix', emoji:'📅', title:'Calendar next-gig pill fit corrected', body:'Raises and narrows only the glossy Calendar header Next Gig pill so it sits fully below the gold decorative line and no longer clips into the May calendar panel. The pill still uses live next-gig data and still opens the Calendar Event Details drawer when tapped. Calendar body, weekday row, date tiles, All Events, Rehearsal Proposals, Home, Songs, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r816.html as index.html.', 'Confirm Build Version reports r816.', 'Phone-test Calendar header: the Next Gig pill should sit fully below the gold decorative line, be narrower left-to-right, and not be clipped by the header bottom or the MAY 2026 panel.', 'Tap the pill and confirm it still opens the upcoming gig Event Details drawer.'] },
   { version:'2026-05-28-home-cue-fallbacks-social-r810', date:'May 28, 2026', importance:'fix', emoji:'🏠', title:'Home cue fallbacks and social button adjustment', body:'Adds unordered fallback listeners for Home song/rehearsal cue data so the Home pills can surface even if ordered query/data-field paths fail, broadens future rehearsal proposal matching, and lowers the Home social buttons slightly while keeping them visible. Next Gig title containment from r809 is preserved.', items:['Upload index_r810.html as index.html.', 'Confirm Build Version reports r810.', 'Phone-test Home with song suggestion/rehearsal data: pills should return if matching Firestore data exists.', 'Confirm social buttons sit lower without being clipped.', 'Confirm long Next Gig title remains one line.'] },
   { version:'2026-05-27-home-logo-frame-geometry-r785', date:'May 27, 2026', importance:'fix', emoji:'🏠', title:'Home logo frame geometry corrected', body:'Fixes the remaining right-side logo underfill by changing the Home logo/header frame from a wide rectangle toward a square-ish responsive frame that better matches the circular logo. The foreground logo itself remains unchanged: same image, same blue border, same lettering scale, same contain fit, no distortion and no crop. Gap 1, Gap 2, Gap 3, the gig/no-gig card height, band image renderer, social buttons, tabs, and non-Home sections are unchanged.', items:['Upload index_r785.html as index.html.', 'Confirm Build Version reports r785.', 'Phone-test Home: the actual logo should now fill much more of the frame width, especially on the right side, while the logo remains uncropped/undistorted and Gap 1, Gap 2, and Gap 3 remain unchanged.'] },
