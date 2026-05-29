@@ -159,6 +159,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r838: Rehearsal proposal in-app pending badge. Adds member-specific pending proposal cues without adding another Home pill: Calendar tab badge plus tiny Home micro-cue for members who still need to respond. -->
 <!-- r839: Calendar pending proposal explanation cue. Adds a small inline Calendar cue explaining the red Calendar tab badge and linking directly to Rehearsal Proposals. -->
 <!-- r840: Hide Calendar action-needed cue while Rehearsal Proposals page is open. Keeps the cue visible only on the normal Calendar view, not above the proposal workspace. -->
+<!-- r841: Restore Calendar action-needed cue after proposal close. Re-renders the Calendar cue when the Rehearsal Proposals workspace is closed so the cue appears immediately without needing to tap Calendar again. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -25253,6 +25254,9 @@ function closeRehearsalProposalsWorkspace(){
     if(btn) btn.style.display = 'none';
     if(typeof _closeProposalNotifLog === 'function') _closeProposalNotifLog();
     if(typeof _layoutCalendarLowerStack === 'function') _layoutCalendarLowerStack();
+    // r841: after closing the proposal workspace, return to normal Calendar view
+    // and immediately restore the Action Needed cue if this member still has not responded.
+    setTimeout(function(){ try { renderPendingProposalCue(); } catch(_e){} }, 40);
   } catch(e){
     try { console.warn('[r828 proposals close] failed', e); } catch(_e){}
   }
@@ -34856,7 +34860,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-hide-calendar-cue-on-proposals-r840';
+var WHATS_NEW_VERSION = '2026-05-28-restore-calendar-cue-after-close-r841';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -35201,6 +35205,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-restore-calendar-cue-after-close-r841', date:'May 28, 2026', importance:'fix', emoji:'🔔', title:'Calendar cue restore fixed', body:'When Rehearsal Proposals is opened from the Home rehearsal-response cue and then closed with X, the Calendar Action Needed cue now returns immediately on the normal Calendar view if the member still has not responded. It no longer requires tapping the Calendar tab again.', items:['Upload index_r841.html as index.html.','Confirm Build Version reports r841.','Open Rehearsal Proposals from the Home cue, close with X, and confirm Action Needed appears immediately on Calendar.'] },
   { version:'2026-05-28-hide-calendar-cue-on-proposals-r840', date:'May 28, 2026', importance:'fix', emoji:'🔔', title:'Calendar proposal cue behavior fixed', body:'Keeps the Action Needed rehearsal-proposal cue visible on the normal Calendar view, but hides it whenever the Rehearsal Proposals workspace is open. This applies whether the proposal page is opened from Home or from the Calendar cue itself. The cue returns after closing the workspace if the member still has not responded.', items:['Upload index_r840.html as index.html.','Confirm Build Version reports r840.','From Home cue, open Rehearsal Proposals and confirm Action Needed is hidden.','Close the proposal workspace and confirm Action Needed appears on normal Calendar if still unanswered.','Tap Action Needed from Calendar and confirm it hides once Rehearsal Proposals opens.'] },
   { version:'2026-05-28-calendar-proposal-cue-r839', date:'May 28, 2026', importance:'fix', emoji:'🔔', title:'Calendar proposal cue added', body:'Adds a small inline Calendar cue that explains the red Calendar tab badge when a member has an unanswered rehearsal proposal. Tapping it opens Rehearsal Proposals. The Home cue and Calendar tab badge remain member-specific and disappear after the member responds.', items:['Upload index_r839.html as index.html.','Confirm Build Version reports r839.','Log in as a member with an unanswered proposal and open Calendar.','Confirm a small Action Needed cue appears under the Calendar header and tapping it opens Rehearsal Proposals.'] },
   { version:'2026-05-28-pending-proposal-inapp-badge-r838', date:'May 28, 2026', importance:'fix', emoji:'🔔', title:'Pending proposal cue added', body:'Adds a member-specific in-app cue for unanswered rehearsal proposals without adding another large Home pill. Members who still need to respond see a small badge on the Calendar tab plus a tiny Home micro-cue; both disappear after that member responds. Tapping the cue opens Calendar → Rehearsal Proposals.', items:['Upload index_r838.html as index.html.','Confirm Build Version reports r838.','Use a member with an unanswered proposal: confirm Calendar tab badge and tiny Home cue appear.','Respond to the proposal and confirm the badge/cue disappear.'] },
