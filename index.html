@@ -141,6 +141,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r819: Calendar header Next Gig pill upward nudge. Keeps the compact pill width and fuller height from r817 but moves the pill slightly back up so it sits cleanly between the gold decorative line and the header bottom without clipping. Calendar body, lower sections, Songs logo normalization, and all other tabs unchanged. -->
 <!-- r820: Calendar header Next Gig pill thickness reduction. Reduces only the Calendar header Next Gig pill vertical thickness by 5px from r819 and keeps its placement/width/tap behavior so it fits the tight space below the gold decorative line. Calendar body, lower sections, Songs logo normalization, and all other tabs unchanged. -->
 <!-- r821: Calendar header Next Gig pill right-edge width trim. Narrows only the right side of the Calendar header Next Gig pill by about 5px; left edge, vertical placement, thickness, data, and tap behavior unchanged. -->
+<!-- r822: Calendar header Next Gig pill visible right trim and caret removal. Removes the lingering caret pseudo-element and trims the right-side glow/width so the right-edge narrowing is visible while keeping the left edge fixed. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -12620,6 +12621,27 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
 @media (max-width:420px){
   #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
     width:147px !important;
+  }
+}
+
+/* r822: Calendar header Next Gig pill visible right trim + caret removal.
+   r821 reduced the button width, but the older ::before glow still extended
+   past the right edge and the older ::after caret still drew a chevron, making
+   the right-side trim hard to see. Keep the left edge fixed, remove the caret,
+   and trim the actual/visible right side. */
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
+  width:146px !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget::before{
+  right:0 !important;
+}
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget::after{
+  content:none !important;
+  display:none !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
+    width:142px !important;
   }
 }
 
@@ -33435,7 +33457,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-calendar-next-gig-pill-right-trim-r821';
+var WHATS_NEW_VERSION = '2026-05-28-calendar-next-gig-pill-caret-right-trim-r822';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -33780,6 +33802,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-calendar-next-gig-pill-caret-right-trim-r822', date:'May 28, 2026', importance:'fix', emoji:'📅', title:'Calendar next-gig pill caret removed', body:'Removes the lingering caret pseudo-element from the Calendar header Next Gig pill and trims the right-side glow/width so the right-edge narrowing is visible. The left edge, vertical placement, thickness, live next-gig data, and tap-to-Event-Details behavior are unchanged.', items:['Upload index_r822.html as index.html.', 'Confirm Build Version reports r822.', 'Phone-test Calendar header: the Next Gig pill should have no caret and should look visibly narrower on the right while the left edge stays fixed.', 'Tap the pill and confirm it still opens the Event Details drawer.'] },
   { version:'2026-05-28-calendar-next-gig-pill-right-trim-r821', date:'May 28, 2026', importance:'fix', emoji:'📅', title:'Calendar next-gig pill right edge trimmed', body:'Narrows only the right side of the Calendar header Next Gig pill by about 5px. The left edge, vertical placement, thickness, live next-gig data, and tap-to-Event-Details behavior are unchanged. Calendar body, All Events, Rehearsal Proposals, Songs logo normalization, Home, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r821.html as index.html.', 'Confirm Build Version reports r821.', 'Phone-test Calendar header: the Next Gig pill should be slightly narrower on the right side only, with the left edge staying in the same place.', 'Tap the pill and confirm it still opens the Event Details drawer.'] },
   { version:'2026-05-28-calendar-next-gig-pill-thickness-r820', date:'May 28, 2026', importance:'fix', emoji:'📅', title:'Calendar next-gig pill thickness reduced', body:'Reduces only the Calendar header Next Gig pill vertical thickness by 5px from r819 so it fits the tight space below the gold decorative line. Width, placement, live next-gig data, and tap-to-Event-Details behavior are preserved. Calendar body, All Events, Rehearsal Proposals, Songs logo normalization, Home, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r820.html as index.html.', 'Confirm Build Version reports r820.', 'Phone-test Calendar header: the Next Gig pill should look thinner, sit below the gold decorative line, stay fully inside the header, and no longer feel too thick for the space.', 'Tap the pill and confirm it still opens the Event Details drawer.'] },
   { version:'2026-05-28-calendar-next-gig-pill-upward-nudge-r819', date:'May 28, 2026', importance:'fix', emoji:'📅', title:'Calendar next-gig pill nudged upward', body:'Moves only the Calendar header Next Gig pill slightly upward so it sits cleanly between the gold decorative line and the bottom of the header without clipping. The compact width, fuller pill height, live next-gig data, and tap-to-Event-Details behavior are preserved. Calendar body, All Events, Rehearsal Proposals, Songs logo normalization, Home, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r819.html as index.html.', 'Confirm Build Version reports r819.', 'Phone-test Calendar header: the Next Gig pill should sit below the gold decorative line with a clear gap above and below, stay fully inside the header, and no longer clip at the bottom.', 'Tap the pill and confirm it still opens the Event Details drawer.'] },
