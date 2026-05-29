@@ -160,6 +160,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r839: Calendar pending proposal explanation cue. Adds a small inline Calendar cue explaining the red Calendar tab badge and linking directly to Rehearsal Proposals. -->
 <!-- r840: Hide Calendar action-needed cue while Rehearsal Proposals page is open. Keeps the cue visible only on the normal Calendar view, not above the proposal workspace. -->
 <!-- r841: Restore Calendar action-needed cue after proposal close. Re-renders the Calendar cue when the Rehearsal Proposals workspace is closed so the cue appears immediately without needing to tap Calendar again. -->
+<!-- r842: Keyboard-safe first pass. Moves Songs Suggest and Setlists New Setlist typing layouts higher above the Android keyboard and stabilizes Mates Contact Add/Edit keyboard viewport behavior. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -13712,6 +13713,90 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
   display:none !important;
   visibility:hidden !important;
   pointer-events:none !important;
+}
+
+
+/* r842: keyboard-safe first pass.
+   Scope: Songs Suggest-a-Song, Setlists New Setlist create sheet, and Mates
+   Contact Add/Edit modal only. No data/model/save behavior changed. */
+
+/* Songs → Suggest a Song: move the typing frame higher and keep Submit reachable. */
+#votes-modal.suggest-keyboard-active.suggest-mode,
+#votes-modal.suggest-keyboard-active{
+  padding-top:0 !important;
+  overflow:hidden !important;
+}
+#votes-modal.suggest-keyboard-active.suggest-mode #votes-modal-card,
+#votes-modal.suggest-keyboard-active #votes-modal-card{
+  top:var(--oot-suggest-keyboard-top,24px) !important;
+  max-height:var(--oot-suggest-keyboard-height,calc(100dvh - 34px)) !important;
+  padding-bottom:0 !important;
+}
+#votes-modal.suggest-keyboard-active.suggest-mode #suggest-form,
+#votes-modal.suggest-keyboard-active #suggest-form{
+  padding-top:14px !important;
+  padding-bottom:calc(76px + env(safe-area-inset-bottom)) !important;
+  scroll-padding-bottom:calc(96px + env(safe-area-inset-bottom)) !important;
+}
+#votes-modal.suggest-keyboard-active.suggest-mode #suggest-form .r2,
+#votes-modal.suggest-keyboard-active #suggest-form .r2{
+  margin-top:6px !important;
+  padding-bottom:calc(20px + env(safe-area-inset-bottom)) !important;
+}
+#votes-modal.suggest-keyboard-active.suggest-mode #suggest-form .fi2,
+#votes-modal.suggest-keyboard-active #suggest-form .fi2{
+  margin-bottom:6px !important;
+}
+
+/* Setlists → New Setlist: fixed high sheet while keyboard is open. */
+#r636-setlist-create-backdrop.r842-setlist-keyboard-active{
+  align-items:flex-start !important;
+  justify-content:center !important;
+  padding-top:calc(8px + env(safe-area-inset-top)) !important;
+  padding-bottom:calc(8px + env(safe-area-inset-bottom)) !important;
+  overflow:hidden !important;
+}
+#r636-setlist-create-backdrop.r842-setlist-keyboard-active > div{
+  max-height:var(--r842-setlist-visible-height,calc(100dvh - 18px)) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  margin:0 !important;
+  transform:translateZ(0) !important;
+  padding-bottom:calc(16px + env(safe-area-inset-bottom)) !important;
+}
+#r636-setlist-create-backdrop.r842-setlist-keyboard-active input,
+#r636-setlist-create-backdrop.r842-setlist-keyboard-active select{
+  scroll-margin-top:18px !important;
+  scroll-margin-bottom:160px !important;
+}
+
+/* Mates → Contact Add/Edit: stable visible viewport instead of field-by-field jumps. */
+#contact-modal.contact-keyboard-active,
+#contact-modal:focus-within{
+  align-items:flex-start !important;
+  justify-content:center !important;
+  padding-top:calc(6px + env(safe-area-inset-top)) !important;
+  padding-bottom:calc(6px + env(safe-area-inset-bottom)) !important;
+  overflow:hidden !important;
+}
+#contact-modal.contact-keyboard-active .mo,
+#contact-modal:focus-within .mo{
+  max-height:var(--contact-visible-height,calc(100dvh - 14px - env(safe-area-inset-bottom))) !important;
+  height:auto !important;
+  overflow:hidden !important;
+  margin-top:0 !important;
+}
+#contact-modal.contact-keyboard-active .contact-modal-body,
+#contact-modal:focus-within .contact-modal-body{
+  max-height:calc(var(--contact-visible-height,100dvh) - 58px) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding-bottom:calc(80px + env(safe-area-inset-bottom)) !important;
+  scroll-padding-bottom:calc(100px + env(safe-area-inset-bottom)) !important;
+}
+#contact-modal.contact-keyboard-active .mi,
+#contact-modal:focus-within .mi{
+  margin-bottom:7px !important;
 }
 
 </style>
@@ -29033,11 +29118,13 @@ function _ootSuggestKeyboardMode(active, el){
     if(!ov || !card) return;
     try{
       var vv = window.visualViewport;
-      // r405: keep the same fixed typing frame from r403/r404, but move it down one full inch (96px).
-      var top = 102;
-      if(vv && typeof vv.offsetTop === 'number') top = Math.max(4, Math.floor(vv.offsetTop + 102));
+      // r842: keyboard-safe Suggest-a-Song frame.
+      // The old +102px top offset left the Submit area behind the Android keyboard.
+      // Keep one stable frame, but move it higher and give the form more usable height.
+      var top = 24;
+      if(vv && typeof vv.offsetTop === 'number') top = Math.max(4, Math.floor(vv.offsetTop + 24));
       var viewportH = (vv && vv.height ? vv.height : window.innerHeight);
-      var h = Math.min(340, Math.max(240, Math.floor(viewportH - top - 10)));
+      var h = Math.min(430, Math.max(280, Math.floor(viewportH - top - 8)));
       card.style.setProperty('--oot-suggest-keyboard-top', top + 'px');
       card.style.setProperty('--oot-suggest-keyboard-height', h + 'px');
       var isUrlField = !!(el && el.id === 'suggest-url');
@@ -30196,6 +30283,37 @@ function closeR636SetlistCreateModal(){
   var m = document.getElementById('r636-setlist-create-backdrop');
   if(m) m.remove();
 }
+
+function _r842SetlistCreateKeyboardActive(){
+  try{
+    var wrap = document.getElementById('r636-setlist-create-backdrop');
+    if(!wrap) return;
+    var ae = document.activeElement;
+    var active = !!(ae && wrap.contains(ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName || ''));
+    wrap.classList.toggle('r842-setlist-keyboard-active', active);
+    if(active && window.visualViewport){
+      var h = Math.max(300, Math.floor(window.visualViewport.height - 12));
+      wrap.style.setProperty('--r842-setlist-visible-height', h + 'px');
+    }else{
+      wrap.style.removeProperty('--r842-setlist-visible-height');
+    }
+  }catch(e){}
+}
+(function(){
+  document.addEventListener('focusin', function(e){
+    var wrap = document.getElementById('r636-setlist-create-backdrop');
+    if(wrap && wrap.contains(e.target)) setTimeout(_r842SetlistCreateKeyboardActive, 40);
+  });
+  document.addEventListener('focusout', function(e){
+    var wrap = document.getElementById('r636-setlist-create-backdrop');
+    if(wrap && wrap.contains(e.target)) setTimeout(_r842SetlistCreateKeyboardActive, 160);
+  });
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', function(){ setTimeout(_r842SetlistCreateKeyboardActive, 30); });
+    window.visualViewport.addEventListener('scroll', function(){ setTimeout(_r842SetlistCreateKeyboardActive, 30); });
+  }
+})();
+
 function _r636CreateSetlistModal(prefillGigId){
   closeR636SetlistCreateModal();
   var gigs = _r633GigList().slice().sort(function(a,b){
@@ -30259,7 +30377,7 @@ function _r636CreateSetlistModal(prefillGigId){
       else { aSL = n.id; setsViewState = 'edit'; }
     }, 650);
   };
-  setTimeout(function(){ try { nameInput.focus(); nameInput.select(); } catch(e){} }, 60);
+  setTimeout(function(){ try { nameInput.focus(); nameInput.select(); if(typeof _r842SetlistCreateKeyboardActive === 'function') _r842SetlistCreateKeyboardActive(); } catch(e){} }, 60);
 }
 function _r636RenderSetlistGigPrompt(container){
   if(!container) return;
@@ -34860,7 +34978,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-restore-calendar-cue-after-close-r841';
+var WHATS_NEW_VERSION = '2026-05-28-keyboard-safe-first-pass-r842';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -35205,6 +35323,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-keyboard-safe-first-pass-r842', date:'May 28, 2026', importance:'fix', emoji:'⌨️', title:'Keyboard-safe forms pass', body:'First pass on keyboard-covered form issues: Songs → Suggest a Song now moves higher and keeps Submit reachable while typing; Setlists → New Setlist uses a high fixed sheet while the keyboard is open from both CREATE and kebab paths; Mates → Contact Add/Edit uses a steadier visible viewport to reduce field-by-field jumping. No data/save behavior changed.', items:['Upload index_r842.html as index.html.','Confirm Build Version reports r842.','Phone-test Songs → Suggest a Song with keyboard open and confirm Submit/bottom form is reachable.','Phone-test Setlists → CREATE and Setlists kebab → New Setlist with keyboard open.','Phone-test Mates → Contacts → Edit Contact with keyboard open.'] },
   { version:'2026-05-28-restore-calendar-cue-after-close-r841', date:'May 28, 2026', importance:'fix', emoji:'🔔', title:'Calendar cue restore fixed', body:'When Rehearsal Proposals is opened from the Home rehearsal-response cue and then closed with X, the Calendar Action Needed cue now returns immediately on the normal Calendar view if the member still has not responded. It no longer requires tapping the Calendar tab again.', items:['Upload index_r841.html as index.html.','Confirm Build Version reports r841.','Open Rehearsal Proposals from the Home cue, close with X, and confirm Action Needed appears immediately on Calendar.'] },
   { version:'2026-05-28-hide-calendar-cue-on-proposals-r840', date:'May 28, 2026', importance:'fix', emoji:'🔔', title:'Calendar proposal cue behavior fixed', body:'Keeps the Action Needed rehearsal-proposal cue visible on the normal Calendar view, but hides it whenever the Rehearsal Proposals workspace is open. This applies whether the proposal page is opened from Home or from the Calendar cue itself. The cue returns after closing the workspace if the member still has not responded.', items:['Upload index_r840.html as index.html.','Confirm Build Version reports r840.','From Home cue, open Rehearsal Proposals and confirm Action Needed is hidden.','Close the proposal workspace and confirm Action Needed appears on normal Calendar if still unanswered.','Tap Action Needed from Calendar and confirm it hides once Rehearsal Proposals opens.'] },
   { version:'2026-05-28-calendar-proposal-cue-r839', date:'May 28, 2026', importance:'fix', emoji:'🔔', title:'Calendar proposal cue added', body:'Adds a small inline Calendar cue that explains the red Calendar tab badge when a member has an unanswered rehearsal proposal. Tapping it opens Rehearsal Proposals. The Home cue and Calendar tab badge remain member-specific and disappear after the member responds.', items:['Upload index_r839.html as index.html.','Confirm Build Version reports r839.','Log in as a member with an unanswered proposal and open Calendar.','Confirm a small Action Needed cue appears under the Calendar header and tapping it opens Rehearsal Proposals.'] },
