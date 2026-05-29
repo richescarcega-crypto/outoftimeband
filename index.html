@@ -163,6 +163,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r842: Keyboard-safe first pass. Moves Songs Suggest and Setlists New Setlist typing layouts higher above the Android keyboard and stabilizes Mates Contact Add/Edit keyboard viewport behavior. -->
 <!-- r843: Keyboard-safe positioning refinement. Softens r842's keyboard offsets: Suggest a Song and New Setlist no longer jump too high, and Contact Add/Edit no longer auto-scrolls to the top on field focus. -->
 <!-- r844: Keyboard-safe midpoint refinement. Moves Setlists New Setlist and Mates Contact Add/Edit to a measured middle-high position: above the keyboard, but not pinned to the top. -->
+<!-- r845: Remove redundant song-pill YouTube icons. Hides the red YouTube icon buttons from Songs and Setlists song pills while preserving album-art/row behavior and all song data/actions. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -13918,6 +13919,22 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
   overflow-y:visible !important;
   padding-bottom:calc(18px + env(safe-area-inset-bottom)) !important;
   scroll-padding-bottom:0 !important;
+}
+
+
+/* r845: remove redundant red YouTube icon buttons from song pills.
+   Scope: Songs tab song rows and Setlists song rows only. Album art/row tap
+   behavior and all YouTube/resource actions remain otherwise unchanged. */
+#sc-songs .song-youtube-btn,
+#sc-sets .song-youtube-btn,
+#sc-sets .setlist-expanded-yt{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+#sc-songs .song-card-main,
+#sc-sets .setlist-expanded-song{
+  padding-right:0 !important;
 }
 
 </style>
@@ -35099,7 +35116,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-keyboard-safe-midpoint-r844';
+var WHATS_NEW_VERSION = '2026-05-28-remove-song-pill-youtube-icons-r845';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -35444,6 +35461,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-remove-song-pill-youtube-icons-r845', date:'May 28, 2026', importance:'fix', emoji:'🎵', title:'Song pill YouTube icons removed', body:'Removes the redundant red YouTube icon buttons from song pills in Songs and Setlists. Album art/row behavior and song data/actions remain unchanged.', items:['Upload index_r845.html as index.html.','Confirm Build Version reports r845.','Check Songs and Setlists song pills: the red YouTube icons should be gone.'] },
   { version:'2026-05-28-keyboard-safe-midpoint-r844', date:'May 28, 2026', importance:'fix', emoji:'⌨️', title:'Keyboard midpoint adjusted', body:'Adjusts Setlists → New Setlist and Mates → Contact Add/Edit keyboard positioning to a middle-high placement: higher than r843 so the keyboard does not cover the form, but not pinned to the top like r842. No data/save behavior changed.', items:['Upload index_r844.html as index.html.','Confirm Build Version reports r844.','Retest Setlists New Setlist from CREATE and kebab paths.','Retest Mates Edit Contact with keyboard open.'] },
   { version:'2026-05-28-keyboard-safe-refinement-r843', date:'May 28, 2026', importance:'fix', emoji:'⌨️', title:'Keyboard positioning refined', body:'Refines the r842 keyboard-safe pass. Songs → Suggest a Song no longer pins too high or mashes the header, Setlists → New Setlist no longer jumps to the very top, and Mates → Contact Add/Edit stays centered instead of auto-scrolling the fields behind the header. No save/data behavior changed.', items:['Upload index_r843.html as index.html.','Confirm Build Version reports r843.','Retest Songs Suggest, Setlists New Setlist from both paths, and Mates Edit Contact with keyboard open.'] },
   { version:'2026-05-28-keyboard-safe-first-pass-r842', date:'May 28, 2026', importance:'fix', emoji:'⌨️', title:'Keyboard-safe forms pass', body:'First pass on keyboard-covered form issues: Songs → Suggest a Song now moves higher and keeps Submit reachable while typing; Setlists → New Setlist uses a high fixed sheet while the keyboard is open from both CREATE and kebab paths; Mates → Contact Add/Edit uses a steadier visible viewport to reduce field-by-field jumping. No data/save behavior changed.', items:['Upload index_r842.html as index.html.','Confirm Build Version reports r842.','Phone-test Songs → Suggest a Song with keyboard open and confirm Submit/bottom form is reachable.','Phone-test Setlists → CREATE and Setlists kebab → New Setlist with keyboard open.','Phone-test Mates → Contacts → Edit Contact with keyboard open.'] },
