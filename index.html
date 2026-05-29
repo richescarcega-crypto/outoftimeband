@@ -142,6 +142,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r820: Calendar header Next Gig pill thickness reduction. Reduces only the Calendar header Next Gig pill vertical thickness by 5px from r819 and keeps its placement/width/tap behavior so it fits the tight space below the gold decorative line. Calendar body, lower sections, Songs logo normalization, and all other tabs unchanged. -->
 <!-- r821: Calendar header Next Gig pill right-edge width trim. Narrows only the right side of the Calendar header Next Gig pill by about 5px; left edge, vertical placement, thickness, data, and tap behavior unchanged. -->
 <!-- r822: Calendar header Next Gig pill visible right trim and caret removal. Removes the lingering caret pseudo-element and trims the right-side glow/width so the right-edge narrowing is visible while keeping the left edge fixed. -->
+<!-- r823: Home alert-to-Next-Gig gap correction. Expands only the Home logo/hero box downward in alert state, moves the alert pills with that box, and enforces the default thin gap to the Next Gig/No Gig card in both alert and no-alert states. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -12645,6 +12646,43 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
   }
 }
 
+
+
+/* r823: Home alert-to-Next-Gig gap correction.
+   Deep-dive finding: the visible gap was not controlled by a simple margin.
+   The alert pills are painted by r798 as a zero-height overlay row pulled upward
+   with transform:translateY(-64px), then r813 restores child/pill height. That
+   means older code can make the apparent gap survive normal margin edits.
+   Fix: in alert state only, expand the Home logo/hero box downward by 6px and
+   move the overlay row down with it so the pills sit at the bottom of the logo
+   box. Separately, enforce the default thin 2px gap between the Home hero/logo
+   stack and the Next Gig/No Gig card when there are no pills too. */
+#sc-home #next-gig-countdown,
+#sc-home #no-gigs-card{
+  margin-top:2px !important;
+}
+#sc-home:has(#home-song-vote-cue[style*="display: block"]) .hero.home-hero-with-controls,
+#sc-home:has(#home-song-vote-cue[style*="display:block"]) .hero.home-hero-with-controls,
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) .hero.home-hero-with-controls,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) .hero.home-hero-with-controls{
+  height:324px !important;
+  max-height:324px !important;
+}
+#sc-home:has(#home-song-vote-cue[style*="display: block"]) #home-alerts-row,
+#sc-home:has(#home-song-vote-cue[style*="display:block"]) #home-alerts-row,
+#sc-home:has(#home-rehearsal-cue[style*="display: block"]) #home-alerts-row,
+#sc-home:has(#home-rehearsal-cue[style*="display:block"]) #home-alerts-row{
+  transform:translateY(-58px) !important;
+}
+@media (max-width:520px){
+  #sc-home:has(#home-song-vote-cue[style*="display: block"]) .hero.home-hero-with-controls,
+  #sc-home:has(#home-song-vote-cue[style*="display:block"]) .hero.home-hero-with-controls,
+  #sc-home:has(#home-rehearsal-cue[style*="display: block"]) .hero.home-hero-with-controls,
+  #sc-home:has(#home-rehearsal-cue[style*="display:block"]) .hero.home-hero-with-controls{
+    height:324px !important;
+    max-height:324px !important;
+  }
+}
 
 </style>
 </head>
@@ -33457,7 +33495,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-calendar-next-gig-pill-caret-right-trim-r822';
+var WHATS_NEW_VERSION = '2026-05-28-home-alert-next-gig-gap-r823';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -33802,6 +33840,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-home-alert-next-gig-gap-r823', date:'May 28, 2026', importance:'fix', emoji:'🏠', title:'Home alert gap corrected', body:'Corrects the Home gap between the alert pills and the Next Gig/No Gig card by expanding only the Home logo/hero box downward in alert state, moving the alert pills with that box, and enforcing the default thin gap when no alert pills are present too. Home logo treatment, alert content, Next Gig content, band image registry, social buttons, Calendar, Songs, Setlists, Chat, Mates, and Pay are otherwise unchanged.', items:['Upload index_r823.html as index.html.', 'Confirm Build Version reports r823.', 'Phone-test Home with Song Vote Pending and Rehearsal On Deck visible: the logo box should extend down, both pills should move with it, and the gap above Next Gig should be the default thin gap.', 'Phone-test Home with no alert pills if possible: the logo-to-Next-Gig/No-Gig gap should still use the default thin gap.'] },
   { version:'2026-05-28-calendar-next-gig-pill-caret-right-trim-r822', date:'May 28, 2026', importance:'fix', emoji:'📅', title:'Calendar next-gig pill caret removed', body:'Removes the lingering caret pseudo-element from the Calendar header Next Gig pill and trims the right-side glow/width so the right-edge narrowing is visible. The left edge, vertical placement, thickness, live next-gig data, and tap-to-Event-Details behavior are unchanged.', items:['Upload index_r822.html as index.html.', 'Confirm Build Version reports r822.', 'Phone-test Calendar header: the Next Gig pill should have no caret and should look visibly narrower on the right while the left edge stays fixed.', 'Tap the pill and confirm it still opens the Event Details drawer.'] },
   { version:'2026-05-28-calendar-next-gig-pill-right-trim-r821', date:'May 28, 2026', importance:'fix', emoji:'📅', title:'Calendar next-gig pill right edge trimmed', body:'Narrows only the right side of the Calendar header Next Gig pill by about 5px. The left edge, vertical placement, thickness, live next-gig data, and tap-to-Event-Details behavior are unchanged. Calendar body, All Events, Rehearsal Proposals, Songs logo normalization, Home, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r821.html as index.html.', 'Confirm Build Version reports r821.', 'Phone-test Calendar header: the Next Gig pill should be slightly narrower on the right side only, with the left edge staying in the same place.', 'Tap the pill and confirm it still opens the Event Details drawer.'] },
   { version:'2026-05-28-calendar-next-gig-pill-thickness-r820', date:'May 28, 2026', importance:'fix', emoji:'📅', title:'Calendar next-gig pill thickness reduced', body:'Reduces only the Calendar header Next Gig pill vertical thickness by 5px from r819 so it fits the tight space below the gold decorative line. Width, placement, live next-gig data, and tap-to-Event-Details behavior are preserved. Calendar body, All Events, Rehearsal Proposals, Songs logo normalization, Home, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r820.html as index.html.', 'Confirm Build Version reports r820.', 'Phone-test Calendar header: the Next Gig pill should look thinner, sit below the gold decorative line, stay fully inside the header, and no longer feel too thick for the space.', 'Tap the pill and confirm it still opens the Event Details drawer.'] },
