@@ -161,6 +161,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r840: Hide Calendar action-needed cue while Rehearsal Proposals page is open. Keeps the cue visible only on the normal Calendar view, not above the proposal workspace. -->
 <!-- r841: Restore Calendar action-needed cue after proposal close. Re-renders the Calendar cue when the Rehearsal Proposals workspace is closed so the cue appears immediately without needing to tap Calendar again. -->
 <!-- r842: Keyboard-safe first pass. Moves Songs Suggest and Setlists New Setlist typing layouts higher above the Android keyboard and stabilizes Mates Contact Add/Edit keyboard viewport behavior. -->
+<!-- r843: Keyboard-safe positioning refinement. Softens r842's keyboard offsets: Suggest a Song and New Setlist no longer jump too high, and Contact Add/Edit no longer auto-scrolls to the top on field focus. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -13797,6 +13798,76 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
 #contact-modal.contact-keyboard-active .mi,
 #contact-modal:focus-within .mi{
   margin-bottom:7px !important;
+}
+
+
+/* r843: keyboard-safe positioning refinement.
+   r842 proved the direction but placed forms too high. This softens the offsets
+   without changing save/data behavior. */
+
+/* Songs → Suggest a Song: lower from r842's top-pinned frame and restore breathing room in the header. */
+#votes-modal.suggest-keyboard-active.suggest-mode #votes-modal-card,
+#votes-modal.suggest-keyboard-active #votes-modal-card{
+  top:var(--oot-suggest-keyboard-top,58px) !important;
+  max-height:var(--oot-suggest-keyboard-height,calc(100dvh - 74px)) !important;
+}
+#votes-modal.suggest-keyboard-active.suggest-mode #votes-modal-card > .moh,
+#votes-modal.suggest-keyboard-active #votes-modal-card > .moh{
+  margin-bottom:8px !important;
+  min-height:48px !important;
+  align-items:center !important;
+}
+#votes-modal.suggest-keyboard-active.suggest-mode #suggest-form,
+#votes-modal.suggest-keyboard-active #suggest-form{
+  padding-top:22px !important;
+  padding-bottom:calc(68px + env(safe-area-inset-bottom)) !important;
+}
+
+/* Setlists → New Setlist: use a centered-in-visible-area sheet, not top-pinned. */
+#r636-setlist-create-backdrop.r842-setlist-keyboard-active{
+  align-items:center !important;
+  justify-content:center !important;
+  padding-top:calc(34px + env(safe-area-inset-top)) !important;
+  padding-bottom:calc(18px + env(safe-area-inset-bottom)) !important;
+}
+#r636-setlist-create-backdrop.r842-setlist-keyboard-active > div{
+  max-height:min(var(--r842-setlist-visible-height, calc(100dvh - 84px)), 430px) !important;
+  margin:0 !important;
+}
+
+/* Mates → Contact Add/Edit: do not auto-top-pin or auto-scroll when a field gets focus.
+   The contact form is compact enough to remain centered; let the user scroll only if they choose. */
+#contact-modal.contact-keyboard-active,
+#contact-modal:focus-within{
+  align-items:center !important;
+  justify-content:center !important;
+  padding-top:calc(10px + env(safe-area-inset-top)) !important;
+  padding-bottom:calc(10px + env(safe-area-inset-bottom)) !important;
+  overflow:hidden !important;
+}
+#contact-modal.contact-keyboard-active .mo,
+#contact-modal:focus-within .mo{
+  max-height:min(var(--contact-visible-height, calc(100dvh - 36px)), 520px) !important;
+  height:auto !important;
+  overflow:hidden !important;
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+}
+#contact-modal.contact-keyboard-active .contact-modal-body,
+#contact-modal:focus-within .contact-modal-body{
+  max-height:none !important;
+  overflow-y:visible !important;
+  padding-bottom:calc(18px + env(safe-area-inset-bottom)) !important;
+  scroll-padding-bottom:0 !important;
+}
+#contact-modal.contact-keyboard-active .contact-modal-body input,
+#contact-modal.contact-keyboard-active .contact-modal-body textarea,
+#contact-modal.contact-keyboard-active .contact-modal-body select,
+#contact-modal:focus-within .contact-modal-body input,
+#contact-modal:focus-within .contact-modal-body textarea,
+#contact-modal:focus-within .contact-modal-body select{
+  scroll-margin-top:0 !important;
+  scroll-margin-bottom:0 !important;
 }
 
 </style>
@@ -29118,13 +29189,13 @@ function _ootSuggestKeyboardMode(active, el){
     if(!ov || !card) return;
     try{
       var vv = window.visualViewport;
-      // r842: keyboard-safe Suggest-a-Song frame.
-      // The old +102px top offset left the Submit area behind the Android keyboard.
-      // Keep one stable frame, but move it higher and give the form more usable height.
-      var top = 24;
-      if(vv && typeof vv.offsetTop === 'number') top = Math.max(4, Math.floor(vv.offsetTop + 24));
+      // r843: refined keyboard-safe Suggest-a-Song frame.
+      // r842 moved too high and mashed the header; this keeps Submit reachable
+      // without pinning the card to the very top.
+      var top = 58;
+      if(vv && typeof vv.offsetTop === 'number') top = Math.max(20, Math.floor(vv.offsetTop + 58));
       var viewportH = (vv && vv.height ? vv.height : window.innerHeight);
-      var h = Math.min(430, Math.max(280, Math.floor(viewportH - top - 8)));
+      var h = Math.min(390, Math.max(270, Math.floor(viewportH - top - 12)));
       card.style.setProperty('--oot-suggest-keyboard-top', top + 'px');
       card.style.setProperty('--oot-suggest-keyboard-height', h + 'px');
       var isUrlField = !!(el && el.id === 'suggest-url');
@@ -34978,7 +35049,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-keyboard-safe-first-pass-r842';
+var WHATS_NEW_VERSION = '2026-05-28-keyboard-safe-refinement-r843';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -35323,6 +35394,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-keyboard-safe-refinement-r843', date:'May 28, 2026', importance:'fix', emoji:'⌨️', title:'Keyboard positioning refined', body:'Refines the r842 keyboard-safe pass. Songs → Suggest a Song no longer pins too high or mashes the header, Setlists → New Setlist no longer jumps to the very top, and Mates → Contact Add/Edit stays centered instead of auto-scrolling the fields behind the header. No save/data behavior changed.', items:['Upload index_r843.html as index.html.','Confirm Build Version reports r843.','Retest Songs Suggest, Setlists New Setlist from both paths, and Mates Edit Contact with keyboard open.'] },
   { version:'2026-05-28-keyboard-safe-first-pass-r842', date:'May 28, 2026', importance:'fix', emoji:'⌨️', title:'Keyboard-safe forms pass', body:'First pass on keyboard-covered form issues: Songs → Suggest a Song now moves higher and keeps Submit reachable while typing; Setlists → New Setlist uses a high fixed sheet while the keyboard is open from both CREATE and kebab paths; Mates → Contact Add/Edit uses a steadier visible viewport to reduce field-by-field jumping. No data/save behavior changed.', items:['Upload index_r842.html as index.html.','Confirm Build Version reports r842.','Phone-test Songs → Suggest a Song with keyboard open and confirm Submit/bottom form is reachable.','Phone-test Setlists → CREATE and Setlists kebab → New Setlist with keyboard open.','Phone-test Mates → Contacts → Edit Contact with keyboard open.'] },
   { version:'2026-05-28-restore-calendar-cue-after-close-r841', date:'May 28, 2026', importance:'fix', emoji:'🔔', title:'Calendar cue restore fixed', body:'When Rehearsal Proposals is opened from the Home rehearsal-response cue and then closed with X, the Calendar Action Needed cue now returns immediately on the normal Calendar view if the member still has not responded. It no longer requires tapping the Calendar tab again.', items:['Upload index_r841.html as index.html.','Confirm Build Version reports r841.','Open Rehearsal Proposals from the Home cue, close with X, and confirm Action Needed appears immediately on Calendar.'] },
   { version:'2026-05-28-hide-calendar-cue-on-proposals-r840', date:'May 28, 2026', importance:'fix', emoji:'🔔', title:'Calendar proposal cue behavior fixed', body:'Keeps the Action Needed rehearsal-proposal cue visible on the normal Calendar view, but hides it whenever the Rehearsal Proposals workspace is open. This applies whether the proposal page is opened from Home or from the Calendar cue itself. The cue returns after closing the workspace if the member still has not responded.', items:['Upload index_r840.html as index.html.','Confirm Build Version reports r840.','From Home cue, open Rehearsal Proposals and confirm Action Needed is hidden.','Close the proposal workspace and confirm Action Needed appears on normal Calendar if still unanswered.','Tap Action Needed from Calendar and confirm it hides once Rehearsal Proposals opens.'] },
