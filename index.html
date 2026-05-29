@@ -177,6 +177,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r856: Song Resources external-return stale-restore fix. Cancels the short Android/PWA external-return restore lock when the user intentionally opens Song Details from Song Resources, preventing Lyrics/Discography return timers from reopening the options page over the edit modal. -->
 <!-- r857: Rehearsal Proposals workspace adopts What’s-New-style header. Applies the star badge, centered gold title, premium card shell, and gold close X to the Rehearsal Proposals page while preserving the + PROPOSE pill. -->
 <!-- r858: Song Details sticky header restore. Restores sticky behavior for the Song Details title/header after the What’s-New-style r855/r856 pass by making the full header a sticky in-flow header instead of an absolute header that scrolls away. -->
+<!-- r859: Rehearsal Proposals header collision and member log visibility fix. Moves + PROPOSE to the top-left of the What’s-New-style header and hides proposal Notification Log from non-admin members. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -15367,6 +15368,38 @@ body.light #song-info-modal .moh{
   box-shadow:0 8px 18px rgba(20,40,80,.12) !important;
 }
 
+
+/* r859: Rehearsal Proposals header collision fix + admin-only log presentation.
+   The r857 What’s-New header put + PROPOSE on the title row on some phones.
+   Move + PROPOSE to the top-left control zone opposite the close X. Notification
+   Log is now admin-only from JS; if present, it remains styled normally. */
+#sc-cal.cal-header-fit.on #proposals-list .r828-proposal-add-btn{
+  top:10px !important;
+  left:10px !important;
+  right:auto !important;
+  height:32px !important;
+  min-width:94px !important;
+  padding:0 10px !important;
+  z-index:14 !important;
+  font-size:8px !important;
+  letter-spacing:.75px !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .r828-proposal-head-copy{
+  left:58px !important;
+  right:58px !important;
+}
+@media (max-width:390px){
+  #sc-cal.cal-header-fit.on #proposals-list .r828-proposal-head-title{
+    font-size:13.5px !important;
+    letter-spacing:1.05px !important;
+  }
+  #sc-cal.cal-header-fit.on #proposals-list .r828-proposal-add-btn{
+    min-width:88px !important;
+    font-size:7.5px !important;
+    padding:0 8px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -23828,6 +23861,12 @@ function _renderProposalReminderLog(p){
   var wrap = document.createElement('div');
   wrap.style.cssText = 'margin-top:10px;';
   wrap.setAttribute('data-proposal-reminder-log', String(p.id));
+  // r859: Reminder delivery/log detail is an admin diagnostic/control surface.
+  // Non-admin members only need their response controls, not the Notification Log.
+  if(typeof _isAdmin === 'function' && !_isAdmin()){
+    wrap.style.display = 'none';
+    return wrap;
+  }
   var key = 'proposal-reminder-log-' + String(p.id);
   var open = !!cardStates[key];
   var entries = _proposalReminderEntries(p);
@@ -36734,7 +36773,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-song-details-sticky-header-r858';
+var WHATS_NEW_VERSION = '2026-05-28-proposal-header-log-visibility-r859';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -37079,6 +37118,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-proposal-header-log-visibility-r859', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Proposal header and log visibility fixed', body:'Moves the + PROPOSE pill to the top-left of the Rehearsal Proposals What’s-New-style header so it no longer collides with the title. Proposal Notification Log is now admin-only, so normal members see response controls without diagnostic delivery logs. Proposal voting, reminders, edit/delete permissions, and Song Details sticky header behavior are unchanged.', items:['Upload index_r859.html as index.html.','Confirm Build Version reports r859.','Open Rehearsal Proposals and confirm + PROPOSE is top-left and no longer overlaps the title.','Log in as Jim and confirm Notification Log is hidden; log in as Rich/admin and confirm it remains visible.'] },
   { version:'2026-05-28-song-details-sticky-header-r858', date:'May 28, 2026', importance:'fix', emoji:'🎵', title:'Song Details sticky header restored', body:'Restores sticky behavior for the Song Details title/header after the What’s-New-style restyling. The title, star, and close button now stay pinned while the Song Details fields scroll. Song fields, save/delete/YouTube controls, keyboard behavior, and data are unchanged.', items:['Upload index_r858.html as index.html.','Confirm Build Version reports r858.','Open Song Details and scroll; confirm the title/header stays sticky.','Confirm Save/Delete/YouTube controls still work.'] },
   { version:'2026-05-28-proposals-whats-new-header-r857', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Rehearsal Proposals restyled', body:'Applies the What’s New header/card style to the Rehearsal Proposals workspace: star accent, centered gold title, premium card shell, and gold circular close button. The + PROPOSE pill is preserved. Proposal cards, voting, reminder audit, notification log, Check Due Now, edit/delete, and reminder logic are unchanged.', items:['Upload index_r857.html as index.html.','Confirm Build Version reports r857.','Open Calendar → Rehearsal Proposals and confirm the What’s New-style header appears.','Confirm + PROPOSE is still visible and works.','Confirm existing proposal actions still work.'] },
   { version:'2026-05-28-song-resource-edit-stale-restore-fix-r856', date:'May 28, 2026', importance:'fix', emoji:'🎵', title:'Song edit reopen glitch fixed', body:'Fixes the case where opening Lyrics from Song Resources, returning to the app, and then tapping Edit Song Links caused Song Details to flash and disappear behind the Song Resources page. The stale external-return restore lock is now cleared when Edit Song Links is intentionally tapped. Song Resources, Lyrics/Discography links, Song Details fields, and save behavior are unchanged.', items:['Upload index_r856.html as index.html.','Confirm Build Version reports r856.','Songs → tap a song → Lyrics → return to app → Edit Song Links: Song Details should stay open.','Confirm direct Edit Song Links still opens normally.'] },
