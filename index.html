@@ -154,6 +154,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r833: Safe Rehearsal Proposals polish after rollback. CSS/text-only cleanup: hides Calendar grid bleed-through, shortens subtitle, tightens proposal card bottom spacing, and refines small action controls without touching proposal/reminder logic. -->
 <!-- r834: Remove proposal workspace dead zone. Disables the full-height Calendar overlay pseudo-layer that was creating the large empty dark area and makes the Rehearsal Proposals workspace itself wrap content while still hiding the underlying Calendar controls. -->
 <!-- r835: Rehearsal proposal centered workspace and stacked action pills. Centers the proposal workspace vertically, hides the Calendar header while open, and stacks Your Response / Change Response / Notification Log on the left with distinct colors. -->
+<!-- r836: Rehearsal proposal action-stack correction. Forces Your Response, Change Response, and Notification Log into a true left-side vertical stack below Reminder Audit while keeping admin edit/delete controls on the right. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -13495,6 +13496,83 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
     min-width:118px !important;
     max-width:118px !important;
     font-size:6.35px !important;
+  }
+}
+
+
+/* r836: fix action stack layout.
+   Scope: Rehearsal Proposals presentation only. The previous attempt centered
+   the workspace correctly but did not fully stack the three action pills
+   because the vote row itself remained horizontal and the reminder-log block
+   kept its own placement. This override explicitly reorders and restructures
+   the content-sized card so the three requested pills form a left vertical
+   column in this order: Your Response, Change Response, Notification Log. The
+   admin edit/delete controls remain grouped on the right. No proposal/reminder
+   data or app logic changes. */
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium{
+  display:flex !important;
+  flex-direction:column !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium > div:has(.r829-response-pill){
+  order:30 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-start !important;
+  justify-content:flex-start !important;
+  gap:6px !important;
+  width:auto !important;
+  margin-top:8px !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium > div:has(.r829-response-pill) > div:has(.r829-response-pill){
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-start !important;
+  justify-content:flex-start !important;
+  gap:6px !important;
+  width:auto !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium > div:has(.r829-response-pill) .r829-response-pill{
+  order:1 !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium > div:has(.r829-response-pill) .r829-change-pill{
+  order:2 !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium > [data-proposal-reminder-log]{
+  order:31 !important;
+  align-self:flex-start !important;
+  justify-content:flex-start !important;
+  width:auto !important;
+  margin-top:6px !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium > [data-proposal-reminder-log] > button.r829-notification-pill{
+  order:1 !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium > [data-proposal-reminder-log] > div{
+  order:20 !important;
+  width:100% !important;
+  flex:1 0 100% !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium .r831-proposal-admin-row,
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium > div[style*="display:flex;gap:6px;margin-top:8px;align-items:center;justify-content:flex-end"]{
+  order:32 !important;
+  align-self:flex-end !important;
+  margin-top:-58px !important;
+  margin-left:auto !important;
+  width:auto !important;
+  gap:8px !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium .r829-proposal-action-pill,
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium [data-proposal-reminder-log] > button.r829-proposal-action-pill{
+  width:128px !important;
+  min-width:128px !important;
+  max-width:128px !important;
+}
+@media (max-width:390px){
+  #sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium .r829-proposal-action-pill,
+  #sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium [data-proposal-reminder-log] > button.r829-proposal-action-pill{
+    width:122px !important;
+    min-width:122px !important;
+    max-width:122px !important;
   }
 }
 
@@ -34522,7 +34600,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-proposal-centered-stacked-actions-r835';
+var WHATS_NEW_VERSION = '2026-05-28-proposal-action-stack-fix-r836';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -34867,6 +34945,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-proposal-action-stack-fix-r836', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Proposal action stack fixed', body:'Corrects the Rehearsal Proposal action layout so Your Response, Change Response, and Notification Log form a true left-side vertical stack below Reminder Audit, while admin edit/delete controls stay on the right. Workspace centering and header hiding from r835 remain in place. Proposal data, voting, reminders, notifications, and other tabs are unchanged.', items:['Upload index_r836.html as index.html.','Confirm Build Version reports r836.','Confirm the three pills stack vertically on the left in the requested order.'] },
   { version:'2026-05-28-proposal-centered-stacked-actions-r835', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Proposal actions stacked', body:'Centers the Rehearsal Proposals workspace vertically, hides the Calendar header while the workspace is open, and stacks Your Response, Change Response, and Notification Log on the left below Reminder Audit. Notification Log remains gold and Change Response is blue so the controls are visually distinct. Proposal data, voting, reminders, notifications, tab navigation, and other tabs are unchanged.', items:['Upload index_r835.html as index.html.', 'Confirm Build Version reports r835.', 'Calendar → Rehearsal Proposals: confirm the workspace is vertically centered and the Calendar header is hidden behind it.', 'Confirm the three action pills are stacked on the left in this order: Your Response, Change Response, Notification Log.', 'Confirm X, + PROPOSE, CHECK DUE NOW, Notification Log, Change Response, Edit, and Delete still work.'] },
   { version:'2026-05-28-proposal-dead-zone-fix-r834', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Proposal dead zone removed', body:'Removes the large empty dark area below the Rehearsal Proposal card by disabling the full-height backdrop layer and making the proposal workspace wrap to its content. Underlying Calendar controls still hide while the workspace is open. Proposal data, voting, reminders, notifications, tab navigation, and other tabs are unchanged.', items:['Upload index_r834.html as index.html.', 'Confirm Build Version reports r834.', 'Confirm Home loads and bottom tabs switch.', 'Calendar → Rehearsal Proposals: confirm the large empty dark area below the proposal card is gone.', 'Confirm X, + PROPOSE, CHECK DUE NOW, Notification Log, Change Response, Edit, and Delete still work.'] },
   { version:'2026-05-28-rehearsal-proposal-safe-polish-r833', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Rehearsal proposal polished safely', body:'Safe CSS/text-only cleanup after the r831 rollback: hides Calendar grid bleed-through behind the proposal workspace, shortens the header subtitle, tightens the proposal card around its content, and reduces Notification Log / Your Response / Change Response to smaller premium controls. Proposal data, voting, reminders, manual sends, tab navigation, and other tabs are unchanged.', items:['Upload index_r833.html as index.html.', 'Confirm Build Version reports r833.', 'Confirm Home loads and bottom tabs switch.', 'Calendar → Rehearsal Proposals: confirm the background no longer shows calendar tiles, the proposal card is tighter, and the three action controls are smaller/subtler.', 'Confirm X, + PROPOSE, CHECK DUE NOW, Notification Log, Change Response, Edit, and Delete still work.'] },
