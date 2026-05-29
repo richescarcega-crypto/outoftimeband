@@ -176,6 +176,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r855: Song Details modal adopts What’s-New-style header. Applies the star badge, centered gold title, premium card shell, and gold circular close button to the Add/Edit Song Details modal. -->
 <!-- r856: Song Resources external-return stale-restore fix. Cancels the short Android/PWA external-return restore lock when the user intentionally opens Song Details from Song Resources, preventing Lyrics/Discography return timers from reopening the options page over the edit modal. -->
 <!-- r857: Rehearsal Proposals workspace adopts What’s-New-style header. Applies the star badge, centered gold title, premium card shell, and gold close X to the Rehearsal Proposals page while preserving the + PROPOSE pill. -->
+<!-- r858: Song Details sticky header restore. Restores sticky behavior for the Song Details title/header after the What’s-New-style r855/r856 pass by making the full header a sticky in-flow header instead of an absolute header that scrolls away. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -15294,6 +15295,76 @@ body.light #sc-cal.cal-header-fit.on #proposals-list .r828-proposal-add-btn{
   border-color:rgba(180,134,11,.38) !important;
   background:rgba(180,134,11,.10) !important;
   box-shadow:none !important;
+}
+
+
+/* r858: restore sticky Song Details title/header.
+   Root cause: the r855 What’s-New-style pass made the Song Details header
+   absolute inside the scrolling modal card, so the title could scroll away.
+   Fix: make the full header an in-flow sticky header with the same star/title/X
+   language. Song fields, save/delete/YouTube controls, keyboard behavior, and
+   data are unchanged. */
+#song-info-modal .mo{
+  padding:0 14px 16px !important;
+}
+#song-info-modal .mo::before{
+  content:none !important;
+  display:none !important;
+}
+#song-info-modal .moh{
+  position:sticky !important;
+  top:0 !important;
+  left:auto !important;
+  right:auto !important;
+  height:98px !important;
+  min-height:98px !important;
+  margin:0 -14px 12px !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:14px 14px 0 0 !important;
+  background:
+    radial-gradient(circle at 50% 16px,rgba(74,158,255,.18),transparent 88px),
+    linear-gradient(180deg,rgba(10,22,40,.99),rgba(7,18,42,.96)) !important;
+  box-shadow:0 8px 20px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.045) !important;
+  z-index:20 !important;
+  display:block !important;
+  flex:0 0 auto !important;
+}
+#song-info-modal .moh::before{
+  content:"✨" !important;
+  position:absolute !important;
+  top:14px !important;
+  left:50% !important;
+  transform:translateX(-50%) !important;
+  width:46px !important;
+  height:46px !important;
+  border-radius:50% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:rgba(74,158,255,.16) !important;
+  box-shadow:0 0 24px rgba(74,158,255,.25),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  color:#ffffff !important;
+  font-size:24px !important;
+  line-height:1 !important;
+  z-index:21 !important;
+  pointer-events:none !important;
+}
+#song-info-modal .moh > div{
+  position:absolute !important;
+  top:64px !important;
+  left:42px !important;
+  right:42px !important;
+  text-align:center !important;
+  min-width:0 !important;
+  z-index:22 !important;
+}
+#song-info-modal .moh button{
+  z-index:23 !important;
+}
+body.light #song-info-modal .moh{
+  background:#ffffff !important;
+  box-shadow:0 8px 18px rgba(20,40,80,.12) !important;
 }
 
 </style>
@@ -36663,7 +36734,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-proposals-whats-new-header-r857';
+var WHATS_NEW_VERSION = '2026-05-28-song-details-sticky-header-r858';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -37008,6 +37079,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-song-details-sticky-header-r858', date:'May 28, 2026', importance:'fix', emoji:'🎵', title:'Song Details sticky header restored', body:'Restores sticky behavior for the Song Details title/header after the What’s-New-style restyling. The title, star, and close button now stay pinned while the Song Details fields scroll. Song fields, save/delete/YouTube controls, keyboard behavior, and data are unchanged.', items:['Upload index_r858.html as index.html.','Confirm Build Version reports r858.','Open Song Details and scroll; confirm the title/header stays sticky.','Confirm Save/Delete/YouTube controls still work.'] },
   { version:'2026-05-28-proposals-whats-new-header-r857', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Rehearsal Proposals restyled', body:'Applies the What’s New header/card style to the Rehearsal Proposals workspace: star accent, centered gold title, premium card shell, and gold circular close button. The + PROPOSE pill is preserved. Proposal cards, voting, reminder audit, notification log, Check Due Now, edit/delete, and reminder logic are unchanged.', items:['Upload index_r857.html as index.html.','Confirm Build Version reports r857.','Open Calendar → Rehearsal Proposals and confirm the What’s New-style header appears.','Confirm + PROPOSE is still visible and works.','Confirm existing proposal actions still work.'] },
   { version:'2026-05-28-song-resource-edit-stale-restore-fix-r856', date:'May 28, 2026', importance:'fix', emoji:'🎵', title:'Song edit reopen glitch fixed', body:'Fixes the case where opening Lyrics from Song Resources, returning to the app, and then tapping Edit Song Links caused Song Details to flash and disappear behind the Song Resources page. The stale external-return restore lock is now cleared when Edit Song Links is intentionally tapped. Song Resources, Lyrics/Discography links, Song Details fields, and save behavior are unchanged.', items:['Upload index_r856.html as index.html.','Confirm Build Version reports r856.','Songs → tap a song → Lyrics → return to app → Edit Song Links: Song Details should stay open.','Confirm direct Edit Song Links still opens normally.'] },
   { version:'2026-05-28-song-details-whats-new-header-r855', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Song Details restyled', body:'Applies the What’s New header/card style to the Add/Edit Song Details modal: star accent, centered gold title, premium card shell, and gold circular close button. Song fields, save/delete/YouTube controls, keyboard behavior, and song data are unchanged.', items:['Upload index_r855.html as index.html.','Confirm Build Version reports r855.','Open Song Details from Songs and from Edit Song Links; confirm the header/card uses the What’s New style and save/delete controls still work.'] },
