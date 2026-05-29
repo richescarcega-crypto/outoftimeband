@@ -151,6 +151,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r829: Rehearsal proposal premium polish. Removes the oversized empty workspace area, fully hides the Calendar key while proposals are open, standardizes proposal action pill sizes, and lightens the Reminder Audit panel for better contrast. -->
 <!-- r830: Rehearsal proposal full-workspace and compact actions. Extends the proposal workspace backing to cover the underlying Calendar lower stack, keeps the proposal card compact, and redesigns Notification Log / Your Response / Change Response as smaller premium controls. -->
 <!-- r832: Emergency rollback from broken r831. Restores the last working r830 app state because r831 introduced a malformed What's New entry that stopped JavaScript initialization. -->
+<!-- r833: Safe Rehearsal Proposals polish after rollback. CSS/text-only cleanup: hides Calendar grid bleed-through, shortens subtitle, tightens proposal card bottom spacing, and refines small action controls without touching proposal/reminder logic. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -13203,6 +13204,125 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
   }
 }
 
+
+/* r833: Rehearsal Proposals safe final polish.
+   CSS/text-only after r831 rollback. Hide Calendar bleed-through, make the
+   workspace subtitle clean, tighten the proposal card, and reduce the action
+   controls to a small, deliberate, premium scale. No proposal data, voting,
+   reminder timing/targets, manual sends, tab navigation, or other app logic. */
+#sc-cal.cal-header-fit.on:has(#proposals-list[style*="display: block"]) #cgrid-wrap,
+#sc-cal.cal-header-fit.on:has(#proposals-list[style*="display:block"]) #cgrid-wrap,
+#sc-cal.cal-header-fit.on:has(#proposals-list[style*="display: block"]) #cgrid,
+#sc-cal.cal-header-fit.on:has(#proposals-list[style*="display:block"]) #cgrid,
+#sc-cal.cal-header-fit.on:has(#proposals-list[style*="display: block"]) #calendar-hero-date-row,
+#sc-cal.cal-header-fit.on:has(#proposals-list[style*="display:block"]) #calendar-hero-date-row{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+#sc-cal.cal-header-fit.on:has(#proposals-list[style*="display: block"])::after,
+#sc-cal.cal-header-fit.on:has(#proposals-list[style*="display:block"])::after{
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(74,158,255,.09),transparent 31%),
+    radial-gradient(ellipse at 50% 38%,rgba(162,103,255,.055),transparent 46%),
+    linear-gradient(180deg,rgba(4,10,25,.997),rgba(3,8,20,.999) 62%,rgba(2,6,14,1)) !important;
+  border-color:rgba(138,168,214,.14) !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .r828-proposal-head-sub{
+  max-width:190px !important;
+  letter-spacing:.25px !important;
+  color:#9eb6df !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium{
+  padding:10px 12px 8px !important;
+  margin:0 8px !important;
+  border-radius:18px !important;
+  background:
+    radial-gradient(ellipse at 58% 0%,rgba(162,103,255,.12),transparent 34%),
+    linear-gradient(145deg,rgba(31,14,61,.78),rgba(8,15,36,.93) 58%,rgba(5,11,27,.97)) !important;
+  box-shadow:0 10px 26px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.045) !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium > div:last-child{
+  margin-bottom:0 !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list [data-proposal-reminder-audit]{
+  margin-top:8px !important;
+  margin-bottom:4px !important;
+  padding:8px 9px !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list [data-proposal-reminder-audit] div{
+  font-size:10.3px !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list [data-proposal-reminder-log]{
+  margin-top:7px !important;
+  justify-content:flex-end !important;
+  gap:5px !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .r829-proposal-action-pill,
+#sc-cal.cal-header-fit.on #proposals-list [data-proposal-reminder-log] > button.r829-proposal-action-pill{
+  width:112px !important;
+  min-width:112px !important;
+  max-width:112px !important;
+  height:24px !important;
+  min-height:24px !important;
+  padding:0 7px !important;
+  border-radius:999px !important;
+  font-size:6.6px !important;
+  letter-spacing:.55px !important;
+  line-height:1 !important;
+  box-shadow:0 4px 9px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.045) !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list [data-proposal-reminder-log] > button.r829-notification-pill{
+  background:rgba(245,197,24,.055) !important;
+  color:#f5c518 !important;
+  border-color:rgba(245,197,24,.32) !important;
+  box-shadow:0 4px 9px rgba(0,0,0,.16),0 0 8px rgba(245,197,24,.045),inset 0 1px 0 rgba(255,255,255,.045) !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list [data-proposal-reminder-log] > button.r829-notification-pill span:first-child{
+  font-size:6.6px !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .r829-response-pill{
+  justify-content:center !important;
+  color:#31e0b7 !important;
+  border-color:rgba(49,224,183,.38) !important;
+  background:rgba(49,224,183,.040) !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .r829-change-pill{
+  justify-content:center !important;
+  color:#f5c518 !important;
+  border-color:rgba(245,197,24,.36) !important;
+  background:rgba(245,197,24,.040) !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium div[style*="display:flex;align-items:center;justify-content:space-between"]{
+  align-items:center !important;
+  gap:7px !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium div[style*="display:flex;gap:6px;margin-top:8px;align-items:center;justify-content:flex-end"]{
+  margin-top:6px !important;
+  gap:7px !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium button[aria-label="Edit proposal"],
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium button[aria-label="Cancel proposal"]{
+  width:28px !important;
+  height:28px !important;
+  flex-basis:28px !important;
+  border-radius:10px !important;
+}
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium button[aria-label="Edit proposal"] svg,
+#sc-cal.cal-header-fit.on #proposals-list .proposal-card-premium button[aria-label="Cancel proposal"] svg{
+  width:14px !important;
+  height:14px !important;
+}
+@media (max-width:390px){
+  #sc-cal.cal-header-fit.on #proposals-list .r829-proposal-action-pill,
+  #sc-cal.cal-header-fit.on #proposals-list [data-proposal-reminder-log] > button.r829-proposal-action-pill{
+    width:106px !important;
+    min-width:106px !important;
+    max-width:106px !important;
+    font-size:6.25px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -24703,7 +24823,7 @@ function _renderProposalsWorkspaceHeader(){
   head.innerHTML =
     '<div class="r828-proposal-head-copy">'+
       '<div class="r828-proposal-head-title">REHEARSAL PROPOSALS</div>'+
-      '<div class="r828-proposal-head-sub">Review responses · edit proposals · send nudges</div>'+
+      '<div class="r828-proposal-head-sub">Responses · reminders · tools</div>'+
     '</div>'+
     '<button type="button" class="r828-proposal-add-btn" onclick="openNewProposalModal()">+ PROPOSE</button>'+
     '<button type="button" class="r828-proposal-close-btn" aria-label="Close rehearsal proposals" onclick="closeRehearsalProposalsWorkspace()">×</button>';
@@ -34227,7 +34347,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-emergency-rollback-r832';
+var WHATS_NEW_VERSION = '2026-05-28-rehearsal-proposal-safe-polish-r833';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -34572,6 +34692,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-rehearsal-proposal-safe-polish-r833', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Rehearsal proposal polished safely', body:'Safe CSS/text-only cleanup after the r831 rollback: hides Calendar grid bleed-through behind the proposal workspace, shortens the header subtitle, tightens the proposal card around its content, and reduces Notification Log / Your Response / Change Response to smaller premium controls. Proposal data, voting, reminders, manual sends, tab navigation, and other tabs are unchanged.', items:['Upload index_r833.html as index.html.', 'Confirm Build Version reports r833.', 'Confirm Home loads and bottom tabs switch.', 'Calendar → Rehearsal Proposals: confirm the background no longer shows calendar tiles, the proposal card is tighter, and the three action controls are smaller/subtler.', 'Confirm X, + PROPOSE, CHECK DUE NOW, Notification Log, Change Response, Edit, and Delete still work.'] },
   { version:'2026-05-28-emergency-rollback-r832', date:'May 28, 2026', importance:'fix', emoji:'↩️', title:'Rollback from r831', body:'Emergency rollback to the last working r830 state after r831 introduced a malformed What’s New entry that prevented JavaScript initialization. This restores tab navigation and normal app startup. The r830 Rehearsal Proposals workspace remains in place.', items:['Upload index_r832.html as index.html.', 'Confirm Build Version reports r832.', 'Confirm Home loads normally and bottom tabs switch correctly.', 'Confirm Calendar → Rehearsal Proposals still opens using the r830 layout.'] },
   { version:'2026-05-28-rehearsal-proposal-full-workspace-r830', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Rehearsal proposal workspace finished', body:'Makes the Rehearsal Proposals workspace feel like a true page by covering the underlying Calendar lower stack/background, hiding All Events/Rehearsal Proposals behind it, and redesigning Notification Log / Your Response / Change Response as smaller premium controls that match the Reminder Audit scale. Proposal data, voting, reminders, manual sends, and other tabs are unchanged.', items:['Upload index_r830.html as index.html.', 'Confirm Build Version reports r830.', 'Calendar → Rehearsal Proposals: confirm the lower Calendar stack/background is covered while the workspace is open.', 'Confirm Notification Log, Your Response, and Change Response are smaller, subtler, and visually consistent.', 'Confirm X close, + PROPOSE, Edit, Delete, CHECK DUE NOW, and Reminder Audit still work.'] },
   { version:'2026-05-28-rehearsal-proposal-premium-polish-r829', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Rehearsal proposal page polished', body:'Removes the oversized empty lower space from the Rehearsal Proposals workspace, fully hides the Calendar key while the proposal page is open, standardizes the Notification Log / Your Response / Change Response pill sizing, and gives Reminder Audit a lighter distinct premium surface. Proposal data, voting, reminder timing/targets, manual sends, and other tabs are unchanged.', items:['Upload index_r829.html as index.html.', 'Confirm Build Version reports r829.', 'Calendar → Rehearsal Proposals: confirm the page no longer has a large empty lower area.', 'Confirm the Calendar key is not visible on top of the proposal page.', 'Confirm Notification Log, Your Response, and Change Response pills are visually consistent and the Reminder Audit box is distinguishable.'] },
