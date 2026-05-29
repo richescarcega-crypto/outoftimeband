@@ -177,6 +177,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r856: Song Resources external-return stale-restore fix. Cancels the short Android/PWA external-return restore lock when the user intentionally opens Song Details from Song Resources, preventing Lyrics/Discography return timers from reopening the options page over the edit modal. -->
 <!-- r857: Rehearsal Proposals workspace adopts What’s-New-style header. Applies the star badge, centered gold title, premium card shell, and gold close X to the Rehearsal Proposals page while preserving the + PROPOSE pill. -->
 <!-- r858: Song Details sticky header restore. Restores sticky behavior for the Song Details title/header after the What’s-New-style r855/r856 pass by making the full header a sticky in-flow header instead of an absolute header that scrolls away. -->
+<!-- r860: Song Details sticky-header jitter stabilization. Stabilizes the What’s-New-style Song Details sticky header during scroll, especially when opened from Setlists, by removing sticky threshold bump sources and adding compositor/overflow-anchor safeguards. -->
 <!-- r859: Rehearsal Proposals header collision and member log visibility fix. Moves + PROPOSE to the top-left of the What’s-New-style header and hides proposal Notification Log from non-admin members. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
@@ -15398,6 +15399,49 @@ body.light #song-info-modal .moh{
     font-size:7.5px !important;
     padding:0 8px !important;
   }
+}
+
+
+/* r860: Song Details sticky-header jitter stabilization.
+   Scope: Song Details modal presentation only. The header is already sticky,
+   but on Android/PWA it can bump when the scroll container recalculates sticky
+   thresholds, especially after opening from Setlists. Keep the header sticky,
+   remove unstable threshold/margin behavior, force compositor stability, and
+   prevent scroll anchoring from tugging the header while fields scroll. */
+#song-info-modal .mo{
+  overflow-y:auto !important;
+  overscroll-behavior:contain !important;
+  overflow-anchor:none !important;
+  scroll-behavior:auto !important;
+  -webkit-transform:translateZ(0) !important;
+  transform:translateZ(0) !important;
+  backface-visibility:hidden !important;
+}
+#song-info-modal .mo *{
+  overflow-anchor:none !important;
+}
+#song-info-modal .moh{
+  position:-webkit-sticky !important;
+  position:sticky !important;
+  top:-1px !important;
+  margin:0 -14px 12px -14px !important;
+  transform:translateZ(0) !important;
+  -webkit-transform:translateZ(0) !important;
+  backface-visibility:hidden !important;
+  will-change:transform !important;
+  contain:paint !important;
+  border-top:1px solid transparent !important;
+  box-shadow:0 6px 16px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.045) !important;
+}
+#song-info-modal .moh::before,
+#song-info-modal .moh > div,
+#song-info-modal .moh button{
+  transform:translateZ(0) !important;
+  -webkit-transform:translateZ(0) !important;
+  backface-visibility:hidden !important;
+}
+body.light #song-info-modal .moh{
+  box-shadow:0 6px 14px rgba(20,40,80,.10) !important;
 }
 
 </style>
@@ -37118,6 +37162,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-song-details-sticky-jitter-r860', date:'May 28, 2026', importance:'fix', emoji:'🎵', title:'Song Details header stabilized', body:'Stabilizes the sticky Song Details header while scrolling, especially when Song Details is opened from a Setlist. The header remains sticky, but the scroll bump/jitter source is reduced with compositor and scroll-anchor safeguards. Song fields, save/delete/YouTube controls, keyboard behavior, and data are unchanged.', items:['Upload index_r860.html as index.html.','Confirm Build Version reports r860.','Open Song Details from Songs and from an expanded Setlist, scroll the fields, and confirm the header stays sticky without bumping.'] },
   { version:'2026-05-28-proposal-header-log-visibility-r859', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Proposal header and log visibility fixed', body:'Moves the + PROPOSE pill to the top-left of the Rehearsal Proposals What’s-New-style header so it no longer collides with the title. Proposal Notification Log is now admin-only, so normal members see response controls without diagnostic delivery logs. Proposal voting, reminders, edit/delete permissions, and Song Details sticky header behavior are unchanged.', items:['Upload index_r859.html as index.html.','Confirm Build Version reports r859.','Open Rehearsal Proposals and confirm + PROPOSE is top-left and no longer overlaps the title.','Log in as Jim and confirm Notification Log is hidden; log in as Rich/admin and confirm it remains visible.'] },
   { version:'2026-05-28-song-details-sticky-header-r858', date:'May 28, 2026', importance:'fix', emoji:'🎵', title:'Song Details sticky header restored', body:'Restores sticky behavior for the Song Details title/header after the What’s-New-style restyling. The title, star, and close button now stay pinned while the Song Details fields scroll. Song fields, save/delete/YouTube controls, keyboard behavior, and data are unchanged.', items:['Upload index_r858.html as index.html.','Confirm Build Version reports r858.','Open Song Details and scroll; confirm the title/header stays sticky.','Confirm Save/Delete/YouTube controls still work.'] },
   { version:'2026-05-28-proposals-whats-new-header-r857', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Rehearsal Proposals restyled', body:'Applies the What’s New header/card style to the Rehearsal Proposals workspace: star accent, centered gold title, premium card shell, and gold circular close button. The + PROPOSE pill is preserved. Proposal cards, voting, reminder audit, notification log, Check Due Now, edit/delete, and reminder logic are unchanged.', items:['Upload index_r857.html as index.html.','Confirm Build Version reports r857.','Open Calendar → Rehearsal Proposals and confirm the What’s New-style header appears.','Confirm + PROPOSE is still visible and works.','Confirm existing proposal actions still work.'] },
