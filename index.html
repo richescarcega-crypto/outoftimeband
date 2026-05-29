@@ -186,6 +186,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r866: Contact Add/Edit modal adopts What’s-New-style header. Applies the star badge, centered gold title, premium card shell, and gold close button to Mates Contact Add/Edit while preserving contact fields, save/delete behavior, and keyboard handling. -->
 <!-- r867: Add Member modal adopts What’s-New-style header. Applies the star badge, centered gold title, premium card shell, and gold close button to the Mates Add Member modal while preserving member fields, add behavior, and keyboard handling. -->
 <!-- r868: Important Date modal adopts What’s-New-style header. Applies the star badge, centered gold title, premium card shell, and gold close button to Calendar Important Date while preserving date fields, save/delete behavior, all-day/recurring controls, and calendar data. -->
+<!-- r869: Rehearsal Agenda modal adopts What’s-New-style header. Applies the star badge, centered gold title, premium card shell, and gold close button to the Rehearsal Agenda modal while preserving agenda list/add behavior. -->
 <!-- r859: Rehearsal Proposals header collision and member log visibility fix. Moves + PROPOSE to the top-left of the What’s-New-style header and hides proposal Notification Log from non-admin members. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
@@ -16221,6 +16222,138 @@ body.light #idate-modal .moh button{
   box-shadow:none !important;
 }
 body.light #idate-modal .mi{
+  background:#ffffff !important;
+  border-color:#c8d4e8 !important;
+  color:#17233a !important;
+}
+
+
+/* r869: Rehearsal Agenda modal adopts What’s-New-style header.
+   Presentation-only. Keeps agenda list, add-song input, Add behavior, and
+   rehearsal/calendar data unchanged. */
+#agenda-modal{
+  align-items:center !important;
+  justify-content:center !important;
+  padding:12px !important;
+  background:rgba(0,0,0,.78) !important;
+  backdrop-filter:blur(4px) !important;
+  -webkit-backdrop-filter:blur(4px) !important;
+}
+#agenda-modal .mo{
+  position:relative !important;
+  width:min(440px,100%) !important;
+  max-width:440px !important;
+  max-height:88vh !important;
+  border-radius:14px !important;
+  border:1px solid rgba(74,158,255,.70) !important;
+  background:
+    radial-gradient(circle at 50% 16px,rgba(74,158,255,.18),transparent 88px),
+    linear-gradient(180deg,rgba(10,22,40,.98),rgba(5,12,28,.99)) !important;
+  box-shadow:0 24px 80px rgba(0,0,0,.70),0 0 0 1px rgba(74,158,255,.18),inset 0 1px 0 rgba(255,255,255,.05) !important;
+  padding:0 14px 16px !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior:contain !important;
+}
+#agenda-modal .moh{
+  position:sticky !important;
+  top:0 !important;
+  height:98px !important;
+  min-height:98px !important;
+  margin:0 -14px 12px !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:14px 14px 0 0 !important;
+  background:
+    radial-gradient(circle at 50% 16px,rgba(74,158,255,.18),transparent 88px),
+    linear-gradient(180deg,rgba(10,22,40,.99),rgba(7,18,42,.96)) !important;
+  box-shadow:0 6px 16px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.045) !important;
+  z-index:20 !important;
+  display:block !important;
+}
+#agenda-modal .moh::before{
+  content:"✨" !important;
+  position:absolute !important;
+  top:14px !important;
+  left:50% !important;
+  transform:translateX(-50%) !important;
+  width:46px !important;
+  height:46px !important;
+  border-radius:50% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:rgba(74,158,255,.16) !important;
+  box-shadow:0 0 24px rgba(74,158,255,.25),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  color:#ffffff !important;
+  font-size:24px !important;
+  line-height:1 !important;
+  z-index:21 !important;
+  pointer-events:none !important;
+}
+#agenda-modal .moh .mot{
+  position:absolute !important;
+  top:64px !important;
+  left:42px !important;
+  right:42px !important;
+  display:block !important;
+  text-align:center !important;
+  font-family:"Russo One",sans-serif !important;
+  font-size:15px !important;
+  line-height:1.1 !important;
+  letter-spacing:1.4px !important;
+  color:#f5c518 !important;
+  text-shadow:0 0 14px rgba(245,197,24,.24) !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  z-index:22 !important;
+}
+#agenda-modal .moh button{
+  position:absolute !important;
+  top:10px !important;
+  right:10px !important;
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+  min-height:32px !important;
+  padding:0 !important;
+  border-radius:50% !important;
+  border:1px solid rgba(245,197,24,.45) !important;
+  background:rgba(245,197,24,.10) !important;
+  color:#f5c518 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  line-height:1 !important;
+  font-size:18px !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 12px rgba(245,197,24,.14) !important;
+  z-index:23 !important;
+}
+#agenda-modal .fi2{
+  background:rgba(255,255,255,.055) !important;
+  border:1px solid rgba(74,158,255,.26) !important;
+  border-radius:10px !important;
+}
+body.light #agenda-modal .mo,
+body.light #agenda-modal .moh{
+  background:#ffffff !important;
+  color:#17233a !important;
+  border-color:#d4a017 !important;
+  box-shadow:0 20px 58px rgba(20,40,80,.22),0 0 0 1px rgba(212,160,23,.18) !important;
+}
+body.light #agenda-modal .moh .mot{
+  color:#9a6a00 !important;
+  text-shadow:none !important;
+}
+body.light #agenda-modal .moh button{
+  color:#9a6a00 !important;
+  border-color:rgba(180,134,11,.38) !important;
+  background:rgba(180,134,11,.10) !important;
+  box-shadow:none !important;
+}
+body.light #agenda-modal .fi2{
   background:#ffffff !important;
   border-color:#c8d4e8 !important;
   color:#17233a !important;
@@ -37649,7 +37782,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-important-date-whats-new-header-r868';
+var WHATS_NEW_VERSION = '2026-05-28-agenda-whats-new-header-r869';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -37994,6 +38127,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-agenda-whats-new-header-r869', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Rehearsal Agenda restyled', body:'Applies the What’s New header/card style to the Rehearsal Agenda modal: star accent, centered gold title, premium card shell, and gold circular close button. Agenda list, add-song input, Add behavior, and rehearsal/calendar data are unchanged.', items:['Upload index_r869.html as index.html.','Confirm Build Version reports r869.','Open a rehearsal agenda and confirm the modal uses the What’s New-style header and Add still works.'] },
   { version:'2026-05-28-important-date-whats-new-header-r868', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Important Date form restyled', body:'Applies the What’s New header/card style to the Calendar Important Date modal: star accent, centered gold title, premium card shell, and gold circular close button. Date/time/all-day/recurring fields, save/delete behavior, and calendar data are unchanged.', items:['Upload index_r868.html as index.html.','Confirm Build Version reports r868.','Calendar → Important Date: confirm the modal uses the What’s New-style header and fields/save/delete still work.'] },
   { version:'2026-05-28-add-member-whats-new-header-r867', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Add Member form restyled', body:'Applies the What’s New header/card style to the Mates Add Member modal: star accent, centered gold title, premium card shell, and gold circular close button. Member fields, Add to Mates behavior, roster behavior, and keyboard handling are unchanged.', items:['Upload index_r867.html as index.html.','Confirm Build Version reports r867.','Mates → kebab → Add Member: confirm the modal uses the What’s New-style header and fields/Add button still work.'] },
   { version:'2026-05-28-contact-modal-whats-new-header-r866', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Contact form restyled', body:'Applies the What’s New header/card style to the Mates Contact Add/Edit modal: star accent, centered gold title, premium card shell, and gold circular close button. Contact fields, add/edit/save behavior, Contacts drawer, lighter contact detail surface, and keyboard handling are unchanged.', items:['Upload index_r866.html as index.html.','Confirm Build Version reports r866.','Mates → Contacts → Add Contact and Edit Contact: confirm the modal uses the What’s New-style header and fields/save still work.'] },
