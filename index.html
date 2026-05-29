@@ -145,6 +145,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r823: Home alert-to-Next-Gig gap correction. Expands only the Home logo/hero box downward in alert state, moves the alert pills with that box, and enforces the default thin gap to the Next Gig/No Gig card in both alert and no-alert states. -->
 <!-- r824: Home logo-box backing behind alert pills. Leaves alert-pill position unchanged and paints a logo/hero-box bottom extension behind the alert row so the pills no longer sit over a dark seam. -->
 <!-- r825: Mates naming cleanup. Updates remaining visible tab/roster/member-management labels from Band to Mates where they refer to the renamed Mates tab, while preserving real Band Chat, Band Image, Pay band-total, and internal data ids. -->
+<!-- r826: Pending-response reminder audit and test visibility. Adds a compact rehearsal-proposal reminder audit panel plus a safe Check Due Now control so the existing 24h/10h non-responder reminder engine can be verified before modularization. No backend scheduler or unrelated UI changes. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -14432,7 +14433,7 @@ function renderNotifSettings(){
     var nudgeLbl = document.createElement('div');
     nudgeLbl.style.cssText = 'flex:1;min-width:0;';
     nudgeLbl.innerHTML = '<div style="font-size:13px;color:#8aa8d6;">Future Reminder Nudges</div>'+ 
-                         '<div style="font-size:10px;color:#5d7090;margin-top:2px;line-height:1.35;">Planned scheduled reminders for pending responses. Reliable 24-hour / 10-hour nudges require backend scheduling before activation.</div>';
+                         '<div style="font-size:10px;color:#5d7090;margin-top:2px;line-height:1.35;">Client-side reminder checks exist and can be audited in Rehearsal Proposals. Guaranteed 24-hour / 10-hour nudges still require backend scheduling.</div>';
     var nudgeBadge = document.createElement('div');
     nudgeBadge.style.cssText = 'flex-shrink:0;border:1px solid rgba(255,159,67,.45);background:rgba(255,159,67,.10);color:#ff9f43;border-radius:999px;padding:4px 8px;font-family:Russo One,sans-serif;font-size:8px;letter-spacing:.8px;white-space:nowrap;';
     nudgeBadge.textContent = 'PLANNED / BACKEND';
@@ -20885,6 +20886,100 @@ function _proposalReminderLogSummary(p){
   return _proposalReminderLabel(last.reminderNumber) + ' · ' + _proposalReminderTime(last.sentAt) + nextLine;
 }
 
+
+// r826: compact reminder audit panel for testing the existing client-side
+// pending-response reminder engine before modularization. This does not add a
+// backend scheduler; it exposes the real state used by the existing 24h/10h
+// sweep so phone testing can verify expected/responded/waiting/due status.
+function _proposalMemberFirstName(mid){
+  try {
+    var m = gM(mid);
+    if(m && m.name) return String(m.name).split(' ')[0];
+  } catch(e){}
+  return String(mid || '');
+}
+function _proposalMemberNameList(ids){
+  ids = Array.isArray(ids) ? ids : [];
+  if(!ids.length) return 'None';
+  return ids.map(function(id){ return _proposalMemberFirstName(id); }).join(', ');
+}
+function _proposalRespondedIds(p){
+  var responses = (p && p.responses) || {};
+  return _proposalExpectedResponderIds(p).filter(function(id){ return !!responses[String(id)]; });
+}
+function _proposalLastReminderLine(p){
+  var entries = (typeof _proposalReminderEntries === 'function') ? _proposalReminderEntries(p) : [];
+  if(!entries.length) return 'Last sent: none';
+  var last = entries[entries.length - 1] || {};
+  return 'Last sent: ' + _proposalMemberFirstName(last.memberId) + ' · ' + _proposalReminderLabel(last.reminderNumber) + ' · ' + _proposalReminderTime(last.sentAt);
+}
+function _proposalNextDueLine(p){
+  if(!p || (p.status && p.status !== 'open')) return 'Reminder status: stopped — proposal is closed';
+  if(_proposalDateIsStale(p)) return 'Reminder status: stopped — rehearsal date has passed';
+  var pending = _proposalNonResponderIds(p);
+  if(!pending.length) return 'Reminder status: stopped — everyone responded';
+  var infos = pending.map(function(mid){ return _proposalNextReminderInfo(p, mid); }).filter(Boolean);
+  if(!infos.length) return 'Next due: unavailable — missing proposal timestamp';
+  infos.sort(function(a,b){ return a.dueAt - b.dueAt; });
+  var dueNow = infos.filter(function(x){ return x.dueNow; });
+  var first = dueNow[0] || infos[0];
+  var who = _proposalMemberFirstName(first.memberId);
+  if(first.dueNow) return 'Next due: NOW · ' + who + ' · ' + first.label;
+  return 'Next due: ' + _proposalReminderMsHuman(first.msUntilDue) + ' · ' + who + ' · ' + first.label;
+}
+function _runProposalReminderSweepForTest(propId){
+  try {
+    if(typeof _runProposalReminderSweep !== 'function'){
+      toast('Reminder sweep is not available.', {tone:'error'});
+      return;
+    }
+    _proposalReminderLastSweepAt = 0; // allow immediate manual check without waiting for debounce
+    _runProposalReminderSweep();
+    toast('Checked due reminders now.', {tone:'info'});
+    setTimeout(function(){ if(typeof rProposals === 'function') rProposals(); }, 1200);
+  } catch(e){
+    try { console.warn('[r826 reminder-audit] check failed', e); } catch(_e){}
+    toast('Reminder check failed.', {tone:'error'});
+  }
+}
+function _renderProposalReminderAuditPanel(p){
+  var wrap = document.createElement('div');
+  wrap.setAttribute('data-proposal-reminder-audit', String((p && p.id) || ''));
+  wrap.style.cssText = 'margin-top:9px;background:linear-gradient(145deg,rgba(8,18,44,.88),rgba(18,9,35,.74));border:1px solid rgba(138,168,214,.20);border-radius:11px;padding:9px 10px;box-shadow:inset 0 1px 0 rgba(255,255,255,.035);position:relative;z-index:1;';
+  var expected = _proposalExpectedResponderIds(p);
+  var responded = _proposalRespondedIds(p);
+  var pending = _proposalNonResponderIds(p);
+  var canCheck = ((String(p && p.proposedBy) === String(ME)) || _isAdmin()) && (!p.status || p.status === 'open');
+  var title = document.createElement('div');
+  title.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;';
+  title.innerHTML =
+    '<span style="font-family:Russo One,sans-serif;font-size:9px;letter-spacing:.8px;color:#8aa8d6;">REMINDER AUDIT</span>'+
+    '<span style="font-family:Russo One,sans-serif;font-size:8px;letter-spacing:.7px;color:#f5c518;">24H → 10H</span>';
+  wrap.appendChild(title);
+  var lines = document.createElement('div');
+  lines.style.cssText = 'font-size:11px;color:#cddcff;line-height:1.45;';
+  lines.innerHTML =
+    '<div><span style="color:#8aa8d6;">Expected:</span> '+_memberActivityEscape(_proposalMemberNameList(expected))+'</div>'+
+    '<div><span style="color:#8aa8d6;">Responded:</span> '+_memberActivityEscape(_proposalMemberNameList(responded))+'</div>'+
+    '<div><span style="color:#8aa8d6;">Waiting:</span> '+(pending.length ? '<span style="color:#f5c518;font-weight:700;">'+_memberActivityEscape(_proposalMemberNameList(pending))+'</span>' : '<span style="color:#06d6a0;font-weight:700;">None</span>')+'</div>'+
+    '<div><span style="color:#8aa8d6;">'+_memberActivityEscape(_proposalNextDueLine(p))+'</span></div>'+
+    '<div><span style="color:#5d7090;">'+_memberActivityEscape(_proposalLastReminderLine(p))+'</span></div>';
+  wrap.appendChild(lines);
+  if(canCheck){
+    var tools = document.createElement('div');
+    tools.style.cssText = 'display:flex;justify-content:flex-end;margin-top:7px;';
+    var checkBtn = document.createElement('button');
+    checkBtn.type = 'button';
+    checkBtn.textContent = 'CHECK DUE NOW';
+    checkBtn.style.cssText = 'background:rgba(74,158,255,.08);border:1px solid rgba(74,158,255,.42);border-radius:999px;padding:5px 8px;color:#8fc2ff;font-family:Russo One,sans-serif;font-size:8px;letter-spacing:.75px;cursor:pointer;touch-action:manipulation;';
+    checkBtn.onclick = function(ev){ if(ev) ev.stopPropagation(); _runProposalReminderSweepForTest(p.id); };
+    tools.appendChild(checkBtn);
+    wrap.appendChild(tools);
+  }
+  return wrap;
+}
+
+
 function _renderProposalReminderLog(p){
   var wrap = document.createElement('div');
   wrap.style.cssText = 'margin-top:10px;';
@@ -21202,6 +21297,7 @@ function rProposals(){
       whoRow.appendChild(av);
     });
     card.appendChild(whoRow);
+    card.appendChild(_renderProposalReminderAuditPanel(p));
     card.appendChild(_renderProposalReminderLog(p));
 
     // Vote buttons (skip if confirmed)
@@ -33532,7 +33628,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-mates-naming-cleanup-r825';
+var WHATS_NEW_VERSION = '2026-05-28-proposal-reminder-audit-r826';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -33877,6 +33973,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-proposal-reminder-audit-r826', date:'May 28, 2026', importance:'fix', emoji:'🔔', title:'Proposal reminder audit added', body:'Adds a compact Reminder Audit panel to each open Rehearsal Proposal showing expected responders, responded members, waiting members, next due reminder, and last reminder sent. Admin/proposer can tap CHECK DUE NOW to run the existing client-side sweep immediately without forcing a send unless reminders are actually due. Manual reminder and 24-hour/10-hour policy remain unchanged; backend scheduling is still a later post-modularization feature.', items:['Upload index_r826.html as index.html.', 'Confirm Build Version reports r826.', 'Calendar → Rehearsal Proposals: open a proposal and review REMINDER AUDIT.', 'Tap CHECK DUE NOW on a not-yet-due proposal: it should check but not send.', 'Use the existing SEND MANUAL REMINDER in the notification log to test immediate non-responder targeting.'] },
   { version:'2026-05-28-mates-naming-cleanup-r825', date:'May 28, 2026', importance:'fix', emoji:'👥', title:'Mates naming cleaned up', body:'Updates remaining visible tab/roster/member-management labels from Band to Mates where they refer to the renamed Mates tab, including Arrange Tabs, the member add button, announcement posting, and notification/privacy reference rows. Internal ids/routes remain unchanged and real Band Chat, Band Image, and Pay band-total wording are preserved.', items:['Upload index_r825.html as index.html.', 'Confirm Build Version reports r825.', 'Open Home → Arrange Tabs and confirm the tab row now says Mates, not Band.', 'Check Mates/Add Member and Announcements: labels should use Mates where they refer to the member group.'] },
   { version:'2026-05-28-home-alert-backing-r824', date:'May 28, 2026', importance:'fix', emoji:'🏠', title:'Home alert backing filled', body:'Leaves the Home alert pills exactly where they are and paints a logo/hero-box bottom extension behind them, removing the dark seam behind the pills while preserving the default thin gap to the Next Gig/No Gig card. Alert placement, Home logo artwork, Next Gig content, band image registry, social buttons, Calendar, Songs, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r824.html as index.html.', 'Confirm Build Version reports r824.', 'Phone-test Home with Song Vote Pending and Rehearsal On Deck visible: the pills should remain in the same place, but the logo box/background should visibly continue behind them with no dark seam.', 'Confirm the Next Gig/No Gig card and lower Home band image/social buttons did not move.'] },
   { version:'2026-05-28-home-alert-next-gig-gap-r823', date:'May 28, 2026', importance:'fix', emoji:'🏠', title:'Home alert gap corrected', body:'Corrects the Home gap between the alert pills and the Next Gig/No Gig card by expanding only the Home logo/hero box downward in alert state, moving the alert pills with that box, and enforcing the default thin gap when no alert pills are present too. Home logo treatment, alert content, Next Gig content, band image registry, social buttons, Calendar, Songs, Setlists, Chat, Mates, and Pay are otherwise unchanged.', items:['Upload index_r823.html as index.html.', 'Confirm Build Version reports r823.', 'Phone-test Home with Song Vote Pending and Rehearsal On Deck visible: the logo box should extend down, both pills should move with it, and the gap above Next Gig should be the default thin gap.', 'Phone-test Home with no alert pills if possible: the logo-to-Next-Gig/No-Gig gap should still use the default thin gap.'] },
