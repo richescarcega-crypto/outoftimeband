@@ -162,6 +162,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r841: Restore Calendar action-needed cue after proposal close. Re-renders the Calendar cue when the Rehearsal Proposals workspace is closed so the cue appears immediately without needing to tap Calendar again. -->
 <!-- r842: Keyboard-safe first pass. Moves Songs Suggest and Setlists New Setlist typing layouts higher above the Android keyboard and stabilizes Mates Contact Add/Edit keyboard viewport behavior. -->
 <!-- r843: Keyboard-safe positioning refinement. Softens r842's keyboard offsets: Suggest a Song and New Setlist no longer jump too high, and Contact Add/Edit no longer auto-scrolls to the top on field focus. -->
+<!-- r844: Keyboard-safe midpoint refinement. Moves Setlists New Setlist and Mates Contact Add/Edit to a measured middle-high position: above the keyboard, but not pinned to the top. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -13868,6 +13869,55 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
 #contact-modal:focus-within .contact-modal-body select{
   scroll-margin-top:0 !important;
   scroll-margin-bottom:0 !important;
+}
+
+
+/* r844: keyboard-safe midpoint refinement.
+   r842 was too high. r843 was too low. This sets a middle-high placement:
+   above the keyboard without pinning the drawer/modal to the top. Scope only:
+   Setlists New Setlist and Mates Contact Add/Edit keyboard-active states. */
+
+/* Setlists → New Setlist: move up meaningfully, but leave a top breathing band. */
+#r636-setlist-create-backdrop.r842-setlist-keyboard-active{
+  align-items:flex-start !important;
+  justify-content:center !important;
+  padding-top:calc(52px + env(safe-area-inset-top)) !important;
+  padding-bottom:calc(12px + env(safe-area-inset-bottom)) !important;
+  overflow:hidden !important;
+}
+#r636-setlist-create-backdrop.r842-setlist-keyboard-active > div{
+  max-height:min(var(--r842-setlist-visible-height, calc(100dvh - 76px)), 430px) !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  margin:0 !important;
+  transform:translateZ(0) !important;
+}
+
+/* Mates → Contact Add/Edit: keep the page from auto-scrolling, but raise the modal
+   enough that the keyboard does not cover the lower controls. */
+#contact-modal.contact-keyboard-active,
+#contact-modal:focus-within{
+  align-items:flex-start !important;
+  justify-content:center !important;
+  padding-top:calc(42px + env(safe-area-inset-top)) !important;
+  padding-bottom:calc(8px + env(safe-area-inset-bottom)) !important;
+  overflow:hidden !important;
+}
+#contact-modal.contact-keyboard-active .mo,
+#contact-modal:focus-within .mo{
+  max-height:min(var(--contact-visible-height, calc(100dvh - 58px - env(safe-area-inset-bottom))), 520px) !important;
+  height:auto !important;
+  overflow:hidden !important;
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+  transform:translateZ(0) !important;
+}
+#contact-modal.contact-keyboard-active .contact-modal-body,
+#contact-modal:focus-within .contact-modal-body{
+  max-height:none !important;
+  overflow-y:visible !important;
+  padding-bottom:calc(18px + env(safe-area-inset-bottom)) !important;
+  scroll-padding-bottom:0 !important;
 }
 
 </style>
@@ -35049,7 +35099,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-keyboard-safe-refinement-r843';
+var WHATS_NEW_VERSION = '2026-05-28-keyboard-safe-midpoint-r844';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -35394,6 +35444,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-keyboard-safe-midpoint-r844', date:'May 28, 2026', importance:'fix', emoji:'⌨️', title:'Keyboard midpoint adjusted', body:'Adjusts Setlists → New Setlist and Mates → Contact Add/Edit keyboard positioning to a middle-high placement: higher than r843 so the keyboard does not cover the form, but not pinned to the top like r842. No data/save behavior changed.', items:['Upload index_r844.html as index.html.','Confirm Build Version reports r844.','Retest Setlists New Setlist from CREATE and kebab paths.','Retest Mates Edit Contact with keyboard open.'] },
   { version:'2026-05-28-keyboard-safe-refinement-r843', date:'May 28, 2026', importance:'fix', emoji:'⌨️', title:'Keyboard positioning refined', body:'Refines the r842 keyboard-safe pass. Songs → Suggest a Song no longer pins too high or mashes the header, Setlists → New Setlist no longer jumps to the very top, and Mates → Contact Add/Edit stays centered instead of auto-scrolling the fields behind the header. No save/data behavior changed.', items:['Upload index_r843.html as index.html.','Confirm Build Version reports r843.','Retest Songs Suggest, Setlists New Setlist from both paths, and Mates Edit Contact with keyboard open.'] },
   { version:'2026-05-28-keyboard-safe-first-pass-r842', date:'May 28, 2026', importance:'fix', emoji:'⌨️', title:'Keyboard-safe forms pass', body:'First pass on keyboard-covered form issues: Songs → Suggest a Song now moves higher and keeps Submit reachable while typing; Setlists → New Setlist uses a high fixed sheet while the keyboard is open from both CREATE and kebab paths; Mates → Contact Add/Edit uses a steadier visible viewport to reduce field-by-field jumping. No data/save behavior changed.', items:['Upload index_r842.html as index.html.','Confirm Build Version reports r842.','Phone-test Songs → Suggest a Song with keyboard open and confirm Submit/bottom form is reachable.','Phone-test Setlists → CREATE and Setlists kebab → New Setlist with keyboard open.','Phone-test Mates → Contacts → Edit Contact with keyboard open.'] },
   { version:'2026-05-28-restore-calendar-cue-after-close-r841', date:'May 28, 2026', importance:'fix', emoji:'🔔', title:'Calendar cue restore fixed', body:'When Rehearsal Proposals is opened from the Home rehearsal-response cue and then closed with X, the Calendar Action Needed cue now returns immediately on the normal Calendar view if the member still has not responded. It no longer requires tapping the Calendar tab again.', items:['Upload index_r841.html as index.html.','Confirm Build Version reports r841.','Open Rehearsal Proposals from the Home cue, close with X, and confirm Action Needed appears immediately on Calendar.'] },
