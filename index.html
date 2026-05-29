@@ -140,6 +140,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r818: Songs header logo size normalization. Matches the Songs header logo rendering to the other non-Home tab header logos by using the same contain fit, center position, dark circular backing, and padding; header size/layout and all other tabs unchanged. -->
 <!-- r819: Calendar header Next Gig pill upward nudge. Keeps the compact pill width and fuller height from r817 but moves the pill slightly back up so it sits cleanly between the gold decorative line and the header bottom without clipping. Calendar body, lower sections, Songs logo normalization, and all other tabs unchanged. -->
 <!-- r820: Calendar header Next Gig pill thickness reduction. Reduces only the Calendar header Next Gig pill vertical thickness by 5px from r819 and keeps its placement/width/tap behavior so it fits the tight space below the gold decorative line. Calendar body, lower sections, Songs logo normalization, and all other tabs unchanged. -->
+<!-- r821: Calendar header Next Gig pill right-edge width trim. Narrows only the right side of the Calendar header Next Gig pill by about 5px; left edge, vertical placement, thickness, data, and tap behavior unchanged. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -12606,6 +12607,19 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
     width:24px !important;
     min-width:24px !important;
     height:24px !important;
+  }
+}
+
+/* r821: Calendar header Next Gig pill right-edge width trim.
+   Scope: Calendar header next-gig pill only. Keep the left edge fixed and trim
+   about 5px from the right side by reducing width only. Do not change top,
+   left, height, date badge, text sizing, Calendar body, or lower sections. */
+#sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
+  width:151px !important;
+}
+@media (max-width:420px){
+  #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
+    width:147px !important;
   }
 }
 
@@ -33421,7 +33435,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-calendar-next-gig-pill-thickness-r820';
+var WHATS_NEW_VERSION = '2026-05-28-calendar-next-gig-pill-right-trim-r821';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -33766,6 +33780,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-calendar-next-gig-pill-right-trim-r821', date:'May 28, 2026', importance:'fix', emoji:'📅', title:'Calendar next-gig pill right edge trimmed', body:'Narrows only the right side of the Calendar header Next Gig pill by about 5px. The left edge, vertical placement, thickness, live next-gig data, and tap-to-Event-Details behavior are unchanged. Calendar body, All Events, Rehearsal Proposals, Songs logo normalization, Home, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r821.html as index.html.', 'Confirm Build Version reports r821.', 'Phone-test Calendar header: the Next Gig pill should be slightly narrower on the right side only, with the left edge staying in the same place.', 'Tap the pill and confirm it still opens the Event Details drawer.'] },
   { version:'2026-05-28-calendar-next-gig-pill-thickness-r820', date:'May 28, 2026', importance:'fix', emoji:'📅', title:'Calendar next-gig pill thickness reduced', body:'Reduces only the Calendar header Next Gig pill vertical thickness by 5px from r819 so it fits the tight space below the gold decorative line. Width, placement, live next-gig data, and tap-to-Event-Details behavior are preserved. Calendar body, All Events, Rehearsal Proposals, Songs logo normalization, Home, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r820.html as index.html.', 'Confirm Build Version reports r820.', 'Phone-test Calendar header: the Next Gig pill should look thinner, sit below the gold decorative line, stay fully inside the header, and no longer feel too thick for the space.', 'Tap the pill and confirm it still opens the Event Details drawer.'] },
   { version:'2026-05-28-calendar-next-gig-pill-upward-nudge-r819', date:'May 28, 2026', importance:'fix', emoji:'📅', title:'Calendar next-gig pill nudged upward', body:'Moves only the Calendar header Next Gig pill slightly upward so it sits cleanly between the gold decorative line and the bottom of the header without clipping. The compact width, fuller pill height, live next-gig data, and tap-to-Event-Details behavior are preserved. Calendar body, All Events, Rehearsal Proposals, Songs logo normalization, Home, Setlists, Chat, Mates, and Pay are unchanged.', items:['Upload index_r819.html as index.html.', 'Confirm Build Version reports r819.', 'Phone-test Calendar header: the Next Gig pill should sit below the gold decorative line with a clear gap above and below, stay fully inside the header, and no longer clip at the bottom.', 'Tap the pill and confirm it still opens the Event Details drawer.'] },
   { version:'2026-05-28-songs-header-logo-normalize-r818', date:'May 28, 2026', importance:'fix', emoji:'🎵', title:'Songs header logo matched', body:'Normalizes only the Songs tab header logo so it renders the same visual size as the other non-Home tab header logos. The Songs header card size, title, subtitle, action buttons, search area, library rows, and all other tabs are unchanged.', items:['Upload index_r818.html as index.html.', 'Confirm Build Version reports r818.', 'Phone-test Songs: the header logo should now visually match the logo size on Calendar, Setlists, Chat, Mates, and Pay.', 'Confirm Songs header height, search field, library list, and Songs menu/share buttons are unchanged.'] },
