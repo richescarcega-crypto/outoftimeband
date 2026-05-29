@@ -170,6 +170,8 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r849: Song Resources adopts What’s-New-style header. Applies the star badge, centered gold title, premium card, and gold circular X to the song-options page opened from Songs and Setlists song taps. -->
 <!-- r850: Song Resources option cleanup. Removes Practice Reference from the song-options page and makes Edit Song Links open the Song Details page at the top instead of auto-scrolling to link fields. -->
 <!-- r851: Mates contact detail lighter surface. Lightens the expanded contact detail area with a premium blue surface while preserving Contacts drawer, edit/delete controls, and contact data behavior. -->
+<!-- r852: Persistent Chat/Mates image lightbox with share/copy. Removes the member/band image auto-close timer, adds a circular X close control, and adds Share / Copy / Download actions to the shared Chat/Mates image lightbox. -->
+<!-- r853: Chat/Mates image viewer adopts What’s-New-style header. Replaces the circular close/action row with a What’s-New-style header and a kebab that opens Share / Copy / Download options. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -14766,6 +14768,207 @@ body.light #sc-band #contacts-list .mc > div:nth-child(2) div{
   color:#243856 !important;
 }
 
+
+/* r852: persistent Chat/Mates member/band image lightbox controls.
+   The shared member image viewer no longer auto-closes. It now has an explicit
+   circular X and Share / Copy / Download actions. */
+#member-lightbox-close{
+  position:absolute !important;
+  top:10px !important;
+  right:10px !important;
+  width:34px !important;
+  height:34px !important;
+  border-radius:50% !important;
+  border:1px solid rgba(245,197,24,.50) !important;
+  background:rgba(245,197,24,.10) !important;
+  color:#f5c518 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  font-size:22px !important;
+  line-height:1 !important;
+  padding:0 !important;
+  z-index:10 !important;
+  box-shadow:0 0 14px rgba(245,197,24,.14),inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#member-lightbox-actions{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:8px !important;
+  flex-wrap:wrap !important;
+  padding:2px 12px 14px !important;
+}
+#member-lightbox-actions button{
+  min-width:86px !important;
+  height:32px !important;
+  border-radius:999px !important;
+  border:1px solid rgba(245,197,24,.42) !important;
+  background:rgba(245,197,24,.075) !important;
+  color:#f5c518 !important;
+  font-family:"Russo One",sans-serif !important;
+  font-size:9px !important;
+  letter-spacing:.8px !important;
+  padding:0 12px !important;
+  box-shadow:0 6px 14px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.045) !important;
+}
+#member-lightbox-card{
+  cursor:default !important;
+}
+body.light #member-lightbox-close,
+body.light #member-lightbox-actions button{
+  color:#9a6a00 !important;
+  border-color:rgba(180,134,11,.42) !important;
+  background:rgba(180,134,11,.10) !important;
+  box-shadow:none !important;
+}
+
+
+/* r853: Chat/Mates image viewer adopts the What’s-New-style modal language.
+   Replaces the circular close/action row with a premium card header and a kebab
+   for image sharing actions. The viewer still stays open until dismissed. */
+#member-lightbox{
+  align-items:center !important;
+  justify-content:center !important;
+  padding:12px !important;
+  background:rgba(0,0,0,.78) !important;
+  backdrop-filter:blur(4px) !important;
+  -webkit-backdrop-filter:blur(4px) !important;
+}
+#member-lightbox-card{
+  position:relative !important;
+  width:min(440px,100%) !important;
+  max-width:440px !important;
+  max-height:88vh !important;
+  border-radius:14px !important;
+  border:1px solid rgba(74,158,255,.70) !important;
+  background:
+    radial-gradient(circle at 50% 16px,rgba(74,158,255,.18),transparent 88px),
+    linear-gradient(180deg,rgba(10,22,40,.98),rgba(5,12,28,.99)) !important;
+  box-shadow:0 24px 80px rgba(0,0,0,.70),0 0 0 1px rgba(74,158,255,.18),inset 0 1px 0 rgba(255,255,255,.05) !important;
+  padding:104px 12px 16px !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior:contain !important;
+  cursor:default !important;
+  gap:8px !important;
+}
+#member-lightbox-card::before{
+  content:"✨" !important;
+  position:absolute !important;
+  top:14px !important;
+  left:50% !important;
+  transform:translateX(-50%) !important;
+  width:46px !important;
+  height:46px !important;
+  border-radius:50% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:rgba(74,158,255,.16) !important;
+  box-shadow:0 0 24px rgba(74,158,255,.25),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  color:#ffffff !important;
+  font-size:24px !important;
+  line-height:1 !important;
+  pointer-events:none !important;
+  z-index:2 !important;
+}
+.member-lightbox-head{
+  position:absolute !important;
+  top:0 !important;
+  left:0 !important;
+  right:0 !important;
+  height:98px !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  z-index:4 !important;
+}
+.member-lightbox-title-wrap{
+  position:absolute !important;
+  top:64px !important;
+  left:42px !important;
+  right:42px !important;
+  text-align:center !important;
+}
+.member-lightbox-title{
+  display:block !important;
+  font-family:"Russo One",sans-serif !important;
+  font-size:15px !important;
+  line-height:1.1 !important;
+  letter-spacing:1.4px !important;
+  color:#f5c518 !important;
+  text-shadow:0 0 14px rgba(245,197,24,.24) !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+#member-lightbox-close,
+#member-lightbox-kebab{
+  position:absolute !important;
+  top:10px !important;
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+  min-height:32px !important;
+  padding:0 !important;
+  border-radius:50% !important;
+  border:1px solid rgba(245,197,24,.45) !important;
+  background:rgba(245,197,24,.10) !important;
+  color:#f5c518 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  line-height:1 !important;
+  font-size:18px !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 12px rgba(245,197,24,.14) !important;
+  z-index:5 !important;
+}
+#member-lightbox-close{ right:10px !important; }
+#member-lightbox-kebab{ left:10px !important; font-size:20px !important; }
+#member-lightbox-actions{ display:none !important; }
+#member-lightbox-stage{
+  width:100% !important;
+  min-height:0 !important;
+  border-radius:18px !important;
+  background:
+    radial-gradient(circle at 50% 18%,rgba(74,158,255,.08),transparent 34%),
+    linear-gradient(180deg,rgba(7,18,40,.55),rgba(5,12,28,.10)) !important;
+}
+#member-lightbox-name{
+  text-align:center !important;
+  color:#e8f0ff !important;
+}
+#member-lightbox-inst{
+  text-align:center !important;
+  color:#8aa8d6 !important;
+  margin-bottom:4px !important;
+}
+#member-lightbox-menu-sheet{
+  max-width:380px !important;
+}
+body.light #member-lightbox-card{
+  background:#ffffff !important;
+  color:#17233a !important;
+  border-color:#d4a017 !important;
+  box-shadow:0 20px 58px rgba(20,40,80,.22),0 0 0 1px rgba(212,160,23,.18) !important;
+}
+body.light .member-lightbox-title{
+  color:#9a6a00 !important;
+  text-shadow:none !important;
+}
+body.light #member-lightbox-close,
+body.light #member-lightbox-kebab{
+  color:#9a6a00 !important;
+  border-color:rgba(180,134,11,.38) !important;
+  background:rgba(180,134,11,.10) !important;
+  box-shadow:none !important;
+}
+body.light #member-lightbox-name{ color:#17233a !important; }
+body.light #member-lightbox-inst{ color:#4f6c99 !important; }
+
 </style>
 </head>
 <body>
@@ -25977,6 +26180,72 @@ function _lightboxDownload(){
   });
 }
 
+function _lightboxCopy(){
+  _lightboxToBlob(function(blob){
+    if(!blob){ toast('Failed to load image', {tone:'error'}); return; }
+    try{
+      if(navigator.clipboard && window.ClipboardItem){
+        var type = blob.type || 'image/png';
+        var item = new ClipboardItem((function(){ var o={}; o[type] = blob; return o; })());
+        navigator.clipboard.write([item]).then(function(){
+          toast('Image copied', {tone:'success'});
+        }).catch(function(){
+          _flyerDownloadBlob(blob, 'OOT-Image.jpg');
+        });
+        return;
+      }
+    }catch(e){}
+    _flyerDownloadBlob(blob, 'OOT-Image.jpg');
+  });
+}
+
+function closeMemberLightboxMenu(){
+  var wrap = document.getElementById('member-lightbox-menu-backdrop');
+  if(wrap) wrap.remove();
+}
+function toggleMemberLightboxMenu(ev){
+  if(ev) ev.stopPropagation();
+  var existing = document.getElementById('member-lightbox-menu-backdrop');
+  if(existing){ existing.remove(); return; }
+
+  var wrap = document.createElement('div');
+  wrap.id = 'member-lightbox-menu-backdrop';
+  wrap.className = 'oot-action-backdrop';
+  wrap.onclick = function(e){ if(e.target === wrap) closeMemberLightboxMenu(); };
+
+  var sheet = document.createElement('div');
+  sheet.id = 'member-lightbox-menu-sheet';
+  sheet.className = 'oot-action-sheet';
+  sheet.setAttribute('role','dialog');
+  sheet.setAttribute('aria-modal','true');
+  sheet.setAttribute('aria-label','Image options');
+  sheet.onclick = function(e){ e.stopPropagation(); };
+
+  function icon(txt){ return '<span class="songs-sheet-btn-icon">' + txt + '</span>'; }
+  function btn(label, sub, ico, action){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'songs-sheet-btn';
+    b.innerHTML = icon(ico) + '<span style="flex:1;"><span class="songs-sheet-btn-label">' + label + '</span>' +
+      (sub ? '<span class="songs-sheet-btn-sub">' + sub + '</span>' : '') + '</span>';
+    b.onclick = function(e){ e.stopPropagation(); closeMemberLightboxMenu(); setTimeout(action, 0); };
+    return b;
+  }
+
+  sheet.innerHTML =
+    '<div class="songs-sheet-head">' +
+      '<button type="button" class="songs-sheet-x" aria-label="Close" onclick="closeMemberLightboxMenu();event.stopPropagation()">×</button>' +
+      '<div class="songs-sheet-title">IMAGE OPTIONS</div>' +
+    '</div>';
+
+  sheet.appendChild(btn('Share', 'Send the current image', '↗', _lightboxShare));
+  sheet.appendChild(btn('Copy', 'Copy the image for paste/posting', '⧉', _lightboxCopy));
+  sheet.appendChild(btn('Download', 'Save a JPG copy to your device', '⇩', _lightboxDownload));
+
+  wrap.appendChild(sheet);
+  document.body.appendChild(wrap);
+}
+
 function viewSavedFlyer(eventId){
   var gigId = String(eventId);
   var det = gigDetails[gigId];
@@ -33723,23 +33992,32 @@ function showMemberLightbox(member){
     ov.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:rgba(0,0,0,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:9500;display:none;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;opacity:0;transition:opacity .18s ease-out;';
     var card = document.createElement('div');
     card.id = 'member-lightbox-card';
-    card.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:10px;transform:scale(.6);opacity:0;transition:transform .2s ease-out,opacity .2s ease-out;cursor:pointer;';
-    // r65: image goes inside a stage-backdrop div so the bronze glow can wrap around
-    // the band image when it's the band-group view. For individual members, the
-    // backdrop styling is removed (set to none) so members look as before.
+    card.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:10px;transform:scale(.6);opacity:0;transition:transform .2s ease-out,opacity .2s ease-out;cursor:default;';
+    // r852: persistent image viewer. Adds explicit X + share/copy/download actions.
+    // The image no longer auto-closes after a timer.
     card.innerHTML =
-      '<div id="member-lightbox-stage" style="position:relative;border-radius:18px;padding:24px 28px 18px;display:flex;align-items:center;justify-content:center;">'+
-        '<img id="member-lightbox-img" src="" alt="" style="max-width:min(780px,92vw);max-height:78vh;width:auto;height:auto;object-fit:contain;display:block;position:relative;z-index:1;"/>'+
+      '<div class="member-lightbox-head">'+
+        '<button type="button" id="member-lightbox-kebab" aria-label="Image options" onclick="event.stopPropagation();toggleMemberLightboxMenu(event)">&#8942;</button>'+
+        '<div class="member-lightbox-title-wrap">'+
+          '<div id="member-lightbox-title" class="member-lightbox-title"></div>'+
+        '</div>'+
+        '<button type="button" id="member-lightbox-close" aria-label="Close image" onclick="event.stopPropagation();hideMemberLightbox()">×</button>'+
+      '</div>'+
+      '<div id="member-lightbox-stage" style="position:relative;border-radius:18px;padding:20px 24px 12px;display:flex;align-items:center;justify-content:center;">'+
+        '<img id="member-lightbox-img" src="" alt="" style="max-width:min(760px,90vw);max-height:60vh;width:auto;height:auto;object-fit:contain;display:block;position:relative;z-index:1;"/>'+
       '</div>'+
       '<div id="member-lightbox-name" style="font-family:\'Russo One\',sans-serif;font-size:20px;color:#fff;letter-spacing:.5px;text-shadow:0 2px 8px rgba(0,0,0,.6);"></div>'+
       '<div id="member-lightbox-inst" style="font-size:13px;color:#4a9eff;font-family:\'Russo One\',sans-serif;letter-spacing:1px;"></div>';
     ov.appendChild(card);
-    ov.onclick = function(){ hideMemberLightbox(); };
-    document.body.appendChild(ov);
+    ov.onclick = function(e){ if(e.target === ov) hideMemberLightbox(); };document.body.appendChild(ov);
   }
-  document.getElementById('member-lightbox-img').src = isBandGroup && typeof _resolveBandGroupImg === 'function' ? _resolveBandGroupImg() : INSTR_IMG[key];
+  var lightboxSrc = isBandGroup && typeof _resolveBandGroupImg === 'function' ? _resolveBandGroupImg() : INSTR_IMG[key];
+  document.getElementById('member-lightbox-img').src = lightboxSrc;
+  document.getElementById('member-lightbox-title').textContent = isBandGroup ? 'BAND IMAGE' : 'IMAGE VIEWER';
   document.getElementById('member-lightbox-name').textContent = member.name || '';
-  document.getElementById('member-lightbox-inst').textContent = (member.inst || '').toUpperCase();  // r67: Baked band images carry their own background. Use a clean lightbox frame for all member images.
+  document.getElementById('member-lightbox-inst').textContent = (member.inst || '').toUpperCase();
+  try { _lightboxState.src = lightboxSrc; _lightboxState.caption = member.name || 'Out of Time'; } catch(e){}
+  // r67: Baked band images carry their own background. Use a clean lightbox frame for all member images.
   var stage = document.getElementById('member-lightbox-stage');
   var img = document.getElementById('member-lightbox-img');
   if(stage && img){
@@ -33754,11 +34032,11 @@ function showMemberLightbox(member){
     var card = document.getElementById('member-lightbox-card');
     if(card){ card.style.transform = 'scale(1)'; card.style.opacity = '1'; }
   });
-  // 8s auto-close fallback
-  if(_memLightboxTimer) clearTimeout(_memLightboxTimer);
-  _memLightboxTimer = setTimeout(hideMemberLightbox, 8000);
+  // r852: no auto-close. User closes with the X or backdrop tap.
+  if(_memLightboxTimer) { clearTimeout(_memLightboxTimer); _memLightboxTimer = null; }
 }
 function hideMemberLightbox(){
+  closeMemberLightboxMenu();
   var ov = document.getElementById('member-lightbox');
   if(!ov || ov.style.display === 'none') return;
   if(_memLightboxTimer){ clearTimeout(_memLightboxTimer); _memLightboxTimer = null; }
@@ -35949,7 +36227,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-mates-contact-detail-lighten-r851';
+var WHATS_NEW_VERSION = '2026-05-28-image-viewer-whats-new-header-r853';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -36294,6 +36572,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-image-viewer-whats-new-header-r853', date:'May 28, 2026', importance:'fix', emoji:'🖼️', title:'Image viewer restyled', body:'Restyles the Chat/Mates image viewer to use the Home What’s New modal language instead of a circular close control. The image viewer now uses the premium What’s New-style header with the built-in close button and a kebab that opens Share, Copy, and Download options. The viewer still stays open until dismissed.', items:['Upload index_r853.html as index.html.','Confirm Build Version reports r853.','Open a Chat or Mates image and confirm the What’s New-style header appears.','Use the kebab to access Share / Copy / Download.'] },
+  { version:'2026-05-28-persistent-image-lightbox-r852', date:'May 28, 2026', importance:'fix', emoji:'🖼️', title:'Image viewer stays open', body:'Chat and Mates member/band image previews no longer auto-close after a few seconds. The shared image viewer now has a circular X close control plus Share, Copy, and Download actions for posting/sending images. Image sources and member data are unchanged.', items:['Upload index_r852.html as index.html.','Confirm Build Version reports r852.','Open a band/member image from Chat and Mates; confirm it stays open until closed with X or backdrop, and test Share / Copy / Download.'] },
   { version:'2026-05-28-mates-contact-detail-lighten-r851', date:'May 28, 2026', importance:'fix', emoji:'👥', title:'Mates contact detail lightened', body:'Lightens the expanded contact detail surface in Mates with a premium blue treatment so contact details separate better from the page. Contact expand/collapse, add/edit/delete controls, keyboard behavior, and data are unchanged.', items:['Upload index_r851.html as index.html.','Confirm Build Version reports r851.','Mates → Contacts → open a contact and confirm the expanded detail area is lighter and easier to read.'] },
   { version:'2026-05-28-song-resources-option-cleanup-r850', date:'May 28, 2026', importance:'fix', emoji:'🎵', title:'Song options cleaned up', body:'Removes the Practice Reference option from the song-options page opened from Songs and Setlists. Edit Song Links now opens Song Details at the top instead of auto-scrolling down to the link fields. Song data and saved link behavior are unchanged.', items:['Upload index_r850.html as index.html.','Confirm Build Version reports r850.','Tap a song in Songs and in an expanded Setlist: confirm Practice Reference is gone and Edit Song Links opens the Song Details page at the top.'] },
   { version:'2026-05-28-song-resources-whats-new-header-r849', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Song options restyled', body:'Applies the What’s New header/card style to the song-options page opened when tapping a song in Songs or an expanded Setlist. The page now uses the star accent, centered gold title, premium card, and gold circular X. Resource buttons and song/link behavior are unchanged.', items:['Upload index_r849.html as index.html.','Confirm Build Version reports r849.','Tap a song in Songs and confirm the song-options page has the What’s New-style header.','Tap a song in an expanded Setlist and confirm the same style appears.'] },
