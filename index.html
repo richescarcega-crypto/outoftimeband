@@ -156,6 +156,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r835: Rehearsal proposal centered workspace and stacked action pills. Centers the proposal workspace vertically, hides the Calendar header while open, and stacks Your Response / Change Response / Notification Log on the left with distinct colors. -->
 <!-- r836: Rehearsal proposal action-stack correction. Forces Your Response, Change Response, and Notification Log into a true left-side vertical stack below Reminder Audit while keeping admin edit/delete controls on the right. -->
 <!-- r837: Rehearsal proposal vertical alignment tweak. Raises the left action-pill stack so Your Response aligns horizontally with the edit/delete icons while preserving the stacked pill order and centered workspace. -->
+<!-- r838: Rehearsal proposal in-app pending badge. Adds member-specific pending proposal cues without adding another Home pill: Calendar tab badge plus tiny Home micro-cue for members who still need to respond. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -13596,6 +13597,63 @@ body.light #sc-cal.cal-header-fit #calendar-hero .cal-next-gig-widget{
   margin-top:-82px !important;
 }
 
+
+/* r838: pending rehearsal proposal in-app cue.
+   Uses a Calendar tab badge + a tiny Home micro-cue, not another full Home pill. */
+#tabs .proposal-tab-badge{
+  position:absolute;
+  top:3px;
+  right:11px;
+  min-width:15px;
+  height:15px;
+  padding:0 4px;
+  border-radius:999px;
+  background:#ff4757;
+  color:#fff;
+  border:1.5px solid #080f1e;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-family:"Russo One",sans-serif;
+  font-size:8px;
+  line-height:1;
+  letter-spacing:.2px;
+  pointer-events:none;
+  box-shadow:0 0 10px rgba(255,71,87,.45);
+  z-index:5;
+}
+#home-proposal-micro-cue{
+  position:absolute;
+  right:12px;
+  top:42px;
+  z-index:8;
+  border:0;
+  background:transparent;
+  color:#cddcff;
+  font-family:"Exo 2",sans-serif;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.25px;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:0;
+  cursor:pointer;
+  text-shadow:0 1px 4px rgba(0,0,0,.65);
+  touch-action:manipulation;
+}
+#home-proposal-micro-cue .home-proposal-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#ff4757;
+  box-shadow:0 0 9px rgba(255,71,87,.62);
+  flex:0 0 auto;
+}
+#home-proposal-micro-cue:active{
+  transform:scale(.98);
+}
+
 </style>
 </head>
 <body>
@@ -20425,6 +20483,85 @@ function _gotoTab(id){
   var btn = document.getElementById('tb-' + id);
   if(typeof go === 'function') go(id, btn);
 }
+
+// r838: member-specific in-app cue for pending rehearsal proposal responses.
+// This is intentionally NOT another large Home pill. It uses a Calendar tab badge
+// plus a tiny Home text cue, and only appears for members who have not responded.
+function _pendingProposalIdsForMe(){
+  try{
+    if(typeof proposals === 'undefined' || !Array.isArray(proposals)) return [];
+    return proposals.filter(function(p){
+      if(!p || (p.status && p.status !== 'open')) return false;
+      var expected = (typeof _proposalExpectedResponderIds === 'function')
+        ? _proposalExpectedResponderIds(p)
+        : ((p.expectedResponderIds || (members || []).map(function(m){ return String(m.id); })) || []);
+      if(expected.map(String).indexOf(String(ME)) < 0) return false;
+      var responses = p.responses || {};
+      return !responses[String(ME)];
+    }).map(function(p){ return String(p.id || ''); }).filter(Boolean);
+  }catch(e){ return []; }
+}
+function _openPendingProposalCue(){
+  try{
+    if(typeof cardStates !== 'undefined') cardStates['proposals-list'] = false;
+    _calendarSkipTopResetOnce = true;
+    _gotoTab('cal');
+    setTimeout(function(){
+      try{
+        if(typeof rCal === 'function') rCal();
+        if(typeof rProposals === 'function') rProposals();
+        var list = document.getElementById('proposals-list');
+        if(list && list.scrollIntoView) list.scrollIntoView({behavior:'smooth', block:'center'});
+      }catch(e){}
+    }, 80);
+  }catch(e){
+    try{ console.warn('[r838 pending proposal cue] open failed', e); }catch(_e){}
+  }
+}
+function renderPendingProposalCue(){
+  try{
+    var ids = _pendingProposalIdsForMe();
+    var count = ids.length;
+    var calBtn = document.getElementById('tb-cal');
+    if(calBtn){
+      if(calBtn.style.position !== 'relative') calBtn.style.position = 'relative';
+      var badge = calBtn.querySelector('.proposal-tab-badge');
+      if(count > 0){
+        if(!badge){
+          badge = document.createElement('span');
+          badge.className = 'proposal-tab-badge';
+          calBtn.appendChild(badge);
+        }
+        badge.textContent = count > 9 ? '9+' : String(count);
+        badge.title = count + ' rehearsal proposal' + (count === 1 ? '' : 's') + ' waiting';
+      }else if(badge){
+        badge.parentNode.removeChild(badge);
+      }
+    }
+
+    var hero = document.querySelector('#sc-home .hero.home-hero-with-controls');
+    if(hero){
+      var cue = document.getElementById('home-proposal-micro-cue');
+      if(count > 0){
+        if(!cue){
+          cue = document.createElement('button');
+          cue.id = 'home-proposal-micro-cue';
+          cue.type = 'button';
+          cue.onclick = function(ev){ if(ev) ev.stopPropagation(); _openPendingProposalCue(); };
+          hero.appendChild(cue);
+        }
+        cue.innerHTML = '<span class="home-proposal-dot"></span><span>' + count + ' rehearsal response needed</span>';
+        cue.style.display = 'inline-flex';
+      }else if(cue){
+        cue.style.display = 'none';
+      }
+    }
+  }catch(e){
+    try{ console.warn('[r838 pending proposal cue] render failed', e); }catch(_e){}
+  }
+}
+
+
 function _resetCalendarScrollToTop(){
   try {
     var sc = document.getElementById('sc-cal');
@@ -21342,6 +21479,7 @@ function listenProposals(){
     if(document.getElementById('sc-cal').classList.contains('on')) rProposals();
     try { renderHomeRehearsalCue(); } catch(e){}
     try { renderHomeSongVoteCue(); } catch(e){}
+    try { renderPendingProposalCue(); } catch(e){}
     // First snapshot after boot: surface any open proposals the user hasn't voted on yet.
     if(!_propsBootChecked){
       _propsBootChecked = true;
@@ -22754,7 +22892,7 @@ function voteOnProposal(propId, vote){
       respondedAtIso: new Date().toISOString()
     };
   }
-  db.collection('proposals').doc(String(p.id)).update({responses: responses, responseState: responseState}).catch(function(){});
+  db.collection('proposals').doc(String(p.id)).update({responses: responses, responseState: responseState}).then(function(){ try{ renderPendingProposalCue(); }catch(e){} }).catch(function(){});
 }
 
 function confirmProposal(propId){
@@ -25305,6 +25443,7 @@ function _ensureHomeBandBackdrop(){
 
 function rHome() {
   _ensureHomeBandBackdrop();
+  try { renderPendingProposalCue(); } catch(e){}
   // r76: Home schedule cards removed. Keep Home focused on countdown + band image.
   updateCountdown();
   // Birthday banner
@@ -34620,7 +34759,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-proposal-pill-alignment-r837';
+var WHATS_NEW_VERSION = '2026-05-28-pending-proposal-inapp-badge-r838';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -34965,6 +35104,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-pending-proposal-inapp-badge-r838', date:'May 28, 2026', importance:'fix', emoji:'🔔', title:'Pending proposal cue added', body:'Adds a member-specific in-app cue for unanswered rehearsal proposals without adding another large Home pill. Members who still need to respond see a small badge on the Calendar tab plus a tiny Home micro-cue; both disappear after that member responds. Tapping the cue opens Calendar → Rehearsal Proposals.', items:['Upload index_r838.html as index.html.','Confirm Build Version reports r838.','Use a member with an unanswered proposal: confirm Calendar tab badge and tiny Home cue appear.','Respond to the proposal and confirm the badge/cue disappear.'] },
   { version:'2026-05-28-proposal-pill-alignment-r837', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Proposal pill alignment adjusted', body:'Raises the left-side action-pill stack so Your Response aligns horizontally with the edit/delete icons while preserving the requested vertical pill order: Your Response, Change Response, Notification Log. No proposal data, voting, reminders, notifications, or other app logic is changed.', items:['Upload index_r837.html as index.html.','Confirm Build Version reports r837.','Confirm the first pill aligns with the edit/delete icons.'] },
   { version:'2026-05-28-proposal-action-stack-fix-r836', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Proposal action stack fixed', body:'Corrects the Rehearsal Proposal action layout so Your Response, Change Response, and Notification Log form a true left-side vertical stack below Reminder Audit, while admin edit/delete controls stay on the right. Workspace centering and header hiding from r835 remain in place. Proposal data, voting, reminders, notifications, and other tabs are unchanged.', items:['Upload index_r836.html as index.html.','Confirm Build Version reports r836.','Confirm the three pills stack vertically on the left in the requested order.'] },
   { version:'2026-05-28-proposal-centered-stacked-actions-r835', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Proposal actions stacked', body:'Centers the Rehearsal Proposals workspace vertically, hides the Calendar header while the workspace is open, and stacks Your Response, Change Response, and Notification Log on the left below Reminder Audit. Notification Log remains gold and Change Response is blue so the controls are visually distinct. Proposal data, voting, reminders, notifications, tab navigation, and other tabs are unchanged.', items:['Upload index_r835.html as index.html.', 'Confirm Build Version reports r835.', 'Calendar → Rehearsal Proposals: confirm the workspace is vertically centered and the Calendar header is hidden behind it.', 'Confirm the three action pills are stacked on the left in this order: Your Response, Change Response, Notification Log.', 'Confirm X, + PROPOSE, CHECK DUE NOW, Notification Log, Change Response, Edit, and Delete still work.'] },
