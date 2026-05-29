@@ -172,6 +172,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r851: Mates contact detail lighter surface. Lightens the expanded contact detail area with a premium blue surface while preserving Contacts drawer, edit/delete controls, and contact data behavior. -->
 <!-- r852: Persistent Chat/Mates image lightbox with share/copy. Removes the member/band image auto-close timer, adds a circular X close control, and adds Share / Copy / Download actions to the shared Chat/Mates image lightbox. -->
 <!-- r853: Chat/Mates image viewer adopts What’s-New-style header. Replaces the circular close/action row with a What’s-New-style header and a kebab that opens Share / Copy / Download options. -->
+<!-- r854: Band Image selector share kebab. Adds a What’s-New-style header kebab to the Band Image selector for Share / Copy / Download of the currently selected Home band image. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
 <html>
@@ -14969,6 +14970,41 @@ body.light #member-lightbox-kebab{
 body.light #member-lightbox-name{ color:#17233a !important; }
 body.light #member-lightbox-inst{ color:#4f6c99 !important; }
 
+
+/* r854: Band Image selector share kebab.
+   Adds a header kebab using the same What’s-New-style language. The actions
+   share/copy/download the currently selected/default Home band image. */
+#band-image-modal #band-image-share-kebab{
+  position:absolute !important;
+  top:10px !important;
+  left:10px !important;
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+  min-height:32px !important;
+  padding:0 !important;
+  border-radius:50% !important;
+  border:1px solid rgba(245,197,24,.45) !important;
+  background:rgba(245,197,24,.10) !important;
+  color:#f5c518 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  line-height:1 !important;
+  font-size:20px !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 12px rgba(245,197,24,.14) !important;
+  z-index:5 !important;
+}
+#band-image-share-sheet{
+  max-width:380px !important;
+}
+body.light #band-image-modal #band-image-share-kebab{
+  color:#9a6a00 !important;
+  border-color:rgba(180,134,11,.38) !important;
+  background:rgba(180,134,11,.10) !important;
+  box-shadow:none !important;
+}
+
 </style>
 </head>
 <body>
@@ -17783,6 +17819,88 @@ function showBandImageModal(opts){
   if(!ov) return;
   if(typeof renderBandImagePicker === 'function') renderBandImagePicker();
   ov.classList.add('on');
+}
+
+
+function _bandImageShareSrc(){
+  try{
+    if(typeof _resolveHomeBandImg === 'function'){
+      var s = _resolveHomeBandImg();
+      if(s) return s;
+    }
+  }catch(e){}
+  try{
+    if(typeof _resolveBandGroupImg === 'function'){
+      var g = _resolveBandGroupImg();
+      if(g) return g;
+    }
+  }catch(e){}
+  try{
+    var pref = _currentMemberBandImagePref();
+    var imgs = (typeof HOME_BAND_IMAGES !== 'undefined' && HOME_BAND_IMAGES && HOME_BAND_IMAGES.length) ? HOME_BAND_IMAGES : [];
+    var defaultIdx = (typeof DEFAULT_HOME_BAND_IMAGE_INDEX === 'number') ? DEFAULT_HOME_BAND_IMAGE_INDEX : 1;
+    var nPref = parseInt(pref, 10);
+    var idx = (!isNaN(nPref) && nPref >= 1 && nPref <= imgs.length) ? nPref : defaultIdx;
+    if(imgs[idx-1]) return imgs[idx-1];
+  }catch(e){}
+  return '';
+}
+function _prepBandImageShare(){
+  var src = _bandImageShareSrc();
+  if(!src){ toast('No band image available to share', {tone:'error'}); return false; }
+  try { _lightboxState.src = src; _lightboxState.caption = 'Out of Time Band Image'; } catch(e){}
+  return true;
+}
+function closeBandImageShareMenu(){
+  var wrap = document.getElementById('band-image-share-backdrop');
+  if(wrap) wrap.remove();
+}
+function toggleBandImageShareMenu(ev){
+  if(ev) ev.stopPropagation();
+  var existing = document.getElementById('band-image-share-backdrop');
+  if(existing){ existing.remove(); return; }
+
+  var wrap = document.createElement('div');
+  wrap.id = 'band-image-share-backdrop';
+  wrap.className = 'oot-action-backdrop';
+  wrap.onclick = function(e){ if(e.target === wrap) closeBandImageShareMenu(); };
+
+  var sheet = document.createElement('div');
+  sheet.id = 'band-image-share-sheet';
+  sheet.className = 'oot-action-sheet';
+  sheet.setAttribute('role','dialog');
+  sheet.setAttribute('aria-modal','true');
+  sheet.setAttribute('aria-label','Band image options');
+  sheet.onclick = function(e){ e.stopPropagation(); };
+
+  function icon(txt){ return '<span class="songs-sheet-btn-icon">' + txt + '</span>'; }
+  function btn(label, sub, ico, action){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'songs-sheet-btn';
+    b.innerHTML = icon(ico) + '<span style="flex:1;"><span class="songs-sheet-btn-label">' + label + '</span>' +
+      (sub ? '<span class="songs-sheet-btn-sub">' + sub + '</span>' : '') + '</span>';
+    b.onclick = function(e){
+      e.stopPropagation();
+      closeBandImageShareMenu();
+      if(!_prepBandImageShare()) return;
+      setTimeout(action, 0);
+    };
+    return b;
+  }
+
+  sheet.innerHTML =
+    '<div class="songs-sheet-head">' +
+      '<button type="button" class="songs-sheet-x" aria-label="Close" onclick="closeBandImageShareMenu();event.stopPropagation()">×</button>' +
+      '<div class="songs-sheet-title">BAND IMAGE OPTIONS</div>' +
+    '</div>';
+
+  sheet.appendChild(btn('Share', 'Send or post the selected band image', '↗', _lightboxShare));
+  sheet.appendChild(btn('Copy', 'Copy the selected image for paste/posting', '⧉', _lightboxCopy));
+  sheet.appendChild(btn('Download', 'Save a copy to your device', '⇩', _lightboxDownload));
+
+  wrap.appendChild(sheet);
+  document.body.appendChild(wrap);
 }
 
 function renderBandImagePicker(){
@@ -36227,7 +36345,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-image-viewer-whats-new-header-r853';
+var WHATS_NEW_VERSION = '2026-05-28-band-image-share-kebab-r854';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -36572,6 +36690,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-band-image-share-kebab-r854', date:'May 28, 2026', importance:'fix', emoji:'🖼️', title:'Band Image share menu added', body:'Adds a What’s-New-style kebab to the Band Image selector header. The kebab opens Share, Copy, and Download options for the currently selected/default Home band image so it can be posted or sent outside the app. Picker, preview, select, and Home image behavior are unchanged.', items:['Upload index_r854.html as index.html.','Confirm Build Version reports r854.','Open the Band Image selector from Home, tap the kebab, and test Share / Copy / Download.','Confirm preview/select still works.'] },
   { version:'2026-05-28-image-viewer-whats-new-header-r853', date:'May 28, 2026', importance:'fix', emoji:'🖼️', title:'Image viewer restyled', body:'Restyles the Chat/Mates image viewer to use the Home What’s New modal language instead of a circular close control. The image viewer now uses the premium What’s New-style header with the built-in close button and a kebab that opens Share, Copy, and Download options. The viewer still stays open until dismissed.', items:['Upload index_r853.html as index.html.','Confirm Build Version reports r853.','Open a Chat or Mates image and confirm the What’s New-style header appears.','Use the kebab to access Share / Copy / Download.'] },
   { version:'2026-05-28-persistent-image-lightbox-r852', date:'May 28, 2026', importance:'fix', emoji:'🖼️', title:'Image viewer stays open', body:'Chat and Mates member/band image previews no longer auto-close after a few seconds. The shared image viewer now has a circular X close control plus Share, Copy, and Download actions for posting/sending images. Image sources and member data are unchanged.', items:['Upload index_r852.html as index.html.','Confirm Build Version reports r852.','Open a band/member image from Chat and Mates; confirm it stays open until closed with X or backdrop, and test Share / Copy / Download.'] },
   { version:'2026-05-28-mates-contact-detail-lighten-r851', date:'May 28, 2026', importance:'fix', emoji:'👥', title:'Mates contact detail lightened', body:'Lightens the expanded contact detail surface in Mates with a premium blue treatment so contact details separate better from the page. Contact expand/collapse, add/edit/delete controls, keyboard behavior, and data are unchanged.', items:['Upload index_r851.html as index.html.','Confirm Build Version reports r851.','Mates → Contacts → open a contact and confirm the expanded detail area is lighter and easier to read.'] },
@@ -37989,6 +38108,7 @@ if(savedName&&savedId){
 <div class="ov" id="band-image-modal">
   <div class="mo band-image-modal-card">
     <div class="moh band-image-modal-head">
+      <button id="band-image-share-kebab" type="button" aria-label="Band image options" onclick="toggleBandImageShareMenu(event)">&#8942;</button>
       <div>
         <span class="mot" style="color:#f5c518;">Band Image</span>
         <div id="band-image-current-sub" style="font-size:11px;color:#8aa8d6;margin-top:3px;line-height:1.35;">Auto-rotate is on.</div>
