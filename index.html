@@ -191,6 +191,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r871: Edit Rehearsal header/agenda/save polish. Extends the What’s-New-style treatment to the Edit Rehearsal page and Add Song to Agenda popout, expands agenda rows so text is readable, and introduces a cleaner universal save-check button treatment. -->
 <!-- r872: Edit Rehearsal Notes field height correction. Expands the Edit Rehearsal Notes textarea so two-plus lines are readable instead of clipped, without changing agenda rows, save behavior, rehearsal data, or modal structure. -->
 <!-- r873: Edit Rehearsal Notes default height increased. Makes the Notes textarea tall enough by default to show at least two full lines at once, not just scroll to them. -->
+<!-- r874: Edit Rehearsal Notes hard override. Fixes the failed Notes-height attempts by bypassing the older high-specificity .mi height rules with an inline !important height on the generated Notes textarea plus higher-specificity CSS. -->
 <!-- r859: Rehearsal Proposals header collision and member log visibility fix. Moves + PROPOSE to the top-left of the What’s-New-style header and hides proposal Notification Log from non-admin members. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
@@ -16836,6 +16837,34 @@ body.light #r384-rh-song-picker > div > div:first-child > button[aria-label*="Cl
   }
 }
 
+
+/* r874: hard override for shared rehearsal Notes textarea.
+   Root cause of prior misses: old r368/r371/r372 rules target
+   #gig-detail-modal.r368-fit-rehearsal #gd-body .mi with higher specificity
+   than #rh-notes, forcing the Notes textarea back to ~28-42px. This selector
+   beats those legacy .mi rules and the JS also applies inline !important
+   dimensions at element creation. */
+#gig-detail-modal.r368-fit-rehearsal #gd-body textarea#rh-notes.mi.r874-rehearsal-notes-textarea,
+#gig-detail-modal.r368-fit-rehearsal #gd-body .mi#rh-notes.r874-rehearsal-notes-textarea,
+#proposal-modal #proposal-body textarea#prop-notes.mi.r874-rehearsal-notes-textarea,
+#proposal-modal #proposal-body .mi#prop-notes.r874-rehearsal-notes-textarea{
+  height:112px !important;
+  min-height:112px !important;
+  max-height:180px !important;
+  line-height:1.38 !important;
+  padding:9px 9px !important;
+  overflow-y:auto !important;
+  resize:vertical !important;
+  box-sizing:border-box !important;
+}
+@media (max-height:740px){
+  #gig-detail-modal.r368-fit-rehearsal #gd-body textarea#rh-notes.mi.r874-rehearsal-notes-textarea,
+  #gig-detail-modal.r368-fit-rehearsal #gd-body .mi#rh-notes.r874-rehearsal-notes-textarea{
+    height:104px !important;
+    min-height:104px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -25907,6 +25936,24 @@ function _renderRehearsalForm(container, initial, opts){
     inp.value = val == null ? '' : val;
     inp.placeholder = placeholder || '';
     if(type==='textarea'){ inp.rows=2; inp.style.resize='vertical'; }
+    // r874: The Edit Rehearsal Notes field was still short because legacy
+    // #gig-detail-modal.r368-fit-rehearsal #gd-body .mi rules have higher
+    // specificity and force textarea height/max-height. For the shared NOTES
+    // field only, apply inline !important dimensions at creation time.
+    if(type==='textarea' && suffix === 'notes'){
+      inp.classList.add('r874-rehearsal-notes-textarea');
+      inp.rows = 4;
+      try{
+        inp.style.setProperty('height','112px','important');
+        inp.style.setProperty('min-height','112px','important');
+        inp.style.setProperty('max-height','180px','important');
+        inp.style.setProperty('line-height','1.38','important');
+        inp.style.setProperty('padding','9px 9px','important');
+        inp.style.setProperty('overflow-y','auto','important');
+        inp.style.setProperty('resize','vertical','important');
+        inp.style.setProperty('box-sizing','border-box','important');
+      }catch(_e){}
+    }
     if(type==='date'){ inp.type='date'; }
     if(type==='time' && typeof attachTimeMask === 'function'){ attachTimeMask(inp); }
     d.appendChild(lbl);
@@ -38261,7 +38308,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-edit-rehearsal-notes-visible-r873';
+var WHATS_NEW_VERSION = '2026-05-28-edit-rehearsal-notes-hardfix-r874';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -38606,6 +38653,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-edit-rehearsal-notes-hardfix-r874', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Edit Rehearsal Notes hard-fixed', body:'Fixes the Notes-height issue at the source. Older high-specificity rehearsal .mi rules were overriding the previous CSS height attempts. The generated Notes textarea now gets an inline important height plus a stronger selector so two-plus lines show by default. Agenda, save behavior, rehearsal data, and headers are unchanged.', items:['Upload index_r874.html as index.html.','Confirm Build Version reports r874.','Calendar → rehearsal → Event Details → kebab → Edit: confirm the Notes field shows at least two full lines at the same time by default.'] },
   { version:'2026-05-28-edit-rehearsal-notes-visible-r873', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Edit Rehearsal Notes fully visible', body:'Increases the default visible height of the Edit Rehearsal Notes field so two or more lines show at the same time without needing to scroll. It remains scroll-safe for longer notes. Agenda rows, Add Song to Agenda, save behavior, rehearsal data, and header styling are unchanged.', items:['Upload index_r873.html as index.html.','Confirm Build Version reports r873.','Calendar → rehearsal → Event Details → kebab → Edit: confirm the Notes field shows the first two lines at the same time by default.'] },
   { version:'2026-05-28-edit-rehearsal-notes-height-r872', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Edit Rehearsal Notes expanded', body:'Corrects the clipped Edit Rehearsal Notes field by making the Notes textarea taller and scroll-safe so multiple lines are readable. Agenda rows, Add Song to Agenda, save behavior, rehearsal data, and modal/header styling are unchanged from r871.', items:['Upload index_r872.html as index.html.','Confirm Build Version reports r872.','Calendar → rehearsal → Event Details → kebab → Edit: confirm the Notes field shows two-plus lines clearly.'] },
   { version:'2026-05-28-edit-rehearsal-agenda-save-r871', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Edit Rehearsal polished', body:'Applies the What’s New-style header to the Edit Rehearsal view, expands agenda song rows so long agenda text is readable, restyles the Add Song to Agenda popout with the same header/card style, and introduces a cleaner universal save-check button treatment. Rehearsal data, agenda add/remove/reorder logic, and save handlers are unchanged.', items:['Upload index_r871.html as index.html.','Confirm Build Version reports r871.','Calendar → rehearsal → Event Details → kebab → Edit: confirm the new header, readable agenda rows, and cleaner save button.','Tap Add in the agenda section and confirm the song picker has the new header and save-check control.'] },
