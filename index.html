@@ -189,6 +189,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r869: Rehearsal Agenda modal adopts What’s-New-style header. Applies the star badge, centered gold title, premium card shell, and gold close button to the Rehearsal Agenda modal while preserving agenda list/add behavior. -->
 <!-- r870: Actual Rehearsal Details page adopts What’s-New-style header. Applies the star badge, centered gold title, premium card shell, and gold close button to the real Calendar → Event Details → Rehearsal Details page. -->
 <!-- r871: Edit Rehearsal header/agenda/save polish. Extends the What’s-New-style treatment to the Edit Rehearsal page and Add Song to Agenda popout, expands agenda rows so text is readable, and introduces a cleaner universal save-check button treatment. -->
+<!-- r872: Edit Rehearsal Notes field height correction. Expands the Edit Rehearsal Notes textarea so two-plus lines are readable instead of clipped, without changing agenda rows, save behavior, rehearsal data, or modal structure. -->
 <!-- r859: Rehearsal Proposals header collision and member log visibility fix. Moves + PROPOSE to the top-left of the What’s-New-style header and hides proposal Notification Log from non-admin members. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
 <!DOCTYPE html>
@@ -16778,6 +16779,32 @@ body.light #r384-rh-song-picker > div > div:first-child > button[aria-label*="Cl
   border-color:rgba(180,134,11,.38) !important;
   background:rgba(180,134,11,.10) !important;
   box-shadow:none !important;
+}
+
+
+/* r872: Edit Rehearsal Notes field height correction.
+   The clipped field was Notes, not Agenda. Keep agenda/readability and save
+   styling from r871; only make the Edit Rehearsal / proposal Notes textarea
+   tall enough to read multiple lines. */
+#gig-detail-modal.r368-fit-rehearsal #rh-notes,
+#gig-detail-modal.r368-fit-rehearsal textarea#rh-notes,
+#proposal-modal #prop-notes,
+#proposal-modal textarea#prop-notes{
+  height:78px !important;
+  min-height:78px !important;
+  max-height:140px !important;
+  resize:vertical !important;
+  line-height:1.32 !important;
+  padding:7px 8px !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+}
+@media (max-height:740px){
+  #gig-detail-modal.r368-fit-rehearsal #rh-notes,
+  #gig-detail-modal.r368-fit-rehearsal textarea#rh-notes{
+    height:70px !important;
+    min-height:70px !important;
+  }
 }
 
 </style>
@@ -38205,7 +38232,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-28-edit-rehearsal-agenda-save-r871';
+var WHATS_NEW_VERSION = '2026-05-28-edit-rehearsal-notes-height-r872';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -38550,6 +38577,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-28-edit-rehearsal-notes-height-r872', date:'May 28, 2026', importance:'fix', emoji:'🥁', title:'Edit Rehearsal Notes expanded', body:'Corrects the clipped Edit Rehearsal Notes field by making the Notes textarea taller and scroll-safe so multiple lines are readable. Agenda rows, Add Song to Agenda, save behavior, rehearsal data, and modal/header styling are unchanged from r871.', items:['Upload index_r872.html as index.html.','Confirm Build Version reports r872.','Calendar → rehearsal → Event Details → kebab → Edit: confirm the Notes field shows two-plus lines clearly.'] },
   { version:'2026-05-28-edit-rehearsal-agenda-save-r871', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Edit Rehearsal polished', body:'Applies the What’s New-style header to the Edit Rehearsal view, expands agenda song rows so long agenda text is readable, restyles the Add Song to Agenda popout with the same header/card style, and introduces a cleaner universal save-check button treatment. Rehearsal data, agenda add/remove/reorder logic, and save handlers are unchanged.', items:['Upload index_r871.html as index.html.','Confirm Build Version reports r871.','Calendar → rehearsal → Event Details → kebab → Edit: confirm the new header, readable agenda rows, and cleaner save button.','Tap Add in the agenda section and confirm the song picker has the new header and save-check control.'] },
   { version:'2026-05-28-actual-rehearsal-detail-header-r870', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Rehearsal Details header restyled', body:'Applies the What’s New header/card style to the actual Calendar → Event Details → Rehearsal Details page. This corrects the prior Agenda-modal-only pass. The rehearsal details/read-only content, edit options, event data, and proposal/reminder logic are unchanged. No agenda field is added in this build.', items:['Upload index_r870.html as index.html.','Confirm Build Version reports r870.','Calendar → tap existing rehearsal → Event Details → open Rehearsal Details: confirm the page uses the What’s New-style header.','Confirm edit/options and close still work.'] },
   { version:'2026-05-28-agenda-whats-new-header-r869', date:'May 28, 2026', importance:'fix', emoji:'✨', title:'Rehearsal Agenda restyled', body:'Applies the What’s New header/card style to the Rehearsal Agenda modal: star accent, centered gold title, premium card shell, and gold circular close button. Agenda list, add-song input, Add behavior, and rehearsal/calendar data are unchanged.', items:['Upload index_r869.html as index.html.','Confirm Build Version reports r869.','Open a rehearsal agenda and confirm the modal uses the What’s New-style header and Add still works.'] },
