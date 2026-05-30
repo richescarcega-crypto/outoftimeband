@@ -9678,6 +9678,62 @@ body.light #votes-modal:not(.suggest-keyboard-active) #votes-modal-card > .moh b
 }
 body.light #votes-modal:not(.suggest-keyboard-active) #votes-modal-subtitle{color:#5a6a85 !important;}
 
+
+/* r889: Songs Vote/Suggest modal compact What’s-New-style header audit pass. */
+#votes-modal:not(.suggest-keyboard-active) #votes-modal-card > .moh{
+  min-height:104px !important;
+  display:flex !important;
+  align-items:flex-start !important;
+  justify-content:center !important;
+  text-align:center !important;
+  padding:14px 52px 12px !important;
+}
+#votes-modal:not(.suggest-keyboard-active) #votes-modal-card > .moh::before{
+  content:"✨";
+  position:absolute !important;
+  top:12px !important;
+  left:50% !important;
+  transform:translateX(-50%) !important;
+  width:38px !important;
+  height:38px !important;
+  border-radius:50% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:radial-gradient(circle at 35% 25%,rgba(74,158,255,.34),rgba(13,43,107,.74)) !important;
+  border:1px solid rgba(74,158,255,.35) !important;
+  box-shadow:0 0 18px rgba(74,158,255,.22) !important;
+  font-size:21px !important;
+  line-height:1 !important;
+}
+#votes-modal:not(.suggest-keyboard-active) #votes-modal-title{
+  display:block !important;
+  width:100% !important;
+  margin-top:50px !important;
+  font-family:Russo One,sans-serif !important;
+  font-size:20px !important;
+  line-height:1.15 !important;
+  letter-spacing:1.6px !important;
+  text-align:center !important;
+  color:#f5c518 !important;
+  text-shadow:0 0 18px rgba(245,197,24,.26) !important;
+}
+#votes-modal:not(.suggest-keyboard-active) #votes-modal-card > .moh button{
+  position:absolute !important;
+  top:12px !important;
+  right:14px !important;
+  z-index:24 !important;
+}
+body.light #votes-modal:not(.suggest-keyboard-active) #votes-modal-card > .moh::before{
+  background:linear-gradient(180deg,#eef4ff,#ffffff) !important;
+  border-color:rgba(26,58,138,.28) !important;
+  box-shadow:0 8px 18px rgba(20,40,80,.12) !important;
+}
+body.light #votes-modal:not(.suggest-keyboard-active) #votes-modal-title{
+  color:#9a6a00 !important;
+  text-shadow:none !important;
+}
+
 /* r691: Shared confirm/prompt dialog premium consistency only */
 #app-confirm-card,
 #app-prompt-card{
@@ -39106,7 +39162,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-30-setlists-back-and-drag-cleanup-r888';
+var WHATS_NEW_VERSION = '2026-05-30-song-suggestions-header-audit-r889';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -39451,6 +39507,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-30-song-suggestions-header-audit-r889', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'Song Suggestions header polished', body:'Continues the targeted modal/header audit by applying a compact What’s-New-style star badge and centered gold title treatment to the Songs Vote/Suggest modal header. Voting, suggestion submission, YouTube helper, keyboard-safe Suggest mode, close behavior, Home, Calendar, Setlists, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r889.html as index.html.','Confirm Build Version reports r889.','Songs → kebab → Vote on Suggestions: confirm the modal header has the compact star/centered-title style and voting still works.','Songs → kebab → Suggest a Song: confirm the header style appears when not typing, fields and Submit still work, and keyboard mode remains usable.','Spot-check Setlists r888 back cue and drag cleanup.'] },
   { version:'2026-05-30-setlists-back-and-drag-cleanup-r888', date:'May 30, 2026', importance:'fix', emoji:'🎵', title:'Setlists back cue and drag cleanup', body:'Adds a small visible back affordance to the expanded Setlist header while preserving the existing header-tap return behavior, and removes the old red YouTube icon from the Rename/Reorder drag clone so it cannot reappear while holding the reorder handle. Scope is Setlists only; drag/reorder, delete icons, save flow, opened-setlist behavior, and other tabs are unchanged.', items:['Upload index_r888.html as index.html.','Confirm Build Version reports r888.','Open an existing setlist and confirm the ‹ Setlists back cue returns to the Setlists list.','Confirm tapping the expanded setlist header still returns to the list as before.','Rename / Reorder: hold the drag handle and confirm no red YouTube icon appears in the dragged row.','Confirm trash icons, drag/reorder, and green save still work.'] },
   { version:'2026-05-30-setlist-reorder-cleanup-r887', date:'May 30, 2026', importance:'fix', emoji:'🎼', title:'Setlist reorder cleanup', body:'Cleans up the Rename / Reorder Setlist screen only: moves the X to the right side, makes the green save check obvious, separates the title and subtitle cleanly, removes the Linked Gig card in reorder mode, and keeps the reorder song list scroll-safe. Add Song, Remove Song, Share Setlist, Delete Setlist, Home, Calendar, Songs, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r887.html as index.html.','Confirm Build Version reports r887.','Setlists → choose a setlist → kebab → Rename / Reorder.','Confirm the X is on the right, green save check is clearly visible, the header/title is clean, the Linked Gig card is gone, and the song list still scrolls/reorders.','Spot-check Add Song and Remove Song still retain their r886 sticky header fixes.'] },
   { version:'2026-05-30-setlists-targeted-header-scroll-r886', date:'May 30, 2026', importance:'fix', emoji:'🎼', title:'Setlists header and scroll cleanup', body:'Applies a targeted Setlists audit pass. Pick Songs now uses the newer sticky header style, Remove Song keeps its header sticky while the song list scrolls, and Rename/Reorder has a new sticky header with cancel/back and green save controls plus a scroll-safe song list. Setlist data/actions, Home, Calendar, Songs, Chat, Mates, Pay, flyer rendering, notifications, assets, and default Home gaps are unchanged.', items:['Upload index_r886.html as index.html.','Confirm Build Version reports r886.','Setlists → selected setlist → kebab → Add Song to Setlist: Pick Songs should have the new sticky header and still add songs.','Setlists → selected setlist → kebab → Remove Song: header/X should stay visible while the remove list scrolls.','Setlists → selected setlist → kebab → Rename / Reorder: page should have a new sticky header, visible cancel/back X, visible green save icon, and the song list should scroll.','Confirm navigating away and back does not trap the Setlists tab in an unclosable edit page.'] },
