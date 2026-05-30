@@ -200,6 +200,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r875: Universal green save-circle standard. Makes the green save/check button the same round 38px size as the red delete/trash icon and applies that standard to the existing save-icon button family. -->
 <!-- r859: Rehearsal Proposals header collision and member log visibility fix. Moves + PROPOSE to the top-left of the What’s-New-style header and hides proposal Notification Log from non-admin members. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
+<!-- r896: Emergency rollback from broken r895. Reverts r895 Filter Events/Setlists separator changes by rebuilding from last phone-working r894, with only WHATS_NEW_VERSION and Whats New log updated so phones detect the rollback. Upload index_r896.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -39544,58 +39545,6 @@ body.light #sc-sets .r636-setlist-gig-prompt{
   box-shadow:0 8px 18px rgba(20,40,80,.10),0 0 0 1px rgba(255,255,255,.65) inset,0 0 18px rgba(200,30,48,.08) !important;
 }
 
-
-
-/* r895: Filter Events header clearance + Setlists action divider separation */
-#calendar-events-filter-sheet.cal-filter-dot-sheet{
-  padding:104px 0 0 !important;
-  overflow-y:auto !important;
-  -webkit-overflow-scrolling:touch !important;
-}
-#calendar-events-filter-sheet.cal-filter-dot-sheet .songs-sheet-head.cal-filter-head-r894{
-  position:absolute !important;
-  top:0 !important;
-  left:0 !important;
-  right:0 !important;
-  height:98px !important;
-  z-index:10 !important;
-  pointer-events:none !important;
-}
-#calendar-events-filter-sheet.cal-filter-dot-sheet .songs-sheet-head.cal-filter-head-r894 .songs-sheet-x{
-  pointer-events:auto !important;
-}
-#calendar-events-filter-sheet.cal-filter-dot-sheet > div:nth-child(2){
-  margin-top:0 !important;
-}
-#sc-sets .r636-setlist-gig-prompt{
-  margin:20px 0 20px !important;
-  overflow:visible !important;
-}
-#sc-sets .r636-setlist-gig-prompt::before,
-#sc-sets .r636-setlist-gig-prompt::after{
-  content:"" !important;
-  position:absolute !important;
-  left:7% !important;
-  right:7% !important;
-  height:5px !important;
-  border-radius:999px !important;
-  background:linear-gradient(90deg,transparent 0%,rgba(255,212,0,.50) 10%,rgba(255,241,122,.96) 31%,#ffbf00 50%,rgba(255,241,122,.96) 69%,rgba(255,212,0,.50) 90%,transparent 100%) !important;
-  box-shadow:0 0 20px rgba(255,191,0,.62),0 0 7px rgba(255,241,122,.32),0 1px 0 rgba(255,255,255,.45) inset !important;
-  pointer-events:none !important;
-  z-index:1 !important;
-}
-#sc-sets .r636-setlist-gig-prompt::before{
-  top:-13px !important;
-}
-#sc-sets .r636-setlist-gig-prompt::after{
-  bottom:-13px !important;
-}
-body.light #sc-sets .r636-setlist-gig-prompt::before,
-body.light #sc-sets .r636-setlist-gig-prompt::after{
-  background:linear-gradient(90deg,transparent 0%,rgba(184,134,11,.32) 14%,#b8860b 50%,rgba(184,134,11,.32) 86%,transparent 100%) !important;
-  box-shadow:0 0 10px rgba(184,134,11,.26) !important;
-}
-
 // ── WHAT'S NEW BANNER ─────────────────────────────────────────────────────
 // r790: Home logo overlay transparency correction. Built from r789.
 // Keeps locked r788 logo width/mask/gaps intact, moves the tagline farther upward,
@@ -39610,7 +39559,7 @@ body.light #sc-sets .r636-setlist-gig-prompt::after{
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-30-calendar-filter-setlist-divider-r895';
+var WHATS_NEW_VERSION = '2026-05-30-emergency-rollback-r896';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -39955,7 +39904,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  { version:'2026-05-30-calendar-filter-setlist-divider-r895', date:'May 30, 2026', importance:'fix', emoji:'📅', title:'Calendar filter and Setlists action divider cleaned up', body:'Corrects the Filter Events drawer so the header no longer overlaps the first filter rows, and adds Chat-style gold separator lines above and below the Setlists Upcoming Gig Needs a Setlist action notice while keeping its red action border. Filter logic and Setlists create/link behavior are unchanged.', items:['Upload index_r895.html as index.html.','Confirm Build Version reports r895.','Calendar → All Events kebab → Filter Events: confirm the header no longer overlaps Upcoming only / All events.','Confirm the green circular check closes/applies filters and Reset/toggles still work.','Setlists: confirm Upcoming Gig Needs a Setlist remains red-bordered and now has gold separator lines above and below.'] },
+  { version:'2026-05-30-emergency-rollback-r896', date:'May 30, 2026', importance:'fix', emoji:'🛟', title:'Emergency rollback from r895', body:'Rolls back the broken r895 build by returning to the last phone-working r894 app state. This restores Home loading and tab navigation. No new feature work is included in this build; the Filter Events overlap and Setlists separator refinement remain open for a later safer pass.', items:['Upload index_r896.html as index.html.','Confirm Build Version reports r896.','Confirm Home loads and bottom tab navigation works.','Confirm Calendar, Songs, Setlists, Chat, Mates, and Pay can be opened.','Do not continue testing r895.'] },
   { version:'2026-05-30-calendar-filter-setlist-action-r894', date:'May 30, 2026', importance:'fix', emoji:'📅', title:'Calendar filter headers cleaned up', body:'Fixes the Calendar All Events Options and Filter Events drawer headers so they use the newer compact star/title/close style, replaces the Filter Events yellow DONE button with the green circular checkmark, and changes the Setlists Upcoming Gig Needs a Setlist prompt border to red to read as an action item. Calendar filtering and Setlists linking behavior are unchanged.', items:['Upload index_r894.html as index.html.','Confirm Build Version reports r894.','Calendar → All Events kebab: confirm All Events Options header is clean.','Tap Filter Events: confirm header is clean and the green circular check replaces DONE.','Confirm filter rows, Reset, and apply/close still work.','Setlists: confirm Upcoming Gig Needs a Setlist prompt border is red, not gold.'] },
   { version:'2026-05-30-pay-log-header-audit-r893', date:'May 30, 2026', importance:'fix', emoji:'💸', title:'Pay log header restyled', body:'Continues the targeted modal/header audit by applying the compact What’s-New-style star badge and centered gold title treatment to the Pay tab inline Log Gig Pay card header. The existing close behavior, Venue/Gross Pay/Expenses fields, Add Pay create action, keyboard-safe scrolling, Pay totals, Gig History, Home, Calendar, Songs, Setlists, Chat, Mates, assets, data, and notifications are unchanged.', items:['Upload index_r893.html as index.html.','Confirm Build Version reports r893.','Pay → + Log Gig Pay: confirm the header has the compact star/centered-title style and the close X remains gold/new-style.','Confirm Venue, Gross Pay, Expenses, and Add still work.','Spot-check Songs Quick Paste, Import File, and Delete Songs from r892 still have the gold/new-style close X.'] },
   { version:'2026-05-30-modal-close-x-normalization-r892', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'Modal close X style normalized', body:'Continues the targeted modal/header audit by replacing remaining white/blue close X controls in the current modal family with the established gold circular close X style. This includes Songs Quick Paste, Import File, Delete Songs, and other already-audited modal headers that still had the older white/blue X treatment. Close behavior, save buttons, forms, import/delete logic, Home, Calendar, Setlists, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r892.html as index.html.','Confirm Build Version reports r892.','Songs → Quick Paste: confirm the close X is gold/new-style, not white, and paste/preview/import still work.','Songs → Import File: confirm the close X is gold/new-style and template/file actions still work.','Songs → Delete Songs: confirm the close X is gold/new-style and selection/delete still work.','Spot-check other audited modal headers such as Build Version, Display Mode, Add/Edit Song, Calendar event form, and Gig Details for the gold close X style.'] },
