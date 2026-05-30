@@ -17501,6 +17501,44 @@ body.light #contact-modal #contact-save-btn.oot-contact-edit-save{
   -webkit-text-fill-color:#041c19 !important;
 }
 
+
+
+/* r886: Setlists targeted header/scroll pass.
+   Scope: Pick Songs overlay, Remove Song sheet, and Setlist Rename/Reorder edit view only. */
+#song-picker{padding:0 !important;display:none;overflow:hidden !important;background:radial-gradient(circle at 50% 0%,rgba(74,158,255,.18),rgba(0,0,0,.93) 58%,rgba(0,0,0,.97)) !important;}
+#song-picker .song-picker-head-r886{position:sticky !important;top:0 !important;z-index:30 !important;height:104px !important;min-height:104px !important;flex:0 0 auto !important;background:linear-gradient(180deg,rgba(10,22,40,.99),rgba(5,12,28,.99)) !important;border-bottom:1px solid rgba(74,158,255,.55) !important;box-shadow:0 10px 24px rgba(0,0,0,.38),0 0 18px rgba(74,158,255,.12) !important;}
+#song-picker .song-picker-star-r886{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(74,158,255,.16);box-shadow:0 0 22px rgba(74,158,255,.24),inset 0 1px 0 rgba(255,255,255,.06);font-size:23px;color:#fff;}
+#song-picker .song-picker-title-r886{position:absolute;top:62px;left:44px;right:44px;text-align:center;font-family:"Russo One",sans-serif;font-size:15px;line-height:1.1;letter-spacing:1.5px;color:#f5c518;text-shadow:0 0 14px rgba(245,197,24,.24);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#song-picker .song-picker-sub-r886{position:absolute;top:80px;left:36px;right:36px;text-align:center;font-size:10px;letter-spacing:.4px;color:#8aa8d6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#song-picker .song-picker-x-r886{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(245,197,24,.50);background:rgba(245,197,24,.10);color:#f5c518;font-size:17px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:35;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 12px rgba(245,197,24,.14);}
+#song-picker #picker-search{flex:0 0 auto !important;margin:12px 14px 10px !important;width:calc(100% - 28px) !important;}
+#song-picker #picker-list{flex:1 1 auto !important;min-height:0 !important;overflow-y:auto !important;-webkit-overflow-scrolling:touch !important;padding:0 14px 10px !important;}
+#song-picker > button.sb{flex:0 0 auto !important;margin:10px 14px calc(14px + env(safe-area-inset-bottom)) !important;width:calc(100% - 28px) !important;}
+#setlist-remove-song-sheet{padding:0 14px 14px !important;overflow-y:auto !important;max-height:88vh !important;}
+#setlist-remove-song-sheet::before{display:none !important;}
+#setlist-remove-song-sheet .setlist-remove-sticky-head-r886{position:sticky !important;top:0 !important;z-index:30 !important;height:104px !important;margin:0 -14px 12px !important;background:linear-gradient(180deg,rgba(10,22,40,.99),rgba(5,12,28,.99)) !important;border-bottom:1px solid rgba(74,158,255,.55) !important;box-shadow:0 10px 24px rgba(0,0,0,.38),0 0 18px rgba(74,158,255,.12) !important;}
+#setlist-remove-song-sheet .setlist-remove-star-r886{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(74,158,255,.16);box-shadow:0 0 22px rgba(74,158,255,.24),inset 0 1px 0 rgba(255,255,255,.06);font-size:23px;color:#fff;}
+#setlist-remove-song-sheet .setlist-remove-title-r886{position:absolute !important;top:62px !important;left:44px !important;right:44px !important;text-align:center !important;font-family:"Russo One",sans-serif !important;font-size:15px !important;line-height:1.1 !important;letter-spacing:1.5px !important;color:#f5c518 !important;text-shadow:0 0 14px rgba(245,197,24,.24) !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;}
+#setlist-remove-song-sheet .setlist-remove-sub-r886{position:absolute;top:80px;left:36px;right:36px;text-align:center;font-size:10px;letter-spacing:.4px;color:#8aa8d6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#setlist-remove-song-sheet .setlist-remove-x-r886{position:absolute !important;top:10px !important;right:10px !important;width:34px !important;height:34px !important;min-width:34px !important;min-height:34px !important;z-index:35 !important;}
+#setlist-remove-song-sheet .setlist-remove-options-r886{display:flex;flex-direction:column;gap:8px;padding-bottom:2px;}
+#sc-sets #se{height:100% !important;min-height:0 !important;flex-direction:column !important;overflow:hidden !important;padding:0 !important;}
+#sc-sets #eh{flex:0 0 auto !important;position:sticky !important;top:0 !important;z-index:40 !important;background:#060e1c !important;padding:0 0 8px !important;box-shadow:0 8px 18px rgba(0,0,0,.24) !important;}
+#sc-sets #ssl{flex:1 1 auto !important;min-height:0 !important;overflow-y:auto !important;-webkit-overflow-scrolling:touch !important;padding:8px 4px calc(92px + env(safe-area-inset-bottom)) !important;}
+.setlist-edit-hero-r886{position:relative;min-height:112px;border:1px solid rgba(74,158,255,.62);border-radius:14px;background:radial-gradient(circle at 50% 16px,rgba(74,158,255,.18),transparent 86px),linear-gradient(180deg,rgba(10,22,40,.98),rgba(5,12,28,.99));box-shadow:0 16px 48px rgba(0,0,0,.34),0 0 0 1px rgba(74,158,255,.12),inset 0 1px 0 rgba(255,255,255,.05);margin:0 0 8px;}
+.setlist-edit-star-r886{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(74,158,255,.16);box-shadow:0 0 22px rgba(74,158,255,.24),inset 0 1px 0 rgba(255,255,255,.06);font-size:23px;color:#fff;}
+.setlist-edit-title-r886{position:absolute;top:62px;left:46px;right:46px;text-align:center;font-family:"Russo One",sans-serif;font-size:16px;line-height:1.12;letter-spacing:1px;white-space:normal;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.setlist-edit-sub-r886{position:absolute;left:42px;right:42px;bottom:8px;text-align:center;font-size:10px;color:#8aa8d6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.setlist-edit-x-r886{position:absolute;top:10px;left:10px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(245,197,24,.50);background:rgba(245,197,24,.10);color:#f5c518;font-size:19px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:45;}
+.setlist-edit-save-r886{position:absolute !important;top:10px !important;right:10px !important;z-index:45 !important;}
+.setlist-edit-save-spacer-r886{position:absolute;top:10px;right:10px;width:38px;height:38px;}
+.setlist-edit-controls-r886{border:1px solid rgba(245,197,24,.34);border-radius:14px;padding:10px 12px;background:linear-gradient(135deg,rgba(6,18,45,.72),rgba(8,27,70,.64));box-shadow:0 8px 18px rgba(0,0,0,.18),0 0 14px rgba(245,197,24,.07);}
+.setlist-edit-help-r886{font-size:11px;line-height:1.35;margin-top:8px;}
+body.light #sc-sets #eh{background:#f5f7fb !important;}
+body.light .setlist-edit-hero-r886{background:linear-gradient(180deg,#ffffff,#eef4ff) !important;border-color:rgba(26,58,138,.36) !important;box-shadow:0 10px 24px rgba(20,40,80,.12) !important;}
+body.light .setlist-edit-controls-r886{background:#fff !important;border-color:rgba(184,134,11,.35) !important;}
+body.light #song-picker .song-picker-head-r886, body.light #setlist-remove-song-sheet .setlist-remove-sticky-head-r886{background:linear-gradient(135deg,#ffffff,#eef4ff) !important;border-bottom-color:rgba(184,134,11,.45) !important;}
+
 </style>
 </head>
 <body>
@@ -17662,9 +17700,11 @@ body.light #contact-modal #contact-save-btn.oot-contact-edit-save{
     <div id="ssl"></div>
   </div>
   <div id="song-picker" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:600;flex-direction:column;padding:16px;max-width:480px;margin:0 auto;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <span style="font-family:Russo One,sans-serif;font-size:16px;color:#f5c518;">Pick Songs</span>
-      <button style="background:none;border:none;color:#aaa;font-size:18px;cursor:pointer;" onclick="hidePicker()">&#10005;</button>
+    <div class="song-picker-head-r886">
+      <button type="button" class="song-picker-x-r886" onclick="hidePicker()" aria-label="Close Pick Songs">&#10005;</button>
+      <div class="song-picker-star-r886">✨</div>
+      <div class="song-picker-title-r886">PICK SONGS</div>
+      <div class="song-picker-sub-r886">Add songs to this setlist</div>
     </div>
     <input id="picker-search" class="fi2" placeholder="Search songs..." oninput="rPicker()" style="margin-bottom:10px;">
     <div id="picker-list" style="flex:1;overflow-y:auto;"></div>
@@ -32602,15 +32642,15 @@ function openSetlistRemoveSongMenu(setId){
   sheet.onclick = function(e){ e.stopPropagation(); };
 
   sheet.innerHTML =
-    '<button type="button" class="songs-sheet-x" aria-label="Close remove song menu" onclick="closeSetlistRemoveSongMenu()">×</button>' +
-    '<div class="songs-sheet-head">' +
-      '<img src="Logo.png?v=r142" class="songs-sheet-logo" alt="Out of Time">' +
-      '<div style="flex:1;min-width:0;">' +
-        '<div class="songs-sheet-title">REMOVE SONG</div>' +
-        '<div class="songs-sheet-sub">Remove from ' + (s.name || 'this setlist') + ' only</div>' +
-      '</div>' +
-    '</div>';
+    '<div class="setlist-remove-sticky-head-r886">' +
+      '<button type="button" class="songs-sheet-x setlist-remove-x-r886" aria-label="Close remove song menu" onclick="closeSetlistRemoveSongMenu()">×</button>' +
+      '<div class="setlist-remove-star-r886">✨</div>' +
+      '<div class="songs-sheet-title setlist-remove-title-r886">REMOVE SONG</div>' +
+      '<div class="setlist-remove-sub-r886">Remove from ' + (s.name || 'this setlist') + ' only</div>' +
+    '</div>' +
+    '<div id="setlist-remove-song-options-r886" class="setlist-remove-options-r886"></div>';
 
+  var removeOptions = sheet.querySelector('#setlist-remove-song-options-r886');
   s.songs.forEach(function(sg, idx){
     var lib = (sg && sg.libId && typeof library !== 'undefined') ? library.find(function(x){ return String(x.id) === String(sg.libId); }) : null;
     var title = (lib && lib.title) || sg.t || sg.title || 'Untitled Song';
@@ -32638,7 +32678,7 @@ function openSetlistRemoveSongMenu(setId){
         });
       };
     })(sg.id, title);
-    sheet.appendChild(b);
+    (removeOptions || sheet).appendChild(b);
   });
 
   wrap.appendChild(sheet);
@@ -34370,14 +34410,17 @@ function rEd() {
   // r278: standalone edit/share controls moved toward a kebab action pattern.
   var _slLight = _slIsLight();
   document.getElementById('eh').innerHTML =
-    '<div style="display:flex;align-items:center;gap:9px;margin-bottom:5px;flex-wrap:wrap;">'+
-    '<img src="Logo.png?v=r142" class="setlist-title-logo" alt="Out of Time">'+
-    '<span style="background:'+_slPal.gradient+';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:700;text-shadow:0 0 18px '+_slPal.glow+';font-family:Russo One,sans-serif;font-size:17px;flex:1;min-width:110px;letter-spacing:1px;">'+s.name+'</span>'+
-    (reorderMode ? '<button id="sl-save-order-icon" class="oot-save-icon-btn" onclick="finishSetlistReorderAndReturn()" type="button" title="Save order" aria-label="Save order"><img src="save_icon_r461.png" alt="" aria-hidden="true"></button>' : '')+
+    '<div class="setlist-edit-hero-r886">'+
+      '<button type="button" class="setlist-edit-x-r886" onclick="clEd()" aria-label="Cancel and return to setlists">×</button>'+
+      '<div class="setlist-edit-star-r886">✨</div>'+
+      '<div class="setlist-edit-title-r886" style="background:'+_slPal.gradient+';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 18px '+_slPal.glow+';">'+s.name+'</div>'+
+      '<div class="setlist-edit-sub-r886">'+s.songs.length+' songs'+durStr+'</div>'+
+      (reorderMode ? '<button id="sl-save-order-icon" class="oot-save-icon-btn setlist-edit-save-r886" onclick="finishSetlistReorderAndReturn()" type="button" title="Save order" aria-label="Save order"><img src="save_icon_r461.png" alt="" aria-hidden="true"></button>' : '<span class="setlist-edit-save-spacer-r886" aria-hidden="true"></span>')+
     '</div>'+
-    '<div style="font-size:12px;color:#aaa;margin-bottom:4px;">'+s.songs.length+' songs'+durStr+'</div>'+
-    _r633SetlistGigSelectHtml(s)+
-    '<div style="font-size:10px;color:'+(reorderMode?'#f5c518':'#c7d6f3')+';margin-bottom:10px;line-height:1.35;">'+(reorderMode?'Hold ≡ and drag to reorder · tap the thumb-drive save icon to finish':'Use Add Songs below or Setlist Actions for share, manage, rename, reorder, and delete')+'</div>';
+    '<div class="setlist-edit-controls-r886">'+
+      _r633SetlistGigSelectHtml(s)+
+      '<div class="setlist-edit-help-r886" style="color:'+(reorderMode?'#f5c518':'#c7d6f3')+';">'+(reorderMode?'Hold ≡ and drag to reorder · tap the green save icon to finish':'Use Add Songs below or Setlist Actions for share, manage, rename, reorder, and delete')+'</div>'+
+    '</div>';
 
   var linkedGigSel = document.getElementById('sl-linked-gig');
   if(linkedGigSel){ linkedGigSel.onchange = _r633SaveLinkedGigForActiveSetlist; }
@@ -38993,7 +39036,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-29-shared-prompt-header-audit-r885';
+var WHATS_NEW_VERSION = '2026-05-30-setlists-targeted-header-scroll-r886';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -39338,6 +39381,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-30-setlists-targeted-header-scroll-r886', date:'May 30, 2026', importance:'fix', emoji:'🎼', title:'Setlists header and scroll cleanup', body:'Applies a targeted Setlists audit pass. Pick Songs now uses the newer sticky header style, Remove Song keeps its header sticky while the song list scrolls, and Rename/Reorder has a new sticky header with cancel/back and green save controls plus a scroll-safe song list. Setlist data/actions, Home, Calendar, Songs, Chat, Mates, Pay, flyer rendering, notifications, assets, and default Home gaps are unchanged.', items:['Upload index_r886.html as index.html.','Confirm Build Version reports r886.','Setlists → selected setlist → kebab → Add Song to Setlist: Pick Songs should have the new sticky header and still add songs.','Setlists → selected setlist → kebab → Remove Song: header/X should stay visible while the remove list scrolls.','Setlists → selected setlist → kebab → Rename / Reorder: page should have a new sticky header, visible cancel/back X, visible green save icon, and the song list should scroll.','Confirm navigating away and back does not trap the Setlists tab in an unclosable edit page.'] },
   { version:'2026-05-29-shared-prompt-header-audit-r885', date:'May 29, 2026', importance:'fix', emoji:'✨', title:'Shared prompt header polished', body:'Continues the targeted modal/header audit by applying the What’s-New-style star badge and centered gold title treatment to the generic text-entry prompt dialog only. Prompt input, SAVE/CANCEL buttons, prompt handlers, destructive confirm dialog, flyer workflow, Home, Calendar, Songs, Setlists, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r885.html as index.html.','Confirm Build Version reports r885.','Open any rename/text prompt, such as a setlist rename if available: confirm the prompt header uses the star/centered-title style.','Confirm the prompt input, SAVE, and CANCEL still work normally.','Spot-check Home kebab and Contact Edit save from r884 still look good.'] },
   { version:'2026-05-29-targeted-save-header-audit-r884', date:'May 29, 2026', importance:'fix', emoji:'✅', title:'Targeted save/header audit pass', body:'Continues the active UI audit with two safe fixes: lifts the Home kebab/menu button visually above the logo border without changing the locked Home logo/gaps/image layout, and converts only the Contact Edit true-save action to the approved green circular checkmark while leaving Add Contact as a normal create CTA. Calendar, Songs, Setlists, Chat, Mates roster, Pay, assets, data, notifications, and Home image registry are unchanged.', items:['Upload index_r884.html as index.html.','Confirm Build Version reports r884.','Home: confirm the kebab/menu button is no longer tucked behind the logo border and the logo/gaps/images did not move.','Mates → Contacts → Edit Contact: confirm the save action is the green circular checkmark and still saves.','Mates → Contacts → Add Contact: confirm Add Contact remains a normal create button, not a green check.','Spot-check Calendar save/header fixes from r883 still look good.'] },
   { version:'2026-05-29-home-image-14-18-lift-r883', date:'May 29, 2026', importance:'fix', emoji:'🖼️', title:'Home images 14 through 18 lifted', body:'Moves only Home band images 14, 15, 16, 17, and 18 upward inside the existing Home image frame using the established HOME_IMAGE_PRESENTATION registry path. Home logo/header, Next Gig/No Gig card, alert pills, social buttons, tab bar, locked default gaps, all other Home images, Calendar, Songs, Setlists, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r883.html as index.html.','Confirm Build Version reports r883.','Home → Band Image selector: check images 14, 15, 16, 17, and 18 only.','Confirm each sits slightly higher in the same frame and the surrounding Home layout/default gaps did not move.'] },
