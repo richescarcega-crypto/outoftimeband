@@ -193,6 +193,7 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r873: Edit Rehearsal Notes default height increased. Makes the Notes textarea tall enough by default to show at least two full lines at once, not just scroll to them. -->
 <!-- r874: Edit Rehearsal Notes hard override. Fixes the failed Notes-height attempts by bypassing the older high-specificity .mi height rules with an inline !important height on the generated Notes textarea plus higher-specificity CSS. -->
 <!-- r877: Calendar form breathing + green save correction. Corrects r876 follow-up misses by restoring breathing room to New Gig/Blackout form fields, forcing Calendar Gig/Rehearsal/Blackout/Important Date save controls to the green circular checkmark despite older high-specificity yellow rules, and ensuring Edit Gig has a visible green save icon. -->
+<!-- r878: Home image 02/03 vertical registry tune. Moves only Home band images 2 and 3 upward 5px inside the existing Home image frame through the central HOME_IMAGE_PRESENTATION renderer. No Home container/gap/header/card/social-button layout, non-target Home images, Calendar, Songs, Setlists, Chat, Mates, Pay, data, assets, or notification logic changed. -->
 <!-- r876: Calendar modal header/save follow-up. Applies What's-New-style headers to Gig Details/Edit Gig, New/Edit Blackout, and New Event chooser; hardens Important Date time/save controls so start/end time fields and green save check remain usable/visible. -->
 <!-- r875: Universal green save-circle standard. Makes the green save/check button the same round 38px size as the red delete/trash icon and applies that standard to the existing save-icon button family. -->
 <!-- r859: Rehearsal Proposals header collision and member log visibility fix. Moves + PROPOSE to the top-left of the What’s-New-style header and hides proposal Notification Log from non-admin members. -->
@@ -36076,7 +36077,7 @@ var HOME_IMAGE_PRESENTATION = {
   },
   2: {
     normal: {
-      img: { widthPct: 108, xPx: 4, yPct: -61 },
+      img: { widthPct: 108, xPx: 4, yPct: -61, yPx: -5 },
       buttons: { gapPx: 7, sizePx: 33, iconPx: 16, xPx: 8, yPx: 3, scale: 1 }
     },
     rehearsal: {
@@ -36086,6 +36087,7 @@ var HOME_IMAGE_PRESENTATION = {
   },
   3: {
     normal: {
+      img: { yPx: -5 },
       buttons: { gapPx: 7, sizePx: 33, iconPx: 16, xPx: 8, yPx: 3, scale: 1 }
     },
     rehearsal: {
@@ -36325,7 +36327,11 @@ function _applyHomeImagePresentation(row, idx){
   // one step lower while still capping at the previously safe no-clip band.
   var maxDownY = (mode === 'rehearsal') ? -53 : -51;
   if(imgYNum > maxDownY) imgYNum = maxDownY;
+  var imgYPxNum = (p.img.yPx === 0 ? 0 : (p.img.yPx || 0));
+  imgYPxNum = parseFloat(imgYPxNum);
+  if(!isFinite(imgYPxNum)) imgYPxNum = 0;
   var imgY = imgYNum + '%';
+  var imgYPx = imgYPxNum + 'px';
   var btnGap = ((p.buttons.gapPx === 0 ? 0 : (p.buttons.gapPx || 8))) + 'px';
   var btnSize = (p.buttons.sizePx || 38) + 'px';
   var btnIcon = (p.buttons.iconPx || 20) + 'px';
@@ -36345,6 +36351,7 @@ function _applyHomeImagePresentation(row, idx){
   _setHomeCssVar(row, '--oot-home-img-width', imgWidth);
   _setHomeCssVar(row, '--oot-home-img-x', imgX);
   _setHomeCssVar(row, '--oot-home-img-y', imgY);
+  _setHomeCssVar(row, '--oot-home-img-y-px', imgYPx);
   _setHomeCssVar(row, '--oot-home-button-gap', btnGap);
   _setHomeCssVar(row, '--oot-home-button-size', btnSize);
   _setHomeCssVar(row, '--oot-home-button-icon', btnIcon);
@@ -36370,7 +36377,7 @@ function _applyHomeImagePresentation(row, idx){
       bg.style.setProperty('max-height', 'none', 'important');
       bg.style.setProperty('object-fit', 'contain', 'important');
       bg.style.setProperty('object-position', 'center center', 'important');
-      bg.style.setProperty('transform', 'translate(calc(-50% + ' + imgX + '), ' + imgY + ')', 'important');
+      bg.style.setProperty('transform', 'translate(calc(-50% + ' + imgX + '), calc(' + imgY + ' + ' + imgYPx + '))', 'important');
       bg.style.setProperty('transform-origin', 'center center', 'important');
       bg.style.setProperty('pointer-events', 'none', 'important');
       bg.style.setProperty('z-index', '1', 'important');
@@ -38846,7 +38853,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-29-calendar-save-spacing-corrections-r877';
+var WHATS_NEW_VERSION = '2026-05-29-home-image-02-03-lift-r878';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -39191,6 +39198,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-29-home-image-02-03-lift-r878', date:'May 29, 2026', importance:'fix', emoji:'🖼️', title:'Home images 2 and 3 lifted', body:'Moves only Home band images 2 and 3 upward 5px inside the existing Home image frame using the central Home Image Presentation registry/renderer. Home logo/header, Next Gig/No Gig card, alert pills, social buttons, tab bar, locked default gaps, all other Home images, Calendar, Songs, Setlists, Chat, Mates, Pay, data, assets, and notifications are unchanged.', items:['Upload index_r878.html as index.html.','Confirm Build Version reports r878.','Home → Band Image selector: check image 2 and image 3 only; both should sit 5px higher in the same frame.','Confirm the Home default gaps, logo/header, Next Gig/No Gig card, alert pills, social buttons, and tab bar did not move.','Do not evaluate images 7/8/etc. in this build; they were intentionally left unchanged for the two-at-a-time workflow.'] },
   { version:'2026-05-29-calendar-save-spacing-corrections-r877', date:'May 29, 2026', importance:'fix', emoji:'✅', title:'Calendar save and spacing corrections', body:'Corrects the r876 Calendar follow-up by restoring breathing room to New Gig and Blackout form fields, forcing Calendar Gig/Rehearsal/Blackout/Important Date save controls to the approved green circular checkmark despite older high-specificity yellow rules, and ensuring Edit Gig has a visible green save icon. Calendar grid/body, Home, Songs, Setlists, Chat, Mates, Pay, flyer rendering, notifications, and data models are unchanged.', items:['Upload index_r877.html as index.html.','Confirm Build Version reports r877.','Create Gig: confirm labels/fields have breathing room and the green save check is visible/reachable.','Create Rehearsal: confirm the save check is green, not yellow.','Create and Edit Blackout Date: confirm the save check is green, not yellow.','Existing Gig → Edit: confirm the green save check appears and saves.','Spot-check Edit Important Date save remains green and start/end time fields remain usable.'] },
   { version:'2026-05-29-calendar-modal-header-save-r876', date:'May 29, 2026', importance:'fix', emoji:'✨', title:'Calendar modal headers continued', body:'Continues the active Calendar modal/header/save audit by applying the What’s-New-style header to the New Event chooser, Gig Details/Edit Gig, and New/Edit Blackout Date, and hardens Edit Important Date so start/end time fields remain tappable and the green save check stays visible. Calendar grid/body, Home, Songs, Setlists, Chat, Mates, Pay, flyer rendering, notifications, and data models are unchanged.', items:['Upload index_r876.html as index.html.','Confirm Build Version reports r876.','Calendar → tap an empty date: confirm the New Event chooser has the new header style.','Create Gig and Create Blackout Date: confirm headers use the new style and save/check controls remain usable.','Open existing Gig Details and Edit Gig: confirm the new header style and green save check.','Open/Edit Important Date: confirm start time, end time, notes, and green save check are visible and usable.'] },
   { version:'2026-05-28-universal-save-circle-r875', date:'May 28, 2026', importance:'fix', emoji:'✅', title:'Save button standardized', body:'Changes the green save/check button to the same round 38px size as the red delete/trash icon while keeping the green coloring. Applies the standard to the existing save-icon button family, including Edit Rehearsal, Gig/Edit event saves, Important Date save, Arrange Tabs save, and Add Song to Agenda save-check controls. Save handlers and data are unchanged.', items:['Upload index_r875.html as index.html.','Confirm Build Version reports r875.','Check Edit Rehearsal: green save is a round 38px circle matching the red trash icon size.','Spot-check other existing save-icon buttons for the same round green check treatment.'] },
