@@ -3432,6 +3432,77 @@ body.light #delete-songs-modal .moh .mot{
   text-shadow:none !important;
 }
 
+
+/* r892: New-style close-X normalization pass.
+   Replaces remaining white/blue close X controls in the current modal audit family
+   with the established gold circular close control. Close behavior only; no layout,
+   save, form, import/delete, or data logic changed. */
+#version-modal .moh button,
+#notiflog-modal .moh button,
+#display-mode-modal .moh button,
+#notifications-modal .moh button,
+#privacy-modal .moh button,
+#reorder-modal .moh button,
+#member-activity-modal .moh button,
+#announce-modal .moh button,
+#evm .moh button,
+#mm .moh button,
+#gig-detail-modal .moh button,
+#csv-import-modal .moh button,
+#import-songs-modal .moh button,
+#delete-songs-modal .moh button,
+#song-info-modal .moh button,
+#idate-modal.r453-idate-visual .moh button,
+#proposal-modal .moh button{
+  color:#f5c518 !important;
+  background:rgba(245,197,24,.10) !important;
+  border:1px solid rgba(245,197,24,.50) !important;
+  box-shadow:0 0 14px rgba(245,197,24,.14), inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#version-modal .moh button:hover,
+#notiflog-modal .moh button:hover,
+#display-mode-modal .moh button:hover,
+#notifications-modal .moh button:hover,
+#privacy-modal .moh button:hover,
+#reorder-modal .moh button:hover,
+#member-activity-modal .moh button:hover,
+#announce-modal .moh button:hover,
+#evm .moh button:hover,
+#mm .moh button:hover,
+#gig-detail-modal .moh button:hover,
+#csv-import-modal .moh button:hover,
+#import-songs-modal .moh button:hover,
+#delete-songs-modal .moh button:hover,
+#song-info-modal .moh button:hover,
+#idate-modal.r453-idate-visual .moh button:hover,
+#proposal-modal .moh button:hover{
+  color:#fff7c7 !important;
+  background:rgba(245,197,24,.18) !important;
+  border-color:rgba(245,197,24,.78) !important;
+}
+body.light #version-modal .moh button,
+body.light #notiflog-modal .moh button,
+body.light #display-mode-modal .moh button,
+body.light #notifications-modal .moh button,
+body.light #privacy-modal .moh button,
+body.light #reorder-modal .moh button,
+body.light #member-activity-modal .moh button,
+body.light #announce-modal .moh button,
+body.light #evm .moh button,
+body.light #mm .moh button,
+body.light #gig-detail-modal .moh button,
+body.light #csv-import-modal .moh button,
+body.light #import-songs-modal .moh button,
+body.light #delete-songs-modal .moh button,
+body.light #song-info-modal .moh button,
+body.light #idate-modal.r453-idate-visual .moh button,
+body.light #proposal-modal .moh button{
+  color:#9a6a00 !important;
+  background:rgba(212,160,23,.10) !important;
+  border-color:rgba(212,160,23,.58) !important;
+  box-shadow:0 0 12px rgba(212,160,23,.10), inset 0 1px 0 rgba(255,255,255,.45) !important;
+}
+
 /* r699: Songs Add/Edit Song modal consistency.
    Presentation-only: align #song-info-modal with the premium modal family using
    a sticky header/X and scroll-safe mobile height. Song fields, save/delete,
@@ -39273,7 +39344,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-30-songs-management-header-pass-r891';
+var WHATS_NEW_VERSION = '2026-05-30-modal-close-x-normalization-r892';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -39618,6 +39689,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-30-modal-close-x-normalization-r892', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'Modal close X style normalized', body:'Continues the targeted modal/header audit by replacing remaining white/blue close X controls in the current modal family with the established gold circular close X style. This includes Songs Quick Paste, Import File, Delete Songs, and other already-audited modal headers that still had the older white/blue X treatment. Close behavior, save buttons, forms, import/delete logic, Home, Calendar, Setlists, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r892.html as index.html.','Confirm Build Version reports r892.','Songs → Quick Paste: confirm the close X is gold/new-style, not white, and paste/preview/import still work.','Songs → Import File: confirm the close X is gold/new-style and template/file actions still work.','Songs → Delete Songs: confirm the close X is gold/new-style and selection/delete still work.','Spot-check other audited modal headers such as Build Version, Display Mode, Add/Edit Song, Calendar event form, and Gig Details for the gold close X style.'] },
   { version:'2026-05-30-songs-management-header-pass-r891', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'Songs management headers refined', body:'Applies the compact What’s-New-style star badge and centered title treatment to the Songs Quick Paste, Import File, and Delete Songs modal headers while preserving their existing sticky/scroll-safe behavior and all import/delete logic. Suggest-a-Song r890 behavior, Setlists, Home, Calendar, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r891.html as index.html.','Confirm Build Version reports r891.','Songs → Quick Paste: confirm compact star/centered title header and sticky close still work.','Songs → Import File: confirm compact star/centered title header and file/template actions still work.','Songs → Delete Songs: confirm compact star/centered title header, selection, cancel, and Delete Selected still work.','Spot-check Suggest a Song green save and YouTube URL first-paste behavior from r890.'] },
   { version:'2026-05-30-suggest-song-save-url-focus-r890', date:'May 30, 2026', importance:'fix', emoji:'🎸', title:'Suggest a Song submit and URL focus', body:'Replaces the large yellow Suggest a Song Submit button with the app-standard green circular checkmark and hardens the YouTube URL field so first-tap paste keeps focus in the URL input instead of jumping away. Song suggestion submission, YouTube helper/return behavior, voting, Songs list/search, Setlists, Home, Calendar, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r890.html as index.html.','Confirm Build Version reports r890.','Songs → kebab → Suggest a Song: confirm the large yellow Submit button is gone and the green circular checkmark submits.','Tap/paste into the YouTube URL field on the first attempt and confirm the cursor stays in the URL field.','Spot-check Vote on Suggestions and the YouTube Find link helper still work.'] },
   { version:'2026-05-30-song-suggestions-header-audit-r889', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'Song Suggestions header polished', body:'Continues the targeted modal/header audit by applying a compact What’s-New-style star badge and centered gold title treatment to the Songs Vote/Suggest modal header. Voting, suggestion submission, YouTube helper, keyboard-safe Suggest mode, close behavior, Home, Calendar, Setlists, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r889.html as index.html.','Confirm Build Version reports r889.','Songs → kebab → Vote on Suggestions: confirm the modal header has the compact star/centered-title style and voting still works.','Songs → kebab → Suggest a Song: confirm the header style appears when not typing, fields and Submit still work, and keyboard mode remains usable.','Spot-check Setlists r888 back cue and drag cleanup.'] },
