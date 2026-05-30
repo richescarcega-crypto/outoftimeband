@@ -18106,7 +18106,7 @@ body.light #sc-sets .setlist-back-pill-r888{
 }
 #sc-sets .r636-setlist-gig-prompt{
   overflow:visible !important;
-  margin:18px 0 34px !important;
+  margin:18px 0 44px !important;
   border-color:rgba(255,56,78,.88) !important;
   box-shadow:0 10px 22px rgba(0,0,0,.30),0 0 18px rgba(255,56,78,.20),inset 0 1px 0 rgba(255,255,255,.07) !important;
 }
@@ -18119,7 +18119,7 @@ body.light #sc-sets .setlist-back-pill-r888{
   position:absolute !important;
   left:0 !important;
   right:0 !important;
-  bottom:-15px !important;
+  bottom:-27px !important;
   height:10px !important;
   border-radius:999px !important;
   background:linear-gradient(90deg, transparent 0%, #f5c518 18%, #f5c518 82%, transparent 100%) !important;
@@ -39670,7 +39670,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-30-setlists-chat-divider-emphasis-r900';
+var WHATS_NEW_VERSION = '2026-05-30-setlists-divider-spacing-r901';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40015,6 +40015,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-30-setlists-divider-spacing-r901', date:'May 30, 2026', importance:'fix', emoji:'🎼', title:'Setlists divider spacing refined', body:'Adjusts only the vertical spacing around the Setlists Upcoming Gig Needs a Setlist separator so the line reads as a section divider rather than being attached to the action pill. The top separator remains removed, the red action border remains, and the Chat divider style is unchanged. Home, Calendar, Songs, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r901.html as index.html.','Confirm Build Version reports r901.','Setlists: confirm there is still no top line above Upcoming Gig Needs a Setlist.','Confirm the gold separator sits lower below the action pill and the first setlist starts below it with Chat-like breathing room.','Spot-check Chat divider remains bold/gold from r900.'] },
   { version:'2026-05-30-setlists-chat-divider-emphasis-r900', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'Setlists and Chat dividers strengthened', body:'Makes the Setlists action separator and Chat Band Chat divider much thicker and more visibly gold, matching the stronger header-gold family rather than the faint transparent line. Keeps the Setlists action pill, red border, spacing, Chat rows, Home, Calendar, Songs, Mates, Pay, assets, data, and notifications unchanged.', items:['Upload index_r900.html as index.html.','Confirm Build Version reports r900.','Setlists: confirm the separator below Upcoming Gig Needs a Setlist is much thicker and more gold.','Confirm there is still no top separator above the action pill.','Chat: confirm the Band Chat divider is much thicker and more gold.'] },
   { version:'2026-05-30-setlists-chat-divider-refine-r899', date:'May 30, 2026', importance:'fix', emoji:'🎼', title:'Setlists and Chat divider refinement', body:'Refines the Setlists Upcoming Gig Needs a Setlist separator by removing the top gold line, keeping only the lower separator with the same decorative gold-line color family used under the Setlists Performance Runs hero, and preserving vertical breathing room around the line. Also updates the Chat Band Chat separator to use the same decorative line style for consistency. Home, Calendar, Songs, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r899.html as index.html.','Confirm Build Version reports r899.','Setlists: confirm the Upcoming Gig Needs a Setlist pill has no top gold line.','Confirm the remaining lower line uses the same subtle gold decorative-line look as the Performance Runs header line and has breathing room above and below.','Chat: confirm the divider under Band Chat now uses the same subtle gold decorative-line style.'] },
   { version:'2026-05-30-safe-calendar-setlists-fixes-r898', date:'May 30, 2026', importance:'fix', emoji:'🛠️', title:'Calendar and Setlists fixes restored safely', body:'Rebuilds the rolled-back Calendar All Events Options / Filter Events header cleanup and Setlists Upcoming Gig Needs a Setlist action-notice separation from the clean r897 base. The CSS is placed inside the stylesheet, not inside the main JavaScript block. Filter Events keeps a clean header, uses the green circular checkmark instead of DONE, and the Setlists action notice keeps the red action border plus gold separator lines above and below. Home, Songs, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r898.html as index.html.','Confirm Build Version reports r898.','Calendar → All Events kebab: confirm All Events Options header is clean.','Calendar → Filter Events: confirm header does not overlap Upcoming only / All events and green check closes/applies filters.','Setlists: confirm Upcoming Gig Needs a Setlist has red border plus gold separator lines above and below.','Confirm Home loads and tab navigation works.'] },
