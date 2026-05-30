@@ -1,3 +1,4 @@
+<!-- r893: Pay Log Gig Pay header audit pass. Applies compact What’s-New-style star/centered-title treatment to the Pay tab inline Log Gig Pay card header only, preserving Add Pay fields, Add behavior, keyboard-safe scrolling, Pay totals/history, and all other tabs. -->
 <!-- r885: Shared prompt header audit pass. Applies the What’s-New-style star/centered-title treatment to the generic text prompt dialog only, preserving prompt input, SAVE/CANCEL buttons, handlers, confirm dialog, flyer workflow, and app data. -->
 <!-- r810: Home cue fallback listeners + social button lower-safe adjustment. Starts from r809. Adds unordered Firestore fallback listeners for Home song/rehearsal cue data so ordered-query/data-field issues cannot leave Home pills empty, broadens future proposal matching, and lowers social buttons slightly while keeping them visible. -->
 <!-- r807: Rollback from r806. Reverts the failed r806 rehearsal-alert overlay clearance change because r806 caused the Home alert pills to disappear on phone. Restores the phone-visible r805 Home alert behavior exactly and bumps WHATS_NEW_VERSION so phones detect the rollback. Upload index_r807.html as index.html. -->
@@ -3432,6 +3433,94 @@ body.light #delete-songs-modal .moh .mot{
   text-shadow:none !important;
 }
 
+
+
+/* r893: Pay Log Gig Pay inline header adopts compact What’s-New-style treatment.
+   Scope: Pay tab #pf header only. Add button remains a create CTA. */
+#sc-pay #pf.fb > div:first-child{
+  position:sticky !important;
+  top:0 !important;
+  z-index:8 !important;
+  min-height:54px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:9px 54px 9px !important;
+  margin:0 -12px 12px !important;
+  background:linear-gradient(135deg,rgba(8,24,56,.98),rgba(5,15,33,.99)) !important;
+  border-bottom:1px solid rgba(245,197,24,.34) !important;
+  box-shadow:0 4px 14px rgba(0,0,0,.20) !important;
+}
+#sc-pay #pf.fb > div:first-child::before{
+  content:'✦';
+  position:absolute;
+  left:14px;
+  top:50%;
+  transform:translateY(-50%);
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Russo One',sans-serif;
+  font-size:14px;
+  color:#f5c518;
+  background:rgba(245,197,24,.12);
+  border:1px solid rgba(245,197,24,.42);
+  box-shadow:0 0 14px rgba(245,197,24,.16);
+}
+#sc-pay #pf.fb > div:first-child > span{
+  flex:0 1 auto !important;
+  text-align:center !important;
+  font-family:'Russo One',sans-serif !important;
+  font-size:13px !important;
+  letter-spacing:2.4px !important;
+  line-height:1.15 !important;
+  color:#f5c518 !important;
+  text-shadow:0 0 14px rgba(245,197,24,.30) !important;
+  white-space:nowrap !important;
+}
+#sc-pay #pf.fb > div:first-child > button{
+  position:absolute !important;
+  right:14px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  width:34px !important;
+  height:34px !important;
+  border-radius:50% !important;
+  border:1px solid rgba(245,197,24,.52) !important;
+  background:rgba(245,197,24,.12) !important;
+  color:#f5c518 !important;
+  font-size:20px !important;
+  line-height:1 !important;
+  box-shadow:0 0 14px rgba(245,197,24,.14) !important;
+}
+#sc-pay #pf.fb > div:first-child > button:hover{
+  background:rgba(245,197,24,.20) !important;
+  transform:translateY(-50%) scale(1.03) !important;
+}
+body.light #sc-pay #pf.fb > div:first-child{
+  background:linear-gradient(135deg,#f8fbff,#eef4ff) !important;
+  border-bottom-color:rgba(180,132,0,.34) !important;
+  box-shadow:0 4px 12px rgba(20,40,80,.08) !important;
+}
+body.light #sc-pay #pf.fb > div:first-child::before{
+  color:#9a6a00 !important;
+  background:rgba(180,132,0,.10) !important;
+  border-color:rgba(180,132,0,.38) !important;
+  box-shadow:none !important;
+}
+body.light #sc-pay #pf.fb > div:first-child > span{
+  color:#9a6a00 !important;
+  text-shadow:none !important;
+}
+body.light #sc-pay #pf.fb > div:first-child > button{
+  border-color:rgba(180,132,0,.45) !important;
+  background:rgba(180,132,0,.10) !important;
+  color:#9a6a00 !important;
+  box-shadow:none !important;
+}
 
 /* r892: New-style close-X normalization pass.
    Replaces remaining white/blue close X controls in the current modal audit family
@@ -39344,7 +39433,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-30-modal-close-x-normalization-r892';
+var WHATS_NEW_VERSION = '2026-05-30-pay-log-header-audit-r893';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -39689,6 +39778,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-30-pay-log-header-audit-r893', date:'May 30, 2026', importance:'fix', emoji:'💸', title:'Pay log header restyled', body:'Continues the targeted modal/header audit by applying the compact What’s-New-style star badge and centered gold title treatment to the Pay tab inline Log Gig Pay card header. The existing close behavior, Venue/Gross Pay/Expenses fields, Add Pay create action, keyboard-safe scrolling, Pay totals, Gig History, Home, Calendar, Songs, Setlists, Chat, Mates, assets, data, and notifications are unchanged.', items:['Upload index_r893.html as index.html.','Confirm Build Version reports r893.','Pay → + Log Gig Pay: confirm the header has the compact star/centered-title style and the close X remains gold/new-style.','Confirm Venue, Gross Pay, Expenses, and Add still work.','Spot-check Songs Quick Paste, Import File, and Delete Songs from r892 still have the gold/new-style close X.'] },
   { version:'2026-05-30-modal-close-x-normalization-r892', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'Modal close X style normalized', body:'Continues the targeted modal/header audit by replacing remaining white/blue close X controls in the current modal family with the established gold circular close X style. This includes Songs Quick Paste, Import File, Delete Songs, and other already-audited modal headers that still had the older white/blue X treatment. Close behavior, save buttons, forms, import/delete logic, Home, Calendar, Setlists, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r892.html as index.html.','Confirm Build Version reports r892.','Songs → Quick Paste: confirm the close X is gold/new-style, not white, and paste/preview/import still work.','Songs → Import File: confirm the close X is gold/new-style and template/file actions still work.','Songs → Delete Songs: confirm the close X is gold/new-style and selection/delete still work.','Spot-check other audited modal headers such as Build Version, Display Mode, Add/Edit Song, Calendar event form, and Gig Details for the gold close X style.'] },
   { version:'2026-05-30-songs-management-header-pass-r891', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'Songs management headers refined', body:'Applies the compact What’s-New-style star badge and centered title treatment to the Songs Quick Paste, Import File, and Delete Songs modal headers while preserving their existing sticky/scroll-safe behavior and all import/delete logic. Suggest-a-Song r890 behavior, Setlists, Home, Calendar, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r891.html as index.html.','Confirm Build Version reports r891.','Songs → Quick Paste: confirm compact star/centered title header and sticky close still work.','Songs → Import File: confirm compact star/centered title header and file/template actions still work.','Songs → Delete Songs: confirm compact star/centered title header, selection, cancel, and Delete Selected still work.','Spot-check Suggest a Song green save and YouTube URL first-paste behavior from r890.'] },
   { version:'2026-05-30-suggest-song-save-url-focus-r890', date:'May 30, 2026', importance:'fix', emoji:'🎸', title:'Suggest a Song submit and URL focus', body:'Replaces the large yellow Suggest a Song Submit button with the app-standard green circular checkmark and hardens the YouTube URL field so first-tap paste keeps focus in the URL input instead of jumping away. Song suggestion submission, YouTube helper/return behavior, voting, Songs list/search, Setlists, Home, Calendar, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r890.html as index.html.','Confirm Build Version reports r890.','Songs → kebab → Suggest a Song: confirm the large yellow Submit button is gone and the green circular checkmark submits.','Tap/paste into the YouTube URL field on the first attempt and confirm the cursor stays in the URL field.','Spot-check Vote on Suggestions and the YouTube Find link helper still work.'] },
