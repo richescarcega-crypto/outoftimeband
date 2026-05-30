@@ -36145,7 +36145,7 @@ var HOME_IMAGE_PRESENTATION = {
   },
   9: {
     normal: {
-      img: { widthPct: 110, xPx: 6, yPct: -58 },
+      img: { widthPct: 110, xPx: 6, yPct: -59.2 },
       buttons: { gapPx: 7, sizePx: 33, iconPx: 16, xPx: 8, yPx: 3, scale: 1 }
     },
     rehearsal: {
@@ -36155,7 +36155,7 @@ var HOME_IMAGE_PRESENTATION = {
   },
   10: {
     normal: {
-      img: { widthPct: 110, xPx: -4, yPct: -58 },
+      img: { widthPct: 110, xPx: -4, yPct: -59.2 },
       buttons: { gapPx: 7, sizePx: 33, iconPx: 16, xPx: 8, yPx: 3, scale: 1 }
     },
     rehearsal: {
@@ -36185,7 +36185,7 @@ var HOME_IMAGE_PRESENTATION = {
   },
   13: {
     normal: {
-      img: { widthPct: 110, xPx: -4, yPct: -58 },
+      img: { widthPct: 110, xPx: -4, yPct: -59.2 },
       buttons: { gapPx: 7, sizePx: 33, iconPx: 16, xPx: 8, yPx: 3, scale: 1 }
     },
     rehearsal: {
@@ -38853,7 +38853,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-29-home-image-07-08-lift-r881';
+var WHATS_NEW_VERSION = '2026-05-29-home-image-09-10-13-lift-r882';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -39198,6 +39198,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-29-home-image-09-10-13-lift-r882', date:'May 29, 2026', importance:'fix', emoji:'🖼️', title:'Home images 9, 10, and 13 lifted', body:'Moves only Home band images 9, 10, and 13 upward inside the existing Home image frame using the established HOME_IMAGE_PRESENTATION registry path. Home logo/header, Next Gig/No Gig card, alert pills, social buttons, tab bar, locked default gaps, all other Home images, Calendar, Songs, Setlists, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r882.html as index.html.','Confirm Build Version reports r882.','Home → Band Image selector: check image 9, image 10, and image 13 only.','Confirm each sits slightly higher in the same frame and the surrounding Home layout/default gaps did not move.','All remaining requested image moves stay deferred until confirmed.'] },
   { version:'2026-05-29-home-image-07-08-lift-r881', date:'May 29, 2026', importance:'fix', emoji:'🖼️', title:'Home images 7 and 8 lifted', body:'Moves only Home band images 7 and 8 upward inside the existing Home image frame using the established HOME_IMAGE_PRESENTATION yPct registry path. No Home logo/header, Next Gig/No Gig card, alert pills, social buttons, tab bar, locked default gaps, Home frame/container, other Home images, Calendar, Songs, Setlists, Chat, Mates, Pay, data, assets, or notifications are changed.', items:['Upload index_r881.html as index.html.','Confirm Build Version reports r881.','Home → Band Image selector: check image 7 and image 8 only.','Confirm both sit higher inside the same frame and the Home default gaps did not move.','Images 9, 10, 13, 14, 15, 16, 17, and 18 remain deferred.'] },
   { version:'2026-05-29-home-image-02-03-additional-lift-r880', date:'May 29, 2026', importance:'fix', emoji:'🖼️', title:'Home images 2 and 3 lifted further', body:'Applies a second targeted registry-only Home image framing adjustment for images 2 and 3 after phone review showed the first lift was not enough. Uses the established percentage-based HOME_IMAGE_PRESENTATION yPct path and moves only images 2 and 3 further upward inside the same Home image frame. Home logo/header, Next Gig/No Gig card, alert pills, social buttons, tab bar, locked default gaps, all other Home images, Calendar, Songs, Setlists, Chat, Mates, Pay, data, assets, and notifications are unchanged.', items:['Upload index_r880.html as index.html.','Confirm Build Version reports r880.','Home → Band Image selector: check image 2 and image 3 only.','Confirm both sit slightly higher than r879 while the Home default gaps and surrounding layout remain unchanged.','All other requested image moves remain deferred until images 2 and 3 are confirmed.'] },
   { version:'2026-05-29-home-image-02-03-ypct-lift-r879', date:'May 29, 2026', importance:'fix', emoji:'🖼️', title:'Home images 2 and 3 registry correction', body:'Corrects the image 2 and image 3 Home placement adjustment by using the established percentage-based HOME_IMAGE_PRESENTATION yPct path instead of the newer yPx offset path. Only images 2 and 3 are adjusted upward inside the existing Home image frame; Home logo/header, Next Gig/No Gig card, alert pills, social buttons, tab bar, locked default gaps, all other Home images, Calendar, Songs, Setlists, Chat, Mates, Pay, data, assets, and notifications are unchanged.', items:['Upload index_r879.html as index.html.','Confirm Build Version reports r879.','Home → Band Image selector: check image 2 and image 3 only.','Confirm the image itself is higher inside the same frame and the Home default gaps did not move.','Images 7, 8, 9, 10, 13, 14, 15, 16, 17, and 18 remain intentionally deferred.'] },
