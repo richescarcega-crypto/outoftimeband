@@ -36077,7 +36077,7 @@ var HOME_IMAGE_PRESENTATION = {
   },
   2: {
     normal: {
-      img: { widthPct: 108, xPx: 4, yPct: -62.2 },
+      img: { widthPct: 108, xPx: 4, yPct: -63.2 },
       buttons: { gapPx: 7, sizePx: 33, iconPx: 16, xPx: 8, yPx: 3, scale: 1 }
     },
     rehearsal: {
@@ -36087,7 +36087,7 @@ var HOME_IMAGE_PRESENTATION = {
   },
   3: {
     normal: {
-      img: { yPct: -56.2 },
+      img: { yPct: -57.2 },
       buttons: { gapPx: 7, sizePx: 33, iconPx: 16, xPx: 8, yPx: 3, scale: 1 }
     },
     rehearsal: {
@@ -38853,7 +38853,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-29-home-image-02-03-ypct-lift-r879';
+var WHATS_NEW_VERSION = '2026-05-29-home-image-02-03-additional-lift-r880';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -39198,6 +39198,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-29-home-image-02-03-additional-lift-r880', date:'May 29, 2026', importance:'fix', emoji:'🖼️', title:'Home images 2 and 3 lifted further', body:'Applies a second targeted registry-only Home image framing adjustment for images 2 and 3 after phone review showed the first lift was not enough. Uses the established percentage-based HOME_IMAGE_PRESENTATION yPct path and moves only images 2 and 3 further upward inside the same Home image frame. Home logo/header, Next Gig/No Gig card, alert pills, social buttons, tab bar, locked default gaps, all other Home images, Calendar, Songs, Setlists, Chat, Mates, Pay, data, assets, and notifications are unchanged.', items:['Upload index_r880.html as index.html.','Confirm Build Version reports r880.','Home → Band Image selector: check image 2 and image 3 only.','Confirm both sit slightly higher than r879 while the Home default gaps and surrounding layout remain unchanged.','All other requested image moves remain deferred until images 2 and 3 are confirmed.'] },
   { version:'2026-05-29-home-image-02-03-ypct-lift-r879', date:'May 29, 2026', importance:'fix', emoji:'🖼️', title:'Home images 2 and 3 registry correction', body:'Corrects the image 2 and image 3 Home placement adjustment by using the established percentage-based HOME_IMAGE_PRESENTATION yPct path instead of the newer yPx offset path. Only images 2 and 3 are adjusted upward inside the existing Home image frame; Home logo/header, Next Gig/No Gig card, alert pills, social buttons, tab bar, locked default gaps, all other Home images, Calendar, Songs, Setlists, Chat, Mates, Pay, data, assets, and notifications are unchanged.', items:['Upload index_r879.html as index.html.','Confirm Build Version reports r879.','Home → Band Image selector: check image 2 and image 3 only.','Confirm the image itself is higher inside the same frame and the Home default gaps did not move.','Images 7, 8, 9, 10, 13, 14, 15, 16, 17, and 18 remain intentionally deferred.'] },
   { version:'2026-05-29-home-image-02-03-lift-r878', date:'May 29, 2026', importance:'fix', emoji:'🖼️', title:'Home images 2 and 3 lifted', body:'Moves only Home band images 2 and 3 upward 5px inside the existing Home image frame using the central Home Image Presentation registry/renderer. Home logo/header, Next Gig/No Gig card, alert pills, social buttons, tab bar, locked default gaps, all other Home images, Calendar, Songs, Setlists, Chat, Mates, Pay, data, assets, and notifications are unchanged.', items:['Upload index_r878.html as index.html.','Confirm Build Version reports r878.','Home → Band Image selector: check image 2 and image 3 only; both should sit 5px higher in the same frame.','Confirm the Home default gaps, logo/header, Next Gig/No Gig card, alert pills, social buttons, and tab bar did not move.','Do not evaluate images 7/8/etc. in this build; they were intentionally left unchanged for the two-at-a-time workflow.'] },
   { version:'2026-05-29-calendar-save-spacing-corrections-r877', date:'May 29, 2026', importance:'fix', emoji:'✅', title:'Calendar save and spacing corrections', body:'Corrects the r876 Calendar follow-up by restoring breathing room to New Gig and Blackout form fields, forcing Calendar Gig/Rehearsal/Blackout/Important Date save controls to the approved green circular checkmark despite older high-specificity yellow rules, and ensuring Edit Gig has a visible green save icon. Calendar grid/body, Home, Songs, Setlists, Chat, Mates, Pay, flyer rendering, notifications, and data models are unchanged.', items:['Upload index_r877.html as index.html.','Confirm Build Version reports r877.','Create Gig: confirm labels/fields have breathing room and the green save check is visible/reachable.','Create Rehearsal: confirm the save check is green, not yellow.','Create and Edit Blackout Date: confirm the save check is green, not yellow.','Existing Gig → Edit: confirm the green save check appears and saves.','Spot-check Edit Important Date save remains green and start/end time fields remain usable.'] },
