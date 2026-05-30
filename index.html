@@ -17557,6 +17557,43 @@ body.light #song-picker .song-picker-head-r886, body.light #setlist-remove-song-
 body.light #se.setlist-reorder-r887 #eh{background:linear-gradient(180deg,rgba(245,247,251,.98),rgba(245,247,251,.92)) !important;}
 body.light #se.setlist-reorder-r887 .setlist-edit-hero-r886.setlist-edit-hero-r887{background:linear-gradient(180deg,#ffffff,#eef4ff) !important;border-color:rgba(26,58,138,.36) !important;box-shadow:0 10px 24px rgba(20,40,80,.12) !important;}
 
+
+
+/* r888: Setlists expanded-header back affordance + reorder drag clone cleanup. */
+#sc-sets .setlist-back-pill-r888{
+  height:28px !important;
+  min-width:0 !important;
+  padding:0 9px !important;
+  border-radius:999px !important;
+  border:1px solid rgba(245,197,24,.42) !important;
+  background:linear-gradient(135deg,rgba(245,197,24,.16),rgba(7,18,39,.86)) !important;
+  color:#f5c518 !important;
+  font-family:Russo One,sans-serif !important;
+  font-size:9px !important;
+  letter-spacing:.5px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  flex-shrink:0 !important;
+  cursor:pointer !important;
+  touch-action:manipulation !important;
+  box-shadow:0 0 10px rgba(245,197,24,.12) !important;
+}
+#sc-sets .setlist-back-pill-r888:active{
+  transform:scale(.96) !important;
+}
+body .setlist-reorder-drag-clone-r888 .song-youtube-btn,
+body .setlist-reorder-drag-clone-r888 .setlist-expanded-yt{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+body.light #sc-sets .setlist-back-pill-r888{
+  background:#fff !important;
+  color:#9a6a00 !important;
+  border-color:rgba(154,106,0,.45) !important;
+}
+
 </style>
 </head>
 <body>
@@ -34031,6 +34068,15 @@ function rSets() {
       '</div>';
     div.setAttribute('data-id', s.id);
     if(isExpanded){
+      var backBtnR888 = document.createElement('button');
+      backBtnR888.type = 'button';
+      backBtnR888.className = 'setlist-back-pill-r888';
+      backBtnR888.textContent = '‹ Setlists';
+      backBtnR888.setAttribute('aria-label','Back to Setlists');
+      backBtnR888.setAttribute('title','Back to Setlists');
+      backBtnR888.onclick = function(e){ e.stopPropagation(); window._expandedSetlistId = null; rSets(); };
+      div.insertBefore(backBtnR888, div.firstChild);
+
       var expMenuBtn = document.createElement('button');
       expMenuBtn.type = 'button';
       expMenuBtn.className = 'setlist-expanded-kebab';
@@ -34652,6 +34698,8 @@ function initSongTouch(div, grip){
     // Create floating clone
     var rect = div.getBoundingClientRect();
     clone = div.cloneNode(true);
+    clone.classList.add('setlist-reorder-drag-clone-r888');
+    Array.prototype.slice.call(clone.querySelectorAll('.song-youtube-btn,.setlist-expanded-yt')).forEach(function(b){ b.remove(); });
     clone.style.cssText = 'position:fixed;left:'+rect.left+'px;top:'+rect.top+'px;width:'+rect.width+'px;z-index:9999;pointer-events:none;opacity:.85;background:#1a3a8a;border-radius:8px;box-shadow:0 8px 30px rgba(245,197,24,.4);';
     document.body.appendChild(clone);
   }, {passive:true});
@@ -39058,7 +39106,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-30-setlist-reorder-cleanup-r887';
+var WHATS_NEW_VERSION = '2026-05-30-setlists-back-and-drag-cleanup-r888';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -39403,6 +39451,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-30-setlists-back-and-drag-cleanup-r888', date:'May 30, 2026', importance:'fix', emoji:'🎵', title:'Setlists back cue and drag cleanup', body:'Adds a small visible back affordance to the expanded Setlist header while preserving the existing header-tap return behavior, and removes the old red YouTube icon from the Rename/Reorder drag clone so it cannot reappear while holding the reorder handle. Scope is Setlists only; drag/reorder, delete icons, save flow, opened-setlist behavior, and other tabs are unchanged.', items:['Upload index_r888.html as index.html.','Confirm Build Version reports r888.','Open an existing setlist and confirm the ‹ Setlists back cue returns to the Setlists list.','Confirm tapping the expanded setlist header still returns to the list as before.','Rename / Reorder: hold the drag handle and confirm no red YouTube icon appears in the dragged row.','Confirm trash icons, drag/reorder, and green save still work.'] },
   { version:'2026-05-30-setlist-reorder-cleanup-r887', date:'May 30, 2026', importance:'fix', emoji:'🎼', title:'Setlist reorder cleanup', body:'Cleans up the Rename / Reorder Setlist screen only: moves the X to the right side, makes the green save check obvious, separates the title and subtitle cleanly, removes the Linked Gig card in reorder mode, and keeps the reorder song list scroll-safe. Add Song, Remove Song, Share Setlist, Delete Setlist, Home, Calendar, Songs, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r887.html as index.html.','Confirm Build Version reports r887.','Setlists → choose a setlist → kebab → Rename / Reorder.','Confirm the X is on the right, green save check is clearly visible, the header/title is clean, the Linked Gig card is gone, and the song list still scrolls/reorders.','Spot-check Add Song and Remove Song still retain their r886 sticky header fixes.'] },
   { version:'2026-05-30-setlists-targeted-header-scroll-r886', date:'May 30, 2026', importance:'fix', emoji:'🎼', title:'Setlists header and scroll cleanup', body:'Applies a targeted Setlists audit pass. Pick Songs now uses the newer sticky header style, Remove Song keeps its header sticky while the song list scrolls, and Rename/Reorder has a new sticky header with cancel/back and green save controls plus a scroll-safe song list. Setlist data/actions, Home, Calendar, Songs, Chat, Mates, Pay, flyer rendering, notifications, assets, and default Home gaps are unchanged.', items:['Upload index_r886.html as index.html.','Confirm Build Version reports r886.','Setlists → selected setlist → kebab → Add Song to Setlist: Pick Songs should have the new sticky header and still add songs.','Setlists → selected setlist → kebab → Remove Song: header/X should stay visible while the remove list scrolls.','Setlists → selected setlist → kebab → Rename / Reorder: page should have a new sticky header, visible cancel/back X, visible green save icon, and the song list should scroll.','Confirm navigating away and back does not trap the Setlists tab in an unclosable edit page.'] },
   { version:'2026-05-29-shared-prompt-header-audit-r885', date:'May 29, 2026', importance:'fix', emoji:'✨', title:'Shared prompt header polished', body:'Continues the targeted modal/header audit by applying the What’s-New-style star badge and centered gold title treatment to the generic text-entry prompt dialog only. Prompt input, SAVE/CANCEL buttons, prompt handlers, destructive confirm dialog, flyer workflow, Home, Calendar, Songs, Setlists, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r885.html as index.html.','Confirm Build Version reports r885.','Open any rename/text prompt, such as a setlist rename if available: confirm the prompt header uses the star/centered-title style.','Confirm the prompt input, SAVE, and CANCEL still work normally.','Spot-check Home kebab and Contact Edit save from r884 still look good.'] },
