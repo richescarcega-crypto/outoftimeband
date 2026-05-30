@@ -12229,6 +12229,35 @@ body.light #votes-modal.suggest-mode #suggest-youtube-open.suggest-youtube-link-
 }
 
 
+/* r890: Suggest-a-Song save check + URL first-paste focus guard.
+   Replace the old large Submit pill with the app-standard green circular check and
+   keep the submit control reachable without changing suggestion submit logic. */
+#votes-modal.suggest-mode #suggest-form .suggest-submit-row{
+  display:flex !important;
+  justify-content:flex-end !important;
+  align-items:center !important;
+  padding:4px 2px 2px !important;
+  margin-top:8px !important;
+  flex:0 0 auto !important;
+}
+#votes-modal.suggest-mode #suggest-submit-check.oot-save-check-btn{
+  width:38px !important;
+  height:38px !important;
+  min-width:38px !important;
+  max-width:38px !important;
+  padding:0 !important;
+  border-radius:50% !important;
+}
+#votes-modal.suggest-keyboard-active.suggest-mode #suggest-form .suggest-submit-row{
+  margin-top:6px !important;
+  padding-bottom:calc(8px + env(safe-area-inset-bottom)) !important;
+}
+#votes-modal.suggest-mode #suggest-url:focus{
+  outline:none !important;
+  border-color:rgba(245,197,24,.82) !important;
+  box-shadow:0 0 0 1px rgba(245,197,24,.35),0 0 12px rgba(245,197,24,.18) !important;
+}
+
 /* r753: Song Suggestions remove action consistency.
    Replace the old lower "Remove suggestion" text pill with the same red trash-can
    icon language used elsewhere in the app. Scoped to the Songs vote/suggestion modal only. */
@@ -18139,14 +18168,14 @@ body.light #sc-sets .setlist-back-pill-r888{
       <input class="fi2" id="suggest-note" placeholder="Why this song? (optional)" autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true" inputmode="text" enterkeyhint="next" data-lpignore="true" data-form-type="other" onfocus="_ootSuggestKeyboardMode(true,this)" oninput="_ootSuggestSentenceInput(this)" onchange="_ootSuggestSentenceCommit(this)" onblur="_ootSuggestSentenceCommit(this);_ootSuggestKeyboardMode(false,this)">
       <div class="suggest-youtube-field-label">YouTube link <span>(optional)</span></div>
       <div class="suggest-youtube-url-row">
-        <input class="fi2" id="suggest-url" placeholder="Paste YouTube URL" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="url" data-lpignore="true" data-form-type="other" onpointerdown="_markSuggestManualEditAfterReturn('url-pointer')" ontouchstart="_markSuggestManualEditAfterReturn('url-touch')" onmousedown="_markSuggestManualEditAfterReturn('url-mouse')" onfocus="_markSuggestManualEditAfterReturn('url-focus');_ootSuggestKeyboardMode(true,this)" onbeforeinput="_markSuggestManualEditAfterReturn('url-beforeinput')" onpaste="_markSuggestManualEditAfterReturn('url-paste')" oninput="_markSuggestManualEditAfterReturn('url-input')" onchange="_markSuggestManualEditAfterReturn('url-change')" onblur="_ootSuggestKeyboardMode(false,this)">
+        <input class="fi2" id="suggest-url" placeholder="Paste YouTube URL" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="url" data-lpignore="true" data-form-type="other" onpointerdown="_markSuggestManualEditAfterReturn('url-pointer');_ootSuggestUrlFocusGuard(this)" ontouchstart="_markSuggestManualEditAfterReturn('url-touch');_ootSuggestUrlFocusGuard(this)" onmousedown="_markSuggestManualEditAfterReturn('url-mouse');_ootSuggestUrlFocusGuard(this)" onfocus="_markSuggestManualEditAfterReturn('url-focus');_ootSuggestKeyboardMode(true,this);_ootSuggestUrlFocusGuard(this)" onbeforeinput="_markSuggestManualEditAfterReturn('url-beforeinput')" onpaste="_markSuggestManualEditAfterReturn('url-paste');_ootSuggestUrlFocusGuard(this)" oninput="_markSuggestManualEditAfterReturn('url-input')" onchange="_markSuggestManualEditAfterReturn('url-change')" onblur="_ootSuggestKeyboardMode(false,this)">
         <button type="button" id="suggest-youtube-open" class="suggest-youtube-link-control" onclick="openSuggestYouTubeLookup()" aria-label="Find a YouTube link for this song suggestion">
           <span class="suggest-youtube-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="1.5" y="5" width="21" height="14" rx="3.5" fill="#ff0000"></rect><polygon points="10,9 16,12 10,15" fill="#fff"></polygon></svg></span>
           <span class="suggest-youtube-label">Find link</span>
         </button>
       </div>
-      <div class="r2" style="margin-top:8px;">
-        <button class="sb" onclick="submitSuggestion()" style="width:100%;">Submit</button>
+      <div class="r2 suggest-submit-row" style="margin-top:8px;">
+        <button id="suggest-submit-check" class="oot-save-check-btn" onclick="submitSuggestion()" type="button" aria-label="Submit song suggestion" title="Submit song suggestion"></button>
       </div>
     </div>
     <button class="ab" id="votes-modal-suggest-inline" onclick="openSongSuggestModal()">+ Suggest a Song</button>
@@ -33252,6 +33281,24 @@ function _ootSuggestKeyboardMode(active, el){
     }, 220);
   }
 }
+function _ootSuggestUrlFocusGuard(el){
+  try{
+    if(!el) return;
+    var keep = function(){
+      try{
+        if(!el || !document.body.contains(el)) return;
+        if(document.activeElement !== el){
+          try{ el.focus({preventScroll:true}); }catch(e){ try{ el.focus(); }catch(e2){} }
+        }
+        try{
+          var n = (el.value || '').length;
+          if(typeof el.setSelectionRange === 'function') el.setSelectionRange(n,n);
+        }catch(e3){}
+      }catch(e4){}
+    };
+    [30,90,180,320].forEach(function(ms){ setTimeout(keep, ms); });
+  }catch(e){}
+}
 function _setSongSuggestionsModalMode(mode){
   var ov = document.getElementById('votes-modal');
   var card = document.getElementById('votes-modal-card');
@@ -39162,7 +39209,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-30-song-suggestions-header-audit-r889';
+var WHATS_NEW_VERSION = '2026-05-30-suggest-song-save-url-focus-r890';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -39507,6 +39554,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-30-suggest-song-save-url-focus-r890', date:'May 30, 2026', importance:'fix', emoji:'🎸', title:'Suggest a Song submit and URL focus', body:'Replaces the large yellow Suggest a Song Submit button with the app-standard green circular checkmark and hardens the YouTube URL field so first-tap paste keeps focus in the URL input instead of jumping away. Song suggestion submission, YouTube helper/return behavior, voting, Songs list/search, Setlists, Home, Calendar, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r890.html as index.html.','Confirm Build Version reports r890.','Songs → kebab → Suggest a Song: confirm the large yellow Submit button is gone and the green circular checkmark submits.','Tap/paste into the YouTube URL field on the first attempt and confirm the cursor stays in the URL field.','Spot-check Vote on Suggestions and the YouTube Find link helper still work.'] },
   { version:'2026-05-30-song-suggestions-header-audit-r889', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'Song Suggestions header polished', body:'Continues the targeted modal/header audit by applying a compact What’s-New-style star badge and centered gold title treatment to the Songs Vote/Suggest modal header. Voting, suggestion submission, YouTube helper, keyboard-safe Suggest mode, close behavior, Home, Calendar, Setlists, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r889.html as index.html.','Confirm Build Version reports r889.','Songs → kebab → Vote on Suggestions: confirm the modal header has the compact star/centered-title style and voting still works.','Songs → kebab → Suggest a Song: confirm the header style appears when not typing, fields and Submit still work, and keyboard mode remains usable.','Spot-check Setlists r888 back cue and drag cleanup.'] },
   { version:'2026-05-30-setlists-back-and-drag-cleanup-r888', date:'May 30, 2026', importance:'fix', emoji:'🎵', title:'Setlists back cue and drag cleanup', body:'Adds a small visible back affordance to the expanded Setlist header while preserving the existing header-tap return behavior, and removes the old red YouTube icon from the Rename/Reorder drag clone so it cannot reappear while holding the reorder handle. Scope is Setlists only; drag/reorder, delete icons, save flow, opened-setlist behavior, and other tabs are unchanged.', items:['Upload index_r888.html as index.html.','Confirm Build Version reports r888.','Open an existing setlist and confirm the ‹ Setlists back cue returns to the Setlists list.','Confirm tapping the expanded setlist header still returns to the list as before.','Rename / Reorder: hold the drag handle and confirm no red YouTube icon appears in the dragged row.','Confirm trash icons, drag/reorder, and green save still work.'] },
   { version:'2026-05-30-setlist-reorder-cleanup-r887', date:'May 30, 2026', importance:'fix', emoji:'🎼', title:'Setlist reorder cleanup', body:'Cleans up the Rename / Reorder Setlist screen only: moves the X to the right side, makes the green save check obvious, separates the title and subtitle cleanly, removes the Linked Gig card in reorder mode, and keeps the reorder song list scroll-safe. Add Song, Remove Song, Share Setlist, Delete Setlist, Home, Calendar, Songs, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r887.html as index.html.','Confirm Build Version reports r887.','Setlists → choose a setlist → kebab → Rename / Reorder.','Confirm the X is on the right, green save check is clearly visible, the header/title is clean, the Linked Gig card is gone, and the song list still scrolls/reorders.','Spot-check Add Song and Remove Song still retain their r886 sticky header fixes.'] },
