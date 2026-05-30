@@ -17539,6 +17539,24 @@ body.light .setlist-edit-hero-r886{background:linear-gradient(180deg,#ffffff,#ee
 body.light .setlist-edit-controls-r886{background:#fff !important;border-color:rgba(184,134,11,.35) !important;}
 body.light #song-picker .song-picker-head-r886, body.light #setlist-remove-song-sheet .setlist-remove-sticky-head-r886{background:linear-gradient(135deg,#ffffff,#eef4ff) !important;border-bottom-color:rgba(184,134,11,.45) !important;}
 
+/* r887: Rename/Reorder Setlist cleanup only.
+   Scope: Setlists Rename/Reorder edit view. Keeps Add Song, Remove Song, Share, Delete,
+   Home, Calendar, Songs, Chat, Mates, Pay, assets, data, and notifications unchanged. */
+#se.setlist-reorder-r887{padding-top:8px !important;}
+#se.setlist-reorder-r887 #eh{position:sticky !important;top:0 !important;z-index:80 !important;background:linear-gradient(180deg,rgba(6,14,28,.98),rgba(6,14,28,.92)) !important;padding:0 0 8px !important;}
+#se.setlist-reorder-r887 .setlist-edit-hero-r886.setlist-edit-hero-r887{position:relative !important;min-height:118px !important;border-radius:14px !important;margin:0 0 8px !important;padding:12px 58px 12px !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;gap:5px !important;}
+#se.setlist-reorder-r887 .setlist-edit-hero-r887 .setlist-edit-star-r886{position:static !important;transform:none !important;width:36px !important;height:36px !important;min-width:36px !important;font-size:20px !important;margin:0 auto 1px !important;}
+#se.setlist-reorder-r887 .setlist-edit-hero-r887 .setlist-edit-title-r886{position:static !important;left:auto !important;right:auto !important;top:auto !important;bottom:auto !important;width:100% !important;max-width:100% !important;text-align:center !important;font-size:17px !important;line-height:1.16 !important;letter-spacing:.8px !important;white-space:normal !important;overflow:hidden !important;display:-webkit-box !important;-webkit-line-clamp:2 !important;-webkit-box-orient:vertical !important;}
+#se.setlist-reorder-r887 .setlist-edit-hero-r887 .setlist-edit-sub-r886{position:static !important;left:auto !important;right:auto !important;top:auto !important;bottom:auto !important;width:100% !important;text-align:center !important;font-size:11px !important;line-height:1.2 !important;color:#8aa8d6 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;}
+#se.setlist-reorder-r887 .setlist-edit-x-r886{left:auto !important;right:10px !important;top:10px !important;width:38px !important;height:38px !important;border-radius:50% !important;color:#f5c518 !important;border:1px solid rgba(245,197,24,.58) !important;background:rgba(6,14,28,.72) !important;box-shadow:0 0 16px rgba(245,197,24,.18) !important;z-index:95 !important;}
+#se.setlist-reorder-r887 .setlist-edit-save-r887{position:absolute !important;left:10px !important;right:auto !important;top:10px !important;width:38px !important;height:38px !important;min-width:38px !important;border-radius:50% !important;border:1px solid rgba(43,224,130,.72) !important;background:linear-gradient(135deg,#0fb85f,#2be082) !important;color:#06140b !important;display:flex !important;align-items:center !important;justify-content:center !important;box-shadow:0 0 18px rgba(43,224,130,.36), inset 0 1px 0 rgba(255,255,255,.28) !important;padding:0 !important;z-index:95 !important;font-family:Russo One,sans-serif !important;font-size:22px !important;line-height:1 !important;}
+#se.setlist-reorder-r887 .setlist-save-check-r887{display:block !important;transform:translateY(-1px) !important;color:#06140b !important;text-shadow:0 1px 0 rgba(255,255,255,.24) !important;}
+#se.setlist-reorder-r887 .setlist-edit-controls-r886{padding:0 !important;margin:0 0 8px !important;border:none !important;background:transparent !important;box-shadow:none !important;}
+#se.setlist-reorder-r887 .setlist-edit-help-r886{font-size:12px !important;line-height:1.35 !important;margin:0 !important;padding:0 4px !important;color:#f5c518 !important;}
+#se.setlist-reorder-r887 #ssl{padding-bottom:16px !important;}
+body.light #se.setlist-reorder-r887 #eh{background:linear-gradient(180deg,rgba(245,247,251,.98),rgba(245,247,251,.92)) !important;}
+body.light #se.setlist-reorder-r887 .setlist-edit-hero-r886.setlist-edit-hero-r887{background:linear-gradient(180deg,#ffffff,#eef4ff) !important;border-color:rgba(26,58,138,.36) !important;box-shadow:0 10px 24px rgba(20,40,80,.12) !important;}
+
 </style>
 </head>
 <body>
@@ -34400,25 +34418,29 @@ function _r636RenderSetlistGigPrompt(container){
 
 function nwSL() { _r636CreateSetlistModal(); }
 function opSL(id){aSL=id;setsViewState='edit';document.getElementById('si').style.display='none';document.getElementById('se').style.display='flex';rEd();}
-function clEd(){setsViewState='list';document.getElementById('si').style.display='flex';document.getElementById('se').style.display='none';eSID=null;reorderMode=false;rSets();}
+function clEd(){setsViewState='list';document.getElementById('si').style.display='flex';try{document.getElementById('se').classList.remove('setlist-reorder-r887');}catch(e){}document.getElementById('se').style.display='none';eSID=null;reorderMode=false;rSets();}
 function rEd() {
   var s=sets.find(function(x){return x.id==aSL;});
   if(!s)return;
+  try{
+    var seEl = document.getElementById('se');
+    if(seEl){ seEl.classList.toggle('setlist-reorder-r887', !!reorderMode); }
+  }catch(e){}
   var _slPal = _slGradientForId(s.id);
   var totalSecs=getSetDuration(s.songs);
   var durStr = totalSecs>0 ? ' · &#9201; '+formatDuration(totalSecs) : '';
   // r278: standalone edit/share controls moved toward a kebab action pattern.
   var _slLight = _slIsLight();
   document.getElementById('eh').innerHTML =
-    '<div class="setlist-edit-hero-r886">'+
+    '<div class="setlist-edit-hero-r886 '+(reorderMode?'setlist-edit-hero-r887':'')+'">'+
       '<button type="button" class="setlist-edit-x-r886" onclick="clEd()" aria-label="Cancel and return to setlists">×</button>'+
       '<div class="setlist-edit-star-r886">✨</div>'+
       '<div class="setlist-edit-title-r886" style="background:'+_slPal.gradient+';-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 18px '+_slPal.glow+';">'+s.name+'</div>'+
       '<div class="setlist-edit-sub-r886">'+s.songs.length+' songs'+durStr+'</div>'+
-      (reorderMode ? '<button id="sl-save-order-icon" class="oot-save-icon-btn setlist-edit-save-r886" onclick="finishSetlistReorderAndReturn()" type="button" title="Save order" aria-label="Save order"><img src="save_icon_r461.png" alt="" aria-hidden="true"></button>' : '<span class="setlist-edit-save-spacer-r886" aria-hidden="true"></span>')+
+      (reorderMode ? '<button id="sl-save-order-icon" class="setlist-edit-save-r887" onclick="finishSetlistReorderAndReturn()" type="button" title="Save order" aria-label="Save order"><span class="setlist-save-check-r887" aria-hidden="true">✓</span></button>' : '<span class="setlist-edit-save-spacer-r886" aria-hidden="true"></span>')+
     '</div>'+
     '<div class="setlist-edit-controls-r886">'+
-      _r633SetlistGigSelectHtml(s)+
+      (reorderMode ? '' : _r633SetlistGigSelectHtml(s))+
       '<div class="setlist-edit-help-r886" style="color:'+(reorderMode?'#f5c518':'#c7d6f3')+';">'+(reorderMode?'Hold ≡ and drag to reorder · tap the green save icon to finish':'Use Add Songs below or Setlist Actions for share, manage, rename, reorder, and delete')+'</div>'+
     '</div>';
 
@@ -39036,7 +39058,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-30-setlists-targeted-header-scroll-r886';
+var WHATS_NEW_VERSION = '2026-05-30-setlist-reorder-cleanup-r887';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -39381,6 +39403,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-30-setlist-reorder-cleanup-r887', date:'May 30, 2026', importance:'fix', emoji:'🎼', title:'Setlist reorder cleanup', body:'Cleans up the Rename / Reorder Setlist screen only: moves the X to the right side, makes the green save check obvious, separates the title and subtitle cleanly, removes the Linked Gig card in reorder mode, and keeps the reorder song list scroll-safe. Add Song, Remove Song, Share Setlist, Delete Setlist, Home, Calendar, Songs, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r887.html as index.html.','Confirm Build Version reports r887.','Setlists → choose a setlist → kebab → Rename / Reorder.','Confirm the X is on the right, green save check is clearly visible, the header/title is clean, the Linked Gig card is gone, and the song list still scrolls/reorders.','Spot-check Add Song and Remove Song still retain their r886 sticky header fixes.'] },
   { version:'2026-05-30-setlists-targeted-header-scroll-r886', date:'May 30, 2026', importance:'fix', emoji:'🎼', title:'Setlists header and scroll cleanup', body:'Applies a targeted Setlists audit pass. Pick Songs now uses the newer sticky header style, Remove Song keeps its header sticky while the song list scrolls, and Rename/Reorder has a new sticky header with cancel/back and green save controls plus a scroll-safe song list. Setlist data/actions, Home, Calendar, Songs, Chat, Mates, Pay, flyer rendering, notifications, assets, and default Home gaps are unchanged.', items:['Upload index_r886.html as index.html.','Confirm Build Version reports r886.','Setlists → selected setlist → kebab → Add Song to Setlist: Pick Songs should have the new sticky header and still add songs.','Setlists → selected setlist → kebab → Remove Song: header/X should stay visible while the remove list scrolls.','Setlists → selected setlist → kebab → Rename / Reorder: page should have a new sticky header, visible cancel/back X, visible green save icon, and the song list should scroll.','Confirm navigating away and back does not trap the Setlists tab in an unclosable edit page.'] },
   { version:'2026-05-29-shared-prompt-header-audit-r885', date:'May 29, 2026', importance:'fix', emoji:'✨', title:'Shared prompt header polished', body:'Continues the targeted modal/header audit by applying the What’s-New-style star badge and centered gold title treatment to the generic text-entry prompt dialog only. Prompt input, SAVE/CANCEL buttons, prompt handlers, destructive confirm dialog, flyer workflow, Home, Calendar, Songs, Setlists, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r885.html as index.html.','Confirm Build Version reports r885.','Open any rename/text prompt, such as a setlist rename if available: confirm the prompt header uses the star/centered-title style.','Confirm the prompt input, SAVE, and CANCEL still work normally.','Spot-check Home kebab and Contact Edit save from r884 still look good.'] },
   { version:'2026-05-29-targeted-save-header-audit-r884', date:'May 29, 2026', importance:'fix', emoji:'✅', title:'Targeted save/header audit pass', body:'Continues the active UI audit with two safe fixes: lifts the Home kebab/menu button visually above the logo border without changing the locked Home logo/gaps/image layout, and converts only the Contact Edit true-save action to the approved green circular checkmark while leaving Add Contact as a normal create CTA. Calendar, Songs, Setlists, Chat, Mates roster, Pay, assets, data, notifications, and Home image registry are unchanged.', items:['Upload index_r884.html as index.html.','Confirm Build Version reports r884.','Home: confirm the kebab/menu button is no longer tucked behind the logo border and the logo/gaps/images did not move.','Mates → Contacts → Edit Contact: confirm the save action is the green circular checkmark and still saves.','Mates → Contacts → Add Contact: confirm Add Contact remains a normal create button, not a green check.','Spot-check Calendar save/header fixes from r883 still look good.'] },
