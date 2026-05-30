@@ -1124,7 +1124,7 @@ body.light #cal-drawer.backstage-pass .cal-flyer-thumb-help{color:#3a4a6a !impor
 #chat-threads{padding:0 12px 14px;background:transparent !important;}
 #chat-threads > div{margin:0 0 8px !important;border:1px solid rgba(74,158,255,.18) !important;border-left:1px solid rgba(74,158,255,.18) !important;border-radius:8px !important;background:linear-gradient(135deg,rgba(16,30,52,.96),rgba(8,18,37,.96)) !important;box-shadow:0 8px 16px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.04) !important;}
 #chat-threads > div:hover{background:linear-gradient(135deg,rgba(21,42,76,.98),rgba(10,23,48,.98)) !important;}
-#chat-threads .chat-band-divider{margin:17px auto 17px !important;width:min(86%,340px) !important;height:5px !important;border:0 !important;border-radius:999px !important;background:linear-gradient(90deg,transparent 0%,rgba(255,212,0,.50) 10%,rgba(255,241,122,.96) 31%,#ffbf00 50%,rgba(255,241,122,.96) 69%,rgba(255,212,0,.50) 90%,transparent 100%) !important;box-shadow:0 0 20px rgba(255,191,0,.62),0 0 7px rgba(255,241,122,.32),0 1px 0 rgba(255,255,255,.45) inset !important;padding:0 !important;flex:0 0 auto !important;}
+#chat-threads .chat-band-divider{margin:17px auto 17px !important;width:min(86%,340px) !important;height:1px !important;border:0 !important;border-radius:999px !important;background:linear-gradient(90deg, transparent, rgba(245,197,24,.75), transparent) !important;box-shadow:none !important;padding:0 !important;flex:0 0 auto !important;}
 #chat-threads .chat-thread-row.chat-band-row{margin-bottom:0 !important;}
 #chat-threads .chat-thread-row.chat-member-row:first-of-type{margin-top:0 !important;}
 .chat-thread-header{border-bottom-color:rgba(245,197,24,.18) !important;box-shadow:0 8px 20px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.05);}
@@ -1147,7 +1147,7 @@ body.light .chat-logo-stamp{border-color:rgba(180,140,10,.42);box-shadow:0 6px 1
 body.light .chat-backstage-kicker{color:transparent !important;-webkit-text-fill-color:transparent !important;}
 body.light .chat-backstage-sub{color:#3a4a6a;}
 body.light #chat-threads > div{background:#fff !important;border-color:#d8e0ee !important;box-shadow:0 5px 14px rgba(20,40,80,.08) !important;}
-body.light #chat-threads .chat-band-divider{background:linear-gradient(90deg,transparent 0%,rgba(184,134,11,.32) 14%,#b8860b 50%,rgba(184,134,11,.32) 86%,transparent 100%) !important;box-shadow:0 0 10px rgba(184,134,11,.26) !important;}
+body.light #chat-threads .chat-band-divider{background:linear-gradient(90deg, transparent, rgba(245,197,24,.75), transparent) !important;box-shadow:none !important;}
 body.light #cmsgs{background:linear-gradient(180deg,#f7f9ff,#eef3ff) !important;}
 #cmsgs{overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:8px;padding-bottom:8px;min-height:0;flex:1 1 0;}
 .dsep{text-align:center;font-size:10px;color:#aaa;padding:6px 0;font-family:"Russo One",sans-serif;}
@@ -18110,20 +18110,22 @@ body.light #sc-sets .setlist-back-pill-r888{
   border-color:rgba(255,56,78,.88) !important;
   box-shadow:0 10px 22px rgba(0,0,0,.30),0 0 18px rgba(255,56,78,.20),inset 0 1px 0 rgba(255,255,255,.07) !important;
 }
-#sc-sets .r636-setlist-gig-prompt::before,
+#sc-sets .r636-setlist-gig-prompt::before{
+  content:none !important;
+  display:none !important;
+}
 #sc-sets .r636-setlist-gig-prompt::after{
   content:"" !important;
   position:absolute !important;
   left:0 !important;
   right:0 !important;
-  height:2px !important;
+  bottom:-10px !important;
+  height:1px !important;
   border-radius:999px !important;
-  background:linear-gradient(90deg,transparent,rgba(245,197,24,.92),rgba(255,216,74,.72),rgba(245,197,24,.92),transparent) !important;
-  box-shadow:0 0 10px rgba(245,197,24,.26) !important;
+  background:linear-gradient(90deg, transparent, rgba(245,197,24,.75), transparent) !important;
+  box-shadow:none !important;
   pointer-events:none !important;
 }
-#sc-sets .r636-setlist-gig-prompt::before{top:-10px !important;}
-#sc-sets .r636-setlist-gig-prompt::after{bottom:-10px !important;}
 #sc-sets .r636-setlist-gig-prompt button{
   border-color:rgba(255,56,78,.78) !important;
   box-shadow:0 0 12px rgba(255,56,78,.18) !important;
@@ -39668,7 +39670,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-30-safe-calendar-setlists-fixes-r898';
+var WHATS_NEW_VERSION = '2026-05-30-setlists-chat-divider-refine-r899';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40013,6 +40015,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-30-setlists-chat-divider-refine-r899', date:'May 30, 2026', importance:'fix', emoji:'🎼', title:'Setlists and Chat divider refinement', body:'Refines the Setlists Upcoming Gig Needs a Setlist separator by removing the top gold line, keeping only the lower separator with the same decorative gold-line color family used under the Setlists Performance Runs hero, and preserving vertical breathing room around the line. Also updates the Chat Band Chat separator to use the same decorative line style for consistency. Home, Calendar, Songs, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r899.html as index.html.','Confirm Build Version reports r899.','Setlists: confirm the Upcoming Gig Needs a Setlist pill has no top gold line.','Confirm the remaining lower line uses the same subtle gold decorative-line look as the Performance Runs header line and has breathing room above and below.','Chat: confirm the divider under Band Chat now uses the same subtle gold decorative-line style.'] },
   { version:'2026-05-30-safe-calendar-setlists-fixes-r898', date:'May 30, 2026', importance:'fix', emoji:'🛠️', title:'Calendar and Setlists fixes restored safely', body:'Rebuilds the rolled-back Calendar All Events Options / Filter Events header cleanup and Setlists Upcoming Gig Needs a Setlist action-notice separation from the clean r897 base. The CSS is placed inside the stylesheet, not inside the main JavaScript block. Filter Events keeps a clean header, uses the green circular checkmark instead of DONE, and the Setlists action notice keeps the red action border plus gold separator lines above and below. Home, Songs, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r898.html as index.html.','Confirm Build Version reports r898.','Calendar → All Events kebab: confirm All Events Options header is clean.','Calendar → Filter Events: confirm header does not overlap Upcoming only / All events and green check closes/applies filters.','Setlists: confirm Upcoming Gig Needs a Setlist has red border plus gold separator lines above and below.','Confirm Home loads and tab navigation works.'] },
   { version:'2026-05-30-recovery-to-r893-clean-base-r897', date:'May 30, 2026', importance:'fix', emoji:'🧯', title:'Recovery to clean r893 base', body:'Emergency recovery build from the last syntax-clean phone-working base after r894/r895/r896 inherited raw CSS placed inside the main script block. This intentionally drops the broken Calendar filter/Setlists action-border attempts from r894/r895 and preserves the confirmed-good app state through r893. No new feature changes are included.', items:['Upload index_r897.html as index.html.','Confirm Build Version reports r897.','Confirm Home loads and bottom tabs navigate normally.','Do not retest r894/r895/r896; they contain the broken CSS-in-script injection.','Calendar filter header and Setlists action-notice refinements remain open for a later safe build using a real style-block/CSS path.'] },
   { version:'2026-05-30-pay-log-header-audit-r893', date:'May 30, 2026', importance:'fix', emoji:'💸', title:'Pay log header restyled', body:'Continues the targeted modal/header audit by applying the compact What’s-New-style star badge and centered gold title treatment to the Pay tab inline Log Gig Pay card header. The existing close behavior, Venue/Gross Pay/Expenses fields, Add Pay create action, keyboard-safe scrolling, Pay totals, Gig History, Home, Calendar, Songs, Setlists, Chat, Mates, assets, data, and notifications are unchanged.', items:['Upload index_r893.html as index.html.','Confirm Build Version reports r893.','Pay → + Log Gig Pay: confirm the header has the compact star/centered-title style and the close X remains gold/new-style.','Confirm Venue, Gross Pay, Expenses, and Add still work.','Spot-check Songs Quick Paste, Import File, and Delete Songs from r892 still have the gold/new-style close X.'] },
