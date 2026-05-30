@@ -17366,6 +17366,76 @@ body.light #idate-modal #idate-save-btn.r455-save-icon-btn{
   -webkit-text-fill-color:#041c19 !important;
 }
 
+
+
+/* r884: targeted save/header audit pass.
+   Scope: Home kebab layering and Contact edit true-save action only.
+   Do not change Home logo sizing/border, default gaps, Home cards, image registry,
+   Calendar, Songs, Setlists, Chat, Mates roster, Pay, assets, or data logic. */
+#sc-home .hero.home-hero-with-controls #home-menu-btn{
+  position:relative !important;
+  z-index:60 !important;
+  isolation:isolate !important;
+  background:rgba(4,12,28,.28) !important;
+  border-color:rgba(255,255,255,.26) !important;
+  color:#ffffff !important;
+  text-shadow:0 1px 3px rgba(0,0,0,.92) !important;
+  box-shadow:0 0 0 1px rgba(0,0,0,.10),0 2px 8px rgba(0,0,0,.22) !important;
+}
+#sc-home .hero.home-hero-with-controls #home-menu-btn::before{
+  content:"" !important;
+  position:absolute !important;
+  inset:-4px !important;
+  border-radius:50% !important;
+  z-index:-1 !important;
+  background:radial-gradient(circle,rgba(5,12,28,.34),rgba(5,12,28,0) 70%) !important;
+  pointer-events:none !important;
+}
+#sc-home .hero.home-hero-with-controls #home-header-row{
+  z-index:58 !important;
+}
+#contact-modal #contact-save-btn.oot-contact-edit-save{
+  width:38px !important;
+  min-width:38px !important;
+  max-width:38px !important;
+  height:38px !important;
+  min-height:38px !important;
+  max-height:38px !important;
+  flex:0 0 38px !important;
+  aspect-ratio:1 / 1 !important;
+  border-radius:999px !important;
+  padding:0 !important;
+  margin:12px auto 0 !important;
+  border:1px solid rgba(6,214,160,.88) !important;
+  background:radial-gradient(circle at 36% 28%,rgba(255,255,255,.34),rgba(6,214,160,.94) 43%,rgba(7,125,94,.99) 100%) !important;
+  color:#041c19 !important;
+  -webkit-text-fill-color:#041c19 !important;
+  font-size:0 !important;
+  line-height:1 !important;
+  letter-spacing:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-shadow:0 0 14px rgba(6,214,160,.24),inset 0 1px 0 rgba(255,255,255,.28) !important;
+}
+#contact-modal #contact-save-btn.oot-contact-edit-save::before{
+  content:"✓" !important;
+  display:block !important;
+  color:#041c19 !important;
+  -webkit-text-fill-color:#041c19 !important;
+  font-family:"Russo One",sans-serif !important;
+  font-size:20px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  transform:translateY(-1px) !important;
+}
+body.light #contact-modal #contact-save-btn.oot-contact-edit-save{
+  border-color:rgba(6,160,110,.78) !important;
+  background:radial-gradient(circle at 36% 28%,rgba(255,255,255,.58),rgba(6,214,160,.90) 43%,rgba(9,145,104,.98) 100%) !important;
+  color:#041c19 !important;
+  -webkit-text-fill-color:#041c19 !important;
+}
+
 </style>
 </head>
 <body>
@@ -21079,7 +21149,12 @@ function _setContactModalMode(mode){
   var title = document.getElementById('contact-modal-title');
   var btn = document.getElementById('contact-save-btn');
   if(title) title.textContent = isEdit ? 'Edit Contact' : 'Add Contact';
-  if(btn) btn.textContent = isEdit ? 'Save Contact' : 'Add Contact';
+  if(btn){
+    btn.textContent = isEdit ? 'Save Contact' : 'Add Contact';
+    btn.classList.toggle('oot-contact-edit-save', isEdit);
+    btn.setAttribute('aria-label', isEdit ? 'Save contact' : 'Add contact');
+    btn.setAttribute('title', isEdit ? 'Save contact' : 'Add contact');
+  }
 }
 
 
@@ -38853,7 +38928,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-29-home-image-14-18-lift-r883';
+var WHATS_NEW_VERSION = '2026-05-29-targeted-save-header-audit-r884';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -39198,6 +39273,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-29-targeted-save-header-audit-r884', date:'May 29, 2026', importance:'fix', emoji:'✅', title:'Targeted save/header audit pass', body:'Continues the active UI audit with two safe fixes: lifts the Home kebab/menu button visually above the logo border without changing the locked Home logo/gaps/image layout, and converts only the Contact Edit true-save action to the approved green circular checkmark while leaving Add Contact as a normal create CTA. Calendar, Songs, Setlists, Chat, Mates roster, Pay, assets, data, notifications, and Home image registry are unchanged.', items:['Upload index_r884.html as index.html.','Confirm Build Version reports r884.','Home: confirm the kebab/menu button is no longer tucked behind the logo border and the logo/gaps/images did not move.','Mates → Contacts → Edit Contact: confirm the save action is the green circular checkmark and still saves.','Mates → Contacts → Add Contact: confirm Add Contact remains a normal create button, not a green check.','Spot-check Calendar save/header fixes from r883 still look good.'] },
   { version:'2026-05-29-home-image-14-18-lift-r883', date:'May 29, 2026', importance:'fix', emoji:'🖼️', title:'Home images 14 through 18 lifted', body:'Moves only Home band images 14, 15, 16, 17, and 18 upward inside the existing Home image frame using the established HOME_IMAGE_PRESENTATION registry path. Home logo/header, Next Gig/No Gig card, alert pills, social buttons, tab bar, locked default gaps, all other Home images, Calendar, Songs, Setlists, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r883.html as index.html.','Confirm Build Version reports r883.','Home → Band Image selector: check images 14, 15, 16, 17, and 18 only.','Confirm each sits slightly higher in the same frame and the surrounding Home layout/default gaps did not move.'] },
   { version:'2026-05-29-home-image-09-10-13-lift-r882', date:'May 29, 2026', importance:'fix', emoji:'🖼️', title:'Home images 9, 10, and 13 lifted', body:'Moves only Home band images 9, 10, and 13 upward inside the existing Home image frame using the established HOME_IMAGE_PRESENTATION registry path. Home logo/header, Next Gig/No Gig card, alert pills, social buttons, tab bar, locked default gaps, all other Home images, Calendar, Songs, Setlists, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r882.html as index.html.','Confirm Build Version reports r882.','Home → Band Image selector: check image 9, image 10, and image 13 only.','Confirm each sits slightly higher in the same frame and the surrounding Home layout/default gaps did not move.','All remaining requested image moves stay deferred until confirmed.'] },
   { version:'2026-05-29-home-image-07-08-lift-r881', date:'May 29, 2026', importance:'fix', emoji:'🖼️', title:'Home images 7 and 8 lifted', body:'Moves only Home band images 7 and 8 upward inside the existing Home image frame using the established HOME_IMAGE_PRESENTATION yPct registry path. No Home logo/header, Next Gig/No Gig card, alert pills, social buttons, tab bar, locked default gaps, Home frame/container, other Home images, Calendar, Songs, Setlists, Chat, Mates, Pay, data, assets, or notifications are changed.', items:['Upload index_r881.html as index.html.','Confirm Build Version reports r881.','Home → Band Image selector: check image 7 and image 8 only.','Confirm both sit higher inside the same frame and the Home default gaps did not move.','Images 9, 10, 13, 14, 15, 16, 17, and 18 remain deferred.'] },
