@@ -200,7 +200,6 @@ r305 adds scoped CSS-only non-Calendar header height normalization.
 <!-- r875: Universal green save-circle standard. Makes the green save/check button the same round 38px size as the red delete/trash icon and applies that standard to the existing save-icon button family. -->
 <!-- r859: Rehearsal Proposals header collision and member log visibility fix. Moves + PROPOSE to the top-left of the What’s-New-style header and hides proposal Notification Log from non-admin members. -->
 <!-- r817: Calendar header Next Gig pill vertical-fit correction. Moves the glossy Calendar header next-gig pill down to sit cleanly below the gold decorative line, restores a fuller pill height so it uses the open space under it, and keeps the compact width/tap behavior without changing Calendar body or lower sections. -->
-<!-- r896: Emergency rollback from broken r895. Reverts r895 Filter Events/Setlists separator changes by rebuilding from last phone-working r894, with only WHATS_NEW_VERSION and Whats New log updated so phones detect the rollback. Upload index_r896.html as index.html. -->
 <!DOCTYPE html>
 <html>
 <!-- r445: Songs options drawer polish. Keeps Songs menu in a high, scroll-safe action window, makes the header/X sticky while scrolling, and restores Quick Paste label without touching lifecycle/external-return. Upload as index.html after phone test. -->
@@ -32743,11 +32742,12 @@ function openCalendarEventsFilterDrawer(){
     sheet.innerHTML = '';
 
     var head = document.createElement('div');
-    head.className = 'songs-sheet-head cal-filter-head-r894';
-    head.innerHTML =
-      '<button type="button" class="songs-sheet-x" aria-label="Close filters">×</button>'+
-      '<div class="songs-sheet-title">FILTER EVENTS</div>'+
-      '<div class="songs-sheet-sub">'+_calendarEventsMenuFilterSummary()+'</div>';
+    head.style.cssText = 'height:38px;display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid rgba(74,158,255,.16);';
+    head.innerHTML = '<div style="flex:1;min-width:0;">'+
+      '<div style="font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1.8px;color:#f5c518;text-transform:uppercase;line-height:1;">Filter Events</div>'+
+      '<div style="font-size:10px;color:#9db5d8;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_calendarEventsMenuFilterSummary()+'</div>'+
+      '</div>'+
+      '<button type="button" aria-label="Close filters" style="width:28px;height:28px;border-radius:50%;border:1px solid rgba(245,197,24,.35);background:rgba(5,15,38,.75);color:#f5c518;font-size:18px;line-height:1;cursor:pointer;">×</button>';
     head.querySelector('button').onclick = function(e){ e.stopPropagation(); closeCalendarEventsFilterDrawer(); };
     sheet.appendChild(head);
 
@@ -32815,10 +32815,8 @@ function openCalendarEventsFilterDrawer(){
     };
     var done = document.createElement('button');
     done.type = 'button';
-    done.className = 'oot-save-check-btn cal-filter-done-check-r894';
-    done.setAttribute('aria-label','Apply filters and close');
-    done.title = 'Apply filters';
-    done.textContent = '✓';
+    done.textContent = 'DONE';
+    done.style.cssText = 'height:36px;border-radius:12px;border:1px solid rgba(245,197,24,.78);background:linear-gradient(135deg,#f5c518,#d49a10);color:#06101f;font-family:\'Russo One\',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;';
     done.onclick = function(e){ e.stopPropagation(); closeCalendarEventsFilterDrawer(); };
     foot.appendChild(reset);
     foot.appendChild(done);
@@ -39421,130 +39419,6 @@ function toggleHomeMenu(ev){
   }, 0);
 }
 
-
-/* r894: Calendar All Events/Filter header repair + Setlists action-item border */
-#calendar-events-action-sheet{
-  position:relative !important;
-  width:min(440px,100%) !important;
-  max-width:440px !important;
-  max-height:88vh !important;
-  border-radius:14px !important;
-  border:1px solid rgba(74,158,255,.70) !important;
-  background:radial-gradient(circle at 50% 16px,rgba(74,158,255,.18),transparent 88px),linear-gradient(180deg,rgba(10,22,40,.98),rgba(5,12,28,.99)) !important;
-  box-shadow:0 24px 80px rgba(0,0,0,.70),0 0 0 1px rgba(74,158,255,.18),inset 0 1px 0 rgba(255,255,255,.05) !important;
-  padding:104px 14px 14px !important;
-  overflow-y:auto !important;
-  -webkit-overflow-scrolling:touch !important;
-  overscroll-behavior:contain !important;
-}
-#calendar-events-action-sheet::before{
-  content:"✨" !important;
-  position:absolute !important;
-  top:14px !important;
-  left:50% !important;
-  transform:translateX(-50%) !important;
-  width:46px !important;
-  height:46px !important;
-  border-radius:50% !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  background:rgba(74,158,255,.16) !important;
-  box-shadow:0 0 24px rgba(74,158,255,.25),inset 0 1px 0 rgba(255,255,255,.06) !important;
-  color:#fff !important;
-  font-size:24px !important;
-  line-height:1 !important;
-  pointer-events:none !important;
-  z-index:2 !important;
-}
-#calendar-events-action-sheet .songs-sheet-head,
-#calendar-events-filter-sheet .songs-sheet-head.cal-filter-head-r894{
-  position:absolute !important;
-  top:0 !important;
-  left:0 !important;
-  right:0 !important;
-  height:98px !important;
-  margin:0 !important;
-  padding:0 !important;
-  border:0 !important;
-  background:transparent !important;
-  box-shadow:none !important;
-  z-index:3 !important;
-  display:block !important;
-}
-#calendar-events-action-sheet .songs-sheet-logo,
-#calendar-events-action-sheet .songs-sheet-sub,
-#calendar-events-filter-sheet .songs-sheet-head.cal-filter-head-r894 .songs-sheet-sub{
-  display:none !important;
-}
-#calendar-events-action-sheet .songs-sheet-title,
-#calendar-events-filter-sheet .songs-sheet-head.cal-filter-head-r894 .songs-sheet-title{
-  position:absolute !important;
-  top:64px !important;
-  left:42px !important;
-  right:42px !important;
-  display:block !important;
-  text-align:center !important;
-  font-family:"Russo One",sans-serif !important;
-  font-size:15px !important;
-  line-height:1.1 !important;
-  letter-spacing:1.4px !important;
-  color:#f5c518 !important;
-  text-shadow:0 0 14px rgba(245,197,24,.24) !important;
-  white-space:nowrap !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-}
-#calendar-events-action-sheet .songs-sheet-x,
-#calendar-events-filter-sheet .songs-sheet-head.cal-filter-head-r894 .songs-sheet-x{
-  position:absolute !important;
-  top:10px !important;
-  right:10px !important;
-  float:none !important;
-  margin:0 !important;
-  width:32px !important;
-  height:32px !important;
-  min-width:32px !important;
-  min-height:32px !important;
-  padding:0 !important;
-  border-radius:50% !important;
-  border:1px solid rgba(245,197,24,.45) !important;
-  background:rgba(245,197,24,.10) !important;
-  color:#f5c518 !important;
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  line-height:1 !important;
-  font-size:18px !important;
-  z-index:5 !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 12px rgba(245,197,24,.14) !important;
-}
-#calendar-events-filter-sheet .cal-filter-done-check-r894{
-  width:38px !important;
-  height:38px !important;
-  min-width:38px !important;
-  min-height:38px !important;
-  justify-self:end !important;
-  align-self:center !important;
-  font-size:18px !important;
-}
-#calendar-events-filter-sheet .cal-filter-done-check-r894::before{content:"" !important;}
-#sc-sets .r636-setlist-gig-prompt{
-  border-color:rgba(255,56,78,.88) !important;
-  box-shadow:0 10px 22px rgba(0,0,0,.30),0 0 18px rgba(255,56,78,.20),inset 0 1px 0 rgba(255,255,255,.07) !important;
-}
-#sc-sets .r636-setlist-gig-prompt::before{
-  background:linear-gradient(90deg,transparent,rgba(255,56,78,.96),rgba(255,112,124,.78),transparent) !important;
-}
-#sc-sets .r636-setlist-gig-prompt button{
-  border-color:rgba(255,56,78,.78) !important;
-  box-shadow:0 0 12px rgba(255,56,78,.18) !important;
-}
-body.light #sc-sets .r636-setlist-gig-prompt{
-  border-color:rgba(200,30,48,.70) !important;
-  box-shadow:0 8px 18px rgba(20,40,80,.10),0 0 0 1px rgba(255,255,255,.65) inset,0 0 18px rgba(200,30,48,.08) !important;
-}
-
 // ── WHAT'S NEW BANNER ─────────────────────────────────────────────────────
 // r790: Home logo overlay transparency correction. Built from r789.
 // Keeps locked r788 logo width/mask/gaps intact, moves the tagline farther upward,
@@ -39559,7 +39433,7 @@ body.light #sc-sets .r636-setlist-gig-prompt{
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-30-emergency-rollback-r896';
+var WHATS_NEW_VERSION = '2026-05-30-recovery-to-r893-clean-base-r897';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -39904,8 +39778,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
-  { version:'2026-05-30-emergency-rollback-r896', date:'May 30, 2026', importance:'fix', emoji:'🛟', title:'Emergency rollback from r895', body:'Rolls back the broken r895 build by returning to the last phone-working r894 app state. This restores Home loading and tab navigation. No new feature work is included in this build; the Filter Events overlap and Setlists separator refinement remain open for a later safer pass.', items:['Upload index_r896.html as index.html.','Confirm Build Version reports r896.','Confirm Home loads and bottom tab navigation works.','Confirm Calendar, Songs, Setlists, Chat, Mates, and Pay can be opened.','Do not continue testing r895.'] },
-  { version:'2026-05-30-calendar-filter-setlist-action-r894', date:'May 30, 2026', importance:'fix', emoji:'📅', title:'Calendar filter headers cleaned up', body:'Fixes the Calendar All Events Options and Filter Events drawer headers so they use the newer compact star/title/close style, replaces the Filter Events yellow DONE button with the green circular checkmark, and changes the Setlists Upcoming Gig Needs a Setlist prompt border to red to read as an action item. Calendar filtering and Setlists linking behavior are unchanged.', items:['Upload index_r894.html as index.html.','Confirm Build Version reports r894.','Calendar → All Events kebab: confirm All Events Options header is clean.','Tap Filter Events: confirm header is clean and the green circular check replaces DONE.','Confirm filter rows, Reset, and apply/close still work.','Setlists: confirm Upcoming Gig Needs a Setlist prompt border is red, not gold.'] },
+  { version:'2026-05-30-recovery-to-r893-clean-base-r897', date:'May 30, 2026', importance:'fix', emoji:'🧯', title:'Recovery to clean r893 base', body:'Emergency recovery build from the last syntax-clean phone-working base after r894/r895/r896 inherited raw CSS placed inside the main script block. This intentionally drops the broken Calendar filter/Setlists action-border attempts from r894/r895 and preserves the confirmed-good app state through r893. No new feature changes are included.', items:['Upload index_r897.html as index.html.','Confirm Build Version reports r897.','Confirm Home loads and bottom tabs navigate normally.','Do not retest r894/r895/r896; they contain the broken CSS-in-script injection.','Calendar filter header and Setlists action-notice refinements remain open for a later safe build using a real style-block/CSS path.'] },
   { version:'2026-05-30-pay-log-header-audit-r893', date:'May 30, 2026', importance:'fix', emoji:'💸', title:'Pay log header restyled', body:'Continues the targeted modal/header audit by applying the compact What’s-New-style star badge and centered gold title treatment to the Pay tab inline Log Gig Pay card header. The existing close behavior, Venue/Gross Pay/Expenses fields, Add Pay create action, keyboard-safe scrolling, Pay totals, Gig History, Home, Calendar, Songs, Setlists, Chat, Mates, assets, data, and notifications are unchanged.', items:['Upload index_r893.html as index.html.','Confirm Build Version reports r893.','Pay → + Log Gig Pay: confirm the header has the compact star/centered-title style and the close X remains gold/new-style.','Confirm Venue, Gross Pay, Expenses, and Add still work.','Spot-check Songs Quick Paste, Import File, and Delete Songs from r892 still have the gold/new-style close X.'] },
   { version:'2026-05-30-modal-close-x-normalization-r892', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'Modal close X style normalized', body:'Continues the targeted modal/header audit by replacing remaining white/blue close X controls in the current modal family with the established gold circular close X style. This includes Songs Quick Paste, Import File, Delete Songs, and other already-audited modal headers that still had the older white/blue X treatment. Close behavior, save buttons, forms, import/delete logic, Home, Calendar, Setlists, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r892.html as index.html.','Confirm Build Version reports r892.','Songs → Quick Paste: confirm the close X is gold/new-style, not white, and paste/preview/import still work.','Songs → Import File: confirm the close X is gold/new-style and template/file actions still work.','Songs → Delete Songs: confirm the close X is gold/new-style and selection/delete still work.','Spot-check other audited modal headers such as Build Version, Display Mode, Add/Edit Song, Calendar event form, and Gig Details for the gold close X style.'] },
   { version:'2026-05-30-songs-management-header-pass-r891', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'Songs management headers refined', body:'Applies the compact What’s-New-style star badge and centered title treatment to the Songs Quick Paste, Import File, and Delete Songs modal headers while preserving their existing sticky/scroll-safe behavior and all import/delete logic. Suggest-a-Song r890 behavior, Setlists, Home, Calendar, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r891.html as index.html.','Confirm Build Version reports r891.','Songs → Quick Paste: confirm compact star/centered title header and sticky close still work.','Songs → Import File: confirm compact star/centered title header and file/template actions still work.','Songs → Delete Songs: confirm compact star/centered title header, selection, cancel, and Delete Selected still work.','Spot-check Suggest a Song green save and YouTube URL first-paste behavior from r890.'] },
