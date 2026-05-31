@@ -1,3 +1,4 @@
+<!-- r916: Safe JS modularization probe retry from stable r915. Keeps main app JavaScript inline and extracts only the small late Calendar bottom-stack helper into external calendar_layout_r916.js. Uses existing app_r913.css. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r915: Rollback/restoration to confirmed stable r913 after r914 JavaScript modularization probe failed on phone. Keeps the successful external CSS modularization via app_r913.css, restores the r913 inline JavaScript/app startup behavior, and bumps WHATS_NEW_VERSION so phones detect the rollback as a new sequential build. Upload index_r915.html as index.html plus keep app_r913.css in GitHub root. -->
 <!-- r913: CSS extraction modularization step. Moves the existing monolithic style block into external app_r913.css only. No CSS rule changes, no JavaScript changes, no HTML app-section changes, and no feature/data/notification behavior changes. Upload index_r913.html as index.html plus app_r913.css to GitHub root after phone test. -->
 <!-- r912: Chat notification idempotency UUID fix. Fixes r911 OneSignal FAILED 400 by sending a valid UUID-format idempotency_key while keeping the app's readable chat notificationId in custom data. Preserves r911 TTL/topic/data stale-replay guard and all UI/data behavior. Upload index_r912.html as index.html after test. -->
@@ -22028,7 +22029,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-31-r915-rollback-to-stable-css-extraction';
+var WHATS_NEW_VERSION = '2026-05-31-safe-js-probe-r916';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23936,34 +23937,7 @@ if(savedName&&savedId){
 
 <!-- TOAST -->
 <div id="app-toast" style="position:fixed;left:50%;bottom:132px;transform:translateX(-50%) translateY(80px);z-index:9100;display:none;background:#101e34;border:1px solid #1a3a8a;border-radius:24px;padding:12px 20px;box-shadow:0 8px 30px rgba(0,0,0,.5);font-family:'Exo 2',sans-serif;font-size:15px;font-weight:700;color:#e8f0ff;max-width:86vw;text-align:center;opacity:0;transition:opacity .25s ease-out,transform .25s ease-out;pointer-events:none;"></div>
-
-
-<script>
-/* r311: keep the Calendar lower pill stack locked to the tab row and keep All Events close to Rehearsal Proposals. */
-(function(){
-  function syncCalendarBottomStack(){
-    var tabs = document.getElementById('tabs');
-    if(!tabs) return;
-    var h = Math.ceil(tabs.getBoundingClientRect().height || 72);
-    document.documentElement.style.setProperty('--oot-tabs-h', h + 'px');
-    var proposal = document.querySelector('#sc-cal.cal-header-fit .proposals-head');
-    if(proposal){
-      var ph = Math.ceil(proposal.getBoundingClientRect().height || 60);
-      document.documentElement.style.setProperty('--oot-cal-proposals-h', ph + 'px');
-    }
-  }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', syncCalendarBottomStack);
-  }else{
-    syncCalendarBottomStack();
-  }
-  window.addEventListener('resize', syncCalendarBottomStack, {passive:true});
-  window.addEventListener('orientationchange', function(){ setTimeout(syncCalendarBottomStack, 250); }, {passive:true});
-})();
-</script>
-
-
-
+<script src="calendar_layout_r916.js"></script>
 <script>
 /* r314: keep Calendar viewport locked and pin the lower pill stack directly under the blue date panel. */
 (function(){
