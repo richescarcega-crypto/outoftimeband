@@ -1,3 +1,4 @@
+<!-- r921: Safe JS modularization probe 6. Starts from phone-passed r920, keeps main app JavaScript inline, keeps app_r913.css plus r916-r920 external Calendar helpers, and extracts only the robust Calendar key/kebab binding listener into calendar_key_r921.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r920: Safe JS modularization probe 5. Starts from phone-passed r919, keeps main app JavaScript inline, keeps app_r913.css plus r916/r917/r918/r919 external Calendar helpers, and extracts only the small Calendar current-day rollover refresh listener into calendar_today_r920.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r919: Safe JS modularization probe 4. Starts from phone-passed r918, keeps main app JavaScript inline, keeps app_r913.css plus r916/r917/r918 external Calendar helpers, and extracts only the small Calendar lifecycle drawer-reset listener into calendar_lifecycle_r919.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r918: Safe JS modularization probe 3. Starts from phone-passed r917, keeps main app JavaScript inline, keeps app_r913.css plus calendar_layout_r916.js and calendar_viewport_r917.js, and extracts only the late Calendar drawer shift helper into calendar_drawer_r918.js. No feature, visual, Firebase, notification, or app-startup changes. -->
@@ -12193,78 +12194,7 @@ function toggleCalLegend(forceOpen){
 
 
 
-// r244: robust Calendar kebab binding. Do not rely only on inline onclick.
-(function(){
-  var lastHandledAt = 0;
-  function _pointFromEvent(ev){
-    if(ev && ev.changedTouches && ev.changedTouches.length){return {x:ev.changedTouches[0].clientX,y:ev.changedTouches[0].clientY};}
-    if(ev && ev.touches && ev.touches.length){return {x:ev.touches[0].clientX,y:ev.touches[0].clientY};}
-    return {x:ev ? ev.clientX : 0, y:ev ? ev.clientY : 0};
-  }
-  function _insideButton(ev){
-    if(!_isCalendarTabActive()) return false;
-    var b = document.getElementById('calendar-hero-menu-btn');
-    if(!b || !ev) return false;
-    var pt = _pointFromEvent(ev);
-    var r = b.getBoundingClientRect();
-    if(!r || r.width <= 0 || r.height <= 0) return false;
-    return pt.x >= r.left && pt.x <= r.right && pt.y >= r.top && pt.y <= r.bottom;
-  }
-  function _handleCalendarKeyTap(ev){
-    if(!_insideButton(ev)) return;
-    var now = Date.now();
-    if(now - lastHandledAt < 350){
-      if(ev.preventDefault) ev.preventDefault();
-      if(ev.stopPropagation) ev.stopPropagation();
-      if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
-      return;
-    }
-    lastHandledAt = now;
-    if(ev.preventDefault) ev.preventDefault();
-    if(ev.stopPropagation) ev.stopPropagation();
-    if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
-    toggleCalLegend();
-  }
-  function _bindCalendarKey(){
-    var b = document.getElementById('calendar-hero-menu-btn');
-    if(!b || b.getAttribute('data-r244-bound') === '1') return;
-    b.setAttribute('data-r244-bound','1');
-    b.addEventListener('click', function(ev){
-      if(!_isCalendarTabActive()){ closeCalLegend(); return; }
-      if(ev.preventDefault) ev.preventDefault();
-      if(ev.stopPropagation) ev.stopPropagation();
-      if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
-      toggleCalLegend();
-    }, true);
-    b.addEventListener('touchend', function(ev){
-      if(!_isCalendarTabActive()){ closeCalLegend(); return; }
-      if(ev.preventDefault) ev.preventDefault();
-      if(ev.stopPropagation) ev.stopPropagation();
-      if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
-      var now = Date.now();
-      if(now - lastHandledAt >= 350){ lastHandledAt = now; toggleCalLegend(); }
-    }, {capture:true, passive:false});
-    b.addEventListener('pointerup', function(ev){
-      if(!_isCalendarTabActive()){ closeCalLegend(); return; }
-      if(ev.preventDefault) ev.preventDefault();
-      if(ev.stopPropagation) ev.stopPropagation();
-      if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
-      var now = Date.now();
-      if(now - lastHandledAt >= 350){ lastHandledAt = now; toggleCalLegend(); }
-    }, true);
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _bindCalendarKey);
-  else _bindCalendarKey();
-  setTimeout(_bindCalendarKey, 250);
-  setTimeout(_bindCalendarKey, 1200);
-  // r260: disabled document-level capture listeners.
-  // They could hit-test the hidden Calendar key while another tab was active
-  // because app tabs are visibility:hidden, not display:none.
-  // The key remains bound directly to the actual Calendar button above.
-  // document.addEventListener('touchend', _handleCalendarKeyTap, {capture:true, passive:false});
-  // document.addEventListener('click', _handleCalendarKeyTap, true);
-})();
-
+// r921: robust Calendar key/kebab binding moved to calendar_key_r921.js.
 
 // r828: explicit controls for the page-like Rehearsal Proposals workspace.
 function closeRehearsalProposalsWorkspace(){
@@ -22033,7 +21963,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-31-safe-js-probe-r920';
+var WHATS_NEW_VERSION = '2026-05-31-safe-js-probe-r921';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22378,6 +22308,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-31-safe-js-probe-r921', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 6', body:'Continues the safe modularization path from r920 by keeping the main app JavaScript inline and extracting only the robust Calendar key/kebab binding listener into calendar_key_r921.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r921.html as index.html.','Upload calendar_key_r921.js to the GitHub root.','Keep app_r913.css, calendar_layout_r916.js, calendar_viewport_r917.js, calendar_drawer_r918.js, calendar_lifecycle_r919.js, and calendar_today_r920.js in the GitHub root.','Confirm Build Version reports r921, Home is normal, tabs open, Calendar looks normal, and the Calendar key/kebab still opens normally.'] },
   { version:'2026-05-31-safe-js-probe-r919', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 4', body:'Continues the safe modularization path from r918 by keeping the main app JavaScript inline and extracting only the small Calendar lifecycle drawer-reset listener into calendar_lifecycle_r919.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r919.html as index.html.','Upload calendar_lifecycle_r919.js to the GitHub root.','Keep app_r913.css, calendar_layout_r916.js, calendar_viewport_r917.js, and calendar_drawer_r918.js in the GitHub root.','Confirm Build Version reports r919, Home is normal, tabs open, and Calendar looks normal.'] },
   { version:'2026-05-31-safe-js-probe-r918', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 3', body:'Continues the safe modularization path from r917 by keeping the main app JavaScript inline and extracting only the late Calendar drawer shift helper into calendar_drawer_r918.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r918.html as index.html.','Upload calendar_drawer_r918.js to the GitHub root.','Keep app_r913.css, calendar_layout_r916.js, and calendar_viewport_r917.js in the GitHub root.','Confirm Build Version reports r918, Home is normal, tabs open, and Calendar looks normal.'] },
   { version:'2026-05-31-safe-js-probe-r917', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 2', body:'Continues the safe modularization path from r916 by keeping the main app JavaScript inline and extracting only one small late Calendar viewport helper into calendar_viewport_r917.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r917.html as index.html.','Upload calendar_viewport_r917.js to the GitHub root.','Keep app_r913.css and calendar_layout_r916.js in the GitHub root.','Confirm Build Version reports r917, Home is normal, tabs open, and Calendar looks normal.'] },
@@ -23912,6 +23843,7 @@ if(savedName&&savedId){
 
 <!-- TOAST -->
 <div id="app-toast" style="position:fixed;left:50%;bottom:132px;transform:translateX(-50%) translateY(80px);z-index:9100;display:none;background:#101e34;border:1px solid #1a3a8a;border-radius:24px;padding:12px 20px;box-shadow:0 8px 30px rgba(0,0,0,.5);font-family:'Exo 2',sans-serif;font-size:15px;font-weight:700;color:#e8f0ff;max-width:86vw;text-align:center;opacity:0;transition:opacity .25s ease-out,transform .25s ease-out;pointer-events:none;"></div>
+<script src="calendar_key_r921.js"></script>
 <script src="calendar_today_r920.js"></script>
 <script src="calendar_layout_r916.js"></script>
 <script src="calendar_viewport_r917.js"></script>
