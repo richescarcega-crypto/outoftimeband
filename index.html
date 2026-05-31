@@ -18328,6 +18328,93 @@ body.light #flyer-modal .moh > button:not(#flyer-more-btn){
   box-shadow:none !important;
 }
 
+
+
+/* r906: Home Announcements modal adopts compact new-style header only */
+#announce-modal .moh{
+  flex-shrink:0 !important;
+  position:sticky !important;
+  top:0 !important;
+  z-index:8 !important;
+  display:grid !important;
+  grid-template-columns:40px minmax(0,1fr) 40px !important;
+  align-items:center !important;
+  gap:8px !important;
+  min-height:46px !important;
+  padding:8px 10px !important;
+  margin:-12px -12px 10px -12px !important;
+  background:linear-gradient(180deg,rgba(9,22,52,.98),rgba(8,18,44,.96)) !important;
+  border-bottom:1px solid rgba(245,197,24,.36) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.18) !important;
+}
+#announce-modal .moh::before{
+  content:"★";
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  justify-self:start;
+  color:#f5c518;
+  border:1px solid rgba(245,197,24,.62);
+  background:radial-gradient(circle at 35% 25%,rgba(245,197,24,.18),rgba(10,22,40,.9));
+  box-shadow:0 0 12px rgba(245,197,24,.22);
+  font-size:13px;
+  line-height:1;
+}
+#announce-modal .moh .mot{
+  grid-column:2 !important;
+  justify-self:center !important;
+  text-align:center !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+  color:#f5c518 !important;
+  font-family:"Russo One",sans-serif !important;
+  font-size:14px !important;
+  letter-spacing:1.5px !important;
+  text-transform:uppercase !important;
+  line-height:1.1 !important;
+}
+#announce-modal .moh button{
+  grid-column:3 !important;
+  justify-self:end !important;
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+  min-height:32px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 !important;
+  border-radius:50% !important;
+  border:1px solid rgba(245,197,24,.62) !important;
+  background:rgba(245,197,24,.10) !important;
+  color:#f5c518 !important;
+  font-size:18px !important;
+  line-height:1 !important;
+  box-shadow:0 0 12px rgba(245,197,24,.20) !important;
+}
+body.light #announce-modal .moh{
+  background:linear-gradient(180deg,#ffffff,#f3f6fd) !important;
+  border-bottom-color:rgba(184,134,11,.42) !important;
+  box-shadow:0 8px 18px rgba(20,40,80,.10) !important;
+}
+body.light #announce-modal .moh .mot,
+body.light #announce-modal .moh::before,
+body.light #announce-modal .moh button{
+  color:#b8860b !important;
+}
+body.light #announce-modal .moh::before,
+body.light #announce-modal .moh button{
+  border-color:rgba(184,134,11,.55) !important;
+  background:rgba(184,134,11,.08) !important;
+  box-shadow:none !important;
+}
+
 </style>
 </head>
 <body>
@@ -39859,7 +39946,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-30-utility-modal-rollback-r905';
+var WHATS_NEW_VERSION = '2026-05-30-announcements-header-r906';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40204,6 +40291,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-30-announcements-header-r906', date:'May 30, 2026', importance:'fix', emoji:'📢', title:'Announcements header updated', body:'Applies the compact What’s-New-style header treatment to the Home Announcements modal only: star badge, centered gold title, and gold circular close X. Announcement list, active/dismissed views, compose box, post, dismiss, restore, and delete behavior are unchanged.', items:['Upload index_r906.html as index.html.','Confirm Build Version reports r906.','Home → Announcements: confirm compact star/centered-title/gold-X header.','Confirm Active/Dismissed views, posting, dismissing, restoring, and deleting announcements still work.','Spot-check Display Mode, Notifications, Privacy & Data, and Arrange Tabs remain stable after r905 rollback.'] },
   { version:'2026-05-30-utility-modal-rollback-r905', date:'May 30, 2026', importance:'fix', emoji:'↩️', title:'Utility modal rollback', body:'Rolls forward from the last confirmed-good r903 base and intentionally leaves the Home utility modals Display Mode, Notifications, Privacy & Data, and Arrange Tabs in their prior stable structure after the r904 header treatment caused those utility screens to render jumbled. Preserves all confirmed work through r903, including the Flyer modal header update, Rehearsal Agenda header update, Setlists/Chat separator refinements, Calendar filter/options fixes, Songs modal updates, Setlists fixes, and Home image registry fixes.', items:['Upload index_r905.html as index.html.','Confirm Build Version reports r905.','Home → kebab → Display Mode, Notifications, Privacy & Data, and Arrange Tabs should no longer be jumbled.','Spot-check Make/Edit Flyer header from r903 still looks good.','Do not reapply the full star/center-title header to these utility modals without a deeper redesign.'] },
   { version:'2026-05-30-flyer-modal-header-r903', date:'May 30, 2026', importance:'fix', emoji:'🎨', title:'Flyer modal header restyled', body:'Continues the targeted modal/header audit by applying the compact What’s-New-style star badge, centered gold title, and gold circular close/more controls to the Make/Edit Flyer modal header. Flyer steps, template selection, editable fields, preview, save banner, top-right more actions, share/download/save flows, rendering, Home, Calendar, Songs, Setlists, Chat, Mates, Pay, assets, notifications, and data are unchanged.', items:['Upload index_r903.html as index.html.','Confirm Build Version reports r903.','Open Make Flyer or Edit Saved Flyer and confirm the header uses the compact star/centered-title/gold-control style.','Confirm the kebab/more actions still open and the X still closes.','Confirm template selection, fields, preview, save/share/download behavior still work.','Spot-check Rehearsal Agenda r902 header remains unchanged.'] },
   { version:'2026-05-30-rehearsal-agenda-header-r902', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'Rehearsal Agenda header restyled', body:'Continues the targeted modal/header audit by applying the compact What’s-New-style star badge, centered gold title, sticky header, and gold circular close X to the Rehearsal Agenda modal only. Agenda list content, add-agenda behavior, Calendar data, Setlists, Songs, Home, Chat, Mates, Pay, assets, notifications, and data are unchanged.', items:['Upload index_r902.html as index.html.','Confirm Build Version reports r902.','Open a rehearsal agenda modal and confirm the header uses the compact star/centered-title/gold-X style.','Confirm the X closes the modal and agenda add/list behavior still works.','Spot-check r901 Setlists separator spacing remains unchanged.'] },
