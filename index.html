@@ -1,3 +1,4 @@
+<!-- r904: Home utility modal header audit pass. Applies compact What’s-New-style star/centered-title/gold-X treatment to Display Mode, Notifications, Privacy & Data, and Arrange Tabs modals only. Preserves all settings/reorder logic, Home layout, Calendar, Songs, Setlists, Chat, Mates, Pay, flyer rendering/output, assets, data, and notifications. -->
 <!-- r893: Pay Log Gig Pay header audit pass. Applies compact What’s-New-style star/centered-title treatment to the Pay tab inline Log Gig Pay card header only, preserving Add Pay fields, Add behavior, keyboard-safe scrolling, Pay totals/history, and all other tabs. -->
 <!-- r885: Shared prompt header audit pass. Applies the What’s-New-style star/centered-title treatment to the generic text prompt dialog only, preserving prompt input, SAVE/CANCEL buttons, handlers, confirm dialog, flyer workflow, and app data. -->
 <!-- r810: Home cue fallback listeners + social button lower-safe adjustment. Starts from r809. Adds unordered Firestore fallback listeners for Home song/rehearsal cue data so ordered-query/data-field issues cannot leave Home pills empty, broadens future proposal matching, and lowers social buttons slightly while keeping them visible. -->
@@ -18328,6 +18329,94 @@ body.light #flyer-modal .moh > button:not(#flyer-more-btn){
   box-shadow:none !important;
 }
 
+
+
+/* r904: Home utility modal headers adopt compact What’s-New-style language.
+   Presentation-only for Display Mode, Notifications, Privacy & Data, and Arrange Tabs. */
+#display-mode-modal .moh,
+#notifications-modal .moh,
+#privacy-modal .moh,
+#reorder-modal .moh{
+  min-height:58px !important;
+  padding:12px 56px 12px 56px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  position:sticky !important;
+}
+#display-mode-modal .moh::before,
+#notifications-modal .moh::before,
+#privacy-modal .moh::before,
+#reorder-modal .moh::before{
+  content:"★" !important;
+  position:absolute !important;
+  left:14px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  width:32px !important;
+  height:32px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:50% !important;
+  border:1px solid rgba(245,197,24,.78) !important;
+  background:radial-gradient(circle at 35% 25%, rgba(255,232,125,.24), rgba(245,197,24,.10) 55%, rgba(5,14,33,.96) 100%) !important;
+  color:#f5c518 !important;
+  font-family:"Russo One",sans-serif !important;
+  font-size:15px !important;
+  line-height:1 !important;
+  box-shadow:0 0 14px rgba(245,197,24,.22), inset 0 1px 0 rgba(255,255,255,.12) !important;
+}
+#display-mode-modal .moh .mot,
+#notifications-modal .moh .mot,
+#privacy-modal .moh .mot,
+#reorder-modal .moh .mot{
+  flex:0 1 auto !important;
+  width:100% !important;
+  max-width:calc(100% - 8px) !important;
+  text-align:center !important;
+  color:#f5c518 !important;
+  font-family:"Russo One",sans-serif !important;
+  font-size:17px !important;
+  letter-spacing:1.3px !important;
+  line-height:1.1 !important;
+  white-space:normal !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+#display-mode-modal .moh button,
+#notifications-modal .moh button,
+#privacy-modal .moh button,
+#reorder-modal .moh button{
+  top:50% !important;
+  right:14px !important;
+  transform:translateY(-50%) !important;
+  width:34px !important;
+  height:34px !important;
+  border:1px solid rgba(245,197,24,.78) !important;
+  background:radial-gradient(circle at 35% 25%, rgba(255,232,125,.18), rgba(245,197,24,.08) 55%, rgba(5,14,33,.96) 100%) !important;
+  color:#f5c518 !important;
+  box-shadow:0 0 14px rgba(245,197,24,.22), inset 0 1px 0 rgba(255,255,255,.12) !important;
+}
+body.light #display-mode-modal .moh::before,
+body.light #notifications-modal .moh::before,
+body.light #privacy-modal .moh::before,
+body.light #reorder-modal .moh::before,
+body.light #display-mode-modal .moh button,
+body.light #notifications-modal .moh button,
+body.light #privacy-modal .moh button,
+body.light #reorder-modal .moh button{
+  border-color:#b8860b !important;
+  background:rgba(245,197,24,.12) !important;
+  color:#9a6a00 !important;
+  box-shadow:0 0 12px rgba(184,134,11,.16), inset 0 1px 0 rgba(255,255,255,.65) !important;
+}
+body.light #display-mode-modal .moh .mot,
+body.light #notifications-modal .moh .mot,
+body.light #privacy-modal .moh .mot,
+body.light #reorder-modal .moh .mot{
+  color:#9a6a00 !important;
+}
 </style>
 </head>
 <body>
@@ -39859,7 +39948,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-30-flyer-modal-header-r903';
+var WHATS_NEW_VERSION = '2026-05-30-home-utility-headers-r904';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40204,6 +40293,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-30-home-utility-headers-r904', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'Home utility headers restyled', body:'Continues the targeted modal/header audit by applying the compact What’s-New-style star badge, centered gold title, and gold circular close control treatment to the Home utility modals: Display Mode, Notifications, Privacy & Data, and Arrange Tabs. Settings behavior, notification preferences, privacy copy/actions, tab reorder/save behavior, Home layout, Calendar, Songs, Setlists, Chat, Mates, Pay, flyer rendering/output, assets, data, and notifications are unchanged.', items:['Upload index_r904.html as index.html.','Confirm Build Version reports r904.','Home → kebab → Display Mode: confirm compact star/centered-title/gold-X header and display toggle still works.','Home → kebab → Notifications: confirm header style and notification options still work.','Home → kebab → Privacy & Data: confirm header style and content/actions still work.','Home → kebab → Arrange Tabs: confirm header style and tab reorder/save still work.','Spot-check Make/Edit Flyer header from r903 remains unchanged; flyer output jumble remains deferred for modular flyer rebuild.'] },
   { version:'2026-05-30-flyer-modal-header-r903', date:'May 30, 2026', importance:'fix', emoji:'🎨', title:'Flyer modal header restyled', body:'Continues the targeted modal/header audit by applying the compact What’s-New-style star badge, centered gold title, and gold circular close/more controls to the Make/Edit Flyer modal header. Flyer steps, template selection, editable fields, preview, save banner, top-right more actions, share/download/save flows, rendering, Home, Calendar, Songs, Setlists, Chat, Mates, Pay, assets, notifications, and data are unchanged.', items:['Upload index_r903.html as index.html.','Confirm Build Version reports r903.','Open Make Flyer or Edit Saved Flyer and confirm the header uses the compact star/centered-title/gold-control style.','Confirm the kebab/more actions still open and the X still closes.','Confirm template selection, fields, preview, save/share/download behavior still work.','Spot-check Rehearsal Agenda r902 header remains unchanged.'] },
   { version:'2026-05-30-rehearsal-agenda-header-r902', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'Rehearsal Agenda header restyled', body:'Continues the targeted modal/header audit by applying the compact What’s-New-style star badge, centered gold title, sticky header, and gold circular close X to the Rehearsal Agenda modal only. Agenda list content, add-agenda behavior, Calendar data, Setlists, Songs, Home, Chat, Mates, Pay, assets, notifications, and data are unchanged.', items:['Upload index_r902.html as index.html.','Confirm Build Version reports r902.','Open a rehearsal agenda modal and confirm the header uses the compact star/centered-title/gold-X style.','Confirm the X closes the modal and agenda add/list behavior still works.','Spot-check r901 Setlists separator spacing remains unchanged.'] },
   { version:'2026-05-30-setlists-divider-spacing-r901', date:'May 30, 2026', importance:'fix', emoji:'🎼', title:'Setlists divider spacing refined', body:'Adjusts only the vertical spacing around the Setlists Upcoming Gig Needs a Setlist separator so the line reads as a section divider rather than being attached to the action pill. The top separator remains removed, the red action border remains, and the Chat divider style is unchanged. Home, Calendar, Songs, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r901.html as index.html.','Confirm Build Version reports r901.','Setlists: confirm there is still no top line above Upcoming Gig Needs a Setlist.','Confirm the gold separator sits lower below the action pill and the first setlist starts below it with Chat-like breathing room.','Spot-check Chat divider remains bold/gold from r900.'] },
