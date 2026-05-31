@@ -1,4 +1,4 @@
-<!-- r911: Desktop Chrome stale chat notification replay guard. Adds chat-notification freshness metadata only: short chat TTL, stable web_push_topic/collapse/idempotency keys, sent/expires custom data, and unique per-message notification ids for Band Chat/DM/share/flyer pushes. Requires the existing Cloudflare push worker to pass these fields through to OneSignal for full stale-replay protection. No UI, Firestore data model, Home, Calendar, Songs, Setlists, Mates, Pay, flyer rendering, or reminder logic changed. Upload index_r911.html as index.html after phone/desktop test. -->
+<!-- r912: Chat notification idempotency UUID fix. Fixes r911 OneSignal FAILED 400 by sending a valid UUID-format idempotency_key while keeping the app's readable chat notificationId in custom data. Preserves r911 TTL/topic/data stale-replay guard and all UI/data behavior. Upload index_r912.html as index.html after test. -->
 <!-- r893: Pay Log Gig Pay header audit pass. Applies compact What’s-New-style star/centered-title treatment to the Pay tab inline Log Gig Pay card header only, preserving Add Pay fields, Add behavior, keyboard-safe scrolling, Pay totals/history, and all other tabs. -->
 <!-- r885: Shared prompt header audit pass. Applies the What’s-New-style star/centered-title treatment to the generic text prompt dialog only, preserving prompt input, SAVE/CANCEL buttons, handlers, confirm dialog, flyer workflow, and app data. -->
 <!-- r810: Home cue fallback listeners + social button lower-safe adjustment. Starts from r809. Adds unordered Firestore fallback listeners for Home song/rehearsal cue data so ordered-query/data-field issues cannot leave Home pills empty, broadens future proposal matching, and lowers social buttons slightly while keeping them visible. -->
@@ -20700,6 +20700,21 @@ function _makeNotificationId(category, threadKey){
   var rnd = Math.random ? Math.random().toString(36).slice(2,10) : String(ts).slice(-6);
   return 'oot-' + _safeNotifToken(category || 'notify') + '-' + _safeNotifToken(threadKey || 'all') + '-' + ts + '-' + rnd;
 }
+function _makeUuidV4(){
+  try{
+    if(window.crypto && typeof window.crypto.randomUUID === 'function'){
+      return window.crypto.randomUUID();
+    }
+  }catch(e){}
+  var d = Date.now ? Date.now() : new Date().getTime();
+  var d2 = (typeof performance !== 'undefined' && performance.now) ? Math.floor(performance.now() * 1000) : 0;
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){
+    var r = Math.random() * 16;
+    if(d > 0){ r = (d + r) % 16 | 0; d = Math.floor(d / 16); }
+    else { r = (d2 + r) % 16 | 0; d2 = Math.floor(d2 / 16); }
+    return (c === 'x' ? r : ((r & 0x3) | 0x8)).toString(16);
+  });
+}
 function _chatThreadKeyForNotify(targetMemberId){
   if(targetMemberId){
     var a = _safeNotifToken(ME);
@@ -20726,15 +20741,20 @@ function _applyNotificationFreshness(payload, category, opts){
       payload.collapse_id = payload.web_push_topic;
       payload.collapseId = payload.web_push_topic;
     }
+    var idempotencyUuid = '';
     if(notificationId){
       payload.notificationId = notificationId;
-      payload.idempotency_key = notificationId;
-      payload.idempotencyKey = notificationId;
+      // r912: OneSignal requires idempotency_key to be a UUID. Keep the readable
+      // app notificationId for logs/data, but send a valid UUID to OneSignal.
+      idempotencyUuid = (typeof opts.idempotencyUuid === 'string' && opts.idempotencyUuid) ? opts.idempotencyUuid : _makeUuidV4();
+      payload.idempotency_key = idempotencyUuid;
+      payload.idempotencyKey = idempotencyUuid;
     }
     payload.data = Object.assign({}, payload.data || {}, opts.data || {}, {
       ootCategory: String(category || ''),
       ootThreadKey: String(threadKey || ''),
       ootNotificationId: String(notificationId || ''),
+      ootIdempotencyKey: String(idempotencyUuid || ''),
       ootSentAt: new Date(sentAtMs).toISOString(),
       ootExpiresAt: ttl != null ? new Date(sentAtMs + ttl * 1000).toISOString() : ''
     });
@@ -40165,7 +40185,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-30-chat-notification-stale-guard-r911';
+var WHATS_NEW_VERSION = '2026-05-30-chat-notification-idempotency-uuid-r912';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40510,6 +40530,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-30-chat-notification-idempotency-uuid-r912', date:'May 30, 2026', importance:'fix', emoji:'🔔', title:'Chat notification send fixed', body:'Fixes the r911 OneSignal FAILED 400 error by sending a valid UUID-format idempotency key while preserving the chat TTL, web-push topic, freshness data, and notification log metadata. Scope is Band Chat/DM notification payload formatting only; chat messages, UI, reminders, Home, Calendar, Songs, Setlists, Mates, Pay, flyer rendering, and assets are unchanged.', items:['Upload index_r912.html as index.html.','Confirm Build Version reports r912.','Send one Band Chat test message.','Open Notification Log and confirm the newest Chat entry says SENT 200 instead of FAILED 400.','If it sends successfully, then restart Desktop Chrome later to confirm old chat notifications do not replay.'] },
   { version:'2026-05-30-chat-notification-stale-guard-r911', date:'May 30, 2026', importance:'fix', emoji:'🔔', title:'Chat stale notification guard', body:'Adds freshness metadata to Band Chat and DM push notifications to reduce Desktop Chrome replaying old chat alerts: short chat TTL, stable web-push topic/collapse key, unique idempotency key, and sent/expires data. Chat UI, message saving, notifications preferences, reminders, Home, Calendar, Songs, Setlists, Mates, Pay, flyer rendering, and assets are unchanged. Full protection requires the existing push worker to pass these fields through to OneSignal.', items:['Upload index_r911.html as index.html.','Confirm Build Version reports r911.','Send a Band Chat test message from one device and confirm recipients receive one fresh notification.','Restart Desktop Chrome and confirm that old Band Chat notifications do not replay.','If stale replay continues, update the Cloudflare push worker to forward ttl, web_push_topic, idempotency_key, and data to OneSignal.'] },
   { version:'2026-05-30-whats-new-close-x-r910', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'What’s New close button polished', body:'Continues the close-control audit by updating only the What’s New modal close X to the gold new-style circular close treatment. What’s New content, dismiss behavior, Home, Calendar, Songs, Setlists, Chat, Mates, Pay, flyer rendering, assets, data, and notifications are unchanged.', items:['Upload index_r910.html as index.html.','Confirm Build Version reports r910.','Open Home → kebab → What’s New and confirm the top-right X is gold/new-style.','Confirm the X still dismisses the modal.','Spot-check Home → kebab → Announcements still opens from r909.'] },
   { version:'2026-05-30-announcements-menu-syntax-fix-r909', date:'May 30, 2026', importance:'fix', emoji:'🛠️', title:'Announcements menu syntax fix', body:'Fixes the failed r908 load by escaping the apostrophe in the r907 Announcements What\'s-New log text. Keeps Announcements in the Home kebab menu and preserves the bell shortcut, full Announcements header, posting behavior, and Active/Dismissed views.', items:['Upload index_r909.html as index.html.','Confirm Build Version reports r909.','Confirm Home loads and tabs navigate.','Home → kebab → Announcements opens the modal.','Home → bell icon still opens the same modal.'] },
