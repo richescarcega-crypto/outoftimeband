@@ -1,3 +1,4 @@
+<!-- r920: Safe JS modularization probe 5. Starts from phone-passed r919, keeps main app JavaScript inline, keeps app_r913.css plus r916/r917/r918/r919 external Calendar helpers, and extracts only the small Calendar current-day rollover refresh listener into calendar_today_r920.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r919: Safe JS modularization probe 4. Starts from phone-passed r918, keeps main app JavaScript inline, keeps app_r913.css plus r916/r917/r918 external Calendar helpers, and extracts only the small Calendar lifecycle drawer-reset listener into calendar_lifecycle_r919.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r918: Safe JS modularization probe 3. Starts from phone-passed r917, keeps main app JavaScript inline, keeps app_r913.css plus calendar_layout_r916.js and calendar_viewport_r917.js, and extracts only the late Calendar drawer shift helper into calendar_drawer_r918.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r917: Safe JS modularization probe 2 from confirmed r916. Keeps main app JavaScript inline, keeps app_r913.css and calendar_layout_r916.js, and extracts only the small late Calendar viewport helper into external calendar_viewport_r917.js. No feature, visual, Firebase, notification, or app-startup changes. -->
@@ -22032,7 +22033,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-31-safe-js-probe-r919';
+var WHATS_NEW_VERSION = '2026-05-31-safe-js-probe-r920';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -23712,21 +23713,6 @@ if(savedName&&savedId){
   document.getElementById('name-picker-overlay').style.display='flex';
 }
 
-// r365: Refresh Calendar current-day marker when the app resumes or returns
-// from browser/PWA cache. This fixes the yellow current-day number/border
-// staying on yesterday after the phone crosses midnight while the app shell
-// remains alive.
-(function(){
-  function scheduleCalTodayRefresh(reason){
-    setTimeout(function(){ _calRefreshForTodayRollover(reason); }, 120);
-  }
-  document.addEventListener('visibilitychange', function(){
-    if(document.visibilityState === 'visible') scheduleCalTodayRefresh('visibility');
-  });
-  window.addEventListener('focus', function(){ scheduleCalTodayRefresh('focus'); });
-  window.addEventListener('pageshow', function(){ scheduleCalTodayRefresh('pageshow'); });
-})();
-
 // r419: App lifecycle rule, centralized and hardened.
 // Normal hide/pagehide/blur always collapses to Home unless it occurs inside the
 // app-launched external URL handoff. External return restores its captured
@@ -23926,6 +23912,7 @@ if(savedName&&savedId){
 
 <!-- TOAST -->
 <div id="app-toast" style="position:fixed;left:50%;bottom:132px;transform:translateX(-50%) translateY(80px);z-index:9100;display:none;background:#101e34;border:1px solid #1a3a8a;border-radius:24px;padding:12px 20px;box-shadow:0 8px 30px rgba(0,0,0,.5);font-family:'Exo 2',sans-serif;font-size:15px;font-weight:700;color:#e8f0ff;max-width:86vw;text-align:center;opacity:0;transition:opacity .25s ease-out,transform .25s ease-out;pointer-events:none;"></div>
+<script src="calendar_today_r920.js"></script>
 <script src="calendar_layout_r916.js"></script>
 <script src="calendar_viewport_r917.js"></script>
 
