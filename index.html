@@ -1,3 +1,4 @@
+<!-- r922: Safe JS modularization probe 7. Starts from phone-passed r921, keeps main app JavaScript inline, keeps app_r913.css plus r916-r921 external helpers, and extracts only the small Band/Mates contacts drawer resize listener into band_contacts_resize_r922.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r921: Safe JS modularization probe 6. Starts from phone-passed r920, keeps main app JavaScript inline, keeps app_r913.css plus r916-r920 external Calendar helpers, and extracts only the robust Calendar key/kebab binding listener into calendar_key_r921.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r920: Safe JS modularization probe 5. Starts from phone-passed r919, keeps main app JavaScript inline, keeps app_r913.css plus r916/r917/r918/r919 external Calendar helpers, and extracts only the small Calendar current-day rollover refresh listener into calendar_today_r920.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r919: Safe JS modularization probe 4. Starts from phone-passed r918, keeps main app JavaScript inline, keeps app_r913.css plus r916/r917/r918 external Calendar helpers, and extracts only the small Calendar lifecycle drawer-reset listener into calendar_lifecycle_r919.js. No feature, visual, Firebase, notification, or app-startup changes. -->
@@ -12413,12 +12414,7 @@ function _scrollBandContactDetailIntoView(contactId){
   setTimeout(doScroll, 180);
 }
 
-window.addEventListener('resize', function(){
-  try{
-    var sc = document.getElementById('sc-band');
-    if(sc && sc.classList.contains('contacts-open')) _layoutBandContactsDrawer();
-  }catch(e){}
-});
+// r922: Band/Mates contacts drawer resize listener moved to band_contacts_resize_r922.js.
 
 
 function _scrollCalendarSectionIntoView(contentId){
@@ -21963,7 +21959,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-31-safe-js-probe-r921';
+var WHATS_NEW_VERSION = '2026-05-31-safe-js-probe-r922';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22308,6 +22304,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-31-safe-js-probe-r922', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 7', body:'Continues the safe modularization path from r921 by keeping the main app JavaScript inline and extracting only the small Band/Mates Contacts drawer resize listener into band_contacts_resize_r922.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r922.html as index.html.','Upload band_contacts_resize_r922.js to the GitHub root.','Keep app_r913.css plus calendar_layout_r916.js, calendar_viewport_r917.js, calendar_drawer_r918.js, calendar_lifecycle_r919.js, calendar_today_r920.js, and calendar_key_r921.js in the GitHub root.','Confirm Build Version reports r922, Home is normal, tabs open, and Band/Mates Contacts still look normal after phone rotation/resize if tested.'] },
   { version:'2026-05-31-safe-js-probe-r921', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 6', body:'Continues the safe modularization path from r920 by keeping the main app JavaScript inline and extracting only the robust Calendar key/kebab binding listener into calendar_key_r921.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r921.html as index.html.','Upload calendar_key_r921.js to the GitHub root.','Keep app_r913.css, calendar_layout_r916.js, calendar_viewport_r917.js, calendar_drawer_r918.js, calendar_lifecycle_r919.js, and calendar_today_r920.js in the GitHub root.','Confirm Build Version reports r921, Home is normal, tabs open, Calendar looks normal, and the Calendar key/kebab still opens normally.'] },
   { version:'2026-05-31-safe-js-probe-r919', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 4', body:'Continues the safe modularization path from r918 by keeping the main app JavaScript inline and extracting only the small Calendar lifecycle drawer-reset listener into calendar_lifecycle_r919.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r919.html as index.html.','Upload calendar_lifecycle_r919.js to the GitHub root.','Keep app_r913.css, calendar_layout_r916.js, calendar_viewport_r917.js, and calendar_drawer_r918.js in the GitHub root.','Confirm Build Version reports r919, Home is normal, tabs open, and Calendar looks normal.'] },
   { version:'2026-05-31-safe-js-probe-r918', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 3', body:'Continues the safe modularization path from r917 by keeping the main app JavaScript inline and extracting only the late Calendar drawer shift helper into calendar_drawer_r918.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r918.html as index.html.','Upload calendar_drawer_r918.js to the GitHub root.','Keep app_r913.css, calendar_layout_r916.js, and calendar_viewport_r917.js in the GitHub root.','Confirm Build Version reports r918, Home is normal, tabs open, and Calendar looks normal.'] },
@@ -23852,6 +23849,8 @@ if(savedName&&savedId){
 
 <script src="calendar_drawer_r918.js"></script>
 <script src="calendar_lifecycle_r919.js"></script>
+
+<script src="band_contacts_resize_r922.js"></script>
 
 </body>
 </html>
