@@ -18546,6 +18546,25 @@ body.light #announce-modal .moh button{
 }
 body.light #announce-modal #ann-compose{border-top-color:rgba(212,160,23,.28) !important;}
 
+
+/* r910: What's New modal close X adopts the gold new-style close control only. */
+#whats-new-skip-pill{
+  background:rgba(245,197,24,.10) !important;
+  border:1px solid rgba(245,197,24,.55) !important;
+  color:#f5c518 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 12px rgba(245,197,24,.18) !important;
+}
+#whats-new-skip-pill:hover{
+  background:rgba(245,197,24,.16) !important;
+  border-color:rgba(245,197,24,.75) !important;
+}
+body.light #whats-new-skip-pill{
+  background:rgba(184,134,11,.10) !important;
+  border-color:rgba(184,134,11,.45) !important;
+  color:#9a6a00 !important;
+  box-shadow:none !important;
+}
+
 </style>
 </head>
 <body>
@@ -40082,7 +40101,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-30-announcements-menu-syntax-fix-r909';
+var WHATS_NEW_VERSION = '2026-05-30-whats-new-close-x-r910';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40427,6 +40446,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-30-whats-new-close-x-r910', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'What’s New close button polished', body:'Continues the close-control audit by updating only the What’s New modal close X to the gold new-style circular close treatment. What’s New content, dismiss behavior, Home, Calendar, Songs, Setlists, Chat, Mates, Pay, flyer rendering, assets, data, and notifications are unchanged.', items:['Upload index_r910.html as index.html.','Confirm Build Version reports r910.','Open Home → kebab → What’s New and confirm the top-right X is gold/new-style.','Confirm the X still dismisses the modal.','Spot-check Home → kebab → Announcements still opens from r909.'] },
   { version:'2026-05-30-announcements-menu-syntax-fix-r909', date:'May 30, 2026', importance:'fix', emoji:'🛠️', title:'Announcements menu syntax fix', body:'Fixes the failed r908 load by escaping the apostrophe in the r907 Announcements What\'s-New log text. Keeps Announcements in the Home kebab menu and preserves the bell shortcut, full Announcements header, posting behavior, and Active/Dismissed views.', items:['Upload index_r909.html as index.html.','Confirm Build Version reports r909.','Confirm Home loads and tabs navigate.','Home → kebab → Announcements opens the modal.','Home → bell icon still opens the same modal.'] },
   { version:'2026-05-30-announcements-home-menu-r908', date:'May 30, 2026', importance:'fix', emoji:'📢', title:'Announcements added to Home menu', body:'Adds Announcements as a clear secondary access path in the Home kebab menu while preserving the existing Home bell shortcut. The Announcements modal, posting behavior, active/dismissed views, Home layout, bell count/badge, and notification/data logic are unchanged.', items:['Upload index_r908.html as index.html.','Confirm Build Version reports r908.','Home → kebab → Announcements opens the Announcements modal.','Home → bell icon still opens the same Announcements modal.','Confirm posting and Active/Dismissed announcement views still work.'] },
   { version:'2026-05-30-announcements-full-header-r907', date:'May 30, 2026', importance:'fix', emoji:'📢', title:'Announcements gets full header shell', body:'Upgrades the Home Announcements modal from the compact treatment to the full What\'s-New-style header shell: icon badge, centered gold title, premium modal shell, and gold circular close X. Active/Dismissed toggles, announcement list, compose area, posting, dismissing, restoring, and deleting announcements are unchanged.', items:['Upload index_r907.html as index.html.','Confirm Build Version reports r907.','Home → Announcements: confirm the header now uses the full new-style shell.','Confirm Active and Dismissed tabs still work.','Confirm posting, dismissing, restoring, and deleting announcements still work.'] },
