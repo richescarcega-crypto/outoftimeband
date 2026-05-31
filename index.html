@@ -1,3 +1,4 @@
+<!-- r917: Safe JS modularization probe 2 from confirmed r916. Keeps main app JavaScript inline, keeps app_r913.css and calendar_layout_r916.js, and extracts only the small late Calendar viewport helper into external calendar_viewport_r917.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r916: Safe JS modularization probe retry from stable r915. Keeps main app JavaScript inline and extracts only the small late Calendar bottom-stack helper into external calendar_layout_r916.js. Uses existing app_r913.css. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r915: Rollback/restoration to confirmed stable r913 after r914 JavaScript modularization probe failed on phone. Keeps the successful external CSS modularization via app_r913.css, restores the r913 inline JavaScript/app startup behavior, and bumps WHATS_NEW_VERSION so phones detect the rollback as a new sequential build. Upload index_r915.html as index.html plus keep app_r913.css in GitHub root. -->
 <!-- r913: CSS extraction modularization step. Moves the existing monolithic style block into external app_r913.css only. No CSS rule changes, no JavaScript changes, no HTML app-section changes, and no feature/data/notification behavior changes. Upload index_r913.html as index.html plus app_r913.css to GitHub root after phone test. -->
@@ -22029,7 +22030,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-31-safe-js-probe-r916';
+var WHATS_NEW_VERSION = '2026-05-31-safe-js-probe-r917';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22374,6 +22375,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-31-safe-js-probe-r917', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 2', body:'Continues the safe modularization path from r916 by keeping the main app JavaScript inline and extracting only one small late Calendar viewport helper into calendar_viewport_r917.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r917.html as index.html.','Upload calendar_viewport_r917.js to the GitHub root.','Keep app_r913.css and calendar_layout_r916.js in the GitHub root.','Confirm Build Version reports r917, Home is normal, tabs open, and Calendar looks normal.'] },
   { version:'2026-05-31-r915-rollback-to-stable-css-extraction', date:'May 31, 2026', importance:'fix', emoji:'↩️', title:'Rollback to stable modular CSS build', body:'Restores the confirmed r913 app startup behavior after the r914 JavaScript extraction/probe failed on phone. Keeps the successful external CSS modularization through app_r913.css and does not change app features, data, notifications, visuals, Calendar, Songs, Setlists, Chat, Mates, Pay, or flyer logic.', items:['Upload index_r915.html as index.html.','Keep app_r913.css in the GitHub root.','Do not use the failed r914 JavaScript extraction/probe as a base.','Confirm Build Version reports r915 and the phone Home/tabs return to normal.'] },
   { version:'2026-05-30-css-extraction-r913', date:'May 30, 2026', importance:'fix', emoji:'🧩', title:'First modularization step', body:'Moves the app CSS out of the giant index file into app_r913.css while preserving the same visual rules and behavior. No design, JavaScript, notification, Firebase, or feature logic changes were made.', items:['Upload index_r913.html as index.html.','Upload app_r913.css to the GitHub root next to index.html.','Confirm Build Version reports r913.','Phone-test all main tabs for identical visual loading before continuing modularization.'] },
   { version:'2026-05-30-chat-notification-idempotency-uuid-r912', date:'May 30, 2026', importance:'fix', emoji:'🔔', title:'Chat notification send fixed', body:'Fixes the r911 OneSignal FAILED 400 error by sending a valid UUID-format idempotency key while preserving the chat TTL, web-push topic, freshness data, and notification log metadata. Scope is Band Chat/DM notification payload formatting only; chat messages, UI, reminders, Home, Calendar, Songs, Setlists, Mates, Pay, flyer rendering, and assets are unchanged.', items:['Upload index_r912.html as index.html.','Confirm Build Version reports r912.','Send one Band Chat test message.','Open Notification Log and confirm the newest Chat entry says SENT 200 instead of FAILED 400.','If it sends successfully, then restart Desktop Chrome later to confirm old chat notifications do not replay.'] },
@@ -23938,124 +23940,7 @@ if(savedName&&savedId){
 <!-- TOAST -->
 <div id="app-toast" style="position:fixed;left:50%;bottom:132px;transform:translateX(-50%) translateY(80px);z-index:9100;display:none;background:#101e34;border:1px solid #1a3a8a;border-radius:24px;padding:12px 20px;box-shadow:0 8px 30px rgba(0,0,0,.5);font-family:'Exo 2',sans-serif;font-size:15px;font-weight:700;color:#e8f0ff;max-width:86vw;text-align:center;opacity:0;transition:opacity .25s ease-out,transform .25s ease-out;pointer-events:none;"></div>
 <script src="calendar_layout_r916.js"></script>
-<script>
-/* r314: keep Calendar viewport locked and pin the lower pill stack directly under the blue date panel. */
-(function(){
-  var _ootCalStackLockScheduled = false;
-
-  function _scheduleCalendarStackLock(){
-    if(_ootCalStackLockScheduled) return;
-    _ootCalStackLockScheduled = true;
-    requestAnimationFrame(function(){
-      _ootCalStackLockScheduled = false;
-      _syncCalendarStackLock();
-    });
-  }
-
-  function _syncCalendarStackLock(){
-    var sc = document.getElementById('sc-cal');
-    // r510: only write closed Calendar stack measurements while Calendar is the active visible tab.
-    // Hidden/inactive measurements can seed stale CSS variables that make the lower stack appear too high on first entry.
-    if(!sc || !sc.classList.contains('cal-header-fit') || !sc.classList.contains('on')) return;
-
-    // r323: when a lower Calendar drawer is open, do not let the closed-stack
-    // lock recalculate the pill positions. That old closed-state recalculation
-    // was racing the open-drawer shift and caused the All Events/Rehearsal
-    // titles to jitter or briefly disappear during expansion.
-    function _shown(id){
-      var el = document.getElementById(id);
-      return !!(el && el.style && el.style.display !== 'none');
-    }
-    if(_shown('evl-filter-row') || _shown('evl') || _shown('proposals-list') || _shown('propose-btn') || _shown('cal-drawer')){
-      if(typeof window.__ootCalDrawerShiftRefresh === 'function') window.__ootCalDrawerShiftRefresh();
-      return;
-    }
-
-    var tabs = document.getElementById('tabs');
-    if(tabs){
-      var th = Math.ceil(tabs.getBoundingClientRect().height || 72);
-      document.documentElement.style.setProperty('--oot-tabs-h', th + 'px');
-    }
-
-    var wrap = document.getElementById('cgrid-wrap');
-    var evl = sc.querySelector('.evl-head');
-    var proposal = sc.querySelector('.proposals-head');
-    if(!wrap || !evl || !proposal) return;
-
-    // Measure the stack as a single element: All Events + gap + Rehearsal Proposals.
-    var evlH = Math.ceil(evl.getBoundingClientRect().height || 66);
-    var proposalH = Math.ceil(proposal.getBoundingClientRect().height || 60);
-    var stackGap = 2;
-    var panelGap = 2;
-    var safeBottom = 2;
-    var stackH = evlH + stackGap + proposalH;
-
-    document.documentElement.style.setProperty('--oot-cal-proposals-h', proposalH + 'px');
-    document.documentElement.style.setProperty('--oot-cal-stack-gap', stackGap + 'px');
-    document.documentElement.style.setProperty('--oot-cal-stack-to-grid-gap', panelGap + 'px');
-
-    var scRect = sc.getBoundingClientRect();
-    var wrapRect = wrap.getBoundingClientRect();
-    if(!wrapRect.height && !wrapRect.top) return;
-
-    // r510: deterministic closed-state height.
-    // Do not preserve the previous rendered height. If the first render starts short, preserving currentH
-    // creates a feedback loop where the lower stack stays too high until repeated month swipes correct it.
-    var availableH = Math.floor(scRect.bottom - wrapRect.top - panelGap - stackH - safeBottom);
-    var minH = (window.innerWidth <= 420) ? 300 : 320;
-    var targetH = Math.max(minH, availableH);
-    if(isFinite(targetH) && targetH > 0){
-      document.documentElement.style.setProperty('--oot-cal-grid-wrap-h', targetH + 'px');
-    }
-
-    // Position the stack directly below the blue calendar panel.
-    var stackTop = Math.round(wrapRect.top + targetH + panelGap);
-    var proposalTop = Math.round(stackTop + evlH + stackGap);
-    document.documentElement.style.setProperty('--oot-cal-stack-top', stackTop + 'px');
-    document.documentElement.style.setProperty('--oot-cal-proposals-top', proposalTop + 'px');
-  }
-
-  window.__ootCalStackLockRefresh = _scheduleCalendarStackLock;
-
-  function _attachCalendarStackLock(){
-    _scheduleCalendarStackLock();
-    var grid = document.getElementById('cgrid');
-    if(grid && !grid.__ootCalStackLockObserver){
-      var mo = new MutationObserver(_scheduleCalendarStackLock);
-      mo.observe(grid, {childList:true, subtree:true, attributes:true});
-      grid.__ootCalStackLockObserver = mo;
-    }
-    var sc = document.getElementById('sc-cal');
-    if(sc && !sc.__ootCalStackLockObserver){
-      var smo = new MutationObserver(_scheduleCalendarStackLock);
-      smo.observe(sc, {attributes:true, attributeFilter:['class','style']});
-      sc.__ootCalStackLockObserver = smo;
-    }
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', _attachCalendarStackLock);
-  }else{
-    _attachCalendarStackLock();
-  }
-  window.addEventListener('resize', _scheduleCalendarStackLock, {passive:true});
-  window.addEventListener('orientationchange', function(){ setTimeout(_scheduleCalendarStackLock, 250); }, {passive:true});
-  document.addEventListener('click', function(e){
-    if(e && e.target && (e.target.closest('#sc-cal') || e.target.closest('#tabs'))){
-      setTimeout(_scheduleCalendarStackLock, 80);
-      setTimeout(_scheduleCalendarStackLock, 280);
-    }
-  }, true);
-  document.addEventListener('touchend', function(e){
-    if(e && e.target && e.target.closest('#sc-cal')){
-      setTimeout(_scheduleCalendarStackLock, 80);
-      setTimeout(_scheduleCalendarStackLock, 320);
-    }
-  }, {passive:true, capture:true});
-  setTimeout(_scheduleCalendarStackLock, 300);
-  setTimeout(_scheduleCalendarStackLock, 900);
-})();
-</script>
+<script src="calendar_viewport_r917.js"></script>
 
 
 
