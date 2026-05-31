@@ -1,3 +1,4 @@
+<!-- r927: Safe JS modularization probe 12. Starts from phone-passed r926, keeps main app JavaScript inline, keeps app_r913.css plus r916-r926 external helpers, and extracts only the Suggest-a-Song keyboard frame helper into songs_keyboard_r927.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r926: Safe JS modularization probe 11. Starts from phone-passed r925, keeps main app JavaScript inline, keeps app_r913.css plus r916-r925 external helpers, and extracts only the desktop Calendar keyboard navigation listener into calendar_keyboard_r926.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r925: Safe JS modularization probe 10. Starts from phone-passed r924, keeps main app JavaScript inline, keeps app_r913.css plus r916-r924 external helpers, and extracts only the Setlist Create modal keyboard viewport listener into setlist_create_keyboard_r925.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r924: Safe JS modularization probe 9. Starts from phone-passed r923, keeps main app JavaScript inline, keeps app_r913.css plus r916-r923 external helpers, and extracts only the Contact Add/Edit modal keyboard viewport detector into contact_keyboard_r924.js. No feature, visual, Firebase, notification, or app-startup changes. -->
@@ -15941,54 +15942,8 @@ function _ootSuggestSentenceCommit(el){
     _ootPreserveCursorTransform(el, _ootSentenceCaseText);
   }catch(e){}
 }
-function _ootSuggestKeyboardMode(active, el){
-  var ov = document.getElementById('votes-modal');
-  var card = document.getElementById('votes-modal-card');
-  var form = document.getElementById('suggest-form');
+// r927: Suggest-a-Song keyboard frame helper moved to songs_keyboard_r927.js.
 
-  function setFrame(){
-    if(!ov || !card) return;
-    try{
-      var vv = window.visualViewport;
-      // r843: refined keyboard-safe Suggest-a-Song frame.
-      // r842 moved too high and mashed the header; this keeps Submit reachable
-      // without pinning the card to the very top.
-      var top = 58;
-      if(vv && typeof vv.offsetTop === 'number') top = Math.max(20, Math.floor(vv.offsetTop + 58));
-      var viewportH = (vv && vv.height ? vv.height : window.innerHeight);
-      var h = Math.min(390, Math.max(270, Math.floor(viewportH - top - 12)));
-      card.style.setProperty('--oot-suggest-keyboard-top', top + 'px');
-      card.style.setProperty('--oot-suggest-keyboard-height', h + 'px');
-      var isUrlField = !!(el && el.id === 'suggest-url');
-      if(!isUrlField){
-        card.scrollTop = 0;
-        ov.scrollTop = 0;
-        if(document.scrollingElement) document.scrollingElement.scrollTop = 0;
-        try{ window.scrollTo(0,0); }catch(e){}
-      }
-    }catch(e){}
-  }
-
-  if(active){
-    if(ov) ov.classList.add('suggest-keyboard-active');
-    setFrame();
-    // Android/Samsung changes visualViewport during keyboard animation.
-    // Recalculate the same fixed frame several times; do not scroll to the focused field.
-    if(window.requestAnimationFrame) requestAnimationFrame(setFrame);
-    [60,140,260,420,650,900].forEach(function(ms){ setTimeout(setFrame, ms); });
-  } else {
-    setTimeout(function(){
-      var a = document.activeElement;
-      if(form && a && form.contains(a)) return;
-      if(ov) ov.classList.remove('suggest-keyboard-active');
-      if(card){
-        card.style.removeProperty('--oot-suggest-keyboard-top');
-        card.style.removeProperty('--oot-suggest-keyboard-height');
-        card.scrollTop = 0;
-      }
-    }, 220);
-  }
-}
 function _ootSuggestUrlFocusGuard(el){
   try{
     if(!el) return;
@@ -21892,7 +21847,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-31-safe-js-probe-r926';
+var WHATS_NEW_VERSION = '2026-05-31-safe-js-probe-r927';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22237,6 +22192,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-31-safe-js-probe-r927', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 12', body:'Continues the safe modularization path from r926 by keeping the main app JavaScript inline and extracting only the Suggest-a-Song keyboard frame helper into songs_keyboard_r927.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r927.html as index.html.','Upload songs_keyboard_r927.js to the GitHub root.','Keep app_r913.css plus calendar_layout_r916.js, calendar_viewport_r917.js, calendar_drawer_r918.js, calendar_lifecycle_r919.js, calendar_today_r920.js, calendar_key_r921.js, band_contacts_resize_r922.js, flyer_resize_r923.js, contact_keyboard_r924.js, setlist_create_keyboard_r925.js, and calendar_keyboard_r926.js in the GitHub root.','Confirm Build Version reports r927, Home is normal, tabs open, and Songs/Suggest a Song still opens normally if tested.'] },
   { version:'2026-05-31-safe-js-probe-r926', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 11', body:'Continues the safe modularization path from r925 by keeping the main app JavaScript inline and extracting only the desktop Calendar keyboard navigation listener into calendar_keyboard_r926.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r926.html as index.html.','Upload calendar_keyboard_r926.js to the GitHub root.','Keep app_r913.css plus calendar_layout_r916.js, calendar_viewport_r917.js, calendar_drawer_r918.js, calendar_lifecycle_r919.js, calendar_today_r920.js, calendar_key_r921.js, band_contacts_resize_r922.js, flyer_resize_r923.js, contact_keyboard_r924.js, and setlist_create_keyboard_r925.js in the GitHub root.','Confirm Build Version reports r926, Home is normal, tabs open, and Calendar still opens normally if tested.'] },
   { version:'2026-05-31-safe-js-probe-r925', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 10', body:'Continues the safe modularization path from r924 by keeping the main app JavaScript inline and extracting only the Setlist Create modal keyboard viewport listener into setlist_create_keyboard_r925.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r925.html as index.html.','Upload setlist_create_keyboard_r925.js to the GitHub root.','Keep app_r913.css plus calendar_layout_r916.js, calendar_viewport_r917.js, calendar_drawer_r918.js, calendar_lifecycle_r919.js, calendar_today_r920.js, calendar_key_r921.js, band_contacts_resize_r922.js, flyer_resize_r923.js, and contact_keyboard_r924.js in the GitHub root.','Confirm Build Version reports r925, Home is normal, tabs open, and Setlists still opens normally if tested.'] },
   { version:'2026-05-31-safe-js-probe-r924', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 9', body:'Continues the safe modularization path from r923 by keeping the main app JavaScript inline and extracting only the Contact Add/Edit modal keyboard viewport detector into contact_keyboard_r924.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r924.html as index.html.','Upload contact_keyboard_r924.js to the GitHub root.','Keep app_r913.css plus calendar_layout_r916.js, calendar_viewport_r917.js, calendar_drawer_r918.js, calendar_lifecycle_r919.js, calendar_today_r920.js, calendar_key_r921.js, band_contacts_resize_r922.js, and flyer_resize_r923.js in the GitHub root.','Confirm Build Version reports r924, Home is normal, tabs open, and Band/Mates contact Add/Edit still opens normally if tested.'] },
@@ -23792,6 +23748,7 @@ if(savedName&&savedId){
 <script src="contact_keyboard_r924.js"></script>
 <script src="setlist_create_keyboard_r925.js"></script>
 <script src="calendar_keyboard_r926.js"></script>
+<script src="songs_keyboard_r927.js"></script>
 
 </body>
 </html>
