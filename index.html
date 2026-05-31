@@ -1,3 +1,4 @@
+<!-- r911: Desktop Chrome stale chat notification replay guard. Adds chat-notification freshness metadata only: short chat TTL, stable web_push_topic/collapse/idempotency keys, sent/expires custom data, and unique per-message notification ids for Band Chat/DM/share/flyer pushes. Requires the existing Cloudflare push worker to pass these fields through to OneSignal for full stale-replay protection. No UI, Firestore data model, Home, Calendar, Songs, Setlists, Mates, Pay, flyer rendering, or reminder logic changed. Upload index_r911.html as index.html after phone/desktop test. -->
 <!-- r893: Pay Log Gig Pay header audit pass. Applies compact What’s-New-style star/centered-title treatment to the Pay tab inline Log Gig Pay card header only, preserving Add Pay fields, Add behavior, keyboard-safe scrolling, Pay totals/history, and all other tabs. -->
 <!-- r885: Shared prompt header audit pass. Applies the What’s-New-style star/centered-title treatment to the generic text prompt dialog only, preserving prompt input, SAVE/CANCEL buttons, handlers, confirm dialog, flyer workflow, and app data. -->
 <!-- r810: Home cue fallback listeners + social button lower-safe adjustment. Starts from r809. Adds unordered Firestore fallback listeners for Home song/rehearsal cue data so ordered-query/data-field issues cannot leave Home pills empty, broadens future proposal matching, and lowers social buttons slightly while keeping them visible. -->
@@ -20687,6 +20688,59 @@ function _idsToNames(ids){
     }).join(', ');
   } catch(e){ return ''; }
 }
+
+// r911: notification freshness helpers for Desktop Chrome stale chat replay.
+// The app sends push requests through PUSH_WORKER_URL; these fields must be
+// forwarded by that worker to OneSignal for full TTL/topic/idempotency effect.
+function _safeNotifToken(v){
+  return String(v == null ? '' : v).toLowerCase().replace(/[^a-z0-9_-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,64) || 'x';
+}
+function _makeNotificationId(category, threadKey){
+  var ts = Date.now ? Date.now() : new Date().getTime();
+  var rnd = Math.random ? Math.random().toString(36).slice(2,10) : String(ts).slice(-6);
+  return 'oot-' + _safeNotifToken(category || 'notify') + '-' + _safeNotifToken(threadKey || 'all') + '-' + ts + '-' + rnd;
+}
+function _chatThreadKeyForNotify(targetMemberId){
+  if(targetMemberId){
+    var a = _safeNotifToken(ME);
+    var b = _safeNotifToken(targetMemberId);
+    return 'dm-' + [a,b].sort().join('-');
+  }
+  return 'band';
+}
+function _applyNotificationFreshness(payload, category, opts){
+  try{
+    opts = opts || {};
+    var isChat = String(category || '') === 'chat';
+    var ttl = (typeof opts.ttlSeconds === 'number') ? opts.ttlSeconds : (isChat ? 600 : null);
+    var threadKey = opts.threadKey || (isChat ? _chatThreadKeyForNotify(opts.targetMemberId) : String(category || 'general'));
+    var notificationId = opts.notificationId || (isChat ? _makeNotificationId(category, threadKey) : '');
+    var sentAtMs = Date.now ? Date.now() : new Date().getTime();
+    if(ttl != null){
+      payload.ttl = ttl;
+      payload.ttlSeconds = ttl;
+    }
+    if(isChat){
+      payload.web_push_topic = 'oot-chat-' + _safeNotifToken(threadKey);
+      payload.webPushTopic = payload.web_push_topic;
+      payload.collapse_id = payload.web_push_topic;
+      payload.collapseId = payload.web_push_topic;
+    }
+    if(notificationId){
+      payload.notificationId = notificationId;
+      payload.idempotency_key = notificationId;
+      payload.idempotencyKey = notificationId;
+    }
+    payload.data = Object.assign({}, payload.data || {}, opts.data || {}, {
+      ootCategory: String(category || ''),
+      ootThreadKey: String(threadKey || ''),
+      ootNotificationId: String(notificationId || ''),
+      ootSentAt: new Date(sentAtMs).toISOString(),
+      ootExpiresAt: ttl != null ? new Date(sentAtMs + ttl * 1000).toISOString() : ''
+    });
+  }catch(e){}
+  return payload;
+}
 function notifyBand(category, title, message, url, opts){
   try {
     opts = opts || {};
@@ -20716,6 +20770,7 @@ function notifyBand(category, title, message, url, opts){
         message: message,
         url: url || 'https://richescarcega-crypto.github.io/outoftimeband/'
       };
+      _applyNotificationFreshness(payload, category, opts);
       var senderName = '';
       try { var meM = gM(ME); senderName = (meM && meM.name) ? meM.name : ('id:'+ME); } catch(e){}
       if(opts.targetMemberId){
@@ -30099,12 +30154,14 @@ function _flyerSendToChat(){
         var t = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
         var day = now.toLocaleDateString([], {weekday:'short', month:'short', day:'numeric'});
         var caption = '📢 ' + venue + (_flyerCtx.date ? ' — ' + _flyerCtx.date : '');
+        var notifId = (typeof _makeNotificationId === 'function') ? _makeNotificationId('chat','band') : '';
         saveMsg({
           who: ME,
           to: 'band',
           txt: caption,
           image: dataUrl,
           imageKind: 'flyer',
+          notificationId: notifId,
           time: t,
           day: day
         });
@@ -30115,7 +30172,9 @@ function _flyerSendToChat(){
         var senderFirst = (myName || '').split(' ')[0] || 'A member';
         notifyBand('chat',
           senderFirst + ' (band chat)',
-          '📢 Sent a flyer: ' + venue
+          '📢 Sent a flyer: ' + venue,
+          '/',
+          {notificationId:notifId, threadKey:'band', ttlSeconds:600}
         );
       } catch(e){
         toast('Failed to send', {tone:'error'});
@@ -30197,7 +30256,7 @@ function listenGigDetails(){
 // FIREBASE SAVES
 function saveEvent(ev){db.collection('events').doc(String(ev.id)).set(ev);}
 function deleteEvent(id){db.collection('events').doc(String(id)).delete();}
-function saveMsg(msg){db.collection('messages').add(Object.assign({ts:firebase.firestore.FieldValue.serverTimestamp()},msg));}
+function saveMsg(msg){return db.collection('messages').add(Object.assign({ts:firebase.firestore.FieldValue.serverTimestamp()},msg));}
 function saveSet(sl){try{_trackActivity('save_setlist', String(sl&&sl.id||''));}catch(e){}db.collection('setlists').doc(String(sl.id)).set(sl);}
 function savePay(g){db.collection('pay').doc(String(g.id)).set(g);}
 function saveMember(name,data){return db.collection('members').doc(name).set(data,{merge:true});}
@@ -36086,12 +36145,13 @@ function _sendShareToBandChat(shareType, summaryText){
   var t = now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   var day = now.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
   var payloadText = _buildShareChatPayload(shareType, summaryText);
-  saveMsg({who:ME, to:'band', txt:payloadText, time:t, day:day, shareType:shareType, exportFilename:_shareTypeFileName(shareType)});
+  var notifId = (typeof _makeNotificationId === 'function') ? _makeNotificationId('chat','band') : '';
+  saveMsg({who:ME, to:'band', txt:payloadText, notificationId:notifId, time:t, day:day, shareType:shareType, exportFilename:_shareTypeFileName(shareType)});
   // Track activity (r42)
   try { _trackActivity('send_message'); } catch(e){}
   // Push notification to others: keep push concise even when the chat message contains full exported content.
   if(typeof notifyBand === 'function'){
-    try { notifyBand('chat', (typeof myName !== 'undefined' ? myName : 'Member') + ' (band chat)', summaryText); } catch(e){}
+    try { notifyBand('chat', (typeof myName !== 'undefined' ? myName : 'Member') + ' (band chat)', summaryText, '/', {notificationId:notifId, threadKey:'band', ttlSeconds:600}); } catch(e){}
   }
   if(typeof toast === 'function') toast('Sent to Band Chat', {tone:'success'});
 }
@@ -36110,12 +36170,14 @@ function _sendShareToMember(memberId, shareType, summaryText){
   var t = now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   var day = now.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
   var payloadText = _buildShareChatPayload(shareType, summaryText);
-  saveMsg({who:ME, to:memberId, txt:payloadText, time:t, day:day, shareType:shareType, exportFilename:_shareTypeFileName(shareType)});
+  var threadKey = (typeof _chatThreadKeyForNotify === 'function') ? _chatThreadKeyForNotify(memberId) : ('dm-' + String(memberId));
+  var notifId = (typeof _makeNotificationId === 'function') ? _makeNotificationId('chat',threadKey) : '';
+  saveMsg({who:ME, to:memberId, txt:payloadText, notificationId:notifId, time:t, day:day, shareType:shareType, exportFilename:_shareTypeFileName(shareType)});
   try { _trackActivity('send_message'); } catch(e){}
   if(typeof notifyBand === 'function'){
     try {
       var senderName = (typeof myName !== 'undefined' ? myName : 'Member');
-      notifyBand('chat', senderName + ' sent you a message', summaryText, '/', { targetMemberId: memberId });
+      notifyBand('chat', senderName + ' sent you a message', summaryText, '/', { targetMemberId: memberId, notificationId:notifId, threadKey:threadKey, ttlSeconds:600 });
     } catch(e){}
   }
   var memberName = (function(){
@@ -37208,20 +37270,22 @@ function sMsg(){
   var now=new Date();
   var t=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   var day=now.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
-  saveMsg({who:ME,to:chatTo,txt:txt,time:t,day:day});
+  var threadKey = (chatTo === 'band') ? 'band' : ((typeof _chatThreadKeyForNotify === 'function') ? _chatThreadKeyForNotify(chatTo) : ('dm-' + String(chatTo)));
+  var notifId = (typeof _makeNotificationId === 'function') ? _makeNotificationId('chat',threadKey) : '';
+  saveMsg({who:ME,to:chatTo,txt:txt,notificationId:notifId,time:t,day:day});
   inp.value='';
   updateChatComposer(inp);
   updateSendBtn();
   var preview = txt.length > 100 ? txt.slice(0,100) + '…' : txt;
   if(chatTo === 'band'){
-    notifyBand('chat', myName + ' (band chat)', preview);
+    notifyBand('chat', myName + ' (band chat)', preview, '/', {notificationId:notifId, threadKey:'band', ttlSeconds:600});
   } else if(String(chatTo) === String(ME)){
     // Defensive: should never happen — chat list filters ME out — but log if it does.
     if(typeof console !== 'undefined' && console.warn){
       console.warn('[sMsg] chatTo === ME — self-DM suppressed', {chatTo:chatTo, ME:ME});
     }
   } else {
-    notifyBand('chat', myName + ' sent you a message', preview, '/', { targetMemberId: chatTo });
+    notifyBand('chat', myName + ' sent you a message', preview, '/', { targetMemberId: chatTo, notificationId:notifId, threadKey:threadKey, ttlSeconds:600 });
   }
 }
 
@@ -40101,7 +40165,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-30-whats-new-close-x-r910';
+var WHATS_NEW_VERSION = '2026-05-30-chat-notification-stale-guard-r911';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40446,6 +40510,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-30-chat-notification-stale-guard-r911', date:'May 30, 2026', importance:'fix', emoji:'🔔', title:'Chat stale notification guard', body:'Adds freshness metadata to Band Chat and DM push notifications to reduce Desktop Chrome replaying old chat alerts: short chat TTL, stable web-push topic/collapse key, unique idempotency key, and sent/expires data. Chat UI, message saving, notifications preferences, reminders, Home, Calendar, Songs, Setlists, Mates, Pay, flyer rendering, and assets are unchanged. Full protection requires the existing push worker to pass these fields through to OneSignal.', items:['Upload index_r911.html as index.html.','Confirm Build Version reports r911.','Send a Band Chat test message from one device and confirm recipients receive one fresh notification.','Restart Desktop Chrome and confirm that old Band Chat notifications do not replay.','If stale replay continues, update the Cloudflare push worker to forward ttl, web_push_topic, idempotency_key, and data to OneSignal.'] },
   { version:'2026-05-30-whats-new-close-x-r910', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'What’s New close button polished', body:'Continues the close-control audit by updating only the What’s New modal close X to the gold new-style circular close treatment. What’s New content, dismiss behavior, Home, Calendar, Songs, Setlists, Chat, Mates, Pay, flyer rendering, assets, data, and notifications are unchanged.', items:['Upload index_r910.html as index.html.','Confirm Build Version reports r910.','Open Home → kebab → What’s New and confirm the top-right X is gold/new-style.','Confirm the X still dismisses the modal.','Spot-check Home → kebab → Announcements still opens from r909.'] },
   { version:'2026-05-30-announcements-menu-syntax-fix-r909', date:'May 30, 2026', importance:'fix', emoji:'🛠️', title:'Announcements menu syntax fix', body:'Fixes the failed r908 load by escaping the apostrophe in the r907 Announcements What\'s-New log text. Keeps Announcements in the Home kebab menu and preserves the bell shortcut, full Announcements header, posting behavior, and Active/Dismissed views.', items:['Upload index_r909.html as index.html.','Confirm Build Version reports r909.','Confirm Home loads and tabs navigate.','Home → kebab → Announcements opens the modal.','Home → bell icon still opens the same modal.'] },
   { version:'2026-05-30-announcements-home-menu-r908', date:'May 30, 2026', importance:'fix', emoji:'📢', title:'Announcements added to Home menu', body:'Adds Announcements as a clear secondary access path in the Home kebab menu while preserving the existing Home bell shortcut. The Announcements modal, posting behavior, active/dismissed views, Home layout, bell count/badge, and notification/data logic are unchanged.', items:['Upload index_r908.html as index.html.','Confirm Build Version reports r908.','Home → kebab → Announcements opens the Announcements modal.','Home → bell icon still opens the same Announcements modal.','Confirm posting and Active/Dismissed announcement views still work.'] },
