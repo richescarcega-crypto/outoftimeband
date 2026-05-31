@@ -1,4 +1,4 @@
-<!-- r923: Safe JS modularization probe 8. Starts from phone-passed r922, keeps main app JavaScript inline, keeps app_r913.css plus r916-r922 external helpers, and extracts only the small Make/Edit Flyer saved-preview resize listener into flyer_resize_r923.js. No feature, visual, Firebase, notification, or app-startup changes. -->
+<!-- r924: Safe JS modularization probe 9. Starts from phone-passed r923, keeps main app JavaScript inline, keeps app_r913.css plus r916-r923 external helpers, and extracts only the Contact Add/Edit modal keyboard viewport detector into contact_keyboard_r924.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r921: Safe JS modularization probe 6. Starts from phone-passed r920, keeps main app JavaScript inline, keeps app_r913.css plus r916-r920 external Calendar helpers, and extracts only the robust Calendar key/kebab binding listener into calendar_key_r921.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r920: Safe JS modularization probe 5. Starts from phone-passed r919, keeps main app JavaScript inline, keeps app_r913.css plus r916/r917/r918/r919 external Calendar helpers, and extracts only the small Calendar current-day rollover refresh listener into calendar_today_r920.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r919: Safe JS modularization probe 4. Starts from phone-passed r918, keeps main app JavaScript inline, keeps app_r913.css plus r916/r917/r918 external Calendar helpers, and extracts only the small Calendar lifecycle drawer-reset listener into calendar_lifecycle_r919.js. No feature, visual, Firebase, notification, or app-startup changes. -->
@@ -4214,37 +4214,7 @@ function _setContactModalMode(mode){
 }
 
 
-/* r743: Contact modal keyboard viewport detector.
-   Keeps the Contact Add/Edit modal inside the visible Android/PWA viewport while
-   preserving a fixed title/X and an internally scrollable form body. */
-(function(){
-  function _contactKeyboardActive(){
-    var ov = document.getElementById('contact-modal');
-    if(!ov) return;
-    var ae = document.activeElement;
-    var active = !!(ov.classList.contains('on') && ae && ov.contains(ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName || ''));
-    ov.classList.toggle('contact-keyboard-active', active);
-    if(active && window.visualViewport){
-      var h = Math.max(320, Math.floor(window.visualViewport.height - 16));
-      ov.style.setProperty('--contact-visible-height', h + 'px');
-    }else{
-      ov.style.removeProperty('--contact-visible-height');
-    }
-  }
-  window._contactKeyboardActive = _contactKeyboardActive;
-  document.addEventListener('focusin', function(e){
-    var ov = document.getElementById('contact-modal');
-    if(ov && ov.contains(e.target)) setTimeout(_contactKeyboardActive, 60);
-  });
-  document.addEventListener('focusout', function(e){
-    var ov = document.getElementById('contact-modal');
-    if(ov && ov.contains(e.target)) setTimeout(_contactKeyboardActive, 180);
-  });
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', function(){ setTimeout(_contactKeyboardActive, 30); });
-    window.visualViewport.addEventListener('scroll', function(){ setTimeout(_contactKeyboardActive, 30); });
-  }
-})();
+// r924: Contact Add/Edit modal keyboard viewport detector moved to contact_keyboard_r924.js.
 
 function openAddContactModal(){
   editingContactId = null;
@@ -21955,7 +21925,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-31-safe-js-probe-r923';
+var WHATS_NEW_VERSION = '2026-05-31-safe-js-probe-r924';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22300,6 +22270,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-31-safe-js-probe-r924', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 9', body:'Continues the safe modularization path from r923 by keeping the main app JavaScript inline and extracting only the Contact Add/Edit modal keyboard viewport detector into contact_keyboard_r924.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r924.html as index.html.','Upload contact_keyboard_r924.js to the GitHub root.','Keep app_r913.css plus calendar_layout_r916.js, calendar_viewport_r917.js, calendar_drawer_r918.js, calendar_lifecycle_r919.js, calendar_today_r920.js, calendar_key_r921.js, band_contacts_resize_r922.js, and flyer_resize_r923.js in the GitHub root.','Confirm Build Version reports r924, Home is normal, tabs open, and Band/Mates contact Add/Edit still opens normally if tested.'] },
   { version:'2026-05-31-safe-js-probe-r923', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 8', body:'Continues the safe modularization path from r922 by keeping the main app JavaScript inline and extracting only the small Make/Edit Flyer saved-preview resize listener into flyer_resize_r923.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r923.html as index.html.','Upload flyer_resize_r923.js to the GitHub root.','Keep app_r913.css plus calendar_layout_r916.js, calendar_viewport_r917.js, calendar_drawer_r918.js, calendar_lifecycle_r919.js, calendar_today_r920.js, calendar_key_r921.js, and band_contacts_resize_r922.js in the GitHub root.','Confirm Build Version reports r923, Home is normal, tabs open, and Make/Edit Flyer still opens normally if tested.'] },
   { version:'2026-05-31-safe-js-probe-r922', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 7', body:'Continues the safe modularization path from r921 by keeping the main app JavaScript inline and extracting only the small Band/Mates Contacts drawer resize listener into band_contacts_resize_r922.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r922.html as index.html.','Upload band_contacts_resize_r922.js to the GitHub root.','Keep app_r913.css plus calendar_layout_r916.js, calendar_viewport_r917.js, calendar_drawer_r918.js, calendar_lifecycle_r919.js, calendar_today_r920.js, and calendar_key_r921.js in the GitHub root.','Confirm Build Version reports r922, Home is normal, tabs open, and Band/Mates Contacts still look normal after phone rotation/resize if tested.'] },
   { version:'2026-05-31-safe-js-probe-r921', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 6', body:'Continues the safe modularization path from r920 by keeping the main app JavaScript inline and extracting only the robust Calendar key/kebab binding listener into calendar_key_r921.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r921.html as index.html.','Upload calendar_key_r921.js to the GitHub root.','Keep app_r913.css, calendar_layout_r916.js, calendar_viewport_r917.js, calendar_drawer_r918.js, calendar_lifecycle_r919.js, and calendar_today_r920.js in the GitHub root.','Confirm Build Version reports r921, Home is normal, tabs open, Calendar looks normal, and the Calendar key/kebab still opens normally.'] },
@@ -23849,6 +23820,7 @@ if(savedName&&savedId){
 
 <script src="band_contacts_resize_r922.js"></script>
 <script src="flyer_resize_r923.js"></script>
+<script src="contact_keyboard_r924.js"></script>
 
 </body>
 </html>
