@@ -18224,6 +18224,110 @@ body.light #agenda-modal .moh button{
   background:rgba(212,160,23,.13) !important;
 }
 
+
+
+/* r903: Make/Edit Flyer modal compact What’s-New-style header audit pass.
+   Header presentation only. Preserves flyer steps, fields, preview, save banner,
+   top-right more actions, share/download/save flows, and flyer rendering. */
+#flyer-modal .moh{
+  position:sticky !important;
+  top:0 !important;
+  z-index:24 !important;
+  flex:0 0 76px !important;
+  height:76px !important;
+  min-height:76px !important;
+  display:block !important;
+  margin:0 0 10px !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:14px 14px 0 0 !important;
+  background:
+    radial-gradient(circle at 50% 14px,rgba(74,158,255,.18),transparent 74px),
+    linear-gradient(180deg,rgba(10,22,40,.99),rgba(7,18,42,.96)) !important;
+  box-shadow:0 6px 16px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.045) !important;
+}
+#flyer-modal .moh::before{
+  content:"✨" !important;
+  position:absolute !important;
+  top:15px !important;
+  left:14px !important;
+  width:34px !important;
+  height:34px !important;
+  border-radius:50% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:rgba(74,158,255,.16) !important;
+  box-shadow:0 0 18px rgba(74,158,255,.22),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  color:#ffffff !important;
+  font-size:18px !important;
+  line-height:1 !important;
+  pointer-events:none !important;
+}
+#flyer-modal .moh .mot{
+  position:absolute !important;
+  top:23px !important;
+  left:72px !important;
+  right:92px !important;
+  display:block !important;
+  text-align:center !important;
+  font-family:"Russo One",sans-serif !important;
+  font-size:15px !important;
+  line-height:1.15 !important;
+  letter-spacing:1.6px !important;
+  color:#f5c518 !important;
+  text-shadow:0 0 14px rgba(245,197,24,.24) !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+#flyer-modal #flyer-save-status{
+  display:none !important;
+}
+#flyer-modal #flyer-more-btn,
+#flyer-modal .moh > button:not(#flyer-more-btn){
+  position:absolute !important;
+  top:15px !important;
+  width:34px !important;
+  height:34px !important;
+  min-width:34px !important;
+  min-height:34px !important;
+  padding:0 !important;
+  border-radius:50% !important;
+  border:1px solid rgba(245,197,24,.45) !important;
+  background:rgba(245,197,24,.10) !important;
+  color:#f5c518 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  line-height:1 !important;
+  font-size:18px !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 12px rgba(245,197,24,.14) !important;
+  flex:0 0 auto !important;
+}
+#flyer-modal #flyer-more-btn{
+  right:52px !important;
+}
+#flyer-modal .moh > button:not(#flyer-more-btn){
+  right:12px !important;
+}
+body.light #flyer-modal .moh{
+  background:#ffffff !important;
+  color:#17233a !important;
+  box-shadow:0 10px 24px rgba(20,40,80,.12),0 0 0 1px rgba(212,160,23,.18) !important;
+}
+body.light #flyer-modal .moh .mot{
+  color:#9a6a00 !important;
+  text-shadow:none !important;
+}
+body.light #flyer-modal #flyer-more-btn,
+body.light #flyer-modal .moh > button:not(#flyer-more-btn){
+  color:#9a6a00 !important;
+  border-color:rgba(180,134,11,.38) !important;
+  background:rgba(180,134,11,.10) !important;
+  box-shadow:none !important;
+}
+
 </style>
 </head>
 <body>
@@ -39755,7 +39859,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-30-rehearsal-agenda-header-r902';
+var WHATS_NEW_VERSION = '2026-05-30-flyer-modal-header-r903';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40100,6 +40204,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-30-flyer-modal-header-r903', date:'May 30, 2026', importance:'fix', emoji:'🎨', title:'Flyer modal header restyled', body:'Continues the targeted modal/header audit by applying the compact What’s-New-style star badge, centered gold title, and gold circular close/more controls to the Make/Edit Flyer modal header. Flyer steps, template selection, editable fields, preview, save banner, top-right more actions, share/download/save flows, rendering, Home, Calendar, Songs, Setlists, Chat, Mates, Pay, assets, notifications, and data are unchanged.', items:['Upload index_r903.html as index.html.','Confirm Build Version reports r903.','Open Make Flyer or Edit Saved Flyer and confirm the header uses the compact star/centered-title/gold-control style.','Confirm the kebab/more actions still open and the X still closes.','Confirm template selection, fields, preview, save/share/download behavior still work.','Spot-check Rehearsal Agenda r902 header remains unchanged.'] },
   { version:'2026-05-30-rehearsal-agenda-header-r902', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'Rehearsal Agenda header restyled', body:'Continues the targeted modal/header audit by applying the compact What’s-New-style star badge, centered gold title, sticky header, and gold circular close X to the Rehearsal Agenda modal only. Agenda list content, add-agenda behavior, Calendar data, Setlists, Songs, Home, Chat, Mates, Pay, assets, notifications, and data are unchanged.', items:['Upload index_r902.html as index.html.','Confirm Build Version reports r902.','Open a rehearsal agenda modal and confirm the header uses the compact star/centered-title/gold-X style.','Confirm the X closes the modal and agenda add/list behavior still works.','Spot-check r901 Setlists separator spacing remains unchanged.'] },
   { version:'2026-05-30-setlists-divider-spacing-r901', date:'May 30, 2026', importance:'fix', emoji:'🎼', title:'Setlists divider spacing refined', body:'Adjusts only the vertical spacing around the Setlists Upcoming Gig Needs a Setlist separator so the line reads as a section divider rather than being attached to the action pill. The top separator remains removed, the red action border remains, and the Chat divider style is unchanged. Home, Calendar, Songs, Chat, Mates, Pay, assets, data, and notifications are unchanged.', items:['Upload index_r901.html as index.html.','Confirm Build Version reports r901.','Setlists: confirm there is still no top line above Upcoming Gig Needs a Setlist.','Confirm the gold separator sits lower below the action pill and the first setlist starts below it with Chat-like breathing room.','Spot-check Chat divider remains bold/gold from r900.'] },
   { version:'2026-05-30-setlists-chat-divider-emphasis-r900', date:'May 30, 2026', importance:'fix', emoji:'✨', title:'Setlists and Chat dividers strengthened', body:'Makes the Setlists action separator and Chat Band Chat divider much thicker and more visibly gold, matching the stronger header-gold family rather than the faint transparent line. Keeps the Setlists action pill, red border, spacing, Chat rows, Home, Calendar, Songs, Mates, Pay, assets, data, and notifications unchanged.', items:['Upload index_r900.html as index.html.','Confirm Build Version reports r900.','Setlists: confirm the separator below Upcoming Gig Needs a Setlist is much thicker and more gold.','Confirm there is still no top separator above the action pill.','Chat: confirm the Band Chat divider is much thicker and more gold.'] },
