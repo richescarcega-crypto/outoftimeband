@@ -1,3 +1,4 @@
+<!-- r919: Safe JS modularization probe 4. Starts from phone-passed r918, keeps main app JavaScript inline, keeps app_r913.css plus r916/r917/r918 external Calendar helpers, and extracts only the small Calendar lifecycle drawer-reset listener into calendar_lifecycle_r919.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r918: Safe JS modularization probe 3. Starts from phone-passed r917, keeps main app JavaScript inline, keeps app_r913.css plus calendar_layout_r916.js and calendar_viewport_r917.js, and extracts only the late Calendar drawer shift helper into calendar_drawer_r918.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r917: Safe JS modularization probe 2 from confirmed r916. Keeps main app JavaScript inline, keeps app_r913.css and calendar_layout_r916.js, and extracts only the small late Calendar viewport helper into external calendar_viewport_r917.js. No feature, visual, Firebase, notification, or app-startup changes. -->
 <!-- r916: Safe JS modularization probe retry from stable r915. Keeps main app JavaScript inline and extracts only the small late Calendar bottom-stack helper into external calendar_layout_r916.js. Uses existing app_r913.css. No feature, visual, Firebase, notification, or app-startup changes. -->
@@ -22031,7 +22032,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-31-safe-js-probe-r918';
+var WHATS_NEW_VERSION = '2026-05-31-safe-js-probe-r919';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22376,6 +22377,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-31-safe-js-probe-r919', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 4', body:'Continues the safe modularization path from r918 by keeping the main app JavaScript inline and extracting only the small Calendar lifecycle drawer-reset listener into calendar_lifecycle_r919.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r919.html as index.html.','Upload calendar_lifecycle_r919.js to the GitHub root.','Keep app_r913.css, calendar_layout_r916.js, calendar_viewport_r917.js, and calendar_drawer_r918.js in the GitHub root.','Confirm Build Version reports r919, Home is normal, tabs open, and Calendar looks normal.'] },
   { version:'2026-05-31-safe-js-probe-r918', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 3', body:'Continues the safe modularization path from r917 by keeping the main app JavaScript inline and extracting only the late Calendar drawer shift helper into calendar_drawer_r918.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r918.html as index.html.','Upload calendar_drawer_r918.js to the GitHub root.','Keep app_r913.css, calendar_layout_r916.js, and calendar_viewport_r917.js in the GitHub root.','Confirm Build Version reports r918, Home is normal, tabs open, and Calendar looks normal.'] },
   { version:'2026-05-31-safe-js-probe-r917', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 2', body:'Continues the safe modularization path from r916 by keeping the main app JavaScript inline and extracting only one small late Calendar viewport helper into calendar_viewport_r917.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r917.html as index.html.','Upload calendar_viewport_r917.js to the GitHub root.','Keep app_r913.css and calendar_layout_r916.js in the GitHub root.','Confirm Build Version reports r917, Home is normal, tabs open, and Calendar looks normal.'] },
   { version:'2026-05-31-r915-rollback-to-stable-css-extraction', date:'May 31, 2026', importance:'fix', emoji:'↩️', title:'Rollback to stable modular CSS build', body:'Restores the confirmed r913 app startup behavior after the r914 JavaScript extraction/probe failed on phone. Keeps the successful external CSS modularization through app_r913.css and does not change app features, data, notifications, visuals, Calendar, Songs, Setlists, Chat, Mates, Pay, or flyer logic.', items:['Upload index_r915.html as index.html.','Keep app_r913.css in the GitHub root.','Do not use the failed r914 JavaScript extraction/probe as a base.','Confirm Build Version reports r915 and the phone Home/tabs return to normal.'] },
@@ -23798,23 +23800,6 @@ if(savedName&&savedId){
   window.addEventListener('pageshow', function(){ scheduleSuggestYouTubeRestore('pageshow'); });
   setTimeout(function(){ scheduleSuggestYouTubeRestore('initial-load'); }, 900);
 })();
-
-// r367: Do not preserve a previously open Calendar Event Details/day drawer
-// across app background/close/restore. This intentionally does not alter the
-// drawer while the user remains on Calendar; it only clears stale drawer state
-// when the app is leaving/restoring.
-(function(){
-  function closeCalendarDrawerForLifecycle(reason){
-    try {
-      if(typeof closeDayDrawer === 'function') closeDayDrawer();
-      if(typeof collapseCalendarLowerAccordionsForReset === 'function') collapseCalendarLowerAccordionsForReset(reason || 'lifecycle');
-    } catch(e){}
-  }
-  document.addEventListener('visibilitychange', function(){
-    if(document.visibilityState === 'hidden') closeCalendarDrawerForLifecycle('hidden');
-  });
-  window.addEventListener('pagehide', function(){ closeCalendarDrawerForLifecycle('pagehide'); });
-})();
 </script>
 
 <div class="ov" id="reorder-modal">
@@ -23947,6 +23932,7 @@ if(savedName&&savedId){
 
 
 <script src="calendar_drawer_r918.js"></script>
+<script src="calendar_lifecycle_r919.js"></script>
 
 </body>
 </html>
