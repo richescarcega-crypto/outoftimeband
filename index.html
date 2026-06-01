@@ -1,3 +1,4 @@
+<!-- r936: Sequential restoration rollback to confirmed-stable r912 after modularization builds r913-r935 caused Home kebab/menu regressions. Preserves r912 app behavior and r912 Desktop Chrome stale Band Chat notification fix; bumps WHATS_NEW_VERSION so phones detect this restoration. Upload index_r936.html as index.html. -->
 <!-- r912: Chat notification idempotency UUID fix. Fixes r911 OneSignal FAILED 400 by sending a valid UUID-format idempotency_key while keeping the app's readable chat notificationId in custom data. Preserves r911 TTL/topic/data stale-replay guard and all UI/data behavior. Upload index_r912.html as index.html after test. -->
 <!-- r893: Pay Log Gig Pay header audit pass. Applies compact What’s-New-style star/centered-title treatment to the Pay tab inline Log Gig Pay card header only, preserving Add Pay fields, Add behavior, keyboard-safe scrolling, Pay totals/history, and all other tabs. -->
 <!-- r885: Shared prompt header audit pass. Applies the What’s-New-style star/centered-title treatment to the generic text prompt dialog only, preserving prompt input, SAVE/CANCEL buttons, handlers, confirm dialog, flyer workflow, and app data. -->
@@ -40185,7 +40186,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-30-chat-notification-idempotency-uuid-r912';
+var WHATS_NEW_VERSION = '2026-06-01-r936-restore-stable-r912';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
