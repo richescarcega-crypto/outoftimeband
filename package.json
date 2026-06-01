@@ -1,0 +1,15 @@
+{
+  "name": "outoftimeband-tests",
+  "private": true,
+  "description": "Test-only scaffolding for Out of Time r941 smoke baseline",
+  "scripts": {
+    "test:integrity": "node tests/integrity/r941-package.mjs",
+    "test:smoke": "playwright test",
+    "test:smoke:headed": "playwright test --headed",
+    "test": "npm run test:integrity && npm run test:smoke"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "serve": "^14.2.4"
+  }
+}
