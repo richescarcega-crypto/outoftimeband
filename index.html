@@ -1,4 +1,4 @@
-<!-- r939: Compatibility guard module. Builds on passing r938 by keeping Build Version externalized and adding a tiny external legacy-global guard/report module. No Calendar, Chat, Songs, Setlists, Flyers, CSS, assets, or Home menu logic changes. Upload index_r939.html as index.html plus oot_version_r939.js and oot_compat_r939.js. -->
+<!-- r940: Display Mode modal extraction proof. Builds on phone-passed r939 by moving only showDisplayModeModal into oot_display_r940.js while preserving the legacy global through the compatibility guard. No Calendar, Chat, Songs, Setlists, Flyers, CSS, assets, Home menu structure, or data logic changes. Upload index_r940.html as index.html plus oot_version_r940.js, oot_display_r940.js, and oot_compat_r940.js. -->
 <!-- r912: Chat notification idempotency UUID fix. Fixes r911 OneSignal FAILED 400 by sending a valid UUID-format idempotency_key while keeping the app's readable chat notificationId in custom data. Preserves r911 TTL/topic/data stale-replay guard and all UI/data behavior. Upload index_r912.html as index.html after test. -->
 <!-- r893: Pay Log Gig Pay header audit pass. Applies compact What’s-New-style star/centered-title treatment to the Pay tab inline Log Gig Pay card header only, preserving Add Pay fields, Add behavior, keyboard-safe scrolling, Pay totals/history, and all other tabs. -->
 <!-- r885: Shared prompt header audit pass. Applies the What’s-New-style star/centered-title treatment to the generic text prompt dialog only, preserving prompt input, SAVE/CANCEL buttons, handlers, confirm dialog, flyer workflow, and app data. -->
@@ -21438,14 +21438,7 @@ function closeBandActivityModal(){
 // r48: Show/close functions for the modals promoted out of the reorder modal.
 // They open dedicated modals and call the existing render functions where applicable.
 
-function showDisplayModeModal(){
-  var ov = document.getElementById('display-mode-modal');
-  if(!ov) return;
-  // Sync the toggle label to the actual current mode
-  var modeBtn = document.getElementById('mode-btn');
-  if(modeBtn) modeBtn.innerHTML = (typeof isDarkMode !== 'undefined' && isDarkMode) ? '\u2600 Light' : '\u263D Dark';
-  ov.classList.add('on');
-}
+// r940: showDisplayModeModal moved to oot_display_r940.js; legacy global restored by oot_compat_r940.js.
 
 
 function showBandImageModal(opts){
@@ -40098,7 +40091,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-06-01-r939-compat-guard';
+var WHATS_NEW_VERSION = '2026-06-01-r940-display-mode-module';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -42339,7 +42332,7 @@ if(savedName&&savedId){
 })();
 </script>
 
-  <script src="oot_version_r939.js"></script>
+  <script src="oot_version_r940.js"></script>
 <script>
 // r938: Safety bridge for Build Version module.
 // If the external module fails to load or attach its globals, define the legacy
@@ -42447,7 +42440,8 @@ if(savedName&&savedId){
   window._copyVersionFallback = window._copyVersionFallback || _copyVersionFallback;
 })(window, document);
 </script>
-  <script src="oot_compat_r939.js"></script>
+  <script src="oot_display_r940.js"></script>
+  <script src="oot_compat_r940.js"></script>
 
 </body>
 </html>
