@@ -1,4 +1,4 @@
-<!-- r936: Sequential restoration rollback to confirmed-stable r912 after modularization builds r913-r935 caused Home kebab/menu regressions. Preserves r912 app behavior and r912 Desktop Chrome stale Band Chat notification fix; bumps WHATS_NEW_VERSION so phones detect this restoration. Upload index_r936.html as index.html. -->
+<!-- r938: Build Version compatibility fallback. Repairs r937 proof build where Home kebab options worked except Build Version, indicating the external version module did not reliably attach the legacy global. Adds an inline safety bridge that defines Build Version globals if the external module is unavailable, while keeping the external module path for modularization testing. Upload index_r938.html as index.html plus oot_version_r938.js. -->
 <!-- r912: Chat notification idempotency UUID fix. Fixes r911 OneSignal FAILED 400 by sending a valid UUID-format idempotency_key while keeping the app's readable chat notificationId in custom data. Preserves r911 TTL/topic/data stale-replay guard and all UI/data behavior. Upload index_r912.html as index.html after test. -->
 <!-- r893: Pay Log Gig Pay header audit pass. Applies compact What’s-New-style star/centered-title treatment to the Pay tab inline Log Gig Pay card header only, preserving Add Pay fields, Add behavior, keyboard-safe scrolling, Pay totals/history, and all other tabs. -->
 <!-- r885: Shared prompt header audit pass. Applies the What’s-New-style star/centered-title treatment to the generic text prompt dialog only, preserving prompt input, SAVE/CANCEL buttons, handlers, confirm dialog, flyer workflow, and app data. -->
@@ -40098,7 +40098,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-06-01-r937-compat-version-module';
+var WHATS_NEW_VERSION = '2026-06-01-r938-version-module-fallback';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -42339,6 +42339,113 @@ if(savedName&&savedId){
 })();
 </script>
 
-  <script src="oot_version_r937.js"></script>
+  <script src="oot_version_r938.js"></script>
+<script>
+// r938: Safety bridge for Build Version module.
+// If the external module fails to load or attach its globals, define the legacy
+// Build Version API inline so Home kebab -> Build Version cannot silently no-op.
+(function(window, document){
+  'use strict';
+  if (typeof window.showVersionModal === 'function' &&
+      typeof window.closeVersionModal === 'function' &&
+      typeof window._copyVersionToClipboard === 'function') {
+    return;
+  }
+
+  function showVersionModal(){
+    var ov = document.getElementById('version-modal');
+    if(!ov){
+      ov = document.createElement('div');
+      ov.id = 'version-modal';
+      ov.className = 'ov';
+      ov.innerHTML =
+        '<div class="mo" style="max-width:380px;">'+
+          '<div class="moh">'+
+            '<span class="mot" style="color:#f5c518;">Build Version</span>'+
+            '<button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="closeVersionModal()">&#10005;</button>'+
+          '</div>'+
+          '<div id="version-modal-body" style="padding:8px 4px;"></div>'+
+        '</div>';
+      document.body.appendChild(ov);
+    }
+    var body = document.getElementById('version-modal-body');
+    if(body){
+      var runningVer = (typeof WHATS_NEW_VERSION === 'string') ? WHATS_NEW_VERSION : 'unknown';
+      body.innerHTML =
+        '<div style="font-size:11px;color:#8aa8d6;letter-spacing:1px;font-family:Russo One,sans-serif;margin-bottom:6px;">RUNNING VERSION</div>'+
+        '<div id="version-modal-string" style="background:#060e1c;border:1px solid #1a3a8a;border-radius:8px;padding:12px;font-family:monospace;font-size:13px;color:#06d6a0;text-align:center;letter-spacing:.3px;cursor:pointer;touch-action:manipulation;user-select:all;">'+runningVer+'</div>'+
+        '<div style="font-size:11px;color:#8aa8d6;letter-spacing:1px;font-family:Russo One,sans-serif;margin:14px 0 6px;">DEPLOYED VERSION</div>'+
+        '<div id="version-modal-deployed" style="background:#060e1c;border:1px solid #1a3a8a;border-radius:8px;padding:12px;font-family:monospace;font-size:13px;color:#8aa8d6;text-align:center;letter-spacing:.3px;">Checking server…</div>'+
+        '<div id="version-modal-status" style="font-size:11px;color:#5d7090;text-align:center;margin-top:8px;font-style:italic;line-height:1.35;">Running version is the app shell currently loaded on this device. Deployed version is fetched fresh from the server.</div>'+
+        '<button onclick="_copyVersionToClipboard()" style="width:100%;margin-top:14px;background:transparent;border:1px solid #4a9eff;border-radius:8px;padding:10px;color:#4a9eff;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1.5px;cursor:pointer;touch-action:manipulation;">COPY RUNNING VERSION</button>'+
+        '<button onclick="_forceAppUpdate()" style="width:100%;margin-top:8px;background:#f5c518;border:none;border-radius:8px;padding:11px;color:#060e1c;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1.5px;cursor:pointer;touch-action:manipulation;">UPDATE NOW</button>';
+      var verEl = document.getElementById('version-modal-string');
+      if(verEl) verEl.onclick = _copyVersionToClipboard;
+      if(typeof _fetchDeployedVersion === 'function'){
+        _fetchDeployedVersion().then(function(deployedVer){
+          var depEl = document.getElementById('version-modal-deployed');
+          var stEl = document.getElementById('version-modal-status');
+          if(depEl){
+            depEl.textContent = deployedVer || 'Unable to verify';
+            depEl.style.color = deployedVer && deployedVer === runningVer ? '#06d6a0' : '#f5c518';
+          }
+          if(stEl){
+            if(!deployedVer){
+              stEl.textContent = 'Could not reach the deployed file. Check connection, then try again.';
+              stEl.style.color = '#f5c518';
+            } else if(deployedVer === runningVer){
+              stEl.textContent = 'This device is running the currently deployed build.';
+              stEl.style.color = '#06d6a0';
+            } else {
+              stEl.textContent = 'A newer version is ready for this device. Tap Update to Latest Version.';
+              stEl.style.color = '#ef476f';
+            }
+          }
+        });
+      }
+    }
+    ov.style.display = 'flex';
+  }
+  function closeVersionModal(){
+    var ov = document.getElementById('version-modal');
+    if(ov) ov.style.display = 'none';
+  }
+  function _copyVersionToClipboard(){
+    var ver = (typeof WHATS_NEW_VERSION === 'string') ? WHATS_NEW_VERSION : '';
+    if(!ver) return;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(ver).then(function(){
+        if(typeof toast === 'function') toast('Version copied', {tone:'success', duration:2000});
+      }).catch(function(){ _copyVersionFallback(ver); });
+    } else {
+      _copyVersionFallback(ver);
+    }
+  }
+  function _copyVersionFallback(ver){
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = ver;
+      ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      if(typeof toast === 'function') toast('Version copied', {tone:'success', duration:2000});
+    } catch(e){
+      if(typeof toast === 'function') toast('Copy failed — long-press to select instead', {tone:'error', duration:3000});
+    }
+  }
+  window.OOT = window.OOT || {};
+  window.OOT.version = window.OOT.version || {};
+  window.OOT.version.showVersionModal = window.OOT.version.showVersionModal || showVersionModal;
+  window.OOT.version.closeVersionModal = window.OOT.version.closeVersionModal || closeVersionModal;
+  window.OOT.version.copyVersionToClipboard = window.OOT.version.copyVersionToClipboard || _copyVersionToClipboard;
+  window.OOT.version.copyVersionFallback = window.OOT.version.copyVersionFallback || _copyVersionFallback;
+  window.showVersionModal = window.showVersionModal || showVersionModal;
+  window.closeVersionModal = window.closeVersionModal || closeVersionModal;
+  window._copyVersionToClipboard = window._copyVersionToClipboard || _copyVersionToClipboard;
+  window._copyVersionFallback = window._copyVersionFallback || _copyVersionFallback;
+})(window, document);
+</script>
 </body>
 </html>
