@@ -1,3 +1,4 @@
+<!-- r932: Extracts the Build Version troubleshooting modal helper block into external version_modal_r932.js while keeping main app startup, Firebase, notifications, Chat, Calendar core, Songs, Home, and data logic inline. Keeps app_r913.css, proven_helpers_r930.js, and whats_new_r931.js. No visual, feature, notification, Firebase, or data behavior intentionally changed. -->
 <!-- r931: Extracts the Whats New modal/log/dismiss helper block into external whats_new_r931.js while keeping main app startup inline. Keeps app_r913.css and proven_helpers_r930.js. No visual, feature, Firebase, notification, or data behavior intentionally changed. -->
 <!-- r930: Consolidated the previously phone-tested r916-r927 helper scripts into one external proven_helpers_r930.js bundle. Main app JavaScript remains inline; app_r913.css remains external; no feature, visual, Firebase, notification, or app-startup behavior is intentionally changed. -->
 <!-- r929: Sequential restoration after r928 helper-bundle consolidation failed to load on phone. Restores the confirmed phone-good r927 modular state, keeps app_r913.css and the individual r916-r927 helper files, and bumps WHATS_NEW_VERSION so phones detect the rollback as a new build. -->
@@ -3547,102 +3548,7 @@ function showMemberActivityModal(){
   if(typeof renderMemberActivity === 'function') renderMemberActivity();
 }
 
-// r47a: Build Version modal — shows the current WHATS_NEW_VERSION value.
-// Tappable to copy to clipboard. Mostly for troubleshooting/version-checking.
-function showVersionModal(){
-  var ov = document.getElementById('version-modal');
-  if(!ov){
-    ov = document.createElement('div');
-    ov.id = 'version-modal';
-    ov.className = 'ov';
-    ov.innerHTML =
-      '<div class="mo" style="max-width:380px;">'+
-        '<div class="moh">'+
-          '<span class="mot" style="color:#f5c518;">Build Version</span>'+
-          '<button style="background:none;border:none;color:#8aa8d6;font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;" onclick="closeVersionModal()">&#10005;</button>'+
-        '</div>'+
-        '<div id="version-modal-body" style="padding:8px 4px;"></div>'+
-      '</div>';
-    document.body.appendChild(ov);
-  }
-  // Render fresh content each open
-  var body = document.getElementById('version-modal-body');
-  if(body){
-    var runningVer = (typeof WHATS_NEW_VERSION === 'string') ? WHATS_NEW_VERSION : 'unknown';
-    body.innerHTML =
-      '<div style="font-size:11px;color:#8aa8d6;letter-spacing:1px;font-family:Russo One,sans-serif;margin-bottom:6px;">RUNNING VERSION</div>'+
-      '<div id="version-modal-string" style="background:#060e1c;border:1px solid #1a3a8a;border-radius:8px;padding:12px;font-family:monospace;font-size:13px;color:#06d6a0;text-align:center;letter-spacing:.3px;cursor:pointer;touch-action:manipulation;user-select:all;">'+runningVer+'</div>'+
-      '<div style="font-size:11px;color:#8aa8d6;letter-spacing:1px;font-family:Russo One,sans-serif;margin:14px 0 6px;">DEPLOYED VERSION</div>'+
-      '<div id="version-modal-deployed" style="background:#060e1c;border:1px solid #1a3a8a;border-radius:8px;padding:12px;font-family:monospace;font-size:13px;color:#8aa8d6;text-align:center;letter-spacing:.3px;">Checking server…</div>'+
-      '<div id="version-modal-status" style="font-size:11px;color:#5d7090;text-align:center;margin-top:8px;font-style:italic;line-height:1.35;">Running version is the app shell currently loaded on this device. Deployed version is fetched fresh from the server.</div>'+
-      '<button onclick="_copyVersionToClipboard()" style="width:100%;margin-top:14px;background:transparent;border:1px solid #4a9eff;border-radius:8px;padding:10px;color:#4a9eff;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1.5px;cursor:pointer;touch-action:manipulation;">COPY RUNNING VERSION</button>'+
-      '<button onclick="_forceAppUpdate()" style="width:100%;margin-top:8px;background:#f5c518;border:none;border-radius:8px;padding:11px;color:#060e1c;font-family:Russo One,sans-serif;font-size:11px;letter-spacing:1.5px;cursor:pointer;touch-action:manipulation;">UPDATE NOW</button>';
-    // Click-to-copy on the running version string itself
-    var verEl = document.getElementById('version-modal-string');
-    if(verEl){
-      verEl.onclick = _copyVersionToClipboard;
-    }
-    if(typeof _fetchDeployedVersion === 'function'){
-      _fetchDeployedVersion().then(function(deployedVer){
-        var depEl = document.getElementById('version-modal-deployed');
-        var stEl = document.getElementById('version-modal-status');
-        if(depEl){
-          depEl.textContent = deployedVer || 'Unable to verify';
-          depEl.style.color = deployedVer && deployedVer === runningVer ? '#06d6a0' : '#f5c518';
-        }
-        if(stEl){
-          if(!deployedVer){
-            stEl.textContent = 'Could not reach the deployed file. Check connection, then try again.';
-            stEl.style.color = '#f5c518';
-          } else if(deployedVer === runningVer){
-            stEl.textContent = 'This device is running the currently deployed build.';
-            stEl.style.color = '#06d6a0';
-          } else {
-            stEl.textContent = 'A newer version is ready for this device. Tap Update to Latest Version.';
-            stEl.style.color = '#ef476f';
-          }
-        }
-      });
-    }
-  }
-  ov.style.display = 'flex';
-}
-
-function closeVersionModal(){
-  var ov = document.getElementById('version-modal');
-  if(ov) ov.style.display = 'none';
-}
-
-function _copyVersionToClipboard(){
-  var ver = (typeof WHATS_NEW_VERSION === 'string') ? WHATS_NEW_VERSION : '';
-  if(!ver) return;
-  // Modern clipboard API
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(ver).then(function(){
-      if(typeof toast === 'function') toast('Version copied', {tone:'success', duration:2000});
-    }).catch(function(){
-      _copyVersionFallback(ver);
-    });
-  } else {
-    _copyVersionFallback(ver);
-  }
-}
-
-function _copyVersionFallback(ver){
-  // Fallback: temporary input + execCommand
-  try {
-    var ta = document.createElement('textarea');
-    ta.value = ver;
-    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    if(typeof toast === 'function') toast('Version copied', {tone:'success', duration:2000});
-  } catch(e){
-    if(typeof toast === 'function') toast('Copy failed \u2014 long-press to select instead', {tone:'error', duration:3000});
-  }
-}
+// r932: Build Version modal helper moved to external version_modal_r932.js.
 
 // ── r53: Admin Notification Log ──
 // Diagnostic instrument for the active notification bug. Every notifyBand call
@@ -21850,7 +21756,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-05-31-r931-whats-new-external';
+var WHATS_NEW_VERSION = '2026-05-31-r932-version-modal-external';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -22195,6 +22101,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-05-31-r932-version-modal-external', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Build Version helper externalized', body:'Continues controlled modularization by moving the Build Version troubleshooting modal helper into version_modal_r932.js while keeping main app startup and feature logic inline. No feature, data, notification, Firebase, visual, or app-startup behavior is intentionally changed.', items:['Upload index_r932.html as index.html.','Upload version_modal_r932.js to the GitHub root.','Keep app_r913.css, proven_helpers_r930.js, and whats_new_r931.js in the GitHub root.','Confirm Build Version reports r932, Home is normal, tabs open, and the Build Version modal opens normally.'] },
   { version:'2026-05-31-r930-proven-helper-bundle', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modular helper bundle', body:'Consolidates the already phone-tested r916-r927 helper scripts into one external proven_helpers_r930.js file while keeping the main app JavaScript inline. No feature, data, notification, Firebase, visual, or app-startup behavior is intentionally changed.', items:['Upload index_r930.html as index.html.','Upload proven_helpers_r930.js to the GitHub root.','Keep app_r913.css in the GitHub root.','The older individual helper files can remain in GitHub but r930 does not reference them.','Confirm Build Version reports r930, Home is normal, tabs open, and app behavior matches r929.'] },
   { version:'2026-05-31-r929-restore-r927-stable', date:'May 31, 2026', importance:'fix', emoji:'↩️', title:'Restore stable modular build', body:'Restores the confirmed phone-good r927 modular state after the r928 helper-bundle consolidation failed to load on phone. Keeps the successful external CSS file and the individually tested r916-r927 helper files. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r929.html as index.html.','Keep app_r913.css in the GitHub root.','Keep the individual helper files from r916 through r927 in the GitHub root.','Do not use r928 as the current base unless its load failure is separately diagnosed and fixed.','Confirm Build Version reports r929, Home is normal, tabs open, and the app matches r927 behavior.'] },
   { version:'2026-05-31-safe-js-probe-r927', date:'May 31, 2026', importance:'fix', emoji:'🧩', title:'Modularization probe 12', body:'Continues the safe modularization path from r926 by keeping the main app JavaScript inline and extracting only the Suggest-a-Song keyboard frame helper into songs_keyboard_r927.js. No feature, data, notification, visual, Firebase, or app-startup behavior is intentionally changed.', items:['Upload index_r927.html as index.html.','Upload songs_keyboard_r927.js to the GitHub root.','Keep app_r913.css plus calendar_layout_r916.js, calendar_viewport_r917.js, calendar_drawer_r918.js, calendar_lifecycle_r919.js, calendar_today_r920.js, calendar_key_r921.js, band_contacts_resize_r922.js, flyer_resize_r923.js, contact_keyboard_r924.js, setlist_create_keyboard_r925.js, and calendar_keyboard_r926.js in the GitHub root.','Confirm Build Version reports r927, Home is normal, tabs open, and Songs/Suggest a Song still opens normally if tested.'] },
@@ -23236,6 +23143,7 @@ var WHATS_NEW_LOG = [
 // 'log' mode: opened from Home kebab. Shows every entry. Doesn't mark anything seen.
 </script>
 <script src="whats_new_r931.js?v=r931"></script>
+<script src="version_modal_r932.js?v=r932"></script>
 <script>var savedName=localStorage.getItem('oot_me');
 var savedId=localStorage.getItem('oot_me_id');
 if(savedName&&savedId){
