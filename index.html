@@ -1,4 +1,4 @@
-<!-- r938: Build Version compatibility fallback. Repairs r937 proof build where Home kebab options worked except Build Version, indicating the external version module did not reliably attach the legacy global. Adds an inline safety bridge that defines Build Version globals if the external module is unavailable, while keeping the external module path for modularization testing. Upload index_r938.html as index.html plus oot_version_r938.js. -->
+<!-- r939: Compatibility guard module. Builds on passing r938 by keeping Build Version externalized and adding a tiny external legacy-global guard/report module. No Calendar, Chat, Songs, Setlists, Flyers, CSS, assets, or Home menu logic changes. Upload index_r939.html as index.html plus oot_version_r939.js and oot_compat_r939.js. -->
 <!-- r912: Chat notification idempotency UUID fix. Fixes r911 OneSignal FAILED 400 by sending a valid UUID-format idempotency_key while keeping the app's readable chat notificationId in custom data. Preserves r911 TTL/topic/data stale-replay guard and all UI/data behavior. Upload index_r912.html as index.html after test. -->
 <!-- r893: Pay Log Gig Pay header audit pass. Applies compact What’s-New-style star/centered-title treatment to the Pay tab inline Log Gig Pay card header only, preserving Add Pay fields, Add behavior, keyboard-safe scrolling, Pay totals/history, and all other tabs. -->
 <!-- r885: Shared prompt header audit pass. Applies the What’s-New-style star/centered-title treatment to the generic text prompt dialog only, preserving prompt input, SAVE/CANCEL buttons, handlers, confirm dialog, flyer workflow, and app data. -->
@@ -40098,7 +40098,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-06-01-r938-version-module-fallback';
+var WHATS_NEW_VERSION = '2026-06-01-r939-compat-guard';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -42339,7 +42339,7 @@ if(savedName&&savedId){
 })();
 </script>
 
-  <script src="oot_version_r938.js"></script>
+  <script src="oot_version_r939.js"></script>
 <script>
 // r938: Safety bridge for Build Version module.
 // If the external module fails to load or attach its globals, define the legacy
@@ -42447,5 +42447,7 @@ if(savedName&&savedId){
   window._copyVersionFallback = window._copyVersionFallback || _copyVersionFallback;
 })(window, document);
 </script>
+  <script src="oot_compat_r939.js"></script>
+
 </body>
 </html>
