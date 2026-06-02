@@ -1,4 +1,4 @@
-<!-- r942: Calendar Custom Event / Important Date save-icon clearance. Adds bottom clearance to #idate-action-row so the green save check remains visible above the bottom tab bar. CSS-only Calendar/Important Date action-row fix; no save logic, markup, tabs, Calendar grid/drawer, Home, Chat, Songs, Setlists, Flyers, Notifications, Firebase, Pay, Display Mode, or modularization changes. Upload index_r942.html as index.html after phone test. -->
+<!-- r943: Custom Event / Important Date save button visibility follow-up. Builds from r942/r941 production branch and keeps the scoped Calendar-only CSS fix that makes the Important Date save control a clear 44px green circular check button above the bottom tab/dead zone. No JS, markup, asset, Home, Chat, Songs, Setlists, Flyers, Notifications, Firebase, Pay, Display Mode, or modularization changes. Upload index_r943.html as index.html after phone test. -->
 <!-- r941: Rollback Display Mode extraction after r940 phone test failure. Current build uses passing r939 structure: Build Version remains externalized with compatibility guard; Display Mode is restored inline exactly as in r939. No Calendar, Chat, Songs, Setlists, Flyers, CSS, assets, Home menu structure, or data logic changes. Upload index_r941.html as index.html plus oot_version_r941.js and oot_compat_r941.js. -->
 <!-- r912: Chat notification idempotency UUID fix. Fixes r911 OneSignal FAILED 400 by sending a valid UUID-format idempotency_key while keeping the app's readable chat notificationId in custom data. Preserves r911 TTL/topic/data stale-replay guard and all UI/data behavior. Upload index_r912.html as index.html after test. -->
 <!-- r893: Pay Log Gig Pay header audit pass. Applies compact What’s-New-style star/centered-title treatment to the Pay tab inline Log Gig Pay card header only, preserving Add Pay fields, Add behavior, keyboard-safe scrolling, Pay totals/history, and all other tabs. -->
@@ -17742,6 +17742,60 @@ body.light #idate-modal #idate-save-btn.r455-save-icon-btn{
   background:radial-gradient(circle at 36% 28%,rgba(255,255,255,.58),rgba(6,214,160,.90) 43%,rgba(9,145,104,.98) 100%) !important;
   color:#041c19 !important;
   -webkit-text-fill-color:#041c19 !important;
+}
+
+/* r943: Important Date / Custom Event save — bright green circle above tab dead zone.
+   Beats older r458 transparent 29px icon rule; layout/visibility only. */
+#idate-modal #idate-action-row.r453-idate-actions{
+  justify-content:flex-end !important;
+  align-items:flex-end !important;
+  padding-top:16px !important;
+  background:linear-gradient(180deg,rgba(5,12,28,0) 0%,rgba(8,20,44,.5) 38%,rgba(12,28,58,.78) 100%) !important;
+}
+#idate-modal.r453-idate-visual #idate-action-row.r453-idate-actions #idate-save-btn.r455-save-icon-btn{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:44px !important;
+  min-width:44px !important;
+  max-width:44px !important;
+  height:44px !important;
+  min-height:44px !important;
+  max-height:44px !important;
+  flex:0 0 44px !important;
+  margin:0 12px 10px auto !important;
+  padding:0 !important;
+  border:2px solid rgba(130,255,220,.92) !important;
+  border-radius:999px !important;
+  background:radial-gradient(circle at 30% 22%,#ffffff 0%,#5dffc4 16%,#12e8a8 45%,#06d6a0 68%,#049e72 100%) !important;
+  color:#022418 !important;
+  -webkit-text-fill-color:#022418 !important;
+  box-shadow:0 0 0 3px rgba(6,214,160,.28),0 0 24px rgba(6,214,160,.72),0 8px 20px rgba(0,0,0,.5) !important;
+  opacity:1 !important;
+  position:relative !important;
+  z-index:32 !important;
+  cursor:pointer !important;
+  touch-action:manipulation !important;
+  overflow:visible !important;
+}
+#idate-modal.r453-idate-visual #idate-action-row.r453-idate-actions #idate-save-btn.r455-save-icon-btn img{
+  display:none !important;
+}
+#idate-modal.r453-idate-visual #idate-action-row.r453-idate-actions #idate-save-btn.r455-save-icon-btn::before{
+  content:"✓" !important;
+  display:block !important;
+  color:#023528 !important;
+  -webkit-text-fill-color:#023528 !important;
+  font-size:23px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  transform:none !important;
+  text-shadow:0 1px 0 rgba(255,255,255,.5) !important;
+}
+body.light #idate-modal.r453-idate-visual #idate-action-row.r453-idate-actions #idate-save-btn.r455-save-icon-btn{
+  border-color:rgba(4,150,108,.9) !important;
+  background:radial-gradient(circle at 30% 22%,#ffffff 0%,#92ffd8 18%,#20e4ac 48%,#06d6a0 70%,#058a64 100%) !important;
+  box-shadow:0 0 0 2px rgba(6,214,160,.22),0 0 20px rgba(6,214,160,.55),0 8px 16px rgba(20,40,80,.22) !important;
 }
 
 
@@ -40100,7 +40154,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-06-01-r942-custom-event-save-icon-clearance';
+var WHATS_NEW_VERSION = '2026-06-01-r943-custom-event-save-button-visibility';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
