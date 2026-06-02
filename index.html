@@ -1,3 +1,4 @@
+<!-- r942: Calendar Custom Event / Important Date save-icon clearance. Adds bottom clearance to #idate-action-row so the green save check remains visible above the bottom tab bar. CSS-only Calendar/Important Date action-row fix; no save logic, markup, tabs, Calendar grid/drawer, Home, Chat, Songs, Setlists, Flyers, Notifications, Firebase, Pay, Display Mode, or modularization changes. Upload index_r942.html as index.html after phone test. -->
 <!-- r941: Rollback Display Mode extraction after r940 phone test failure. Current build uses passing r939 structure: Build Version remains externalized with compatibility guard; Display Mode is restored inline exactly as in r939. No Calendar, Chat, Songs, Setlists, Flyers, CSS, assets, Home menu structure, or data logic changes. Upload index_r941.html as index.html plus oot_version_r941.js and oot_compat_r941.js. -->
 <!-- r912: Chat notification idempotency UUID fix. Fixes r911 OneSignal FAILED 400 by sending a valid UUID-format idempotency_key while keeping the app's readable chat notificationId in custom data. Preserves r911 TTL/topic/data stale-replay guard and all UI/data behavior. Upload index_r912.html as index.html after test. -->
 <!-- r893: Pay Log Gig Pay header audit pass. Applies compact What’s-New-style star/centered-title treatment to the Pay tab inline Log Gig Pay card header only, preserving Add Pay fields, Add behavior, keyboard-safe scrolling, Pay totals/history, and all other tabs. -->
@@ -17510,7 +17511,8 @@ body.light #idate-modal #idate-save-btn.r455-save-icon-btn{
   align-items:center !important;
   justify-content:center !important;
   gap:12px !important;
-  padding:10px 0 calc(2px + env(safe-area-inset-bottom)) !important;
+  padding-top:10px !important;
+  padding-bottom:calc(10px + 56px + env(safe-area-inset-bottom)) !important;
   margin:8px 0 0 !important;
   background:linear-gradient(180deg,rgba(5,12,28,0),rgba(5,12,28,.98) 35%,rgba(5,12,28,.99)) !important;
 }
@@ -40098,7 +40100,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-06-01-r941-display-mode-rollback';
+var WHATS_NEW_VERSION = '2026-06-01-r942-custom-event-save-icon-clearance';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
