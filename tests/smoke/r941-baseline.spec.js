@@ -73,11 +73,19 @@ test.describe('r941 runtime smoke baseline', () => {
       showVersionModal: typeof window.showVersionModal,
       closeVersionModal: typeof window.closeVersionModal,
       copyVersionToClipboard: typeof window._copyVersionToClipboard,
+      ootVersionShowVersionModal:
+        typeof window.OOT === 'object' &&
+        window.OOT !== null &&
+        typeof window.OOT.version === 'object' &&
+        window.OOT.version !== null
+          ? typeof window.OOT.version.showVersionModal
+          : 'undefined',
     }));
 
     expect(globals.showVersionModal).toBe('function');
     expect(globals.closeVersionModal).toBe('function');
     expect(globals.copyVersionToClipboard).toBe('function');
+    expect(globals.ootVersionShowVersionModal).toBe('function');
   });
 
   test('Build Version modal opens and shows r941 running version', async ({ page }) => {

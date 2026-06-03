@@ -96,6 +96,7 @@ function main() {
   const versionPos = findScriptPositions(html, 'oot_version_r941.js');
   const compatPos = findScriptPositions(html, 'oot_compat_r941.js');
   const bridgeMarker = html.indexOf('r938: Safety bridge for Build Version module');
+  const thinGuardMarker = '[OOT Build Version] External module failed to load or did not initialize';
 
   if (versionPos === -1) {
     fail('Could not locate oot_version_r941.js script tag in index.html');
@@ -104,14 +105,20 @@ function main() {
     fail('Could not locate oot_compat_r941.js script tag in index.html');
   }
   if (bridgeMarker === -1) {
-    fail('Could not locate r938 Build Version safety bridge in index.html');
+    fail('Could not locate r938 Build Version compatibility guard marker in index.html');
+  }
+  if (!html.includes(thinGuardMarker)) {
+    fail('index.html missing thin Build Version guard console.error marker');
+  }
+  if (/function\s+showVersionModal\s*\(/.test(html)) {
+    fail('index.html must not define inline showVersionModal; use oot_version_r941.js');
   }
 
   if (versionPos !== -1 && bridgeMarker !== -1 && versionPos > bridgeMarker) {
-    fail('Expected oot_version_r941.js to load before the r938 safety bridge');
+    fail('Expected oot_version_r941.js to load before the r938 Build Version guard');
   }
   if (bridgeMarker !== -1 && compatPos !== -1 && bridgeMarker > compatPos) {
-    fail('Expected r938 safety bridge to appear before oot_compat_r941.js');
+    fail('Expected r938 Build Version guard to appear before oot_compat_r941.js');
   }
   if (versionPos !== -1 && compatPos !== -1 && versionPos > compatPos) {
     fail('Expected oot_version_r941.js to load before oot_compat_r941.js');
