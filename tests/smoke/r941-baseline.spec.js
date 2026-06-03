@@ -81,6 +81,7 @@ test.describe('r941 runtime smoke baseline', () => {
   });
 
   test('Build Version modal opens and shows r941 running version', async ({ page }) => {
+    await page.waitForTimeout(1200);
     await page.evaluate(() => window.showVersionModal());
 
     const modal = page.locator('#version-modal');

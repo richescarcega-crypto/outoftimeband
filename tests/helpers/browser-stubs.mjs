@@ -45,6 +45,7 @@ export const BROWSER_STUB_SCRIPT = String.raw`
       where: function () { return ref; },
       orderBy: function () { return ref; },
       limit: function () { return ref; },
+      limitToLast: function () { return ref; },
       get: function () { return Promise.resolve(emptySnap()); },
       onSnapshot: function (cb) {
         if (typeof cb === 'function') {
@@ -64,6 +65,7 @@ export const BROWSER_STUB_SCRIPT = String.raw`
       where: function () { return makeQueryRef(); },
       orderBy: function () { return makeQueryRef(); },
       limit: function () { return makeQueryRef(); },
+      limitToLast: function () { return makeQueryRef(); },
       get: function () { return Promise.resolve(emptySnap()); },
       onSnapshot: function (cb) {
         if (typeof cb === 'function') {
@@ -126,4 +128,5 @@ export const BROWSER_STUB_SCRIPT = String.raw`
 export const TEST_LOCAL_STORAGE = {
   oot_me: 'Rich Escarcega',
   oot_me_id: '3',
+  oot_repick_version: 'v2-rollout-2026-04',
 };
