@@ -57,3 +57,7 @@ Do not wire old candidate module files into production. For each next modulariza
 ## Current recommendation
 
 Continue with fresh extraction of one small, low-risk utility boundary after Build Version. Do not touch Display Mode, Calendar, Chat, Songs, Setlists, Flyers, Notifications, Firebase config/rules, Home behavior, or Pay unless explicitly scoped.
+
+## Local verification note - 2026-06-04
+
+On branch modularization-next-safe-audit, direct Node integrity check was run with Cursor's bundled node.exe because system node/npm are not available on this machine. Integrity passed. Playwright smoke test was not run locally because npm is unavailable and node_modules is not installed. App behavior was not edited.
