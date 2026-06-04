@@ -6,7 +6,8 @@
     "test:integrity": "node tests/integrity/r941-package.mjs",
     "test:smoke": "playwright test",
     "test:smoke:headed": "playwright test --headed",
-    "test": "npm run test:integrity && npm run test:smoke"
+    "test": "npm run test:integrity && npm run test:smoke",
+    "audit:modules": "node tools/audit-modules.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.52.0",
