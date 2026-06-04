@@ -61,3 +61,8 @@ Continue with fresh extraction of one small, low-risk utility boundary after Bui
 ## Local verification note - 2026-06-04
 
 On branch modularization-next-safe-audit, direct Node integrity check was run with Cursor's bundled node.exe because system node/npm are not available on this machine. Integrity passed. Playwright smoke test was not run locally because npm is unavailable and node_modules is not installed. App behavior was not edited.
+## Module audit tooling - 2026-06-04
+
+Added tools/audit-modules.mjs and package script audit:modules. In a normal Node/npm environment, run npm run audit:modules. On this machine, where system npm is unavailable, run it with Cursor's bundled node.exe:
+
+& "C:\Users\rescarcega\AppData\Local\Programs\cursor\resources\app\resources\helpers\node.exe" tools/audit-modules.mjs
