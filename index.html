@@ -18675,6 +18675,36 @@ body.light #whats-new-skip-pill{
   min-height:0 !important;
 }
 
+/* Home layout contract v2.1 — in-flow HomeAlertsRow when reserved; overrides r798/r13102 overlay zero-height. */
+#sc-home[data-home-alerts-reserved="1"]:has(#home-song-vote-cue[style*="display: block"]) #home-alerts-row,
+#sc-home[data-home-alerts-reserved="1"]:has(#home-song-vote-cue[style*="display:block"]) #home-alerts-row,
+#sc-home[data-home-alerts-reserved="1"]:has(#home-rehearsal-cue[style*="display: block"]) #home-alerts-row,
+#sc-home[data-home-alerts-reserved="1"]:has(#home-rehearsal-cue[style*="display:block"]) #home-alerts-row{
+  height:auto !important;
+  min-height:var(--home-alerts-slot-h) !important;
+  max-height:var(--home-alerts-slot-h) !important;
+  flex:0 0 var(--home-alerts-slot-h) !important;
+  transform:none !important;
+  overflow:hidden !important;
+  pointer-events:auto !important;
+  margin:0 0 2px 0 !important;
+  padding:0 !important;
+}
+#sc-home[data-home-alerts-reserved="1"]:has(#home-song-vote-cue[style*="display: block"]) #home-alerts-row::before,
+#sc-home[data-home-alerts-reserved="1"]:has(#home-song-vote-cue[style*="display:block"]) #home-alerts-row::before,
+#sc-home[data-home-alerts-reserved="1"]:has(#home-rehearsal-cue[style*="display: block"]) #home-alerts-row::before,
+#sc-home[data-home-alerts-reserved="1"]:has(#home-rehearsal-cue[style*="display:block"]) #home-alerts-row::before{
+  display:none !important;
+  content:none !important;
+}
+#sc-home[data-home-alerts-reserved="1"]:has(#home-song-vote-cue[style*="display: block"]) #home-social-row,
+#sc-home[data-home-alerts-reserved="1"]:has(#home-song-vote-cue[style*="display:block"]) #home-social-row,
+#sc-home[data-home-alerts-reserved="1"]:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row,
+#sc-home[data-home-alerts-reserved="1"]:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row{
+  margin-top:2px !important;
+  margin-bottom:0 !important;
+}
+
 </style>
 </head>
 <body>
