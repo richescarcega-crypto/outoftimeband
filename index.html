@@ -22670,6 +22670,116 @@ function _r535OpenHomeRehearsal(eid){
     toast('Could not open rehearsal details', {tone:'error'});
   }
 }
+
+// r945 diag: Home layout timing instrumentation (read-only, flag-gated off by default).
+function _homeLayoutDiagEnabled(){
+  try {
+    return /(?:\?|&)homeLayoutDiag=1(?:&|$)/.test(location.search || '') ||
+      localStorage.getItem('oot_home_layout_diag') === '1';
+  } catch(e){}
+  return false;
+}
+function _homeLayoutDiagRound(n){
+  return Math.round(Number(n) || 0);
+}
+function _homeLayoutDiagRect(el){
+  if(!el) return null;
+  try {
+    var r = el.getBoundingClientRect();
+    return {
+      top: _homeLayoutDiagRound(r.top),
+      bottom: _homeLayoutDiagRound(r.bottom),
+      height: _homeLayoutDiagRound(r.height)
+    };
+  } catch(e){ return null; }
+}
+function _homeLayoutDiagSnapshot(tag, meta){
+  if(!_homeLayoutDiagEnabled()) return;
+  try {
+    meta = meta || {};
+    var songCue = document.getElementById('home-song-vote-cue');
+    var rehearsalCue = document.getElementById('home-rehearsal-cue');
+    var alertsRow = document.getElementById('home-alerts-row');
+    var socialRow = document.getElementById('home-social-row');
+    var scHome = document.getElementById('sc-home');
+    var bg = socialRow ? socialRow.querySelector('.home-band-backdrop') : null;
+    var alertsCs = alertsRow && window.getComputedStyle ? window.getComputedStyle(alertsRow) : null;
+    var bgCs = bg && window.getComputedStyle ? window.getComputedStyle(bg) : null;
+    var scCs = scHome && window.getComputedStyle ? window.getComputedStyle(scHome) : null;
+    var snapshot = {
+      tag: tag,
+      meta: meta,
+      t: Date.now(),
+      perf: (typeof performance !== 'undefined' && performance.now) ? Math.round(performance.now()) : null,
+      refreshReason: window.__ootHomePresentationRefreshReason || '',
+      cues: {
+        songVoteDisplay: songCue ? songCue.style.display : null,
+        rehearsalDisplay: rehearsalCue ? rehearsalCue.style.display : null
+      },
+      alertsRow: alertsRow ? {
+        display: alertsCs ? alertsCs.display : null,
+        gridTemplateColumns: alertsCs ? alertsCs.gridTemplateColumns : null,
+        clientHeight: alertsRow.clientHeight,
+        rect: _homeLayoutDiagRect(alertsRow)
+      } : null,
+      socialRow: socialRow ? {
+        clientHeight: socialRow.clientHeight,
+        offsetHeight: socialRow.offsetHeight,
+        rect: _homeLayoutDiagRect(socialRow),
+        dataHomeImageIndex: socialRow.getAttribute('data-home-image-index'),
+        dataHomeImageMode: socialRow.getAttribute('data-home-image-mode'),
+        cssVars: {
+          y: socialRow.style.getPropertyValue('--oot-home-img-y'),
+          width: socialRow.style.getPropertyValue('--oot-home-img-width'),
+          buttonY: socialRow.style.getPropertyValue('--oot-home-button-y')
+        }
+      } : null,
+      backdrop: bg ? {
+        clientWidth: bg.clientWidth,
+        clientHeight: bg.clientHeight,
+        naturalWidth: bg.naturalWidth || 0,
+        naturalHeight: bg.naturalHeight || 0,
+        complete: !!bg.complete,
+        inlineTransform: bg.style.transform || '',
+        computedTransform: bgCs ? bgCs.transform : null,
+        computedObjectFit: bgCs ? bgCs.objectFit : null,
+        computedObjectPosition: bgCs ? bgCs.objectPosition : null,
+        computedWidth: bgCs ? bgCs.width : null,
+        computedHeight: bgCs ? bgCs.height : null
+      } : null,
+      scHome: scHome ? {
+        clientHeight: scHome.clientHeight,
+        scrollHeight: scHome.scrollHeight,
+        computedOverflow: scCs ? scCs.overflow : null
+      } : null,
+      updateUi: {
+        updateBanner: !!document.getElementById('update-banner'),
+        stuckUpdateBanner: !!document.getElementById('stuck-update-banner'),
+        criticalUpdateOverlay: !!document.getElementById('critical-update-overlay')
+      }
+    };
+    window.__ootHomeLayoutDiagLog = window.__ootHomeLayoutDiagLog || [];
+    window.__ootHomeLayoutDiagLog.push(snapshot);
+    if(window.__ootHomeLayoutDiagLog.length > 200) window.__ootHomeLayoutDiagLog.shift();
+    console.log('[OOT HomeLayoutDiag]', snapshot);
+  } catch(e){
+    try { console.warn('[OOT HomeLayoutDiag] snapshot failed', e); } catch(_e){}
+  }
+}
+window.OOT_HOME_LAYOUT_DIAG = window.OOT_HOME_LAYOUT_DIAG || {
+  enable: function(){ try { localStorage.setItem('oot_home_layout_diag','1'); location.reload(); } catch(e){} },
+  disable: function(){ try { localStorage.removeItem('oot_home_layout_diag'); location.reload(); } catch(e){} },
+  dump: function(){
+    try {
+      var log = window.__ootHomeLayoutDiagLog || [];
+      console.log('[OOT HomeLayoutDiag dump]', log);
+      return log;
+    } catch(e){ return []; }
+  },
+  history: function(){ try { return (window.__ootHomeLayoutDiagLog || []).slice(); } catch(e){ return []; } },
+  clear: function(){ try { window.__ootHomeLayoutDiagLog = []; return true; } catch(e){ return false; } }
+};
+
 function renderHomeRehearsalCue(){
   var el = document.getElementById('home-rehearsal-cue');
   if(!el) return;
@@ -22678,6 +22788,7 @@ function renderHomeRehearsalCue(){
     if(!earlyProp){
       el.style.display = 'none';
       el.innerHTML = '';
+      try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:hidden-no-events', {}); } catch(e){}
       try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue hidden no events'); } catch(e){}
       return;
     }
@@ -22686,6 +22797,7 @@ function renderHomeRehearsalCue(){
   if(!ev){
     el.style.display = 'none';
     el.innerHTML = '';
+    try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:hidden-no-rehearsal', {}); } catch(e){}
     try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue hidden no next rehearsal'); } catch(e){}
     return;
   }
@@ -22707,6 +22819,7 @@ function renderHomeRehearsalCue(){
         (note ? '<span class="home-alert-note" style="display:block;color:#8aa8d6;font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_r535HomeEscape(note)+'</span>' : '')+
       '</span>'+
     '</button>';
+  try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:visible', {}); } catch(e){}
   try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue visible'); } catch(e){}
 }
 
@@ -22727,6 +22840,7 @@ function renderHomeSongVoteCue(){
   if(!cueItems.length){
     el.style.display = 'none';
     el.innerHTML = '';
+    try { _homeLayoutDiagSnapshot('renderHomeSongVoteCue:hidden', {}); } catch(e){}
     return;
   }
   var label = userSpecific
@@ -22745,6 +22859,7 @@ function renderHomeSongVoteCue(){
         '<span class="home-alert-sub" style="display:block;color:#d8e8ff;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+detail+'</span>'+
       '</span>'+
     '</button>';
+  try { _homeLayoutDiagSnapshot('renderHomeSongVoteCue:visible', { count: cueItems.length }); } catch(e){}
 }
 
 
@@ -30656,7 +30771,10 @@ function _ensureHomeBandBackdrop(){
   // r83/r582: enforce the baseline each render, then apply registry-driven CSS vars.
   bg.style.cssText = 'position:absolute;left:50%;right:auto;top:50%;bottom:auto;margin:0;width:var(--oot-home-img-width,114%);height:auto;max-width:none;max-height:none;object-fit:contain;object-position:center center;pointer-events:none;z-index:1;border-radius:8px;transform:translate(calc(-50% + var(--oot-home-img-x,8px)),var(--oot-home-img-y,-55%));transform-origin:center center;';
   bg.src = src;
-  bg.onload = function(){ try { _scheduleHomeImagePresentationRefresh('home-band-image-load'); } catch(e){} };
+  bg.onload = function(){
+    try { _homeLayoutDiagSnapshot('home-band-image-load:before-refresh', { src: src }); } catch(e){}
+    try { _scheduleHomeImagePresentationRefresh('home-band-image-load'); } catch(e){}
+  };
   try {
     var homeIdx = (typeof _resolveHomeBandImageIndex === 'function') ? _resolveHomeBandImageIndex() : 1;
     if(typeof _applyHomeImagePresentation === 'function') _applyHomeImagePresentation(row, homeIdx);
@@ -30685,6 +30803,7 @@ function _ensureHomeBandBackdrop(){
 }
 
 function rHome() {
+  try { _homeLayoutDiagSnapshot('rHome:start', {}); } catch(e){}
   _ensureHomeBandBackdrop();
   try { renderPendingProposalCue(); } catch(e){}
   // r76: Home schedule cards removed. Keep Home focused on countdown + band image.
@@ -30730,6 +30849,7 @@ function rHome() {
     var m = gM(ME);
     wi.innerHTML = '<span style="color:#4a6a9a">You: </span><span style="color:' + (m?m.color:'#4a9eff') + ';font-weight:600">' + myName + '</span>';
   }
+  try { _homeLayoutDiagSnapshot('rHome:end', {}); } catch(e){}
   // r76: Upcoming Gigs/Rehearsals/Blackout home cards removed.
 }
 
@@ -37655,6 +37775,8 @@ function _applyHomeImagePresentation(row, idx){
   _setHomeCssVar(row, '--oot-home-button-y', btnY);
   _setHomeCssVar(row, '--oot-home-button-scale', btnScale);
 
+  try { _homeLayoutDiagSnapshot('applyHomeImagePresentation:before', { idx: idx, mode: mode }); } catch(e){}
+
   // r594: direct inline-important renderer. Older Home/Rehearsal CSS used higher-specificity
   // :has(...) selectors with !important, so CSS variables alone could be overridden. The
   // registry now applies the resolved values directly to the live nodes as !important.
@@ -37693,10 +37815,13 @@ function _applyHomeImagePresentation(row, idx){
     });
   } catch(e){}
 
+  try { _homeLayoutDiagSnapshot('applyHomeImagePresentation:after', { idx: idx, mode: mode }); } catch(e){}
+
   _renderHomeImageQaBadge(row, idx, mode, p);
 }
 function _refreshHomeImagePresentation(){
   try {
+    try { _homeLayoutDiagSnapshot('refreshHomeImagePresentation:start', {}); } catch(e){}
     var row = document.getElementById('home-social-row');
     if(!row || typeof _applyHomeImagePresentation !== 'function') return;
     var idx = (typeof _resolveHomeBandImageIndex === 'function') ? _resolveHomeBandImageIndex() : parseInt(row.getAttribute('data-home-image-index') || '1', 10);
@@ -37706,6 +37831,7 @@ function _refreshHomeImagePresentation(){
 }
 function _scheduleHomeImagePresentationRefresh(reason){
   try {
+    try { _homeLayoutDiagSnapshot('scheduleHomeImagePresentationRefresh', { reason: reason || '' }); } catch(e){}
     if(window.__ootHomePresentationRefreshTimer) clearTimeout(window.__ootHomePresentationRefreshTimer);
     window.__ootHomePresentationRefreshReason = reason || '';
     window.__ootHomePresentationRefreshTimer = setTimeout(function(){
