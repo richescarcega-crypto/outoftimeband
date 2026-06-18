@@ -18623,6 +18623,50 @@ body.light #whats-new-skip-pill{
   box-shadow:none !important;
 }
 
+
+/* Home layout contract v1 — bounded Home regions for Firestore-driven cue/gig reflow stability.
+   Scoped bridge toward white-label/module extraction; not a full #sc-home grid refactor.
+   Tokens: reuses --home-gig-slot-h (r778); alert caps align with r732 dual-pill min-height. */
+:root{
+  --home-alert-pill-h:62px;
+  --home-alerts-slot-h:calc(var(--home-alert-pill-h) + 2px);
+}
+#sc-home{
+  display:flex !important;
+  flex-direction:column !important;
+  min-height:0 !important;
+}
+#sc-home > .hero,
+#sc-home > #birthday-banner,
+#sc-home > #announce-card,
+#sc-home > #home-alerts-row,
+#sc-home > #next-gig-countdown,
+#sc-home > #no-gigs-card{
+  flex:0 0 auto !important;
+  min-height:0 !important;
+}
+#home-alerts-row{
+  flex:0 0 auto !important;
+  width:100% !important;
+  min-height:0 !important;
+  max-height:var(--home-alerts-slot-h) !important;
+  overflow:hidden !important;
+}
+#home-alerts-row .home-alert-pill{
+  max-height:var(--home-alert-pill-h) !important;
+  margin-bottom:0 !important;
+  overflow:hidden !important;
+  box-sizing:border-box !important;
+}
+#next-gig-countdown,
+#no-gigs-card{
+  flex:0 0 auto !important;
+}
+#home-social-row{
+  flex:1 1 0 !important;
+  min-height:0 !important;
+}
+
 </style>
 </head>
 <body>
