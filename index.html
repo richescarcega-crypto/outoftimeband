@@ -18624,9 +18624,8 @@ body.light #whats-new-skip-pill{
 }
 
 
-/* Home layout contract v1 — bounded Home regions for Firestore-driven cue/gig reflow stability.
-   Scoped bridge toward white-label/module extraction; not a full #sc-home grid refactor.
-   Tokens: reuses --home-gig-slot-h (r778); alert caps align with r732 dual-pill min-height. */
+/* Home layout contract v2 — reserved gig + alert slot footprints; stable social flex region.
+   Tokens: --home-gig-slot-h (r778); --home-alert-pill-h / --home-alerts-slot-h (r732). */
 :root{
   --home-alert-pill-h:62px;
   --home-alerts-slot-h:calc(var(--home-alert-pill-h) + 2px);
@@ -18645,22 +18644,31 @@ body.light #whats-new-skip-pill{
   flex:0 0 auto !important;
   min-height:0 !important;
 }
+#sc-home[data-home-gig-pending="1"] #next-gig-countdown{
+  display:block !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+#next-gig-countdown,
+#no-gigs-card{
+  flex:0 0 var(--home-gig-slot-h) !important;
+}
+#sc-home[data-home-alerts-pending="1"] #home-alerts-row,
+#sc-home[data-home-alerts-reserved="1"] #home-alerts-row{
+  min-height:var(--home-alerts-slot-h) !important;
+  max-height:var(--home-alerts-slot-h) !important;
+  overflow:hidden !important;
+}
 #home-alerts-row{
   flex:0 0 auto !important;
   width:100% !important;
   min-height:0 !important;
-  max-height:var(--home-alerts-slot-h) !important;
-  overflow:hidden !important;
 }
 #home-alerts-row .home-alert-pill{
   max-height:var(--home-alert-pill-h) !important;
   margin-bottom:0 !important;
   overflow:hidden !important;
   box-sizing:border-box !important;
-}
-#next-gig-countdown,
-#no-gigs-card{
-  flex:0 0 auto !important;
 }
 #home-social-row{
   flex:1 1 0 !important;
@@ -18674,7 +18682,7 @@ body.light #whats-new-skip-pill{
 <!-- r49: tabs moved to bottom — see end of #app -->
 <div id="cnt">
 
-<div id="sc-home" class="sc on">
+<div id="sc-home" class="sc on" data-home-gig-pending="1" data-home-alerts-pending="1">
   <div id="announce-card" style="display:none;"></div>
   <div class="hero home-hero-with-controls">
     <div id="home-header-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:10px;">
@@ -22495,6 +22503,7 @@ function listenSuggestions(){
     updateVoteBadge();
     try { renderHomeSongVoteCue(); } catch(e){}
   try { renderHomeRehearsalCue(); } catch(e){}
+  try { _homeMaybeLockAlertsFootprint(); } catch(e){}
   });
 }
 
@@ -22935,6 +22944,7 @@ function _ensureHomeCueFallbackListeners(){
             try { updateVoteBadge(); } catch(_e){}
           }
           try { renderHomeSongVoteCue(); } catch(_e){}
+          try { _homeMaybeLockAlertsFootprint(); } catch(_e){}
         }catch(e){ try{ console.warn('[r810 home cue fallback] suggestions render failed', e); }catch(_e){} }
       }, function(err){ try{ console.warn('[r810 home cue fallback] suggestions listener failed', err); }catch(_e){} });
     }catch(e){ try{ console.warn('[r810 home cue fallback] suggestions bind failed', e); }catch(_e){} }
@@ -22953,6 +22963,7 @@ function _ensureHomeCueFallbackListeners(){
             proposals = Object.keys(byId).map(function(k){ return byId[k]; });
           }
           try { renderHomeRehearsalCue(); } catch(_e){}
+          try { _homeMaybeLockAlertsFootprint(); } catch(_e){}
         }catch(e){ try{ console.warn('[r810 home cue fallback] proposals render failed', e); }catch(_e){} }
       }, function(err){ try{ console.warn('[r810 home cue fallback] proposals listener failed', err); }catch(_e){} });
     }catch(e){ try{ console.warn('[r810 home cue fallback] proposals bind failed', e); }catch(_e){} }
@@ -24021,19 +24032,42 @@ function _wireGigCounterDoubleTap(){
   });
 }
 
+var _homeAlertsFootprintLocked = false;
+function _homeSyncGigSlotFootprint(loading){
+  var sc = document.getElementById('sc-home');
+  var card = document.getElementById('next-gig-countdown');
+  var noGigs = document.getElementById('no-gigs-card');
+  if(sc) sc.setAttribute('data-home-gig-pending', loading ? '1' : '0');
+  if(loading){
+    if(noGigs){ noGigs.style.display='none'; noGigs.innerHTML=''; }
+    if(card){
+      card.style.display='block';
+      card.style.visibility='hidden';
+      card.style.pointerEvents='none';
+      card.setAttribute('aria-hidden','true');
+    }
+    return;
+  }
+}
+function _homeMaybeLockAlertsFootprint(){
+  if(_homeAlertsFootprintLocked) return;
+  _homeAlertsFootprintLocked = true;
+  var sc = document.getElementById('sc-home');
+  if(!sc) return;
+  sc.setAttribute('data-home-alerts-pending','0');
+  sc.setAttribute('data-home-alerts-reserved','1');
+}
+
 function updateCountdown(){
   var card = document.getElementById('next-gig-countdown');
   if(!card) return;
 
-  // r508: prevent Home open flash/jitter. Before the first Firestore
-  // events snapshot arrives, the local events array is still empty. Do not
-  // briefly render the No Gig placeholder during that loading gap.
-  if(!_eventsHasInit && (!events || !events.length)){
-    card.style.display='none';
-    var loadingNoGigs = document.getElementById('no-gigs-card');
-    if(loadingNoGigs){ loadingNoGigs.style.display='none'; loadingNoGigs.innerHTML=''; }
+  // r508 + v2: reserve gig slot footprint before events init; never show wrong gig/no-gig content.
+  if(!_eventsHasInit){
+    _homeSyncGigSlotFootprint(true);
     return;
   }
+  _homeSyncGigSlotFootprint(false);
 
   var upcoming = events.filter(function(e){ return e.type==='gig' && dU(e.date)>=0; })
     .sort(function(a,b){ return a.date.localeCompare(b.date); });
@@ -24041,6 +24075,7 @@ function updateCountdown(){
   if(typeof _r318UpdateHeaderNextGigWidget === 'function') _r318UpdateHeaderNextGigWidget();
   if(!upcoming.length){
     card.style.display='none';
+    card.style.visibility='hidden';
     renderNoGigsCard();
     return;
   }
@@ -24049,6 +24084,9 @@ function updateCountdown(){
   if(noGigs){ noGigs.style.display='none'; noGigs.innerHTML=''; }
   var next = upcoming[0];
   card.style.display='block';
+  card.style.visibility='visible';
+  card.style.pointerEvents='';
+  card.removeAttribute('aria-hidden');
   // Format date as M/D/YYYY
   var parts = next.date.split('-');
   var formattedDate = parseInt(parts[1])+'/'+parseInt(parts[2])+'/'+parts[0];
@@ -26757,6 +26795,7 @@ function listenProposals(){
     if(document.getElementById('sc-cal').classList.contains('on')) rProposals();
     try { renderHomeRehearsalCue(); } catch(e){}
     try { renderHomeSongVoteCue(); } catch(e){}
+    try { _homeMaybeLockAlertsFootprint(); } catch(e){}
     try { renderPendingProposalCue(); } catch(e){}
     // First snapshot after boot: surface any open proposals the user hasn't voted on yet.
     if(!_propsBootChecked){
@@ -30893,6 +30932,7 @@ function rHome() {
     var m = gM(ME);
     wi.innerHTML = '<span style="color:#4a6a9a">You: </span><span style="color:' + (m?m.color:'#4a9eff') + ';font-weight:600">' + myName + '</span>';
   }
+  try { _homeMaybeLockAlertsFootprint(); } catch(e){}
   try { _homeLayoutDiagSnapshot('rHome:end', {}); } catch(e){}
   // r76: Upcoming Gigs/Rehearsals/Blackout home cards removed.
 }
