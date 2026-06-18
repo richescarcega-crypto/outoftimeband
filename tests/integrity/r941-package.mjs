@@ -41,6 +41,41 @@ function exists(relPath) {
   return fs.existsSync(path.join(ROOT, relPath));
 }
 
+function stripLeadingCommentHeaders(text) {
+  let s = text.trimStart();
+
+  while (s.length) {
+    if (s.startsWith('//')) {
+      const newline = s.indexOf('\n');
+      s = newline === -1 ? '' : s.slice(newline + 1).trimStart();
+      continue;
+    }
+
+    if (s.startsWith('/*')) {
+      const end = s.indexOf('*/');
+      s = end === -1 ? s.slice(2).trimStart() : s.slice(end + 2).trimStart();
+      continue;
+    }
+
+    break;
+  }
+
+  return s;
+}
+
+function looksLikeJsEntry(text) {
+  return (
+    text.startsWith('(') ||
+    text.startsWith('function') ||
+    text.startsWith('"use strict"') ||
+    text.startsWith("'use strict'") ||
+    text.startsWith('window') ||
+    text.startsWith('var ') ||
+    text.startsWith('const ') ||
+    text.startsWith('let ')
+  );
+}
+
 function assertJsModule(relPath) {
   const content = read(relPath);
   const trimmed = content.trimStart();
@@ -50,7 +85,8 @@ function assertJsModule(relPath) {
     return;
   }
 
-  if (!trimmed.startsWith('(') && !trimmed.startsWith('function') && !trimmed.startsWith('/*') && !trimmed.startsWith('"use strict"') && !trimmed.startsWith("'use strict'") && !trimmed.startsWith('window') && !trimmed.startsWith('var ') && !trimmed.startsWith('const ') && !trimmed.startsWith('let ')) {
+  const codeStart = stripLeadingCommentHeaders(content);
+  if (!looksLikeJsEntry(codeStart)) {
     warn(`${relPath} has an unexpected JS prefix; review manually.`);
   }
 }
