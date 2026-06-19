@@ -18705,6 +18705,56 @@ body.light #whats-new-skip-pill{
   margin-bottom:0 !important;
 }
 
+/* Home layout contract v3 — dense-state hero compression with reserved band/social budget.
+   Yield hero only; gig + alert footprints remain v2/v2.1. Band budget is subtracted from
+   hero height, not applied as a #home-social-row min-height floor. */
+:root {
+  --home-hero-h-base: 318px;
+  --home-hero-h-dense-min: 200px;
+  --home-stack-pad-h: 12px;
+  --home-inter-slot-gap-h: 2px;
+  --home-inter-slot-gap-total: calc(3 * var(--home-inter-slot-gap-h));
+  --home-birthday-banner-h: 0px;
+  --home-band-region-target: clamp(96px, 22%, 140px);
+}
+#sc-home:has(#birthday-banner[style*="display: block"]),
+#sc-home:has(#birthday-banner[style*="display:block"]) {
+  --home-birthday-banner-h: 58px;
+}
+#sc-home[data-home-alerts-reserved="1"]:has(#home-song-vote-cue[style*="display: block"]) > .hero.home-hero-with-controls,
+#sc-home[data-home-alerts-reserved="1"]:has(#home-song-vote-cue[style*="display:block"]) > .hero.home-hero-with-controls,
+#sc-home[data-home-alerts-reserved="1"]:has(#home-rehearsal-cue[style*="display: block"]) > .hero.home-hero-with-controls,
+#sc-home[data-home-alerts-reserved="1"]:has(#home-rehearsal-cue[style*="display:block"]) > .hero.home-hero-with-controls {
+  --home-hero-h-computed: calc(
+    100%
+    - var(--home-stack-pad-h)
+    - var(--home-gig-slot-h)
+    - var(--home-alerts-slot-h)
+    - var(--home-birthday-banner-h)
+    - var(--home-inter-slot-gap-total)
+    - var(--home-band-region-target)
+  );
+  height: clamp(
+    var(--home-hero-h-dense-min),
+    var(--home-hero-h-computed),
+    var(--home-hero-h-base)
+  ) !important;
+  max-height: clamp(
+    var(--home-hero-h-dense-min),
+    var(--home-hero-h-computed),
+    var(--home-hero-h-base)
+  ) !important;
+  flex: 0 0 auto !important;
+  overflow: hidden !important;
+}
+#sc-home[data-home-alerts-reserved="1"]:has(#home-song-vote-cue[style*="display: block"]) #home-social-row,
+#sc-home[data-home-alerts-reserved="1"]:has(#home-song-vote-cue[style*="display:block"]) #home-social-row,
+#sc-home[data-home-alerts-reserved="1"]:has(#home-rehearsal-cue[style*="display: block"]) #home-social-row,
+#sc-home[data-home-alerts-reserved="1"]:has(#home-rehearsal-cue[style*="display:block"]) #home-social-row {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+}
+
 </style>
 </head>
 <body>
