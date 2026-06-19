@@ -209,3 +209,37 @@ Required direction:
 - Do not rely on S26/S22-specific magic numbers.
 - Do not use transform overlays as primary layout.
 
+
+## Architecture Mandate
+
+The Home issue is not to be treated as a cosmetic defect. It is evidence that the monolithic Home implementation no longer has a single owner.
+
+The project goal is a stable, maintainable, monetizable, white-label-capable app. That goal dictates the path forward.
+
+Permanent direction:
+- Do not continue patching Home with isolated CSS edits.
+- Do not optimize for fastest visible improvement.
+- Do not add new magic numbers to make one phone state look correct.
+- Do not reintroduce the failed Home layout-contract rescue path.
+- Do not make production Home changes until the modular Home ownership model is defined and the test criteria are explicit.
+
+Required architecture before behavior changes:
+1. Define Home module boundaries.
+2. Map legacy Home CSS and JS ownership.
+3. Decide which legacy systems are transitional and which are target-state.
+4. Define a migration order that avoids changing all Home behavior at once.
+5. Define Home test states before code changes.
+6. Only then create the first code seam.
+
+Target-state principle:
+- Home must have one layout owner.
+- Alert rail, gig slot, and band image presentation must not fight for viewport space through unrelated CSS patches.
+- Layout must be driven by named regions/tokens and state, not hidden transforms and accumulated overrides.
+- The implementation must support future tenant branding, alternate logos, different image sets, different alert types, and different device sizes.
+
+Decision:
+- Continue modularization.
+- Home is the pilot module.
+- The first phase is architecture and ownership isolation.
+- Visual correction comes after ownership is established, not before.
+
