@@ -19,6 +19,15 @@ const REQUIRED_FILES = [
 const REQUIRED_SCRIPT_REFS = ['oot_home_diag.js', 'oot_compat_home.js'];
 const GUARD_MARKER = '[OOT Home Diag]';
 const BOOTSTRAP_MARKER = "var savedName=localStorage.getItem('oot_me')";
+const EXPORT_BTN_ID = 'oot-home-diag-export-btn';
+const EXPORT_MODAL_ID = 'oot-home-diag-export-modal';
+const INDEX_FORBIDDEN_EXPORT_WIRING = [
+  EXPORT_BTN_ID,
+  EXPORT_MODAL_ID,
+  'oot-home-diag-export-textarea',
+  'openExport',
+  'HOME LAYOUT DIAG (DEV ONLY)',
+];
 
 const FORBIDDEN_STRINGS = [
   'data-home-alerts-reserved',
@@ -74,7 +83,7 @@ function scanForbidden(content, label) {
 }
 
 function main() {
-  console.log('Running Phase 1 Home diagnostics integrity checks...\n');
+  console.log('Running Phase 1/1b Home diagnostics integrity checks...\n');
 
   for (const relPath of REQUIRED_FILES) {
     if (!exists(relPath)) {
@@ -124,6 +133,12 @@ function main() {
     fail('Expected oot_home_diag.js to load before oot_compat_home.js');
   }
 
+  for (const forbidden of INDEX_FORBIDDEN_EXPORT_WIRING) {
+    if (html.includes(forbidden)) {
+      fail(`index.html must not wire Phase 1b export UI (${forbidden}); export lives in oot_home_diag.js only`);
+    }
+  }
+
   if (exists('oot_home_diag.js')) {
     assertJsModule('oot_home_diag.js');
     const diagJs = read('oot_home_diag.js');
@@ -135,6 +150,33 @@ function main() {
     }
     if (!diagJs.includes('OOT_HOME_LAYOUT_DIAG')) {
       fail('oot_home_diag.js missing OOT_HOME_LAYOUT_DIAG export');
+    }
+    if (!diagJs.includes(EXPORT_BTN_ID)) {
+      fail(`oot_home_diag.js missing export button marker ${EXPORT_BTN_ID}`);
+    }
+    if (!diagJs.includes(EXPORT_MODAL_ID)) {
+      fail(`oot_home_diag.js missing export modal marker ${EXPORT_MODAL_ID}`);
+    }
+    if (!diagJs.includes('openExport')) {
+      fail('oot_home_diag.js missing openExport');
+    }
+    if (!diagJs.includes('copyExport')) {
+      fail('oot_home_diag.js missing copyExport');
+    }
+    if (!diagJs.includes('snapshotNow')) {
+      fail('oot_home_diag.js missing snapshotNow');
+    }
+    if (!diagJs.includes('mountExportUi')) {
+      fail('oot_home_diag.js missing mountExportUi');
+    }
+    if (!diagJs.includes('if (!enabled()) return') && !diagJs.includes('if(!enabled()) return')) {
+      fail('oot_home_diag.js should gate export mount when diagnostics are disabled');
+    }
+    if (!diagJs.includes('manual:export')) {
+      fail('oot_home_diag.js missing manual:export snapshot for Copy JSON');
+    }
+    if (!diagJs.includes('isHomeTabActive')) {
+      fail('oot_home_diag.js missing Home-tab-only export button visibility');
     }
     scanForbidden(diagJs, 'oot_home_diag.js');
   }
@@ -171,7 +213,7 @@ function report() {
     process.exit(1);
   }
 
-  console.log('All Phase 1 Home diagnostics integrity checks passed.\n');
+  console.log('All Phase 1/1b Home diagnostics integrity checks passed.\n');
 }
 
 main();

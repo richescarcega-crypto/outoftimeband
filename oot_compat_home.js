@@ -1,4 +1,4 @@
-// Phase 1: Home diagnostics legacy-global compatibility guard.
+// Phase 1/1b: Home diagnostics legacy-global compatibility guard.
 // Restores window.* from window.OOT.home.diag when a legacy global is missing.
 
 (function (window) {
@@ -14,13 +14,29 @@
     window._homeLayoutDiagSnapshot = d.snapshot;
   }
 
-  if (!window.OOT_HOME_LAYOUT_DIAG && d) {
-    window.OOT_HOME_LAYOUT_DIAG = {
-      enable: d.enable,
-      disable: d.disable,
-      dump: d.dump,
-      history: d.history,
-      clear: d.clear
-    };
+  if (!window.OOT_HOME_LAYOUT_DIAG) {
+    window.OOT_HOME_LAYOUT_DIAG = {};
   }
+
+  var legacy = window.OOT_HOME_LAYOUT_DIAG;
+  var pairs = [
+    ['enable', 'enable'],
+    ['disable', 'disable'],
+    ['dump', 'dump'],
+    ['history', 'history'],
+    ['clear', 'clear'],
+    ['openExport', 'openExport'],
+    ['closeExport', 'closeExport'],
+    ['copyExport', 'copyExport'],
+    ['snapshotNow', 'snapshotNow']
+  ];
+
+  pairs.forEach(function (pair) {
+    var globalName = pair[0];
+    var namespacedName = pair[1];
+    if (typeof legacy[globalName] !== 'function' &&
+        typeof d[namespacedName] === 'function') {
+      legacy[globalName] = d[namespacedName];
+    }
+  });
 })(window);
