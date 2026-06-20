@@ -21,12 +21,20 @@ const GUARD_MARKER = '[OOT Home Diag]';
 const BOOTSTRAP_MARKER = "var savedName=localStorage.getItem('oot_me')";
 const EXPORT_BTN_ID = 'oot-home-diag-export-btn';
 const EXPORT_MODAL_ID = 'oot-home-diag-export-modal';
+const EXPORT_SUMMARY_ID = 'oot-home-diag-export-summary';
+const EXPORT_JSON_TOGGLE_ID = 'oot-home-diag-json-toggle';
+const SCREENSHOT_HINT = 'Screenshot the LIVE SUMMARY below';
 const INDEX_FORBIDDEN_EXPORT_WIRING = [
   EXPORT_BTN_ID,
   EXPORT_MODAL_ID,
+  EXPORT_SUMMARY_ID,
+  EXPORT_JSON_TOGGLE_ID,
   'oot-home-diag-export-textarea',
   'openExport',
   'HOME LAYOUT DIAG (DEV ONLY)',
+  SCREENSHOT_HINT,
+  'buildLiveSummary',
+  'refreshExportSummary',
 ];
 
 const FORBIDDEN_STRINGS = [
@@ -83,7 +91,7 @@ function scanForbidden(content, label) {
 }
 
 function main() {
-  console.log('Running Phase 1/1b Home diagnostics integrity checks...\n');
+  console.log('Running Phase 1/1b/1c Home diagnostics integrity checks...\n');
 
   for (const relPath of REQUIRED_FILES) {
     if (!exists(relPath)) {
@@ -178,6 +186,33 @@ function main() {
     if (!diagJs.includes('isHomeTabActive')) {
       fail('oot_home_diag.js missing Home-tab-only export button visibility');
     }
+    if (!diagJs.includes(EXPORT_SUMMARY_ID)) {
+      fail(`oot_home_diag.js missing live summary panel marker ${EXPORT_SUMMARY_ID}`);
+    }
+    if (!diagJs.includes(SCREENSHOT_HINT)) {
+      fail(`oot_home_diag.js missing screenshot-friendly hint: ${SCREENSHOT_HINT}`);
+    }
+    if (!diagJs.includes('buildLiveSummary')) {
+      fail('oot_home_diag.js missing buildLiveSummary');
+    }
+    if (!diagJs.includes('refreshExportSummary')) {
+      fail('oot_home_diag.js missing refreshExportSummary');
+    }
+    if (!diagJs.includes('renderSummaryLines')) {
+      fail('oot_home_diag.js missing renderSummaryLines');
+    }
+    if (!diagJs.includes('Show JSON')) {
+      fail('oot_home_diag.js missing collapsed-by-default JSON toggle (Show JSON)');
+    }
+    if (!diagJs.includes('liveSummary')) {
+      fail('oot_home_diag.js should include liveSummary in export payload');
+    }
+    if (!diagJs.includes('tabsNav')) {
+      fail('oot_home_diag.js missing tabsNav measurement in live summary');
+    }
+    if (!diagJs.includes('gigSlot')) {
+      fail('oot_home_diag.js missing gigSlot measurement in live summary');
+    }
     scanForbidden(diagJs, 'oot_home_diag.js');
   }
 
@@ -213,7 +248,7 @@ function report() {
     process.exit(1);
   }
 
-  console.log('All Phase 1/1b Home diagnostics integrity checks passed.\n');
+  console.log('All Phase 1/1b/1c Home diagnostics integrity checks passed.\n');
 }
 
 main();
