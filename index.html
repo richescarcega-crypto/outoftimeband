@@ -22679,6 +22679,7 @@ function renderHomeRehearsalCue(){
       el.style.display = 'none';
       el.innerHTML = '';
       try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue hidden no events'); } catch(e){}
+      try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:hidden-no-events', {}); } catch(e){}
       return;
     }
   }
@@ -22687,6 +22688,7 @@ function renderHomeRehearsalCue(){
     el.style.display = 'none';
     el.innerHTML = '';
     try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue hidden no next rehearsal'); } catch(e){}
+    try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:hidden-no-rehearsal', {}); } catch(e){}
     return;
   }
   var times = _r535RehearsalTimes(ev);
@@ -22708,6 +22710,7 @@ function renderHomeRehearsalCue(){
       '</span>'+
     '</button>';
   try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue visible'); } catch(e){}
+  try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:visible', {}); } catch(e){}
 }
 
 function renderHomeSongVoteCue(){
@@ -22727,6 +22730,7 @@ function renderHomeSongVoteCue(){
   if(!cueItems.length){
     el.style.display = 'none';
     el.innerHTML = '';
+    try { _homeLayoutDiagSnapshot('renderHomeSongVoteCue:hidden', {}); } catch(e){}
     return;
   }
   var label = userSpecific
@@ -22745,6 +22749,7 @@ function renderHomeSongVoteCue(){
         '<span class="home-alert-sub" style="display:block;color:#d8e8ff;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+detail+'</span>'+
       '</span>'+
     '</button>';
+  try { _homeLayoutDiagSnapshot('renderHomeSongVoteCue:visible', { count: cueItems.length }); } catch(e){}
 }
 
 
@@ -30656,7 +30661,10 @@ function _ensureHomeBandBackdrop(){
   // r83/r582: enforce the baseline each render, then apply registry-driven CSS vars.
   bg.style.cssText = 'position:absolute;left:50%;right:auto;top:50%;bottom:auto;margin:0;width:var(--oot-home-img-width,114%);height:auto;max-width:none;max-height:none;object-fit:contain;object-position:center center;pointer-events:none;z-index:1;border-radius:8px;transform:translate(calc(-50% + var(--oot-home-img-x,8px)),var(--oot-home-img-y,-55%));transform-origin:center center;';
   bg.src = src;
-  bg.onload = function(){ try { _scheduleHomeImagePresentationRefresh('home-band-image-load'); } catch(e){} };
+  bg.onload = function(){
+    try { _scheduleHomeImagePresentationRefresh('home-band-image-load'); } catch(e){}
+    try { _homeLayoutDiagSnapshot('home-band-image-load:after-schedule', { src: src }); } catch(e){}
+  };
   try {
     var homeIdx = (typeof _resolveHomeBandImageIndex === 'function') ? _resolveHomeBandImageIndex() : 1;
     if(typeof _applyHomeImagePresentation === 'function') _applyHomeImagePresentation(row, homeIdx);
@@ -30731,6 +30739,7 @@ function rHome() {
     wi.innerHTML = '<span style="color:#4a6a9a">You: </span><span style="color:' + (m?m.color:'#4a9eff') + ';font-weight:600">' + myName + '</span>';
   }
   // r76: Upcoming Gigs/Rehearsals/Blackout home cards removed.
+  try { _homeLayoutDiagSnapshot('rHome:end', {}); } catch(e){}
 }
 
 var memsOpen = false;
@@ -37694,6 +37703,7 @@ function _applyHomeImagePresentation(row, idx){
   } catch(e){}
 
   _renderHomeImageQaBadge(row, idx, mode, p);
+  try { _homeLayoutDiagSnapshot('applyHomeImagePresentation:after', { idx: idx, mode: mode }); } catch(e){}
 }
 function _refreshHomeImagePresentation(){
   try {
@@ -37702,6 +37712,7 @@ function _refreshHomeImagePresentation(){
     var idx = (typeof _resolveHomeBandImageIndex === 'function') ? _resolveHomeBandImageIndex() : parseInt(row.getAttribute('data-home-image-index') || '1', 10);
     if(!idx || isNaN(idx)) idx = 1;
     _applyHomeImagePresentation(row, idx);
+    try { _homeLayoutDiagSnapshot('refreshHomeImagePresentation:complete', {}); } catch(e){}
   } catch(e){}
 }
 function _scheduleHomeImagePresentationRefresh(reason){
@@ -37715,6 +37726,7 @@ function _scheduleHomeImagePresentationRefresh(reason){
   } catch(e){
     try { _refreshHomeImagePresentation(); } catch(_e){}
   }
+  try { _homeLayoutDiagSnapshot('scheduleHomeImagePresentationRefresh', { reason: reason || '' }); } catch(e){}
 }
 function _ensureHomePresentationObserver(){
   try {
@@ -41817,6 +41829,26 @@ function maybeShowWhatsNew(){
     }
   });
 })();
+
+</script>
+  <script src="oot_home_diag.js"></script>
+  <script>
+  // Phase 1: Thin guard for Home diagnostics module (oot_home_diag.js).
+  // External module owns implementation; no inline fallback.
+  (function(window){
+    'use strict';
+    if (typeof window._homeLayoutDiagSnapshot === 'function' &&
+        window.OOT_HOME_LAYOUT_DIAG &&
+        window.OOT && window.OOT.home && window.OOT.home.diag) {
+      return;
+    }
+    try {
+      console.error('[OOT Home Diag] External module failed to load or did not initialize.');
+    } catch(e){}
+  })(window);
+  </script>
+  <script src="oot_compat_home.js"></script>
+<script>
 
 var savedName=localStorage.getItem('oot_me');
 var savedId=localStorage.getItem('oot_me_id');
