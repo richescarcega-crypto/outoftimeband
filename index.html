@@ -30746,6 +30746,7 @@ function rHome() {
   }
   // r76: Upcoming Gigs/Rehearsals/Blackout home cards removed.
   try { _homeLayoutDiagSnapshot('rHome:end', {}); } catch(e){}
+  try { reconcileHomeLayout('rHome'); } catch(e){}
 }
 
 var memsOpen = false;
@@ -41502,6 +41503,7 @@ function maybeShowWhatsNew(){
   <script src="oot_home_band_image.js"></script>
   <script src="oot_home_alert_rail.js"></script>
   <script src="oot_home_gig_slot.js"></script>
+  <script src="oot_home_layout_engine.js"></script>
   <script src="oot_home_diag.js"></script>
   <script>
   // Phase 1: Thin guard for Home diagnostics module (oot_home_diag.js).
