@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Static Phase 5 Home layout engine checks (5a scaffold + 5b pilot CSS). Test-only.
+ * Static Phase 5 Home layout engine checks (5a scaffold + 5b pilot CSS + 5c budget). Test-only.
  */
 
 import fs from 'node:fs';
@@ -188,33 +188,169 @@ function assertPilotScopedCss(cssText) {
   }
 }
 
-function assertIndexHtmlOnlyLinkChange() {
+function assertGitFileUnchanged(relPath, phaseLabel) {
   try {
-    const diff = execSync('git diff HEAD -- index.html', {
+    const diff = execSync(`git diff HEAD -- ${relPath}`, {
       cwd: ROOT,
       encoding: 'utf8',
     }).trim();
-    if (!diff) return;
-
-    const changedLines = diff.split('\n').filter((line) => line.startsWith('+') && !line.startsWith('+++'));
-    for (const line of changedLines) {
-      const content = line.slice(1);
-      if (!content.trim()) continue;
-      if (!content.includes(LAYOUT_CSS_HREF)) {
-        fail(`index.html Phase 5b change outside allowed stylesheet link: ${content.trim()}`);
-      }
-    }
-
-    const removedLines = diff.split('\n').filter((line) => line.startsWith('-') && !line.startsWith('---'));
-    for (const line of removedLines) {
-      const content = line.slice(1).trim();
-      if (content) {
-        fail(`index.html must not remove or modify existing lines in Phase 5b: ${content}`);
-      }
+    if (diff) {
+      fail(`${relPath} must remain unchanged for ${phaseLabel}`);
     }
   } catch (e) {
-    warn('Could not verify index.html diff-only link change; skipping.');
+    warn(`Could not verify ${relPath} unchanged; skipping.`);
   }
+}
+
+/** Mirror of computeBudget for deterministic integrity checks (must stay in sync with layout JS). */
+function computeBudgetMirror(inputs) {
+  const HERO_SPARSE_PX = 318;
+  const HERO_DENSE_PX = 324;
+  const ALERT_RAIL_SINGLE_PX = 58;
+  const ALERT_RAIL_DUAL_PX = 64;
+  const GIG_SLOT_FALLBACK_PX = 144;
+  const GIG_MARGIN_TOP_PX = 2;
+  const BAND_MIN_FLOOR_PX = 96;
+  const BAND_MIN_CEIL_PX = 140;
+  const BAND_MIN_VH_RATIO = 0.22;
+  const BAND_ABSOLUTE_FLOOR = 20;
+  const HERO_COMPRESS_FLOOR = 300;
+
+  const scHomeH = inputs.scHomeH || 0;
+  const alertState = inputs.alertState || 'none';
+  const gigState = inputs.gigState || 'none';
+  const gigSlotPx = inputs.gigSlotPx != null ? inputs.gigSlotPx : GIG_SLOT_FALLBACK_PX;
+  const birthdayH = inputs.birthdayVisible ? (inputs.birthdayH || 0) : 0;
+  const viewportH = inputs.viewportH || 0;
+
+  let alertRailH = 0;
+  if (alertState === 'both') alertRailH = ALERT_RAIL_DUAL_PX;
+  else if (alertState === 'song' || alertState === 'rehearsal') alertRailH = ALERT_RAIL_SINGLE_PX;
+
+  let gigH = 0;
+  if (gigState === 'pending' || gigState === 'countdown' || gigState === 'no-gigs') {
+    gigH = gigSlotPx;
+  }
+
+  let heroH = alertState === 'none' ? HERO_SPARSE_PX : HERO_DENSE_PX;
+  let pass = 1;
+  const shellOverheadPx = GIG_MARGIN_TOP_PX;
+  const vhTerm = viewportH > 0 ? viewportH * BAND_MIN_VH_RATIO : BAND_MIN_FLOOR_PX;
+  const bandMinPx = Math.max(BAND_MIN_FLOOR_PX, Math.min(BAND_MIN_CEIL_PX, vhTerm));
+
+  const fixedStack = (h) => h + birthdayH + alertRailH + gigH + shellOverheadPx;
+  const remainder = (h) => scHomeH - fixedStack(h);
+
+  let bandRemainderPx = remainder(heroH);
+  let budgetExhausted = false;
+  let bandViewportMinH = bandMinPx;
+
+  if (bandRemainderPx < bandMinPx && heroH === HERO_DENSE_PX) {
+    heroH = HERO_SPARSE_PX;
+    pass = 2;
+    bandRemainderPx = remainder(heroH);
+  }
+  if (bandRemainderPx < bandMinPx && heroH > HERO_COMPRESS_FLOOR) {
+    heroH = HERO_COMPRESS_FLOOR;
+    pass = 3;
+    bandRemainderPx = remainder(heroH);
+  }
+  if (bandRemainderPx < bandMinPx) {
+    budgetExhausted = true;
+    bandViewportMinH = Math.max(BAND_ABSOLUTE_FLOOR, bandRemainderPx);
+  }
+
+  return { heroH, bandViewportMinH, budgetExhausted, pass };
+}
+
+function assertDeterministicBudgetCheck() {
+  const tight = computeBudgetMirror({
+    scHomeH: 552,
+    alertState: 'both',
+    gigState: 'countdown',
+    birthdayVisible: true,
+    birthdayH: 58,
+    viewportH: 800,
+    gigSlotPx: 144,
+  });
+  if (!tight.budgetExhausted) {
+    fail('Deterministic budget check: expected budgetExhausted for dense H3+birthday @ 552px');
+  }
+  if (tight.pass < 2) {
+    fail('Deterministic budget check: expected hero step-down pass >= 2 for tight dense stack');
+  }
+  if (tight.bandViewportMinH < 20) {
+    fail('Deterministic budget check: bandViewportMinH must respect BAND_ABSOLUTE_FLOOR');
+  }
+
+  const sparse = computeBudgetMirror({
+    scHomeH: 700,
+    alertState: 'none',
+    gigState: 'countdown',
+    birthdayVisible: false,
+    birthdayH: 0,
+    viewportH: 800,
+    gigSlotPx: 144,
+  });
+  if (sparse.budgetExhausted) {
+    fail('Deterministic budget check: sparse H0 should not exhaust budget @ 700px');
+  }
+  if (sparse.heroH !== 318) {
+    fail('Deterministic budget check: sparse hero should remain 318px');
+  }
+}
+
+function assertLayoutEnginePhase5c(layoutJs) {
+  const requiredSymbols = [
+    'computeBudget',
+    '_readInputs',
+    '_applyBudgetTokens',
+    '_clearBudgetTokens',
+    '_scheduleDeferredReconcile',
+    '_isHomeActive',
+    'HERO_SPARSE_PX',
+    'HERO_DENSE_PX',
+    'HERO_COMPRESS_FLOOR',
+    'BAND_ABSOLUTE_FLOOR',
+    'budgetExhausted',
+    '__ootHomeLayoutBudget',
+    'BUDGET_TOKEN_NAMES',
+  ];
+  for (const sym of requiredSymbols) {
+    if (!layoutJs.includes(sym)) {
+      fail(`oot_home_layout_engine.js missing Phase 5c symbol: ${sym}`);
+    }
+  }
+
+  for (const token of REQUIRED_CSS_TOKENS) {
+    if (!layoutJs.includes(token)) {
+      fail(`oot_home_layout_engine.js must reference pilot token: ${token}`);
+    }
+  }
+
+  if (!layoutJs.includes('removeProperty')) {
+    fail('oot_home_layout_engine.js must remove pilot tokens in legacy path (removeProperty)');
+  }
+  if (!layoutJs.includes('setProperty')) {
+    fail('oot_home_layout_engine.js must write pilot tokens via setProperty');
+  }
+  if (!layoutJs.includes('_applyPilotBudget')) {
+    fail('oot_home_layout_engine.js must gate budget writes behind pilot path (_applyPilotBudget)');
+  }
+  if (!layoutJs.includes('_applyLegacyShell')) {
+    fail('oot_home_layout_engine.js must clear tokens in legacy path (_applyLegacyShell)');
+  }
+  if (!layoutJs.includes('getAlertRailState')) {
+    fail('oot_home_layout_engine.js must read getAlertRailState()');
+  }
+  if (!layoutJs.includes('getGigSlotState')) {
+    fail('oot_home_layout_engine.js must read getGigSlotState()');
+  }
+  if (!layoutJs.includes('birthday-banner')) {
+    fail('oot_home_layout_engine.js must read #birthday-banner');
+  }
+
+  assertDeterministicBudgetCheck();
 }
 
 function gitChangedFiles() {
@@ -327,7 +463,8 @@ function main() {
     fail('Expected oot_home_alert_rail.js to load before oot_home_layout_engine.js');
   }
 
-  assertIndexHtmlOnlyLinkChange();
+  assertGitFileUnchanged('index.html', 'Phase 5c');
+  assertGitFileUnchanged('oot_home_layout_engine.css', 'Phase 5c');
 
   const changedFiles = gitChangedFiles();
   for (const protectedFile of PROTECTED_MODULE_FILES) {
@@ -335,8 +472,11 @@ function main() {
       fail(`Phase 5 must not modify protected module: ${protectedFile}`);
     }
   }
-  if (changedFiles.includes('oot_home_layout_engine.js')) {
-    fail('Phase 5b must not modify oot_home_layout_engine.js');
+  if (changedFiles.includes('oot_home_layout_engine.css')) {
+    fail('Phase 5c must not modify oot_home_layout_engine.css');
+  }
+  if (changedFiles.includes('index.html')) {
+    fail('Phase 5c must not modify index.html');
   }
 
   if (exists('oot_home_layout_engine.js')) {
@@ -385,6 +525,7 @@ function main() {
       fail('oot_home_layout_engine.js missing data-home-layout-mode handling');
     }
     scanForbidden(layoutJs, 'oot_home_layout_engine.js', ['modular-inflow']);
+    assertLayoutEnginePhase5c(layoutJs);
   }
 
   if (exists('oot_home_layout_engine.css')) {
