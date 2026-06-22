@@ -22680,6 +22680,7 @@ function renderHomeRehearsalCue(){
       el.innerHTML = '';
       try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue hidden no events'); } catch(e){}
       try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:hidden-no-events', {}); } catch(e){}
+      try { syncAlertRailState('renderHomeRehearsalCue'); } catch(e){}
       return;
     }
   }
@@ -22689,6 +22690,7 @@ function renderHomeRehearsalCue(){
     el.innerHTML = '';
     try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue hidden no next rehearsal'); } catch(e){}
     try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:hidden-no-rehearsal', {}); } catch(e){}
+    try { syncAlertRailState('renderHomeRehearsalCue'); } catch(e){}
     return;
   }
   var times = _r535RehearsalTimes(ev);
@@ -22711,6 +22713,7 @@ function renderHomeRehearsalCue(){
     '</button>';
   try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue visible'); } catch(e){}
   try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:visible', {}); } catch(e){}
+  try { syncAlertRailState('renderHomeRehearsalCue'); } catch(e){}
 }
 
 function renderHomeSongVoteCue(){
@@ -22731,6 +22734,7 @@ function renderHomeSongVoteCue(){
     el.style.display = 'none';
     el.innerHTML = '';
     try { _homeLayoutDiagSnapshot('renderHomeSongVoteCue:hidden', {}); } catch(e){}
+    try { syncAlertRailState('renderHomeSongVoteCue'); } catch(e){}
     return;
   }
   var label = userSpecific
@@ -22750,6 +22754,7 @@ function renderHomeSongVoteCue(){
       '</span>'+
     '</button>';
   try { _homeLayoutDiagSnapshot('renderHomeSongVoteCue:visible', { count: cueItems.length }); } catch(e){}
+  try { syncAlertRailState('renderHomeSongVoteCue'); } catch(e){}
 }
 
 
@@ -30732,6 +30737,7 @@ function rHome() {
   try { _ensureHomeCueFallbackListeners(); } catch(e){}
   try { renderHomeSongVoteCue(); } catch(e){}
   try { renderHomeRehearsalCue(); } catch(e){}
+  try { syncAlertRailState('rHome'); } catch(e){}
   try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rHome final'); } catch(e){}
   var wi = document.getElementById('who-am-i');
   if (wi && myName) {
@@ -41494,6 +41500,7 @@ function maybeShowWhatsNew(){
 
 </script>
   <script src="oot_home_band_image.js"></script>
+  <script src="oot_home_alert_rail.js"></script>
   <script src="oot_home_diag.js"></script>
   <script>
   // Phase 1: Thin guard for Home diagnostics module (oot_home_diag.js).
