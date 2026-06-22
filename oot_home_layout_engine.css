@@ -39,13 +39,6 @@
   max-height: var(--home-slot-hero-h) !important;
 }
 
-#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="song"] .hero.home-hero-with-controls,
-#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="rehearsal"] .hero.home-hero-with-controls,
-#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="both"] .hero.home-hero-with-controls {
-  height: var(--home-slot-hero-h-dense) !important;
-  max-height: var(--home-slot-hero-h-dense) !important;
-}
-
 #sc-home[data-home-layout-mode="modular-inflow"] #birthday-banner {
   flex: 0 0 auto !important;
   height: var(--home-slot-birthday-h) !important;
@@ -194,12 +187,5 @@
   #sc-home[data-home-layout-mode="modular-inflow"] .hero.home-hero-with-controls {
     height: var(--home-slot-hero-h) !important;
     max-height: var(--home-slot-hero-h) !important;
-  }
-
-  #sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="song"] .hero.home-hero-with-controls,
-  #sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="rehearsal"] .hero.home-hero-with-controls,
-  #sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="both"] .hero.home-hero-with-controls {
-    height: var(--home-slot-hero-h-dense) !important;
-    max-height: var(--home-slot-hero-h-dense) !important;
   }
 }

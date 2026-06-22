@@ -186,6 +186,10 @@ function assertPilotScopedCss(cssText) {
       fail(`oot_home_layout_engine.css rule selector missing pilot scope: ${selector}`);
     }
   }
+  if (/height:\s*var\(--home-slot-hero-h-dense\)/.test(cssText) ||
+      /max-height:\s*var\(--home-slot-hero-h-dense\)/.test(cssText)) {
+    fail('oot_home_layout_engine.css must bind hero height to --home-slot-hero-h, not --home-slot-hero-h-dense');
+  }
 }
 
 function assertGitFileUnchanged(relPath, phaseLabel) {

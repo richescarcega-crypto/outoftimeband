@@ -199,7 +199,7 @@
 
     var tokens = {
       '--home-slot-hero-h': heroH + 'px',
-      '--home-slot-hero-h-dense': HERO_DENSE_PX + 'px',
+      '--home-slot-hero-h-dense': heroH + 'px',
       '--home-slot-birthday-h': birthdayH + 'px',
       '--home-slot-alert-rail-h-single': ALERT_RAIL_SINGLE_PX + 'px',
       '--home-slot-alert-rail-h-dual': ALERT_RAIL_DUAL_PX + 'px',
