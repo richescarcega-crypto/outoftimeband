@@ -23880,9 +23880,7 @@ function updateCountdown(){
   // events snapshot arrives, the local events array is still empty. Do not
   // briefly render the No Gig placeholder during that loading gap.
   if(!_eventsHasInit && (!events || !events.length)){
-    card.style.display='none';
-    var loadingNoGigs = document.getElementById('no-gigs-card');
-    if(loadingNoGigs){ loadingNoGigs.style.display='none'; loadingNoGigs.innerHTML=''; }
+    try { reserveGigSlotPending(); } catch(e){}
     return;
   }
 
@@ -23893,6 +23891,7 @@ function updateCountdown(){
   if(!upcoming.length){
     card.style.display='none';
     renderNoGigsCard();
+    try { syncGigSlotState('updateCountdown:no-gigs'); } catch(e){}
     return;
   }
   // Hide the no-gigs card when we have a gig
@@ -23937,6 +23936,7 @@ function updateCountdown(){
     tick();
     countdownInterval = setInterval(tick, 30000);
   }
+  try { syncGigSlotState('updateCountdown:countdown'); } catch(e){}
 }
 
 // ── NO GIGS CARD ─────────────────────────────────────────────────────
@@ -41501,6 +41501,7 @@ function maybeShowWhatsNew(){
 </script>
   <script src="oot_home_band_image.js"></script>
   <script src="oot_home_alert_rail.js"></script>
+  <script src="oot_home_gig_slot.js"></script>
   <script src="oot_home_diag.js"></script>
   <script>
   // Phase 1: Thin guard for Home diagnostics module (oot_home_diag.js).
