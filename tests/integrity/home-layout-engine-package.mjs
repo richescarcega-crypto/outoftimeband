@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Static Phase 5a Home layout engine scaffold checks. Test-only.
+ * Static Phase 5 Home layout engine checks (5a scaffold + 5b pilot CSS). Test-only.
  */
 
 import fs from 'node:fs';
@@ -14,6 +14,7 @@ const ROOT = path.resolve(__dirname, '../..');
 const REQUIRED_FILES = [
   'index.html',
   'oot_home_layout_engine.js',
+  'oot_home_layout_engine.css',
   'oot_compat_home.js',
 ];
 
@@ -30,6 +31,20 @@ const REQUIRED_SCRIPT_REFS = [
   'oot_home_layout_engine.js',
   'oot_home_diag.js',
   'oot_compat_home.js',
+];
+
+const LAYOUT_CSS_HREF = 'oot_home_layout_engine.css';
+const PILOT_SCOPE = 'data-home-layout-mode="modular-inflow"';
+
+const REQUIRED_CSS_TOKENS = [
+  '--home-slot-hero-h',
+  '--home-slot-hero-h-dense',
+  '--home-slot-birthday-h',
+  '--home-slot-alert-rail-h-single',
+  '--home-slot-alert-rail-h-dual',
+  '--home-slot-alert-rail-h',
+  '--home-slot-gig-h',
+  '--home-band-viewport-min-h',
 ];
 
 const BOOTSTRAP_MARKER = "var savedName=localStorage.getItem('oot_me')";
@@ -84,6 +99,12 @@ function findScriptPositions(html, srcFragment) {
   return match ? match.index : -1;
 }
 
+function findStylesheetPositions(html, hrefFragment) {
+  const regex = new RegExp(`<link[^>]+href=["'][^"']*${hrefFragment.replace('.', '\\.')}["'][^>]*>`, 'i');
+  const match = html.match(regex);
+  return match ? match.index : -1;
+}
+
 function scanForbidden(content, label, allowedSubstrings) {
   allowedSubstrings = allowedSubstrings || [];
   for (const forbidden of FORBIDDEN_STRINGS) {
@@ -108,6 +129,94 @@ function countOccurrences(haystack, needle) {
   return count;
 }
 
+function findClosingBrace(text, openIndex) {
+  let depth = 0;
+  for (let i = openIndex; i < text.length; i++) {
+    if (text[i] === '{') depth += 1;
+    else if (text[i] === '}') {
+      depth -= 1;
+      if (depth === 0) return i;
+    }
+  }
+  return -1;
+}
+
+function extractRuleSelectors(cssText) {
+  const noComments = cssText.replace(/\/\*[\s\S]*?\*\//g, '');
+  const selectors = [];
+  let i = 0;
+
+  while (i < noComments.length) {
+    const ch = noComments[i];
+    if (ch === '@') {
+      const braceStart = noComments.indexOf('{', i);
+      if (braceStart === -1) break;
+      const atRule = noComments.slice(i, braceStart).trim();
+      const closeIndex = findClosingBrace(noComments, braceStart);
+      if (closeIndex === -1) break;
+      if (/^@(media|supports|layer|container)/i.test(atRule)) {
+        const inner = noComments.slice(braceStart + 1, closeIndex);
+        selectors.push(...extractRuleSelectors(inner));
+      }
+      i = closeIndex + 1;
+      continue;
+    }
+    if (/\S/.test(ch) && ch !== '}' && ch !== '{') {
+      const braceStart = noComments.indexOf('{', i);
+      if (braceStart === -1) break;
+      const selector = noComments.slice(i, braceStart).trim();
+      if (selector) selectors.push(selector);
+      i = findClosingBrace(noComments, braceStart) + 1;
+      continue;
+    }
+    i += 1;
+  }
+
+  return selectors;
+}
+
+function assertPilotScopedCss(cssText) {
+  const selectors = extractRuleSelectors(cssText);
+  if (!selectors.length) {
+    fail('oot_home_layout_engine.css contains no CSS rule selectors');
+    return;
+  }
+  for (const selector of selectors) {
+    if (!selector.includes(PILOT_SCOPE)) {
+      fail(`oot_home_layout_engine.css rule selector missing pilot scope: ${selector}`);
+    }
+  }
+}
+
+function assertIndexHtmlOnlyLinkChange() {
+  try {
+    const diff = execSync('git diff HEAD -- index.html', {
+      cwd: ROOT,
+      encoding: 'utf8',
+    }).trim();
+    if (!diff) return;
+
+    const changedLines = diff.split('\n').filter((line) => line.startsWith('+') && !line.startsWith('+++'));
+    for (const line of changedLines) {
+      const content = line.slice(1);
+      if (!content.trim()) continue;
+      if (!content.includes(LAYOUT_CSS_HREF)) {
+        fail(`index.html Phase 5b change outside allowed stylesheet link: ${content.trim()}`);
+      }
+    }
+
+    const removedLines = diff.split('\n').filter((line) => line.startsWith('-') && !line.startsWith('---'));
+    for (const line of removedLines) {
+      const content = line.slice(1).trim();
+      if (content) {
+        fail(`index.html must not remove or modify existing lines in Phase 5b: ${content}`);
+      }
+    }
+  } catch (e) {
+    warn('Could not verify index.html diff-only link change; skipping.');
+  }
+}
+
 function gitChangedFiles() {
   try {
     const tracked = execSync('git diff --name-only HEAD', {
@@ -129,7 +238,7 @@ function gitChangedFiles() {
 }
 
 function main() {
-  console.log('Running Phase 5a Home layout engine scaffold integrity checks...\n');
+  console.log('Running Phase 5 Home layout engine integrity checks...\n');
 
   for (const relPath of REQUIRED_FILES) {
     if (!exists(relPath)) {
@@ -150,6 +259,10 @@ function main() {
     }
   }
 
+  if (!html.includes(LAYOUT_CSS_HREF)) {
+    fail(`index.html missing stylesheet link: ${LAYOUT_CSS_HREF}`);
+  }
+
   const hookCount = countOccurrences(html, RHOM_HOOK);
   if (hookCount !== 1) {
     fail(`index.html must contain exactly one ${RHOM_HOOK} hook (found ${hookCount})`);
@@ -168,12 +281,16 @@ function main() {
   const alertRailPos = findScriptPositions(html, 'oot_home_alert_rail.js');
   const gigSlotPos = findScriptPositions(html, 'oot_home_gig_slot.js');
   const layoutEnginePos = findScriptPositions(html, 'oot_home_layout_engine.js');
+  const layoutCssPos = findStylesheetPositions(html, LAYOUT_CSS_HREF);
   const diagPos = findScriptPositions(html, 'oot_home_diag.js');
   const compatPos = findScriptPositions(html, 'oot_compat_home.js');
   const bootstrapPos = html.indexOf(BOOTSTRAP_MARKER);
 
   if (layoutEnginePos === -1) {
     fail('Could not locate oot_home_layout_engine.js script tag in index.html');
+  }
+  if (layoutCssPos === -1) {
+    fail(`Could not locate ${LAYOUT_CSS_HREF} link tag in index.html`);
   }
   if (gigSlotPos === -1) {
     fail('Could not locate oot_home_gig_slot.js script tag in index.html');
@@ -187,6 +304,12 @@ function main() {
 
   if (gigSlotPos !== -1 && layoutEnginePos !== -1 && gigSlotPos > layoutEnginePos) {
     fail('Expected oot_home_gig_slot.js to load before oot_home_layout_engine.js');
+  }
+  if (layoutEnginePos !== -1 && layoutCssPos !== -1 && layoutEnginePos > layoutCssPos) {
+    fail(`Expected oot_home_layout_engine.js to load before ${LAYOUT_CSS_HREF}`);
+  }
+  if (layoutCssPos !== -1 && diagPos !== -1 && layoutCssPos > diagPos) {
+    fail(`Expected ${LAYOUT_CSS_HREF} to load before oot_home_diag.js`);
   }
   if (layoutEnginePos !== -1 && diagPos !== -1 && layoutEnginePos > diagPos) {
     fail('Expected oot_home_layout_engine.js to load before oot_home_diag.js');
@@ -204,11 +327,16 @@ function main() {
     fail('Expected oot_home_alert_rail.js to load before oot_home_layout_engine.js');
   }
 
+  assertIndexHtmlOnlyLinkChange();
+
   const changedFiles = gitChangedFiles();
   for (const protectedFile of PROTECTED_MODULE_FILES) {
     if (changedFiles.includes(protectedFile)) {
-      fail(`Phase 5a must not modify protected module: ${protectedFile}`);
+      fail(`Phase 5 must not modify protected module: ${protectedFile}`);
     }
+  }
+  if (changedFiles.includes('oot_home_layout_engine.js')) {
+    fail('Phase 5b must not modify oot_home_layout_engine.js');
   }
 
   if (exists('oot_home_layout_engine.js')) {
@@ -259,6 +387,20 @@ function main() {
     scanForbidden(layoutJs, 'oot_home_layout_engine.js', ['modular-inflow']);
   }
 
+  if (exists('oot_home_layout_engine.css')) {
+    const layoutCss = read('oot_home_layout_engine.css');
+    if (!layoutCss.includes('Phase 5b: HomeLayoutEngine pilot CSS')) {
+      fail('oot_home_layout_engine.css missing Phase 5b header comment');
+    }
+    for (const token of REQUIRED_CSS_TOKENS) {
+      if (!layoutCss.includes(token)) {
+        fail(`oot_home_layout_engine.css missing required token: ${token}`);
+      }
+    }
+    assertPilotScopedCss(layoutCss);
+    scanForbidden(layoutCss, 'oot_home_layout_engine.css', ['modular-inflow']);
+  }
+
   if (exists('oot_compat_home.js')) {
     assertJsModule('oot_compat_home.js');
     const compatJs = read('oot_compat_home.js');
@@ -271,7 +413,7 @@ function main() {
     scanForbidden(compatJs, 'oot_compat_home.js');
   }
 
-  scanForbidden(html, 'index.html (Phase 5a diff should not add banned strings)');
+  scanForbidden(html, 'index.html (Phase 5 diff should not add banned strings)');
 
   report();
 }
@@ -294,7 +436,7 @@ function report() {
     process.exit(1);
   }
 
-  console.log('All Phase 5a Home layout engine scaffold integrity checks passed.\n');
+  console.log('All Phase 5 Home layout engine integrity checks passed.\n');
 }
 
 main();

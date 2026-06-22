@@ -1,0 +1,205 @@
+/* Phase 5b: HomeLayoutEngine pilot CSS — modular-inflow only. No legacy-overlay rules. */
+
+/* §A — Static token defaults */
+#sc-home[data-home-layout-mode="modular-inflow"] {
+  --home-slot-hero-h: 318px;
+  --home-slot-hero-h-dense: 324px;
+  --home-slot-birthday-h: auto;
+  --home-slot-alert-rail-h-single: 58px;
+  --home-slot-alert-rail-h-dual: 64px;
+  --home-slot-alert-rail-h: 0px;
+  --home-slot-gig-h: var(--home-gig-slot-h, 144px);
+  --home-band-viewport-min-h: clamp(96px, 22vh, 140px);
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="song"],
+#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="rehearsal"] {
+  --home-slot-alert-rail-h: var(--home-slot-alert-rail-h-single);
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="both"] {
+  --home-slot-alert-rail-h: var(--home-slot-alert-rail-h-dual);
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"]:not([data-home-alert-state]),
+#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="none"] {
+  --home-slot-alert-rail-h: 0px;
+}
+
+/* §B — Flex column shell */
+#sc-home[data-home-layout-mode="modular-inflow"] {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"] .hero.home-hero-with-controls {
+  flex: 0 0 auto !important;
+  height: var(--home-slot-hero-h) !important;
+  max-height: var(--home-slot-hero-h) !important;
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="song"] .hero.home-hero-with-controls,
+#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="rehearsal"] .hero.home-hero-with-controls,
+#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="both"] .hero.home-hero-with-controls {
+  height: var(--home-slot-hero-h-dense) !important;
+  max-height: var(--home-slot-hero-h-dense) !important;
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"] #birthday-banner {
+  flex: 0 0 auto !important;
+  height: var(--home-slot-birthday-h) !important;
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"] #home-alerts-row {
+  flex: 0 0 auto !important;
+  min-height: var(--home-slot-alert-rail-h) !important;
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"] #next-gig-countdown,
+#sc-home[data-home-layout-mode="modular-inflow"] #no-gigs-card {
+  flex: 0 0 auto !important;
+  height: var(--home-slot-gig-h) !important;
+  min-height: var(--home-slot-gig-h) !important;
+  max-height: var(--home-slot-gig-h) !important;
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"] #home-social-row {
+  flex: 1 1 auto !important;
+  min-height: var(--home-band-viewport-min-h) !important;
+}
+
+/* §C — In-flow alert rail (neutralize legacy overlay geometry) */
+#sc-home[data-home-layout-mode="modular-inflow"] #home-alerts-row {
+  position: relative !important;
+  transform: none !important;
+  height: auto !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 10px !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"] #home-alerts-row::before {
+  content: none !important;
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"] #home-alerts-row #home-song-vote-cue,
+#sc-home[data-home-layout-mode="modular-inflow"] #home-alerts-row #home-rehearsal-cue {
+  height: auto !important;
+  min-height: var(--home-slot-alert-rail-h-single) !important;
+  max-height: none !important;
+  overflow: visible !important;
+  align-self: start !important;
+  position: relative !important;
+  pointer-events: auto !important;
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"] #home-alerts-row .home-alert-pill {
+  height: auto !important;
+  min-height: var(--home-slot-alert-rail-h-single) !important;
+  max-height: none !important;
+  overflow: visible !important;
+  margin: 0 !important;
+  padding: 8px 10px !important;
+  border-radius: 14px !important;
+}
+
+/* §C — Pilot-only dual-pill grid (r732 values, scoped) */
+#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="both"] #home-alerts-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  gap: 2px !important;
+  align-items: stretch !important;
+  margin: 0 0 2px 0 !important;
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="both"] #home-alerts-row #home-song-vote-cue,
+#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="both"] #home-alerts-row #home-rehearsal-cue {
+  min-width: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="both"] #home-alerts-row .home-alert-pill {
+  height: 100% !important;
+  min-height: 62px !important;
+  margin: 0 !important;
+  padding: 8px 7px !important;
+  gap: 6px !important;
+  border-radius: 14px !important;
+  align-items: center !important;
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="both"] #home-alerts-row .home-alert-icon {
+  width: 28px !important;
+  height: 28px !important;
+  font-size: 13px !important;
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="both"] #home-alerts-row .home-alert-kicker {
+  font-size: 8.5px !important;
+  letter-spacing: 1.1px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="both"] #home-alerts-row .home-alert-main {
+  font-size: 11px !important;
+  line-height: 1.15 !important;
+  margin-top: 2px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="both"] #home-alerts-row .home-alert-sub,
+#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="both"] #home-alerts-row .home-alert-note {
+  display: none !important;
+}
+
+/* §D — Gig slot height preservation */
+#sc-home[data-home-layout-mode="modular-inflow"] #next-gig-countdown,
+#sc-home[data-home-layout-mode="modular-inflow"] #no-gigs-card {
+  height: var(--home-gig-slot-h, 144px) !important;
+  min-height: var(--home-gig-slot-h, 144px) !important;
+  max-height: var(--home-gig-slot-h, 144px) !important;
+}
+
+/* §E — Band viewport */
+#sc-home[data-home-layout-mode="modular-inflow"] #home-social-row {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* §F — Reset cue-triggered hero/logo/tagline micro-lifts to baseline */
+#sc-home[data-home-layout-mode="modular-inflow"] .hero.home-hero-with-controls .hero-l img {
+  top: -28px !important;
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"] .hero.home-hero-with-controls .hero-tagline {
+  bottom: 62px !important;
+}
+
+/* §G — Sparse / no-alert hero height */
+#sc-home[data-home-layout-mode="modular-inflow"]:not([data-home-alert-state]) .hero.home-hero-with-controls,
+#sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="none"] .hero.home-hero-with-controls {
+  height: var(--home-slot-hero-h) !important;
+  max-height: var(--home-slot-hero-h) !important;
+}
+
+@media (max-width: 520px) {
+  #sc-home[data-home-layout-mode="modular-inflow"] .hero.home-hero-with-controls {
+    height: var(--home-slot-hero-h) !important;
+    max-height: var(--home-slot-hero-h) !important;
+  }
+
+  #sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="song"] .hero.home-hero-with-controls,
+  #sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="rehearsal"] .hero.home-hero-with-controls,
+  #sc-home[data-home-layout-mode="modular-inflow"][data-home-alert-state="both"] .hero.home-hero-with-controls {
+    height: var(--home-slot-hero-h-dense) !important;
+    max-height: var(--home-slot-hero-h-dense) !important;
+  }
+}
