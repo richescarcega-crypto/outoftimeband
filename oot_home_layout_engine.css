@@ -37,6 +37,7 @@
   flex: 0 0 auto !important;
   height: var(--home-slot-hero-h) !important;
   max-height: var(--home-slot-hero-h) !important;
+  min-height: 0 !important;
 }
 
 #sc-home[data-home-layout-mode="modular-inflow"] #birthday-banner {
@@ -170,6 +171,7 @@
 /* §F — Reset cue-triggered hero/logo/tagline micro-lifts to baseline */
 #sc-home[data-home-layout-mode="modular-inflow"] .hero.home-hero-with-controls .hero-l img {
   top: -28px !important;
+  min-height: 0 !important;
 }
 
 #sc-home[data-home-layout-mode="modular-inflow"] .hero.home-hero-with-controls .hero-tagline {

@@ -311,3 +311,24 @@ Optional idempotency check: `OOT.home.layout.reconcile('manual-h8')` should not 
 | Pilot opt-in (`homeLayoutPilot=1` / `localStorage`) | PASS — unchanged in JS |
 | Banned-path grep in pilot JS/CSS | PASS |
 | Node integrity scripts | BLOCKED — `node` not on host |
+
+---
+
+## 5d CSS hygiene — sparse hero stack slack (2026-06-22)
+
+**Commit:** (pending) — pilot-only `min-height: 0` on `.hero.home-hero-with-controls` and `.hero-l img` in `oot_home_layout_engine.css`.
+
+**Problem observed (valid pilot @ localhost):** `budgetHeroH` / `--home-slot-hero-h` = **318px** but hero layout box measured **322px** (`clientHeight` / rect slack **+4px**). Token binding was correct; legacy r791 img `min-height: min(398px, calc(100vw - 14px))` plus flex item `min-height: auto` content floor raised the used height above the token cap.
+
+**Fix:** Pilot-scoped hygiene only — no JS or legacy `index.html` CSS changes:
+
+```css
+#sc-home[data-home-layout-mode="modular-inflow"] .hero.home-hero-with-controls {
+  min-height: 0 !important;
+}
+#sc-home[data-home-layout-mode="modular-inflow"] .hero.home-hero-with-controls .hero-l img {
+  min-height: 0 !important;
+}
+```
+
+**Expected delta:** Sparse H0 `honestStack` should move from **+4px slack** to **0px** (`rectHeight` ≈ token px). Re-verify with stack-honesty snippet (`getBoundingClientRect().height` vs `budget.computed.heroH`). Dense H1/H3/H8 testing remains pending after this hygiene commit.

@@ -175,6 +175,15 @@ function extractRuleSelectors(cssText) {
   return selectors;
 }
 
+function assertPilotHeroMinHeightHygiene(cssText) {
+  if (!/modular-inflow"\] \.hero\.home-hero-with-controls[\s\S]{0,220}min-height:\s*0\s*!important/.test(cssText)) {
+    fail('oot_home_layout_engine.css must set min-height:0 on pilot hero flex item');
+  }
+  if (!/modular-inflow"\][\s\S]*\.hero-l img[\s\S]{0,120}min-height:\s*0\s*!important/.test(cssText)) {
+    fail('oot_home_layout_engine.css must neutralize legacy img min-height in pilot mode');
+  }
+}
+
 function assertPilotScopedCss(cssText) {
   const selectors = extractRuleSelectors(cssText);
   if (!selectors.length) {
@@ -467,8 +476,7 @@ function main() {
     fail('Expected oot_home_alert_rail.js to load before oot_home_layout_engine.js');
   }
 
-  assertGitFileUnchanged('index.html', 'Phase 5c');
-  assertGitFileUnchanged('oot_home_layout_engine.css', 'Phase 5c');
+  assertGitFileUnchanged('index.html', 'Phase 5 layout engine JS-only phases');
 
   const changedFiles = gitChangedFiles();
   for (const protectedFile of PROTECTED_MODULE_FILES) {
@@ -476,11 +484,8 @@ function main() {
       fail(`Phase 5 must not modify protected module: ${protectedFile}`);
     }
   }
-  if (changedFiles.includes('oot_home_layout_engine.css')) {
-    fail('Phase 5c must not modify oot_home_layout_engine.css');
-  }
   if (changedFiles.includes('index.html')) {
-    fail('Phase 5c must not modify index.html');
+    fail('Pilot layout hygiene must not modify index.html');
   }
 
   if (exists('oot_home_layout_engine.js')) {
@@ -543,6 +548,7 @@ function main() {
       }
     }
     assertPilotScopedCss(layoutCss);
+    assertPilotHeroMinHeightHygiene(layoutCss);
     scanForbidden(layoutCss, 'oot_home_layout_engine.css', ['modular-inflow']);
   }
 
