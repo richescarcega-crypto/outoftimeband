@@ -48,6 +48,33 @@ const FORBIDDEN_STRINGS = [
   'data-home-layout-mode="modular-inflow"',
 ];
 
+const PHASE_6B_SNAPSHOT_FIELDS = [
+  'layoutMode:',
+  'alertState:',
+  'gigState:',
+  'layoutBudget:',
+  'controller:',
+];
+
+const PHASE_6B_READ_HELPERS = [
+  'readLayoutMode',
+  'readAlertState',
+  'readGigState',
+  'readLayoutBudgetSummary',
+  'readControllerSummary',
+];
+
+const FORBIDDEN_BEHAVIOR_CALLS = [
+  'reconcileHomeLayout',
+  'syncAlertRailState',
+  'updateCountdown',
+  'applyHomeLayoutShell',
+  'rHome(',
+  'go(',
+];
+
+const RHOM_HOOK = "reconcileHomeLayout('rHome')";
+
 const failures = [];
 const warnings = [];
 
@@ -90,8 +117,53 @@ function scanForbidden(content, label) {
   }
 }
 
+function assertPhase6bDiagEnrichment(diagJs) {
+  for (const field of PHASE_6B_SNAPSHOT_FIELDS) {
+    if (!diagJs.includes(field)) {
+      fail(`oot_home_diag.js missing Phase 6b snapshot field: ${field.replace(':', '')}`);
+    }
+  }
+  for (const helper of PHASE_6B_READ_HELPERS) {
+    if (!diagJs.includes(`function ${helper}`)) {
+      fail(`oot_home_diag.js missing Phase 6b read helper: ${helper}`);
+    }
+  }
+  if (!diagJs.includes('getHomeLayoutMode')) {
+    fail('oot_home_diag.js must read layoutMode via getHomeLayoutMode() when available');
+  }
+  if (!diagJs.includes('getAlertRailState')) {
+    fail('oot_home_diag.js must read alertState via getAlertRailState() when available');
+  }
+  if (!diagJs.includes('getGigSlotState')) {
+    fail('oot_home_diag.js must read gigState via getGigSlotState() when available');
+  }
+  if (!diagJs.includes('__ootHomeLayoutBudget')) {
+    fail('oot_home_diag.js must read layoutBudget from window.__ootHomeLayoutBudget');
+  }
+  if (!diagJs.includes('OOT.home.controller')) {
+    fail('oot_home_diag.js must read controller summary from OOT.home.controller.getState()');
+  }
+  for (const call of FORBIDDEN_BEHAVIOR_CALLS) {
+    if (diagJs.includes(call)) {
+      fail(`oot_home_diag.js must not invoke behavior-changing Home API: ${call}`);
+    }
+  }
+}
+
+function assertIndexHtmlLifecycleGuards(html) {
+  const hookCount = (html.match(/reconcileHomeLayout\('rHome'\)/g) || []).length;
+  if (hookCount !== 1) {
+    fail(`index.html must contain exactly one ${RHOM_HOOK} hook (found ${hookCount})`);
+  }
+  if (html.includes('HomeController.activate') ||
+      html.includes('activateHome(') ||
+      html.includes('requestHomeReconcile(')) {
+    fail('index.html must not wire HomeController activation in Phase 6b');
+  }
+}
+
 function main() {
-  console.log('Running Phase 1/1b/1c Home diagnostics integrity checks...\n');
+  console.log('Running Phase 1/1b/1c + Phase 6b Home diagnostics integrity checks...\n');
 
   for (const relPath of REQUIRED_FILES) {
     if (!exists(relPath)) {
@@ -213,8 +285,11 @@ function main() {
     if (!diagJs.includes('gigSlot')) {
       fail('oot_home_diag.js missing gigSlot measurement in live summary');
     }
+    assertPhase6bDiagEnrichment(diagJs);
     scanForbidden(diagJs, 'oot_home_diag.js');
   }
+
+  assertIndexHtmlLifecycleGuards(html);
 
   if (exists('oot_compat_home.js')) {
     assertJsModule('oot_compat_home.js');
@@ -248,7 +323,7 @@ function report() {
     process.exit(1);
   }
 
-  console.log('All Phase 1/1b/1c Home diagnostics integrity checks passed.\n');
+  console.log('All Phase 1/1b/1c + Phase 6b Home diagnostics integrity checks passed.\n');
 }
 
 main();

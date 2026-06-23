@@ -1,4 +1,4 @@
-// Phase 1/1b/1c: Home layout diagnostics (read-only, flag-gated off by default).
+// Phase 1/1b/1c + Phase 6b: Home layout diagnostics (read-only, flag-gated off by default).
 // Reconstructed from 48f9144 r945 diag + phone export/summary UI. No layout/CSS/registry behavior.
 
 (function (window, document) {
@@ -52,6 +52,75 @@
     } catch (e) {
       return null;
     }
+  }
+
+  function readLayoutMode() {
+    try {
+      if (typeof getHomeLayoutMode === 'function') {
+        return getHomeLayoutMode();
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function readAlertState() {
+    try {
+      if (typeof getAlertRailState === 'function') {
+        return getAlertRailState();
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function readGigState() {
+    try {
+      if (typeof getGigSlotState === 'function') {
+        return getGigSlotState();
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function readLayoutBudgetSummary() {
+    try {
+      var budget = window.__ootHomeLayoutBudget;
+      if (!budget || !budget.computed) {
+        return null;
+      }
+      var computed = budget.computed;
+      var heroH = computed.heroH;
+      if (heroH == null && computed.budgetHeroH != null) {
+        heroH = computed.budgetHeroH;
+      }
+      return {
+        heroH: heroH != null ? heroH : null,
+        alertRailH: computed.alertRailH != null ? computed.alertRailH : null,
+        bandRemainderPx: computed.bandRemainderPx != null ? computed.bandRemainderPx : null,
+        budgetExhausted: !!computed.budgetExhausted,
+        pass: computed.pass != null ? computed.pass : null
+      };
+    } catch (e) {}
+    return null;
+  }
+
+  function readControllerSummary() {
+    try {
+      var controller = window.OOT && window.OOT.home && window.OOT.home.controller;
+      if (!controller || typeof controller.getState !== 'function') {
+        return null;
+      }
+      var state = controller.getState();
+      if (!state) {
+        return null;
+      }
+      return {
+        phase: state.phase || null,
+        lastMethod: state.lastMethod || null,
+        lastReason: state.lastReason || null,
+        eventCount: state.eventCount != null ? state.eventCount : null
+      };
+    } catch (e) {}
+    return null;
   }
 
   function collectSnapshotRecord(tag, meta) {
@@ -115,7 +184,12 @@
         updateBanner: !!document.getElementById('update-banner'),
         stuckUpdateBanner: !!document.getElementById('stuck-update-banner'),
         criticalUpdateOverlay: !!document.getElementById('critical-update-overlay')
-      }
+      },
+      layoutMode: readLayoutMode(),
+      alertState: readAlertState(),
+      gigState: readGigState(),
+      layoutBudget: readLayoutBudgetSummary(),
+      controller: readControllerSummary()
     };
   }
 
