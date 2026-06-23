@@ -231,16 +231,23 @@ function getGitDiff(relPath) {
   }
 }
 
-/** Phase 6a: allow exactly one index.html addition — controller script tag before compat. */
+/** Phase 6c: allow additive record-only controller notification hooks in index.html. */
 function assertIndexHtmlChangesAllowed(html) {
   if (!html.includes(GO_HOME_HOOK)) {
     fail(`index.html must still contain unmodified go('home') hook: ${GO_HOME_HOOK}`);
   }
 
-  if (html.includes('HomeController.activate') ||
-      html.includes('activateHome(') ||
-      html.includes('requestHomeReconcile(')) {
-    fail('index.html must not wire HomeController into rHome/go in Phase 6a');
+  if (html.includes('HomeController.activate')) {
+    fail('index.html must use compat globals (activateHome), not HomeController.activate');
+  }
+
+  const hookCount = (html.match(/reconcileHomeLayout\('rHome'\)/g) || []).length;
+  if (hookCount !== 1) {
+    fail(`index.html must contain exactly one reconcileHomeLayout('rHome') hook (found ${hookCount})`);
+  }
+
+  if (html.includes('data-home-layout-mode="modular-inflow"')) {
+    fail('index.html must not default static Home markup to modular-inflow');
   }
 
   const diff = getGitDiff('index.html');
@@ -260,11 +267,17 @@ function assertIndexHtmlChangesAllowed(html) {
   }
 
   if (removed.length > 0) {
-    fail(`index.html diff must not remove lines (Phase 6a allows controller script addition only); removed ${removed.length} line(s)`);
+    fail(`index.html diff must not remove lines in Phase 6c; removed ${removed.length} line(s)`);
   }
 
-  if (added.length !== 1 || added[0] !== PHASE_6A_CONTROLLER_SCRIPT_LINE) {
-    fail('index.html diff must add only the approved Phase 6a controller script tag');
+  const allowedHookRe = /^\s+try \{ if \(typeof (activateHome|notifyCueChange|notifyGigSlotChange|notifyImageRefresh|requestHomeReconcile) === 'function'\)/;
+  for (const line of added) {
+    if (line === PHASE_6A_CONTROLLER_SCRIPT_LINE) {
+      continue;
+    }
+    if (!allowedHookRe.test(line)) {
+      fail(`index.html diff adds disallowed line in Phase 6c: ${line}`);
+    }
   }
 }
 

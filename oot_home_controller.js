@@ -1,10 +1,10 @@
-// Phase 6a: HomeController scaffold — namespace + API surface only. No behavior change.
+// Phase 6a/6c: HomeController — record-only API; Phase 6c adds index.html notification hooks only.
 // Records events only; does not invoke legacy Home hooks or mutate DOM/CSS/storage.
 
 (function (window, document) {
   'use strict';
 
-  var PHASE = '6a-scaffold';
+  var PHASE = '6c-bridge';
   var MAX_EVENTS = 100;
 
   var _state = {

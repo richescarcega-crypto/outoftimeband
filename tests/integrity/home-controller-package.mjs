@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Static Phase 6a Home controller scaffold checks. Test-only — no behavior change gate.
+ * Static Phase 6c Home controller bridge checks. Test-only — record-only notification gate.
  */
 
 import fs from 'node:fs';
@@ -39,7 +39,22 @@ const REQUIRED_API_SYMBOLS = [
   'notifyImageRefresh',
   'notifyGigSlotChange',
   'getState',
-  '6a-scaffold',
+  '6c-bridge',
+];
+
+const REQUIRED_INDEX_HOOKS = [
+  "activateHome('rHome')",
+  "notifyCueChange('renderHomeSongVoteCue')",
+  "notifyCueChange('renderHomeRehearsalCue')",
+  "notifyGigSlotChange('updateCountdown:pending')",
+  "notifyGigSlotChange('updateCountdown:no-gigs')",
+  "notifyGigSlotChange('updateCountdown:countdown')",
+  "notifyImageRefresh('home-band-image-load')",
+  "notifyImageRefresh('rehearsal-cue hidden no events')",
+  "notifyImageRefresh('rehearsal-cue hidden no next rehearsal')",
+  "notifyImageRefresh('rehearsal-cue visible')",
+  "notifyImageRefresh('rHome final')",
+  "requestHomeReconcile('rHome')",
 ];
 
 const FORBIDDEN_STRINGS = [
@@ -124,7 +139,7 @@ function scanForbidden(content, label) {
   }
 }
 
-function assertScaffoldOnly(controllerJs) {
+function assertRecordOnlyController(controllerJs) {
   for (const sym of REQUIRED_API_SYMBOLS) {
     if (!controllerJs.includes(sym)) {
       fail(`oot_home_controller.js missing required symbol: ${sym}`);
@@ -133,7 +148,7 @@ function assertScaffoldOnly(controllerJs) {
 
   for (const call of FORBIDDEN_BEHAVIOR_CALLS) {
     if (controllerJs.includes(call)) {
-      fail(`Phase 6a scaffold must not reference behavior hook: ${call}`);
+      fail(`Home controller must not reference behavior hook: ${call}`);
     }
   }
 
@@ -142,7 +157,7 @@ function assertScaffoldOnly(controllerJs) {
   }
 
   if (controllerJs.includes('modular-inflow')) {
-    fail('oot_home_controller.js must not reference modular-inflow in Phase 6a');
+    fail('oot_home_controller.js must not reference modular-inflow');
   }
 }
 
@@ -175,8 +190,26 @@ function assertIndexHtmlWiring(html) {
     fail('index.html must not default static Home markup to modular-inflow');
   }
 
-  if (html.includes('HomeController.activate') || html.includes('activateHome(')) {
-    fail('Phase 6a must not wire HomeController into rHome/go yet');
+  if (html.includes('HomeController.activate')) {
+    fail('index.html must use compat globals (activateHome), not HomeController.activate');
+  }
+
+  for (const hook of REQUIRED_INDEX_HOOKS) {
+    if (!html.includes(hook)) {
+      fail(`index.html missing Phase 6c record-only hook: ${hook}`);
+    }
+  }
+
+  const reconcilePos = html.indexOf(RHOM_HOOK);
+  const requestPos = html.indexOf("requestHomeReconcile('rHome')");
+  if (requestPos === -1 || reconcilePos === -1 || requestPos >= reconcilePos) {
+    fail('requestHomeReconcile(\'rHome\') must appear immediately before reconcileHomeLayout(\'rHome\')');
+  }
+
+  const rHomeDef = html.indexOf('function rHome()');
+  const activatePos = html.indexOf("activateHome('rHome')");
+  if (rHomeDef === -1 || activatePos === -1 || activatePos <= rHomeDef) {
+    fail('activateHome(\'rHome\') must appear at rHome lifecycle entry after function rHome()');
   }
 
   const diagPos = findScriptPositions(html, 'oot_home_diag.js');
@@ -209,11 +242,11 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6a Home controller scaffold checks.');
+  console.log('PASS: Phase 6c Home controller bridge checks.');
 }
 
 function main() {
-  console.log('Running Phase 6a Home controller integrity checks...\n');
+  console.log('Running Phase 6c Home controller integrity checks...\n');
 
   for (const relPath of REQUIRED_FILES) {
     if (!exists(relPath)) {
@@ -229,7 +262,7 @@ function main() {
   assertJsModule(CONTROLLER_SRC);
   const controllerJs = read(CONTROLLER_SRC);
   scanForbidden(controllerJs, 'oot_home_controller.js');
-  assertScaffoldOnly(controllerJs);
+  assertRecordOnlyController(controllerJs);
 
   const compatJs = read('oot_compat_home.js');
   scanForbidden(compatJs, 'oot_compat_home.js');

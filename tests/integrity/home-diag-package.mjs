@@ -155,10 +155,13 @@ function assertIndexHtmlLifecycleGuards(html) {
   if (hookCount !== 1) {
     fail(`index.html must contain exactly one ${RHOM_HOOK} hook (found ${hookCount})`);
   }
-  if (html.includes('HomeController.activate') ||
-      html.includes('activateHome(') ||
-      html.includes('requestHomeReconcile(')) {
-    fail('index.html must not wire HomeController activation in Phase 6b');
+  if (html.includes('HomeController.activate')) {
+    fail('index.html must use compat globals, not HomeController.activate');
+  }
+  const requestPos = html.indexOf("requestHomeReconcile('rHome')");
+  const reconcilePos = html.indexOf(RHOM_HOOK);
+  if (requestPos === -1 || reconcilePos === -1 || requestPos >= reconcilePos) {
+    fail('requestHomeReconcile(\'rHome\') must appear immediately before reconcileHomeLayout(\'rHome\')');
   }
 }
 

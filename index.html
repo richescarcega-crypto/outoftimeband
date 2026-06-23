@@ -22679,8 +22679,10 @@ function renderHomeRehearsalCue(){
       el.style.display = 'none';
       el.innerHTML = '';
       try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue hidden no events'); } catch(e){}
+      try { if (typeof notifyImageRefresh === 'function') notifyImageRefresh('rehearsal-cue hidden no events'); } catch(e){}
       try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:hidden-no-events', {}); } catch(e){}
       try { syncAlertRailState('renderHomeRehearsalCue'); } catch(e){}
+      try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeRehearsalCue'); } catch(e){}
       return;
     }
   }
@@ -22689,8 +22691,10 @@ function renderHomeRehearsalCue(){
     el.style.display = 'none';
     el.innerHTML = '';
     try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue hidden no next rehearsal'); } catch(e){}
+    try { if (typeof notifyImageRefresh === 'function') notifyImageRefresh('rehearsal-cue hidden no next rehearsal'); } catch(e){}
     try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:hidden-no-rehearsal', {}); } catch(e){}
     try { syncAlertRailState('renderHomeRehearsalCue'); } catch(e){}
+    try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeRehearsalCue'); } catch(e){}
     return;
   }
   var times = _r535RehearsalTimes(ev);
@@ -22712,8 +22716,10 @@ function renderHomeRehearsalCue(){
       '</span>'+
     '</button>';
   try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue visible'); } catch(e){}
+  try { if (typeof notifyImageRefresh === 'function') notifyImageRefresh('rehearsal-cue visible'); } catch(e){}
   try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:visible', {}); } catch(e){}
   try { syncAlertRailState('renderHomeRehearsalCue'); } catch(e){}
+  try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeRehearsalCue'); } catch(e){}
 }
 
 function renderHomeSongVoteCue(){
@@ -22735,6 +22741,7 @@ function renderHomeSongVoteCue(){
     el.innerHTML = '';
     try { _homeLayoutDiagSnapshot('renderHomeSongVoteCue:hidden', {}); } catch(e){}
     try { syncAlertRailState('renderHomeSongVoteCue'); } catch(e){}
+    try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeSongVoteCue'); } catch(e){}
     return;
   }
   var label = userSpecific
@@ -22755,6 +22762,7 @@ function renderHomeSongVoteCue(){
     '</button>';
   try { _homeLayoutDiagSnapshot('renderHomeSongVoteCue:visible', { count: cueItems.length }); } catch(e){}
   try { syncAlertRailState('renderHomeSongVoteCue'); } catch(e){}
+  try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeSongVoteCue'); } catch(e){}
 }
 
 
@@ -23881,6 +23889,7 @@ function updateCountdown(){
   // briefly render the No Gig placeholder during that loading gap.
   if(!_eventsHasInit && (!events || !events.length)){
     try { reserveGigSlotPending(); } catch(e){}
+    try { if (typeof notifyGigSlotChange === 'function') notifyGigSlotChange('updateCountdown:pending'); } catch(e){}
     return;
   }
 
@@ -23892,6 +23901,7 @@ function updateCountdown(){
     card.style.display='none';
     renderNoGigsCard();
     try { syncGigSlotState('updateCountdown:no-gigs'); } catch(e){}
+    try { if (typeof notifyGigSlotChange === 'function') notifyGigSlotChange('updateCountdown:no-gigs'); } catch(e){}
     return;
   }
   // Hide the no-gigs card when we have a gig
@@ -23937,6 +23947,7 @@ function updateCountdown(){
     countdownInterval = setInterval(tick, 30000);
   }
   try { syncGigSlotState('updateCountdown:countdown'); } catch(e){}
+  try { if (typeof notifyGigSlotChange === 'function') notifyGigSlotChange('updateCountdown:countdown'); } catch(e){}
 }
 
 // ── NO GIGS CARD ─────────────────────────────────────────────────────
@@ -30668,6 +30679,7 @@ function _ensureHomeBandBackdrop(){
   bg.src = src;
   bg.onload = function(){
     try { _scheduleHomeImagePresentationRefresh('home-band-image-load'); } catch(e){}
+    try { if (typeof notifyImageRefresh === 'function') notifyImageRefresh('home-band-image-load'); } catch(e){}
     try { _homeLayoutDiagSnapshot('home-band-image-load:after-schedule', { src: src }); } catch(e){}
   };
   try {
@@ -30698,6 +30710,7 @@ function _ensureHomeBandBackdrop(){
 }
 
 function rHome() {
+  try { if (typeof activateHome === 'function') activateHome('rHome'); } catch(e) {}
   _ensureHomeBandBackdrop();
   try { renderPendingProposalCue(); } catch(e){}
   // r76: Home schedule cards removed. Keep Home focused on countdown + band image.
@@ -30739,6 +30752,7 @@ function rHome() {
   try { renderHomeRehearsalCue(); } catch(e){}
   try { syncAlertRailState('rHome'); } catch(e){}
   try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rHome final'); } catch(e){}
+  try { if (typeof notifyImageRefresh === 'function') notifyImageRefresh('rHome final'); } catch(e){}
   var wi = document.getElementById('who-am-i');
   if (wi && myName) {
     var m = gM(ME);
@@ -30746,6 +30760,7 @@ function rHome() {
   }
   // r76: Upcoming Gigs/Rehearsals/Blackout home cards removed.
   try { _homeLayoutDiagSnapshot('rHome:end', {}); } catch(e){}
+  try { if (typeof requestHomeReconcile === 'function') requestHomeReconcile('rHome'); } catch(e){}
   try { reconcileHomeLayout('rHome'); } catch(e){}
 }
 
