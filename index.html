@@ -24414,7 +24414,12 @@ function go(id, btn) {
   var sc = document.getElementById('sc-' + id);
   if (sc) sc.classList.add('on');
   if (btn) btn.classList.add('on');
-  if (id === 'home') rHome();
+  if (id === 'home') {
+    try {
+      if (typeof enterHomeTab === 'function') enterHomeTab('go');
+      else if (typeof rHome === 'function') rHome();
+    } catch(e){}
+  }
   else if (id === 'cal') {
     rCal();
     // r123: normal Calendar tab navigation should always land at the top so the calendar grid is fully visible.
@@ -30710,7 +30715,10 @@ function _ensureHomeBandBackdrop(){
 }
 
 function rHome() {
-  try { if (typeof activateHome === 'function') activateHome('rHome'); } catch(e) {}
+  try {
+    if (typeof consumeHomeRHomeActivateSkip === 'function' && consumeHomeRHomeActivateSkip()) { /* orchestrated go path */ }
+    else if (typeof activateHome === 'function') activateHome('rHome');
+  } catch(e) {}
   _ensureHomeBandBackdrop();
   try { renderPendingProposalCue(); } catch(e){}
   // r76: Home schedule cards removed. Keep Home focused on countdown + band image.

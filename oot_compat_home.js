@@ -87,6 +87,14 @@
         typeof c.getState === 'function') {
       window.getHomeControllerState = c.getState;
     }
+    if (typeof window.enterHomeTab !== 'function' &&
+        typeof c.enterHomeTab === 'function') {
+      window.enterHomeTab = c.enterHomeTab;
+    }
+    if (typeof window.consumeHomeRHomeActivateSkip !== 'function' &&
+        typeof c.consumeSkipRHomeActivate === 'function') {
+      window.consumeHomeRHomeActivateSkip = c.consumeSkipRHomeActivate;
+    }
   }
 
   var l = window.OOT.home.layout;

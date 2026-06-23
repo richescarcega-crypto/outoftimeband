@@ -52,7 +52,7 @@ const REQUIRED_CSS_TOKENS = [
 
 const BOOTSTRAP_MARKER = "var savedName=localStorage.getItem('oot_me')";
 const RHOM_HOOK = "reconcileHomeLayout('rHome')";
-const GO_HOME_HOOK = "if (id === 'home') rHome();";
+const GO_HOME_ORCHESTRATE_MARKER = "enterHomeTab('go')";
 const PHASE_6A_CONTROLLER_SCRIPT_LINE = '  <script src="oot_home_controller.js"></script>';
 
 const FORBIDDEN_STRINGS = [
@@ -231,10 +231,18 @@ function getGitDiff(relPath) {
   }
 }
 
-/** Phase 6c: allow additive record-only controller notification hooks in index.html. */
+/** Phase 6d: allow go('home') orchestration delegate + Phase 6c notification hooks in index.html. */
 function assertIndexHtmlChangesAllowed(html) {
-  if (!html.includes(GO_HOME_HOOK)) {
-    fail(`index.html must still contain unmodified go('home') hook: ${GO_HOME_HOOK}`);
+  if (!html.includes(GO_HOME_ORCHESTRATE_MARKER)) {
+    fail(`index.html go('home') must delegate via ${GO_HOME_ORCHESTRATE_MARKER}`);
+  }
+
+  if (!html.includes("else if (typeof rHome === 'function') rHome();")) {
+    fail('index.html go(\'home\') must retain legacy rHome fallback');
+  }
+
+  if (html.includes("if (id === 'home') rHome();")) {
+    fail('index.html must not call rHome() directly from go(\'home\')');
   }
 
   if (html.includes('HomeController.activate')) {
@@ -266,17 +274,46 @@ function assertIndexHtmlChangesAllowed(html) {
     }
   }
 
-  if (removed.length > 0) {
-    fail(`index.html diff must not remove lines in Phase 6c; removed ${removed.length} line(s)`);
+  const allowedRemoved = new Set([
+    "  if (id === 'home') rHome();",
+    "  try { if (typeof activateHome === 'function') activateHome('rHome'); } catch(e) {}",
+  ]);
+
+  for (const line of removed) {
+    if (!allowedRemoved.has(line)) {
+      fail(`index.html diff removes disallowed line in Phase 6d: ${line}`);
+    }
   }
 
   const allowedHookRe = /^\s+try \{ if \(typeof (activateHome|notifyCueChange|notifyGigSlotChange|notifyImageRefresh|requestHomeReconcile) === 'function'\)/;
+  const allowedOrchestrateRes = [
+    /^\s+if \(id === 'home'\) \{$/,
+    /^\s+try \{$/,
+    /^\s+if \(typeof enterHomeTab === 'function'\) enterHomeTab\('go'\);$/,
+    /^\s+else if \(typeof rHome === 'function'\) rHome\(\);$/,
+    /^\s+\} catch\(e\)\{\}$/,
+    /^\s+\} catch\(e\) \{\}$/,
+    /^\s+\}$/,
+    /^\s+if \(typeof consumeHomeRHomeActivateSkip === 'function' && consumeHomeRHomeActivateSkip\(\)\) \{ \/\* orchestrated go path \*\/ \}$/,
+    /^\s+else if \(typeof activateHome === 'function'\) activateHome\('rHome'\);$/,
+  ];
+
   for (const line of added) {
     if (line === PHASE_6A_CONTROLLER_SCRIPT_LINE) {
       continue;
     }
-    if (!allowedHookRe.test(line)) {
-      fail(`index.html diff adds disallowed line in Phase 6c: ${line}`);
+    if (allowedHookRe.test(line)) {
+      continue;
+    }
+    var matched = false;
+    for (const re of allowedOrchestrateRes) {
+      if (re.test(line)) {
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) {
+      fail(`index.html diff adds disallowed line in Phase 6d: ${line}`);
     }
   }
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Static Phase 6c Home controller bridge checks. Test-only — record-only notification gate.
+ * Static Phase 6d Home controller orchestration checks. Test-only — delegate-only go('home') gate.
  */
 
 import fs from 'node:fs';
@@ -29,7 +29,8 @@ const REQUIRED_SCRIPT_REFS = [
 const CONTROLLER_SRC = 'oot_home_controller.js';
 const BOOTSTRAP_MARKER = "var savedName=localStorage.getItem('oot_me')";
 const RHOM_HOOK = "reconcileHomeLayout('rHome')";
-const GO_HOME_HOOK = "if (id === 'home') rHome();";
+const GO_HOME_ORCHESTRATE_MARKER = "enterHomeTab('go')";
+const GO_HOME_LEGACY_FALLBACK = "else if (typeof rHome === 'function') rHome();";
 
 const REQUIRED_API_SYMBOLS = [
   'window.OOT.home.controller',
@@ -38,8 +39,11 @@ const REQUIRED_API_SYMBOLS = [
   'notifyCueChange',
   'notifyImageRefresh',
   'notifyGigSlotChange',
+  'enterHomeTab',
+  'consumeSkipRHomeActivate',
   'getState',
-  '6c-bridge',
+  '6d-orchestrate-entry',
+  'window.rHome',
 ];
 
 const REQUIRED_INDEX_HOOKS = [
@@ -55,6 +59,8 @@ const REQUIRED_INDEX_HOOKS = [
   "notifyImageRefresh('rehearsal-cue visible')",
   "notifyImageRefresh('rHome final')",
   "requestHomeReconcile('rHome')",
+  GO_HOME_ORCHESTRATE_MARKER,
+  'consumeHomeRHomeActivateSkip',
 ];
 
 const FORBIDDEN_STRINGS = [
@@ -159,6 +165,14 @@ function assertRecordOnlyController(controllerJs) {
   if (controllerJs.includes('modular-inflow')) {
     fail('oot_home_controller.js must not reference modular-inflow');
   }
+
+  if (!controllerJs.includes('enterHomeTab')) {
+    fail('oot_home_controller.js must expose enterHomeTab for Phase 6d orchestration');
+  }
+
+  if (controllerJs.includes('reconcileHomeLayout')) {
+    fail('Home controller must not invoke reconcileHomeLayout');
+  }
 }
 
 function assertCompatShim(compatJs) {
@@ -167,6 +181,12 @@ function assertCompatShim(compatJs) {
   }
   if (!compatJs.includes('activateHome')) {
     fail('oot_compat_home.js must expose activateHome legacy global when missing');
+  }
+  if (!compatJs.includes('enterHomeTab')) {
+    fail('oot_compat_home.js must expose enterHomeTab legacy global when missing');
+  }
+  if (!compatJs.includes('consumeHomeRHomeActivateSkip')) {
+    fail('oot_compat_home.js must expose consumeHomeRHomeActivateSkip legacy global when missing');
   }
 }
 
@@ -182,8 +202,16 @@ function assertIndexHtmlWiring(html) {
     fail(`index.html must contain exactly one ${RHOM_HOOK} hook (found ${hookCount})`);
   }
 
-  if (!html.includes(GO_HOME_HOOK)) {
-    fail(`index.html must still contain unmodified go('home') hook: ${GO_HOME_HOOK}`);
+  if (!html.includes(GO_HOME_ORCHESTRATE_MARKER)) {
+    fail(`index.html go('home') must delegate via ${GO_HOME_ORCHESTRATE_MARKER}`);
+  }
+
+  if (!html.includes(GO_HOME_LEGACY_FALLBACK)) {
+    fail('index.html go(\'home\') must retain legacy rHome fallback when enterHomeTab is missing');
+  }
+
+  if (html.includes("if (id === 'home') rHome();")) {
+    fail('index.html must not call rHome() directly from go(\'home\'); use enterHomeTab delegate');
   }
 
   if (html.includes('data-home-layout-mode="modular-inflow"')) {
@@ -242,11 +270,11 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6c Home controller bridge checks.');
+  console.log('PASS: Phase 6d Home controller orchestration checks.');
 }
 
 function main() {
-  console.log('Running Phase 6c Home controller integrity checks...\n');
+  console.log('Running Phase 6d Home controller integrity checks...\n');
 
   for (const relPath of REQUIRED_FILES) {
     if (!exists(relPath)) {
