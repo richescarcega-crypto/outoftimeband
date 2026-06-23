@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Static Phase 5 Home layout engine checks (5a scaffold + 5b pilot CSS + 5c budget). Test-only.
+ * Static Phase 5 Home layout engine checks (5a–5c + Phase 6a script-load gate). Test-only.
  */
 
 import fs from 'node:fs';
@@ -24,12 +24,15 @@ const PROTECTED_MODULE_FILES = [
   'oot_home_gig_slot.js',
 ];
 
+const CONTROLLER_SRC = 'oot_home_controller.js';
+
 const REQUIRED_SCRIPT_REFS = [
   'oot_home_band_image.js',
   'oot_home_alert_rail.js',
   'oot_home_gig_slot.js',
   'oot_home_layout_engine.js',
   'oot_home_diag.js',
+  CONTROLLER_SRC,
   'oot_compat_home.js',
 ];
 
@@ -49,6 +52,8 @@ const REQUIRED_CSS_TOKENS = [
 
 const BOOTSTRAP_MARKER = "var savedName=localStorage.getItem('oot_me')";
 const RHOM_HOOK = "reconcileHomeLayout('rHome')";
+const GO_HOME_HOOK = "if (id === 'home') rHome();";
+const PHASE_6A_CONTROLLER_SCRIPT_LINE = '  <script src="oot_home_controller.js"></script>';
 
 const FORBIDDEN_STRINGS = [
   'data-home-alerts-reserved',
@@ -212,6 +217,70 @@ function assertGitFileUnchanged(relPath, phaseLabel) {
     }
   } catch (e) {
     warn(`Could not verify ${relPath} unchanged; skipping.`);
+  }
+}
+
+function getGitDiff(relPath) {
+  try {
+    return execSync(`git diff HEAD -- ${relPath}`, {
+      cwd: ROOT,
+      encoding: 'utf8',
+    }).trim();
+  } catch (e) {
+    return null;
+  }
+}
+
+/** Phase 6a: allow exactly one index.html addition — controller script tag before compat. */
+function assertIndexHtmlChangesAllowed(html) {
+  if (!html.includes(GO_HOME_HOOK)) {
+    fail(`index.html must still contain unmodified go('home') hook: ${GO_HOME_HOOK}`);
+  }
+
+  if (html.includes('HomeController.activate') ||
+      html.includes('activateHome(') ||
+      html.includes('requestHomeReconcile(')) {
+    fail('index.html must not wire HomeController into rHome/go in Phase 6a');
+  }
+
+  const diff = getGitDiff('index.html');
+  if (!diff) {
+    return;
+  }
+
+  const added = [];
+  const removed = [];
+  for (const line of diff.split('\n')) {
+    if (line.startsWith('+') && !line.startsWith('+++')) {
+      added.push(line.slice(1).replace(/\r$/, ''));
+    }
+    if (line.startsWith('-') && !line.startsWith('---')) {
+      removed.push(line.slice(1).replace(/\r$/, ''));
+    }
+  }
+
+  if (removed.length > 0) {
+    fail(`index.html diff must not remove lines (Phase 6a allows controller script addition only); removed ${removed.length} line(s)`);
+  }
+
+  if (added.length !== 1 || added[0] !== PHASE_6A_CONTROLLER_SCRIPT_LINE) {
+    fail('index.html diff must add only the approved Phase 6a controller script tag');
+  }
+}
+
+function assertControllerScriptLoadOrder(html) {
+  const controllerPos = findScriptPositions(html, CONTROLLER_SRC);
+  const diagPos = findScriptPositions(html, 'oot_home_diag.js');
+  const compatPos = findScriptPositions(html, 'oot_compat_home.js');
+
+  if (controllerPos === -1) {
+    fail(`index.html missing approved script reference: ${CONTROLLER_SRC}`);
+  }
+  if (diagPos !== -1 && controllerPos !== -1 && diagPos > controllerPos) {
+    fail('Expected oot_home_diag.js to load before oot_home_controller.js');
+  }
+  if (controllerPos !== -1 && compatPos !== -1 && controllerPos > compatPos) {
+    fail('Expected oot_home_controller.js to load before oot_compat_home.js');
   }
 }
 
@@ -476,16 +545,14 @@ function main() {
     fail('Expected oot_home_alert_rail.js to load before oot_home_layout_engine.js');
   }
 
-  assertGitFileUnchanged('index.html', 'Phase 5 layout engine JS-only phases');
+  assertControllerScriptLoadOrder(html);
+  assertIndexHtmlChangesAllowed(html);
 
   const changedFiles = gitChangedFiles();
   for (const protectedFile of PROTECTED_MODULE_FILES) {
     if (changedFiles.includes(protectedFile)) {
       fail(`Phase 5 must not modify protected module: ${protectedFile}`);
     }
-  }
-  if (changedFiles.includes('index.html')) {
-    fail('Pilot layout hygiene must not modify index.html');
   }
 
   if (exists('oot_home_layout_engine.js')) {

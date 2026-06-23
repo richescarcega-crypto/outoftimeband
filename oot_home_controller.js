@@ -1,0 +1,108 @@
+// Phase 6a: HomeController scaffold — namespace + API surface only. No behavior change.
+// Records events only; does not invoke legacy Home hooks or mutate DOM/CSS/storage.
+
+(function (window, document) {
+  'use strict';
+
+  var PHASE = '6a-scaffold';
+  var MAX_EVENTS = 100;
+
+  var _state = {
+    phase: PHASE,
+    scaffold: true,
+    lastReason: null,
+    lastMethod: null,
+    eventCount: 0,
+    events: []
+  };
+
+  function _diagEnabled() {
+    try {
+      if (/(?:\?|&)homeLayoutDiag=1(?:&|$)/.test(location.search || '')) return true;
+      if (localStorage.getItem('oot_home_layout_diag') === '1') return true;
+    } catch (e) {}
+    return false;
+  }
+
+  function _record(method, reason, options) {
+    var entry = {
+      method: method,
+      reason: reason || '',
+      options: options || null,
+      t: Date.now()
+    };
+    _state.lastMethod = method;
+    _state.lastReason = entry.reason;
+    _state.eventCount += 1;
+    _state.events.push(entry);
+    if (_state.events.length > MAX_EVENTS) {
+      _state.events.shift();
+    }
+    if (_diagEnabled()) {
+      try {
+        console.debug('[OOT HomeController]', entry);
+      } catch (e) {}
+    }
+    return entry;
+  }
+
+  function _optionsOrReason(options, reason) {
+    if (typeof options === 'string') {
+      return { reason: options, payload: reason || null };
+    }
+    return {
+      reason: reason || '',
+      payload: options || null
+    };
+  }
+
+  function activate(reason, options) {
+    var parsed = _optionsOrReason(options, reason);
+    return _record('activate', parsed.reason, parsed.payload);
+  }
+
+  function requestReconcile(reason, options) {
+    var parsed = _optionsOrReason(options, reason);
+    return _record('requestReconcile', parsed.reason, parsed.payload);
+  }
+
+  function notifyCueChange(reason, options) {
+    var parsed = _optionsOrReason(options, reason);
+    return _record('notifyCueChange', parsed.reason, parsed.payload);
+  }
+
+  function notifyImageRefresh(reason, options) {
+    var parsed = _optionsOrReason(options, reason);
+    return _record('notifyImageRefresh', parsed.reason, parsed.payload);
+  }
+
+  function notifyGigSlotChange(reason, options) {
+    var parsed = _optionsOrReason(options, reason);
+    return _record('notifyGigSlotChange', parsed.reason, parsed.payload);
+  }
+
+  function getState() {
+    return {
+      phase: _state.phase,
+      scaffold: _state.scaffold,
+      lastReason: _state.lastReason,
+      lastMethod: _state.lastMethod,
+      eventCount: _state.eventCount,
+      events: _state.events.slice()
+    };
+  }
+
+  var api = {
+    PHASE: PHASE,
+    activate: activate,
+    requestReconcile: requestReconcile,
+    notifyCueChange: notifyCueChange,
+    notifyImageRefresh: notifyImageRefresh,
+    notifyGigSlotChange: notifyGigSlotChange,
+    getState: getState
+  };
+
+  window.OOT = window.OOT || {};
+  window.OOT.home = window.OOT.home || {};
+  window.OOT.home.controller = api;
+})(window, document);

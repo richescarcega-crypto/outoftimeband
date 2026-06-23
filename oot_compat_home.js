@@ -1,4 +1,4 @@
-// Phase 1/1b + Phase 3 + Phase 4 + Phase 5a: Home module legacy-global compatibility guard.
+// Phase 1/1b + Phase 3 + Phase 4 + Phase 5a + Phase 6a: Home module legacy-global compatibility guard.
 // Restores window.* from window.OOT.home.* when a legacy global is missing.
 
 (function (window) {
@@ -70,6 +70,22 @@
     if (typeof window.applyGigSlotFootprint !== 'function' &&
         typeof g.applyFootprint === 'function') {
       window.applyGigSlotFootprint = g.applyFootprint;
+    }
+  }
+
+  var c = window.OOT.home.controller;
+  if (c) {
+    if (typeof window.activateHome !== 'function' &&
+        typeof c.activate === 'function') {
+      window.activateHome = c.activate;
+    }
+    if (typeof window.requestHomeReconcile !== 'function' &&
+        typeof c.requestReconcile === 'function') {
+      window.requestHomeReconcile = c.requestReconcile;
+    }
+    if (typeof window.getHomeControllerState !== 'function' &&
+        typeof c.getState === 'function') {
+      window.getHomeControllerState = c.getState;
     }
   }
 
