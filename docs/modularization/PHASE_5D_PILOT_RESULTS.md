@@ -316,7 +316,7 @@ Optional idempotency check: `OOT.home.layout.reconcile('manual-h8')` should not 
 
 ## 5d CSS hygiene — sparse hero stack slack (2026-06-22)
 
-**Commit:** (pending) — pilot-only `min-height: 0` on `.hero.home-hero-with-controls` and `.hero-l img` in `oot_home_layout_engine.css`.
+**Commit:** `4b4e63c` — pilot-only `min-height: 0` on `.hero.home-hero-with-controls` and `.hero-l img` in `oot_home_layout_engine.css`.
 
 **Problem observed (valid pilot @ localhost):** `budgetHeroH` / `--home-slot-hero-h` = **318px** but hero layout box measured **322px** (`clientHeight` / rect slack **+4px**). Token binding was correct; legacy r791 img `min-height: min(398px, calc(100vw - 14px))` plus flex item `min-height: auto` content floor raised the used height above the token cap.
 
