@@ -332,3 +332,18 @@ Optional idempotency check: `OOT.home.layout.reconcile('manual-h8')` should not 
 ```
 
 **Expected delta:** Sparse H0 `honestStack` should move from **+4px slack** to **0px** (`rectHeight` ≈ token px). Re-verify with stack-honesty snippet (`getBoundingClientRect().height` vs `budget.computed.heroH`). Dense H1/H3/H8 testing remains pending after this hygiene commit.
+
+---
+
+## 5d pilot ownership — cue-visible alert + hero (2026-06-22)
+
+**Problem (@ `9999e86`):** Pilot active but cue-visible layout still legacy-owned. `getAlertRailState()` returned `"none"` when cues used `el.style.display = 'block'` (attribute check mismatch). Legacy r798/r823 `:has(#home-*-cue[style*="display: block"])` outranked pilot CSS → hero hard 324px, `#home-alerts-row` height 0 + overlay.
+
+**Fix (two-part, minimal):**
+
+| File | Change |
+|------|--------|
+| `oot_home_alert_rail.js` | `_isHomeAlertCueDisplayed`: match `style` attribute `display:block` / `display: block` **or** `el.style.display === 'block'`. |
+| `oot_home_layout_engine.css` | §H `:has()` parity under `[data-home-layout-mode="modular-inflow"]` — hero follows `var(--home-slot-hero-h)`; alerts row in-flow (no overlay transform / zero height). Mobile `@media (max-width: 520px)` parity included. |
+
+**Expected H1 (Song Vote visible):** `alertState: "song"`, `data-home-alert-state="song"`, `budget.alertRailH: 58`, `alerts.clientHeight` ≈ 58, hero height/max-height from `--home-slot-hero-h` (324 on pass 1).

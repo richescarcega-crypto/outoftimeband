@@ -191,3 +191,44 @@
     max-height: var(--home-slot-hero-h) !important;
   }
 }
+
+/* §H — :has() parity: beat legacy r823 hero + r798 alert overlay when cues visible */
+#sc-home[data-home-layout-mode="modular-inflow"]:has(#home-song-vote-cue[style*="display: block"]) .hero.home-hero-with-controls,
+#sc-home[data-home-layout-mode="modular-inflow"]:has(#home-song-vote-cue[style*="display:block"]) .hero.home-hero-with-controls,
+#sc-home[data-home-layout-mode="modular-inflow"]:has(#home-rehearsal-cue[style*="display: block"]) .hero.home-hero-with-controls,
+#sc-home[data-home-layout-mode="modular-inflow"]:has(#home-rehearsal-cue[style*="display:block"]) .hero.home-hero-with-controls {
+  height: var(--home-slot-hero-h) !important;
+  max-height: var(--home-slot-hero-h) !important;
+}
+
+#sc-home[data-home-layout-mode="modular-inflow"]:has(#home-song-vote-cue[style*="display: block"]) #home-alerts-row,
+#sc-home[data-home-layout-mode="modular-inflow"]:has(#home-song-vote-cue[style*="display:block"]) #home-alerts-row,
+#sc-home[data-home-layout-mode="modular-inflow"]:has(#home-rehearsal-cue[style*="display: block"]) #home-alerts-row,
+#sc-home[data-home-layout-mode="modular-inflow"]:has(#home-rehearsal-cue[style*="display:block"]) #home-alerts-row {
+  transform: none !important;
+  height: auto !important;
+  max-height: none !important;
+  min-height: var(--home-slot-alert-rail-h) !important;
+  pointer-events: auto !important;
+}
+
+@media (max-width: 520px) {
+  #sc-home[data-home-layout-mode="modular-inflow"]:has(#home-song-vote-cue[style*="display: block"]) .hero.home-hero-with-controls,
+  #sc-home[data-home-layout-mode="modular-inflow"]:has(#home-song-vote-cue[style*="display:block"]) .hero.home-hero-with-controls,
+  #sc-home[data-home-layout-mode="modular-inflow"]:has(#home-rehearsal-cue[style*="display: block"]) .hero.home-hero-with-controls,
+  #sc-home[data-home-layout-mode="modular-inflow"]:has(#home-rehearsal-cue[style*="display:block"]) .hero.home-hero-with-controls {
+    height: var(--home-slot-hero-h) !important;
+    max-height: var(--home-slot-hero-h) !important;
+  }
+
+  #sc-home[data-home-layout-mode="modular-inflow"]:has(#home-song-vote-cue[style*="display: block"]) #home-alerts-row,
+  #sc-home[data-home-layout-mode="modular-inflow"]:has(#home-song-vote-cue[style*="display:block"]) #home-alerts-row,
+  #sc-home[data-home-layout-mode="modular-inflow"]:has(#home-rehearsal-cue[style*="display: block"]) #home-alerts-row,
+  #sc-home[data-home-layout-mode="modular-inflow"]:has(#home-rehearsal-cue[style*="display:block"]) #home-alerts-row {
+    transform: none !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: var(--home-slot-alert-rail-h) !important;
+    pointer-events: auto !important;
+  }
+}

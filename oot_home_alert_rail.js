@@ -23,10 +23,13 @@
   function _isHomeAlertCueDisplayed(el) {
     if (!el) return false;
     try {
-      var ds = (el.style && el.style.display) ? String(el.style.display) : '';
-      if (!ds) return false;
-      var normalized = ds.replace(/\s/g, '').toLowerCase();
-      return normalized.indexOf('display:block') !== -1;
+      var attr = el.getAttribute('style') || '';
+      var normalizedAttr = attr.replace(/\s/g, '').toLowerCase();
+      if (normalizedAttr.indexOf('display:block') !== -1) return true;
+      var display = el.style && el.style.display
+        ? String(el.style.display).replace(/\s/g, '').toLowerCase()
+        : '';
+      return display === 'block';
     } catch (e) {}
     return false;
   }
