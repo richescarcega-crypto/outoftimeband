@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Static Phase 6e-a Home controller reconcile coalescer scaffold checks. Test-only.
+ * Static Phase 6e-b Home controller reconcile delegate checks. Test-only.
  */
 
 import fs from 'node:fs';
@@ -44,11 +44,17 @@ const REQUIRED_API_SYMBOLS = [
   'getState',
   'getReconcileCoalescerState',
   'reconcileCoalesceFlush',
+  'reconcileCoalesceExecute',
   '_enqueueReconcileCoalesce',
   '_flushReconcileCoalescer',
+  '_resolveLegacyReconcileDelegate',
+  '_clearReconcileCoalescerPending',
   'duplicateCount',
   'pendingReason',
-  '6e-a-coalesce-scaffold',
+  'executionEnabled',
+  'skippedRHomeExecution',
+  'lastDelegatedReason',
+  '6e-b-reconcile-delegate',
   'window.rHome',
 ];
 
@@ -82,10 +88,15 @@ const COALESCER_SCAFFOLD_MARKERS = [
   '_enqueueReconcileCoalesce',
   '_scheduleReconcileCoalescerFlush',
   '_flushReconcileCoalescer',
+  '_resolveLegacyReconcileDelegate',
+  '_clearReconcileCoalescerPending',
   'reconcileCoalesceFlush',
+  'reconcileCoalesceExecute',
   'getReconcileCoalescerState',
   'duplicateCount',
   'coalescedRequestCount',
+  'executionEnabled',
+  'skippedRHomeExecution',
 ];
 
 const FORBIDDEN_STRINGS = [
@@ -104,7 +115,6 @@ const FORBIDDEN_STRINGS = [
 ];
 
 const FORBIDDEN_BEHAVIOR_CALLS = [
-  'reconcileHomeLayout',
   'syncAlertRailState',
   'updateCountdown',
   'applyHomeLayoutShell',
@@ -194,9 +204,41 @@ function assertRecordOnlyController(controllerJs) {
   if (!controllerJs.includes('enterHomeTab')) {
     fail('oot_home_controller.js must expose enterHomeTab for Phase 6d orchestration');
   }
+}
 
-  if (controllerJs.includes('reconcileHomeLayout')) {
-    fail('Home controller must not invoke reconcileHomeLayout');
+function assertReconcileDelegateBoundary(controllerJs) {
+  if (!controllerJs.includes('window.reconcileHomeLayout')) {
+    fail('coalescer must resolve legacy reconcile delegate via window.reconcileHomeLayout');
+  }
+
+  if (!controllerJs.includes("flushReason === 'rHome'")) {
+    fail('coalescer flush must skip legacy reconcile delegate when pendingReason is rHome');
+  }
+
+  if (!controllerJs.includes('skippedRHomeExecution')) {
+    fail('coalescer must track skippedRHomeExecution for rHome dedupe');
+  }
+
+  if (!controllerJs.includes("_record('reconcileCoalesceExecute'")) {
+    fail('coalescer must record reconcileCoalesceExecute when delegating to legacy reconcile');
+  }
+
+  if (!controllerJs.includes('executionEnabled')) {
+    fail('coalescer must expose executionEnabled guard');
+  }
+
+  if (!controllerJs.includes('layout.reconcile')) {
+    fail('coalescer delegate must fall back to OOT.home.layout.reconcile');
+  }
+
+  const flushBody = controllerJs.slice(
+    controllerJs.indexOf('function _flushReconcileCoalescer'),
+    controllerJs.indexOf('function _enqueueReconcileCoalesce')
+  );
+  const rHomeGuardPos = flushBody.indexOf("flushReason === 'rHome'");
+  const delegatePos = flushBody.indexOf('_resolveLegacyReconcileDelegate');
+  if (rHomeGuardPos === -1 || delegatePos === -1 || rHomeGuardPos > delegatePos) {
+    fail('rHome skip guard must appear before legacy reconcile delegate invoke in flush');
   }
 }
 
@@ -212,7 +254,7 @@ function assertReconcileCoalescerScaffold(controllerJs) {
   }
 
   if (!controllerJs.includes("_record('reconcileCoalesceFlush'")) {
-    fail('coalescer flush must record reconcileCoalesceFlush events without layout execution');
+    fail('coalescer flush must record reconcileCoalesceFlush events');
   }
 
   if (!controllerJs.includes('reconcileCoalescer: getReconcileCoalescerState()')) {
@@ -331,11 +373,11 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6e-a Home controller reconcile coalescer scaffold checks.');
+  console.log('PASS: Phase 6e-b Home controller reconcile delegate checks.');
 }
 
 function main() {
-  console.log('Running Phase 6e-a Home controller integrity checks...\n');
+  console.log('Running Phase 6e-b Home controller integrity checks...\n');
 
   for (const relPath of REQUIRED_FILES) {
     if (!exists(relPath)) {
@@ -353,6 +395,7 @@ function main() {
   scanForbidden(controllerJs, 'oot_home_controller.js');
   assertRecordOnlyController(controllerJs);
   assertReconcileCoalescerScaffold(controllerJs);
+  assertReconcileDelegateBoundary(controllerJs);
   assertProtectedModulesUntouched();
 
   const compatJs = read('oot_compat_home.js');

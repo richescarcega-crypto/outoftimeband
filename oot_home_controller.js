@@ -1,10 +1,10 @@
-// Phase 6e-a: HomeController — record-only API + reconcile coalescer scaffold (no execution).
-// Does not invoke layout reconcile, layout engine, DOM/CSS/storage, or reimplement rHome steps.
+// Phase 6e-b: HomeController - record-only API + reconcile coalescer with guarded legacy delegate.
+// Delegates layout reconcile to legacy global/module only for non-rHome coalesced requests.
 
 (function (window, document) {
   'use strict';
 
-  var PHASE = '6e-a-coalesce-scaffold';
+  var PHASE = '6e-b-reconcile-delegate';
   var MAX_EVENTS = 100;
 
   var _state = {
@@ -18,6 +18,7 @@
 
   var _reconcileCoalescer = {
     scaffold: true,
+    executionEnabled: true,
     pending: false,
     pendingId: 0,
     pendingReason: null,
@@ -25,7 +26,10 @@
     coalescedRequestCount: 0,
     flushScheduled: false,
     lastFlushAt: null,
-    lastCoalescedReason: null
+    lastCoalescedReason: null,
+    lastDelegatedReason: null,
+    lastDelegatedAt: null,
+    skippedRHomeExecution: 0
   };
 
   var _skipNextRHomeActivate = false;
@@ -75,6 +79,24 @@
     return _record('activate', parsed.reason, parsed.payload);
   }
 
+  function _clearReconcileCoalescerPending() {
+    _reconcileCoalescer.pending = false;
+    _reconcileCoalescer.pendingReason = null;
+    _reconcileCoalescer.duplicateCount = 0;
+    _reconcileCoalescer.coalescedRequestCount = 0;
+  }
+
+  function _resolveLegacyReconcileDelegate() {
+    if (typeof window.reconcileHomeLayout === 'function') {
+      return window.reconcileHomeLayout;
+    }
+    try {
+      var layout = window.OOT && window.OOT.home && window.OOT.home.layout;
+      if (layout && typeof layout.reconcile === 'function') return layout.reconcile;
+    } catch (e) {}
+    return null;
+  }
+
   function _scheduleReconcileCoalescerFlush() {
     if (_reconcileCoalescer.flushScheduled) return;
     _reconcileCoalescer.flushScheduled = true;
@@ -89,17 +111,42 @@
   function _flushReconcileCoalescer() {
     _reconcileCoalescer.flushScheduled = false;
     if (!_reconcileCoalescer.pending) return;
-    _reconcileCoalescer.lastFlushAt = Date.now();
-    _reconcileCoalescer.lastCoalescedReason = _reconcileCoalescer.pendingReason;
-    _record('reconcileCoalesceFlush', _reconcileCoalescer.pendingReason || '', {
+
+    var flushReason = _reconcileCoalescer.pendingReason || '';
+    var flushMeta = {
       pendingId: _reconcileCoalescer.pendingId,
       duplicateCount: _reconcileCoalescer.duplicateCount,
       coalescedRequestCount: _reconcileCoalescer.coalescedRequestCount
-    });
-    _reconcileCoalescer.pending = false;
-    _reconcileCoalescer.pendingReason = null;
-    _reconcileCoalescer.duplicateCount = 0;
-    _reconcileCoalescer.coalescedRequestCount = 0;
+    };
+
+    _reconcileCoalescer.lastFlushAt = Date.now();
+    _reconcileCoalescer.lastCoalescedReason = flushReason;
+    _record('reconcileCoalesceFlush', flushReason, flushMeta);
+
+    if (flushReason === 'rHome') {
+      _reconcileCoalescer.skippedRHomeExecution += 1;
+      _clearReconcileCoalescerPending();
+      return;
+    }
+
+    if (_reconcileCoalescer.executionEnabled) {
+      var delegate = _resolveLegacyReconcileDelegate();
+      if (delegate) {
+        try {
+          delegate.call(window, flushReason);
+        } catch (e) {}
+        _reconcileCoalescer.lastDelegatedAt = Date.now();
+        _reconcileCoalescer.lastDelegatedReason = flushReason;
+        _record('reconcileCoalesceExecute', flushReason, {
+          pendingId: flushMeta.pendingId,
+          duplicateCount: flushMeta.duplicateCount,
+          coalescedRequestCount: flushMeta.coalescedRequestCount,
+          delegated: true
+        });
+      }
+    }
+
+    _clearReconcileCoalescerPending();
   }
 
   function _enqueueReconcileCoalesce(reason) {
@@ -160,6 +207,7 @@
   function getReconcileCoalescerState() {
     return {
       scaffold: _reconcileCoalescer.scaffold,
+      executionEnabled: _reconcileCoalescer.executionEnabled,
       pending: _reconcileCoalescer.pending,
       pendingId: _reconcileCoalescer.pendingId,
       pendingReason: _reconcileCoalescer.pendingReason,
@@ -167,7 +215,10 @@
       coalescedRequestCount: _reconcileCoalescer.coalescedRequestCount,
       flushScheduled: _reconcileCoalescer.flushScheduled,
       lastFlushAt: _reconcileCoalescer.lastFlushAt,
-      lastCoalescedReason: _reconcileCoalescer.lastCoalescedReason
+      lastCoalescedReason: _reconcileCoalescer.lastCoalescedReason,
+      lastDelegatedReason: _reconcileCoalescer.lastDelegatedReason,
+      lastDelegatedAt: _reconcileCoalescer.lastDelegatedAt,
+      skippedRHomeExecution: _reconcileCoalescer.skippedRHomeExecution
     };
   }
 
