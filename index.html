@@ -22683,6 +22683,7 @@ function renderHomeRehearsalCue(){
       try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:hidden-no-events', {}); } catch(e){}
       try { syncAlertRailState('renderHomeRehearsalCue'); } catch(e){}
       try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeRehearsalCue'); } catch(e){}
+      try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:rehearsal'); } catch(e){}
       return;
     }
   }
@@ -22695,6 +22696,7 @@ function renderHomeRehearsalCue(){
     try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:hidden-no-rehearsal', {}); } catch(e){}
     try { syncAlertRailState('renderHomeRehearsalCue'); } catch(e){}
     try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeRehearsalCue'); } catch(e){}
+    try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:rehearsal'); } catch(e){}
     return;
   }
   var times = _r535RehearsalTimes(ev);
@@ -22720,6 +22722,7 @@ function renderHomeRehearsalCue(){
   try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:visible', {}); } catch(e){}
   try { syncAlertRailState('renderHomeRehearsalCue'); } catch(e){}
   try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeRehearsalCue'); } catch(e){}
+  try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:rehearsal'); } catch(e){}
 }
 
 function renderHomeSongVoteCue(){

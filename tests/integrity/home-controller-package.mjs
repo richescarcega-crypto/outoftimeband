@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Static Phase 6e-c Home controller listener reconcile pilot checks. Test-only.
+ * Static Phase 6g Home controller listener reconcile rollout checks. Test-only.
  */
 
 import fs from 'node:fs';
@@ -72,6 +72,7 @@ const REQUIRED_INDEX_HOOKS = [
   "notifyImageRefresh('rHome final')",
   "requestHomeReconcile('rHome')",
   "requestHomeReconcile('cue:song-vote')",
+  "requestHomeReconcile('cue:rehearsal')",
   GO_HOME_ORCHESTRATE_MARKER,
   'consumeHomeRHomeActivateSkip',
 ];
@@ -132,6 +133,9 @@ const FORBIDDEN_BEHAVIOR_CALLS = [
 
 const PHASE_6E_C_SONG_VOTE_RECONCILE_HOOK =
   "try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:song-vote'); } catch(e){}";
+
+const PHASE_6G_REHEARSAL_RECONCILE_HOOK =
+  "try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:rehearsal'); } catch(e){}";
 
 const failures = [];
 const warnings = [];
@@ -397,9 +401,48 @@ function assertPhase6eCSongVotePilot(html) {
       fail(`renderHomeSongVoteCue ${label} must call syncAlertRailState before requestHomeReconcile('cue:song-vote')`);
     }
   }
+}
 
-  if (countOccurrences(html, "requestHomeReconcile('cue:rehearsal')") > 0) {
-    fail('Phase 6e-c pilot must not wire rehearsal cue reconcile yet');
+function assertPhase6gRehearsalPilot(html) {
+  const pilotCount = countOccurrences(html, "requestHomeReconcile('cue:rehearsal')");
+  if (pilotCount !== 3) {
+    fail(`renderHomeRehearsalCue must contain exactly three requestHomeReconcile('cue:rehearsal') hooks (found ${pilotCount})`);
+  }
+
+  const fnStart = html.indexOf('function renderHomeRehearsalCue');
+  const fnEnd = html.indexOf('\nfunction renderHomeSongVoteCue');
+  if (fnStart === -1 || fnEnd === -1) {
+    fail('Could not locate renderHomeRehearsalCue function body in index.html');
+  }
+  const fnBody = html.slice(fnStart, fnEnd);
+
+  if (fnBody.includes('reconcileHomeLayout')) {
+    fail('renderHomeRehearsalCue must not call reconcileHomeLayout directly');
+  }
+
+  if (!fnBody.includes(PHASE_6G_REHEARSAL_RECONCILE_HOOK)) {
+    fail('renderHomeRehearsalCue must use Home-active gated requestHomeReconcile pilot hook');
+  }
+
+  const branches = [
+    ['hidden-no-events branch', 'renderHomeRehearsalCue:hidden-no-events'],
+    ['hidden-no-rehearsal branch', 'renderHomeRehearsalCue:hidden-no-rehearsal'],
+    ['visible branch', 'renderHomeRehearsalCue:visible'],
+  ];
+  for (const pair of branches) {
+    const label = pair[0];
+    const marker = pair[1];
+    const branch = fnBody.slice(fnBody.indexOf(marker));
+    const syncPos = branch.indexOf("syncAlertRailState('renderHomeRehearsalCue')");
+    const pilotPos = branch.indexOf("requestHomeReconcile('cue:rehearsal')");
+    if (syncPos === -1 || pilotPos === -1 || syncPos > pilotPos) {
+      fail(`renderHomeRehearsalCue ${label} must call syncAlertRailState before requestHomeReconcile('cue:rehearsal')`);
+    }
+  }
+
+  const songVoteCount = countOccurrences(html, "requestHomeReconcile('cue:song-vote')");
+  if (songVoteCount !== 2) {
+    fail(`Phase 6g must preserve exactly two requestHomeReconcile('cue:song-vote') hooks (found ${songVoteCount})`);
   }
 }
 
@@ -414,11 +457,11 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6e-c Home controller listener reconcile pilot checks.');
+  console.log('PASS: Phase 6g Home controller listener reconcile rollout checks.');
 }
 
 function main() {
-  console.log('Running Phase 6e-c Home controller integrity checks...\n');
+  console.log('Running Phase 6g Home controller integrity checks...\n');
 
   for (const relPath of REQUIRED_FILES) {
     if (!exists(relPath)) {
@@ -446,6 +489,7 @@ function main() {
   const html = read('index.html');
   assertIndexHtmlWiring(html);
   assertPhase6eCSongVotePilot(html);
+  assertPhase6gRehearsalPilot(html);
 
   report();
 }

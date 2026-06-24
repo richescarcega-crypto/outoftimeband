@@ -231,7 +231,7 @@ function getGitDiff(relPath) {
   }
 }
 
-/** Phase 6d/6e-c: allow go('home') orchestration delegate + Phase 6c/6e-c notification hooks in index.html. */
+/** Phase 6d/6e-c/6g: allow go('home') orchestration delegate + Phase 6c/6e-c/6g notification hooks in index.html. */
 function assertIndexHtmlChangesAllowed(html) {
   if (!html.includes(GO_HOME_ORCHESTRATE_MARKER)) {
     fail(`index.html go('home') must delegate via ${GO_HOME_ORCHESTRATE_MARKER}`);
@@ -311,6 +311,11 @@ function assertIndexHtmlChangesAllowed(html) {
       continue;
     }
     if (/requestHomeReconcile\('cue:song-vote'\)/.test(line) &&
+        /getElementById\('sc-home'\)/.test(line) &&
+        /classList\.contains\('on'\)/.test(line)) {
+      continue;
+    }
+    if (/requestHomeReconcile\('cue:rehearsal'\)/.test(line) &&
         /getElementById\('sc-home'\)/.test(line) &&
         /classList\.contains\('on'\)/.test(line)) {
       continue;
