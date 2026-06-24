@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Static Phase 6d Home controller orchestration checks. Test-only — delegate-only go('home') gate.
+ * Static Phase 6e-a Home controller reconcile coalescer scaffold checks. Test-only.
  */
 
 import fs from 'node:fs';
@@ -42,7 +42,13 @@ const REQUIRED_API_SYMBOLS = [
   'enterHomeTab',
   'consumeSkipRHomeActivate',
   'getState',
-  '6d-orchestrate-entry',
+  'getReconcileCoalescerState',
+  'reconcileCoalesceFlush',
+  '_enqueueReconcileCoalesce',
+  '_flushReconcileCoalescer',
+  'duplicateCount',
+  'pendingReason',
+  '6e-a-coalesce-scaffold',
   'window.rHome',
 ];
 
@@ -61,6 +67,25 @@ const REQUIRED_INDEX_HOOKS = [
   "requestHomeReconcile('rHome')",
   GO_HOME_ORCHESTRATE_MARKER,
   'consumeHomeRHomeActivateSkip',
+];
+
+const PROTECTED_MODULE_FILES = [
+  'oot_home_band_image.js',
+  'oot_home_alert_rail.js',
+  'oot_home_gig_slot.js',
+  'oot_home_layout_engine.js',
+  'oot_home_layout_engine.css',
+];
+
+const COALESCER_SCAFFOLD_MARKERS = [
+  '_reconcileCoalescer',
+  '_enqueueReconcileCoalesce',
+  '_scheduleReconcileCoalescerFlush',
+  '_flushReconcileCoalescer',
+  'reconcileCoalesceFlush',
+  'getReconcileCoalescerState',
+  'duplicateCount',
+  'coalescedRequestCount',
 ];
 
 const FORBIDDEN_STRINGS = [
@@ -175,6 +200,42 @@ function assertRecordOnlyController(controllerJs) {
   }
 }
 
+function assertReconcileCoalescerScaffold(controllerJs) {
+  for (const marker of COALESCER_SCAFFOLD_MARKERS) {
+    if (!controllerJs.includes(marker)) {
+      fail(`oot_home_controller.js missing reconcile coalescer scaffold marker: ${marker}`);
+    }
+  }
+
+  if (!controllerJs.includes('_enqueueReconcileCoalesce(parsed.reason)')) {
+    fail('requestReconcile must enqueue reconcile coalescer with parsed reason');
+  }
+
+  if (!controllerJs.includes("_record('reconcileCoalesceFlush'")) {
+    fail('coalescer flush must record reconcileCoalesceFlush events without layout execution');
+  }
+
+  if (!controllerJs.includes('reconcileCoalescer: getReconcileCoalescerState()')) {
+    fail('getState must expose reconcileCoalescer snapshot');
+  }
+
+  if (!controllerJs.includes('pendingReason')) {
+    fail('coalescer must retain pending request reason');
+  }
+
+  if (!controllerJs.includes('duplicateCount')) {
+    fail('coalescer must track duplicate reconcile requests');
+  }
+}
+
+function assertProtectedModulesUntouched() {
+  for (const relPath of PROTECTED_MODULE_FILES) {
+    if (!exists(relPath)) {
+      fail(`Missing protected module file expected untouched: ${relPath}`);
+    }
+  }
+}
+
 function assertCompatShim(compatJs) {
   if (!compatJs.includes('window.OOT.home.controller')) {
     fail('oot_compat_home.js must restore controller globals from window.OOT.home.controller');
@@ -270,11 +331,11 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6d Home controller orchestration checks.');
+  console.log('PASS: Phase 6e-a Home controller reconcile coalescer scaffold checks.');
 }
 
 function main() {
-  console.log('Running Phase 6d Home controller integrity checks...\n');
+  console.log('Running Phase 6e-a Home controller integrity checks...\n');
 
   for (const relPath of REQUIRED_FILES) {
     if (!exists(relPath)) {
@@ -291,6 +352,8 @@ function main() {
   const controllerJs = read(CONTROLLER_SRC);
   scanForbidden(controllerJs, 'oot_home_controller.js');
   assertRecordOnlyController(controllerJs);
+  assertReconcileCoalescerScaffold(controllerJs);
+  assertProtectedModulesUntouched();
 
   const compatJs = read('oot_compat_home.js');
   scanForbidden(compatJs, 'oot_compat_home.js');

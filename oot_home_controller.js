@@ -1,10 +1,10 @@
-// Phase 6d: HomeController — record-only API + narrow Home tab entry delegate to legacy refresh.
-// Does not invoke reconcile, layout engine, DOM/CSS/storage, or reimplement rHome steps.
+// Phase 6e-a: HomeController — record-only API + reconcile coalescer scaffold (no execution).
+// Does not invoke layout reconcile, layout engine, DOM/CSS/storage, or reimplement rHome steps.
 
 (function (window, document) {
   'use strict';
 
-  var PHASE = '6d-orchestrate-entry';
+  var PHASE = '6e-a-coalesce-scaffold';
   var MAX_EVENTS = 100;
 
   var _state = {
@@ -14,6 +14,18 @@
     lastMethod: null,
     eventCount: 0,
     events: []
+  };
+
+  var _reconcileCoalescer = {
+    scaffold: true,
+    pending: false,
+    pendingId: 0,
+    pendingReason: null,
+    duplicateCount: 0,
+    coalescedRequestCount: 0,
+    flushScheduled: false,
+    lastFlushAt: null,
+    lastCoalescedReason: null
   };
 
   var _skipNextRHomeActivate = false;
@@ -63,9 +75,52 @@
     return _record('activate', parsed.reason, parsed.payload);
   }
 
+  function _scheduleReconcileCoalescerFlush() {
+    if (_reconcileCoalescer.flushScheduled) return;
+    _reconcileCoalescer.flushScheduled = true;
+    var schedule = typeof requestAnimationFrame === 'function'
+      ? requestAnimationFrame
+      : function (fn) { setTimeout(fn, 0); };
+    schedule(function () {
+      _flushReconcileCoalescer();
+    });
+  }
+
+  function _flushReconcileCoalescer() {
+    _reconcileCoalescer.flushScheduled = false;
+    if (!_reconcileCoalescer.pending) return;
+    _reconcileCoalescer.lastFlushAt = Date.now();
+    _reconcileCoalescer.lastCoalescedReason = _reconcileCoalescer.pendingReason;
+    _record('reconcileCoalesceFlush', _reconcileCoalescer.pendingReason || '', {
+      pendingId: _reconcileCoalescer.pendingId,
+      duplicateCount: _reconcileCoalescer.duplicateCount,
+      coalescedRequestCount: _reconcileCoalescer.coalescedRequestCount
+    });
+    _reconcileCoalescer.pending = false;
+    _reconcileCoalescer.pendingReason = null;
+    _reconcileCoalescer.duplicateCount = 0;
+    _reconcileCoalescer.coalescedRequestCount = 0;
+  }
+
+  function _enqueueReconcileCoalesce(reason) {
+    var nextReason = reason || '';
+    if (_reconcileCoalescer.pending) {
+      _reconcileCoalescer.duplicateCount += 1;
+    } else {
+      _reconcileCoalescer.pending = true;
+      _reconcileCoalescer.pendingId += 1;
+      _reconcileCoalescer.pendingReason = nextReason;
+      _reconcileCoalescer.duplicateCount = 0;
+    }
+    _reconcileCoalescer.coalescedRequestCount += 1;
+    _scheduleReconcileCoalescerFlush();
+  }
+
   function requestReconcile(reason, options) {
     var parsed = _optionsOrReason(options, reason);
-    return _record('requestReconcile', parsed.reason, parsed.payload);
+    var entry = _record('requestReconcile', parsed.reason, parsed.payload);
+    _enqueueReconcileCoalesce(parsed.reason);
+    return entry;
   }
 
   function notifyCueChange(reason, options) {
@@ -102,6 +157,20 @@
     return _state.events[_state.events.length - 1];
   }
 
+  function getReconcileCoalescerState() {
+    return {
+      scaffold: _reconcileCoalescer.scaffold,
+      pending: _reconcileCoalescer.pending,
+      pendingId: _reconcileCoalescer.pendingId,
+      pendingReason: _reconcileCoalescer.pendingReason,
+      duplicateCount: _reconcileCoalescer.duplicateCount,
+      coalescedRequestCount: _reconcileCoalescer.coalescedRequestCount,
+      flushScheduled: _reconcileCoalescer.flushScheduled,
+      lastFlushAt: _reconcileCoalescer.lastFlushAt,
+      lastCoalescedReason: _reconcileCoalescer.lastCoalescedReason
+    };
+  }
+
   function getState() {
     return {
       phase: _state.phase,
@@ -109,7 +178,8 @@
       lastReason: _state.lastReason,
       lastMethod: _state.lastMethod,
       eventCount: _state.eventCount,
-      events: _state.events.slice()
+      events: _state.events.slice(),
+      reconcileCoalescer: getReconcileCoalescerState()
     };
   }
 
@@ -122,6 +192,7 @@
     notifyGigSlotChange: notifyGigSlotChange,
     enterHomeTab: enterHomeTab,
     consumeSkipRHomeActivate: consumeSkipRHomeActivate,
+    getReconcileCoalescerState: getReconcileCoalescerState,
     getState: getState
   };
 
