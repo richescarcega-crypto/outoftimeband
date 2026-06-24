@@ -22742,6 +22742,7 @@ function renderHomeSongVoteCue(){
     try { _homeLayoutDiagSnapshot('renderHomeSongVoteCue:hidden', {}); } catch(e){}
     try { syncAlertRailState('renderHomeSongVoteCue'); } catch(e){}
     try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeSongVoteCue'); } catch(e){}
+    try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:song-vote'); } catch(e){}
     return;
   }
   var label = userSpecific
@@ -22763,6 +22764,7 @@ function renderHomeSongVoteCue(){
   try { _homeLayoutDiagSnapshot('renderHomeSongVoteCue:visible', { count: cueItems.length }); } catch(e){}
   try { syncAlertRailState('renderHomeSongVoteCue'); } catch(e){}
   try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeSongVoteCue'); } catch(e){}
+  try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:song-vote'); } catch(e){}
 }
 
 

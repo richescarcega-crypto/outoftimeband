@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Static Phase 6e-b Home controller reconcile delegate checks. Test-only.
+ * Static Phase 6e-c Home controller listener reconcile pilot checks. Test-only.
  */
 
 import fs from 'node:fs';
@@ -71,6 +71,7 @@ const REQUIRED_INDEX_HOOKS = [
   "notifyImageRefresh('rehearsal-cue visible')",
   "notifyImageRefresh('rHome final')",
   "requestHomeReconcile('rHome')",
+  "requestHomeReconcile('cue:song-vote')",
   GO_HOME_ORCHESTRATE_MARKER,
   'consumeHomeRHomeActivateSkip',
 ];
@@ -128,6 +129,9 @@ const FORBIDDEN_BEHAVIOR_CALLS = [
   'go(',
   'rHome(',
 ];
+
+const PHASE_6E_C_SONG_VOTE_RECONCILE_HOOK =
+  "try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:song-vote'); } catch(e){}";
 
 const failures = [];
 const warnings = [];
@@ -362,6 +366,43 @@ function assertIndexHtmlWiring(html) {
   }
 }
 
+function assertPhase6eCSongVotePilot(html) {
+  const pilotCount = countOccurrences(html, "requestHomeReconcile('cue:song-vote')");
+  if (pilotCount !== 2) {
+    fail(`renderHomeSongVoteCue must contain exactly two requestHomeReconcile('cue:song-vote') hooks (found ${pilotCount})`);
+  }
+
+  const fnStart = html.indexOf('function renderHomeSongVoteCue');
+  const fnEnd = html.indexOf('\nfunction ', fnStart + 1);
+  if (fnStart === -1 || fnEnd === -1) {
+    fail('Could not locate renderHomeSongVoteCue function body in index.html');
+  }
+  const fnBody = html.slice(fnStart, fnEnd);
+
+  if (fnBody.includes('reconcileHomeLayout')) {
+    fail('renderHomeSongVoteCue must not call reconcileHomeLayout directly');
+  }
+
+  if (!fnBody.includes(PHASE_6E_C_SONG_VOTE_RECONCILE_HOOK)) {
+    fail('renderHomeSongVoteCue must use Home-active gated requestHomeReconcile pilot hook');
+  }
+
+  const hiddenBranch = fnBody.slice(fnBody.indexOf('renderHomeSongVoteCue:hidden'));
+  const visibleBranch = fnBody.slice(fnBody.indexOf('renderHomeSongVoteCue:visible'));
+  for (const label of ['hidden branch', 'visible branch']) {
+    const branch = label === 'hidden branch' ? hiddenBranch : visibleBranch;
+    const syncPos = branch.indexOf("syncAlertRailState('renderHomeSongVoteCue')");
+    const pilotPos = branch.indexOf("requestHomeReconcile('cue:song-vote')");
+    if (syncPos === -1 || pilotPos === -1 || syncPos > pilotPos) {
+      fail(`renderHomeSongVoteCue ${label} must call syncAlertRailState before requestHomeReconcile('cue:song-vote')`);
+    }
+  }
+
+  if (countOccurrences(html, "requestHomeReconcile('cue:rehearsal')") > 0) {
+    fail('Phase 6e-c pilot must not wire rehearsal cue reconcile yet');
+  }
+}
+
 function report() {
   if (warnings.length) {
     console.warn('Warnings:');
@@ -373,11 +414,11 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6e-b Home controller reconcile delegate checks.');
+  console.log('PASS: Phase 6e-c Home controller listener reconcile pilot checks.');
 }
 
 function main() {
-  console.log('Running Phase 6e-b Home controller integrity checks...\n');
+  console.log('Running Phase 6e-c Home controller integrity checks...\n');
 
   for (const relPath of REQUIRED_FILES) {
     if (!exists(relPath)) {
@@ -404,6 +445,7 @@ function main() {
 
   const html = read('index.html');
   assertIndexHtmlWiring(html);
+  assertPhase6eCSongVotePilot(html);
 
   report();
 }

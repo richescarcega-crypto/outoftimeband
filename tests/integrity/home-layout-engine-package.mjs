@@ -231,7 +231,7 @@ function getGitDiff(relPath) {
   }
 }
 
-/** Phase 6d: allow go('home') orchestration delegate + Phase 6c notification hooks in index.html. */
+/** Phase 6d/6e-c: allow go('home') orchestration delegate + Phase 6c/6e-c notification hooks in index.html. */
 function assertIndexHtmlChangesAllowed(html) {
   if (!html.includes(GO_HOME_ORCHESTRATE_MARKER)) {
     fail(`index.html go('home') must delegate via ${GO_HOME_ORCHESTRATE_MARKER}`);
@@ -286,6 +286,8 @@ function assertIndexHtmlChangesAllowed(html) {
   }
 
   const allowedHookRe = /^\s+try \{ if \(typeof (activateHome|notifyCueChange|notifyGigSlotChange|notifyImageRefresh|requestHomeReconcile) === 'function'\)/;
+  const allowedPhase6eCSongVoteReconcileRe =
+    /^\s+try \{ var _hs=document\.getElementById\('sc-home'\); if \(_hs&&_hs\.classList\.contains\('on'\)&&typeof requestHomeReconcile==='function'\)requestHomeReconcile\('cue:song-vote'\); \} catch\(e\)\{\}$/;
   const allowedOrchestrateRes = [
     /^\s+if \(id === 'home'\) \{$/,
     /^\s+try \{$/,
@@ -303,6 +305,14 @@ function assertIndexHtmlChangesAllowed(html) {
       continue;
     }
     if (allowedHookRe.test(line)) {
+      continue;
+    }
+    if (allowedPhase6eCSongVoteReconcileRe.test(line)) {
+      continue;
+    }
+    if (/requestHomeReconcile\('cue:song-vote'\)/.test(line) &&
+        /getElementById\('sc-home'\)/.test(line) &&
+        /classList\.contains\('on'\)/.test(line)) {
       continue;
     }
     var matched = false;
