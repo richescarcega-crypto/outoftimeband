@@ -334,6 +334,22 @@ function assertIndexHtmlChangesAllowed(html) {
     /requestHomeReconcile\('cue:rehearsal'\)/,
     /^\s+return;$/,
     /if\(!ev\)/,
+    /var _rhInput = \{ hasTarget: true \}/,
+    /_rhInput\.sourceBranch = 'hidden-no-events'/,
+    /if\(!_rhInput\.sourceBranch\)/,
+    /_rhInput\.sourceBranch = 'hidden-no-rehearsal'/,
+    /_rhInput\.sourceBranch = ev\._proposalHomeCue/,
+    /_rhInput\.evIdEscaped =/,
+    /_rhInput\.titleEscaped =/,
+    /_rhInput\.subEscaped =/,
+    /_rhInput\.noteEscaped =/,
+    /_rhInput\.hasNote =/,
+    /_svView = _svCr\.buildSongVoteCueView\(\{/,
+    /^\s+cueItems: cueItems,$/,
+    /^\s+userSpecific: userSpecific,$/,
+    /^\s+sourceBranch: sourceBranch,$/,
+    /^\s+hasTarget: true$/,
+    /^\s+\}\);$/,
   ];
 
   for (const line of removed) {
@@ -790,6 +806,54 @@ function assertIndexHtmlChangesAllowed(html) {
       continue;
     }
     if (/rendersDom: true/.test(line)) {
+      continue;
+    }
+    if (/function _buildHomeSongVoteCueInput/.test(line)) {
+      continue;
+    }
+    if (/function _buildHomeRehearsalCueInput/.test(line)) {
+      continue;
+    }
+    if (/var a = args \|\| \{\}/.test(line)) {
+      continue;
+    }
+    if (/var input = \{ hasTarget: true, sourceBranch: a\.sourceBranch \}/.test(line)) {
+      continue;
+    }
+    if (/a\.sourceBranch === 'hidden-no-events' \|\| a\.sourceBranch === 'hidden-no-rehearsal'/.test(line)) {
+      continue;
+    }
+    if (/return input;/.test(line)) {
+      continue;
+    }
+    if (/input\.evIdEscaped =/.test(line)) {
+      continue;
+    }
+    if (/input\.titleEscaped =/.test(line)) {
+      continue;
+    }
+    if (/input\.subEscaped =/.test(line)) {
+      continue;
+    }
+    if (/input\.noteEscaped =/.test(line)) {
+      continue;
+    }
+    if (/input\.hasNote =/.test(line)) {
+      continue;
+    }
+    if (/var _rhInput = null/.test(line)) {
+      continue;
+    }
+    if (/if\(!_rhInput\)/.test(line)) {
+      continue;
+    }
+    if (/_rhInput = _buildHomeRehearsalCueInput\(\{/.test(line)) {
+      continue;
+    }
+    if (/buildSongVoteCueView\(_buildHomeSongVoteCueInput/.test(line)) {
+      continue;
+    }
+    if (/_buildHomeSongVoteCueInput\(cueItems, userSpecific, sourceBranch\)/.test(line)) {
       continue;
     }
     if (/hasTarget: true/.test(line)) {

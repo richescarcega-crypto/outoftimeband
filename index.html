@@ -22715,6 +22715,29 @@ if (typeof window.__ootGetHomeCueRenderDiag !== 'function') {
   };
 }
 
+function _buildHomeSongVoteCueInput(cueItems, userSpecific, sourceBranch){
+  return {
+    cueItems: cueItems,
+    userSpecific: userSpecific,
+    sourceBranch: sourceBranch,
+    hasTarget: true
+  };
+}
+
+function _buildHomeRehearsalCueInput(args){
+  var a = args || {};
+  var input = { hasTarget: true, sourceBranch: a.sourceBranch };
+  if (a.sourceBranch === 'hidden-no-events' || a.sourceBranch === 'hidden-no-rehearsal') {
+    return input;
+  }
+  input.evIdEscaped = a.evIdEscaped != null ? a.evIdEscaped : '';
+  input.titleEscaped = a.titleEscaped != null ? a.titleEscaped : '';
+  input.subEscaped = a.subEscaped != null ? a.subEscaped : '';
+  input.noteEscaped = a.noteEscaped != null ? a.noteEscaped : '';
+  input.hasNote = !!a.hasNote;
+  return input;
+}
+
 function _legacyApplyHomeCueView(el, view){
   if(!el || !view) return;
   if(!view.visible){
@@ -22745,17 +22768,17 @@ function _applyHomeCueView(el, view){
 function renderHomeRehearsalCue(){
   var el = document.getElementById('home-rehearsal-cue');
   if(!el) return;
-  var _rhInput = { hasTarget: true };
+  var _rhInput = null;
   if(!_eventsHasInit && (!events || !events.length)){
     var earlyProp = (typeof _ootNextOpenRehearsalProposal === 'function') ? _ootNextOpenRehearsalProposal() : null;
     if(!earlyProp){
-      _rhInput.sourceBranch = 'hidden-no-events';
+      _rhInput = _buildHomeRehearsalCueInput({ sourceBranch: 'hidden-no-events' });
     }
   }
-  if(!_rhInput.sourceBranch){
+  if(!_rhInput){
     var ev = _r535NextUpcomingRehearsal();
     if(!ev){
-      _rhInput.sourceBranch = 'hidden-no-rehearsal';
+      _rhInput = _buildHomeRehearsalCueInput({ sourceBranch: 'hidden-no-rehearsal' });
     } else {
       var times = _r535RehearsalTimes(ev);
       var timeLabel = times.start ? (times.end ? (times.start + ' – ' + times.end) : times.start) : 'Time TBD';
@@ -22763,12 +22786,14 @@ function renderHomeRehearsalCue(){
       var title = ev.title || 'Band Rehearsal';
       var sub = dateLabel + ' · ' + timeLabel;
       var note = ev.note || ev.location || '';
-      _rhInput.sourceBranch = ev._proposalHomeCue ? 'proposalFallback' : 'rehearsalEvent';
-      _rhInput.evIdEscaped = _r535HomeEscape(String(ev.id||''));
-      _rhInput.titleEscaped = _r535HomeEscape(title);
-      _rhInput.subEscaped = _r535HomeEscape(sub);
-      _rhInput.noteEscaped = note ? _r535HomeEscape(note) : '';
-      _rhInput.hasNote = !!note;
+      _rhInput = _buildHomeRehearsalCueInput({
+        sourceBranch: ev._proposalHomeCue ? 'proposalFallback' : 'rehearsalEvent',
+        evIdEscaped: _r535HomeEscape(String(ev.id||'')),
+        titleEscaped: _r535HomeEscape(title),
+        subEscaped: _r535HomeEscape(sub),
+        noteEscaped: note ? _r535HomeEscape(note) : '',
+        hasNote: !!note
+      });
     }
   }
   var _rhView = null;
@@ -22860,12 +22885,7 @@ function renderHomeSongVoteCue(){
   try {
     var _svCr = window.OOT && window.OOT.home && window.OOT.home.cueRenderer;
     if (_svCr && typeof _svCr.buildSongVoteCueView === 'function') {
-      _svView = _svCr.buildSongVoteCueView({
-        cueItems: cueItems,
-        userSpecific: userSpecific,
-        sourceBranch: sourceBranch,
-        hasTarget: true
-      });
+      _svView = _svCr.buildSongVoteCueView(_buildHomeSongVoteCueInput(cueItems, userSpecific, sourceBranch));
     }
   } catch(e){}
   if (!_svView) {
