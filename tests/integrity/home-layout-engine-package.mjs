@@ -277,6 +277,8 @@ function assertIndexHtmlChangesAllowed(html) {
   const allowedRemoved = new Set([
     "  if (id === 'home') rHome();",
     "  try { if (typeof activateHome === 'function') activateHome('rHome'); } catch(e) {}",
+    "  try { if (typeof requestHomeReconcile === 'function') requestHomeReconcile('rHome'); } catch(e){}",
+    "  try { reconcileHomeLayout('rHome'); } catch(e){}",
   ]);
 
   for (const line of removed) {
@@ -363,6 +365,27 @@ function assertIndexHtmlChangesAllowed(html) {
       continue;
     }
     if (/_recordRHomeTailReconcileDiag\(/.test(line)) {
+      continue;
+    }
+    if (/if \(_ootHc && typeof _ootHc\.requestRHomeTailReconcile/.test(line)) {
+      continue;
+    }
+    if (/_ootHc\.requestRHomeTailReconcile\(\);/.test(line)) {
+      continue;
+    }
+    if (/requestHomeReconcile\('rHome'\)/.test(line)) {
+      continue;
+    }
+    if (/reconcileHomeLayout\('rHome'\)/.test(line)) {
+      continue;
+    }
+    if (/var _ootHc = window\.OOT && window\.OOT\.home && window\.OOT\.home\.controller/.test(line)) {
+      continue;
+    }
+    if (/window\.OOT && window\.OOT\.home && window\.OOT\.home\.controller/.test(line)) {
+      continue;
+    }
+    if (/^\s+} else \{$/.test(line)) {
       continue;
     }
     if (/window\.__ootGetRHomeTailDiag/.test(line)) {

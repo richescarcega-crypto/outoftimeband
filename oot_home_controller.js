@@ -204,6 +204,29 @@
     return _state.events[_state.events.length - 1];
   }
 
+  function requestRHomeTailReconcile(options) {
+    var parsed = _optionsOrReason(options, 'rHome');
+    var result = {
+      reason: 'rHome',
+      requested: false,
+      reconciled: false,
+      passthrough: true
+    };
+    _record('requestRHomeTailReconcile', parsed.reason, parsed.payload);
+    try {
+      requestReconcile('rHome', parsed.payload);
+      result.requested = true;
+    } catch (e) {}
+    try {
+      var delegate = _resolveLegacyReconcileDelegate();
+      if (delegate) {
+        delegate.call(window, 'rHome');
+        result.reconciled = true;
+      }
+    } catch (e) {}
+    return result;
+  }
+
   function getReconcileCoalescerState() {
     return {
       scaffold: _reconcileCoalescer.scaffold,
@@ -243,6 +266,7 @@
     notifyGigSlotChange: notifyGigSlotChange,
     enterHomeTab: enterHomeTab,
     consumeSkipRHomeActivate: consumeSkipRHomeActivate,
+    requestRHomeTailReconcile: requestRHomeTailReconcile,
     getReconcileCoalescerState: getReconcileCoalescerState,
     getState: getState
   };

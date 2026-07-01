@@ -30837,8 +30837,15 @@ function rHome() {
   // r76: Upcoming Gigs/Rehearsals/Blackout home cards removed.
   try { _homeLayoutDiagSnapshot('rHome:end', {}); } catch(e){}
   try { _recordRHomeTailReconcileDiag(); } catch(e){}
-  try { if (typeof requestHomeReconcile === 'function') requestHomeReconcile('rHome'); } catch(e){}
-  try { reconcileHomeLayout('rHome'); } catch(e){}
+  try {
+    var _ootHc = window.OOT && window.OOT.home && window.OOT.home.controller;
+    if (_ootHc && typeof _ootHc.requestRHomeTailReconcile === 'function') {
+      _ootHc.requestRHomeTailReconcile();
+    } else {
+      try { if (typeof requestHomeReconcile === 'function') requestHomeReconcile('rHome'); } catch(e){}
+      try { reconcileHomeLayout('rHome'); } catch(e){}
+    }
+  } catch(e){}
 }
 
 var memsOpen = false;

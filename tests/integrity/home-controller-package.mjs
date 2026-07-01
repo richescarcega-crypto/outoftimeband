@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Static Phase 6i-a + Phase 6k-b Home controller integrity checks. Test-only.
+ * Static Phase 6i-a + Phase 6k-b + Phase 6k-c Home controller integrity checks. Test-only.
  */
 
 import fs from 'node:fs';
@@ -54,6 +54,7 @@ const REQUIRED_API_SYMBOLS = [
   'executionEnabled',
   'skippedRHomeExecution',
   'lastDelegatedReason',
+  'requestRHomeTailReconcile',
   '6e-b-reconcile-delegate',
   'window.rHome',
 ];
@@ -599,23 +600,94 @@ function assertPhase6kBRHomeTailDiag(html) {
   }
 
   const recordPos = rHomeBody.indexOf('_recordRHomeTailReconcileDiag()');
+  const adapterPos = rHomeBody.indexOf('requestRHomeTailReconcile');
   const requestPos = rHomeBody.indexOf("requestHomeReconcile('rHome')");
   const reconcilePos = rHomeBody.indexOf(RHOM_HOOK);
-  if (recordPos === -1 || requestPos === -1 || reconcilePos === -1) {
-    fail('rHome tail must contain record helper, requestHomeReconcile, and reconcileHomeLayout');
+  if (recordPos === -1 || adapterPos === -1 || requestPos === -1 || reconcilePos === -1) {
+    fail('rHome tail must contain record helper, adapter seam, and legacy fallback reconcile hooks');
   }
-  if (recordPos >= requestPos || requestPos >= reconcilePos) {
-    fail('rHome tail order must be _recordRHomeTailReconcileDiag then requestHomeReconcile then reconcileHomeLayout');
+  if (recordPos >= adapterPos) {
+    fail('rHome tail order must be _recordRHomeTailReconcileDiag before requestRHomeTailReconcile adapter');
+  }
+  if (requestPos >= reconcilePos) {
+    fail('rHome legacy fallback must call requestHomeReconcile before reconcileHomeLayout');
+  }
+  if (!rHomeBody.includes('else {') || rHomeBody.indexOf('else {') > requestPos) {
+    fail('rHome legacy fallback requestHomeReconcile/reconcileHomeLayout must live in else branch');
   }
 
   const requestCount = (html.match(/requestHomeReconcile\('rHome'\)/g) || []).length;
   if (requestCount !== 1) {
-    fail(`index.html must contain exactly one requestHomeReconcile('rHome') hook (found ${requestCount})`);
+    fail(`index.html must contain exactly one requestHomeReconcile('rHome') fallback hook (found ${requestCount})`);
   }
 
   const reconcileCount = (html.match(/reconcileHomeLayout\('rHome'\)/g) || []).length;
   if (reconcileCount !== 1) {
-    fail(`index.html must contain exactly one reconcileHomeLayout('rHome') hook (found ${reconcileCount})`);
+    fail(`index.html must contain exactly one reconcileHomeLayout('rHome') fallback hook (found ${reconcileCount})`);
+  }
+}
+
+function assertPhase6kCRHomeTailAdapter(html, controllerJs) {
+  if (!controllerJs.includes('function requestRHomeTailReconcile')) {
+    fail('oot_home_controller.js must define requestRHomeTailReconcile adapter');
+  }
+
+  if (!controllerJs.includes('requestRHomeTailReconcile: requestRHomeTailReconcile')) {
+    fail('oot_home_controller.js api must expose requestRHomeTailReconcile');
+  }
+
+  const adapterStart = controllerJs.indexOf('function requestRHomeTailReconcile');
+  const adapterEnd = controllerJs.indexOf('function getReconcileCoalescerState', adapterStart);
+  if (adapterStart === -1 || adapterEnd === -1) {
+    fail('Could not locate requestRHomeTailReconcile adapter body');
+  }
+  const adapterBody = controllerJs.slice(adapterStart, adapterEnd);
+
+  if (adapterBody.includes('rHome(')) {
+    fail('requestRHomeTailReconcile must not call rHome');
+  }
+  if (adapterBody.includes('document.getElementById') || adapterBody.includes('querySelector')) {
+    fail('requestRHomeTailReconcile must not read DOM');
+  }
+  if (adapterBody.includes('classList') || adapterBody.includes('setProperty')) {
+    fail('requestRHomeTailReconcile must not write CSS vars or DOM classes');
+  }
+  if (adapterBody.includes('localStorage.setItem') || adapterBody.includes('localStorage.removeItem')) {
+    fail('requestRHomeTailReconcile must not write localStorage');
+  }
+  if (adapterBody.includes('setInterval') || adapterBody.includes('setTimeout')) {
+    fail('requestRHomeTailReconcile must not schedule timers');
+  }
+  if (adapterBody.includes('addEventListener')) {
+    fail('requestRHomeTailReconcile must not add listeners');
+  }
+
+  if (!adapterBody.includes("requestReconcile('rHome'")) {
+    fail("requestRHomeTailReconcile must preserve requestReconcile('rHome') passthrough");
+  }
+  if (!adapterBody.includes("delegate.call(window, 'rHome')")) {
+    fail("requestRHomeTailReconcile must preserve direct reconcileHomeLayout('rHome') passthrough");
+  }
+  if (!adapterBody.includes("_record('requestRHomeTailReconcile'")) {
+    fail('requestRHomeTailReconcile must record adapter journal entry');
+  }
+
+  const rHomeStart = html.indexOf('function rHome()');
+  const rHomeEnd = html.indexOf('var memsOpen = false;');
+  const rHomeBody = html.slice(rHomeStart, rHomeEnd);
+
+  if (!rHomeBody.includes('window.OOT && window.OOT.home && window.OOT.home.controller')) {
+    fail('rHome tail must resolve HomeController adapter via OOT.home.controller');
+  }
+  if (!rHomeBody.includes('_ootHc.requestRHomeTailReconcile()')) {
+    fail('rHome tail must invoke requestRHomeTailReconcile adapter when available');
+  }
+  if (!rHomeBody.includes("requestHomeReconcile('rHome')") || !rHomeBody.includes("reconcileHomeLayout('rHome')")) {
+    fail('rHome tail must retain legacy fallback request/reconcile hooks');
+  }
+
+  if (html.includes('data-home-layout-mode="modular-inflow"')) {
+    fail('index.html must not default static Home markup to modular-inflow');
   }
 }
 
@@ -630,11 +702,11 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6k-b Home controller rHome tail diagnostic checks.');
+  console.log('PASS: Phase 6k-c Home controller rHome tail adapter checks.');
 }
 
 function main() {
-  console.log('Running Phase 6k-b Home controller integrity checks...\n');
+  console.log('Running Phase 6k-c Home controller integrity checks...\n');
 
   for (const relPath of REQUIRED_FILES) {
     if (!exists(relPath)) {
@@ -665,6 +737,7 @@ function main() {
   assertPhase6gRehearsalPilot(html);
   assertPhase6iGigTimerSafePilot(html);
   assertPhase6kBRHomeTailDiag(html);
+  assertPhase6kCRHomeTailAdapter(html, controllerJs);
 
   report();
 }
