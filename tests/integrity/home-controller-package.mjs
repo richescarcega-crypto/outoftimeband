@@ -866,6 +866,12 @@ function assertCueRendererNoDirectDom(cueRendererJs, label) {
   }
 }
 
+function assertCueRendererBuildersNoForbidden(cueRendererJs, label) {
+  const applyStart = cueRendererJs.indexOf('function applyCueView');
+  const buildersJs = applyStart === -1 ? cueRendererJs : cueRendererJs.slice(0, applyStart);
+  assertCueRendererNoDirectDom(buildersJs, label);
+}
+
 function assertPhase6lCHomeCueRendererScaffold(html) {
   if (!exists('oot_home_cue_renderer.js')) {
     fail('oot_home_cue_renderer.js must exist for Phase 6l-c scaffold');
@@ -886,6 +892,7 @@ function assertPhase6lCHomeCueRendererScaffold(html) {
     'canRenderRehearsalCue',
     'buildSongVoteCueView',
     'buildRehearsalCueView',
+    'applyCueView',
     'renderSongVoteCueSnapshot',
     'renderRehearsalCueSnapshot',
   ];
@@ -912,7 +919,7 @@ function assertPhase6lCHomeCueRendererScaffold(html) {
       fail(`oot_home_cue_renderer.js must not reference forbidden behavior: ${call}`);
     }
   }
-  assertCueRendererNoDirectDom(cueRendererJs, 'oot_home_cue_renderer.js');
+  assertCueRendererBuildersNoForbidden(cueRendererJs, 'oot_home_cue_renderer.js view builders');
 
   if (cueRendererJs.includes('modular-inflow')) {
     fail('oot_home_cue_renderer.js must not reference modular-inflow');
@@ -998,8 +1005,14 @@ function assertPhase6lDSongVoteCueRouting(html) {
   if (!songBody.includes('if (!_svView)')) {
     fail('renderHomeSongVoteCue must retain legacy fallback when buildSongVoteCueView is unavailable');
   }
-  if (!songBody.includes('el.innerHTML = _svView.html')) {
-    fail('renderHomeSongVoteCue must apply scaffold html via el.innerHTML = _svView.html');
+  if (!songBody.includes('_applyHomeCueView(el, _svView)')) {
+    fail('renderHomeSongVoteCue must apply cue view via shared _applyHomeCueView helper');
+  }
+  if (!html.includes('function _legacyApplyHomeCueView')) {
+    fail('index.html must retain _legacyApplyHomeCueView inline DOM apply fallback');
+  }
+  if (!html.includes('function _applyHomeCueView')) {
+    fail('index.html must define shared _applyHomeCueView wrapper');
   }
   if (!songBody.includes('openSongVoteModal')) {
     fail('renderHomeSongVoteCue fallback must preserve openSongVoteModal onclick handler');
@@ -1021,7 +1034,7 @@ function assertPhase6lERehearsalCueRouting(html) {
   }
 
   const builderStart = cueRendererJs.indexOf('function buildRehearsalCueView');
-  const builderEnd = cueRendererJs.indexOf('function getState', builderStart);
+  const builderEnd = cueRendererJs.indexOf('function applyCueView', builderStart);
   if (builderStart === -1 || builderEnd === -1) {
     fail('Could not locate buildRehearsalCueView body in oot_home_cue_renderer.js');
   }
@@ -1062,8 +1075,8 @@ function assertPhase6lERehearsalCueRouting(html) {
   if (!rehearsalBody.includes('if (!_rhView)')) {
     fail('renderHomeRehearsalCue must retain legacy fallback when buildRehearsalCueView is unavailable');
   }
-  if (!rehearsalBody.includes('el.innerHTML = _rhView.html')) {
-    fail('renderHomeRehearsalCue must apply scaffold html via el.innerHTML = _rhView.html');
+  if (!rehearsalBody.includes('_applyHomeCueView(el, _rhView)')) {
+    fail('renderHomeRehearsalCue must apply cue view via shared _applyHomeCueView helper');
   }
   if (!rehearsalBody.includes('_r535OpenHomeRehearsal')) {
     fail('renderHomeRehearsalCue fallback must preserve _r535OpenHomeRehearsal onclick handler');
@@ -1088,6 +1101,94 @@ function assertPhase6lERehearsalCueRouting(html) {
   }
 }
 
+function assertPhase6lFHomeCueApplySeam(html) {
+  const cueRendererJs = read('oot_home_cue_renderer.js');
+
+  if (!cueRendererJs.includes('function applyCueView')) {
+    fail('oot_home_cue_renderer.js must define applyCueView for Phase 6l-f DOM apply seam');
+  }
+
+  const applyStart = cueRendererJs.indexOf('function applyCueView');
+  const applyEnd = cueRendererJs.indexOf('function getState', applyStart);
+  if (applyStart === -1 || applyEnd === -1) {
+    fail('Could not locate applyCueView body in oot_home_cue_renderer.js');
+  }
+  const applyBody = cueRendererJs.slice(applyStart, applyEnd);
+
+  for (const call of CUE_RENDERER_FORBIDDEN_CALLS) {
+    if (applyBody.includes(call)) {
+      fail(`applyCueView must not reference forbidden behavior: ${call}`);
+    }
+  }
+  if (applyBody.includes('localStorage')) {
+    fail('applyCueView must not write localStorage');
+  }
+  if (applyBody.includes('setProperty')) {
+    fail('applyCueView must not write CSS vars');
+  }
+  if (/\brHome\s*\(/.test(applyBody)) {
+    fail('applyCueView must not call rHome');
+  }
+  if (!applyBody.includes("targetEl.style.display = 'none'")) {
+    fail('applyCueView hidden path must set display none');
+  }
+  if (!applyBody.includes("targetEl.style.display = 'block'")) {
+    fail('applyCueView visible path must set display block');
+  }
+  if (!applyBody.includes('rendersDom: true')) {
+    fail('applyCueView must declare rendersDom: true on success');
+  }
+
+  if (!html.includes('applyCueView')) {
+    fail('index.html must reference cueRenderer.applyCueView via _applyHomeCueView wrapper');
+  }
+
+  const legacyStart = html.indexOf('function _legacyApplyHomeCueView');
+  const legacyEnd = html.indexOf('function _applyHomeCueView', legacyStart);
+  const legacyBody = html.slice(legacyStart, legacyEnd);
+  if (!legacyBody.includes("el.style.display = 'none'") || !legacyBody.includes("el.innerHTML = ''")) {
+    fail('_legacyApplyHomeCueView must retain direct hidden display/innerHTML fallback');
+  }
+  if (!legacyBody.includes("el.style.display = 'block'") || !legacyBody.includes('el.innerHTML = view.html')) {
+    fail('_legacyApplyHomeCueView must retain direct visible display/innerHTML fallback');
+  }
+
+  const songStart = html.indexOf('function renderHomeSongVoteCue');
+  const songEnd = html.indexOf('// r810: unordered fallback listeners', songStart);
+  const rehearsalStart = html.indexOf('function renderHomeRehearsalCue');
+  const rehearsalEnd = html.indexOf('function renderHomeSongVoteCue');
+  const songBody = html.slice(songStart, songEnd);
+  const rehearsalBody = html.slice(rehearsalStart, rehearsalEnd);
+
+  if ((songBody.match(/_applyHomeCueView\(el, _svView\)/g) || []).length !== 2) {
+    fail('renderHomeSongVoteCue must call _applyHomeCueView on hidden and visible paths');
+  }
+  if ((rehearsalBody.match(/_applyHomeCueView\(el, _rhView\)/g) || []).length !== 2) {
+    fail('renderHomeRehearsalCue must call _applyHomeCueView on hidden and visible paths');
+  }
+
+  if (!html.includes('Song Vote Pending') || !html.includes('Rehearsal on Deck')) {
+    fail('index.html must preserve Song Vote Pending and Rehearsal on Deck kicker strings');
+  }
+  if (!html.includes('openSongVoteModal') || !html.includes('_r535OpenHomeRehearsal')) {
+    fail('index.html must preserve song-vote and rehearsal onclick handlers');
+  }
+
+  const proposalStart = html.indexOf('function renderPendingProposalCue');
+  const proposalEnd = html.indexOf('function _resetCalendarScrollToTop', proposalStart);
+  if (proposalStart === -1 || proposalEnd === -1) {
+    fail('Could not locate renderPendingProposalCue for untouched guard');
+  }
+  const proposalBody = html.slice(proposalStart, proposalEnd);
+  if (proposalBody.includes('applyCueView') || proposalBody.includes('_applyHomeCueView')) {
+    fail('renderPendingProposalCue must remain untouched by Phase 6l-f apply seam');
+  }
+
+  if (html.includes('data-home-layout-mode="modular-inflow"')) {
+    fail('index.html must not default static Home markup to modular-inflow');
+  }
+}
+
 function report() {
   if (warnings.length) {
     console.warn('Warnings:');
@@ -1099,7 +1200,7 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6l-e Home rehearsal cue routing checks.');
+  console.log('PASS: Phase 6l-f Home cue apply seam checks.');
 }
 
 function main() {
@@ -1140,6 +1241,7 @@ function main() {
   assertPhase6lCHomeCueRendererScaffold(html);
   assertPhase6lDSongVoteCueRouting(html);
   assertPhase6lERehearsalCueRouting(html);
+  assertPhase6lFHomeCueApplySeam(html);
 
   report();
 }

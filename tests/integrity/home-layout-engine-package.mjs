@@ -325,7 +325,10 @@ function assertIndexHtmlChangesAllowed(html) {
     /renderHomeRehearsalCue:visible/,
     /linear-gradient\(135deg,rgba\(11,31,76/,
     /el\.style\.display = 'none'/,
+    /el\.style\.display = 'block'/,
     /el\.innerHTML = ''/,
+    /el\.innerHTML = _rhView\.html/,
+    /el\.innerHTML = _svView\.html/,
     /syncAlertRailState\('renderHomeRehearsalCue'\)/,
     /notifyCueChange\('renderHomeRehearsalCue'\)/,
     /requestHomeReconcile\('cue:rehearsal'\)/,
@@ -733,6 +736,60 @@ function assertIndexHtmlChangesAllowed(html) {
       continue;
     }
     if (/_homeLayoutDiagSnapshot\(_rhView\.diagTag/.test(line)) {
+      continue;
+    }
+    if (/function _legacyApplyHomeCueView/.test(line)) {
+      continue;
+    }
+    if (/function _applyHomeCueView/.test(line)) {
+      continue;
+    }
+    if (/_legacyApplyHomeCueView\(/.test(line)) {
+      continue;
+    }
+    if (/_applyHomeCueView\(/.test(line)) {
+      continue;
+    }
+    if (/applyCueView === 'function'/.test(line)) {
+      continue;
+    }
+    if (/return _cr\.applyCueView/.test(line)) {
+      continue;
+    }
+    if (/if\(!el \|\| !view\) return/.test(line)) {
+      continue;
+    }
+    if (/if\(!view\.visible\)/.test(line)) {
+      continue;
+    }
+    if (/el\.style\.display = 'none'/.test(line)) {
+      continue;
+    }
+    if (/el\.style\.display = 'block'/.test(line)) {
+      continue;
+    }
+    if (/el\.innerHTML = ''/.test(line)) {
+      continue;
+    }
+    if (/el\.innerHTML = view\.html \|\| ''/.test(line)) {
+      continue;
+    }
+    if (/^\s+return;$/.test(line)) {
+      continue;
+    }
+    if (/^\s+return \{$/.test(line)) {
+      continue;
+    }
+    if (/applied: true,/.test(line)) {
+      continue;
+    }
+    if (/visible: !!\(view && view\.visible\)/.test(line)) {
+      continue;
+    }
+    if (/htmlLength: view && view\.visible/.test(line)) {
+      continue;
+    }
+    if (/rendersDom: true/.test(line)) {
       continue;
     }
     if (/hasTarget: true/.test(line)) {
