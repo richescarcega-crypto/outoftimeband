@@ -1,9 +1,9 @@
-// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers.
+// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i/6m-b: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers.
 
 (function (window) {
   'use strict';
 
-  var PHASE = '6l-i-rehearsal-render-wrapper';
+  var PHASE = '6m-b-pending-proposal-view-builder';
   var SCAFFOLD = true;
 
   var CUE_IDS = {
@@ -209,6 +209,84 @@
     };
   }
 
+  function buildPendingProposalCueView(input) {
+    var snap = _normalizeInput(input);
+    var pendingIds = Array.isArray(snap.pendingIds) ? snap.pendingIds.slice() : [];
+    var hasTarget = snap.hasTarget !== false;
+    var count = pendingIds.length;
+    var countLabel = count > 9 ? '9+' : String(count);
+    var visible = count > 0;
+    var sourceBranch = visible ? 'pending-proposal-visible' : 'pending-proposal-hidden';
+    var onclickHandler = '_openPendingProposalCue';
+
+    if (!visible) {
+      return {
+        cueName: 'pendingProposal',
+        visible: false,
+        count: 0,
+        countLabel: '0',
+        calendarTabBadge: {
+          visible: false,
+          countLabel: '',
+          className: 'proposal-tab-badge',
+          title: ''
+        },
+        homeMicroCue: {
+          visible: false,
+          id: 'home-proposal-micro-cue',
+          html: '',
+          onclickHandler: onclickHandler
+        },
+        calendarMicroCue: {
+          visible: false,
+          id: 'cal-proposal-micro-cue',
+          html: '',
+          kicker: 'ACTION NEEDED',
+          onclickHandler: onclickHandler
+        },
+        hasTarget: hasTarget,
+        rendersDom: false,
+        sourceBranch: sourceBranch
+      };
+    }
+
+    var badgeTitle = count + ' rehearsal proposal' + (count === 1 ? '' : 's') + ' waiting';
+    var homeHtml =
+      '<span class="home-proposal-dot"></span><span>' + count + ' rehearsal response needed</span>';
+    var calHtml =
+      '<span class="cal-proposal-kicker">ACTION NEEDED</span>' +
+      '<span class="cal-proposal-main">' + count + ' rehearsal proposal waiting for your response</span>';
+
+    return {
+      cueName: 'pendingProposal',
+      visible: true,
+      count: count,
+      countLabel: countLabel,
+      calendarTabBadge: {
+        visible: true,
+        countLabel: countLabel,
+        className: 'proposal-tab-badge',
+        title: badgeTitle
+      },
+      homeMicroCue: {
+        visible: true,
+        id: 'home-proposal-micro-cue',
+        html: homeHtml,
+        onclickHandler: onclickHandler
+      },
+      calendarMicroCue: {
+        visible: true,
+        id: 'cal-proposal-micro-cue',
+        html: calHtml,
+        kicker: 'ACTION NEEDED',
+        onclickHandler: onclickHandler
+      },
+      hasTarget: hasTarget,
+      rendersDom: false,
+      sourceBranch: sourceBranch
+    };
+  }
+
   function applyCueView(targetEl, view) {
     try {
       if (!targetEl || !view) {
@@ -350,6 +428,7 @@
         'canRenderRehearsalCue',
         'buildSongVoteCueView',
         'buildRehearsalCueView',
+        'buildPendingProposalCueView',
         'applyCueView',
         'renderSongVoteCue',
         'renderRehearsalCue',
@@ -370,6 +449,7 @@
     canRenderRehearsalCue: canRenderRehearsalCue,
     buildSongVoteCueView: buildSongVoteCueView,
     buildRehearsalCueView: buildRehearsalCueView,
+    buildPendingProposalCueView: buildPendingProposalCueView,
     applyCueView: applyCueView,
     renderSongVoteCue: renderSongVoteCue,
     renderRehearsalCue: renderRehearsalCue,

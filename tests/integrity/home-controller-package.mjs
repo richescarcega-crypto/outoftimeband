@@ -892,6 +892,7 @@ function assertPhase6lCHomeCueRendererScaffold(html) {
     'canRenderRehearsalCue',
     'buildSongVoteCueView',
     'buildRehearsalCueView',
+    'buildPendingProposalCueView',
     'applyCueView',
     'renderSongVoteCue',
     'renderRehearsalCue',
@@ -1507,6 +1508,120 @@ function assertPhase6lIRehearsalRenderWrapper(html) {
   }
 }
 
+function assertPhase6mBPendingProposalViewBuilder(html) {
+  const cueRendererJs = read('oot_home_cue_renderer.js');
+
+  if (!cueRendererJs.includes('function buildPendingProposalCueView')) {
+    fail('oot_home_cue_renderer.js must define buildPendingProposalCueView for Phase 6m-b');
+  }
+
+  const builderStart = cueRendererJs.indexOf('function buildPendingProposalCueView');
+  const builderEnd = cueRendererJs.indexOf('function applyCueView', builderStart);
+  if (builderStart === -1 || builderEnd === -1) {
+    fail('Could not locate buildPendingProposalCueView body in oot_home_cue_renderer.js');
+  }
+  const builderBody = cueRendererJs.slice(builderStart, builderEnd);
+
+  for (const call of CUE_RENDERER_FORBIDDEN_CALLS) {
+    if (builderBody.includes(call)) {
+      fail(`buildPendingProposalCueView must not reference forbidden behavior: ${call}`);
+    }
+  }
+  assertCueRendererNoDirectDom(builderBody, 'buildPendingProposalCueView');
+  if (/\brHome\s*\(/.test(builderBody)) {
+    fail('buildPendingProposalCueView must not call rHome');
+  }
+  if (builderBody.includes('createElement')) {
+    fail('buildPendingProposalCueView must not create DOM elements');
+  }
+  if (builderBody.includes('appendChild') || builderBody.includes('removeChild')) {
+    fail('buildPendingProposalCueView must not mutate DOM trees');
+  }
+  if (builderBody.includes('localStorage') || builderBody.includes('setProperty')) {
+    fail('buildPendingProposalCueView must not write localStorage or CSS vars');
+  }
+  if (!builderBody.includes('rendersDom: false')) {
+    fail('buildPendingProposalCueView must declare rendersDom: false');
+  }
+  if (!builderBody.includes('calendarTabBadge')) {
+    fail('buildPendingProposalCueView must describe calendarTabBadge surface');
+  }
+  if (!builderBody.includes('homeMicroCue')) {
+    fail('buildPendingProposalCueView must describe homeMicroCue surface');
+  }
+  if (!builderBody.includes('calendarMicroCue')) {
+    fail('buildPendingProposalCueView must describe calendarMicroCue surface');
+  }
+  if (!builderBody.includes('rehearsal response needed')) {
+    fail('buildPendingProposalCueView must preserve Home micro-cue rehearsal response needed text');
+  }
+  if (!builderBody.includes('ACTION NEEDED')) {
+    fail('buildPendingProposalCueView must preserve Calendar strip ACTION NEEDED kicker');
+  }
+  if (!builderBody.includes('rehearsal proposal waiting for your response')) {
+    fail('buildPendingProposalCueView must preserve Calendar strip main proposal text');
+  }
+  if (!builderBody.includes('_openPendingProposalCue')) {
+    fail('buildPendingProposalCueView must preserve _openPendingProposalCue handler reference');
+  }
+  if (!builderBody.includes('pending-proposal-visible') || !builderBody.includes('pending-proposal-hidden')) {
+    fail('buildPendingProposalCueView must declare pending-proposal visible/hidden source branches');
+  }
+  if (!builderBody.includes('.slice()')) {
+    fail('buildPendingProposalCueView must not mutate input pendingIds array');
+  }
+
+  if (!cueRendererJs.includes('function renderSongVoteCue(targetEl, input)')) {
+    fail('Phase 6m-b must preserve renderSongVoteCue wrapper');
+  }
+  if (!cueRendererJs.includes('function renderRehearsalCue(targetEl, input)')) {
+    fail('Phase 6m-b must preserve renderRehearsalCue wrapper');
+  }
+
+  if (html.includes('buildPendingProposalCueView')) {
+    fail('index.html must not route through buildPendingProposalCueView in Phase 6m-b');
+  }
+
+  const proposalStart = html.indexOf('function renderPendingProposalCue');
+  const proposalEnd = html.indexOf('function _resetCalendarScrollToTop', proposalStart);
+  if (proposalStart === -1 || proposalEnd === -1) {
+    fail('Could not locate renderPendingProposalCue for untouched guard');
+  }
+  const proposalBody = html.slice(proposalStart, proposalEnd);
+  if (proposalBody.includes('buildPendingProposalCueView')) {
+    fail('renderPendingProposalCue must remain untouched by Phase 6m-b view builder');
+  }
+  if (!proposalBody.includes('_pendingProposalIdsForMe()')) {
+    fail('renderPendingProposalCue must retain legacy _pendingProposalIdsForMe state derivation');
+  }
+  if (!proposalBody.includes('home-proposal-micro-cue')) {
+    fail('renderPendingProposalCue must retain legacy Home micro-cue DOM apply');
+  }
+  if (!proposalBody.includes('cal-proposal-micro-cue')) {
+    fail('renderPendingProposalCue must retain legacy Calendar micro-cue DOM apply');
+  }
+  if (!proposalBody.includes('proposal-tab-badge')) {
+    fail('renderPendingProposalCue must retain legacy Calendar tab badge DOM apply');
+  }
+
+  const songStart = html.indexOf('function renderHomeSongVoteCue');
+  const songEnd = html.indexOf('// r810: unordered fallback listeners', songStart);
+  const rehearsalStart = html.indexOf('function renderHomeRehearsalCue');
+  const rehearsalEnd = html.indexOf('function renderHomeSongVoteCue');
+  const songBody = html.slice(songStart, songEnd);
+  const rehearsalBody = html.slice(rehearsalStart, rehearsalEnd);
+  if (!songBody.includes('renderSongVoteCue')) {
+    fail('renderHomeSongVoteCue must remain on renderSongVoteCue path');
+  }
+  if (!rehearsalBody.includes('renderRehearsalCue')) {
+    fail('renderHomeRehearsalCue must remain on renderRehearsalCue path');
+  }
+
+  if (html.includes('data-home-layout-mode="modular-inflow"')) {
+    fail('index.html must not default static Home markup to modular-inflow');
+  }
+}
+
 function report() {
   if (warnings.length) {
     console.warn('Warnings:');
@@ -1518,7 +1633,7 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6l-i Rehearsal render wrapper checks.');
+  console.log('PASS: Phase 6m-b Pending proposal view builder checks.');
 }
 
 function main() {
@@ -1563,6 +1678,7 @@ function main() {
   assertPhase6lGHomeCueInputBuilders(html);
   assertPhase6lHSongVoteRenderWrapper(html);
   assertPhase6lIRehearsalRenderWrapper(html);
+  assertPhase6mBPendingProposalViewBuilder(html);
 
   report();
 }
