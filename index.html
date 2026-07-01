@@ -22718,57 +22718,97 @@ if (typeof window.__ootGetHomeCueRenderDiag !== 'function') {
 function renderHomeRehearsalCue(){
   var el = document.getElementById('home-rehearsal-cue');
   if(!el) return;
+  var _rhInput = { hasTarget: true };
   if(!_eventsHasInit && (!events || !events.length)){
     var earlyProp = (typeof _ootNextOpenRehearsalProposal === 'function') ? _ootNextOpenRehearsalProposal() : null;
     if(!earlyProp){
-      try { _recordHomeCueRenderDiag('rehearsal', { visible: false, hasTarget: true, activeCount: 0, sourceBranch: 'hidden-no-events' }); } catch(e){}
-      el.style.display = 'none';
-      el.innerHTML = '';
-      try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue hidden no events'); } catch(e){}
-      try { if (typeof notifyImageRefresh === 'function') notifyImageRefresh('rehearsal-cue hidden no events'); } catch(e){}
-      try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:hidden-no-events', {}); } catch(e){}
-      try { syncAlertRailState('renderHomeRehearsalCue'); } catch(e){}
-      try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeRehearsalCue'); } catch(e){}
-      try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:rehearsal'); } catch(e){}
-      return;
+      _rhInput.sourceBranch = 'hidden-no-events';
     }
   }
-  var ev = _r535NextUpcomingRehearsal();
-  if(!ev){
-    try { _recordHomeCueRenderDiag('rehearsal', { visible: false, hasTarget: true, activeCount: 0, sourceBranch: 'hidden-no-rehearsal' }); } catch(e){}
+  if(!_rhInput.sourceBranch){
+    var ev = _r535NextUpcomingRehearsal();
+    if(!ev){
+      _rhInput.sourceBranch = 'hidden-no-rehearsal';
+    } else {
+      var times = _r535RehearsalTimes(ev);
+      var timeLabel = times.start ? (times.end ? (times.start + ' – ' + times.end) : times.start) : 'Time TBD';
+      var dateLabel = _r535PrettyRehearsalDate(ev);
+      var title = ev.title || 'Band Rehearsal';
+      var sub = dateLabel + ' · ' + timeLabel;
+      var note = ev.note || ev.location || '';
+      _rhInput.sourceBranch = ev._proposalHomeCue ? 'proposalFallback' : 'rehearsalEvent';
+      _rhInput.evIdEscaped = _r535HomeEscape(String(ev.id||''));
+      _rhInput.titleEscaped = _r535HomeEscape(title);
+      _rhInput.subEscaped = _r535HomeEscape(sub);
+      _rhInput.noteEscaped = note ? _r535HomeEscape(note) : '';
+      _rhInput.hasNote = !!note;
+    }
+  }
+  var _rhView = null;
+  try {
+    var _rhCr = window.OOT && window.OOT.home && window.OOT.home.cueRenderer;
+    if (_rhCr && typeof _rhCr.buildRehearsalCueView === 'function') {
+      _rhView = _rhCr.buildRehearsalCueView(_rhInput);
+    }
+  } catch(e){}
+  if (!_rhView) {
+    if (_rhInput.sourceBranch === 'hidden-no-events') {
+      _rhView = {
+        visible: false,
+        html: '',
+        sourceBranch: 'hidden-no-events',
+        imageRefreshReason: 'rehearsal-cue hidden no events',
+        diagTag: 'renderHomeRehearsalCue:hidden-no-events'
+      };
+    } else if (_rhInput.sourceBranch === 'hidden-no-rehearsal') {
+      _rhView = {
+        visible: false,
+        html: '',
+        sourceBranch: 'hidden-no-rehearsal',
+        imageRefreshReason: 'rehearsal-cue hidden no next rehearsal',
+        diagTag: 'renderHomeRehearsalCue:hidden-no-rehearsal'
+      };
+    } else {
+      var _rhNoteHtml = _rhInput.hasNote
+        ? ('<span class="home-alert-note" style="display:block;color:#8aa8d6;font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_rhInput.noteEscaped+'</span>')
+        : '';
+      _rhView = {
+        visible: true,
+        html:
+          '<button class="home-alert-pill home-alert-rehearsal" type="button" onclick="_r535OpenHomeRehearsal(\''+_rhInput.evIdEscaped+'\')" '+
+          'style="width:100%;text-align:left;background:linear-gradient(135deg,rgba(11,31,76,.98),rgba(5,13,32,.98) 58%,rgba(32,14,57,.96));border:1px solid rgba(245,197,24,.55);border-radius:16px;padding:11px 12px;margin:0 0 10px 0;color:#e8f0ff;box-shadow:0 9px 22px rgba(0,0,0,.30),0 0 18px rgba(74,158,255,.14),inset 0 1px 0 rgba(255,255,255,.06);display:flex;gap:10px;align-items:center;cursor:pointer;touch-action:manipulation;overflow:hidden;position:relative;">'+
+            '<span class="home-alert-icon" style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 32% 24%,#fff7b8 0%,#f5c518 36%,#b77c00 100%);color:#06121f;display:flex;align-items:center;justify-content:center;font-family:Russo One,sans-serif;font-size:17px;flex-shrink:0;box-shadow:0 0 16px rgba(245,197,24,.34);">🎤</span>'+
+            '<span class="home-alert-copy" style="flex:1;min-width:0;position:relative;z-index:1;">'+
+              '<span class="home-alert-kicker" style="display:block;font-family:Russo One,sans-serif;color:#f5c518;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;">Rehearsal on Deck</span>'+ 
+              '<span class="home-alert-main" style="display:block;color:#fff;font-size:14px;font-weight:800;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_rhInput.titleEscaped+'</span>'+ 
+              '<span class="home-alert-sub" style="display:block;color:#9fc2ff;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_rhInput.subEscaped+'</span>'+ 
+              _rhNoteHtml+
+            '</span>'+
+          '</button>',
+        sourceBranch: _rhInput.sourceBranch,
+        imageRefreshReason: 'rehearsal-cue visible',
+        diagTag: 'renderHomeRehearsalCue:visible'
+      };
+    }
+  }
+  if (!_rhView.visible) {
+    try { _recordHomeCueRenderDiag('rehearsal', { visible: false, hasTarget: true, activeCount: 0, sourceBranch: _rhView.sourceBranch || 'hidden-no-rehearsal' }); } catch(e){}
     el.style.display = 'none';
     el.innerHTML = '';
-    try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue hidden no next rehearsal'); } catch(e){}
-    try { if (typeof notifyImageRefresh === 'function') notifyImageRefresh('rehearsal-cue hidden no next rehearsal'); } catch(e){}
-    try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:hidden-no-rehearsal', {}); } catch(e){}
+    try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh(_rhView.imageRefreshReason); } catch(e){}
+    try { if (typeof notifyImageRefresh === 'function') notifyImageRefresh(_rhView.imageRefreshReason); } catch(e){}
+    try { _homeLayoutDiagSnapshot(_rhView.diagTag, {}); } catch(e){}
     try { syncAlertRailState('renderHomeRehearsalCue'); } catch(e){}
     try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeRehearsalCue'); } catch(e){}
     try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:rehearsal'); } catch(e){}
     return;
   }
-  var times = _r535RehearsalTimes(ev);
-  var timeLabel = times.start ? (times.end ? (times.start + ' – ' + times.end) : times.start) : 'Time TBD';
-  var dateLabel = _r535PrettyRehearsalDate(ev);
-  var title = ev.title || 'Band Rehearsal';
-  var sub = dateLabel + ' · ' + timeLabel;
-  var note = ev.note || ev.location || '';
-  var _rhBranch = ev._proposalHomeCue ? 'proposalFallback' : 'rehearsalEvent';
-  try { _recordHomeCueRenderDiag('rehearsal', { visible: true, hasTarget: true, activeCount: 1, sourceBranch: _rhBranch }); } catch(e){}
+  try { _recordHomeCueRenderDiag('rehearsal', { visible: true, hasTarget: true, activeCount: 1, sourceBranch: _rhView.sourceBranch || _rhInput.sourceBranch }); } catch(e){}
   el.style.display = 'block';
-  el.innerHTML =
-    '<button class="home-alert-pill home-alert-rehearsal" type="button" onclick="_r535OpenHomeRehearsal(\''+_r535HomeEscape(String(ev.id||''))+'\')" '+
-    'style="width:100%;text-align:left;background:linear-gradient(135deg,rgba(11,31,76,.98),rgba(5,13,32,.98) 58%,rgba(32,14,57,.96));border:1px solid rgba(245,197,24,.55);border-radius:16px;padding:11px 12px;margin:0 0 10px 0;color:#e8f0ff;box-shadow:0 9px 22px rgba(0,0,0,.30),0 0 18px rgba(74,158,255,.14),inset 0 1px 0 rgba(255,255,255,.06);display:flex;gap:10px;align-items:center;cursor:pointer;touch-action:manipulation;overflow:hidden;position:relative;">'+
-      '<span class="home-alert-icon" style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 32% 24%,#fff7b8 0%,#f5c518 36%,#b77c00 100%);color:#06121f;display:flex;align-items:center;justify-content:center;font-family:Russo One,sans-serif;font-size:17px;flex-shrink:0;box-shadow:0 0 16px rgba(245,197,24,.34);">🎤</span>'+
-      '<span class="home-alert-copy" style="flex:1;min-width:0;position:relative;z-index:1;">'+
-        '<span class="home-alert-kicker" style="display:block;font-family:Russo One,sans-serif;color:#f5c518;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;">Rehearsal on Deck</span>'+ 
-        '<span class="home-alert-main" style="display:block;color:#fff;font-size:14px;font-weight:800;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_r535HomeEscape(title)+'</span>'+ 
-        '<span class="home-alert-sub" style="display:block;color:#9fc2ff;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_r535HomeEscape(sub)+'</span>'+ 
-        (note ? '<span class="home-alert-note" style="display:block;color:#8aa8d6;font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_r535HomeEscape(note)+'</span>' : '')+
-      '</span>'+
-    '</button>';
-  try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue visible'); } catch(e){}
-  try { if (typeof notifyImageRefresh === 'function') notifyImageRefresh('rehearsal-cue visible'); } catch(e){}
-  try { _homeLayoutDiagSnapshot('renderHomeRehearsalCue:visible', {}); } catch(e){}
+  el.innerHTML = _rhView.html;
+  try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh(_rhView.imageRefreshReason); } catch(e){}
+  try { if (typeof notifyImageRefresh === 'function') notifyImageRefresh(_rhView.imageRefreshReason); } catch(e){}
+  try { _homeLayoutDiagSnapshot(_rhView.diagTag, {}); } catch(e){}
   try { syncAlertRailState('renderHomeRehearsalCue'); } catch(e){}
   try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeRehearsalCue'); } catch(e){}
   try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:rehearsal'); } catch(e){}

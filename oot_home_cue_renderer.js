@@ -1,10 +1,10 @@
-// Phase 6l-c/6l-d: Home cue renderer scaffold + song-vote view builder.
-// Returns HTML/visibility decisions only; index.html applies DOM. Rehearsal cue still legacy-owned.
+// Phase 6l-c/6l-d/6l-e: Home cue renderer scaffold + song-vote/rehearsal view builders.
+// Returns HTML/visibility decisions only; index.html applies DOM.
 
 (function (window) {
   'use strict';
 
-  var PHASE = '6l-d-song-vote-routing';
+  var PHASE = '6l-e-rehearsal-routing';
   var SCAFFOLD = true;
 
   var CUE_IDS = {
@@ -20,7 +20,7 @@
   var _state = {
     phase: PHASE,
     scaffold: SCAFFOLD,
-    routed: { songVote: true, rehearsal: false },
+    routed: { songVote: true, rehearsal: true },
     lastSnapshotAt: null,
     snapshotCount: 0
   };
@@ -119,20 +119,93 @@
   }
 
   function renderRehearsalCueSnapshot(input) {
+    var view = buildRehearsalCueView(input);
+    return {
+      cueName: view.cueName,
+      kicker: view.kicker,
+      targetId: view.targetId,
+      visible: view.visible,
+      activeCount: view.activeCount,
+      sourceBranch: view.sourceBranch,
+      hasTarget: view.hasTarget,
+      scaffold: true,
+      rendersDom: false
+    };
+  }
+
+  function buildRehearsalCueView(input) {
     var snap = _normalizeInput(input);
-    var activeCount = typeof snap.activeCount === 'number' ? snap.activeCount : (snap.visible === true ? 1 : 0);
-    var visible = canRenderRehearsalCue(snap);
+    var sourceBranch = snap.sourceBranch || 'hidden-no-rehearsal';
+    var hasTarget = snap.hasTarget !== false;
     _state.lastSnapshotAt = Date.now();
     _state.snapshotCount = (_state.snapshotCount || 0) + 1;
+    _state.routed.rehearsal = true;
+
+    if (sourceBranch === 'hidden-no-events') {
+      return {
+        cueName: 'rehearsal',
+        kicker: KICKERS.rehearsal,
+        targetId: CUE_IDS.rehearsal,
+        visible: false,
+        html: '',
+        sourceBranch: sourceBranch,
+        activeCount: 0,
+        hasTarget: hasTarget,
+        imageRefreshReason: 'rehearsal-cue hidden no events',
+        diagTag: 'renderHomeRehearsalCue:hidden-no-events',
+        routed: true,
+        rendersDom: false
+      };
+    }
+
+    if (sourceBranch === 'hidden-no-rehearsal') {
+      return {
+        cueName: 'rehearsal',
+        kicker: KICKERS.rehearsal,
+        targetId: CUE_IDS.rehearsal,
+        visible: false,
+        html: '',
+        sourceBranch: sourceBranch,
+        activeCount: 0,
+        hasTarget: hasTarget,
+        imageRefreshReason: 'rehearsal-cue hidden no next rehearsal',
+        diagTag: 'renderHomeRehearsalCue:hidden-no-rehearsal',
+        routed: true,
+        rendersDom: false
+      };
+    }
+
+    var evIdEscaped = snap.evIdEscaped || '';
+    var titleEscaped = snap.titleEscaped || 'Band Rehearsal';
+    var subEscaped = snap.subEscaped || '';
+    var noteEscaped = snap.noteEscaped || '';
+    var noteHtml = snap.hasNote
+      ? ('<span class="home-alert-note" style="display:block;color:#8aa8d6;font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + noteEscaped + '</span>')
+      : '';
+    var html =
+      '<button class="home-alert-pill home-alert-rehearsal" type="button" onclick="_r535OpenHomeRehearsal(\'' + evIdEscaped + '\')" ' +
+      'style="width:100%;text-align:left;background:linear-gradient(135deg,rgba(11,31,76,.98),rgba(5,13,32,.98) 58%,rgba(32,14,57,.96));border:1px solid rgba(245,197,24,.55);border-radius:16px;padding:11px 12px;margin:0 0 10px 0;color:#e8f0ff;box-shadow:0 9px 22px rgba(0,0,0,.30),0 0 18px rgba(74,158,255,.14),inset 0 1px 0 rgba(255,255,255,.06);display:flex;gap:10px;align-items:center;cursor:pointer;touch-action:manipulation;overflow:hidden;position:relative;">' +
+        '<span class="home-alert-icon" style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 32% 24%,#fff7b8 0%,#f5c518 36%,#b77c00 100%);color:#06121f;display:flex;align-items:center;justify-content:center;font-family:Russo One,sans-serif;font-size:17px;flex-shrink:0;box-shadow:0 0 16px rgba(245,197,24,.34);">\uD83C\uDFA4</span>' +
+        '<span class="home-alert-copy" style="flex:1;min-width:0;position:relative;z-index:1;">' +
+          '<span class="home-alert-kicker" style="display:block;font-family:Russo One,sans-serif;color:#f5c518;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;">Rehearsal on Deck</span>' +
+          '<span class="home-alert-main" style="display:block;color:#fff;font-size:14px;font-weight:800;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + titleEscaped + '</span>' +
+          '<span class="home-alert-sub" style="display:block;color:#9fc2ff;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + subEscaped + '</span>' +
+          noteHtml +
+        '</span>' +
+      '</button>';
+
     return {
       cueName: 'rehearsal',
       kicker: KICKERS.rehearsal,
       targetId: CUE_IDS.rehearsal,
-      visible: visible,
-      activeCount: activeCount,
-      sourceBranch: snap.sourceBranch || null,
-      hasTarget: snap.hasTarget !== false,
-      scaffold: true,
+      visible: true,
+      html: html,
+      sourceBranch: sourceBranch,
+      activeCount: 1,
+      hasTarget: hasTarget,
+      imageRefreshReason: 'rehearsal-cue visible',
+      diagTag: 'renderHomeRehearsalCue:visible',
+      routed: true,
       rendersDom: false
     };
   }
@@ -166,7 +239,7 @@
     return {
       phase: PHASE,
       scaffold: SCAFFOLD,
-      routed: { songVote: true, rehearsal: false },
+      routed: { songVote: true, rehearsal: true },
       owner: 'legacy-index-html-apply',
       methods: [
         'getState',
@@ -175,6 +248,7 @@
         'canRenderSongVoteCue',
         'canRenderRehearsalCue',
         'buildSongVoteCueView',
+        'buildRehearsalCueView',
         'renderSongVoteCueSnapshot',
         'renderRehearsalCueSnapshot'
       ],
@@ -191,6 +265,7 @@
     canRenderSongVoteCue: canRenderSongVoteCue,
     canRenderRehearsalCue: canRenderRehearsalCue,
     buildSongVoteCueView: buildSongVoteCueView,
+    buildRehearsalCueView: buildRehearsalCueView,
     renderSongVoteCueSnapshot: renderSongVoteCueSnapshot,
     renderRehearsalCueSnapshot: renderRehearsalCueSnapshot,
     CUE_IDS: CUE_IDS,
