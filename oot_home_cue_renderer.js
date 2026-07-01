@@ -1,9 +1,9 @@
-// Phase 6l-c/6l-d/6l-e/6l-f: Home cue renderer scaffold, view builders, shared DOM apply.
+// Phase 6l-c/6l-d/6l-e/6l-f/6l-h: Home cue renderer scaffold, view builders, shared DOM apply, Song Vote wrapper.
 
 (function (window) {
   'use strict';
 
-  var PHASE = '6l-f-home-cue-apply-seam';
+  var PHASE = '6l-h-song-vote-render-wrapper';
   var SCAFFOLD = true;
 
   var CUE_IDS = {
@@ -239,6 +239,41 @@
     }
   }
 
+  function renderSongVoteCue(targetEl, input) {
+    try {
+      if (!targetEl) {
+        return {
+          rendered: false,
+          visible: false,
+          sourceBranch: 'none',
+          applied: false,
+          htmlLength: 0,
+          rendersDom: false
+        };
+      }
+      var view = buildSongVoteCueView(input);
+      var applyResult = applyCueView(targetEl, view);
+      return {
+        rendered: true,
+        visible: view.visible === true,
+        sourceBranch: view.sourceBranch || 'none',
+        activeCount: typeof view.activeCount === 'number' ? view.activeCount : 0,
+        applied: applyResult.applied === true,
+        htmlLength: applyResult.htmlLength || 0,
+        rendersDom: true
+      };
+    } catch (e) {
+      return {
+        rendered: false,
+        visible: false,
+        sourceBranch: 'none',
+        applied: false,
+        htmlLength: 0,
+        rendersDom: false
+      };
+    }
+  }
+
   function getState() {
     return {
       phase: _state.phase,
@@ -279,6 +314,7 @@
         'buildSongVoteCueView',
         'buildRehearsalCueView',
         'applyCueView',
+        'renderSongVoteCue',
         'renderSongVoteCueSnapshot',
         'renderRehearsalCueSnapshot'
       ],
@@ -297,6 +333,7 @@
     buildSongVoteCueView: buildSongVoteCueView,
     buildRehearsalCueView: buildRehearsalCueView,
     applyCueView: applyCueView,
+    renderSongVoteCue: renderSongVoteCue,
     renderSongVoteCueSnapshot: renderSongVoteCueSnapshot,
     renderRehearsalCueSnapshot: renderRehearsalCueSnapshot,
     CUE_IDS: CUE_IDS,

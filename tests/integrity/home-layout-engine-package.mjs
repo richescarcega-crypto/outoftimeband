@@ -345,6 +345,9 @@ function assertIndexHtmlChangesAllowed(html) {
     /_rhInput\.noteEscaped =/,
     /_rhInput\.hasNote =/,
     /_svView = _svCr\.buildSongVoteCueView\(\{/,
+    /_svView = _svCr\.buildSongVoteCueView\(_buildHomeSongVoteCueInput/,
+    /if \(_svCr && typeof _svCr\.buildSongVoteCueView === 'function'\)/,
+    /^\s+_applyHomeCueView\(el, _svView\);$/,
     /^\s+cueItems: cueItems,$/,
     /^\s+userSpecific: userSpecific,$/,
     /^\s+sourceBranch: sourceBranch,$/,
@@ -851,6 +854,42 @@ function assertIndexHtmlChangesAllowed(html) {
       continue;
     }
     if (/buildSongVoteCueView\(_buildHomeSongVoteCueInput/.test(line)) {
+      continue;
+    }
+    if (/var _svModuleApplied = false/.test(line)) {
+      continue;
+    }
+    if (/renderSongVoteCue === 'function'/.test(line)) {
+      continue;
+    }
+    if (/renderSongVoteCue\(el, _svInput\)/.test(line)) {
+      continue;
+    }
+    if (/if \(_svOut && _svOut\.rendered\)/.test(line)) {
+      continue;
+    }
+    if (/_svModuleApplied = true/.test(line)) {
+      continue;
+    }
+    if (/visible: !!_svOut\.visible/.test(line)) {
+      continue;
+    }
+    if (/sourceBranch: _svOut\.sourceBranch/.test(line)) {
+      continue;
+    }
+    if (/html: ''/.test(line)) {
+      continue;
+    }
+    if (/var _svCrFb =/.test(line)) {
+      continue;
+    }
+    if (/if \(_svCrFb && typeof _svCrFb\.buildSongVoteCueView === 'function'\)/.test(line)) {
+      continue;
+    }
+    if (/if \(!_svModuleApplied\)/.test(line)) {
+      continue;
+    }
+    if (/var _svInput = _buildHomeSongVoteCueInput/.test(line)) {
       continue;
     }
     if (/_buildHomeSongVoteCueInput\(cueItems, userSpecific, sourceBranch\)/.test(line)) {
