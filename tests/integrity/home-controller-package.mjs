@@ -894,6 +894,7 @@ function assertPhase6lCHomeCueRendererScaffold(html) {
     'buildRehearsalCueView',
     'applyCueView',
     'renderSongVoteCue',
+    'renderRehearsalCue',
     'renderSongVoteCueSnapshot',
     'renderRehearsalCueSnapshot',
   ];
@@ -1071,13 +1072,13 @@ function assertPhase6lERehearsalCueRouting(html) {
     fail('renderHomeRehearsalCue must resolve OOT.home.cueRenderer adapter');
   }
   if (!rehearsalBody.includes('buildRehearsalCueView')) {
-    fail('renderHomeRehearsalCue must call buildRehearsalCueView on normal path');
+    fail('renderHomeRehearsalCue must retain buildRehearsalCueView fallback routing');
   }
   if (!rehearsalBody.includes('if (!_rhView)')) {
     fail('renderHomeRehearsalCue must retain legacy fallback when buildRehearsalCueView is unavailable');
   }
   if (!rehearsalBody.includes('_applyHomeCueView(el, _rhView)')) {
-    fail('renderHomeRehearsalCue must apply cue view via shared _applyHomeCueView helper');
+    fail('renderHomeRehearsalCue must retain _applyHomeCueView fallback apply path');
   }
   if (!rehearsalBody.includes('_r535OpenHomeRehearsal')) {
     fail('renderHomeRehearsalCue fallback must preserve _r535OpenHomeRehearsal onclick handler');
@@ -1110,7 +1111,7 @@ function assertPhase6lFHomeCueApplySeam(html) {
   }
 
   const applyStart = cueRendererJs.indexOf('function applyCueView');
-  const applyEnd = cueRendererJs.indexOf('function renderSongVoteCue', applyStart);
+  const applyEnd = cueRendererJs.indexOf('function renderSongVoteCue(targetEl, input)', applyStart);
   if (applyStart === -1 || applyEnd === -1) {
     fail('Could not locate applyCueView body in oot_home_cue_renderer.js');
   }
@@ -1164,8 +1165,8 @@ function assertPhase6lFHomeCueApplySeam(html) {
   if (!songBody.includes('_applyHomeCueView(el, _svView)')) {
     fail('renderHomeSongVoteCue must retain _applyHomeCueView fallback apply path');
   }
-  if ((rehearsalBody.match(/_applyHomeCueView\(el, _rhView\)/g) || []).length !== 2) {
-    fail('renderHomeRehearsalCue must call _applyHomeCueView on hidden and visible paths');
+  if (!rehearsalBody.includes('_applyHomeCueView(el, _rhView)')) {
+    fail('renderHomeRehearsalCue must retain _applyHomeCueView fallback apply path');
   }
 
   if (!html.includes('Song Vote Pending') || !html.includes('Rehearsal on Deck')) {
@@ -1251,7 +1252,10 @@ function assertPhase6lGHomeCueInputBuilders(html) {
     fail('renderHomeRehearsalCue must call _buildHomeRehearsalCueInput');
   }
   if (!rehearsalBody.includes('buildRehearsalCueView')) {
-    fail('renderHomeRehearsalCue must retain buildRehearsalCueView routing');
+    fail('renderHomeRehearsalCue must retain buildRehearsalCueView fallback routing');
+  }
+  if (!rehearsalBody.includes('renderRehearsalCue')) {
+    fail('renderHomeRehearsalCue must route normal path through renderRehearsalCue');
   }
   if (!songBody.includes('if (!_svView)')) {
     fail('renderHomeSongVoteCue must retain legacy view fallback');
@@ -1263,7 +1267,7 @@ function assertPhase6lGHomeCueInputBuilders(html) {
     fail('renderHomeSongVoteCue must retain shared apply seam fallback path');
   }
   if (!rehearsalBody.includes('_applyHomeCueView(el, _rhView)')) {
-    fail('renderHomeRehearsalCue must retain shared apply seam');
+    fail('renderHomeRehearsalCue must retain shared apply seam fallback path');
   }
   if (!html.includes('function _legacyApplyHomeCueView') || !html.includes('function _applyHomeCueView')) {
     fail('Phase 6l-g must preserve shared apply seam helpers');
@@ -1301,8 +1305,8 @@ function assertPhase6lHSongVoteRenderWrapper(html) {
     fail('oot_home_cue_renderer.js must define renderSongVoteCue for Phase 6l-h wrapper');
   }
 
-  const wrapperStart = cueRendererJs.indexOf('function renderSongVoteCue');
-  const wrapperEnd = cueRendererJs.indexOf('function getState', wrapperStart);
+  const wrapperStart = cueRendererJs.indexOf('function renderSongVoteCue(targetEl, input)');
+  const wrapperEnd = cueRendererJs.indexOf('function renderRehearsalCue(targetEl, input)', wrapperStart);
   if (wrapperStart === -1 || wrapperEnd === -1) {
     fail('Could not locate renderSongVoteCue body in oot_home_cue_renderer.js');
   }
@@ -1371,10 +1375,10 @@ function assertPhase6lHSongVoteRenderWrapper(html) {
     fail('renderHomeRehearsalCue must not route through renderSongVoteCue');
   }
   if (!rehearsalBody.includes('buildRehearsalCueView')) {
-    fail('renderHomeRehearsalCue must retain existing buildRehearsalCueView routing');
+    fail('renderHomeRehearsalCue must retain buildRehearsalCueView fallback routing');
   }
   if (!rehearsalBody.includes('_applyHomeCueView(el, _rhView)')) {
-    fail('renderHomeRehearsalCue must retain existing shared apply path');
+    fail('renderHomeRehearsalCue must retain _applyHomeCueView fallback apply path');
   }
 
   if (!html.includes('Song Vote Pending') || !html.includes('Rehearsal on Deck')) {
@@ -1399,6 +1403,110 @@ function assertPhase6lHSongVoteRenderWrapper(html) {
   }
 }
 
+function assertPhase6lIRehearsalRenderWrapper(html) {
+  const cueRendererJs = read('oot_home_cue_renderer.js');
+
+  if (!cueRendererJs.includes('function renderRehearsalCue')) {
+    fail('oot_home_cue_renderer.js must define renderRehearsalCue for Phase 6l-i wrapper');
+  }
+
+  const wrapperStart = cueRendererJs.indexOf('function renderRehearsalCue(targetEl, input)');
+  const wrapperEnd = cueRendererJs.indexOf('function getState', wrapperStart);
+  if (wrapperStart === -1 || wrapperEnd === -1) {
+    fail('Could not locate renderRehearsalCue body in oot_home_cue_renderer.js');
+  }
+  const wrapperBody = cueRendererJs.slice(wrapperStart, wrapperEnd);
+
+  if (!wrapperBody.includes('buildRehearsalCueView')) {
+    fail('renderRehearsalCue must call buildRehearsalCueView');
+  }
+  if (!wrapperBody.includes('applyCueView')) {
+    fail('renderRehearsalCue must call applyCueView');
+  }
+  for (const call of CUE_RENDERER_FORBIDDEN_CALLS) {
+    if (wrapperBody.includes(call)) {
+      fail(`renderRehearsalCue must not reference forbidden behavior: ${call}`);
+    }
+  }
+  if (wrapperBody.includes('localStorage')) {
+    fail('renderRehearsalCue must not write localStorage');
+  }
+  if (wrapperBody.includes('setProperty')) {
+    fail('renderRehearsalCue must not write CSS vars');
+  }
+  if (/\brHome\s*\(/.test(wrapperBody)) {
+    fail('renderRehearsalCue must not call rHome');
+  }
+  if (!wrapperBody.includes('rendersDom: true')) {
+    fail('renderRehearsalCue must declare rendersDom: true on success');
+  }
+
+  if (!cueRendererJs.includes('function buildRehearsalCueView')) {
+    fail('oot_home_cue_renderer.js must retain buildRehearsalCueView');
+  }
+  if (!cueRendererJs.includes('function applyCueView')) {
+    fail('oot_home_cue_renderer.js must retain applyCueView');
+  }
+  if (!cueRendererJs.includes('function renderSongVoteCue')) {
+    fail('oot_home_cue_renderer.js must retain renderSongVoteCue');
+  }
+
+  const songStart = html.indexOf('function renderHomeSongVoteCue');
+  const songEnd = html.indexOf('// r810: unordered fallback listeners', songStart);
+  const rehearsalStart = html.indexOf('function renderHomeRehearsalCue');
+  const rehearsalEnd = html.indexOf('function renderHomeSongVoteCue');
+  if (songStart === -1 || songEnd === -1 || rehearsalStart === -1 || rehearsalEnd === -1) {
+    fail('Could not locate alert-row cue render function bodies for Phase 6l-i');
+  }
+  const songBody = html.slice(songStart, songEnd);
+  const rehearsalBody = html.slice(rehearsalStart, rehearsalEnd);
+
+  if (!rehearsalBody.includes('_buildHomeRehearsalCueInput(')) {
+    fail('renderHomeRehearsalCue must preserve _buildHomeRehearsalCueInput packaging');
+  }
+  if (!rehearsalBody.includes('renderRehearsalCue')) {
+    fail('renderHomeRehearsalCue must call cueRenderer.renderRehearsalCue on normal path');
+  }
+  if (!rehearsalBody.includes('buildRehearsalCueView')) {
+    fail('renderHomeRehearsalCue must retain buildRehearsalCueView fallback routing');
+  }
+  if (!rehearsalBody.includes('_applyHomeCueView(el, _rhView)')) {
+    fail('renderHomeRehearsalCue must retain _applyHomeCueView fallback apply path');
+  }
+  if (!rehearsalBody.includes('if (!_rhView)')) {
+    fail('renderHomeRehearsalCue must retain legacy inline view fallback');
+  }
+  if (!rehearsalBody.includes('if (!_rhModuleApplied)')) {
+    fail('renderHomeRehearsalCue must skip fallback apply when module wrapper applied DOM');
+  }
+  if (!rehearsalBody.includes('Rehearsal on Deck')) {
+    fail('renderHomeRehearsalCue fallback must preserve Rehearsal on Deck kicker string');
+  }
+  if (!rehearsalBody.includes('_r535OpenHomeRehearsal')) {
+    fail('renderHomeRehearsalCue fallback must preserve _r535OpenHomeRehearsal onclick handler');
+  }
+  if (!songBody.includes('renderSongVoteCue')) {
+    fail('renderHomeSongVoteCue must remain on renderSongVoteCue path');
+  }
+  if (rehearsalBody.includes('renderSongVoteCue')) {
+    fail('renderHomeRehearsalCue must not route through renderSongVoteCue');
+  }
+
+  const proposalStart = html.indexOf('function renderPendingProposalCue');
+  const proposalEnd = html.indexOf('function _resetCalendarScrollToTop', proposalStart);
+  if (proposalStart === -1 || proposalEnd === -1) {
+    fail('Could not locate renderPendingProposalCue for untouched guard');
+  }
+  const proposalBody = html.slice(proposalStart, proposalEnd);
+  if (proposalBody.includes('renderRehearsalCue')) {
+    fail('renderPendingProposalCue must remain untouched by Phase 6l-i Rehearsal wrapper');
+  }
+
+  if (html.includes('data-home-layout-mode="modular-inflow"')) {
+    fail('index.html must not default static Home markup to modular-inflow');
+  }
+}
+
 function report() {
   if (warnings.length) {
     console.warn('Warnings:');
@@ -1410,7 +1518,7 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6l-h Song Vote render wrapper checks.');
+  console.log('PASS: Phase 6l-i Rehearsal render wrapper checks.');
 }
 
 function main() {
@@ -1454,6 +1562,7 @@ function main() {
   assertPhase6lFHomeCueApplySeam(html);
   assertPhase6lGHomeCueInputBuilders(html);
   assertPhase6lHSongVoteRenderWrapper(html);
+  assertPhase6lIRehearsalRenderWrapper(html);
 
   report();
 }

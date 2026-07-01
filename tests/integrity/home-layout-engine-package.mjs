@@ -347,7 +347,10 @@ function assertIndexHtmlChangesAllowed(html) {
     /_svView = _svCr\.buildSongVoteCueView\(\{/,
     /_svView = _svCr\.buildSongVoteCueView\(_buildHomeSongVoteCueInput/,
     /if \(_svCr && typeof _svCr\.buildSongVoteCueView === 'function'\)/,
+    /if \(_rhCr && typeof _rhCr\.buildRehearsalCueView === 'function'\)/,
+    /_rhView = _rhCr\.buildRehearsalCueView\(_rhInput\)/,
     /^\s+_applyHomeCueView\(el, _svView\);$/,
+    /^\s+_applyHomeCueView\(el, _rhView\);$/,
     /^\s+cueItems: cueItems,$/,
     /^\s+userSpecific: userSpecific,$/,
     /^\s+sourceBranch: sourceBranch,$/,
@@ -887,6 +890,42 @@ function assertIndexHtmlChangesAllowed(html) {
       continue;
     }
     if (/if \(!_svModuleApplied\)/.test(line)) {
+      continue;
+    }
+    if (/var _rhModuleApplied = false/.test(line)) {
+      continue;
+    }
+    if (/renderRehearsalCue === 'function'/.test(line)) {
+      continue;
+    }
+    if (/renderRehearsalCue\(el, _rhInput\)/.test(line)) {
+      continue;
+    }
+    if (/if \(_rhOut && _rhOut\.rendered\)/.test(line)) {
+      continue;
+    }
+    if (/_rhModuleApplied = true/.test(line)) {
+      continue;
+    }
+    if (/visible: !!_rhOut\.visible/.test(line)) {
+      continue;
+    }
+    if (/sourceBranch: _rhOut\.sourceBranch/.test(line)) {
+      continue;
+    }
+    if (/imageRefreshReason: _rhOut\.imageRefreshReason/.test(line)) {
+      continue;
+    }
+    if (/diagTag: _rhOut\.diagTag/.test(line)) {
+      continue;
+    }
+    if (/var _rhCrFb =/.test(line)) {
+      continue;
+    }
+    if (/if \(_rhCrFb && typeof _rhCrFb\.buildRehearsalCueView === 'function'\)/.test(line)) {
+      continue;
+    }
+    if (/if \(!_rhModuleApplied\)/.test(line)) {
       continue;
     }
     if (/var _svInput = _buildHomeSongVoteCueInput/.test(line)) {

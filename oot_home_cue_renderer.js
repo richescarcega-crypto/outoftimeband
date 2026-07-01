@@ -1,9 +1,9 @@
-// Phase 6l-c/6l-d/6l-e/6l-f/6l-h: Home cue renderer scaffold, view builders, shared DOM apply, Song Vote wrapper.
+// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers.
 
 (function (window) {
   'use strict';
 
-  var PHASE = '6l-h-song-vote-render-wrapper';
+  var PHASE = '6l-i-rehearsal-render-wrapper';
   var SCAFFOLD = true;
 
   var CUE_IDS = {
@@ -274,6 +274,43 @@
     }
   }
 
+  function renderRehearsalCue(targetEl, input) {
+    try {
+      if (!targetEl) {
+        return {
+          rendered: false,
+          visible: false,
+          sourceBranch: 'hidden-no-rehearsal',
+          applied: false,
+          htmlLength: 0,
+          rendersDom: false
+        };
+      }
+      var view = buildRehearsalCueView(input);
+      var applyResult = applyCueView(targetEl, view);
+      return {
+        rendered: true,
+        visible: view.visible === true,
+        sourceBranch: view.sourceBranch || 'hidden-no-rehearsal',
+        activeCount: typeof view.activeCount === 'number' ? view.activeCount : 0,
+        imageRefreshReason: view.imageRefreshReason || '',
+        diagTag: view.diagTag || '',
+        applied: applyResult.applied === true,
+        htmlLength: applyResult.htmlLength || 0,
+        rendersDom: true
+      };
+    } catch (e) {
+      return {
+        rendered: false,
+        visible: false,
+        sourceBranch: 'hidden-no-rehearsal',
+        applied: false,
+        htmlLength: 0,
+        rendersDom: false
+      };
+    }
+  }
+
   function getState() {
     return {
       phase: _state.phase,
@@ -315,6 +352,7 @@
         'buildRehearsalCueView',
         'applyCueView',
         'renderSongVoteCue',
+        'renderRehearsalCue',
         'renderSongVoteCueSnapshot',
         'renderRehearsalCueSnapshot'
       ],
@@ -334,6 +372,7 @@
     buildRehearsalCueView: buildRehearsalCueView,
     applyCueView: applyCueView,
     renderSongVoteCue: renderSongVoteCue,
+    renderRehearsalCue: renderRehearsalCue,
     renderSongVoteCueSnapshot: renderSongVoteCueSnapshot,
     renderRehearsalCueSnapshot: renderRehearsalCueSnapshot,
     CUE_IDS: CUE_IDS,

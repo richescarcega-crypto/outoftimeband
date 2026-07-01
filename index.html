@@ -22797,12 +22797,31 @@ function renderHomeRehearsalCue(){
     }
   }
   var _rhView = null;
+  var _rhModuleApplied = false;
   try {
     var _rhCr = window.OOT && window.OOT.home && window.OOT.home.cueRenderer;
-    if (_rhCr && typeof _rhCr.buildRehearsalCueView === 'function') {
-      _rhView = _rhCr.buildRehearsalCueView(_rhInput);
+    if (_rhCr && typeof _rhCr.renderRehearsalCue === 'function') {
+      var _rhOut = _rhCr.renderRehearsalCue(el, _rhInput);
+      if (_rhOut && _rhOut.rendered) {
+        _rhModuleApplied = true;
+        _rhView = {
+          visible: !!_rhOut.visible,
+          sourceBranch: _rhOut.sourceBranch || _rhInput.sourceBranch || 'hidden-no-rehearsal',
+          imageRefreshReason: _rhOut.imageRefreshReason || '',
+          diagTag: _rhOut.diagTag || '',
+          html: ''
+        };
+      }
     }
   } catch(e){}
+  if (!_rhView) {
+    try {
+      var _rhCrFb = window.OOT && window.OOT.home && window.OOT.home.cueRenderer;
+      if (_rhCrFb && typeof _rhCrFb.buildRehearsalCueView === 'function') {
+        _rhView = _rhCrFb.buildRehearsalCueView(_rhInput);
+      }
+    } catch(e){}
+  }
   if (!_rhView) {
     if (_rhInput.sourceBranch === 'hidden-no-events') {
       _rhView = {
@@ -22845,7 +22864,7 @@ function renderHomeRehearsalCue(){
   }
   if (!_rhView.visible) {
     try { _recordHomeCueRenderDiag('rehearsal', { visible: false, hasTarget: true, activeCount: 0, sourceBranch: _rhView.sourceBranch || 'hidden-no-rehearsal' }); } catch(e){}
-    _applyHomeCueView(el, _rhView);
+    if (!_rhModuleApplied) _applyHomeCueView(el, _rhView);
     try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh(_rhView.imageRefreshReason); } catch(e){}
     try { if (typeof notifyImageRefresh === 'function') notifyImageRefresh(_rhView.imageRefreshReason); } catch(e){}
     try { _homeLayoutDiagSnapshot(_rhView.diagTag, {}); } catch(e){}
@@ -22855,7 +22874,7 @@ function renderHomeRehearsalCue(){
     return;
   }
   try { _recordHomeCueRenderDiag('rehearsal', { visible: true, hasTarget: true, activeCount: 1, sourceBranch: _rhView.sourceBranch || _rhInput.sourceBranch }); } catch(e){}
-  _applyHomeCueView(el, _rhView);
+  if (!_rhModuleApplied) _applyHomeCueView(el, _rhView);
   try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh(_rhView.imageRefreshReason); } catch(e){}
   try { if (typeof notifyImageRefresh === 'function') notifyImageRefresh(_rhView.imageRefreshReason); } catch(e){}
   try { _homeLayoutDiagSnapshot(_rhView.diagTag, {}); } catch(e){}
