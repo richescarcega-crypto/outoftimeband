@@ -23885,6 +23885,19 @@ function _wireGigCounterDoubleTap(){
   });
 }
 
+var _homeGigSlotReconcileSig = null;
+function _maybeRequestHomeGigReconcile(nextState, gigKey) {
+  try {
+    var sig = nextState + '|' + (gigKey || '');
+    if (sig === _homeGigSlotReconcileSig) return;
+    var _hs = document.getElementById('sc-home');
+    if (!_hs || !_hs.classList.contains('on')) return;
+    if (typeof requestHomeReconcile !== 'function') return;
+    _homeGigSlotReconcileSig = sig;
+    requestHomeReconcile('gig:' + nextState);
+  } catch(e){}
+}
+
 function updateCountdown(){
   var card = document.getElementById('next-gig-countdown');
   if(!card) return;
@@ -23895,6 +23908,7 @@ function updateCountdown(){
   if(!_eventsHasInit && (!events || !events.length)){
     try { reserveGigSlotPending(); } catch(e){}
     try { if (typeof notifyGigSlotChange === 'function') notifyGigSlotChange('updateCountdown:pending'); } catch(e){}
+    try { _maybeRequestHomeGigReconcile('pending', ''); } catch(e){}
     return;
   }
 
@@ -23907,6 +23921,7 @@ function updateCountdown(){
     renderNoGigsCard();
     try { syncGigSlotState('updateCountdown:no-gigs'); } catch(e){}
     try { if (typeof notifyGigSlotChange === 'function') notifyGigSlotChange('updateCountdown:no-gigs'); } catch(e){}
+    try { _maybeRequestHomeGigReconcile('no-gigs', ''); } catch(e){}
     return;
   }
   // Hide the no-gigs card when we have a gig
@@ -23953,6 +23968,10 @@ function updateCountdown(){
   }
   try { syncGigSlotState('updateCountdown:countdown'); } catch(e){}
   try { if (typeof notifyGigSlotChange === 'function') notifyGigSlotChange('updateCountdown:countdown'); } catch(e){}
+  try {
+    var gigKey = String(next.date || '') + '|' + String(next.id || '') + '|' + String(next.title || '');
+    _maybeRequestHomeGigReconcile('countdown', gigKey);
+  } catch(e){}
 }
 
 // ── NO GIGS CARD ─────────────────────────────────────────────────────

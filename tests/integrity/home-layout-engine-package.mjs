@@ -231,7 +231,7 @@ function getGitDiff(relPath) {
   }
 }
 
-/** Phase 6d/6e-c/6g: allow go('home') orchestration delegate + Phase 6c/6e-c/6g notification hooks in index.html. */
+/** Phase 6d/6e-c/6g/6i-a: allow go('home') orchestration delegate + notification/reconcile hooks in index.html. */
 function assertIndexHtmlChangesAllowed(html) {
   if (!html.includes(GO_HOME_ORCHESTRATE_MARKER)) {
     fail(`index.html go('home') must delegate via ${GO_HOME_ORCHESTRATE_MARKER}`);
@@ -304,6 +304,9 @@ function assertIndexHtmlChangesAllowed(html) {
     if (line === PHASE_6A_CONTROLLER_SCRIPT_LINE) {
       continue;
     }
+    if (line.trim() === '') {
+      continue;
+    }
     if (allowedHookRe.test(line)) {
       continue;
     }
@@ -318,6 +321,45 @@ function assertIndexHtmlChangesAllowed(html) {
     if (/requestHomeReconcile\('cue:rehearsal'\)/.test(line) &&
         /getElementById\('sc-home'\)/.test(line) &&
         /classList\.contains\('on'\)/.test(line)) {
+      continue;
+    }
+    if (/_maybeRequestHomeGigReconcile\(/.test(line)) {
+      continue;
+    }
+    if (/var _homeGigSlotReconcileSig/.test(line)) {
+      continue;
+    }
+    if (/function _maybeRequestHomeGigReconcile/.test(line)) {
+      continue;
+    }
+    if (/_homeGigSlotReconcileSig/.test(line)) {
+      continue;
+    }
+    if (/requestHomeReconcile\('gig:' \+ nextState\)/.test(line)) {
+      continue;
+    }
+    if (/var gigKey = String\(next\.date/.test(line)) {
+      continue;
+    }
+    if (/var sig = nextState \+ '\|'/.test(line)) {
+      continue;
+    }
+    if (/if \(sig === _homeGigSlotReconcileSig\) return;/.test(line)) {
+      continue;
+    }
+    if (/var _hs = document\.getElementById\('sc-home'\)/.test(line)) {
+      continue;
+    }
+    if (/if \(!_hs \|\| !_hs\.classList\.contains\('on'\)\) return;/.test(line)) {
+      continue;
+    }
+    if (/if \(typeof requestHomeReconcile !== 'function'\) return;/.test(line)) {
+      continue;
+    }
+    if (/^\s*\} catch\(e\)\{\}$/.test(line)) {
+      continue;
+    }
+    if (line.trim() === '}') {
       continue;
     }
     var matched = false;
