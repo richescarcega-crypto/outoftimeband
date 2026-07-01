@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Static Phase 6i-a Home controller gig timer-safe reconcile checks. Test-only.
+ * Static Phase 6i-a + Phase 6k-b Home controller integrity checks. Test-only.
  */
 
 import fs from 'node:fs';
@@ -541,6 +541,84 @@ function assertPhase6iGigTimerSafePilot(html) {
   }
 }
 
+function assertPhase6kBRHomeTailDiag(html) {
+  if (!html.includes('window.__ootRHomeTailDiag')) {
+    fail('index.html must declare window.__ootRHomeTailDiag read-only diagnostic state');
+  }
+
+  if (!html.includes('function _recordRHomeTailReconcileDiag')) {
+    fail('index.html must define _recordRHomeTailReconcileDiag helper');
+  }
+
+  if (!html.includes('window.__ootGetRHomeTailDiag')) {
+    fail('index.html must expose read-only window.__ootGetRHomeTailDiag getter');
+  }
+
+  const helperStart = html.indexOf('function _recordRHomeTailReconcileDiag');
+  const helperEnd = html.indexOf('function rHome()');
+  if (helperStart === -1 || helperEnd === -1 || helperEnd <= helperStart) {
+    fail('Could not locate _recordRHomeTailReconcileDiag helper body in index.html');
+  }
+  const helperBody = html.slice(helperStart, helperEnd);
+
+  if (/\brequestHomeReconcile\s*\(/.test(helperBody)) {
+    fail('_recordRHomeTailReconcileDiag must not call requestHomeReconcile');
+  }
+  if (/\breconcileHomeLayout\s*\(/.test(helperBody)) {
+    fail('_recordRHomeTailReconcileDiag must not call reconcileHomeLayout');
+  }
+  if (helperBody.includes('localStorage')) {
+    fail('_recordRHomeTailReconcileDiag must not write localStorage');
+  }
+  if (!helperBody.includes('d.recent.length > 10') || !helperBody.includes('d.recent.splice')) {
+    fail('_recordRHomeTailReconcileDiag must cap recent array at 10 entries');
+  }
+
+  const getterStart = html.indexOf('window.__ootGetRHomeTailDiag = function');
+  if (getterStart === -1) {
+    fail('Could not locate __ootGetRHomeTailDiag getter in index.html');
+  }
+  const getterEnd = html.indexOf('function rHome()', getterStart);
+  const getterBody = html.slice(getterStart, getterEnd);
+  if (!getterBody.includes('JSON.parse(JSON.stringify(d))')) {
+    fail('__ootGetRHomeTailDiag must return a JSON clone snapshot');
+  }
+  if (getterBody.includes('requestHomeReconcile') || getterBody.includes('reconcileHomeLayout')) {
+    fail('__ootGetRHomeTailDiag must not call reconcile APIs');
+  }
+
+  const rHomeStart = html.indexOf('function rHome()');
+  const rHomeEnd = html.indexOf('var memsOpen = false;');
+  if (rHomeStart === -1 || rHomeEnd === -1) {
+    fail('Could not locate rHome function body in index.html');
+  }
+  const rHomeBody = html.slice(rHomeStart, rHomeEnd);
+
+  if (!rHomeBody.includes('_recordRHomeTailReconcileDiag()')) {
+    fail('rHome must call _recordRHomeTailReconcileDiag before tail reconcile');
+  }
+
+  const recordPos = rHomeBody.indexOf('_recordRHomeTailReconcileDiag()');
+  const requestPos = rHomeBody.indexOf("requestHomeReconcile('rHome')");
+  const reconcilePos = rHomeBody.indexOf(RHOM_HOOK);
+  if (recordPos === -1 || requestPos === -1 || reconcilePos === -1) {
+    fail('rHome tail must contain record helper, requestHomeReconcile, and reconcileHomeLayout');
+  }
+  if (recordPos >= requestPos || requestPos >= reconcilePos) {
+    fail('rHome tail order must be _recordRHomeTailReconcileDiag then requestHomeReconcile then reconcileHomeLayout');
+  }
+
+  const requestCount = (html.match(/requestHomeReconcile\('rHome'\)/g) || []).length;
+  if (requestCount !== 1) {
+    fail(`index.html must contain exactly one requestHomeReconcile('rHome') hook (found ${requestCount})`);
+  }
+
+  const reconcileCount = (html.match(/reconcileHomeLayout\('rHome'\)/g) || []).length;
+  if (reconcileCount !== 1) {
+    fail(`index.html must contain exactly one reconcileHomeLayout('rHome') hook (found ${reconcileCount})`);
+  }
+}
+
 function report() {
   if (warnings.length) {
     console.warn('Warnings:');
@@ -552,11 +630,11 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6i-a Home controller gig timer-safe reconcile checks.');
+  console.log('PASS: Phase 6k-b Home controller rHome tail diagnostic checks.');
 }
 
 function main() {
-  console.log('Running Phase 6i-a Home controller integrity checks...\n');
+  console.log('Running Phase 6k-b Home controller integrity checks...\n');
 
   for (const relPath of REQUIRED_FILES) {
     if (!exists(relPath)) {
@@ -586,6 +664,7 @@ function main() {
   assertPhase6eCSongVotePilot(html);
   assertPhase6gRehearsalPilot(html);
   assertPhase6iGigTimerSafePilot(html);
+  assertPhase6kBRHomeTailDiag(html);
 
   report();
 }

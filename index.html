@@ -30738,6 +30738,50 @@ function _ensureHomeBandBackdrop(){
   });
 }
 
+window.__ootRHomeTailDiag = window.__ootRHomeTailDiag || {
+  count: 0,
+  lastAt: null,
+  lastOrder: null,
+  recent: [],
+  lastHomeActive: null,
+  lastHadRequestHomeReconcile: null,
+  lastHadReconcileHomeLayout: null
+};
+function _recordRHomeTailReconcileDiag() {
+  try {
+    var d = window.__ootRHomeTailDiag;
+    if (!d) return;
+    var hs = document.getElementById('sc-home');
+    var homeActive = !!(hs && hs.classList.contains('on'));
+    var hadReq = typeof requestHomeReconcile === 'function';
+    var hadRec = typeof reconcileHomeLayout === 'function';
+    d.count = (d.count || 0) + 1;
+    d.lastAt = Date.now();
+    d.lastOrder = 'pre-tail-record';
+    d.lastHomeActive = homeActive;
+    d.lastHadRequestHomeReconcile = hadReq;
+    d.lastHadReconcileHomeLayout = hadRec;
+    if (!Array.isArray(d.recent)) d.recent = [];
+    d.recent.push({
+      at: d.lastAt,
+      order: d.lastOrder,
+      homeActive: homeActive,
+      hadRequestHomeReconcile: hadReq,
+      hadReconcileHomeLayout: hadRec
+    });
+    if (d.recent.length > 10) d.recent.splice(0, d.recent.length - 10);
+  } catch(e){}
+}
+if (typeof window.__ootGetRHomeTailDiag !== 'function') {
+  window.__ootGetRHomeTailDiag = function() {
+    try {
+      var d = window.__ootRHomeTailDiag;
+      if (!d) return null;
+      return JSON.parse(JSON.stringify(d));
+    } catch(e) { return null; }
+  };
+}
+
 function rHome() {
   try {
     if (typeof consumeHomeRHomeActivateSkip === 'function' && consumeHomeRHomeActivateSkip()) { /* orchestrated go path */ }
@@ -30792,6 +30836,7 @@ function rHome() {
   }
   // r76: Upcoming Gigs/Rehearsals/Blackout home cards removed.
   try { _homeLayoutDiagSnapshot('rHome:end', {}); } catch(e){}
+  try { _recordRHomeTailReconcileDiag(); } catch(e){}
   try { if (typeof requestHomeReconcile === 'function') requestHomeReconcile('rHome'); } catch(e){}
   try { reconcileHomeLayout('rHome'); } catch(e){}
 }
