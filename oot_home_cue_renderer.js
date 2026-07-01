@@ -1,10 +1,10 @@
-// Phase 6l-c: Home cue renderer scaffold (metadata-only; no DOM/HTML rendering yet).
-// Legacy index.html renderHomeSongVoteCue / renderHomeRehearsalCue still own visible markup.
+// Phase 6l-c/6l-d: Home cue renderer scaffold + song-vote view builder.
+// Returns HTML/visibility decisions only; index.html applies DOM. Rehearsal cue still legacy-owned.
 
 (function (window) {
   'use strict';
 
-  var PHASE = '6l-c-cue-renderer-scaffold';
+  var PHASE = '6l-d-song-vote-routing';
   var SCAFFOLD = true;
 
   var CUE_IDS = {
@@ -20,7 +20,7 @@
   var _state = {
     phase: PHASE,
     scaffold: SCAFFOLD,
-    routed: false,
+    routed: { songVote: true, rehearsal: false },
     lastSnapshotAt: null,
     snapshotCount: 0
   };
@@ -32,7 +32,9 @@
   function canRenderSongVoteCue(input) {
     var snap = _normalizeInput(input);
     if (snap.hasTarget === false) return false;
-    var count = typeof snap.activeCount === 'number' ? snap.activeCount : 0;
+    var count = typeof snap.activeCount === 'number'
+      ? snap.activeCount
+      : (Array.isArray(snap.cueItems) ? snap.cueItems.length : 0);
     return count > 0;
   }
 
@@ -44,20 +46,73 @@
     return snap.visible === true;
   }
 
-  function renderSongVoteCueSnapshot(input) {
+  function buildSongVoteCueView(input) {
     var snap = _normalizeInput(input);
-    var activeCount = typeof snap.activeCount === 'number' ? snap.activeCount : 0;
-    var visible = canRenderSongVoteCue(snap);
+    var cueItems = Array.isArray(snap.cueItems) ? snap.cueItems.slice() : [];
+    var userSpecific = snap.userSpecific !== false;
+    var sourceBranch = snap.sourceBranch || 'pendingForMe';
+    var hasTarget = snap.hasTarget !== false;
     _state.lastSnapshotAt = Date.now();
     _state.snapshotCount = (_state.snapshotCount || 0) + 1;
+    _state.routed.songVote = true;
+
+    if (!cueItems.length) {
+      return {
+        cueName: 'songVote',
+        kicker: KICKERS.songVote,
+        targetId: CUE_IDS.songVote,
+        visible: false,
+        html: '',
+        sourceBranch: 'none',
+        activeCount: 0,
+        hasTarget: hasTarget,
+        routed: true,
+        rendersDom: false
+      };
+    }
+
+    var label = userSpecific
+      ? (cueItems.length === 1 ? '1 song suggestion needs your vote' : (cueItems.length + ' song suggestions need your vote'))
+      : (cueItems.length === 1 ? '1 song vote still in progress' : (cueItems.length + ' song votes still in progress'));
+    var first = cueItems[0] || {};
+    var detail = first.title
+      ? ('\u201c' + first.title + '\u201d' + (cueItems.length > 1 ? ' + more' : ''))
+      : 'Review the pending suggestion list.';
+    var html =
+      '<button class="home-alert-pill home-alert-song" type="button" onclick="try{go(\'songs\',document.getElementById(\'tb-songs\'));}catch(e){};setTimeout(function(){try{openSongVoteModal();}catch(e){}},80);" ' +
+      'style="width:100%;text-align:left;background:linear-gradient(135deg,rgba(35,111,255,.98),rgba(24,84,235,.98) 54%,rgba(10,49,166,.98));border:1px solid rgba(245,197,24,.88);border-radius:14px;padding:10px 12px;margin:0 0 10px 0;color:#f7fbff;box-shadow:0 10px 24px rgba(0,0,0,.28),0 0 20px rgba(58,137,255,.26),0 0 10px rgba(245,197,24,.10),inset 0 1px 0 rgba(255,255,255,.20);display:flex;gap:10px;align-items:center;cursor:pointer;overflow:hidden;position:relative;">' +
+        '<span class="home-alert-icon" style="width:34px;height:34px;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.24),rgba(210,231,255,.14));border:1px solid rgba(255,255,255,.42);color:#ffffff;display:flex;align-items:center;justify-content:center;font-family:Russo One,sans-serif;font-size:17px;flex-shrink:0;box-shadow:0 0 12px rgba(255,255,255,.10);">♪</span>' +
+        '<span class="home-alert-copy" style="flex:1;min-width:0;">' +
+          '<span class="home-alert-kicker" style="display:block;font-family:Russo One,sans-serif;color:#ffffff;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;text-shadow:0 1px 6px rgba(10,34,92,.24);">Song Vote Pending</span>' +
+          '<span class="home-alert-main" style="display:block;color:#ffffff;font-size:13px;font-weight:700;margin-top:2px;">' + label + '</span>' +
+          '<span class="home-alert-sub" style="display:block;color:#d8e8ff;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + detail + '</span>' +
+        '</span>' +
+      '</button>';
+
     return {
       cueName: 'songVote',
       kicker: KICKERS.songVote,
       targetId: CUE_IDS.songVote,
-      visible: visible,
-      activeCount: activeCount,
-      sourceBranch: snap.sourceBranch || null,
-      hasTarget: snap.hasTarget !== false,
+      visible: true,
+      html: html,
+      sourceBranch: sourceBranch,
+      activeCount: cueItems.length,
+      hasTarget: hasTarget,
+      routed: true,
+      rendersDom: false
+    };
+  }
+
+  function renderSongVoteCueSnapshot(input) {
+    var view = buildSongVoteCueView(input);
+    return {
+      cueName: view.cueName,
+      kicker: view.kicker,
+      targetId: view.targetId,
+      visible: view.visible,
+      activeCount: view.activeCount,
+      sourceBranch: view.sourceBranch,
+      hasTarget: view.hasTarget,
       scaffold: true,
       rendersDom: false
     };
@@ -86,7 +141,10 @@
     return {
       phase: _state.phase,
       scaffold: _state.scaffold,
-      routed: _state.routed,
+      routed: {
+        songVote: !!(_state.routed && _state.routed.songVote),
+        rehearsal: !!(_state.routed && _state.routed.rehearsal)
+      },
       lastSnapshotAt: _state.lastSnapshotAt,
       snapshotCount: _state.snapshotCount,
       cueIds: {
@@ -108,14 +166,15 @@
     return {
       phase: PHASE,
       scaffold: SCAFFOLD,
-      routed: false,
-      owner: 'legacy-index-html',
+      routed: { songVote: true, rehearsal: false },
+      owner: 'legacy-index-html-apply',
       methods: [
         'getState',
         'snapshot',
         'describe',
         'canRenderSongVoteCue',
         'canRenderRehearsalCue',
+        'buildSongVoteCueView',
         'renderSongVoteCueSnapshot',
         'renderRehearsalCueSnapshot'
       ],
@@ -131,6 +190,7 @@
     describe: describe,
     canRenderSongVoteCue: canRenderSongVoteCue,
     canRenderRehearsalCue: canRenderRehearsalCue,
+    buildSongVoteCueView: buildSongVoteCueView,
     renderSongVoteCueSnapshot: renderSongVoteCueSnapshot,
     renderRehearsalCueSnapshot: renderRehearsalCueSnapshot,
     CUE_IDS: CUE_IDS,

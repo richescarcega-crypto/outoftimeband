@@ -285,8 +285,39 @@ function assertIndexHtmlChangesAllowed(html) {
     "      _ootHc.requestRHomeTailReconcile();",
   ]);
 
+  const allowedRemovedRes = [
+    /if\s*\(!cueItems\.length\)/,
+    /_recordHomeCueRenderDiag\('songVote'/,
+    /var label = userSpecific/,
+    /1 song suggestion needs your vote/,
+    /1 song vote still in progress/,
+    /var first = cueItems\[0\]/,
+    /var detail = first\.title/,
+    /el\.innerHTML =$/,
+    /home-alert-pill home-alert-song/,
+    /Song Vote Pending/,
+    /openSongVoteModal/,
+    /home-alert-icon/,
+    /home-alert-copy/,
+    /home-alert-main/,
+    /home-alert-sub/,
+    /linear-gradient\(135deg,rgba\(35,111,255/,
+    /<\/span>'\+/,
+    /<\/button>/,
+  ];
+
   for (const line of removed) {
-    if (!allowedRemoved.has(line)) {
+    if (allowedRemoved.has(line)) {
+      continue;
+    }
+    var removedAllowed = false;
+    for (const re of allowedRemovedRes) {
+      if (re.test(line)) {
+        removedAllowed = true;
+        break;
+      }
+    }
+    if (!removedAllowed) {
       fail(`index.html diff removes disallowed line in Phase 6d: ${line}`);
     }
   }
@@ -474,6 +505,99 @@ function assertIndexHtmlChangesAllowed(html) {
       continue;
     }
     if (/<script src="oot_home_cue_renderer\.js"><\/script>/.test(line)) {
+      continue;
+    }
+    if (/var _svView = null/.test(line)) {
+      continue;
+    }
+    if (/var _svCr = window\.OOT && window\.OOT\.home && window\.OOT\.home\.cueRenderer/.test(line)) {
+      continue;
+    }
+    if (/buildSongVoteCueView\(/.test(line)) {
+      continue;
+    }
+    if (/if \(!_svView\)/.test(line)) {
+      continue;
+    }
+    if (/el\.innerHTML = _svView\.html/.test(line)) {
+      continue;
+    }
+    if (/sourceBranch: _svView\.sourceBranch/.test(line)) {
+      continue;
+    }
+    if (/userSpecific: userSpecific/.test(line)) {
+      continue;
+    }
+    if (/if \(_svCr && typeof _svCr\.buildSongVoteCueView === 'function'\)/.test(line)) {
+      continue;
+    }
+    if (/cueItems: cueItems/.test(line)) {
+      continue;
+    }
+    if (/if \(!cueItems\.length\)/.test(line)) {
+      continue;
+    }
+    if (/var label = userSpecific/.test(line)) {
+      continue;
+    }
+    if (/var first = cueItems\[0\]/.test(line)) {
+      continue;
+    }
+    if (/var detail = first\.title/.test(line)) {
+      continue;
+    }
+    if (/^\s+_svView = \{$/.test(line)) {
+      continue;
+    }
+    if (/^\s+visible: true,$/.test(line)) {
+      continue;
+    }
+    if (/^\s+html:$/.test(line)) {
+      continue;
+    }
+    if (/1 song suggestion needs your vote/.test(line)) {
+      continue;
+    }
+    if (/1 song vote still in progress/.test(line)) {
+      continue;
+    }
+    if (/linear-gradient\(135deg,rgba\(35,111,255/.test(line)) {
+      continue;
+    }
+    if (/<\/span>'\+/.test(line)) {
+      continue;
+    }
+    if (/home-alert-pill home-alert-song/.test(line)) {
+      continue;
+    }
+    if (/home-alert-icon/.test(line)) {
+      continue;
+    }
+    if (/home-alert-copy/.test(line)) {
+      continue;
+    }
+    if (/home-alert-main/.test(line)) {
+      continue;
+    }
+    if (/home-alert-sub/.test(line)) {
+      continue;
+    }
+    if (/Song Vote Pending/.test(line)) {
+      continue;
+    }
+    if (/openSongVoteModal/.test(line)) {
+      continue;
+    }
+    if (/^\s+'<\/button>',$/.test(line)) {
+      continue;
+    }
+    if (/if \(!_svView\.visible\)/.test(line)) {
+      continue;
+    }
+    if (/window\.OOT\.home\.cueRenderer/.test(line)) {
+      continue;
+    }
+    if (/hasTarget: true/.test(line)) {
       continue;
     }
     if (/^\s+(count|lastAt|lastOrder|recent|lastHomeActive|lastHadRequestHomeReconcile|lastHadReconcileHomeLayout|lastCue|byCue):/.test(line)) {

@@ -22791,8 +22791,45 @@ function renderHomeSongVoteCue(){
     userSpecific = false;
     sourceBranch = 'anyActive';
   }
-  if(!cueItems.length){
-    try { _recordHomeCueRenderDiag('songVote', { visible: false, hasTarget: true, activeCount: 0, sourceBranch: 'none' }); } catch(e){}
+  var _svView = null;
+  try {
+    var _svCr = window.OOT && window.OOT.home && window.OOT.home.cueRenderer;
+    if (_svCr && typeof _svCr.buildSongVoteCueView === 'function') {
+      _svView = _svCr.buildSongVoteCueView({
+        cueItems: cueItems,
+        userSpecific: userSpecific,
+        sourceBranch: sourceBranch,
+        hasTarget: true
+      });
+    }
+  } catch(e){}
+  if (!_svView) {
+    if (!cueItems.length) {
+      _svView = { visible: false, html: '', sourceBranch: 'none' };
+    } else {
+      var label = userSpecific
+        ? (cueItems.length === 1 ? '1 song suggestion needs your vote' : (cueItems.length + ' song suggestions need your vote'))
+        : (cueItems.length === 1 ? '1 song vote still in progress' : (cueItems.length + ' song votes still in progress'));
+      var first = cueItems[0] || {};
+      var detail = first.title ? ('“' + first.title + '”' + (cueItems.length>1 ? ' + more' : '')) : 'Review the pending suggestion list.';
+      _svView = {
+        visible: true,
+        html:
+          '<button class="home-alert-pill home-alert-song" type="button" onclick="try{go(\'songs\',document.getElementById(\'tb-songs\'));}catch(e){};setTimeout(function(){try{openSongVoteModal();}catch(e){}},80);" '+
+          'style="width:100%;text-align:left;background:linear-gradient(135deg,rgba(35,111,255,.98),rgba(24,84,235,.98) 54%,rgba(10,49,166,.98));border:1px solid rgba(245,197,24,.88);border-radius:14px;padding:10px 12px;margin:0 0 10px 0;color:#f7fbff;box-shadow:0 10px 24px rgba(0,0,0,.28),0 0 20px rgba(58,137,255,.26),0 0 10px rgba(245,197,24,.10),inset 0 1px 0 rgba(255,255,255,.20);display:flex;gap:10px;align-items:center;cursor:pointer;overflow:hidden;position:relative;">'+
+            '<span class="home-alert-icon" style="width:34px;height:34px;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.24),rgba(210,231,255,.14));border:1px solid rgba(255,255,255,.42);color:#ffffff;display:flex;align-items:center;justify-content:center;font-family:Russo One,sans-serif;font-size:17px;flex-shrink:0;box-shadow:0 0 12px rgba(255,255,255,.10);">♪</span>'+
+            '<span class="home-alert-copy" style="flex:1;min-width:0;">'+
+              '<span class="home-alert-kicker" style="display:block;font-family:Russo One,sans-serif;color:#ffffff;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;text-shadow:0 1px 6px rgba(10,34,92,.24);">Song Vote Pending</span>'+
+              '<span class="home-alert-main" style="display:block;color:#ffffff;font-size:13px;font-weight:700;margin-top:2px;">'+label+'</span>'+
+              '<span class="home-alert-sub" style="display:block;color:#d8e8ff;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+detail+'</span>'+
+            '</span>'+
+          '</button>',
+        sourceBranch: sourceBranch
+      };
+    }
+  }
+  if (!_svView.visible) {
+    try { _recordHomeCueRenderDiag('songVote', { visible: false, hasTarget: true, activeCount: 0, sourceBranch: _svView.sourceBranch || 'none' }); } catch(e){}
     el.style.display = 'none';
     el.innerHTML = '';
     try { _homeLayoutDiagSnapshot('renderHomeSongVoteCue:hidden', {}); } catch(e){}
@@ -22801,23 +22838,9 @@ function renderHomeSongVoteCue(){
     try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:song-vote'); } catch(e){}
     return;
   }
-  var label = userSpecific
-    ? (cueItems.length === 1 ? '1 song suggestion needs your vote' : (cueItems.length + ' song suggestions need your vote'))
-    : (cueItems.length === 1 ? '1 song vote still in progress' : (cueItems.length + ' song votes still in progress'));
-  var first = cueItems[0] || {};
-  var detail = first.title ? ('“' + first.title + '”' + (cueItems.length>1 ? ' + more' : '')) : 'Review the pending suggestion list.';
-  try { _recordHomeCueRenderDiag('songVote', { visible: true, hasTarget: true, activeCount: cueItems.length, sourceBranch: sourceBranch }); } catch(e){}
+  try { _recordHomeCueRenderDiag('songVote', { visible: true, hasTarget: true, activeCount: cueItems.length, sourceBranch: _svView.sourceBranch || sourceBranch }); } catch(e){}
   el.style.display = 'block';
-  el.innerHTML =
-    '<button class="home-alert-pill home-alert-song" type="button" onclick="try{go(\'songs\',document.getElementById(\'tb-songs\'));}catch(e){};setTimeout(function(){try{openSongVoteModal();}catch(e){}},80);" '+
-    'style="width:100%;text-align:left;background:linear-gradient(135deg,rgba(35,111,255,.98),rgba(24,84,235,.98) 54%,rgba(10,49,166,.98));border:1px solid rgba(245,197,24,.88);border-radius:14px;padding:10px 12px;margin:0 0 10px 0;color:#f7fbff;box-shadow:0 10px 24px rgba(0,0,0,.28),0 0 20px rgba(58,137,255,.26),0 0 10px rgba(245,197,24,.10),inset 0 1px 0 rgba(255,255,255,.20);display:flex;gap:10px;align-items:center;cursor:pointer;overflow:hidden;position:relative;">'+
-      '<span class="home-alert-icon" style="width:34px;height:34px;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.24),rgba(210,231,255,.14));border:1px solid rgba(255,255,255,.42);color:#ffffff;display:flex;align-items:center;justify-content:center;font-family:Russo One,sans-serif;font-size:17px;flex-shrink:0;box-shadow:0 0 12px rgba(255,255,255,.10);">♪</span>'+
-      '<span class="home-alert-copy" style="flex:1;min-width:0;">'+
-        '<span class="home-alert-kicker" style="display:block;font-family:Russo One,sans-serif;color:#ffffff;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;text-shadow:0 1px 6px rgba(10,34,92,.24);">Song Vote Pending</span>'+
-        '<span class="home-alert-main" style="display:block;color:#ffffff;font-size:13px;font-weight:700;margin-top:2px;">'+label+'</span>'+
-        '<span class="home-alert-sub" style="display:block;color:#d8e8ff;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+detail+'</span>'+
-      '</span>'+
-    '</button>';
+  el.innerHTML = _svView.html;
   try { _homeLayoutDiagSnapshot('renderHomeSongVoteCue:visible', { count: cueItems.length }); } catch(e){}
   try { syncAlertRailState('renderHomeSongVoteCue'); } catch(e){}
   try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeSongVoteCue'); } catch(e){}
