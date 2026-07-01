@@ -13,12 +13,14 @@ const ROOT = path.resolve(__dirname, '../..');
 const REQUIRED_FILES = [
   'index.html',
   'oot_home_controller.js',
+  'oot_home_cue_renderer.js',
   'oot_compat_home.js',
 ];
 
 const REQUIRED_SCRIPT_REFS = [
   'oot_home_band_image.js',
   'oot_home_alert_rail.js',
+  'oot_home_cue_renderer.js',
   'oot_home_gig_slot.js',
   'oot_home_layout_engine.js',
   'oot_home_diag.js',
@@ -832,6 +834,103 @@ function assertPhase6lBHomeCueRenderDiag(html) {
   }
 }
 
+const CUE_RENDERER_FORBIDDEN_CALLS = [
+  'rHome(',
+  'requestHomeReconcile',
+  'reconcileHomeLayout',
+  'localStorage',
+  'document.getElementById',
+  'document.querySelector',
+  'innerHTML',
+  'setProperty',
+  'db.collection',
+  'onSnapshot',
+];
+
+function assertPhase6lCHomeCueRendererScaffold(html) {
+  if (!exists('oot_home_cue_renderer.js')) {
+    fail('oot_home_cue_renderer.js must exist for Phase 6l-c scaffold');
+  }
+
+  assertJsModule('oot_home_cue_renderer.js');
+  const cueRendererJs = read('oot_home_cue_renderer.js');
+
+  if (!cueRendererJs.includes('window.OOT.home.cueRenderer')) {
+    fail('oot_home_cue_renderer.js must attach window.OOT.home.cueRenderer namespace');
+  }
+
+  const requiredMethods = [
+    'getState',
+    'snapshot',
+    'describe',
+    'canRenderSongVoteCue',
+    'canRenderRehearsalCue',
+    'renderSongVoteCueSnapshot',
+    'renderRehearsalCueSnapshot',
+  ];
+  for (const method of requiredMethods) {
+    if (!cueRendererJs.includes(method)) {
+      fail(`oot_home_cue_renderer.js missing scaffold method: ${method}`);
+    }
+  }
+
+  if (!cueRendererJs.includes('Song Vote Pending') || !cueRendererJs.includes('Rehearsal on Deck')) {
+    fail('oot_home_cue_renderer.js must declare canonical cue kicker metadata only');
+  }
+
+  if (!cueRendererJs.includes('rendersDom: false')) {
+    fail('oot_home_cue_renderer.js snapshot helpers must declare rendersDom: false');
+  }
+
+  if (!cueRendererJs.includes('scaffold: true')) {
+    fail('oot_home_cue_renderer.js must declare scaffold: true in metadata');
+  }
+
+  for (const call of CUE_RENDERER_FORBIDDEN_CALLS) {
+    if (cueRendererJs.includes(call)) {
+      fail(`oot_home_cue_renderer.js must not reference forbidden behavior: ${call}`);
+    }
+  }
+
+  if (cueRendererJs.includes('modular-inflow')) {
+    fail('oot_home_cue_renderer.js must not reference modular-inflow');
+  }
+
+  if (!html.includes('oot_home_cue_renderer.js')) {
+    fail('index.html must include oot_home_cue_renderer.js script reference');
+  }
+
+  const alertRailPos = findScriptPositions(html, 'oot_home_alert_rail.js');
+  const cueRendererPos = findScriptPositions(html, 'oot_home_cue_renderer.js');
+  const gigSlotPos = findScriptPositions(html, 'oot_home_gig_slot.js');
+  if (alertRailPos === -1 || cueRendererPos === -1 || gigSlotPos === -1) {
+    fail('Could not locate Home cue renderer script load order anchors in index.html');
+  }
+  if (alertRailPos > cueRendererPos || cueRendererPos > gigSlotPos) {
+    fail('Expected oot_home_alert_rail.js -> oot_home_cue_renderer.js -> oot_home_gig_slot.js load order');
+  }
+
+  if (html.includes('OOT.home.cueRenderer') || html.includes('cueRenderer.render')) {
+    fail('index.html must not route legacy cue rendering through OOT.home.cueRenderer yet');
+  }
+
+  if (!html.includes('function renderHomeSongVoteCue') || !html.includes('function renderHomeRehearsalCue')) {
+    fail('index.html must retain legacy renderHomeSongVoteCue and renderHomeRehearsalCue owners');
+  }
+
+  if (!html.includes('Song Vote Pending') || !html.includes('Rehearsal on Deck')) {
+    fail('index.html must preserve Song Vote Pending and Rehearsal on Deck kicker strings');
+  }
+
+  const compatJs = read('oot_compat_home.js');
+  if (!compatJs.includes('window.OOT.home.cueRenderer')) {
+    fail('oot_compat_home.js must restore read-only cue renderer globals from window.OOT.home.cueRenderer');
+  }
+  if (!compatJs.includes('getHomeCueRendererState')) {
+    fail('oot_compat_home.js must expose getHomeCueRendererState read-only compat global');
+  }
+}
+
 function report() {
   if (warnings.length) {
     console.warn('Warnings:');
@@ -843,7 +942,7 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6l-b Home cue render diagnostic checks.');
+  console.log('PASS: Phase 6l-c Home cue renderer scaffold checks.');
 }
 
 function main() {
@@ -881,6 +980,7 @@ function main() {
   assertPhase6kCRHomeTailAdapter(html, controllerJs);
   assertPhase6kDRHomeTailAdapterRouting(html, controllerJs);
   assertPhase6lBHomeCueRenderDiag(html);
+  assertPhase6lCHomeCueRendererScaffold(html);
 
   report();
 }

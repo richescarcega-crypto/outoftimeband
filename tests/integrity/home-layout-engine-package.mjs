@@ -29,6 +29,7 @@ const CONTROLLER_SRC = 'oot_home_controller.js';
 const REQUIRED_SCRIPT_REFS = [
   'oot_home_band_image.js',
   'oot_home_alert_rail.js',
+  'oot_home_cue_renderer.js',
   'oot_home_gig_slot.js',
   'oot_home_layout_engine.js',
   'oot_home_diag.js',
@@ -472,6 +473,9 @@ function assertIndexHtmlChangesAllowed(html) {
     if (/sourceBranch: _rhBranch/.test(line) || /sourceBranch: sourceBranch/.test(line)) {
       continue;
     }
+    if (/<script src="oot_home_cue_renderer\.js"><\/script>/.test(line)) {
+      continue;
+    }
     if (/^\s+(count|lastAt|lastOrder|recent|lastHomeActive|lastHadRequestHomeReconcile|lastHadReconcileHomeLayout|lastCue|byCue):/.test(line)) {
       continue;
     }
@@ -768,6 +772,7 @@ function main() {
 
   const bandImagePos = findScriptPositions(html, 'oot_home_band_image.js');
   const alertRailPos = findScriptPositions(html, 'oot_home_alert_rail.js');
+  const cueRendererPos = findScriptPositions(html, 'oot_home_cue_renderer.js');
   const gigSlotPos = findScriptPositions(html, 'oot_home_gig_slot.js');
   const layoutEnginePos = findScriptPositions(html, 'oot_home_layout_engine.js');
   const layoutCssPos = findStylesheetPositions(html, LAYOUT_CSS_HREF);
@@ -783,6 +788,15 @@ function main() {
   }
   if (gigSlotPos === -1) {
     fail('Could not locate oot_home_gig_slot.js script tag in index.html');
+  }
+  if (cueRendererPos === -1) {
+    fail('Could not locate oot_home_cue_renderer.js script tag in index.html');
+  }
+  if (alertRailPos !== -1 && cueRendererPos !== -1 && alertRailPos > cueRendererPos) {
+    fail('Expected oot_home_alert_rail.js to load before oot_home_cue_renderer.js');
+  }
+  if (cueRendererPos !== -1 && gigSlotPos !== -1 && cueRendererPos > gigSlotPos) {
+    fail('Expected oot_home_cue_renderer.js to load before oot_home_gig_slot.js');
   }
   if (diagPos === -1) {
     fail('Could not locate oot_home_diag.js script tag in index.html');
