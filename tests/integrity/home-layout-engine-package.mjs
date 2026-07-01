@@ -279,6 +279,9 @@ function assertIndexHtmlChangesAllowed(html) {
     "  try { if (typeof activateHome === 'function') activateHome('rHome'); } catch(e) {}",
     "  try { if (typeof requestHomeReconcile === 'function') requestHomeReconcile('rHome'); } catch(e){}",
     "  try { reconcileHomeLayout('rHome'); } catch(e){}",
+    "    var _ootHc = window.OOT && window.OOT.home && window.OOT.home.controller;",
+    "    if (_ootHc && typeof _ootHc.requestRHomeTailReconcile === 'function') {",
+    "      _ootHc.requestRHomeTailReconcile();",
   ]);
 
   for (const line of removed) {
@@ -371,6 +374,15 @@ function assertIndexHtmlChangesAllowed(html) {
       continue;
     }
     if (/_ootHc\.requestRHomeTailReconcile\(\);/.test(line)) {
+      continue;
+    }
+    if (/typeof window\.OOT\.home\.controller\.requestRHomeTailReconcile === 'function'/.test(line)) {
+      continue;
+    }
+    if (/requestRHomeTailReconcile\(\{ source: 'rHome:tail' \}\)/.test(line)) {
+      continue;
+    }
+    if (/source: 'rHome:tail'/.test(line)) {
       continue;
     }
     if (/requestHomeReconcile\('rHome'\)/.test(line)) {

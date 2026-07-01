@@ -206,15 +206,18 @@
 
   function requestRHomeTailReconcile(options) {
     var parsed = _optionsOrReason(options, 'rHome');
+    var payload = parsed.payload || null;
     var result = {
       reason: 'rHome',
+      source: payload && payload.source ? payload.source : null,
       requested: false,
       reconciled: false,
-      passthrough: true
+      passthrough: true,
+      routed: true
     };
-    _record('requestRHomeTailReconcile', parsed.reason, parsed.payload);
+    _record('requestRHomeTailReconcile', parsed.reason, payload);
     try {
-      requestReconcile('rHome', parsed.payload);
+      requestReconcile('rHome', payload);
       result.requested = true;
     } catch (e) {}
     try {

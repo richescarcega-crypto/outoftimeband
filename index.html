@@ -30838,9 +30838,8 @@ function rHome() {
   try { _homeLayoutDiagSnapshot('rHome:end', {}); } catch(e){}
   try { _recordRHomeTailReconcileDiag(); } catch(e){}
   try {
-    var _ootHc = window.OOT && window.OOT.home && window.OOT.home.controller;
-    if (_ootHc && typeof _ootHc.requestRHomeTailReconcile === 'function') {
-      _ootHc.requestRHomeTailReconcile();
+    if (window.OOT && window.OOT.home && window.OOT.home.controller && typeof window.OOT.home.controller.requestRHomeTailReconcile === 'function') {
+      window.OOT.home.controller.requestRHomeTailReconcile({ source: 'rHome:tail' });
     } else {
       try { if (typeof requestHomeReconcile === 'function') requestHomeReconcile('rHome'); } catch(e){}
       try { reconcileHomeLayout('rHome'); } catch(e){}

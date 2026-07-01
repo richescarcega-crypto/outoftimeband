@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Static Phase 6i-a + Phase 6k-b + Phase 6k-c Home controller integrity checks. Test-only.
+ * Static Phase 6i-a + Phase 6k-b + Phase 6k-c + Phase 6k-d Home controller integrity checks. Test-only.
  */
 
 import fs from 'node:fs';
@@ -679,8 +679,8 @@ function assertPhase6kCRHomeTailAdapter(html, controllerJs) {
   if (!rHomeBody.includes('window.OOT && window.OOT.home && window.OOT.home.controller')) {
     fail('rHome tail must resolve HomeController adapter via OOT.home.controller');
   }
-  if (!rHomeBody.includes('_ootHc.requestRHomeTailReconcile()')) {
-    fail('rHome tail must invoke requestRHomeTailReconcile adapter when available');
+  if (!rHomeBody.includes("requestRHomeTailReconcile({ source: 'rHome:tail' })")) {
+    fail('rHome tail must invoke requestRHomeTailReconcile adapter with rHome:tail source');
   }
   if (!rHomeBody.includes("requestHomeReconcile('rHome')") || !rHomeBody.includes("reconcileHomeLayout('rHome')")) {
     fail('rHome tail must retain legacy fallback request/reconcile hooks');
@@ -688,6 +688,62 @@ function assertPhase6kCRHomeTailAdapter(html, controllerJs) {
 
   if (html.includes('data-home-layout-mode="modular-inflow"')) {
     fail('index.html must not default static Home markup to modular-inflow');
+  }
+}
+
+function assertPhase6kDRHomeTailAdapterRouting(html, controllerJs) {
+  const rHomeStart = html.indexOf('function rHome()');
+  const rHomeEnd = html.indexOf('var memsOpen = false;');
+  if (rHomeStart === -1 || rHomeEnd === -1) {
+    fail('Could not locate rHome function body in index.html');
+  }
+  const rHomeBody = html.slice(rHomeStart, rHomeEnd);
+
+  const recordPos = rHomeBody.indexOf('_recordRHomeTailReconcileDiag()');
+  const adapterPos = rHomeBody.indexOf('requestRHomeTailReconcile({ source: \'rHome:tail\' })');
+  const elsePos = rHomeBody.indexOf('else {', recordPos);
+  if (recordPos === -1 || adapterPos === -1 || elsePos === -1) {
+    fail('rHome tail must contain diagnostic, adapter routing, and legacy fallback else branch');
+  }
+  if (recordPos >= adapterPos || adapterPos >= elsePos) {
+    fail('rHome tail order must be diagnostic, adapter routing, then fallback else branch');
+  }
+
+  const primaryPath = rHomeBody.slice(recordPos, elsePos);
+  const fallbackPath = rHomeBody.slice(elsePos);
+
+  if (primaryPath.includes("requestHomeReconcile('rHome')") || primaryPath.includes("reconcileHomeLayout('rHome')")) {
+    fail('normal rHome tail path must route exclusively through requestRHomeTailReconcile adapter');
+  }
+  if (!fallbackPath.includes("requestHomeReconcile('rHome')") || !fallbackPath.includes("reconcileHomeLayout('rHome')")) {
+    fail('legacy fallback else branch must retain requestHomeReconcile and reconcileHomeLayout');
+  }
+
+  const requestCount = (html.match(/requestHomeReconcile\('rHome'\)/g) || []).length;
+  if (requestCount !== 1) {
+    fail(`index.html must contain exactly one requestHomeReconcile('rHome') fallback hook (found ${requestCount})`);
+  }
+
+  const reconcileCount = (html.match(/reconcileHomeLayout\('rHome'\)/g) || []).length;
+  if (reconcileCount !== 1) {
+    fail(`index.html must contain exactly one reconcileHomeLayout('rHome') fallback hook (found ${reconcileCount})`);
+  }
+
+  const adapterStart = controllerJs.indexOf('function requestRHomeTailReconcile');
+  const adapterEnd = controllerJs.indexOf('function getReconcileCoalescerState', adapterStart);
+  const adapterBody = controllerJs.slice(adapterStart, adapterEnd);
+
+  if (!adapterBody.includes("requestReconcile('rHome'")) {
+    fail("adapter must own requestReconcile('rHome') on normal path");
+  }
+  if (!adapterBody.includes("delegate.call(window, 'rHome')")) {
+    fail("adapter must own delegate.call(window, 'rHome') on normal path");
+  }
+  if (!adapterBody.includes("reason: 'rHome'")) {
+    fail("adapter result must preserve reason string 'rHome'");
+  }
+  if (adapterBody.includes('rHome(')) {
+    fail('adapter must not call rHome');
   }
 }
 
@@ -702,11 +758,11 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6k-c Home controller rHome tail adapter checks.');
+  console.log('PASS: Phase 6k-d Home controller rHome tail adapter routing checks.');
 }
 
 function main() {
-  console.log('Running Phase 6k-c Home controller integrity checks...\n');
+  console.log('Running Phase 6k-d Home controller integrity checks...\n');
 
   for (const relPath of REQUIRED_FILES) {
     if (!exists(relPath)) {
@@ -738,6 +794,7 @@ function main() {
   assertPhase6iGigTimerSafePilot(html);
   assertPhase6kBRHomeTailDiag(html);
   assertPhase6kCRHomeTailAdapter(html, controllerJs);
+  assertPhase6kDRHomeTailAdapterRouting(html, controllerJs);
 
   report();
 }
