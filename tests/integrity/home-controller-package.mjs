@@ -747,6 +747,91 @@ function assertPhase6kDRHomeTailAdapterRouting(html, controllerJs) {
   }
 }
 
+function assertPhase6lBHomeCueRenderDiag(html) {
+  if (!html.includes('window.__ootHomeCueRenderDiag')) {
+    fail('index.html must declare window.__ootHomeCueRenderDiag read-only diagnostic state');
+  }
+
+  if (!html.includes('function _recordHomeCueRenderDiag')) {
+    fail('index.html must define _recordHomeCueRenderDiag helper');
+  }
+
+  if (!html.includes('window.__ootGetHomeCueRenderDiag')) {
+    fail('index.html must expose read-only window.__ootGetHomeCueRenderDiag getter');
+  }
+
+  const helperStart = html.indexOf('function _recordHomeCueRenderDiag');
+  const helperEnd = html.indexOf('if (typeof window.__ootGetHomeCueRenderDiag');
+  if (helperStart === -1 || helperEnd === -1 || helperEnd <= helperStart) {
+    fail('Could not locate _recordHomeCueRenderDiag helper body in index.html');
+  }
+  const helperBody = html.slice(helperStart, helperEnd);
+
+  if (/\brHome\s*\(/.test(helperBody)) {
+    fail('_recordHomeCueRenderDiag must not call rHome');
+  }
+  if (/\brequestHomeReconcile\s*\(/.test(helperBody)) {
+    fail('_recordHomeCueRenderDiag must not call requestHomeReconcile');
+  }
+  if (/\breconcileHomeLayout\s*\(/.test(helperBody)) {
+    fail('_recordHomeCueRenderDiag must not call reconcileHomeLayout');
+  }
+  if (helperBody.includes('localStorage')) {
+    fail('_recordHomeCueRenderDiag must not write localStorage');
+  }
+  if (!helperBody.includes('byCue') || !helperBody.includes('songVote') || !helperBody.includes('rehearsal')) {
+    fail('_recordHomeCueRenderDiag must track byCue.songVote and byCue.rehearsal counters');
+  }
+  if (!helperBody.includes('d.recent.length > 12') || !helperBody.includes('d.recent.splice')) {
+    fail('_recordHomeCueRenderDiag must cap recent array at 12 entries');
+  }
+
+  const getterStart = html.indexOf('window.__ootGetHomeCueRenderDiag = function');
+  const getterEnd = html.indexOf('function renderHomeRehearsalCue', getterStart);
+  if (getterStart === -1 || getterEnd === -1) {
+    fail('Could not locate __ootGetHomeCueRenderDiag getter in index.html');
+  }
+  const getterBody = html.slice(getterStart, getterEnd);
+  if (!getterBody.includes('JSON.parse(JSON.stringify(d))')) {
+    fail('__ootGetHomeCueRenderDiag must return a JSON clone snapshot');
+  }
+  if (getterBody.includes('requestHomeReconcile') || getterBody.includes('reconcileHomeLayout') || getterBody.includes('rHome')) {
+    fail('__ootGetHomeCueRenderDiag must not call reconcile APIs or rHome');
+  }
+
+  const songStart = html.indexOf('function renderHomeSongVoteCue');
+  const songEnd = html.indexOf('// r810: unordered fallback listeners', songStart);
+  if (songStart === -1 || songEnd === -1) {
+    fail('Could not locate renderHomeSongVoteCue function body in index.html');
+  }
+  const songBody = html.slice(songStart, songEnd);
+  const songDiagCount = (songBody.match(/_recordHomeCueRenderDiag\('songVote'/g) || []).length;
+  if (songDiagCount !== 2) {
+    fail(`renderHomeSongVoteCue must call _recordHomeCueRenderDiag exactly twice (found ${songDiagCount})`);
+  }
+  if (!html.includes('Song Vote Pending')) {
+    fail('renderHomeSongVoteCue must preserve Song Vote Pending kicker string');
+  }
+
+  const rehearsalStart = html.indexOf('function renderHomeRehearsalCue');
+  const rehearsalEnd = html.indexOf('function renderHomeSongVoteCue');
+  if (rehearsalStart === -1 || rehearsalEnd === -1) {
+    fail('Could not locate renderHomeRehearsalCue function body in index.html');
+  }
+  const rehearsalBody = html.slice(rehearsalStart, rehearsalEnd);
+  const rehearsalDiagCount = (rehearsalBody.match(/_recordHomeCueRenderDiag\('rehearsal'/g) || []).length;
+  if (rehearsalDiagCount !== 3) {
+    fail(`renderHomeRehearsalCue must call _recordHomeCueRenderDiag exactly three times (found ${rehearsalDiagCount})`);
+  }
+  if (!html.includes('Rehearsal on Deck')) {
+    fail('renderHomeRehearsalCue must preserve Rehearsal on Deck kicker string');
+  }
+
+  if (html.includes('data-home-layout-mode="modular-inflow"')) {
+    fail('index.html must not default static Home markup to modular-inflow');
+  }
+}
+
 function report() {
   if (warnings.length) {
     console.warn('Warnings:');
@@ -758,7 +843,7 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6k-d Home controller rHome tail adapter routing checks.');
+  console.log('PASS: Phase 6l-b Home cue render diagnostic checks.');
 }
 
 function main() {
@@ -795,6 +880,7 @@ function main() {
   assertPhase6kBRHomeTailDiag(html);
   assertPhase6kCRHomeTailAdapter(html, controllerJs);
   assertPhase6kDRHomeTailAdapterRouting(html, controllerJs);
+  assertPhase6lBHomeCueRenderDiag(html);
 
   report();
 }

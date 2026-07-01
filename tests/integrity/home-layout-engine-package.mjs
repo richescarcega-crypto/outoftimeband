@@ -403,7 +403,76 @@ function assertIndexHtmlChangesAllowed(html) {
     if (/window\.__ootGetRHomeTailDiag/.test(line)) {
       continue;
     }
-    if (/^\s+(count|lastAt|lastOrder|recent|lastHomeActive|lastHadRequestHomeReconcile|lastHadReconcileHomeLayout):/.test(line)) {
+    if (/window\.__ootHomeCueRenderDiag/.test(line)) {
+      continue;
+    }
+    if (/function _recordHomeCueRenderDiag/.test(line)) {
+      continue;
+    }
+    if (/_recordHomeCueRenderDiag\(/.test(line)) {
+      continue;
+    }
+    if (/window\.__ootGetHomeCueRenderDiag/.test(line)) {
+      continue;
+    }
+    if (/byCue: \{ songVote: 0, rehearsal: 0 \}/.test(line)) {
+      continue;
+    }
+    if (/if \(!d\.byCue\) d\.byCue = \{ songVote: 0, rehearsal: 0 \};/.test(line)) {
+      continue;
+    }
+    if (/cueName: cueName \|\| null/.test(line)) {
+      continue;
+    }
+    if (/d\.byCue\.(songVote|rehearsal) =/.test(line)) {
+      continue;
+    }
+    if (/cueName === 'songVote'/.test(line) || /cueName === 'rehearsal'/.test(line)) {
+      continue;
+    }
+    if (/d\.lastCue =/.test(line)) {
+      continue;
+    }
+    if (/var snap = snapshot/.test(line)) {
+      continue;
+    }
+    if (/var order = d\.count/.test(line)) {
+      continue;
+    }
+    if (/sourceBranch: snap\.sourceBranch/.test(line)) {
+      continue;
+    }
+    if (/activeCount: typeof snap\.activeCount/.test(line)) {
+      continue;
+    }
+    if (/visible: snap\.visible/.test(line)) {
+      continue;
+    }
+    if (/hasTarget: snap\.hasTarget/.test(line)) {
+      continue;
+    }
+    if (/d\.recent\.length > 12/.test(line)) {
+      continue;
+    }
+    if (/var sourceBranch = 'pendingForMe'/.test(line)) {
+      continue;
+    }
+    if (/sourceBranch = 'openSuggestions'/.test(line) || /sourceBranch = 'anyActive'/.test(line)) {
+      continue;
+    }
+    if (/sourceBranch: 'none'/.test(line) || /sourceBranch: 'hidden-no-events'/.test(line)) {
+      continue;
+    }
+    if (/sourceBranch: 'hidden-no-rehearsal'/.test(line)) {
+      continue;
+    }
+    if (/var _rhBranch = ev\._proposalHomeCue/.test(line)) {
+      continue;
+    }
+    if (/sourceBranch: _rhBranch/.test(line) || /sourceBranch: sourceBranch/.test(line)) {
+      continue;
+    }
+    if (/^\s+(count|lastAt|lastOrder|recent|lastHomeActive|lastHadRequestHomeReconcile|lastHadReconcileHomeLayout|lastCue|byCue):/.test(line)) {
       continue;
     }
     if (/^\s+\};$/.test(line)) {

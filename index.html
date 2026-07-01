@@ -22670,12 +22670,58 @@ function _r535OpenHomeRehearsal(eid){
     toast('Could not open rehearsal details', {tone:'error'});
   }
 }
+window.__ootHomeCueRenderDiag = window.__ootHomeCueRenderDiag || {
+  count: 0,
+  byCue: { songVote: 0, rehearsal: 0 },
+  lastAt: null,
+  lastCue: null,
+  recent: []
+};
+function _recordHomeCueRenderDiag(cueName, snapshot) {
+  try {
+    var d = window.__ootHomeCueRenderDiag;
+    if (!d) return;
+    var snap = snapshot || {};
+    var hs = document.getElementById('sc-home');
+    var homeActive = !!(hs && hs.classList.contains('on'));
+    d.count = (d.count || 0) + 1;
+    d.lastAt = Date.now();
+    d.lastCue = cueName || null;
+    if (!d.byCue) d.byCue = { songVote: 0, rehearsal: 0 };
+    if (cueName === 'songVote') d.byCue.songVote = (d.byCue.songVote || 0) + 1;
+    else if (cueName === 'rehearsal') d.byCue.rehearsal = (d.byCue.rehearsal || 0) + 1;
+    if (!Array.isArray(d.recent)) d.recent = [];
+    var order = d.count;
+    d.recent.push({
+      cueName: cueName || null,
+      at: d.lastAt,
+      order: order,
+      visible: snap.visible === true,
+      hasTarget: snap.hasTarget !== false,
+      activeCount: typeof snap.activeCount === 'number' ? snap.activeCount : null,
+      sourceBranch: snap.sourceBranch || null,
+      homeActive: homeActive
+    });
+    if (d.recent.length > 12) d.recent.splice(0, d.recent.length - 12);
+  } catch(e){}
+}
+if (typeof window.__ootGetHomeCueRenderDiag !== 'function') {
+  window.__ootGetHomeCueRenderDiag = function() {
+    try {
+      var d = window.__ootHomeCueRenderDiag;
+      if (!d) return null;
+      return JSON.parse(JSON.stringify(d));
+    } catch(e) { return null; }
+  };
+}
+
 function renderHomeRehearsalCue(){
   var el = document.getElementById('home-rehearsal-cue');
   if(!el) return;
   if(!_eventsHasInit && (!events || !events.length)){
     var earlyProp = (typeof _ootNextOpenRehearsalProposal === 'function') ? _ootNextOpenRehearsalProposal() : null;
     if(!earlyProp){
+      try { _recordHomeCueRenderDiag('rehearsal', { visible: false, hasTarget: true, activeCount: 0, sourceBranch: 'hidden-no-events' }); } catch(e){}
       el.style.display = 'none';
       el.innerHTML = '';
       try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue hidden no events'); } catch(e){}
@@ -22689,6 +22735,7 @@ function renderHomeRehearsalCue(){
   }
   var ev = _r535NextUpcomingRehearsal();
   if(!ev){
+    try { _recordHomeCueRenderDiag('rehearsal', { visible: false, hasTarget: true, activeCount: 0, sourceBranch: 'hidden-no-rehearsal' }); } catch(e){}
     el.style.display = 'none';
     el.innerHTML = '';
     try { _ensureHomePresentationObserver(); _scheduleHomeImagePresentationRefresh('rehearsal-cue hidden no next rehearsal'); } catch(e){}
@@ -22705,6 +22752,8 @@ function renderHomeRehearsalCue(){
   var title = ev.title || 'Band Rehearsal';
   var sub = dateLabel + ' · ' + timeLabel;
   var note = ev.note || ev.location || '';
+  var _rhBranch = ev._proposalHomeCue ? 'proposalFallback' : 'rehearsalEvent';
+  try { _recordHomeCueRenderDiag('rehearsal', { visible: true, hasTarget: true, activeCount: 1, sourceBranch: _rhBranch }); } catch(e){}
   el.style.display = 'block';
   el.innerHTML =
     '<button class="home-alert-pill home-alert-rehearsal" type="button" onclick="_r535OpenHomeRehearsal(\''+_r535HomeEscape(String(ev.id||''))+'\')" '+
@@ -22731,15 +22780,19 @@ function renderHomeSongVoteCue(){
   var pending = _pendingSongSuggestionsForMe();
   var cueItems = pending;
   var userSpecific = true;
+  var sourceBranch = 'pendingForMe';
   if(!cueItems.length && typeof _homeOpenSongSuggestions === 'function'){
     cueItems = _homeOpenSongSuggestions();
     userSpecific = false;
+    sourceBranch = 'openSuggestions';
   }
   if(!cueItems.length && typeof _homeAnyActiveSongSuggestions === 'function'){
     cueItems = _homeAnyActiveSongSuggestions();
     userSpecific = false;
+    sourceBranch = 'anyActive';
   }
   if(!cueItems.length){
+    try { _recordHomeCueRenderDiag('songVote', { visible: false, hasTarget: true, activeCount: 0, sourceBranch: 'none' }); } catch(e){}
     el.style.display = 'none';
     el.innerHTML = '';
     try { _homeLayoutDiagSnapshot('renderHomeSongVoteCue:hidden', {}); } catch(e){}
@@ -22753,6 +22806,7 @@ function renderHomeSongVoteCue(){
     : (cueItems.length === 1 ? '1 song vote still in progress' : (cueItems.length + ' song votes still in progress'));
   var first = cueItems[0] || {};
   var detail = first.title ? ('“' + first.title + '”' + (cueItems.length>1 ? ' + more' : '')) : 'Review the pending suggestion list.';
+  try { _recordHomeCueRenderDiag('songVote', { visible: true, hasTarget: true, activeCount: cueItems.length, sourceBranch: sourceBranch }); } catch(e){}
   el.style.display = 'block';
   el.innerHTML =
     '<button class="home-alert-pill home-alert-song" type="button" onclick="try{go(\'songs\',document.getElementById(\'tb-songs\'));}catch(e){};setTimeout(function(){try{openSongVoteModal();}catch(e){}},80);" '+
