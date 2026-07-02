@@ -1579,29 +1579,25 @@ function assertPhase6mBPendingProposalViewBuilder(html) {
     fail('Phase 6m-b must preserve renderRehearsalCue wrapper');
   }
 
-  if (html.includes('buildPendingProposalCueView')) {
-    fail('index.html must not route through buildPendingProposalCueView in Phase 6m-b');
-  }
-
   const proposalStart = html.indexOf('function renderPendingProposalCue');
   const proposalEnd = html.indexOf('function _resetCalendarScrollToTop', proposalStart);
   if (proposalStart === -1 || proposalEnd === -1) {
     fail('Could not locate renderPendingProposalCue for untouched guard');
   }
   const proposalBody = html.slice(proposalStart, proposalEnd);
-  if (proposalBody.includes('buildPendingProposalCueView')) {
-    fail('renderPendingProposalCue must remain untouched by Phase 6m-b view builder');
-  }
+  const legacyStart = html.indexOf('function _legacyRenderPendingProposalCue');
+  const legacyEnd = legacyStart === -1 ? -1 : proposalStart;
+  const legacyBody = legacyStart === -1 || legacyEnd === -1 ? '' : html.slice(legacyStart, legacyEnd);
   if (!proposalBody.includes('_pendingProposalIdsForMe()')) {
     fail('renderPendingProposalCue must retain legacy _pendingProposalIdsForMe state derivation');
   }
-  if (!proposalBody.includes('home-proposal-micro-cue')) {
+  if (!legacyBody.includes('home-proposal-micro-cue')) {
     fail('renderPendingProposalCue must retain legacy Home micro-cue DOM apply');
   }
-  if (!proposalBody.includes('cal-proposal-micro-cue')) {
+  if (!legacyBody.includes('cal-proposal-micro-cue')) {
     fail('renderPendingProposalCue must retain legacy Calendar micro-cue DOM apply');
   }
-  if (!proposalBody.includes('proposal-tab-badge')) {
+  if (!legacyBody.includes('proposal-tab-badge')) {
     fail('renderPendingProposalCue must retain legacy Calendar tab badge DOM apply');
   }
 
@@ -1671,18 +1667,87 @@ function assertPhase6mCPendingProposalApplySeam(html) {
     fail('Phase 6m-c must preserve buildPendingProposalCueView');
   }
 
-  if (html.includes('applyPendingProposalCueView')) {
-    fail('index.html must not call applyPendingProposalCueView in Phase 6m-c');
-  }
-
   const proposalStart = html.indexOf('function renderPendingProposalCue');
   const proposalEnd = html.indexOf('function _resetCalendarScrollToTop', proposalStart);
   if (proposalStart === -1 || proposalEnd === -1) {
     fail('Could not locate renderPendingProposalCue for untouched guard');
   }
   const proposalBody = html.slice(proposalStart, proposalEnd);
-  if (proposalBody.includes('applyPendingProposalCueView') || proposalBody.includes('buildPendingProposalCueView')) {
-    fail('renderPendingProposalCue must remain untouched by Phase 6m-c apply seam');
+  if (!proposalBody.includes('home-proposal-micro-cue')) {
+    fail('renderPendingProposalCue must retain legacy Home micro-cue DOM apply fallback');
+  }
+
+  if (html.includes('data-home-layout-mode="modular-inflow"')) {
+    fail('index.html must not default static Home markup to modular-inflow');
+  }
+}
+
+function assertPhase6mDPendingProposalWrapperRouting(html) {
+  const cueRendererJs = read('oot_home_cue_renderer.js');
+
+  if (!cueRendererJs.includes('function buildPendingProposalCueView')) {
+    fail('oot_home_cue_renderer.js must retain buildPendingProposalCueView for Phase 6m-d routing');
+  }
+  if (!cueRendererJs.includes('function applyPendingProposalCueView')) {
+    fail('oot_home_cue_renderer.js must retain applyPendingProposalCueView for Phase 6m-d routing');
+  }
+
+  const proposalStart = html.indexOf('function renderPendingProposalCue');
+  const proposalEnd = html.indexOf('function _resetCalendarScrollToTop', proposalStart);
+  if (proposalStart === -1 || proposalEnd === -1) {
+    fail('Could not locate renderPendingProposalCue for Phase 6m-d routing checks');
+  }
+  const proposalBody = html.slice(proposalStart, proposalEnd);
+
+  if (!proposalBody.includes('_pendingProposalIdsForMe()')) {
+    fail('renderPendingProposalCue must retain _pendingProposalIdsForMe state derivation');
+  }
+  if (!proposalBody.includes('buildPendingProposalCueView')) {
+    fail('renderPendingProposalCue must call cueRenderer.buildPendingProposalCueView on normal path');
+  }
+  if (!proposalBody.includes('applyPendingProposalCueView')) {
+    fail('renderPendingProposalCue must call cueRenderer.applyPendingProposalCueView on normal path');
+  }
+  if (!proposalBody.includes('_ppModuleApplied')) {
+    fail('renderPendingProposalCue must track module apply success before legacy fallback');
+  }
+  if (!html.includes('function _legacyRenderPendingProposalCue')) {
+    fail('index.html must retain _legacyRenderPendingProposalCue fallback helper');
+  }
+  const legacyStart = html.indexOf('function _legacyRenderPendingProposalCue');
+  const legacyEnd = legacyStart === -1 ? -1 : proposalStart;
+  const legacyBody = legacyStart === -1 || legacyEnd === -1 ? '' : html.slice(legacyStart, legacyEnd);
+  if (!proposalBody.includes('_legacyRenderPendingProposalCue(ids)')) {
+    fail('renderPendingProposalCue must fall back to _legacyRenderPendingProposalCue when module apply fails');
+  }
+  if (!legacyBody.includes('rehearsal response needed')) {
+    fail('renderPendingProposalCue fallback must preserve Home micro-cue text');
+  }
+  if (!legacyBody.includes('ACTION NEEDED')) {
+    fail('renderPendingProposalCue fallback must preserve Calendar strip ACTION NEEDED kicker');
+  }
+  if (!legacyBody.includes('rehearsal proposal waiting for your response')) {
+    fail('renderPendingProposalCue fallback must preserve Calendar strip main text');
+  }
+  if (!legacyBody.includes('_openPendingProposalCue')) {
+    fail('renderPendingProposalCue fallback must preserve _openPendingProposalCue handler');
+  }
+
+  if (proposalBody.includes('renderSongVoteCue') || proposalBody.includes('renderRehearsalCue')) {
+    fail('renderPendingProposalCue must not route through alert-row cue wrappers');
+  }
+
+  const songStart = html.indexOf('function renderHomeSongVoteCue');
+  const songEnd = html.indexOf('// r810: unordered fallback listeners', songStart);
+  const rehearsalStart = html.indexOf('function renderHomeRehearsalCue');
+  const rehearsalEnd = html.indexOf('function renderHomeSongVoteCue');
+  const songBody = html.slice(songStart, songEnd);
+  const rehearsalBody = html.slice(rehearsalStart, rehearsalEnd);
+  if (!songBody.includes('renderSongVoteCue')) {
+    fail('renderHomeSongVoteCue must remain on renderSongVoteCue path');
+  }
+  if (!rehearsalBody.includes('renderRehearsalCue')) {
+    fail('renderHomeRehearsalCue must remain on renderRehearsalCue path');
   }
 
   if (html.includes('data-home-layout-mode="modular-inflow"')) {
@@ -1701,7 +1766,7 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6m-c Pending proposal apply seam checks.');
+  console.log('PASS: Phase 6m-d Pending proposal wrapper routing checks.');
 }
 
 function main() {
@@ -1748,6 +1813,7 @@ function main() {
   assertPhase6lIRehearsalRenderWrapper(html);
   assertPhase6mBPendingProposalViewBuilder(html);
   assertPhase6mCPendingProposalApplySeam(html);
+  assertPhase6mDPendingProposalWrapperRouting(html);
 
   report();
 }

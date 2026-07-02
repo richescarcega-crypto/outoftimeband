@@ -25859,68 +25859,95 @@ function _openPendingProposalCue(){
     try{ console.warn('[r838 pending proposal cue] open failed', e); }catch(_e){}
   }
 }
+function _legacyRenderPendingProposalCue(ids){
+  var count = ids.length;
+  var calBtn = document.getElementById('tb-cal');
+  if(calBtn){
+    if(calBtn.style.position !== 'relative') calBtn.style.position = 'relative';
+    var badge = calBtn.querySelector('.proposal-tab-badge');
+    if(count > 0){
+      if(!badge){
+        badge = document.createElement('span');
+        badge.className = 'proposal-tab-badge';
+        calBtn.appendChild(badge);
+      }
+      badge.textContent = count > 9 ? '9+' : String(count);
+      badge.title = count + ' rehearsal proposal' + (count === 1 ? '' : 's') + ' waiting';
+    }else if(badge){
+      badge.parentNode.removeChild(badge);
+    }
+  }
+
+  var hero = document.querySelector('#sc-home .hero.home-hero-with-controls');
+  if(hero){
+    var cue = document.getElementById('home-proposal-micro-cue');
+    if(count > 0){
+      if(!cue){
+        cue = document.createElement('button');
+        cue.id = 'home-proposal-micro-cue';
+        cue.type = 'button';
+        cue.onclick = function(ev){ if(ev) ev.stopPropagation(); _openPendingProposalCue(); };
+        hero.appendChild(cue);
+      }
+      cue.innerHTML = '<span class="home-proposal-dot"></span><span>' + count + ' rehearsal response needed</span>';
+      cue.style.display = 'inline-flex';
+    }else if(cue){
+      cue.style.display = 'none';
+    }
+  }
+
+  var cal = document.getElementById('sc-cal');
+  if(cal){
+    var calCue = document.getElementById('cal-proposal-micro-cue');
+    if(count > 0){
+      if(!calCue){
+        calCue = document.createElement('button');
+        calCue.id = 'cal-proposal-micro-cue';
+        calCue.type = 'button';
+        calCue.onclick = function(ev){ if(ev) ev.stopPropagation(); _openPendingProposalCue(); };
+        var calHero = document.getElementById('calendar-hero');
+        if(calHero && calHero.parentNode){
+          calHero.parentNode.insertBefore(calCue, calHero.nextSibling);
+        }else{
+          cal.insertBefore(calCue, cal.firstChild);
+        }
+      }
+      calCue.innerHTML =
+        '<span class="cal-proposal-kicker">ACTION NEEDED</span>'+
+        '<span class="cal-proposal-main">' + count + ' rehearsal proposal waiting for your response</span>';
+      calCue.style.display = 'flex';
+    }else if(calCue){
+      calCue.style.display = 'none';
+    }
+  }
+}
+
 function renderPendingProposalCue(){
   try{
     var ids = _pendingProposalIdsForMe();
-    var count = ids.length;
-    var calBtn = document.getElementById('tb-cal');
-    if(calBtn){
-      if(calBtn.style.position !== 'relative') calBtn.style.position = 'relative';
-      var badge = calBtn.querySelector('.proposal-tab-badge');
-      if(count > 0){
-        if(!badge){
-          badge = document.createElement('span');
-          badge.className = 'proposal-tab-badge';
-          calBtn.appendChild(badge);
-        }
-        badge.textContent = count > 9 ? '9+' : String(count);
-        badge.title = count + ' rehearsal proposal' + (count === 1 ? '' : 's') + ' waiting';
-      }else if(badge){
-        badge.parentNode.removeChild(badge);
-      }
-    }
-
-    var hero = document.querySelector('#sc-home .hero.home-hero-with-controls');
-    if(hero){
-      var cue = document.getElementById('home-proposal-micro-cue');
-      if(count > 0){
-        if(!cue){
-          cue = document.createElement('button');
-          cue.id = 'home-proposal-micro-cue';
-          cue.type = 'button';
-          cue.onclick = function(ev){ if(ev) ev.stopPropagation(); _openPendingProposalCue(); };
-          hero.appendChild(cue);
-        }
-        cue.innerHTML = '<span class="home-proposal-dot"></span><span>' + count + ' rehearsal response needed</span>';
-        cue.style.display = 'inline-flex';
-      }else if(cue){
-        cue.style.display = 'none';
-      }
-    }
-
-    var cal = document.getElementById('sc-cal');
-    if(cal){
-      var calCue = document.getElementById('cal-proposal-micro-cue');
-      if(count > 0){
-        if(!calCue){
-          calCue = document.createElement('button');
-          calCue.id = 'cal-proposal-micro-cue';
-          calCue.type = 'button';
-          calCue.onclick = function(ev){ if(ev) ev.stopPropagation(); _openPendingProposalCue(); };
-          var calHero = document.getElementById('calendar-hero');
-          if(calHero && calHero.parentNode){
-            calHero.parentNode.insertBefore(calCue, calHero.nextSibling);
-          }else{
-            cal.insertBefore(calCue, cal.firstChild);
+    var _ppModuleApplied = false;
+    try {
+      var _ppCr = window.OOT && window.OOT.home && window.OOT.home.cueRenderer;
+      if (_ppCr && typeof _ppCr.buildPendingProposalCueView === 'function' && typeof _ppCr.applyPendingProposalCueView === 'function') {
+        var _ppView = _ppCr.buildPendingProposalCueView({ pendingIds: ids, hasTarget: true });
+        if (_ppView) {
+          var _ppTargets = {
+            calTabBtn: document.getElementById('tb-cal'),
+            homeHero: document.querySelector('#sc-home .hero.home-hero-with-controls'),
+            calSection: document.getElementById('sc-cal'),
+            calHero: document.getElementById('calendar-hero'),
+            homeMicroCueEl: document.getElementById('home-proposal-micro-cue'),
+            calMicroCueEl: document.getElementById('cal-proposal-micro-cue')
+          };
+          var _ppOut = _ppCr.applyPendingProposalCueView(_ppTargets, _ppView);
+          if (_ppOut && _ppOut.applied) {
+            _ppModuleApplied = true;
           }
         }
-        calCue.innerHTML =
-          '<span class="cal-proposal-kicker">ACTION NEEDED</span>'+
-          '<span class="cal-proposal-main">' + count + ' rehearsal proposal waiting for your response</span>';
-        calCue.style.display = 'flex';
-      }else if(calCue){
-        calCue.style.display = 'none';
       }
+    } catch(e){}
+    if (!_ppModuleApplied) {
+      _legacyRenderPendingProposalCue(ids);
     }
   }catch(e){
     try{ console.warn('[r838 pending proposal cue] render failed', e); }catch(_e){}

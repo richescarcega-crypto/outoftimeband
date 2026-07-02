@@ -232,6 +232,83 @@ function getGitDiff(relPath) {
   }
 }
 
+/** Phase 6m-d: allow pending proposal cue module routing + legacy fallback extraction in index.html diff. */
+function isPendingProposalCueRoutingDiffLine(line) {
+  if (/function _legacyRenderPendingProposalCue/.test(line)) return true;
+  if (/function renderPendingProposalCue/.test(line)) return true;
+  if (/_ppModuleApplied/.test(line)) return true;
+  if (/buildPendingProposalCueView/.test(line)) return true;
+  if (/applyPendingProposalCueView/.test(line)) return true;
+  if (/_legacyRenderPendingProposalCue\(ids\)/.test(line)) return true;
+  if (/var _ppCr =/.test(line)) return true;
+  if (/var _ppView =/.test(line)) return true;
+  if (/var _ppTargets =/.test(line)) return true;
+  if (/var _ppOut =/.test(line)) return true;
+  if (/pendingIds: ids/.test(line)) return true;
+  if (/calTabBtn:/.test(line)) return true;
+  if (/homeHero:/.test(line)) return true;
+  if (/calSection:/.test(line)) return true;
+  if (/calHero:/.test(line)) return true;
+  if (/homeMicroCueEl:/.test(line)) return true;
+  if (/calMicroCueEl:/.test(line)) return true;
+  if (/var count = ids\.length/.test(line)) return true;
+  if (/var calBtn = document\.getElementById\('tb-cal'\)/.test(line)) return true;
+  if (/var badge = calBtn\.querySelector\('\.proposal-tab-badge'\)/.test(line)) return true;
+  if (/proposal-tab-badge/.test(line)) return true;
+  if (/home-proposal-micro-cue/.test(line)) return true;
+  if (/cal-proposal-micro-cue/.test(line)) return true;
+  if (/cal-proposal-kicker/.test(line)) return true;
+  if (/cal-proposal-main/.test(line)) return true;
+  if (/home-proposal-dot/.test(line)) return true;
+  if (/_openPendingProposalCue/.test(line)) return true;
+  if (/rehearsal response needed/.test(line)) return true;
+  if (/ACTION NEEDED/.test(line)) return true;
+  if (/rehearsal proposal waiting/.test(line)) return true;
+  if (/var hero = document\.querySelector\('#sc-home \.hero\.home-hero-with-controls'\)/.test(line)) return true;
+  if (/var cal = document\.getElementById\('sc-cal'\)/.test(line)) return true;
+  if (/var calCue = document\.getElementById\('cal-proposal-micro-cue'\)/.test(line)) return true;
+  if (/var calHero = document\.getElementById\('calendar-hero'\)/.test(line)) return true;
+  if (/var cue = document\.getElementById\('home-proposal-micro-cue'\)/.test(line)) return true;
+  if (/var ids = _pendingProposalIdsForMe\(\)/.test(line)) return true;
+  if (/calBtn\.style\.position/.test(line)) return true;
+  if (/badge\.textContent = count > 9/.test(line)) return true;
+  if (/badge\.title = count \+ ' rehearsal proposal'/.test(line)) return true;
+  if (/badge\.parentNode\.removeChild\(badge\)/.test(line)) return true;
+  if (/calHero\.parentNode\.insertBefore\(calCue, calHero\.nextSibling\)/.test(line)) return true;
+  if (/cal\.insertBefore\(calCue, cal\.firstChild\)/.test(line)) return true;
+  if (/cue\.style\.display = 'inline-flex'/.test(line)) return true;
+  if (/calCue\.style\.display = 'flex'/.test(line)) return true;
+  if (/cue\.style\.display = 'none'/.test(line)) return true;
+  if (/calCue\.style\.display = 'none'/.test(line)) return true;
+  if (/hero\.appendChild\(cue\)/.test(line)) return true;
+  if (/calBtn\.appendChild\(badge\)/.test(line)) return true;
+  if (/if \(_ppOut && _ppOut\.applied\)/.test(line)) return true;
+  if (/if \(_ppView\)/.test(line)) return true;
+  if (/if \(_ppCr && typeof _ppCr\.buildPendingProposalCueView/.test(line)) return true;
+  if (/cue\.innerHTML =/.test(line)) return true;
+  if (/calCue\.innerHTML =/.test(line)) return true;
+  if (/if\(calBtn\)/.test(line)) return true;
+  if (/if\(hero\)/.test(line)) return true;
+  if (/if\(cal\)/.test(line)) return true;
+  if (/if\(count > 0\)/.test(line)) return true;
+  if (/if\(!badge\)/.test(line)) return true;
+  if (/if\(!cue\)/.test(line)) return true;
+  if (/if\(!calCue\)/.test(line)) return true;
+  if (/else if\(badge\)/.test(line)) return true;
+  if (/else if\(cue\)/.test(line)) return true;
+  if (/else if\(calCue\)/.test(line)) return true;
+  if (/if\(calHero && calHero\.parentNode\)/.test(line)) return true;
+  if (/^\s+try\{$/.test(line)) return true;
+  if (/badge = document\.createElement\('span'\)/.test(line)) return true;
+  if (/cue = document\.createElement\('button'\)/.test(line)) return true;
+  if (/cue\.type = 'button'/.test(line)) return true;
+  if (/calCue = document\.createElement\('button'\)/.test(line)) return true;
+  if (/calCue\.type = 'button'/.test(line)) return true;
+  if (/\}else\{/.test(line)) return true;
+  if (line.trim() === '}') return true;
+  return false;
+}
+
 /** Phase 6d/6e-c/6g/6i-a: allow go('home') orchestration delegate + notification/reconcile hooks in index.html. */
 function assertIndexHtmlChangesAllowed(html) {
   if (!html.includes(GO_HOME_ORCHESTRATE_MARKER)) {
@@ -370,6 +447,9 @@ function assertIndexHtmlChangesAllowed(html) {
       }
     }
     if (!removedAllowed) {
+      if (isPendingProposalCueRoutingDiffLine(line)) {
+        continue;
+      }
       fail(`index.html diff removes disallowed line in Phase 6d: ${line}`);
     }
   }
@@ -989,6 +1069,9 @@ function assertIndexHtmlChangesAllowed(html) {
       continue;
     }
     if (line.trim() === '}') {
+      continue;
+    }
+    if (isPendingProposalCueRoutingDiffLine(line)) {
       continue;
     }
     var matched = false;
