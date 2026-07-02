@@ -349,6 +349,41 @@ function isPendingProposalCueRoutingDiffLine(line) {
   return false;
 }
 
+/** Phase 6s-a: allow song vote cue derivation seam wrappers in index.html diff. */
+function isSongVoteCueDeriveDiffLine(line) {
+  if (/function _legacyDeriveSongVoteCueState/.test(line)) return true;
+  if (/function _deriveSongVoteCueState/.test(line)) return true;
+  if (/deriveSongVoteCueState/.test(line)) return true;
+  if (/_legacyDeriveSongVoteCueState\(\)/.test(line)) return true;
+  if (/_deriveSongVoteCueState\(\)/.test(line)) return true;
+  if (/var _svDerived = _deriveSongVoteCueState\(\)/.test(line)) return true;
+  if (/var cueItems = _svDerived\.cueItems/.test(line)) return true;
+  if (/var userSpecific = _svDerived\.userSpecific/.test(line)) return true;
+  if (/var sourceBranch = _svDerived\.sourceBranch/.test(line)) return true;
+  if (/suggestions: typeof suggestions/.test(line)) return true;
+  if (/if \(_derived && typeof _derived === 'object' && Array\.isArray\(_derived\.cueItems\)\)/.test(line)) return true;
+  if (/return \{ cueItems: cueItems, userSpecific: userSpecific, sourceBranch: sourceBranch \}/.test(line)) return true;
+  if (/return \{ cueItems: \[\], userSpecific: true, sourceBranch: 'pendingForMe' \}/.test(line)) return true;
+  if (/var pending = _pendingSongSuggestionsForMe\(\)/.test(line)) return true;
+  if (/var sourceBranch = 'pendingForMe'/.test(line)) return true;
+  if (/var sourceBranch = 'openSuggestions'/.test(line)) return true;
+  if (/var sourceBranch = 'anyActive'/.test(line)) return true;
+  if (/var userSpecific = true/.test(line)) return true;
+  if (/var userSpecific = false/.test(line)) return true;
+  if (/if\(!cueItems\.length && typeof _homeOpenSongSuggestions === 'function'\)/.test(line)) return true;
+  if (/if\(!cueItems\.length && typeof _homeAnyActiveSongSuggestions === 'function'\)/.test(line)) return true;
+  if (/cueItems = _homeOpenSongSuggestions\(\)/.test(line)) return true;
+  if (/cueItems = _homeAnyActiveSongSuggestions\(\)/.test(line)) return true;
+  if (/var cueItems = pending/.test(line)) return true;
+  if (/userSpecific = false/.test(line)) return true;
+  if (/sourceBranch = 'openSuggestions'/.test(line)) return true;
+  if (/sourceBranch = 'anyActive'/.test(line)) return true;
+  if (/^\s+\}catch\(e\)\{$/.test(line)) return true;
+  if (/return _derived;/.test(line)) return true;
+  if (/if \(_derived && typeof _derived === 'object'/.test(line)) return true;
+  return false;
+}
+
 /** Phase 6d/6e-c/6g/6i-a: allow go('home') orchestration delegate + notification/reconcile hooks in index.html. */
 function assertIndexHtmlChangesAllowed(html) {
   if (!html.includes(GO_HOME_ORCHESTRATE_MARKER)) {
@@ -487,7 +522,7 @@ function assertIndexHtmlChangesAllowed(html) {
       }
     }
     if (!removedAllowed) {
-      if (isPendingProposalCueRoutingDiffLine(line)) {
+      if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line)) {
         continue;
       }
       fail(`index.html diff removes disallowed line in Phase 6d: ${line}`);
@@ -1111,7 +1146,7 @@ function assertIndexHtmlChangesAllowed(html) {
     if (line.trim() === '}') {
       continue;
     }
-    if (isPendingProposalCueRoutingDiffLine(line)) {
+    if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line)) {
       continue;
     }
     var matched = false;

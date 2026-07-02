@@ -1,4 +1,4 @@
-// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i/6m-b/6m-c/6o-b/6o-c/6p-a: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers, pending proposal derive/render/target seams.
+// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i/6m-b/6m-c/6o-b/6o-c/6p-a/6s-a: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers, pending proposal derive/render/target seams, song vote derive seam.
 
 (function (window) {
   'use strict';
@@ -63,6 +63,96 @@
       }).filter(Boolean);
     } catch (e) {
       return [];
+    }
+  }
+
+  function deriveSongVoteCueState(input) {
+    var snap = _normalizeInput(input);
+    var suggestions = Array.isArray(snap.suggestions) ? snap.suggestions : [];
+    var currentMemberId = snap.currentMemberId != null ? String(snap.currentMemberId) : '';
+    var members = Array.isArray(snap.members) ? snap.members : [];
+    var bandSize = members.length ? members.length : 6;
+
+    function hasMyVote(suggestion) {
+      var yesVoters = (suggestion && suggestion.yesVoters)
+        ? suggestion.yesVoters.map(function (v) { return String(v); })
+        : [];
+      var noVoters = (suggestion && suggestion.noVoters)
+        ? suggestion.noVoters.map(function (v) { return String(v); })
+        : [];
+      if (yesVoters.indexOf(currentMemberId) >= 0) return 'yes';
+      if (noVoters.indexOf(currentMemberId) >= 0) return 'no';
+      return null;
+    }
+
+    function pendingForMe() {
+      try {
+        return suggestions.filter(function (suggestion) {
+          return !hasMyVote(suggestion);
+        });
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function openSuggestions() {
+      try {
+        return suggestions.filter(function (suggestion) {
+          if (!suggestion) return false;
+          var status = String(suggestion.status || '').toLowerCase();
+          if (status === 'closed' || status === 'cancelled' || status === 'canceled' || status === 'deleted') {
+            return false;
+          }
+          var yesCount = Array.isArray(suggestion.yesVoters) ? suggestion.yesVoters.length : 0;
+          var noCount = Array.isArray(suggestion.noVoters) ? suggestion.noVoters.length : 0;
+          return (yesCount + noCount) < bandSize;
+        });
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function anyActive() {
+      try {
+        return suggestions.filter(function (suggestion) {
+          if (!suggestion) return false;
+          var status = String(suggestion.status || suggestion.state || '').toLowerCase();
+          if (status === 'closed' || status === 'cancelled' || status === 'canceled' || status === 'deleted' || status === 'archived') {
+            return false;
+          }
+          if (suggestion.deleted || suggestion.archived) return false;
+          return true;
+        });
+      } catch (e) {
+        return [];
+      }
+    }
+
+    try {
+      var cueItems = pendingForMe();
+      var userSpecific = true;
+      var sourceBranch = 'pendingForMe';
+      if (!cueItems.length) {
+        cueItems = openSuggestions();
+        userSpecific = false;
+        sourceBranch = 'openSuggestions';
+      }
+      if (!cueItems.length) {
+        cueItems = anyActive();
+        userSpecific = false;
+        sourceBranch = 'anyActive';
+      }
+      return {
+        cueItems: cueItems,
+        userSpecific: userSpecific,
+        sourceBranch: sourceBranch
+      };
+    } catch (e) {
+      return {
+        cueItems: [],
+        userSpecific: true,
+        sourceBranch: 'pendingForMe'
+      };
     }
   }
 
@@ -668,6 +758,7 @@
         'buildSongVoteCueView',
         'buildRehearsalCueView',
         'derivePendingProposalIds',
+        'deriveSongVoteCueState',
         'buildPendingProposalCueView',
         'applyPendingProposalCueView',
         'collectPendingProposalCueTargets',
@@ -693,6 +784,7 @@
     buildSongVoteCueView: buildSongVoteCueView,
     buildRehearsalCueView: buildRehearsalCueView,
     derivePendingProposalIds: derivePendingProposalIds,
+    deriveSongVoteCueState: deriveSongVoteCueState,
     buildPendingProposalCueView: buildPendingProposalCueView,
     applyPendingProposalCueView: applyPendingProposalCueView,
     collectPendingProposalCueTargets: collectPendingProposalCueTargets,

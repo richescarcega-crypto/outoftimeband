@@ -2377,6 +2377,175 @@ function assertPhase6qAPendingProposalReconcileNotify(html, controllerJs) {
   }
 }
 
+function loadDeriveSongVoteCueStateHelper() {
+  const cr = loadCueRendererApi();
+  if (typeof cr.deriveSongVoteCueState !== 'function') {
+    fail('deriveSongVoteCueState must be exported on OOT.home.cueRenderer');
+  }
+  return cr.deriveSongVoteCueState.bind(cr);
+}
+
+function assertPhase6sASongVoteDeriveSeam(html) {
+  const cueRendererJs = read('oot_home_cue_renderer.js');
+
+  if (!cueRendererJs.includes('function deriveSongVoteCueState')) {
+    fail('oot_home_cue_renderer.js must define deriveSongVoteCueState for Phase 6s-a');
+  }
+  if (!cueRendererJs.includes('deriveSongVoteCueState: deriveSongVoteCueState')) {
+    fail('deriveSongVoteCueState must be exported on cueRenderer API');
+  }
+
+  const deriveStart = cueRendererJs.indexOf('function deriveSongVoteCueState');
+  const deriveEnd = cueRendererJs.indexOf('function canRenderSongVoteCue', deriveStart);
+  if (deriveStart === -1 || deriveEnd === -1) {
+    fail('Could not locate deriveSongVoteCueState body in oot_home_cue_renderer.js');
+  }
+  const deriveBody = cueRendererJs.slice(deriveStart, deriveEnd);
+
+  for (const call of CUE_RENDERER_FORBIDDEN_CALLS) {
+    if (deriveBody.includes(call)) {
+      fail(`deriveSongVoteCueState must not reference forbidden behavior: ${call}`);
+    }
+  }
+  if (/^\s+document\.(getElementById|querySelector)/m.test(deriveBody)) {
+    fail('deriveSongVoteCueState must not read DOM');
+  }
+  if (deriveBody.includes('localStorage') || deriveBody.includes('setProperty')) {
+    fail('deriveSongVoteCueState must not write localStorage or CSS vars');
+  }
+  if (/\brHome\s*\(/.test(deriveBody)) {
+    fail('deriveSongVoteCueState must not call rHome');
+  }
+
+  const derive = loadDeriveSongVoteCueStateHelper();
+
+  const emptyState = derive({
+    suggestions: [],
+    currentMemberId: '6',
+    members: [{ id: '6' }]
+  });
+  if (!emptyState || typeof emptyState !== 'object' || !Array.isArray(emptyState.cueItems)) {
+    fail('deriveSongVoteCueState must return an object with cueItems array');
+  }
+  if (emptyState.cueItems.length !== 0) {
+    fail('deriveSongVoteCueState must return empty cueItems for no suggestions');
+  }
+  if (emptyState.sourceBranch !== 'anyActive') {
+    fail('deriveSongVoteCueState must use anyActive branch when all suggestion paths are empty');
+  }
+
+  const pendingState = derive({
+    suggestions: [{ id: 's1', yesVoters: [], noVoters: [] }],
+    currentMemberId: '6',
+    members: [{ id: '6' }]
+  });
+  if (pendingState.cueItems.length !== 1 || pendingState.cueItems[0].id !== 's1') {
+    fail('deriveSongVoteCueState must return pending-for-me suggestions when member has not voted');
+  }
+  if (pendingState.userSpecific !== true || pendingState.sourceBranch !== 'pendingForMe') {
+    fail('deriveSongVoteCueState must mark pending-for-me branch as userSpecific pendingForMe');
+  }
+
+  const openState = derive({
+    suggestions: [{
+      id: 's2',
+      status: 'open',
+      yesVoters: ['6'],
+      noVoters: []
+    }],
+    currentMemberId: '6',
+    members: [
+      { id: '1' }, { id: '2' }, { id: '3' },
+      { id: '4' }, { id: '5' }, { id: '6' }
+    ]
+  });
+  if (openState.cueItems.length !== 1 || openState.cueItems[0].id !== 's2') {
+    fail('deriveSongVoteCueState must fall back to openSuggestions when member already voted but votes are incomplete');
+  }
+  if (openState.userSpecific !== false || openState.sourceBranch !== 'openSuggestions') {
+    fail('deriveSongVoteCueState must mark openSuggestions branch as non-user-specific');
+  }
+
+  const suggestionsInput = [{
+    id: 's3',
+    yesVoters: [],
+    noVoters: []
+  }];
+  const suggestionsBefore = JSON.stringify(suggestionsInput);
+  derive({
+    suggestions: suggestionsInput,
+    currentMemberId: '3',
+    members: [{ id: '3' }]
+  });
+  if (JSON.stringify(suggestionsInput) !== suggestionsBefore) {
+    fail('deriveSongVoteCueState must not mutate suggestions input');
+  }
+
+  if (!html.includes('function _deriveSongVoteCueState')) {
+    fail('index.html must retain _deriveSongVoteCueState wrapper');
+  }
+  if (!html.includes('function _legacyDeriveSongVoteCueState')) {
+    fail('index.html must retain _legacyDeriveSongVoteCueState fallback helper');
+  }
+
+  const deriveWrapperStart = html.indexOf('function _deriveSongVoteCueState');
+  const deriveWrapperEnd = html.indexOf('function _ootLooksLikeRehearsalRecord', deriveWrapperStart);
+  if (deriveWrapperStart === -1 || deriveWrapperEnd === -1) {
+    fail('Could not locate _deriveSongVoteCueState for Phase 6s-a delegation checks');
+  }
+  const deriveWrapperBody = html.slice(deriveWrapperStart, deriveWrapperEnd);
+  if (!deriveWrapperBody.includes('deriveSongVoteCueState')) {
+    fail('_deriveSongVoteCueState must delegate to cueRenderer.deriveSongVoteCueState on normal path');
+  }
+  if (!deriveWrapperBody.includes('_legacyDeriveSongVoteCueState()')) {
+    fail('_deriveSongVoteCueState must fall back to _legacyDeriveSongVoteCueState when module derive fails');
+  }
+  if (!deriveWrapperBody.includes('suggestions: typeof suggestions')) {
+    fail('_deriveSongVoteCueState must pass suggestions snapshot to preserve legacy data access');
+  }
+
+  const songStart = html.indexOf('function renderHomeSongVoteCue');
+  const songEnd = html.indexOf('// r810:', songStart);
+  if (songStart === -1 || songEnd === -1) {
+    fail('Could not locate renderHomeSongVoteCue for Phase 6s-a derivation routing checks');
+  }
+  const songBody = html.slice(songStart, songEnd);
+  if (!songBody.includes('_deriveSongVoteCueState()')) {
+    fail('renderHomeSongVoteCue must derive cue state via _deriveSongVoteCueState()');
+  }
+  if (!songBody.includes('_buildHomeSongVoteCueInput(')) {
+    fail('renderHomeSongVoteCue must preserve _buildHomeSongVoteCueInput packaging');
+  }
+  if (songBody.includes('_pendingSongSuggestionsForMe()')) {
+    fail('renderHomeSongVoteCue must not call _pendingSongSuggestionsForMe directly after Phase 6s-a');
+  }
+  if (songBody.includes('_homeOpenSongSuggestions()')) {
+    fail('renderHomeSongVoteCue must not call _homeOpenSongSuggestions directly after Phase 6s-a');
+  }
+  if (songBody.includes('_homeAnyActiveSongSuggestions()')) {
+    fail('renderHomeSongVoteCue must not call _homeAnyActiveSongSuggestions directly after Phase 6s-a');
+  }
+
+  if (!cueRendererJs.includes('function derivePendingProposalIds')) {
+    fail('Phase 6s-a must preserve derivePendingProposalIds in cue renderer module');
+  }
+  if (!html.includes('function _pendingProposalIdsForMe')) {
+    fail('Phase 6s-a must preserve _pendingProposalIdsForMe pending proposal wrapper');
+  }
+  if (!html.includes('function renderPendingProposalCue')) {
+    fail('Phase 6s-a must preserve renderPendingProposalCue owner');
+  }
+
+  const songVoteCount = countOccurrences(html, "requestHomeReconcile('cue:song-vote')");
+  if (songVoteCount !== 2) {
+    fail(`Phase 6s-a must preserve exactly two cue:song-vote reconcile hooks (found ${songVoteCount})`);
+  }
+
+  if (html.includes('data-home-layout-mode="modular-inflow"')) {
+    fail('index.html must not default static Home markup to modular-inflow');
+  }
+}
+
 function report() {
   if (warnings.length) {
     console.warn('Warnings:');
@@ -2388,7 +2557,7 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6q-a Pending proposal reconcile notify checks.');
+  console.log('PASS: Phase 6q-a + Phase 6s-a Home cue integrity checks.');
 }
 
 function main() {
@@ -2440,6 +2609,7 @@ function main() {
   assertPhase6oCPendingProposalRenderOrchestration(html);
   assertPhase6pAPendingProposalTargetCollection(html);
   assertPhase6qAPendingProposalReconcileNotify(html, controllerJs);
+  assertPhase6sASongVoteDeriveSeam(html);
 
   report();
 }

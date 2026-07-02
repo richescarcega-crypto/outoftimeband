@@ -22502,6 +22502,45 @@ function _homeAnyActiveSongSuggestions(){
   }catch(e){ return []; }
 }
 
+function _legacyDeriveSongVoteCueState(){
+  try{
+    var pending = _pendingSongSuggestionsForMe();
+    var cueItems = pending;
+    var userSpecific = true;
+    var sourceBranch = 'pendingForMe';
+    if(!cueItems.length && typeof _homeOpenSongSuggestions === 'function'){
+      cueItems = _homeOpenSongSuggestions();
+      userSpecific = false;
+      sourceBranch = 'openSuggestions';
+    }
+    if(!cueItems.length && typeof _homeAnyActiveSongSuggestions === 'function'){
+      cueItems = _homeAnyActiveSongSuggestions();
+      userSpecific = false;
+      sourceBranch = 'anyActive';
+    }
+    return { cueItems: cueItems, userSpecific: userSpecific, sourceBranch: sourceBranch };
+  }catch(e){
+    return { cueItems: [], userSpecific: true, sourceBranch: 'pendingForMe' };
+  }
+}
+
+function _deriveSongVoteCueState(){
+  try{
+    var _svCr = window.OOT && window.OOT.home && window.OOT.home.cueRenderer;
+    if (_svCr && typeof _svCr.deriveSongVoteCueState === 'function') {
+      var _derived = _svCr.deriveSongVoteCueState({
+        suggestions: typeof suggestions !== 'undefined' ? suggestions : [],
+        currentMemberId: typeof ME !== 'undefined' ? ME : '',
+        members: typeof members !== 'undefined' ? members : []
+      });
+      if (_derived && typeof _derived === 'object' && Array.isArray(_derived.cueItems)) {
+        return _derived;
+      }
+    }
+  }catch(e){}
+  return _legacyDeriveSongVoteCueState();
+}
+
 function _ootLooksLikeRehearsalRecord(ev){
   try{
     if(!ev) return false;
@@ -22886,20 +22925,10 @@ function renderHomeRehearsalCue(){
 function renderHomeSongVoteCue(){
   var el = document.getElementById('home-song-vote-cue');
   if(!el) return;
-  var pending = _pendingSongSuggestionsForMe();
-  var cueItems = pending;
-  var userSpecific = true;
-  var sourceBranch = 'pendingForMe';
-  if(!cueItems.length && typeof _homeOpenSongSuggestions === 'function'){
-    cueItems = _homeOpenSongSuggestions();
-    userSpecific = false;
-    sourceBranch = 'openSuggestions';
-  }
-  if(!cueItems.length && typeof _homeAnyActiveSongSuggestions === 'function'){
-    cueItems = _homeAnyActiveSongSuggestions();
-    userSpecific = false;
-    sourceBranch = 'anyActive';
-  }
+  var _svDerived = _deriveSongVoteCueState();
+  var cueItems = _svDerived.cueItems;
+  var userSpecific = _svDerived.userSpecific;
+  var sourceBranch = _svDerived.sourceBranch;
   var _svInput = _buildHomeSongVoteCueInput(cueItems, userSpecific, sourceBranch);
   var _svView = null;
   var _svModuleApplied = false;
