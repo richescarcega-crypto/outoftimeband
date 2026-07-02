@@ -893,6 +893,7 @@ function assertPhase6lCHomeCueRendererScaffold(html) {
     'buildSongVoteCueView',
     'buildRehearsalCueView',
     'buildPendingProposalCueView',
+    'applyPendingProposalCueView',
     'applyCueView',
     'renderSongVoteCue',
     'renderRehearsalCue',
@@ -1622,6 +1623,73 @@ function assertPhase6mBPendingProposalViewBuilder(html) {
   }
 }
 
+function assertPhase6mCPendingProposalApplySeam(html) {
+  const cueRendererJs = read('oot_home_cue_renderer.js');
+
+  if (!cueRendererJs.includes('function applyPendingProposalCueView')) {
+    fail('oot_home_cue_renderer.js must define applyPendingProposalCueView for Phase 6m-c');
+  }
+
+  const applyStart = cueRendererJs.indexOf('function applyPendingProposalCueView');
+  const applyEnd = cueRendererJs.indexOf('function getState', applyStart);
+  if (applyStart === -1 || applyEnd === -1) {
+    fail('Could not locate applyPendingProposalCueView body in oot_home_cue_renderer.js');
+  }
+  const applyBody = cueRendererJs.slice(applyStart, applyEnd);
+
+  for (const call of CUE_RENDERER_FORBIDDEN_CALLS) {
+    if (applyBody.includes(call)) {
+      fail(`applyPendingProposalCueView must not reference forbidden behavior: ${call}`);
+    }
+  }
+  if (applyBody.includes('localStorage') || applyBody.includes('setProperty')) {
+    fail('applyPendingProposalCueView must not write localStorage or CSS vars');
+  }
+  if (/\brHome\s*\(/.test(applyBody)) {
+    fail('applyPendingProposalCueView must not call rHome');
+  }
+  if (!applyBody.includes('calendarTabBadge')) {
+    fail('applyPendingProposalCueView must apply calendarTabBadge surface');
+  }
+  if (!applyBody.includes('homeMicroCue')) {
+    fail('applyPendingProposalCueView must apply homeMicroCue surface');
+  }
+  if (!applyBody.includes('calendarMicroCue')) {
+    fail('applyPendingProposalCueView must apply calendarMicroCue surface');
+  }
+  if (!applyBody.includes('rendersDom: true')) {
+    fail('applyPendingProposalCueView must declare rendersDom: true on success');
+  }
+  if (!applyBody.includes('inline-flex') || !applyBody.includes("display = 'flex'")) {
+    fail('applyPendingProposalCueView must preserve Home/Calendar display values from legacy apply');
+  }
+  if (!applyBody.includes('_openPendingProposalCue') && !applyBody.includes('onclickHandler')) {
+    fail('applyPendingProposalCueView must wire pending proposal cue click handler from view');
+  }
+
+  if (!cueRendererJs.includes('function buildPendingProposalCueView')) {
+    fail('Phase 6m-c must preserve buildPendingProposalCueView');
+  }
+
+  if (html.includes('applyPendingProposalCueView')) {
+    fail('index.html must not call applyPendingProposalCueView in Phase 6m-c');
+  }
+
+  const proposalStart = html.indexOf('function renderPendingProposalCue');
+  const proposalEnd = html.indexOf('function _resetCalendarScrollToTop', proposalStart);
+  if (proposalStart === -1 || proposalEnd === -1) {
+    fail('Could not locate renderPendingProposalCue for untouched guard');
+  }
+  const proposalBody = html.slice(proposalStart, proposalEnd);
+  if (proposalBody.includes('applyPendingProposalCueView') || proposalBody.includes('buildPendingProposalCueView')) {
+    fail('renderPendingProposalCue must remain untouched by Phase 6m-c apply seam');
+  }
+
+  if (html.includes('data-home-layout-mode="modular-inflow"')) {
+    fail('index.html must not default static Home markup to modular-inflow');
+  }
+}
+
 function report() {
   if (warnings.length) {
     console.warn('Warnings:');
@@ -1633,7 +1701,7 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6m-b Pending proposal view builder checks.');
+  console.log('PASS: Phase 6m-c Pending proposal apply seam checks.');
 }
 
 function main() {
@@ -1679,6 +1747,7 @@ function main() {
   assertPhase6lHSongVoteRenderWrapper(html);
   assertPhase6lIRehearsalRenderWrapper(html);
   assertPhase6mBPendingProposalViewBuilder(html);
+  assertPhase6mCPendingProposalApplySeam(html);
 
   report();
 }

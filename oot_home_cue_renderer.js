@@ -1,9 +1,9 @@
-// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i/6m-b: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers.
+// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i/6m-b/6m-c: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers.
 
 (function (window) {
   'use strict';
 
-  var PHASE = '6m-b-pending-proposal-view-builder';
+  var PHASE = '6m-c-pending-proposal-apply-seam';
   var SCAFFOLD = true;
 
   var CUE_IDS = {
@@ -389,6 +389,122 @@
     }
   }
 
+  function _wirePendingProposalCueClick(el, handlerName) {
+    var name = handlerName || '_openPendingProposalCue';
+    el.onclick = function(ev) {
+      if (ev) ev.stopPropagation();
+      try {
+        var fn = window[name];
+        if (typeof fn === 'function') fn();
+      } catch (e) {}
+    };
+  }
+
+  function applyPendingProposalCueView(targets, view) {
+    try {
+      var t = targets && typeof targets === 'object' ? targets : {};
+      var v = view && typeof view === 'object' ? view : {};
+      var badgeView = v.calendarTabBadge || {};
+      var homeView = v.homeMicroCue || {};
+      var calView = v.calendarMicroCue || {};
+      var result = {
+        applied: false,
+        visible: v.visible === true,
+        sourceBranch: v.sourceBranch || 'pending-proposal-hidden',
+        rendersDom: true,
+        calendarTabBadge: { applied: false },
+        homeMicroCue: { applied: false },
+        calendarMicroCue: { applied: false }
+      };
+
+      var calBtn = t.calTabBtn || null;
+      if (calBtn) {
+        if (calBtn.style.position !== 'relative') {
+          calBtn.style.position = 'relative';
+        }
+        var badgeClass = badgeView.className || 'proposal-tab-badge';
+        var badge = calBtn.querySelector('.' + badgeClass);
+        if (badgeView.visible === true) {
+          if (!badge) {
+            badge = document.createElement('span');
+            badge.className = badgeClass;
+            calBtn.appendChild(badge);
+          }
+          badge.textContent = badgeView.countLabel || '';
+          badge.title = badgeView.title || '';
+          result.calendarTabBadge.applied = true;
+        } else if (badge && badge.parentNode) {
+          badge.parentNode.removeChild(badge);
+          result.calendarTabBadge.applied = true;
+        }
+      }
+
+      var hero = t.homeHero || null;
+      if (hero) {
+        var homeId = homeView.id || 'home-proposal-micro-cue';
+        var homeCue = t.homeMicroCueEl != null ? t.homeMicroCueEl : document.getElementById(homeId);
+        if (homeView.visible === true) {
+          if (!homeCue) {
+            homeCue = document.createElement('button');
+            homeCue.id = homeId;
+            homeCue.type = 'button';
+            _wirePendingProposalCueClick(homeCue, homeView.onclickHandler);
+            hero.appendChild(homeCue);
+          }
+          homeCue.innerHTML = homeView.html || '';
+          homeCue.style.display = 'inline-flex';
+          result.homeMicroCue.applied = true;
+        } else if (homeCue) {
+          homeCue.style.display = 'none';
+          result.homeMicroCue.applied = true;
+        }
+      }
+
+      var cal = t.calSection || null;
+      if (cal) {
+        var calId = calView.id || 'cal-proposal-micro-cue';
+        var calCue = t.calMicroCueEl != null ? t.calMicroCueEl : document.getElementById(calId);
+        if (calView.visible === true) {
+          if (!calCue) {
+            calCue = document.createElement('button');
+            calCue.id = calId;
+            calCue.type = 'button';
+            _wirePendingProposalCueClick(calCue, calView.onclickHandler);
+            var calHero = t.calHero || document.getElementById('calendar-hero');
+            if (calHero && calHero.parentNode) {
+              calHero.parentNode.insertBefore(calCue, calHero.nextSibling);
+            } else {
+              cal.insertBefore(calCue, cal.firstChild);
+            }
+          }
+          calCue.innerHTML = calView.html || '';
+          calCue.style.display = 'flex';
+          result.calendarMicroCue.applied = true;
+        } else if (calCue) {
+          calCue.style.display = 'none';
+          result.calendarMicroCue.applied = true;
+        }
+      }
+
+      result.applied = !!(
+        result.calendarTabBadge.applied ||
+        result.homeMicroCue.applied ||
+        result.calendarMicroCue.applied
+      );
+      return result;
+    } catch (e) {
+      return {
+        applied: false,
+        visible: false,
+        sourceBranch: view && view.sourceBranch ? view.sourceBranch : 'pending-proposal-hidden',
+        rendersDom: false,
+        calendarTabBadge: { applied: false },
+        homeMicroCue: { applied: false },
+        calendarMicroCue: { applied: false }
+      };
+    }
+  }
+
   function getState() {
     return {
       phase: _state.phase,
@@ -429,6 +545,7 @@
         'buildSongVoteCueView',
         'buildRehearsalCueView',
         'buildPendingProposalCueView',
+        'applyPendingProposalCueView',
         'applyCueView',
         'renderSongVoteCue',
         'renderRehearsalCue',
@@ -450,6 +567,7 @@
     buildSongVoteCueView: buildSongVoteCueView,
     buildRehearsalCueView: buildRehearsalCueView,
     buildPendingProposalCueView: buildPendingProposalCueView,
+    applyPendingProposalCueView: applyPendingProposalCueView,
     applyCueView: applyCueView,
     renderSongVoteCue: renderSongVoteCue,
     renderRehearsalCue: renderRehearsalCue,
