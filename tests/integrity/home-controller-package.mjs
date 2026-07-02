@@ -5,6 +5,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -1755,6 +1756,142 @@ function assertPhase6mDPendingProposalWrapperRouting(html) {
   }
 }
 
+function loadDerivePendingProposalIdsHelper() {
+  const cueRendererJs = read('oot_home_cue_renderer.js');
+  const sandbox = { window: { OOT: { home: {} } }, console };
+  vm.createContext(sandbox);
+  vm.runInContext(cueRendererJs, sandbox, { filename: 'oot_home_cue_renderer.js' });
+  const cr = sandbox.window.OOT && sandbox.window.OOT.home && sandbox.window.OOT.home.cueRenderer;
+  if (!cr || typeof cr.derivePendingProposalIds !== 'function') {
+    fail('derivePendingProposalIds must be exported on OOT.home.cueRenderer');
+  }
+  return cr.derivePendingProposalIds.bind(cr);
+}
+
+function assertPhase6oBPendingProposalDeriveSeam(html) {
+  const cueRendererJs = read('oot_home_cue_renderer.js');
+
+  if (!cueRendererJs.includes('function derivePendingProposalIds')) {
+    fail('oot_home_cue_renderer.js must define derivePendingProposalIds for Phase 6o-b');
+  }
+  if (!cueRendererJs.includes('6o-b-pending-proposal-derive-seam')) {
+    fail('oot_home_cue_renderer.js phase marker must reflect Phase 6o-b derive seam');
+  }
+  if (!cueRendererJs.includes('derivePendingProposalIds: derivePendingProposalIds')) {
+    fail('derivePendingProposalIds must be exported on cueRenderer API');
+  }
+
+  const deriveStart = cueRendererJs.indexOf('function derivePendingProposalIds');
+  const deriveEnd = cueRendererJs.indexOf('function canRenderSongVoteCue', deriveStart);
+  if (deriveStart === -1 || deriveEnd === -1) {
+    fail('Could not locate derivePendingProposalIds body in oot_home_cue_renderer.js');
+  }
+  const deriveBody = cueRendererJs.slice(deriveStart, deriveEnd);
+
+  for (const call of CUE_RENDERER_FORBIDDEN_CALLS) {
+    if (deriveBody.includes(call)) {
+      fail(`derivePendingProposalIds must not reference forbidden behavior: ${call}`);
+    }
+  }
+  if (/^\s+document\.(getElementById|querySelector)/m.test(deriveBody)) {
+    fail('derivePendingProposalIds must not read DOM');
+  }
+  if (deriveBody.includes('localStorage') || deriveBody.includes('setProperty')) {
+    fail('derivePendingProposalIds must not write localStorage or CSS vars');
+  }
+  if (/\brHome\s*\(/.test(deriveBody)) {
+    fail('derivePendingProposalIds must not call rHome');
+  }
+
+  const derive = loadDerivePendingProposalIdsHelper();
+
+  if (!Array.isArray(derive({ proposals: [], currentMemberId: '6', currentMemberName: 'Zach' }))) {
+    fail('derivePendingProposalIds must return an array');
+  }
+  if (derive({ proposals: [], currentMemberId: '6', currentMemberName: 'Zach' }).length !== 0) {
+    fail('derivePendingProposalIds must return [] for no proposals');
+  }
+
+  const respondedProposal = {
+    id: '1783022306892',
+    status: 'open',
+    expectedResponderIds: ['6'],
+    responses: { '6': 'yes' }
+  };
+  if (derive({
+    proposals: [respondedProposal],
+    currentMemberId: '6',
+    currentMemberName: 'Zach Dennert'
+  }).length !== 0) {
+    fail('derivePendingProposalIds must return [] when current member already responded');
+  }
+
+  const pendingProposal = {
+    id: '1783022306892',
+    status: 'open',
+    expectedResponderIds: ['6'],
+    responses: {}
+  };
+  const pendingIds = derive({
+    proposals: [pendingProposal],
+    currentMemberId: '6',
+    currentMemberName: 'Zach Dennert'
+  });
+  if (pendingIds.length !== 1 || pendingIds[0] !== '1783022306892') {
+    fail('derivePendingProposalIds must return proposal id when current member is expected and has not responded');
+  }
+
+  const proposalsInput = [{
+    id: 'abc',
+    status: 'open',
+    expectedResponderIds: ['3'],
+    responses: {}
+  }];
+  const proposalsBefore = JSON.stringify(proposalsInput);
+  derive({
+    proposals: proposalsInput,
+    currentMemberId: '3',
+    currentMemberName: 'Rich Escarcega'
+  });
+  if (JSON.stringify(proposalsInput) !== proposalsBefore) {
+    fail('derivePendingProposalIds must not mutate proposals input');
+  }
+
+  if (!html.includes('function _pendingProposalIdsForMe')) {
+    fail('index.html must retain _pendingProposalIdsForMe wrapper');
+  }
+  if (!html.includes('function _legacyPendingProposalIdsForMe')) {
+    fail('index.html must retain _legacyPendingProposalIdsForMe fallback helper');
+  }
+
+  const pendingStart = html.indexOf('function _pendingProposalIdsForMe');
+  const pendingEnd = html.indexOf('function _hideCalendarProposalCueWhileWorkspaceOpen', pendingStart);
+  if (pendingStart === -1 || pendingEnd === -1) {
+    fail('Could not locate _pendingProposalIdsForMe for Phase 6o-b delegation checks');
+  }
+  const pendingBody = html.slice(pendingStart, pendingEnd);
+  if (!pendingBody.includes('derivePendingProposalIds')) {
+    fail('_pendingProposalIdsForMe must delegate to cueRenderer.derivePendingProposalIds on normal path');
+  }
+  if (!pendingBody.includes('_legacyPendingProposalIdsForMe()')) {
+    fail('_pendingProposalIdsForMe must fall back to _legacyPendingProposalIdsForMe when module derive fails');
+  }
+  if (!pendingBody.includes('expectedResponderIdsFn')) {
+    fail('_pendingProposalIdsForMe must pass expectedResponderIdsFn to preserve legacy expected-responder behavior');
+  }
+
+  const proposalRenderStart = html.indexOf('function renderPendingProposalCue');
+  const proposalRenderEnd = html.indexOf('function _resetCalendarScrollToTop', proposalRenderStart);
+  const proposalRenderBody = html.slice(proposalRenderStart, proposalRenderEnd);
+  if (!proposalRenderBody.includes('_pendingProposalIdsForMe()')) {
+    fail('renderPendingProposalCue must continue deriving pending ids via _pendingProposalIdsForMe()');
+  }
+
+  if (html.includes('data-home-layout-mode="modular-inflow"')) {
+    fail('index.html must not default static Home markup to modular-inflow');
+  }
+}
+
 function report() {
   if (warnings.length) {
     console.warn('Warnings:');
@@ -1766,7 +1903,7 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6m-d Pending proposal wrapper routing checks.');
+  console.log('PASS: Phase 6o-b Pending proposal derive seam checks.');
 }
 
 function main() {
@@ -1814,6 +1951,7 @@ function main() {
   assertPhase6mBPendingProposalViewBuilder(html);
   assertPhase6mCPendingProposalApplySeam(html);
   assertPhase6mDPendingProposalWrapperRouting(html);
+  assertPhase6oBPendingProposalDeriveSeam(html);
 
   report();
 }

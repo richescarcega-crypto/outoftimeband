@@ -305,6 +305,18 @@ function isPendingProposalCueRoutingDiffLine(line) {
   if (/calCue = document\.createElement\('button'\)/.test(line)) return true;
   if (/calCue\.type = 'button'/.test(line)) return true;
   if (/\}else\{/.test(line)) return true;
+  if (/derivePendingProposalIds/.test(line)) return true;
+  if (/function _legacyPendingProposalIdsForMe/.test(line)) return true;
+  if (/function _pendingProposalIdsForMe/.test(line)) return true;
+  if (/proposals: typeof proposals/.test(line)) return true;
+  if (/members: typeof members/.test(line)) return true;
+  if (/if \(Array\.isArray\(_derived\)\) return _derived/.test(line)) return true;
+  if (/^\s+\}catch\(e\)\{\}$/.test(line)) return true;
+  if (/_legacyPendingProposalIdsForMe\(\)/.test(line)) return true;
+  if (/expectedResponderIdsFn/.test(line)) return true;
+  if (/currentMemberName/.test(line)) return true;
+  if (/currentMemberId/.test(line)) return true;
+  if (/var _derived =/.test(line)) return true;
   if (line.trim() === '}') return true;
   return false;
 }

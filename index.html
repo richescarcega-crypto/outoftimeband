@@ -25816,7 +25816,7 @@ function _gotoTab(id){
 // r838: member-specific in-app cue for pending rehearsal proposal responses.
 // This is intentionally NOT another large Home pill. It uses a Calendar tab badge
 // plus a tiny Home text cue, and only appears for members who have not responded.
-function _pendingProposalIdsForMe(){
+function _legacyPendingProposalIdsForMe(){
   try{
     if(typeof proposals === 'undefined' || !Array.isArray(proposals)) return [];
     return proposals.filter(function(p){
@@ -25829,6 +25829,23 @@ function _pendingProposalIdsForMe(){
       return !responses[String(ME)];
     }).map(function(p){ return String(p.id || ''); }).filter(Boolean);
   }catch(e){ return []; }
+}
+
+function _pendingProposalIdsForMe(){
+  try{
+    var _ppCr = window.OOT && window.OOT.home && window.OOT.home.cueRenderer;
+    if (_ppCr && typeof _ppCr.derivePendingProposalIds === 'function') {
+      var _derived = _ppCr.derivePendingProposalIds({
+        proposals: typeof proposals !== 'undefined' ? proposals : [],
+        currentMemberId: typeof ME !== 'undefined' ? ME : '',
+        currentMemberName: typeof myName !== 'undefined' ? myName : '',
+        members: typeof members !== 'undefined' ? members : [],
+        expectedResponderIdsFn: typeof _proposalExpectedResponderIds === 'function' ? _proposalExpectedResponderIds : null
+      });
+      if (Array.isArray(_derived)) return _derived;
+    }
+  }catch(e){}
+  return _legacyPendingProposalIdsForMe();
 }
 
 function _hideCalendarProposalCueWhileWorkspaceOpen(){

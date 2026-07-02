@@ -1,9 +1,9 @@
-// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i/6m-b/6m-c: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers.
+// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i/6m-b/6m-c/6o-b: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers, pending proposal derive seam.
 
 (function (window) {
   'use strict';
 
-  var PHASE = '6m-c-pending-proposal-apply-seam';
+  var PHASE = '6o-b-pending-proposal-derive-seam';
   var SCAFFOLD = true;
 
   var CUE_IDS = {
@@ -26,6 +26,44 @@
 
   function _normalizeInput(input) {
     return input && typeof input === 'object' ? input : {};
+  }
+
+  function derivePendingProposalIds(input) {
+    var snap = _normalizeInput(input);
+    var proposals = Array.isArray(snap.proposals) ? snap.proposals : [];
+    var currentMemberId = snap.currentMemberId != null ? String(snap.currentMemberId) : '';
+    var expectedResponderIdsFn = typeof snap.expectedResponderIdsFn === 'function'
+      ? snap.expectedResponderIdsFn
+      : null;
+    var members = Array.isArray(snap.members) ? snap.members : [];
+
+    function resolveExpectedResponderIds(proposal) {
+      if (expectedResponderIdsFn) {
+        return expectedResponderIdsFn(proposal);
+      }
+      if (proposal && Array.isArray(proposal.expectedResponderIds) && proposal.expectedResponderIds.length) {
+        return proposal.expectedResponderIds.map(function (id) { return String(id); });
+      }
+      return members.map(function (member) { return String(member.id); });
+    }
+
+    try {
+      return proposals.filter(function (proposal) {
+        if (!proposal || (proposal.status && proposal.status !== 'open')) {
+          return false;
+        }
+        var expected = resolveExpectedResponderIds(proposal);
+        if (expected.map(String).indexOf(currentMemberId) < 0) {
+          return false;
+        }
+        var responses = proposal.responses || {};
+        return !responses[currentMemberId];
+      }).map(function (proposal) {
+        return String(proposal.id || '');
+      }).filter(Boolean);
+    } catch (e) {
+      return [];
+    }
   }
 
   function canRenderSongVoteCue(input) {
@@ -544,6 +582,7 @@
         'canRenderRehearsalCue',
         'buildSongVoteCueView',
         'buildRehearsalCueView',
+        'derivePendingProposalIds',
         'buildPendingProposalCueView',
         'applyPendingProposalCueView',
         'applyCueView',
@@ -566,6 +605,7 @@
     canRenderRehearsalCue: canRenderRehearsalCue,
     buildSongVoteCueView: buildSongVoteCueView,
     buildRehearsalCueView: buildRehearsalCueView,
+    derivePendingProposalIds: derivePendingProposalIds,
     buildPendingProposalCueView: buildPendingProposalCueView,
     applyPendingProposalCueView: applyPendingProposalCueView,
     applyCueView: applyCueView,
