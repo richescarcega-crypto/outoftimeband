@@ -1,5 +1,5 @@
-// Phase 6e-b: HomeController - record-only API + reconcile coalescer with guarded legacy delegate.
-// Delegates layout reconcile to legacy global/module only for non-rHome coalesced requests.
+// Phase 6e-b + 6q-a: HomeController - record-only API + reconcile coalescer with guarded legacy delegate.
+// Phase 6q-a adds pending proposal cue notify/reconcile ownership seam.
 
 (function (window, document) {
   'use strict';
@@ -175,6 +175,22 @@
     return _record('notifyCueChange', parsed.reason, parsed.payload);
   }
 
+  function notifyPendingProposalCueChange(reason, options) {
+    var parsed = _optionsOrReason(options, reason);
+    return _record(
+      'notifyPendingProposalCueChange',
+      parsed.reason || 'renderPendingProposalCue',
+      parsed.payload
+    );
+  }
+
+  function requestPendingProposalCueReconcile(options) {
+    var parsed = _optionsOrReason(options, 'cue:pending-proposal');
+    var payload = parsed.payload || null;
+    notifyPendingProposalCueChange('renderPendingProposalCue', payload);
+    return requestReconcile('cue:pending-proposal', payload);
+  }
+
   function notifyImageRefresh(reason, options) {
     var parsed = _optionsOrReason(options, reason);
     return _record('notifyImageRefresh', parsed.reason, parsed.payload);
@@ -265,6 +281,8 @@
     activate: activate,
     requestReconcile: requestReconcile,
     notifyCueChange: notifyCueChange,
+    notifyPendingProposalCueChange: notifyPendingProposalCueChange,
+    requestPendingProposalCueReconcile: requestPendingProposalCueReconcile,
     notifyImageRefresh: notifyImageRefresh,
     notifyGigSlotChange: notifyGigSlotChange,
     enterHomeTab: enterHomeTab,

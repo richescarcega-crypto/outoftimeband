@@ -25961,6 +25961,43 @@ function _pendingProposalCueTargets(){
   return _legacyPendingProposalCueTargets();
 }
 
+function _legacyNotifyPendingProposalCueChange(){
+  try { if (typeof notifyCueChange === 'function') notifyCueChange('renderPendingProposalCue'); } catch(e){}
+}
+
+function _legacyRequestPendingProposalCueReconcileIfHomeActive(){
+  try {
+    var _hs = document.getElementById('sc-home');
+    if(_hs && _hs.classList.contains('on') && typeof requestHomeReconcile === 'function'){
+      requestHomeReconcile('cue:pending-proposal');
+    }
+  } catch(e){}
+}
+
+function _notifyPendingProposalCueChange(){
+  try {
+    var _hc = window.OOT && window.OOT.home && window.OOT.home.controller;
+    if (_hc && typeof _hc.notifyPendingProposalCueChange === 'function') {
+      _hc.notifyPendingProposalCueChange('renderPendingProposalCue');
+      return;
+    }
+  } catch(e){}
+  _legacyNotifyPendingProposalCueChange();
+}
+
+function _requestPendingProposalCueReconcileIfHomeActive(){
+  try {
+    var _hs = document.getElementById('sc-home');
+    if(!_hs || !_hs.classList.contains('on')) return;
+    var _hc = window.OOT && window.OOT.home && window.OOT.home.controller;
+    if (_hc && typeof _hc.requestPendingProposalCueReconcile === 'function') {
+      _hc.requestPendingProposalCueReconcile({ source: 'renderPendingProposalCue' });
+      return;
+    }
+  } catch(e){}
+  _legacyRequestPendingProposalCueReconcileIfHomeActive();
+}
+
 function renderPendingProposalCue(){
   try{
     var ids = _pendingProposalIdsForMe();
@@ -25982,6 +26019,8 @@ function renderPendingProposalCue(){
     if (!_ppModuleApplied) {
       _legacyRenderPendingProposalCue(ids);
     }
+    try { _notifyPendingProposalCueChange(); } catch(e){}
+    try { _requestPendingProposalCueReconcileIfHomeActive(); } catch(e){}
   }catch(e){
     try{ console.warn('[r838 pending proposal cue] render failed', e); }catch(_e){}
   }

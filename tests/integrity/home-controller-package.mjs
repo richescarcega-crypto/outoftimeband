@@ -2217,6 +2217,166 @@ function assertPhase6pAPendingProposalTargetCollection(html) {
   }
 }
 
+function loadHomeControllerApi() {
+  const controllerJs = read('oot_home_controller.js');
+  const sandbox = {
+    window: { OOT: { home: {} }, reconcileHomeLayout: function () {} },
+    document: {},
+    console,
+    requestAnimationFrame: function (fn) { fn(); },
+    setTimeout: function (fn) { fn(); }
+  };
+  vm.createContext(sandbox);
+  vm.runInContext(controllerJs, sandbox, { filename: 'oot_home_controller.js' });
+  const api = sandbox.window.OOT && sandbox.window.OOT.home && sandbox.window.OOT.home.controller;
+  if (!api) {
+    fail('oot_home_controller.js must attach OOT.home.controller for Phase 6q-a checks');
+  }
+  return api;
+}
+
+function assertPhase6qAPendingProposalReconcileNotify(html, controllerJs) {
+  if (!controllerJs.includes('function notifyPendingProposalCueChange')) {
+    fail('oot_home_controller.js must define notifyPendingProposalCueChange for Phase 6q-a');
+  }
+  if (!controllerJs.includes('function requestPendingProposalCueReconcile')) {
+    fail('oot_home_controller.js must define requestPendingProposalCueReconcile for Phase 6q-a');
+  }
+  if (!controllerJs.includes('notifyPendingProposalCueChange: notifyPendingProposalCueChange')) {
+    fail('notifyPendingProposalCueChange must be exported on HomeController API');
+  }
+  if (!controllerJs.includes('requestPendingProposalCueReconcile: requestPendingProposalCueReconcile')) {
+    fail('requestPendingProposalCueReconcile must be exported on HomeController API');
+  }
+  if (!controllerJs.includes("requestReconcile('cue:pending-proposal'")) {
+    fail('requestPendingProposalCueReconcile must delegate to requestReconcile cue:pending-proposal');
+  }
+
+  const hc = loadHomeControllerApi();
+  if (typeof hc.notifyPendingProposalCueChange !== 'function') {
+    fail('notifyPendingProposalCueChange must be callable on HomeController API');
+  }
+  if (typeof hc.requestPendingProposalCueReconcile !== 'function') {
+    fail('requestPendingProposalCueReconcile must be callable on HomeController API');
+  }
+  const notifyEntry = hc.notifyPendingProposalCueChange('renderPendingProposalCue');
+  if (!notifyEntry || notifyEntry.method !== 'notifyPendingProposalCueChange') {
+    fail('notifyPendingProposalCueChange must record notifyPendingProposalCueChange events');
+  }
+  hc.requestPendingProposalCueReconcile({ source: 'integrity-test' });
+  const state = hc.getState();
+  const reconcileEvents = (state.events || []).filter(function (e) {
+    return e.method === 'requestReconcile' && e.reason === 'cue:pending-proposal';
+  });
+  if (reconcileEvents.length < 1) {
+    fail('requestPendingProposalCueReconcile must enqueue cue:pending-proposal reconcile request');
+  }
+
+  if (!html.includes('function _legacyNotifyPendingProposalCueChange')) {
+    fail('index.html must retain _legacyNotifyPendingProposalCueChange fallback helper');
+  }
+  if (!html.includes('function _legacyRequestPendingProposalCueReconcileIfHomeActive')) {
+    fail('index.html must retain _legacyRequestPendingProposalCueReconcileIfHomeActive fallback helper');
+  }
+  if (!html.includes('function _notifyPendingProposalCueChange')) {
+    fail('index.html must define _notifyPendingProposalCueChange wrapper');
+  }
+  if (!html.includes('function _requestPendingProposalCueReconcileIfHomeActive')) {
+    fail('index.html must define _requestPendingProposalCueReconcileIfHomeActive wrapper');
+  }
+
+  const proposalStart = html.indexOf('function renderPendingProposalCue');
+  const proposalEnd = html.indexOf('function _resetCalendarScrollToTop', proposalStart);
+  if (proposalStart === -1 || proposalEnd === -1) {
+    fail('Could not locate renderPendingProposalCue for Phase 6q-a notify/reconcile checks');
+  }
+  const proposalBody = html.slice(proposalStart, proposalEnd);
+
+  if (!proposalBody.includes('_notifyPendingProposalCueChange()')) {
+    fail('renderPendingProposalCue must call _notifyPendingProposalCueChange after render path');
+  }
+  if (!proposalBody.includes('_requestPendingProposalCueReconcileIfHomeActive()')) {
+    fail('renderPendingProposalCue must call _requestPendingProposalCueReconcileIfHomeActive after render path');
+  }
+
+  const notifyStart = html.indexOf('function _notifyPendingProposalCueChange');
+  const notifyEnd = html.indexOf('function _requestPendingProposalCueReconcileIfHomeActive', notifyStart);
+  const notifyBody = notifyStart === -1 || notifyEnd === -1 ? '' : html.slice(notifyStart, notifyEnd);
+  if (!notifyBody.includes('notifyPendingProposalCueChange')) {
+    fail('_notifyPendingProposalCueChange must delegate to HomeController.notifyPendingProposalCueChange');
+  }
+  if (!notifyBody.includes('_legacyNotifyPendingProposalCueChange()')) {
+    fail('_notifyPendingProposalCueChange must fall back to _legacyNotifyPendingProposalCueChange');
+  }
+
+  const reconcileStart = html.indexOf('function _requestPendingProposalCueReconcileIfHomeActive');
+  const reconcileEnd = html.indexOf('function renderPendingProposalCue', reconcileStart);
+  const reconcileBody = reconcileStart === -1 || reconcileEnd === -1 ? '' : html.slice(reconcileStart, reconcileEnd);
+  if (!reconcileBody.includes('requestPendingProposalCueReconcile')) {
+    fail('_requestPendingProposalCueReconcileIfHomeActive must delegate to HomeController.requestPendingProposalCueReconcile');
+  }
+  if (!reconcileBody.includes('_legacyRequestPendingProposalCueReconcileIfHomeActive()')) {
+    fail('_requestPendingProposalCueReconcileIfHomeActive must fall back to legacy Home-active reconcile hook');
+  }
+
+  const legacyReconcileStart = html.indexOf('function _legacyRequestPendingProposalCueReconcileIfHomeActive');
+  const legacyReconcileEnd = html.indexOf('function _notifyPendingProposalCueChange', legacyReconcileStart);
+  const legacyReconcileBody = legacyReconcileStart === -1 || legacyReconcileEnd === -1
+    ? ''
+    : html.slice(legacyReconcileStart, legacyReconcileEnd);
+  if (!legacyReconcileBody.includes("requestHomeReconcile('cue:pending-proposal')")) {
+    fail('legacy pending proposal reconcile fallback must use cue:pending-proposal reason');
+  }
+
+  const pilotCount = countOccurrences(html, "requestHomeReconcile('cue:pending-proposal')");
+  if (pilotCount !== 1) {
+    fail(`renderPendingProposalCue path must contain exactly one legacy requestHomeReconcile('cue:pending-proposal') hook (found ${pilotCount})`);
+  }
+
+  if (!proposalBody.includes('_pendingProposalIdsForMe()')) {
+    fail('Phase 6q-a must preserve _pendingProposalIdsForMe derivation in renderPendingProposalCue');
+  }
+  if (!proposalBody.includes('renderPendingProposalCueSurface')) {
+    fail('Phase 6q-a must preserve renderPendingProposalCueSurface orchestration seam');
+  }
+  if (!proposalBody.includes('_pendingProposalCueTargets()')) {
+    fail('Phase 6q-a must preserve _pendingProposalCueTargets target collection seam');
+  }
+  if (!proposalBody.includes('_legacyRenderPendingProposalCue(ids)')) {
+    fail('Phase 6q-a must preserve _legacyRenderPendingProposalCue fallback');
+  }
+  if (!read('oot_home_cue_renderer.js').includes('function derivePendingProposalIds')) {
+    fail('Phase 6q-a must preserve derivePendingProposalIds in cue renderer module');
+  }
+
+  let renderCallSites = 0;
+  const renderCallNeedle = 'renderPendingProposalCue()';
+  let renderCallIdx = 0;
+  while ((renderCallIdx = html.indexOf(renderCallNeedle, renderCallIdx)) !== -1) {
+    const before = html.slice(Math.max(0, renderCallIdx - 10), renderCallIdx);
+    if (!/function\s$/.test(before)) {
+      renderCallSites += 1;
+    }
+    renderCallIdx += renderCallNeedle.length;
+  }
+  if (renderCallSites !== 5) {
+    fail(`renderPendingProposalCue() call sites must remain unchanged (expected 5, found ${renderCallSites})`);
+  }
+
+  const songVoteCount = countOccurrences(html, "requestHomeReconcile('cue:song-vote')");
+  if (songVoteCount !== 2) {
+    fail(`Phase 6q-a must preserve exactly two cue:song-vote reconcile hooks (found ${songVoteCount})`);
+  }
+  const rehearsalCount = countOccurrences(html, "requestHomeReconcile('cue:rehearsal')");
+  if (rehearsalCount !== 2) {
+    fail(`Phase 6q-a must preserve exactly two cue:rehearsal reconcile hooks (found ${rehearsalCount})`);
+  }
+
+  if (html.includes('data-home-layout-mode="modular-inflow"')) {
+    fail('index.html must not default static Home markup to modular-inflow');
+  }
+}
+
 function report() {
   if (warnings.length) {
     console.warn('Warnings:');
@@ -2228,7 +2388,7 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6p-a Pending proposal target collection checks.');
+  console.log('PASS: Phase 6q-a Pending proposal reconcile notify checks.');
 }
 
 function main() {
@@ -2279,6 +2439,7 @@ function main() {
   assertPhase6oBPendingProposalDeriveSeam(html);
   assertPhase6oCPendingProposalRenderOrchestration(html);
   assertPhase6pAPendingProposalTargetCollection(html);
+  assertPhase6qAPendingProposalReconcileNotify(html, controllerJs);
 
   report();
 }
