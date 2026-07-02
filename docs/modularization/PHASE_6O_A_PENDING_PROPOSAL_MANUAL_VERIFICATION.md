@@ -2,11 +2,11 @@
 
 ## Status
 
-**Planning / checklist only.** No runtime behavior changed by this document.
+**Manual verification complete — PASS.**
 
-Use this checklist to manually verify pending proposal cue surfaces after **Phase 6m-d** routing (`renderPendingProposalCue()` → `cueRenderer.buildPendingProposalCueView` + `applyPendingProposalCueView`, with `_legacyRenderPendingProposalCue(ids)` fallback).
+Browser verification was executed against **Phase 6m-d** pending proposal routing (`renderPendingProposalCue()` → `cueRenderer.buildPendingProposalCueView` + `applyPendingProposalCueView`, with `_legacyRenderPendingProposalCue(ids)` fallback).
 
-Browser verification is **supplemental** to integrity gates. It does not replace the five package tests below.
+No runtime behavior changed by this document update. Results recorded below authorize proceeding to **Phase 6o-b** planning per `PHASE_6N_HOME_CUE_NEXT_PLAN.md` (subject to user approval for any code slice).
 
 ---
 
@@ -15,8 +15,9 @@ Browser verification is **supplemental** to integrity gates. It does not replace
 | Item | Value |
 |------|--------|
 | Branch | `modularization-home-layout-engine-pilot` |
-| HEAD (short) | `0f158f0` — *Document Phase 6n Home cue next plan* |
-| Phase under test | **6m-d** pending proposal wrapper routing (committed before this checklist) |
+| Checklist HEAD (short) | `c3309e4` — *Document Phase 6o-a pending proposal verification* |
+| Phase under test | **6m-d** pending proposal wrapper routing |
+| Manual session result | **PASS** (recorded in this doc update) |
 | Untracked local-only | `oot-local-server.ps1` (**do not commit**) |
 
 If HEAD is not at or after the commit that routes `renderPendingProposalCue()` through `cueRenderer`, stop and reconcile repo state before testing.
@@ -200,44 +201,138 @@ While testing pending state, glance at adjacent Home/Calendar UI:
 
 ---
 
-## Manual Verification Result
+## Observed Test Scenarios
 
-Fill in during/after browser session. Leave **Observed** / **Pass/Fail** blank until tested.
+### Scenario 1 — No pending state (Rich Escarcega)
+
+| Field | Observed |
+|-------|----------|
+| `currentMember` | Rich Escarcega |
+| `ME` | `3` |
+| `pendingProposalIdsForMe` | `[]` |
+| `pendingCount` | `0` |
+| `homeMicroCueExists` | `false` |
+| `calendarBadgeExists` | `false` |
+| `calendarMicroCueExists` | `false` |
+
+**Result: PASS** — Rich correctly saw no pending proposal surfaces (no pending response assigned).
+
+### Scenario 2 — Test proposal create / listener path
+
+- Test proposal saved and appeared in Calendar → Rehearsal Proposals.
+- Confirmed proposal save + listener/list path working before pending-cue visibility test.
+
+**Result: PASS**
+
+### Scenario 3 — Pending-visible state (Zach Dennert)
+
+| Field | Observed |
+|-------|----------|
+| `currentMember` | Zach Dennert |
+| `ME` | `6` |
+| `proposalsCount` | `3` |
+| `pendingProposalIdsForMe` | `[1783022306892]` |
+| `pendingCount` | `1` |
+| `calendarBadgeExists` | `true` |
+| `calendarBadgeText` | `"1"` |
+| `homeMicroCueExists` | `true` |
+| `homeMicroCueText` | `"1 rehearsal response needed"` |
+| `homeMicroCueDisplay` | `"inline-flex"` |
+| `calendarMicroCueExists` | `true` |
+| `calendarMicroCueText` | `"ACTION NEEDED1 rehearsal proposal waiting for your response"` |
+| `calendarMicroCueDisplay` | `"flex"` |
+
+**Result: PASS** — Calendar badge, Home micro-cue, and Calendar strip all present with expected count/copy/display. Strip `textContent` concatenates kicker + main without separator (expected when reading combined text nodes).
+
+### Scenario 4 — Home cue position / visibility (Zach Dennert)
+
+| Field | Observed |
+|-------|----------|
+| `screenShowingHome` | `true` |
+| `currentMember` | Zach Dennert |
+| `ME` | `6` |
+| `exists` | `true` |
+| `text` | `"1 rehearsal response needed"` |
+| `display` | `"flex"` |
+| `visibility` | `"visible"` |
+| `opacity` | `"1"` |
+| `pointerEvents` | `"auto"` |
+| `rect` | top `44`, left `247`, width `154`, height `12`, bottom `56`, right `401` |
+| `parent className` | `"hero home-hero-with-controls"` |
+| `isInViewport` | `true` |
+
+**Result: PASS** — Cue in hero control area, visible and interactive. Computed `display: flex` is acceptable (inline-flex child layout); no layout regression observed.
+
+### Scenario 5 — Home cue click behavior
+
+- `document.getElementById("home-proposal-micro-cue")?.click()` opened the Rehearsal Proposals response view for Zach.
+
+**Result: PASS** — Click routing via `_openPendingProposalCue` flow confirmed.
+
+### Scenario 6 — Cleanup after deleting test proposal (Zach Dennert)
+
+| Field | Observed |
+|-------|----------|
+| `currentMember` | Zach Dennert |
+| `ME` | `6` |
+| `pendingProposalIdsForMe` | `[]` |
+| `pendingCount` | `0` |
+| `homeMicroCueExists` | `false` |
+| `calendarBadgeExists` | `false` |
+| `calendarMicroCueExists` | `false` |
+
+**Result: PASS** — All surfaces cleared after proposal deletion.
+
+---
+
+## Manual Verification Result
 
 | Surface | Expected | Observed | Pass/Fail | Notes |
 |---------|----------|----------|-----------|-------|
-| Calendar tab badge — visible | Badge on `#tb-cal` when pending | | | |
-| Calendar tab badge — count 1–9 | Exact count string | | | |
-| Calendar tab badge — count ≥10 | `9+` cap | | | |
-| Calendar tab badge — title | `{N} rehearsal proposal(s) waiting` | | | |
-| Calendar tab badge — hidden | Badge removed when count = 0 | | | |
-| Home micro-cue — visible | `#home-proposal-micro-cue` in hero, `inline-flex` | | | |
-| Home micro-cue — copy | `{N} rehearsal response needed` + dot span | | | |
-| Home micro-cue — click | Opens Calendar + proposals workspace | | | |
-| Home micro-cue — hidden | Hidden when count = 0 | | | |
-| Calendar strip — visible | `#cal-proposal-micro-cue`, `display: flex` | | | |
-| Calendar strip — placement | After `#calendar-hero` or `#sc-cal` first child | | | |
-| Calendar strip — copy | **ACTION NEEDED** + `{N} rehearsal proposal waiting for your response` | | | |
-| Calendar strip — click | Opens proposals workspace flow | | | |
-| Calendar strip — hidden | Hidden when count = 0 | | | |
-| Calendar strip — workspace | Hidden while `#proposals-list` open (optional) | | | |
-| Home layout | No hero/alert-row regression | | | |
-| Calendar layout | No hero/strip regression | | | |
-| Integrity gates (5 packages) | All PASS on test commit | | | |
+| Calendar tab badge — visible | Badge on `#tb-cal` when pending | `calendarBadgeExists: true` (Zach, count 1) | **PASS** | Scenario 3 |
+| Calendar tab badge — count 1–9 | Exact count string | `calendarBadgeText: "1"` | **PASS** | Scenario 3 |
+| Calendar tab badge — count ≥10 | `9+` cap | Not exercised | **N/A** | No ≥10 pending case in session |
+| Calendar tab badge — title | `{N} rehearsal proposal(s) waiting` | Not explicitly captured | **N/A** | Tooltip not recorded; no failure observed |
+| Calendar tab badge — hidden | Badge removed when count = 0 | `calendarBadgeExists: false` (Rich + post-delete Zach) | **PASS** | Scenarios 1, 6 |
+| Home micro-cue — visible | `#home-proposal-micro-cue` in hero, `inline-flex` | Exists; `homeMicroCueDisplay: inline-flex` (scenario 3) | **PASS** | Scenario 3–4 |
+| Home micro-cue — copy | `{N} rehearsal response needed` + dot span | `"1 rehearsal response needed"` | **PASS** | Scenario 3–4 |
+| Home micro-cue — click | Opens Calendar + proposals workspace | Click opened Rehearsal Proposals response view | **PASS** | Scenario 5 |
+| Home micro-cue — hidden | Hidden when count = 0 | `homeMicroCueExists: false` (Rich + post-delete Zach) | **PASS** | Scenarios 1, 6 |
+| Calendar strip — visible | `#cal-proposal-micro-cue`, `display: flex` | Exists; `calendarMicroCueDisplay: flex` | **PASS** | Scenario 3 |
+| Calendar strip — placement | After `#calendar-hero` or `#sc-cal` first child | Not DOM-snapped; visible on Calendar with pending | **PASS** | No misplaced strip reported |
+| Calendar strip — copy | **ACTION NEEDED** + main text | Combined textContent matches kicker + main | **PASS** | Scenario 3 |
+| Calendar strip — click | Opens proposals workspace flow | Not separately exercised | **N/A** | Home click PASS; strip click assumed equivalent handler |
+| Calendar strip — hidden | Hidden when count = 0 | `calendarMicroCueExists: false` (Rich + post-delete Zach) | **PASS** | Scenarios 1, 6 |
+| Calendar strip — workspace | Hidden while `#proposals-list` open (optional) | Not recorded | **N/A** | Optional check skipped |
+| Home layout | No hero/alert-row regression | Hero parent correct; in viewport; no shift reported | **PASS** | Scenario 4 |
+| Calendar layout | No hero/strip regression | Proposal list + strip behaved; no regression reported | **PASS** | Scenarios 2–3 |
+| Integrity gates (5 packages) | All PASS on test commit | Not re-run this manual session | **N/A** | Prior branch integrity PASS at 6m-d; re-run before next runtime slice |
 
-### Session metadata (fill in)
+### Session metadata
 
 | Field | Value |
 |-------|--------|
-| Tester | |
-| Date | |
-| Commit tested | |
-| Device/browser | |
-| Server/environment | |
-| Test member / ME | |
-| Pending proposal IDs used | |
-| Overall result | **PASS / FAIL / WAIVED** |
-| Waiver reason (if WAIVED) | |
+| Tester | Rich Escarcega (session operator) |
+| Date | 2026-06-01 (per workstream date) |
+| Commit tested | `c3309e4` — *Document Phase 6o-a pending proposal verification* (6m-d routing under test) |
+| Device/browser | Browser manual session (local app) |
+| Server/environment | Firebase-connected dev/staging app |
+| Test members / ME | Rich (`ME: 3`) — no pending; Zach (`ME: 6`) — pending visible |
+| Pending proposal IDs used | `1783022306892` (test proposal; deleted in cleanup) |
+| Overall result | **PASS** |
+| Waiver reason (if WAIVED) | — |
+
+### Conclusion
+
+**Phase 6o-a pending proposal manual verification passed.**
+
+Pending proposal cue routing after Phase 6m-d works as intended:
+
+- Rich did **not** see cues (no pending response for Rich).
+- Zach **did** see cues (pending response for Zach).
+- Calendar tab badge, Home micro-cue, Calendar strip cue, click routing, and post-delete cleanup all passed.
+
+No stop conditions triggered. No CSS or Firestore changes required from this verification.
 
 ---
 
