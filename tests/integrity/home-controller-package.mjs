@@ -1703,11 +1703,8 @@ function assertPhase6mDPendingProposalWrapperRouting(html) {
   if (!proposalBody.includes('_pendingProposalIdsForMe()')) {
     fail('renderPendingProposalCue must retain _pendingProposalIdsForMe state derivation');
   }
-  if (!proposalBody.includes('buildPendingProposalCueView')) {
-    fail('renderPendingProposalCue must call cueRenderer.buildPendingProposalCueView on normal path');
-  }
-  if (!proposalBody.includes('applyPendingProposalCueView')) {
-    fail('renderPendingProposalCue must call cueRenderer.applyPendingProposalCueView on normal path');
+  if (!proposalBody.includes('renderPendingProposalCueSurface')) {
+    fail('renderPendingProposalCue must delegate through cueRenderer.renderPendingProposalCueSurface on normal path');
   }
   if (!proposalBody.includes('_ppModuleApplied')) {
     fail('renderPendingProposalCue must track module apply success before legacy fallback');
@@ -1756,13 +1753,21 @@ function assertPhase6mDPendingProposalWrapperRouting(html) {
   }
 }
 
-function loadDerivePendingProposalIdsHelper() {
+function loadCueRendererApi() {
   const cueRendererJs = read('oot_home_cue_renderer.js');
   const sandbox = { window: { OOT: { home: {} } }, console };
   vm.createContext(sandbox);
   vm.runInContext(cueRendererJs, sandbox, { filename: 'oot_home_cue_renderer.js' });
   const cr = sandbox.window.OOT && sandbox.window.OOT.home && sandbox.window.OOT.home.cueRenderer;
-  if (!cr || typeof cr.derivePendingProposalIds !== 'function') {
+  if (!cr) {
+    fail('oot_home_cue_renderer.js must attach OOT.home.cueRenderer for integrity vm checks');
+  }
+  return cr;
+}
+
+function loadDerivePendingProposalIdsHelper() {
+  const cr = loadCueRendererApi();
+  if (typeof cr.derivePendingProposalIds !== 'function') {
     fail('derivePendingProposalIds must be exported on OOT.home.cueRenderer');
   }
   return cr.derivePendingProposalIds.bind(cr);
@@ -1773,9 +1778,6 @@ function assertPhase6oBPendingProposalDeriveSeam(html) {
 
   if (!cueRendererJs.includes('function derivePendingProposalIds')) {
     fail('oot_home_cue_renderer.js must define derivePendingProposalIds for Phase 6o-b');
-  }
-  if (!cueRendererJs.includes('6o-b-pending-proposal-derive-seam')) {
-    fail('oot_home_cue_renderer.js phase marker must reflect Phase 6o-b derive seam');
   }
   if (!cueRendererJs.includes('derivePendingProposalIds: derivePendingProposalIds')) {
     fail('derivePendingProposalIds must be exported on cueRenderer API');
@@ -1892,6 +1894,183 @@ function assertPhase6oBPendingProposalDeriveSeam(html) {
   }
 }
 
+function assertPhase6oCPendingProposalRenderOrchestration(html) {
+  const cueRendererJs = read('oot_home_cue_renderer.js');
+
+  if (!cueRendererJs.includes('function renderPendingProposalCueSurface')) {
+    fail('oot_home_cue_renderer.js must define renderPendingProposalCueSurface for Phase 6o-c');
+  }
+  if (!cueRendererJs.includes('6o-c-pending-proposal-render-orchestration-seam')) {
+    fail('oot_home_cue_renderer.js phase marker must reflect Phase 6o-c render orchestration seam');
+  }
+  if (!cueRendererJs.includes('renderPendingProposalCueSurface: renderPendingProposalCueSurface')) {
+    fail('renderPendingProposalCueSurface must be exported on cueRenderer API');
+  }
+  if (!cueRendererJs.includes('function derivePendingProposalIds')) {
+    fail('Phase 6o-c must preserve Phase 6o-b derivePendingProposalIds seam');
+  }
+
+  const orchestrationStart = cueRendererJs.indexOf('function renderPendingProposalCueSurface');
+  const orchestrationEnd = cueRendererJs.indexOf('function getState', orchestrationStart);
+  if (orchestrationStart === -1 || orchestrationEnd === -1) {
+    fail('Could not locate renderPendingProposalCueSurface body in oot_home_cue_renderer.js');
+  }
+  const orchestrationBody = cueRendererJs.slice(orchestrationStart, orchestrationEnd);
+
+  for (const call of CUE_RENDERER_FORBIDDEN_CALLS) {
+    if (orchestrationBody.includes(call)) {
+      fail(`renderPendingProposalCueSurface must not reference forbidden behavior: ${call}`);
+    }
+  }
+  if (/^\s+document\.(getElementById|querySelector)/m.test(orchestrationBody)) {
+    fail('renderPendingProposalCueSurface must not read DOM directly');
+  }
+  if (orchestrationBody.includes('localStorage') || orchestrationBody.includes('setProperty')) {
+    fail('renderPendingProposalCueSurface must not write localStorage or CSS vars');
+  }
+  if (/\brHome\s*\(/.test(orchestrationBody)) {
+    fail('renderPendingProposalCueSurface must not call rHome');
+  }
+  if (!orchestrationBody.includes('buildPendingProposalCueView')) {
+    fail('renderPendingProposalCueSurface must default to buildPendingProposalCueView');
+  }
+  if (!orchestrationBody.includes('applyPendingProposalCueView')) {
+    fail('renderPendingProposalCueSurface must default to applyPendingProposalCueView');
+  }
+  if (!orchestrationBody.includes('legacyRender')) {
+    fail('renderPendingProposalCueSurface must support legacyRender fallback callback');
+  }
+  if (!orchestrationBody.includes('moduleApplied')) {
+    fail('renderPendingProposalCueSurface must report moduleApplied status');
+  }
+
+  const cr = loadCueRendererApi();
+  if (typeof cr.renderPendingProposalCueSurface !== 'function') {
+    fail('renderPendingProposalCueSurface must be exported on OOT.home.cueRenderer');
+  }
+  const renderSurface = cr.renderPendingProposalCueSurface.bind(cr);
+
+  let buildCalls = [];
+  let applyCalls = [];
+  const emptyResult = renderSurface({
+    pendingIds: [],
+    targets: {},
+    buildView: function (input) {
+      buildCalls.push(input);
+      return { visible: false, sourceBranch: 'pending-proposal-hidden' };
+    },
+    applyView: function (targets, view) {
+      applyCalls.push({ targets, view });
+      return { applied: true, visible: false, sourceBranch: 'pending-proposal-hidden' };
+    }
+  });
+  if (buildCalls.length !== 1 || !Array.isArray(buildCalls[0].pendingIds) || buildCalls[0].pendingIds.length !== 0) {
+    fail('renderPendingProposalCueSurface must call buildView for empty pending IDs');
+  }
+  if (applyCalls.length !== 1) {
+    fail('renderPendingProposalCueSurface must call applyView for empty pending IDs');
+  }
+  if (!emptyResult || emptyResult.moduleApplied !== true) {
+    fail('renderPendingProposalCueSurface must report moduleApplied when apply succeeds for empty pending IDs');
+  }
+
+  buildCalls = [];
+  applyCalls = [];
+  const pendingResult = renderSurface({
+    pendingIds: ['1783022306892'],
+    targets: { calTabBtn: null },
+    buildView: function (input) {
+      buildCalls.push(input);
+      return { visible: true, sourceBranch: 'pending-proposal-visible' };
+    },
+    applyView: function (targets, view) {
+      applyCalls.push({ targets, view });
+      return { applied: true, visible: true, sourceBranch: 'pending-proposal-visible' };
+    }
+  });
+  if (buildCalls.length !== 1 || buildCalls[0].pendingIds[0] !== '1783022306892') {
+    fail('renderPendingProposalCueSurface must call buildView with pending proposal IDs');
+  }
+  if (applyCalls.length !== 1) {
+    fail('renderPendingProposalCueSurface must call applyView after buildView for pending IDs');
+  }
+  if (!pendingResult || pendingResult.moduleApplied !== true) {
+    fail('renderPendingProposalCueSurface must report moduleApplied when apply succeeds');
+  }
+
+  let legacyCalls = [];
+  const fallbackResult = renderSurface({
+    pendingIds: ['1783022306892'],
+    targets: {},
+    buildView: function () {
+      return { visible: true, sourceBranch: 'pending-proposal-visible' };
+    },
+    applyView: function () {
+      return { applied: false, visible: true, sourceBranch: 'pending-proposal-visible' };
+    },
+    legacyRender: function (ids) {
+      legacyCalls.push(ids.slice());
+    }
+  });
+  if (legacyCalls.length !== 1 || legacyCalls[0][0] !== '1783022306892') {
+    fail('renderPendingProposalCueSurface must invoke legacyRender when apply fails');
+  }
+  if (!fallbackResult || fallbackResult.moduleApplied !== false) {
+    fail('renderPendingProposalCueSurface must report moduleApplied false when falling back to legacy render');
+  }
+
+  legacyCalls = [];
+  renderSurface({
+    pendingIds: [],
+    targets: {},
+    buildView: null,
+    applyView: null,
+    legacyRender: function (ids) {
+      legacyCalls.push(ids.slice());
+    }
+  });
+  if (legacyCalls.length !== 1) {
+    fail('renderPendingProposalCueSurface must invoke legacyRender when module build/apply pieces are missing');
+  }
+
+  if (!html.includes('function renderPendingProposalCue')) {
+    fail('index.html must retain renderPendingProposalCue wrapper');
+  }
+  const proposalStart = html.indexOf('function renderPendingProposalCue');
+  const proposalEnd = html.indexOf('function _resetCalendarScrollToTop', proposalStart);
+  if (proposalStart === -1 || proposalEnd === -1) {
+    fail('Could not locate renderPendingProposalCue for Phase 6o-c orchestration checks');
+  }
+  const proposalBody = html.slice(proposalStart, proposalEnd);
+  if (!proposalBody.includes('_pendingProposalIdsForMe()')) {
+    fail('renderPendingProposalCue must continue deriving ids via _pendingProposalIdsForMe()');
+  }
+  if (!proposalBody.includes('renderPendingProposalCueSurface')) {
+    fail('renderPendingProposalCue must delegate to cueRenderer.renderPendingProposalCueSurface');
+  }
+  if (!proposalBody.includes('_legacyRenderPendingProposalCue(ids)')) {
+    fail('renderPendingProposalCue must retain _legacyRenderPendingProposalCue fallback when orchestration does not apply');
+  }
+
+  let renderCallSites = 0;
+  const renderCallNeedle = 'renderPendingProposalCue()';
+  let renderCallIdx = 0;
+  while ((renderCallIdx = html.indexOf(renderCallNeedle, renderCallIdx)) !== -1) {
+    const before = html.slice(Math.max(0, renderCallIdx - 10), renderCallIdx);
+    if (!/function\s$/.test(before)) {
+      renderCallSites += 1;
+    }
+    renderCallIdx += renderCallNeedle.length;
+  }
+  if (renderCallSites !== 5) {
+    fail(`renderPendingProposalCue() call sites must remain unchanged (expected 5, found ${renderCallSites})`);
+  }
+
+  if (html.includes('data-home-layout-mode="modular-inflow"')) {
+    fail('index.html must not default static Home markup to modular-inflow');
+  }
+}
+
 function report() {
   if (warnings.length) {
     console.warn('Warnings:');
@@ -1903,7 +2082,7 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6o-b Pending proposal derive seam checks.');
+  console.log('PASS: Phase 6o-c Pending proposal render orchestration checks.');
 }
 
 function main() {
@@ -1952,6 +2131,7 @@ function main() {
   assertPhase6mCPendingProposalApplySeam(html);
   assertPhase6mDPendingProposalWrapperRouting(html);
   assertPhase6oBPendingProposalDeriveSeam(html);
+  assertPhase6oCPendingProposalRenderOrchestration(html);
 
   report();
 }

@@ -25945,21 +25945,22 @@ function renderPendingProposalCue(){
     var _ppModuleApplied = false;
     try {
       var _ppCr = window.OOT && window.OOT.home && window.OOT.home.cueRenderer;
-      if (_ppCr && typeof _ppCr.buildPendingProposalCueView === 'function' && typeof _ppCr.applyPendingProposalCueView === 'function') {
-        var _ppView = _ppCr.buildPendingProposalCueView({ pendingIds: ids, hasTarget: true });
-        if (_ppView) {
-          var _ppTargets = {
+      if (_ppCr && typeof _ppCr.renderPendingProposalCueSurface === 'function') {
+        var _ppSurface = _ppCr.renderPendingProposalCueSurface({
+          pendingIds: ids,
+          targets: {
             calTabBtn: document.getElementById('tb-cal'),
             homeHero: document.querySelector('#sc-home .hero.home-hero-with-controls'),
             calSection: document.getElementById('sc-cal'),
             calHero: document.getElementById('calendar-hero'),
             homeMicroCueEl: document.getElementById('home-proposal-micro-cue'),
             calMicroCueEl: document.getElementById('cal-proposal-micro-cue')
-          };
-          var _ppOut = _ppCr.applyPendingProposalCueView(_ppTargets, _ppView);
-          if (_ppOut && _ppOut.applied) {
-            _ppModuleApplied = true;
-          }
+          },
+          buildView: typeof _ppCr.buildPendingProposalCueView === 'function' ? _ppCr.buildPendingProposalCueView.bind(_ppCr) : null,
+          applyView: typeof _ppCr.applyPendingProposalCueView === 'function' ? _ppCr.applyPendingProposalCueView.bind(_ppCr) : null
+        });
+        if (_ppSurface && _ppSurface.moduleApplied) {
+          _ppModuleApplied = true;
         }
       }
     } catch(e){}

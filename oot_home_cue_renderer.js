@@ -1,9 +1,9 @@
-// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i/6m-b/6m-c/6o-b: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers, pending proposal derive seam.
+// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i/6m-b/6m-c/6o-b/6o-c: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers, pending proposal derive/render orchestration seams.
 
 (function (window) {
   'use strict';
 
-  var PHASE = '6o-b-pending-proposal-derive-seam';
+  var PHASE = '6o-c-pending-proposal-render-orchestration-seam';
   var SCAFFOLD = true;
 
   var CUE_IDS = {
@@ -543,6 +543,60 @@
     }
   }
 
+  function renderPendingProposalCueSurface(input) {
+    var snap = _normalizeInput(input);
+    var pendingIds = Array.isArray(snap.pendingIds) ? snap.pendingIds.slice() : [];
+    var targets = snap.targets && typeof snap.targets === 'object' ? snap.targets : {};
+    var buildViewFn = typeof snap.buildView === 'function' ? snap.buildView : buildPendingProposalCueView;
+    var applyViewFn = typeof snap.applyView === 'function' ? snap.applyView : applyPendingProposalCueView;
+    var legacyRender = typeof snap.legacyRender === 'function' ? snap.legacyRender : null;
+
+    try {
+      if (typeof buildViewFn !== 'function' || typeof applyViewFn !== 'function') {
+        if (legacyRender) legacyRender(pendingIds);
+        return {
+          applied: legacyRender ? true : false,
+          moduleApplied: false,
+          sourceBranch: 'legacy-fallback',
+          visible: pendingIds.length > 0,
+          rendersDom: !!legacyRender
+        };
+      }
+
+      var view = buildViewFn({ pendingIds: pendingIds, hasTarget: true });
+      if (!view) {
+        if (legacyRender) legacyRender(pendingIds);
+        return {
+          applied: legacyRender ? true : false,
+          moduleApplied: false,
+          sourceBranch: 'legacy-fallback',
+          visible: pendingIds.length > 0,
+          rendersDom: !!legacyRender
+        };
+      }
+
+      var out = applyViewFn(targets, view);
+      if (out && out.applied) {
+        return {
+          applied: true,
+          moduleApplied: true,
+          visible: out.visible === true,
+          sourceBranch: out.sourceBranch || view.sourceBranch || 'pending-proposal-hidden',
+          rendersDom: true
+        };
+      }
+    } catch (e) {}
+
+    if (legacyRender) legacyRender(pendingIds);
+    return {
+      applied: legacyRender ? true : false,
+      moduleApplied: false,
+      sourceBranch: 'legacy-fallback',
+      visible: pendingIds.length > 0,
+      rendersDom: !!legacyRender
+    };
+  }
+
   function getState() {
     return {
       phase: _state.phase,
@@ -585,6 +639,7 @@
         'derivePendingProposalIds',
         'buildPendingProposalCueView',
         'applyPendingProposalCueView',
+        'renderPendingProposalCueSurface',
         'applyCueView',
         'renderSongVoteCue',
         'renderRehearsalCue',
@@ -608,6 +663,7 @@
     derivePendingProposalIds: derivePendingProposalIds,
     buildPendingProposalCueView: buildPendingProposalCueView,
     applyPendingProposalCueView: applyPendingProposalCueView,
+    renderPendingProposalCueSurface: renderPendingProposalCueSurface,
     applyCueView: applyCueView,
     renderSongVoteCue: renderSongVoteCue,
     renderRehearsalCue: renderRehearsalCue,
