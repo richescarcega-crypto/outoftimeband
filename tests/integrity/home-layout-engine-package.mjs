@@ -305,6 +305,13 @@ function isPendingProposalCueRoutingDiffLine(line) {
   if (/calCue = document\.createElement\('button'\)/.test(line)) return true;
   if (/calCue\.type = 'button'/.test(line)) return true;
   if (/\}else\{/.test(line)) return true;
+  if (/function _pendingProposalCueTargets/.test(line)) return true;
+  if (/if \(_targets && typeof _targets === 'object'\) return _targets/.test(line)) return true;
+  if (/return _legacyPendingProposalCueTargets\(\)/.test(line)) return true;
+  if (/collectPendingProposalCueTargets/.test(line)) return true;
+  if (/function _legacyPendingProposalCueTargets/.test(line)) return true;
+  if (/function _pendingProposalCueTargets/.test(line)) return true;
+  if (/_pendingProposalCueTargets\(\)/.test(line)) return true;
   if (/renderPendingProposalCueSurface/.test(line)) return true;
   if (/var _ppSurface =/.test(line)) return true;
   if (/buildView: typeof _ppCr\.buildPendingProposalCueView/.test(line)) return true;

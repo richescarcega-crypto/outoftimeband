@@ -1,9 +1,9 @@
-// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i/6m-b/6m-c/6o-b/6o-c: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers, pending proposal derive/render orchestration seams.
+// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i/6m-b/6m-c/6o-b/6o-c/6p-a: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers, pending proposal derive/render/target seams.
 
 (function (window) {
   'use strict';
 
-  var PHASE = '6o-c-pending-proposal-render-orchestration-seam';
+  var PHASE = '6p-a-pending-proposal-target-collection-seam';
   var SCAFFOLD = true;
 
   var CUE_IDS = {
@@ -543,6 +543,37 @@
     }
   }
 
+  function collectPendingProposalCueTargets(input) {
+    var snap = _normalizeInput(input);
+    var doc = snap.document || null;
+    var emptyTargets = {
+      calTabBtn: null,
+      homeHero: null,
+      calSection: null,
+      calHero: null,
+      homeMicroCueEl: null,
+      calMicroCueEl: null
+    };
+    if (!doc || typeof doc.getElementById !== 'function') {
+      return emptyTargets;
+    }
+    var querySelector = typeof doc.querySelector === 'function'
+      ? doc.querySelector.bind(doc)
+      : function () { return null; };
+    try {
+      return {
+        calTabBtn: doc.getElementById('tb-cal'),
+        homeHero: querySelector('#sc-home .hero.home-hero-with-controls'),
+        calSection: doc.getElementById('sc-cal'),
+        calHero: doc.getElementById('calendar-hero'),
+        homeMicroCueEl: doc.getElementById('home-proposal-micro-cue'),
+        calMicroCueEl: doc.getElementById('cal-proposal-micro-cue')
+      };
+    } catch (e) {
+      return emptyTargets;
+    }
+  }
+
   function renderPendingProposalCueSurface(input) {
     var snap = _normalizeInput(input);
     var pendingIds = Array.isArray(snap.pendingIds) ? snap.pendingIds.slice() : [];
@@ -639,6 +670,7 @@
         'derivePendingProposalIds',
         'buildPendingProposalCueView',
         'applyPendingProposalCueView',
+        'collectPendingProposalCueTargets',
         'renderPendingProposalCueSurface',
         'applyCueView',
         'renderSongVoteCue',
@@ -663,6 +695,7 @@
     derivePendingProposalIds: derivePendingProposalIds,
     buildPendingProposalCueView: buildPendingProposalCueView,
     applyPendingProposalCueView: applyPendingProposalCueView,
+    collectPendingProposalCueTargets: collectPendingProposalCueTargets,
     renderPendingProposalCueSurface: renderPendingProposalCueSurface,
     applyCueView: applyCueView,
     renderSongVoteCue: renderSongVoteCue,

@@ -25939,6 +25939,28 @@ function _legacyRenderPendingProposalCue(ids){
   }
 }
 
+function _legacyPendingProposalCueTargets(){
+  return {
+    calTabBtn: document.getElementById('tb-cal'),
+    homeHero: document.querySelector('#sc-home .hero.home-hero-with-controls'),
+    calSection: document.getElementById('sc-cal'),
+    calHero: document.getElementById('calendar-hero'),
+    homeMicroCueEl: document.getElementById('home-proposal-micro-cue'),
+    calMicroCueEl: document.getElementById('cal-proposal-micro-cue')
+  };
+}
+
+function _pendingProposalCueTargets(){
+  try{
+    var _ppCr = window.OOT && window.OOT.home && window.OOT.home.cueRenderer;
+    if (_ppCr && typeof _ppCr.collectPendingProposalCueTargets === 'function') {
+      var _targets = _ppCr.collectPendingProposalCueTargets({ document: document });
+      if (_targets && typeof _targets === 'object') return _targets;
+    }
+  }catch(e){}
+  return _legacyPendingProposalCueTargets();
+}
+
 function renderPendingProposalCue(){
   try{
     var ids = _pendingProposalIdsForMe();
@@ -25948,14 +25970,7 @@ function renderPendingProposalCue(){
       if (_ppCr && typeof _ppCr.renderPendingProposalCueSurface === 'function') {
         var _ppSurface = _ppCr.renderPendingProposalCueSurface({
           pendingIds: ids,
-          targets: {
-            calTabBtn: document.getElementById('tb-cal'),
-            homeHero: document.querySelector('#sc-home .hero.home-hero-with-controls'),
-            calSection: document.getElementById('sc-cal'),
-            calHero: document.getElementById('calendar-hero'),
-            homeMicroCueEl: document.getElementById('home-proposal-micro-cue'),
-            calMicroCueEl: document.getElementById('cal-proposal-micro-cue')
-          },
+          targets: _pendingProposalCueTargets(),
           buildView: typeof _ppCr.buildPendingProposalCueView === 'function' ? _ppCr.buildPendingProposalCueView.bind(_ppCr) : null,
           applyView: typeof _ppCr.applyPendingProposalCueView === 'function' ? _ppCr.applyPendingProposalCueView.bind(_ppCr) : null
         });
