@@ -460,6 +460,47 @@ function isSongVoteCueDeriveDiffLine(line) {
   return false;
 }
 
+/** Phase 6w-b: allow rehearsal cue derivation seam wrappers in index.html diff. */
+function isRehearsalCueDeriveDiffLine(line) {
+  if (/function _legacyDeriveRehearsalCueInput/.test(line)) return true;
+  if (/function _deriveRehearsalCueInput/.test(line)) return true;
+  if (/deriveRehearsalCueInput/.test(line)) return true;
+  if (/_legacyDeriveRehearsalCueInput\(\)/.test(line)) return true;
+  if (/_deriveRehearsalCueInput\(\)/.test(line)) return true;
+  if (/var _rhInput = _deriveRehearsalCueInput\(\)/.test(line)) return true;
+  if (/events: typeof events/.test(line)) return true;
+  if (/proposals: typeof proposals/.test(line)) return true;
+  if (/eventsHasInit: !!_eventsHasInit/.test(line)) return true;
+  if (/rehearsalTimesFn: typeof _r535RehearsalTimes/.test(line)) return true;
+  if (/if \(_derived && typeof _derived === 'object' && _derived\.hasTarget === true\)/.test(line)) return true;
+  if (/return _derived;/.test(line)) return true;
+  if (/var _rhInput = null;/.test(line)) return true;
+  if (/var earlyProp =/.test(line)) return true;
+  if (/sourceBranch: 'hidden-no-events'/.test(line)) return true;
+  if (/sourceBranch: 'hidden-no-rehearsal'/.test(line)) return true;
+  if (/sourceBranch: ev\._proposalHomeCue/.test(line)) return true;
+  if (/sourceBranch: 'rehearsalEvent'/.test(line)) return true;
+  if (/var ev = _r535NextUpcomingRehearsal\(\)/.test(line)) return true;
+  if (/var times = _r535RehearsalTimes\(ev\)/.test(line)) return true;
+  if (/var dateLabel = _r535PrettyRehearsalDate\(ev\)/.test(line)) return true;
+  if (/if\(!_eventsHasInit && \(!events \|\| !events\.length\)\)/.test(line)) return true;
+  if (/if\(!earlyProp\)/.test(line)) return true;
+  if (/if\(!_rhInput\)/.test(line)) return true;
+  if (/_rhInput = _buildHomeRehearsalCueInput\(\{/.test(line)) return true;
+  if (/evIdEscaped: _r535HomeEscape/.test(line)) return true;
+  if (/titleEscaped: _r535HomeEscape/.test(line)) return true;
+  if (/subEscaped: _r535HomeEscape/.test(line)) return true;
+  if (/noteEscaped: note \? _r535HomeEscape/.test(line)) return true;
+  if (/hasNote: !!note/.test(line)) return true;
+  if (/var title = ev\.title/.test(line)) return true;
+  if (/var sub = dateLabel/.test(line)) return true;
+  if (/var note = ev\.note/.test(line)) return true;
+  if (/var timeLabel = times\.start/.test(line)) return true;
+  if (/if\(!ev\)/.test(line)) return true;
+  if (/return _rhInput;/.test(line)) return true;
+  return false;
+}
+
 /** Phase 6d/6e-c/6g/6i-a: allow go('home') orchestration delegate + notification/reconcile hooks in index.html. */
 function assertIndexHtmlChangesAllowed(html) {
   if (!html.includes(GO_HOME_ORCHESTRATE_MARKER)) {
@@ -598,7 +639,7 @@ function assertIndexHtmlChangesAllowed(html) {
       }
     }
     if (!removedAllowed) {
-      if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line)) {
+      if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line) || isRehearsalCueDeriveDiffLine(line)) {
         continue;
       }
       fail(`index.html diff removes disallowed line in Phase 6d: ${line}`);
@@ -1222,7 +1263,7 @@ function assertIndexHtmlChangesAllowed(html) {
     if (line.trim() === '}') {
       continue;
     }
-    if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line)) {
+    if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line) || isRehearsalCueDeriveDiffLine(line)) {
       continue;
     }
     var matched = false;

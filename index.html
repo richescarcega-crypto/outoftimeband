@@ -22777,6 +22777,56 @@ function _buildHomeRehearsalCueInput(args){
   return input;
 }
 
+function _legacyDeriveRehearsalCueInput(){
+  var _rhInput = null;
+  if(!_eventsHasInit && (!events || !events.length)){
+    var earlyProp = (typeof _ootNextOpenRehearsalProposal === 'function') ? _ootNextOpenRehearsalProposal() : null;
+    if(!earlyProp){
+      _rhInput = _buildHomeRehearsalCueInput({ sourceBranch: 'hidden-no-events' });
+    }
+  }
+  if(!_rhInput){
+    var ev = _r535NextUpcomingRehearsal();
+    if(!ev){
+      _rhInput = _buildHomeRehearsalCueInput({ sourceBranch: 'hidden-no-rehearsal' });
+    } else {
+      var times = _r535RehearsalTimes(ev);
+      var timeLabel = times.start ? (times.end ? (times.start + ' – ' + times.end) : times.start) : 'Time TBD';
+      var dateLabel = _r535PrettyRehearsalDate(ev);
+      var title = ev.title || 'Band Rehearsal';
+      var sub = dateLabel + ' · ' + timeLabel;
+      var note = ev.note || ev.location || '';
+      _rhInput = _buildHomeRehearsalCueInput({
+        sourceBranch: ev._proposalHomeCue ? 'proposalFallback' : 'rehearsalEvent',
+        evIdEscaped: _r535HomeEscape(String(ev.id||'')),
+        titleEscaped: _r535HomeEscape(title),
+        subEscaped: _r535HomeEscape(sub),
+        noteEscaped: note ? _r535HomeEscape(note) : '',
+        hasNote: !!note
+      });
+    }
+  }
+  return _rhInput;
+}
+
+function _deriveRehearsalCueInput(){
+  try{
+    var _rhCr = window.OOT && window.OOT.home && window.OOT.home.cueRenderer;
+    if (_rhCr && typeof _rhCr.deriveRehearsalCueInput === 'function') {
+      var _derived = _rhCr.deriveRehearsalCueInput({
+        events: typeof events !== 'undefined' ? events : [],
+        proposals: typeof proposals !== 'undefined' ? proposals : [],
+        eventsHasInit: !!_eventsHasInit,
+        rehearsalTimesFn: typeof _r535RehearsalTimes === 'function' ? _r535RehearsalTimes : null
+      });
+      if (_derived && typeof _derived === 'object' && _derived.hasTarget === true) {
+        return _derived;
+      }
+    }
+  }catch(e){}
+  return _legacyDeriveRehearsalCueInput();
+}
+
 function _legacyApplyHomeCueView(el, view){
   if(!el || !view) return;
   if(!view.visible){
@@ -22807,34 +22857,7 @@ function _applyHomeCueView(el, view){
 function renderHomeRehearsalCue(){
   var el = document.getElementById('home-rehearsal-cue');
   if(!el) return;
-  var _rhInput = null;
-  if(!_eventsHasInit && (!events || !events.length)){
-    var earlyProp = (typeof _ootNextOpenRehearsalProposal === 'function') ? _ootNextOpenRehearsalProposal() : null;
-    if(!earlyProp){
-      _rhInput = _buildHomeRehearsalCueInput({ sourceBranch: 'hidden-no-events' });
-    }
-  }
-  if(!_rhInput){
-    var ev = _r535NextUpcomingRehearsal();
-    if(!ev){
-      _rhInput = _buildHomeRehearsalCueInput({ sourceBranch: 'hidden-no-rehearsal' });
-    } else {
-      var times = _r535RehearsalTimes(ev);
-      var timeLabel = times.start ? (times.end ? (times.start + ' – ' + times.end) : times.start) : 'Time TBD';
-      var dateLabel = _r535PrettyRehearsalDate(ev);
-      var title = ev.title || 'Band Rehearsal';
-      var sub = dateLabel + ' · ' + timeLabel;
-      var note = ev.note || ev.location || '';
-      _rhInput = _buildHomeRehearsalCueInput({
-        sourceBranch: ev._proposalHomeCue ? 'proposalFallback' : 'rehearsalEvent',
-        evIdEscaped: _r535HomeEscape(String(ev.id||'')),
-        titleEscaped: _r535HomeEscape(title),
-        subEscaped: _r535HomeEscape(sub),
-        noteEscaped: note ? _r535HomeEscape(note) : '',
-        hasNote: !!note
-      });
-    }
-  }
+  var _rhInput = _deriveRehearsalCueInput();
   var _rhView = null;
   var _rhModuleApplied = false;
   try {

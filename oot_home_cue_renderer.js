@@ -1,4 +1,4 @@
-// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i/6m-b/6m-c/6o-b/6o-c/6p-a/6s-a/6t-a/6u-b: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers, pending proposal derive/render/target seams, song vote derive/render/target seams.
+// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i/6m-b/6m-c/6o-b/6o-c/6p-a/6s-a/6t-a/6u-b/6w-b: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers, pending proposal derive/render/target seams, song vote derive/render/target seams, rehearsal derive seam.
 
 (function (window) {
   'use strict';
@@ -153,6 +153,199 @@
         userSpecific: true,
         sourceBranch: 'pendingForMe'
       };
+    }
+  }
+
+  function deriveRehearsalCueInput(input) {
+    var snap = _normalizeInput(input);
+    var events = Array.isArray(snap.events) ? snap.events : [];
+    var proposals = Array.isArray(snap.proposals) ? snap.proposals : [];
+    var eventsHasInit = snap.eventsHasInit === true;
+    var rehearsalTimesFn = typeof snap.rehearsalTimesFn === 'function' ? snap.rehearsalTimesFn : null;
+
+    function homeEscape(s) {
+      return String(s == null ? '' : s).replace(/[&<>'"]/g, function (ch) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch] || ch;
+      });
+    }
+
+    function parseTimeToMinutes(raw) {
+      raw = String(raw || '').trim();
+      if (!raw) return null;
+      var s = raw.toLowerCase().replace(/\s+/g, '');
+      var m = s.match(/^(\d{1,2})(?::(\d{2}))?(am|pm)?$/);
+      if (!m) return null;
+      var h = parseInt(m[1], 10);
+      var min = m[2] ? parseInt(m[2], 10) : 0;
+      if (isNaN(h) || isNaN(min) || h < 0 || h > 23 || min < 0 || min > 59) return null;
+      if (m[3]) {
+        if (h < 1 || h > 12) return null;
+        if (m[3] === 'pm' && h !== 12) h += 12;
+        if (m[3] === 'am' && h === 12) h = 0;
+      }
+      return h * 60 + min;
+    }
+
+    function looksLikeRehearsalRecord(ev) {
+      if (!ev) return false;
+      var hay = [ev.type, ev.kind, ev.category, ev.title, ev.name, ev.note, ev.location, ev.focus]
+        .map(function (v) { return String(v || '').toLowerCase(); })
+        .join(' ');
+      return hay.indexOf('rehearsal') >= 0 || hay.indexOf('practice') >= 0;
+    }
+
+    function proposalDeadline(p) {
+      if (!p || !p.date) return null;
+      var minutes = parseTimeToMinutes(p.endTime || p.startTime || '');
+      if (minutes === null) minutes = 23 * 60 + 59;
+      var d = new Date(String(p.date) + 'T00:00:00');
+      if (isNaN(d.getTime())) return null;
+      d.setHours(Math.floor(minutes / 60), minutes % 60, 59, 999);
+      return d;
+    }
+
+    function nextOpenRehearsalProposal() {
+      var now = new Date();
+      return proposals.filter(function (p) {
+        if (!p || !p.date) return false;
+        var status = String(p.status || 'open').toLowerCase();
+        if (status === 'closed' || status === 'cancelled' || status === 'canceled' || status === 'deleted' || status === 'archived') {
+          return false;
+        }
+        var deadline = proposalDeadline(p);
+        return !!(deadline && deadline.getTime() >= now.getTime());
+      }).sort(function (a, b) {
+        return (proposalDeadline(a) || 0) - (proposalDeadline(b) || 0);
+      })[0] || null;
+    }
+
+    function rehearsalTimes(ev) {
+      if (rehearsalTimesFn) {
+        try {
+          return rehearsalTimesFn(ev) || { start: '', end: '' };
+        } catch (e) {
+          return { start: '', end: '' };
+        }
+      }
+      return {
+        start: ev && (ev.startTime || ev.start) ? (ev.startTime || ev.start) : '',
+        end: ev && (ev.endTime || ev.end) ? (ev.endTime || ev.end) : ''
+      };
+    }
+
+    function rehearsalDeadline(ev) {
+      if (!ev || !ev.date) return null;
+      var t = rehearsalTimes(ev);
+      var minutes = parseTimeToMinutes(t.end || t.start);
+      if (minutes === null) minutes = 23 * 60 + 59;
+      var d = new Date(String(ev.date) + 'T00:00:00');
+      if (isNaN(d.getTime())) return null;
+      d.setHours(Math.floor(minutes / 60), minutes % 60, 59, 999);
+      return d;
+    }
+
+    function rehearsalStartSort(ev) {
+      if (!ev || !ev.date) return Number.MAX_SAFE_INTEGER;
+      var t = rehearsalTimes(ev);
+      var minutes = parseTimeToMinutes(t.start || t.end);
+      if (minutes === null) minutes = 0;
+      var d = new Date(String(ev.date) + 'T00:00:00');
+      if (isNaN(d.getTime())) return Number.MAX_SAFE_INTEGER;
+      d.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
+      return d.getTime();
+    }
+
+    function prettyRehearsalDate(ev) {
+      var d = new Date(String(ev.date) + 'T00:00:00');
+      if (isNaN(d.getTime())) return String(ev.date || '');
+      return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+
+    function nextUpcomingRehearsal() {
+      var now = new Date();
+      var primary = events.filter(function (ev) {
+        if (!ev || !ev.date) return false;
+        if (!looksLikeRehearsalRecord(ev)) return false;
+        var deadline = rehearsalDeadline(ev);
+        return !!(deadline && deadline.getTime() >= now.getTime());
+      }).sort(function (a, b) {
+        return rehearsalStartSort(a) - rehearsalStartSort(b);
+      })[0] || null;
+      if (primary) return primary;
+
+      var today = new Date();
+      today.setHours(0, 0, 0, 0);
+      var eventFallback = events.filter(function (ev) {
+        if (!ev || !ev.date) return false;
+        if (!looksLikeRehearsalRecord(ev)) return false;
+        var d = new Date(String(ev.date) + 'T00:00:00');
+        if (isNaN(d.getTime())) return false;
+        return d.getTime() >= today.getTime();
+      }).sort(function (a, b) {
+        return rehearsalStartSort(a) - rehearsalStartSort(b);
+      })[0] || null;
+      if (eventFallback) return eventFallback;
+
+      var prop = nextOpenRehearsalProposal();
+      if (prop) {
+        return {
+          id: prop.id,
+          type: 'rehearsal-proposal',
+          title: prop.title || 'Rehearsal',
+          date: prop.date,
+          startTime: prop.startTime || '',
+          endTime: prop.endTime || '',
+          location: prop.location || '',
+          note: prop.note || prop.location || '',
+          _proposalHomeCue: true
+        };
+      }
+      return null;
+    }
+
+    function buildCueInput(args) {
+      var a = args || {};
+      var out = { hasTarget: true, sourceBranch: a.sourceBranch };
+      if (a.sourceBranch === 'hidden-no-events' || a.sourceBranch === 'hidden-no-rehearsal') {
+        return out;
+      }
+      out.evIdEscaped = a.evIdEscaped != null ? a.evIdEscaped : '';
+      out.titleEscaped = a.titleEscaped != null ? a.titleEscaped : '';
+      out.subEscaped = a.subEscaped != null ? a.subEscaped : '';
+      out.noteEscaped = a.noteEscaped != null ? a.noteEscaped : '';
+      out.hasNote = !!a.hasNote;
+      return out;
+    }
+
+    try {
+      if (!eventsHasInit && (!events || !events.length)) {
+        var earlyProp = nextOpenRehearsalProposal();
+        if (!earlyProp) {
+          return buildCueInput({ sourceBranch: 'hidden-no-events' });
+        }
+      }
+
+      var ev = nextUpcomingRehearsal();
+      if (!ev) {
+        return buildCueInput({ sourceBranch: 'hidden-no-rehearsal' });
+      }
+
+      var times = rehearsalTimes(ev);
+      var timeLabel = times.start ? (times.end ? (times.start + ' \u2013 ' + times.end) : times.start) : 'Time TBD';
+      var dateLabel = prettyRehearsalDate(ev);
+      var title = ev.title || 'Band Rehearsal';
+      var sub = dateLabel + ' \u00b7 ' + timeLabel;
+      var note = ev.note || ev.location || '';
+      return buildCueInput({
+        sourceBranch: ev._proposalHomeCue ? 'proposalFallback' : 'rehearsalEvent',
+        evIdEscaped: homeEscape(String(ev.id || '')),
+        titleEscaped: homeEscape(title),
+        subEscaped: homeEscape(sub),
+        noteEscaped: note ? homeEscape(note) : '',
+        hasNote: !!note
+      });
+    } catch (e) {
+      return buildCueInput({ sourceBranch: 'hidden-no-rehearsal' });
     }
   }
 
@@ -839,6 +1032,7 @@
         'buildRehearsalCueView',
         'derivePendingProposalIds',
         'deriveSongVoteCueState',
+        'deriveRehearsalCueInput',
         'buildPendingProposalCueView',
         'applyPendingProposalCueView',
         'collectPendingProposalCueTargets',
@@ -867,6 +1061,7 @@
     buildRehearsalCueView: buildRehearsalCueView,
     derivePendingProposalIds: derivePendingProposalIds,
     deriveSongVoteCueState: deriveSongVoteCueState,
+    deriveRehearsalCueInput: deriveRehearsalCueInput,
     buildPendingProposalCueView: buildPendingProposalCueView,
     applyPendingProposalCueView: applyPendingProposalCueView,
     collectPendingProposalCueTargets: collectPendingProposalCueTargets,
