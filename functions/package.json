@@ -1,13 +1,13 @@
 {
   "name": "oot-functions",
-  "description": "Out of Time Firebase Functions — proposal reminder backend (Phase 2a scaffold, dry-run only)",
+  "description": "Out of Time Firebase Functions — proposal reminder backend (Phase 2b preflight, disabled by default)",
   "private": true,
   "main": "index.js",
   "engines": {
     "node": "20"
   },
   "scripts": {
-    "test": "node test/reminderLogic.test.js"
+    "test": "node test/reminderLogic.test.js && node test/livePreflight.test.js"
   },
   "dependencies": {
     "firebase-admin": "^12.7.0",

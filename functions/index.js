@@ -1,45 +1,40 @@
 'use strict';
 
 /**
- * Out of Time Firebase Functions — Phase 2a scaffold ONLY.
+ * Out of Time Firebase Functions — Phase 2b live preflight (disabled by default).
  *
- * - Scheduled export is DRY-RUN by default (OOT_PROPOSAL_REMINDER_LIVE !== '1').
- * - No Firestore reads/writes, no push worker calls, no secrets required.
- * - Do not deploy until Phase 2b approval (Firebase/GCP access + push-worker auth).
+ * Default: dry-run — no Admin SDK, no Firestore, no push worker HTTP.
+ *
+ * Live enablement requires ALL of:
+ *   OOT_PROPOSAL_REMINDER_LIVE=1
+ *   OOT_PUSH_WORKER_SECRET (deploy secret — never commit)
+ *   OOT_PROPOSAL_REMINDER_ALLOW_SEND=1
+ *   OOT_PROPOSAL_REMINDER_ALLOW_FIRESTORE=1
+ *   OOT_PROPOSAL_REMINDER_ALLOW_NETWORK=1
+ *
+ * Push worker must accept Authorization: Bearer <secret> (Cloudflare change — not in repo).
+ * Do not deploy until Phase 2b preflight doc approval.
  */
 
 const { onSchedule } = require('firebase-functions/v2/scheduler');
 const { PROPOSAL_REMINDER_SCHEDULE_EVERY_MINUTES } = require('./src/reminderPolicy');
-const { summarizeDryRunCandidates } = require('./src/proposalReminderSweepDryRun');
-
-const LIVE_SENDS_ENABLED = process.env.OOT_PROPOSAL_REMINDER_LIVE === '1';
+const { runProposalReminderOrchestrator } = require('./src/proposalReminderLiveSweep');
 
 exports.proposalReminderSweepScheduled = onSchedule(
   {
     schedule: 'every ' + PROPOSAL_REMINDER_SCHEDULE_EVERY_MINUTES + ' minutes',
-    timeoutSeconds: 60,
+    timeoutSeconds: 120,
   },
   async function proposalReminderSweepScheduledHandler() {
-    if (!LIVE_SENDS_ENABLED) {
-      console.log(
-        '[proposal-reminder] Phase 2a DRY-RUN scaffold: live sends disabled. ' +
-        'Set OOT_PROPOSAL_REMINDER_LIVE=1 only after Phase 2b (Admin SDK + push auth) is approved. ' +
-        'No Firestore access, no notifications sent.'
-      );
-      return {
-        mode: 'dry-run',
-        live: false,
-        candidates: summarizeDryRunCandidates([]),
-      };
-    }
-
-    console.warn(
-      '[proposal-reminder] OOT_PROPOSAL_REMINDER_LIVE=1 but Phase 2b send path is not implemented in this scaffold.'
-    );
-    return {
-      mode: 'live-blocked',
-      live: true,
-      message: 'Phase 2b not implemented — no sends performed',
-    };
+    const result = await runProposalReminderOrchestrator({ env: process.env });
+    console.log('[proposal-reminder]', JSON.stringify({
+      mode: result.mode,
+      live: result.live,
+      executed: result.executed,
+      message: result.message,
+      errors: result.errors,
+      candidates: result.candidates,
+    }));
+    return result;
   }
 );
