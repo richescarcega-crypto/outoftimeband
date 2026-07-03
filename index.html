@@ -22906,8 +22906,8 @@ function renderHomeRehearsalCue(){
     try { if (typeof notifyImageRefresh === 'function') notifyImageRefresh(_rhView.imageRefreshReason); } catch(e){}
     try { _homeLayoutDiagSnapshot(_rhView.diagTag, {}); } catch(e){}
     try { syncAlertRailState('renderHomeRehearsalCue'); } catch(e){}
-    try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeRehearsalCue'); } catch(e){}
-    try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:rehearsal'); } catch(e){}
+    try { _notifyRehearsalCueChange('renderHomeRehearsalCue'); } catch(e){}
+    try { _requestRehearsalCueReconcileIfHomeActive('renderHomeRehearsalCue'); } catch(e){}
     return;
   }
   try { _recordHomeCueRenderDiag('rehearsal', { visible: true, hasTarget: true, activeCount: 1, sourceBranch: _rhView.sourceBranch || _rhInput.sourceBranch }); } catch(e){}
@@ -22916,8 +22916,8 @@ function renderHomeRehearsalCue(){
   try { if (typeof notifyImageRefresh === 'function') notifyImageRefresh(_rhView.imageRefreshReason); } catch(e){}
   try { _homeLayoutDiagSnapshot(_rhView.diagTag, {}); } catch(e){}
   try { syncAlertRailState('renderHomeRehearsalCue'); } catch(e){}
-  try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeRehearsalCue'); } catch(e){}
-  try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:rehearsal'); } catch(e){}
+  try { _notifyRehearsalCueChange('renderHomeRehearsalCue'); } catch(e){}
+  try { _requestRehearsalCueReconcileIfHomeActive('renderHomeRehearsalCue'); } catch(e){}
 }
 
 function _legacyBuildHomeRehearsalCueView(cueInput){
@@ -22993,6 +22993,45 @@ function _legacyRenderHomeRehearsalCueSurface(el, cueInput){
     _rhView = _legacyBuildHomeRehearsalCueView(cueInput);
   }
   return { view: _rhView, moduleApplied: _rhModuleApplied };
+}
+
+function _legacyNotifyRehearsalCueChange(reason){
+  try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeRehearsalCue'); } catch(e){}
+}
+
+function _legacyRequestRehearsalCueReconcileIfHomeActive(source){
+  try {
+    var _hs = document.getElementById('sc-home');
+    if(_hs && _hs.classList.contains('on') && typeof requestHomeReconcile === 'function'){
+      requestHomeReconcile('cue:rehearsal');
+    }
+  } catch(e){}
+}
+
+function _notifyRehearsalCueChange(reason){
+  var _reason = reason || 'renderHomeRehearsalCue';
+  try {
+    var _hc = window.OOT && window.OOT.home && window.OOT.home.controller;
+    if (_hc && typeof _hc.notifyRehearsalCueChange === 'function') {
+      _hc.notifyRehearsalCueChange(_reason);
+      return;
+    }
+  } catch(e){}
+  _legacyNotifyRehearsalCueChange(_reason);
+}
+
+function _requestRehearsalCueReconcileIfHomeActive(source){
+  var _source = source || 'renderHomeRehearsalCue';
+  try {
+    var _hs = document.getElementById('sc-home');
+    if(!_hs || !_hs.classList.contains('on')) return;
+    var _hc = window.OOT && window.OOT.home && window.OOT.home.controller;
+    if (_hc && typeof _hc.requestRehearsalCueReconcile === 'function') {
+      _hc.requestRehearsalCueReconcile({ source: _source });
+      return;
+    }
+  } catch(e){}
+  _legacyRequestRehearsalCueReconcileIfHomeActive(_source);
 }
 
 function _legacySongVoteCueTargets(){

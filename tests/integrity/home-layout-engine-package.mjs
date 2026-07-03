@@ -566,6 +566,29 @@ function isRehearsalCueTargetCollectionDiffLine(line) {
   return false;
 }
 
+/** Phase 6z-b: allow rehearsal cue HomeController notify/reconcile seam in index.html diff. */
+function isRehearsalCueControllerNotifyReconcileDiffLine(line) {
+  if (/function _legacyNotifyRehearsalCueChange/.test(line)) return true;
+  if (/function _legacyRequestRehearsalCueReconcileIfHomeActive/.test(line)) return true;
+  if (/function _notifyRehearsalCueChange/.test(line)) return true;
+  if (/function _requestRehearsalCueReconcileIfHomeActive/.test(line)) return true;
+  if (/notifyRehearsalCueChange/.test(line)) return true;
+  if (/requestRehearsalCueReconcile/.test(line)) return true;
+  if (/_notifyRehearsalCueChange\('renderHomeRehearsalCue'\)/.test(line)) return true;
+  if (/_requestRehearsalCueReconcileIfHomeActive\('renderHomeRehearsalCue'\)/.test(line)) return true;
+  if (/_legacyNotifyRehearsalCueChange\(_reason\)/.test(line)) return true;
+  if (/_legacyRequestRehearsalCueReconcileIfHomeActive\(_source\)/.test(line)) return true;
+  if (/var _reason = reason \|\| 'renderHomeRehearsalCue'/.test(line)) return true;
+  if (/var _source = source \|\| 'renderHomeRehearsalCue'/.test(line)) return true;
+  if (/notifyCueChange\(reason \|\| 'renderHomeRehearsalCue'\)/.test(line)) return true;
+  if (/try \{ _notifyRehearsalCueChange\('renderHomeRehearsalCue'\)/.test(line)) return true;
+  if (/try \{ _requestRehearsalCueReconcileIfHomeActive\('renderHomeRehearsalCue'\)/.test(line)) return true;
+  if (/try \{ if \(typeof notifyCueChange === 'function'\) notifyCueChange\('renderHomeRehearsalCue'\)/.test(line)) return true;
+  if (/try \{ var _hs=document\.getElementById\('sc-home'\); if\(_hs&&_hs\.classList\.contains\('on'\)&&typeof requestHomeReconcile==='function'\)requestHomeReconcile\('cue:rehearsal'\)/.test(line)) return true;
+  if (/^\s+requestHomeReconcile\('cue:rehearsal'\);$/.test(line)) return true;
+  return false;
+}
+
 /** Phase 6d/6e-c/6g/6i-a: allow go('home') orchestration delegate + notification/reconcile hooks in index.html. */
 function assertIndexHtmlChangesAllowed(html) {
   if (!html.includes(GO_HOME_ORCHESTRATE_MARKER)) {
@@ -704,7 +727,7 @@ function assertIndexHtmlChangesAllowed(html) {
       }
     }
     if (!removedAllowed) {
-      if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line) || isRehearsalCueDeriveDiffLine(line) || isRehearsalCueOrchestrationDiffLine(line) || isRehearsalCueTargetCollectionDiffLine(line)) {
+      if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line) || isRehearsalCueDeriveDiffLine(line) || isRehearsalCueOrchestrationDiffLine(line) || isRehearsalCueTargetCollectionDiffLine(line) || isRehearsalCueControllerNotifyReconcileDiffLine(line)) {
         continue;
       }
       fail(`index.html diff removes disallowed line in Phase 6d: ${line}`);
@@ -1328,7 +1351,7 @@ function assertIndexHtmlChangesAllowed(html) {
     if (line.trim() === '}') {
       continue;
     }
-    if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line) || isRehearsalCueDeriveDiffLine(line) || isRehearsalCueOrchestrationDiffLine(line) || isRehearsalCueTargetCollectionDiffLine(line)) {
+    if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line) || isRehearsalCueDeriveDiffLine(line) || isRehearsalCueOrchestrationDiffLine(line) || isRehearsalCueTargetCollectionDiffLine(line) || isRehearsalCueControllerNotifyReconcileDiffLine(line)) {
       continue;
     }
     var matched = false;

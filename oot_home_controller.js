@@ -1,5 +1,7 @@
-// Phase 6e-b + 6q-a: HomeController - record-only API + reconcile coalescer with guarded legacy delegate.
+// Phase 6e-b + 6q-a + 6v-b + 6z-b: HomeController - record-only API + reconcile coalescer with guarded legacy delegate.
 // Phase 6q-a adds pending proposal cue notify/reconcile ownership seam.
+// Phase 6v-b adds song vote cue notify/reconcile ownership seam.
+// Phase 6z-b adds rehearsal cue notify/reconcile ownership seam.
 
 (function (window, document) {
   'use strict';
@@ -207,6 +209,22 @@
     return requestReconcile('cue:song-vote', payload);
   }
 
+  function notifyRehearsalCueChange(reason, options) {
+    var parsed = _optionsOrReason(options, reason);
+    return _record(
+      'notifyRehearsalCueChange',
+      parsed.reason || 'renderHomeRehearsalCue',
+      parsed.payload
+    );
+  }
+
+  function requestRehearsalCueReconcile(options) {
+    var parsed = _optionsOrReason(options, 'cue:rehearsal');
+    var payload = parsed.payload || null;
+    notifyRehearsalCueChange('renderHomeRehearsalCue', payload);
+    return requestReconcile('cue:rehearsal', payload);
+  }
+
   function notifyImageRefresh(reason, options) {
     var parsed = _optionsOrReason(options, reason);
     return _record('notifyImageRefresh', parsed.reason, parsed.payload);
@@ -301,6 +319,8 @@
     requestPendingProposalCueReconcile: requestPendingProposalCueReconcile,
     notifySongVoteCueChange: notifySongVoteCueChange,
     requestSongVoteCueReconcile: requestSongVoteCueReconcile,
+    notifyRehearsalCueChange: notifyRehearsalCueChange,
+    requestRehearsalCueReconcile: requestRehearsalCueReconcile,
     notifyImageRefresh: notifyImageRefresh,
     notifyGigSlotChange: notifyGigSlotChange,
     enterHomeTab: enterHomeTab,
