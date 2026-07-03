@@ -1,6 +1,10 @@
 'use strict';
 
-const { formatTodayLocal, getReminderDueInfo } = require('./proposalReminderLogic');
+const {
+  getReminderDueInfo,
+  isProposalDateStale,
+  getNonResponderIds,
+} = require('./proposalReminderLogic');
 
 /**
  * Pure planning for reminderState transaction update — mirrors _claimAndSendProposalReminder.
@@ -16,6 +20,11 @@ function planReminderStateClaim(proposal, targetMemberId, nowMs, rosterMemberIds
   const fresh = Object.assign({}, proposal, { id: proposal && proposal.id });
   if (!fresh.id) return { send: false, reason: 'missing-id' };
   if (fresh.status && fresh.status !== 'open') return { send: false, reason: 'closed' };
+  if (isProposalDateStale(fresh, todayStr)) return { send: false, reason: 'stale' };
+  const nonResponders = getNonResponderIds(fresh, rosterMemberIds);
+  if (nonResponders.indexOf(String(targetMemberId)) < 0) {
+    return { send: false, reason: 'already-responded' };
+  }
 
   const due = getReminderDueInfo(fresh, targetMemberId, now, rosterMemberIds, todayStr);
   if (!due && !opts.force) return { send: false, reason: 'not-due' };

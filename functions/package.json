@@ -7,7 +7,7 @@
     "node": "20"
   },
   "scripts": {
-    "test": "node test/reminderLogic.test.js && node test/livePreflight.test.js"
+    "test": "node test/reminderLogic.test.js && node test/reminderClaim.test.js && node test/reminderClaimTransaction.test.js && node test/livePreflight.test.js"
   },
   "dependencies": {
     "firebase-admin": "^12.7.0",

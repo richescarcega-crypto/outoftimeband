@@ -11,8 +11,8 @@
  *   OOT_PROPOSAL_REMINDER_ALLOW_SEND=1
  *
  * Additional gates before side effects:
- *   OOT_PROPOSAL_REMINDER_ALLOW_FIRESTORE=1  — Admin SDK reads/writes (claim transaction)
- *   OOT_PROPOSAL_REMINDER_ALLOW_NETWORK=1    — HTTP POST to push worker (injected fetch only in tests)
+ *   OOT_PROPOSAL_REMINDER_ALLOW_FIRESTORE=1  — Admin SDK reads/writes (claim transaction); required for live execution
+ *   OOT_PROPOSAL_REMINDER_ALLOW_NETWORK=1    — HTTP POST to push worker; push-only gate (claim may run without this)
  *
  * Do not set these until Cloudflare worker server-auth is deployed (see Phase 2b preflight doc).
  */
@@ -27,7 +27,8 @@ function evaluateLiveEnablement(env) {
   const allowNetwork = env.OOT_PROPOSAL_REMINDER_ALLOW_NETWORK === '1';
   const pushSecret = String(env.OOT_PUSH_WORKER_SECRET || '').trim();
   const pushUrl = String(env.OOT_PUSH_WORKER_URL || DEFAULT_PUSH_WORKER_URL).trim();
-  const errors = [];
+  const blockingErrors = [];
+  const warnings = [];
 
   if (!liveFlag) {
     return {
@@ -41,27 +42,28 @@ function evaluateLiveEnablement(env) {
       pushUrl: pushUrl,
       hasPushSecret: false,
       errors: [],
+      warnings: [],
     };
   }
 
   if (!pushSecret) {
-    errors.push('OOT_PUSH_WORKER_SECRET is required for live mode');
+    blockingErrors.push('OOT_PUSH_WORKER_SECRET is required for live mode');
   }
   if (!allowSend) {
-    errors.push('OOT_PROPOSAL_REMINDER_ALLOW_SEND=1 is required for live mode');
+    blockingErrors.push('OOT_PROPOSAL_REMINDER_ALLOW_SEND=1 is required for live mode');
   }
 
   const canUseAdmin = liveFlag && !!pushSecret && allowSend && allowFirestore;
   const canSendPush = liveFlag && !!pushSecret && allowSend && allowNetwork;
 
   if (liveFlag && allowSend && pushSecret && !allowFirestore) {
-    errors.push('OOT_PROPOSAL_REMINDER_ALLOW_FIRESTORE=1 required before Firestore claim/send');
+    blockingErrors.push('OOT_PROPOSAL_REMINDER_ALLOW_FIRESTORE=1 required before Firestore claim/send');
   }
   if (liveFlag && allowSend && pushSecret && allowFirestore && !allowNetwork) {
-    errors.push('OOT_PROPOSAL_REMINDER_ALLOW_NETWORK=1 required before push worker HTTP');
+    warnings.push('OOT_PROPOSAL_REMINDER_ALLOW_NETWORK=1 required before push worker HTTP');
   }
 
-  const mode = errors.length ? 'live-blocked' : 'live-ready';
+  const mode = blockingErrors.length ? 'live-blocked' : 'live-ready';
 
   return {
     mode: mode,
@@ -73,7 +75,8 @@ function evaluateLiveEnablement(env) {
     canSendPush: canSendPush,
     pushUrl: pushUrl,
     hasPushSecret: !!pushSecret,
-    errors: errors.slice(),
+    errors: blockingErrors.slice(),
+    warnings: warnings.slice(),
   };
 }
 
