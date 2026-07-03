@@ -1,4 +1,4 @@
-// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i/6m-b/6m-c/6o-b/6o-c/6p-a/6s-a/6t-a/6u-b/6w-b: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers, pending proposal derive/render/target seams, song vote derive/render/target seams, rehearsal derive seam.
+// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i/6m-b/6m-c/6o-b/6o-c/6p-a/6s-a/6t-a/6u-b/6w-b/6x-b: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers, pending proposal derive/render/target seams, song vote derive/render/target seams, rehearsal derive/render orchestration seams.
 
 (function (window) {
   'use strict';
@@ -772,6 +772,76 @@
     }
   }
 
+  function renderRehearsalCueSurface(input) {
+    var snap = _normalizeInput(input);
+    var targetEl = snap.targetEl || null;
+    var cueInput = snap.cueInput && typeof snap.cueInput === 'object' ? snap.cueInput : {};
+    var renderCueFn = Object.prototype.hasOwnProperty.call(snap, 'renderCue')
+      ? snap.renderCue
+      : renderRehearsalCue;
+    var buildViewFn = Object.prototype.hasOwnProperty.call(snap, 'buildView')
+      ? snap.buildView
+      : buildRehearsalCueView;
+    var legacyBuildView = typeof snap.legacyBuildView === 'function' ? snap.legacyBuildView : null;
+
+    function viewFromRenderOut(renderOut) {
+      return {
+        visible: renderOut.visible === true,
+        sourceBranch: renderOut.sourceBranch || cueInput.sourceBranch || 'hidden-no-rehearsal',
+        imageRefreshReason: renderOut.imageRefreshReason || '',
+        diagTag: renderOut.diagTag || '',
+        html: ''
+      };
+    }
+
+    try {
+      if (targetEl && typeof renderCueFn === 'function') {
+        var renderOut = renderCueFn(targetEl, cueInput);
+        if (renderOut && renderOut.rendered) {
+          return {
+            moduleApplied: true,
+            view: viewFromRenderOut(renderOut)
+          };
+        }
+      }
+    } catch (e) {}
+
+    try {
+      if (typeof buildViewFn === 'function') {
+        var builtView = buildViewFn(cueInput);
+        if (builtView) {
+          return {
+            moduleApplied: false,
+            view: builtView
+          };
+        }
+      }
+    } catch (e) {}
+
+    if (legacyBuildView) {
+      try {
+        var legacyView = legacyBuildView(cueInput);
+        if (legacyView) {
+          return {
+            moduleApplied: false,
+            view: legacyView
+          };
+        }
+      } catch (e) {}
+    }
+
+    return {
+      moduleApplied: false,
+      view: {
+        visible: false,
+        html: '',
+        sourceBranch: 'hidden-no-rehearsal',
+        imageRefreshReason: 'rehearsal-cue hidden no next rehearsal',
+        diagTag: 'renderHomeRehearsalCue:hidden-no-rehearsal'
+      }
+    };
+  }
+
   function _wirePendingProposalCueClick(el, handlerName) {
     var name = handlerName || '_openPendingProposalCue';
     el.onclick = function(ev) {
@@ -1039,6 +1109,7 @@
         'collectSongVoteCueTargets',
         'renderPendingProposalCueSurface',
         'renderSongVoteCueSurface',
+        'renderRehearsalCueSurface',
         'applyCueView',
         'renderSongVoteCue',
         'renderRehearsalCue',
@@ -1068,6 +1139,7 @@
     collectSongVoteCueTargets: collectSongVoteCueTargets,
     renderPendingProposalCueSurface: renderPendingProposalCueSurface,
     renderSongVoteCueSurface: renderSongVoteCueSurface,
+    renderRehearsalCueSurface: renderRehearsalCueSurface,
     applyCueView: applyCueView,
     renderSongVoteCue: renderSongVoteCue,
     renderRehearsalCue: renderRehearsalCue,

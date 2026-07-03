@@ -501,6 +501,56 @@ function isRehearsalCueDeriveDiffLine(line) {
   return false;
 }
 
+/** Phase 6x-b: allow rehearsal cue render orchestration seam in index.html diff. */
+function isRehearsalCueOrchestrationDiffLine(line) {
+  if (/function _legacyBuildHomeRehearsalCueView/.test(line)) return true;
+  if (/function _legacyRenderHomeRehearsalCueSurface/.test(line)) return true;
+  if (/renderRehearsalCueSurface/.test(line)) return true;
+  if (/legacyBuildView: _legacyBuildHomeRehearsalCueView/.test(line)) return true;
+  if (/renderCue: typeof _rhCr\.renderRehearsalCue/.test(line)) return true;
+  if (/buildView: typeof _rhCr\.buildRehearsalCueView/.test(line)) return true;
+  if (/var _rhSurface = _rhCr\.renderRehearsalCueSurface/.test(line)) return true;
+  if (/var _rhLegacy = _legacyRenderHomeRehearsalCueSurface/.test(line)) return true;
+  if (/_legacyRenderHomeRehearsalCueSurface\(el, _rhInput\)/.test(line)) return true;
+  if (/var _rhOut = _rhCr\.renderRehearsalCue\(el, cueInput\)/.test(line)) return true;
+  if (/var _rhOut = _rhCr\.renderRehearsalCue\(el, _rhInput\)/.test(line)) return true;
+  if (/_legacyBuildHomeRehearsalCueView\(cueInput\)/.test(line)) return true;
+  if (/return \{ view: _rhView, moduleApplied: _rhModuleApplied \}/.test(line)) return true;
+  if (/cueInput: _rhInput/.test(line)) return true;
+  if (/moduleApplied: _rhLegacy\.moduleApplied/.test(line)) return true;
+  if (/var _rhInput = cueInput \|\| \{\}/.test(line)) return true;
+  if (/if \(_rhCr && typeof _rhCr\.renderRehearsalCue === 'function'\)/.test(line)) return true;
+  if (/if \(_rhCr && typeof _rhCr\.renderRehearsalCueSurface === 'function'\)/.test(line)) return true;
+  if (/if \(_rhOut && _rhOut\.rendered\)/.test(line)) return true;
+  if (/_rhModuleApplied = true/.test(line)) return true;
+  if (/visible: !!_rhOut\.visible/.test(line)) return true;
+  if (/sourceBranch: _rhOut\.sourceBranch \|\| _rhInput\.sourceBranch \|\| 'hidden-no-rehearsal'/.test(line)) return true;
+  if (/sourceBranch: _rhOut\.sourceBranch \|\| cueInput\.sourceBranch \|\| 'hidden-no-rehearsal'/.test(line)) return true;
+  if (/imageRefreshReason: _rhOut\.imageRefreshReason \|\| ''/.test(line)) return true;
+  if (/diagTag: _rhOut\.diagTag \|\| ''/.test(line)) return true;
+  if (/var _rhCrFb = window\.OOT && window\.OOT\.home && window\.OOT\.home\.cueRenderer/.test(line)) return true;
+  if (/if \(_rhCrFb && typeof _rhCrFb\.buildRehearsalCueView === 'function'\)/.test(line)) return true;
+  if (/_rhView = _rhCrFb\.buildRehearsalCueView\(_rhInput\)/.test(line)) return true;
+  if (/_rhView = _rhCrFb\.buildRehearsalCueView\(cueInput\)/.test(line)) return true;
+  if (/if \(!_rhView\)/.test(line)) return true;
+  if (/if \(_rhInput\.sourceBranch === 'hidden-no-events'\)/.test(line)) return true;
+  if (/if \(_rhInput\.sourceBranch === 'hidden-no-rehearsal'\)/.test(line)) return true;
+  if (/} else if \(_rhInput\.sourceBranch === 'hidden-no-rehearsal'\)/.test(line)) return true;
+  if (/var _rhNoteHtml = _rhInput\.hasNote/.test(line)) return true;
+  if (/^\s+: '';/.test(line)) return true;
+  if (/_rhNoteHtml\+/.test(line)) return true;
+  if (/sourceBranch: _rhInput\.sourceBranch/.test(line)) return true;
+  if (/if \(_rhSurface && _rhSurface\.view\)/.test(line)) return true;
+  if (/_rhView = _rhSurface\.view/.test(line)) return true;
+  if (/_rhModuleApplied = !!\(_rhSurface\.moduleApplied\)/.test(line)) return true;
+  if (/_rhView = _rhLegacy\.view/.test(line)) return true;
+  if (/_rhModuleApplied = _rhLegacy\.moduleApplied/.test(line)) return true;
+  if (/^\s+_rhView = \{$/.test(line)) return true;
+  if (/^\s+visible: false,$/.test(line)) return true;
+  if (/html: ''/.test(line)) return true;
+  return false;
+}
+
 /** Phase 6d/6e-c/6g/6i-a: allow go('home') orchestration delegate + notification/reconcile hooks in index.html. */
 function assertIndexHtmlChangesAllowed(html) {
   if (!html.includes(GO_HOME_ORCHESTRATE_MARKER)) {
@@ -639,7 +689,7 @@ function assertIndexHtmlChangesAllowed(html) {
       }
     }
     if (!removedAllowed) {
-      if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line) || isRehearsalCueDeriveDiffLine(line)) {
+      if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line) || isRehearsalCueDeriveDiffLine(line) || isRehearsalCueOrchestrationDiffLine(line)) {
         continue;
       }
       fail(`index.html diff removes disallowed line in Phase 6d: ${line}`);
@@ -1263,7 +1313,7 @@ function assertIndexHtmlChangesAllowed(html) {
     if (line.trim() === '}') {
       continue;
     }
-    if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line) || isRehearsalCueDeriveDiffLine(line)) {
+    if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line) || isRehearsalCueDeriveDiffLine(line) || isRehearsalCueOrchestrationDiffLine(line)) {
       continue;
     }
     var matched = false;
