@@ -372,11 +372,6 @@ function assertIndexHtmlWiring(html) {
 }
 
 function assertPhase6eCSongVotePilot(html) {
-  const pilotCount = countOccurrences(html, "requestHomeReconcile('cue:song-vote')");
-  if (pilotCount !== 2) {
-    fail(`renderHomeSongVoteCue must contain exactly two requestHomeReconcile('cue:song-vote') hooks (found ${pilotCount})`);
-  }
-
   const fnStart = html.indexOf('function renderHomeSongVoteCue');
   const fnEnd = html.indexOf('\nfunction ', fnStart + 1);
   if (fnStart === -1 || fnEnd === -1) {
@@ -388,8 +383,14 @@ function assertPhase6eCSongVotePilot(html) {
     fail('renderHomeSongVoteCue must not call reconcileHomeLayout directly');
   }
 
-  if (!fnBody.includes(PHASE_6E_C_SONG_VOTE_RECONCILE_HOOK)) {
-    fail('renderHomeSongVoteCue must use Home-active gated requestHomeReconcile pilot hook');
+  const reconcileWrapperCount = (fnBody.match(/_requestSongVoteCueReconcileIfHomeActive\(\)/g) || []).length;
+  if (reconcileWrapperCount !== 2) {
+    fail(`renderHomeSongVoteCue must call _requestSongVoteCueReconcileIfHomeActive exactly twice (found ${reconcileWrapperCount})`);
+  }
+
+  const notifyWrapperCount = (fnBody.match(/_notifySongVoteCueChange\(\)/g) || []).length;
+  if (notifyWrapperCount !== 2) {
+    fail(`renderHomeSongVoteCue must call _notifySongVoteCueChange exactly twice (found ${notifyWrapperCount})`);
   }
 
   const hiddenBranch = fnBody.slice(fnBody.indexOf('renderHomeSongVoteCue:hidden'));
@@ -397,10 +398,15 @@ function assertPhase6eCSongVotePilot(html) {
   for (const label of ['hidden branch', 'visible branch']) {
     const branch = label === 'hidden branch' ? hiddenBranch : visibleBranch;
     const syncPos = branch.indexOf("syncAlertRailState('renderHomeSongVoteCue')");
-    const pilotPos = branch.indexOf("requestHomeReconcile('cue:song-vote')");
-    if (syncPos === -1 || pilotPos === -1 || syncPos > pilotPos) {
-      fail(`renderHomeSongVoteCue ${label} must call syncAlertRailState before requestHomeReconcile('cue:song-vote')`);
+    const reconcilePos = branch.indexOf('_requestSongVoteCueReconcileIfHomeActive()');
+    if (syncPos === -1 || reconcilePos === -1 || syncPos > reconcilePos) {
+      fail(`renderHomeSongVoteCue ${label} must call syncAlertRailState before _requestSongVoteCueReconcileIfHomeActive()`);
     }
+  }
+
+  const legacyCount = countOccurrences(html, "requestHomeReconcile('cue:song-vote')");
+  if (legacyCount !== 1) {
+    fail(`song vote reconcile legacy fallback must contain exactly one requestHomeReconcile('cue:song-vote') hook (found ${legacyCount})`);
   }
 }
 
@@ -458,8 +464,8 @@ function assertPhase6gRehearsalPilot(html) {
   }
 
   const songVoteCount = countOccurrences(html, "requestHomeReconcile('cue:song-vote')");
-  if (songVoteCount !== 2) {
-    fail(`Phase 6g must preserve exactly two requestHomeReconcile('cue:song-vote') hooks (found ${songVoteCount})`);
+  if (songVoteCount !== 1) {
+    fail(`Phase 6g must preserve exactly one legacy requestHomeReconcile('cue:song-vote') hook (found ${songVoteCount})`);
   }
 }
 
@@ -2364,8 +2370,8 @@ function assertPhase6qAPendingProposalReconcileNotify(html, controllerJs) {
   }
 
   const songVoteCount = countOccurrences(html, "requestHomeReconcile('cue:song-vote')");
-  if (songVoteCount !== 2) {
-    fail(`Phase 6q-a must preserve exactly two cue:song-vote reconcile hooks (found ${songVoteCount})`);
+  if (songVoteCount !== 1) {
+    fail(`Phase 6q-a must preserve exactly one legacy cue:song-vote reconcile hook (found ${songVoteCount})`);
   }
   const rehearsalCount = countOccurrences(html, "requestHomeReconcile('cue:rehearsal')");
   if (rehearsalCount !== 2) {
@@ -2537,8 +2543,8 @@ function assertPhase6sASongVoteDeriveSeam(html) {
   }
 
   const songVoteCount = countOccurrences(html, "requestHomeReconcile('cue:song-vote')");
-  if (songVoteCount !== 2) {
-    fail(`Phase 6s-a must preserve exactly two cue:song-vote reconcile hooks (found ${songVoteCount})`);
+  if (songVoteCount !== 1) {
+    fail(`Phase 6s-a must preserve exactly one legacy cue:song-vote reconcile hook (found ${songVoteCount})`);
   }
 
   if (html.includes('data-home-layout-mode="modular-inflow"')) {
@@ -2710,13 +2716,13 @@ function assertPhase6tASongVoteRenderOrchestration(html) {
   if (!songBody.includes('syncAlertRailState(\'renderHomeSongVoteCue\')')) {
     fail('renderHomeSongVoteCue must preserve alert rail sync side effects');
   }
-  if (!songBody.includes("notifyCueChange('renderHomeSongVoteCue')")) {
-    fail('renderHomeSongVoteCue must preserve notifyCueChange side effects');
+  if (!songBody.includes('_notifySongVoteCueChange()')) {
+    fail('renderHomeSongVoteCue must preserve notify side effects via _notifySongVoteCueChange');
   }
 
   const songVoteCount = countOccurrences(html, "requestHomeReconcile('cue:song-vote')");
-  if (songVoteCount !== 2) {
-    fail(`Phase 6t-a must preserve exactly two cue:song-vote reconcile hooks (found ${songVoteCount})`);
+  if (songVoteCount !== 1) {
+    fail(`Phase 6t-a must preserve exactly one legacy cue:song-vote reconcile hook (found ${songVoteCount})`);
   }
 
   if (!cueRendererJs.includes('function derivePendingProposalIds')) {
@@ -2851,8 +2857,8 @@ function assertPhase6uBSongVoteTargetCollection(html) {
   }
 
   const songVoteCount = countOccurrences(html, "requestHomeReconcile('cue:song-vote')");
-  if (songVoteCount !== 2) {
-    fail(`Phase 6u-b must preserve exactly two cue:song-vote reconcile hooks (found ${songVoteCount})`);
+  if (songVoteCount !== 1) {
+    fail(`Phase 6u-b must preserve exactly one legacy cue:song-vote reconcile hook (found ${songVoteCount})`);
   }
 
   if (!html.includes('function renderPendingProposalCue')) {
@@ -2863,6 +2869,141 @@ function assertPhase6uBSongVoteTargetCollection(html) {
   const proposalBody = html.slice(proposalStart, proposalEnd);
   if (!proposalBody.includes('_pendingProposalCueTargets()')) {
     fail('Phase 6u-b must preserve pending proposal target collection seam');
+  }
+
+  if (html.includes('data-home-layout-mode="modular-inflow"')) {
+    fail('index.html must not default static Home markup to modular-inflow');
+  }
+}
+
+function assertPhase6vBSongVoteNotifyReconcile(html, controllerJs) {
+  if (!controllerJs.includes('function notifySongVoteCueChange')) {
+    fail('oot_home_controller.js must define notifySongVoteCueChange for Phase 6v-b');
+  }
+  if (!controllerJs.includes('function requestSongVoteCueReconcile')) {
+    fail('oot_home_controller.js must define requestSongVoteCueReconcile for Phase 6v-b');
+  }
+  if (!controllerJs.includes('notifySongVoteCueChange: notifySongVoteCueChange')) {
+    fail('notifySongVoteCueChange must be exported on HomeController API');
+  }
+  if (!controllerJs.includes('requestSongVoteCueReconcile: requestSongVoteCueReconcile')) {
+    fail('requestSongVoteCueReconcile must be exported on HomeController API');
+  }
+  if (!controllerJs.includes("requestReconcile('cue:song-vote'")) {
+    fail('requestSongVoteCueReconcile must delegate to requestReconcile cue:song-vote');
+  }
+
+  const hc = loadHomeControllerApi();
+  if (typeof hc.notifySongVoteCueChange !== 'function') {
+    fail('notifySongVoteCueChange must be callable on HomeController API');
+  }
+  if (typeof hc.requestSongVoteCueReconcile !== 'function') {
+    fail('requestSongVoteCueReconcile must be callable on HomeController API');
+  }
+  const notifyEntry = hc.notifySongVoteCueChange('renderHomeSongVoteCue');
+  if (!notifyEntry || notifyEntry.method !== 'notifySongVoteCueChange') {
+    fail('notifySongVoteCueChange must record notifySongVoteCueChange events');
+  }
+  hc.requestSongVoteCueReconcile({ source: 'integrity-test' });
+  const state = hc.getState();
+  const reconcileEvents = (state.events || []).filter(function (e) {
+    return e.method === 'requestReconcile' && e.reason === 'cue:song-vote';
+  });
+  if (reconcileEvents.length < 1) {
+    fail('requestSongVoteCueReconcile must enqueue cue:song-vote reconcile request');
+  }
+
+  if (!html.includes('function _legacyNotifySongVoteCueChange')) {
+    fail('index.html must retain _legacyNotifySongVoteCueChange fallback helper');
+  }
+  if (!html.includes('function _legacyRequestSongVoteCueReconcileIfHomeActive')) {
+    fail('index.html must retain _legacyRequestSongVoteCueReconcileIfHomeActive fallback helper');
+  }
+  if (!html.includes('function _notifySongVoteCueChange')) {
+    fail('index.html must define _notifySongVoteCueChange wrapper');
+  }
+  if (!html.includes('function _requestSongVoteCueReconcileIfHomeActive')) {
+    fail('index.html must define _requestSongVoteCueReconcileIfHomeActive wrapper');
+  }
+
+  const songStart = html.indexOf('function renderHomeSongVoteCue');
+  const songEnd = html.indexOf('// r810:', songStart);
+  if (songStart === -1 || songEnd === -1) {
+    fail('Could not locate renderHomeSongVoteCue for Phase 6v-b notify/reconcile checks');
+  }
+  const songBody = html.slice(songStart, songEnd);
+
+  const notifyCallCount = (songBody.match(/_notifySongVoteCueChange\(\)/g) || []).length;
+  if (notifyCallCount !== 2) {
+    fail(`renderHomeSongVoteCue must call _notifySongVoteCueChange exactly twice (found ${notifyCallCount})`);
+  }
+  const reconcileCallCount = (songBody.match(/_requestSongVoteCueReconcileIfHomeActive\(\)/g) || []).length;
+  if (reconcileCallCount !== 2) {
+    fail(`renderHomeSongVoteCue must call _requestSongVoteCueReconcileIfHomeActive exactly twice (found ${reconcileCallCount})`);
+  }
+
+  const notifyStart = html.indexOf('function _notifySongVoteCueChange');
+  const notifyEnd = html.indexOf('function _requestSongVoteCueReconcileIfHomeActive', notifyStart);
+  const notifyBody = notifyStart === -1 || notifyEnd === -1 ? '' : html.slice(notifyStart, notifyEnd);
+  if (!notifyBody.includes('notifySongVoteCueChange')) {
+    fail('_notifySongVoteCueChange must delegate to HomeController.notifySongVoteCueChange');
+  }
+  if (!notifyBody.includes('_legacyNotifySongVoteCueChange()')) {
+    fail('_notifySongVoteCueChange must fall back to _legacyNotifySongVoteCueChange');
+  }
+
+  const reconcileStart = html.indexOf('function _requestSongVoteCueReconcileIfHomeActive');
+  const reconcileEnd = html.indexOf('function renderHomeSongVoteCue', reconcileStart);
+  const reconcileBody = reconcileStart === -1 || reconcileEnd === -1 ? '' : html.slice(reconcileStart, reconcileEnd);
+  if (!reconcileBody.includes('requestSongVoteCueReconcile')) {
+    fail('_requestSongVoteCueReconcileIfHomeActive must delegate to HomeController.requestSongVoteCueReconcile');
+  }
+  if (!reconcileBody.includes('_legacyRequestSongVoteCueReconcileIfHomeActive()')) {
+    fail('_requestSongVoteCueReconcileIfHomeActive must fall back to legacy Home-active reconcile hook');
+  }
+
+  const legacyNotifyStart = html.indexOf('function _legacyNotifySongVoteCueChange');
+  const legacyNotifyEnd = html.indexOf('function _legacyRequestSongVoteCueReconcileIfHomeActive', legacyNotifyStart);
+  const legacyNotifyBody = legacyNotifyStart === -1 || legacyNotifyEnd === -1
+    ? ''
+    : html.slice(legacyNotifyStart, legacyNotifyEnd);
+  if (!legacyNotifyBody.includes("notifyCueChange('renderHomeSongVoteCue')")) {
+    fail('legacy song vote notify fallback must use renderHomeSongVoteCue reason');
+  }
+
+  const legacyReconcileStart = html.indexOf('function _legacyRequestSongVoteCueReconcileIfHomeActive');
+  const legacyReconcileEnd = html.indexOf('function _notifySongVoteCueChange', legacyReconcileStart);
+  const legacyReconcileBody = legacyReconcileStart === -1 || legacyReconcileEnd === -1
+    ? ''
+    : html.slice(legacyReconcileStart, legacyReconcileEnd);
+  if (!legacyReconcileBody.includes("requestHomeReconcile('cue:song-vote')")) {
+    fail('legacy song vote reconcile fallback must use cue:song-vote reason');
+  }
+
+  const pilotCount = countOccurrences(html, "requestHomeReconcile('cue:song-vote')");
+  if (pilotCount !== 1) {
+    fail(`song vote path must contain exactly one legacy requestHomeReconcile('cue:song-vote') hook (found ${pilotCount})`);
+  }
+
+  const hiddenBranch = songBody.slice(songBody.indexOf('renderHomeSongVoteCue:hidden'));
+  const visibleBranch = songBody.slice(songBody.indexOf('renderHomeSongVoteCue:visible'));
+  for (const label of ['hidden branch', 'visible branch']) {
+    const branch = label === 'hidden branch' ? hiddenBranch : visibleBranch;
+    const syncPos = branch.indexOf("syncAlertRailState('renderHomeSongVoteCue')");
+    const reconcilePos = branch.indexOf('_requestSongVoteCueReconcileIfHomeActive()');
+    if (syncPos === -1 || reconcilePos === -1 || syncPos > reconcilePos) {
+      fail(`renderHomeSongVoteCue ${label} must call syncAlertRailState before _requestSongVoteCueReconcileIfHomeActive()`);
+    }
+  }
+
+  if (!songBody.includes('_songVoteCueTargets()')) {
+    fail('Phase 6v-b must preserve Phase 6u-b _songVoteCueTargets target collection seam');
+  }
+  if (!songBody.includes('renderSongVoteCueSurface')) {
+    fail('Phase 6v-b must preserve Phase 6t-a renderSongVoteCueSurface orchestration seam');
+  }
+  if (!songBody.includes('_deriveSongVoteCueState()')) {
+    fail('Phase 6v-b must preserve Phase 6s-a derivation in renderHomeSongVoteCue');
   }
 
   if (html.includes('data-home-layout-mode="modular-inflow"')) {
@@ -2881,7 +3022,7 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6q-a + Phase 6s-a + Phase 6t-a + Phase 6u-b Home cue integrity checks.');
+  console.log('PASS: Phase 6q-a + Phase 6s-a + Phase 6t-a + Phase 6u-b + Phase 6v-b Home cue integrity checks.');
 }
 
 function main() {
@@ -2936,6 +3077,7 @@ function main() {
   assertPhase6sASongVoteDeriveSeam(html);
   assertPhase6tASongVoteRenderOrchestration(html);
   assertPhase6uBSongVoteTargetCollection(html);
+  assertPhase6vBSongVoteNotifyReconcile(html, controllerJs);
 
   report();
 }

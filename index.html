@@ -22939,6 +22939,43 @@ function _songVoteCueTargets(){
   return _legacySongVoteCueTargets();
 }
 
+function _legacyNotifySongVoteCueChange(){
+  try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeSongVoteCue'); } catch(e){}
+}
+
+function _legacyRequestSongVoteCueReconcileIfHomeActive(){
+  try {
+    var _hs = document.getElementById('sc-home');
+    if(_hs && _hs.classList.contains('on') && typeof requestHomeReconcile === 'function'){
+      requestHomeReconcile('cue:song-vote');
+    }
+  } catch(e){}
+}
+
+function _notifySongVoteCueChange(){
+  try {
+    var _hc = window.OOT && window.OOT.home && window.OOT.home.controller;
+    if (_hc && typeof _hc.notifySongVoteCueChange === 'function') {
+      _hc.notifySongVoteCueChange('renderHomeSongVoteCue');
+      return;
+    }
+  } catch(e){}
+  _legacyNotifySongVoteCueChange();
+}
+
+function _requestSongVoteCueReconcileIfHomeActive(){
+  try {
+    var _hs = document.getElementById('sc-home');
+    if(!_hs || !_hs.classList.contains('on')) return;
+    var _hc = window.OOT && window.OOT.home && window.OOT.home.controller;
+    if (_hc && typeof _hc.requestSongVoteCueReconcile === 'function') {
+      _hc.requestSongVoteCueReconcile({ source: 'renderHomeSongVoteCue' });
+      return;
+    }
+  } catch(e){}
+  _legacyRequestSongVoteCueReconcileIfHomeActive();
+}
+
 function renderHomeSongVoteCue(){
   var _svTargets = _songVoteCueTargets();
   var el = _svTargets.songVoteEl;
@@ -22976,16 +23013,16 @@ function renderHomeSongVoteCue(){
     if (!_svModuleApplied) _applyHomeCueView(el, _svView);
     try { _homeLayoutDiagSnapshot('renderHomeSongVoteCue:hidden', {}); } catch(e){}
     try { syncAlertRailState('renderHomeSongVoteCue'); } catch(e){}
-    try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeSongVoteCue'); } catch(e){}
-    try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:song-vote'); } catch(e){}
+    try { _notifySongVoteCueChange(); } catch(e){}
+    try { _requestSongVoteCueReconcileIfHomeActive(); } catch(e){}
     return;
   }
   try { _recordHomeCueRenderDiag('songVote', { visible: true, hasTarget: true, activeCount: cueItems.length, sourceBranch: _svView.sourceBranch || sourceBranch }); } catch(e){}
   if (!_svModuleApplied) _applyHomeCueView(el, _svView);
   try { _homeLayoutDiagSnapshot('renderHomeSongVoteCue:visible', { count: cueItems.length }); } catch(e){}
   try { syncAlertRailState('renderHomeSongVoteCue'); } catch(e){}
-  try { if (typeof notifyCueChange === 'function') notifyCueChange('renderHomeSongVoteCue'); } catch(e){}
-  try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:song-vote'); } catch(e){}
+  try { _notifySongVoteCueChange(); } catch(e){}
+  try { _requestSongVoteCueReconcileIfHomeActive(); } catch(e){}
 }
 
 function _legacyBuildHomeSongVoteCueView(cueInput){

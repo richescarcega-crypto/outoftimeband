@@ -445,6 +445,18 @@ function isSongVoteCueDeriveDiffLine(line) {
   if (/var _svTargets = _songVoteCueTargets\(\)/.test(line)) return true;
   if (/var el = _svTargets\.songVoteEl/.test(line)) return true;
   if (/_legacySongVoteCueTargets\(\)/.test(line)) return true;
+  if (/function _legacyNotifySongVoteCueChange/.test(line)) return true;
+  if (/function _legacyRequestSongVoteCueReconcileIfHomeActive/.test(line)) return true;
+  if (/function _notifySongVoteCueChange/.test(line)) return true;
+  if (/function _requestSongVoteCueReconcileIfHomeActive/.test(line)) return true;
+  if (/_notifySongVoteCueChange\(\)/.test(line)) return true;
+  if (/_requestSongVoteCueReconcileIfHomeActive\(\)/.test(line)) return true;
+  if (/notifySongVoteCueChange/.test(line)) return true;
+  if (/requestSongVoteCueReconcile/.test(line)) return true;
+  if (/_legacyNotifySongVoteCueChange\(\)/.test(line)) return true;
+  if (/_legacyRequestSongVoteCueReconcileIfHomeActive\(\)/.test(line)) return true;
+  if (/notifyCueChange\('renderHomeSongVoteCue'\)/.test(line)) return true;
+  if (/requestHomeReconcile\('cue:song-vote'\)/.test(line)) return true;
   return false;
 }
 

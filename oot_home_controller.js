@@ -191,6 +191,22 @@
     return requestReconcile('cue:pending-proposal', payload);
   }
 
+  function notifySongVoteCueChange(reason, options) {
+    var parsed = _optionsOrReason(options, reason);
+    return _record(
+      'notifySongVoteCueChange',
+      parsed.reason || 'renderHomeSongVoteCue',
+      parsed.payload
+    );
+  }
+
+  function requestSongVoteCueReconcile(options) {
+    var parsed = _optionsOrReason(options, 'cue:song-vote');
+    var payload = parsed.payload || null;
+    notifySongVoteCueChange('renderHomeSongVoteCue', payload);
+    return requestReconcile('cue:song-vote', payload);
+  }
+
   function notifyImageRefresh(reason, options) {
     var parsed = _optionsOrReason(options, reason);
     return _record('notifyImageRefresh', parsed.reason, parsed.payload);
@@ -283,6 +299,8 @@
     notifyCueChange: notifyCueChange,
     notifyPendingProposalCueChange: notifyPendingProposalCueChange,
     requestPendingProposalCueReconcile: requestPendingProposalCueReconcile,
+    notifySongVoteCueChange: notifySongVoteCueChange,
+    requestSongVoteCueReconcile: requestSongVoteCueReconcile,
     notifyImageRefresh: notifyImageRefresh,
     notifyGigSlotChange: notifyGigSlotChange,
     enterHomeTab: enterHomeTab,
