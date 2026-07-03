@@ -1,4 +1,4 @@
-// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i/6m-b/6m-c/6o-b/6o-c/6p-a/6s-a/6t-a/6u-b/6w-b/6x-b: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers, pending proposal derive/render/target seams, song vote derive/render/target seams, rehearsal derive/render orchestration seams.
+// Phase 6l-c/6l-d/6l-e/6l-f/6l-h/6l-i/6m-b/6m-c/6o-b/6o-c/6p-a/6s-a/6t-a/6u-b/6w-b/6x-b/6y-b: Home cue renderer scaffold, view builders, shared DOM apply, alert-row wrappers, pending proposal derive/render/target seams, song vote derive/render/target seams, rehearsal derive/render/target seams.
 
 (function (window) {
   'use strict';
@@ -1007,6 +1007,24 @@
     }
   }
 
+  function collectRehearsalCueTargets(input) {
+    var snap = _normalizeInput(input);
+    var doc = snap.document || null;
+    var emptyTargets = {
+      rehearsalEl: null
+    };
+    if (!doc || typeof doc.getElementById !== 'function') {
+      return emptyTargets;
+    }
+    try {
+      return {
+        rehearsalEl: doc.getElementById(CUE_IDS.rehearsal)
+      };
+    } catch (e) {
+      return emptyTargets;
+    }
+  }
+
   function renderPendingProposalCueSurface(input) {
     var snap = _normalizeInput(input);
     var pendingIds = Array.isArray(snap.pendingIds) ? snap.pendingIds.slice() : [];
@@ -1107,6 +1125,7 @@
         'applyPendingProposalCueView',
         'collectPendingProposalCueTargets',
         'collectSongVoteCueTargets',
+        'collectRehearsalCueTargets',
         'renderPendingProposalCueSurface',
         'renderSongVoteCueSurface',
         'renderRehearsalCueSurface',
@@ -1137,6 +1156,7 @@
     applyPendingProposalCueView: applyPendingProposalCueView,
     collectPendingProposalCueTargets: collectPendingProposalCueTargets,
     collectSongVoteCueTargets: collectSongVoteCueTargets,
+    collectRehearsalCueTargets: collectRehearsalCueTargets,
     renderPendingProposalCueSurface: renderPendingProposalCueSurface,
     renderSongVoteCueSurface: renderSongVoteCueSurface,
     renderRehearsalCueSurface: renderRehearsalCueSurface,

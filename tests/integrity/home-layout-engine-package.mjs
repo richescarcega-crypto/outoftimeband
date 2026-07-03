@@ -551,6 +551,21 @@ function isRehearsalCueOrchestrationDiffLine(line) {
   return false;
 }
 
+/** Phase 6y-b: allow rehearsal cue target collection seam in index.html diff. */
+function isRehearsalCueTargetCollectionDiffLine(line) {
+  if (/function _legacyRehearsalCueTargets/.test(line)) return true;
+  if (/function _rehearsalCueTargets/.test(line)) return true;
+  if (/collectRehearsalCueTargets/.test(line)) return true;
+  if (/_rehearsalCueTargets\(\)/.test(line)) return true;
+  if (/_legacyRehearsalCueTargets\(\)/.test(line)) return true;
+  if (/var _rTargets = _rehearsalCueTargets\(\)/.test(line)) return true;
+  if (/var el = _rTargets\.rehearsalEl/.test(line)) return true;
+  if (/rehearsalEl: document\.getElementById\('home-rehearsal-cue'\)/.test(line)) return true;
+  if (/var el = document\.getElementById\('home-rehearsal-cue'\)/.test(line)) return true;
+  if (/document: document/.test(line) && /collectRehearsalCueTargets/.test(line)) return true;
+  return false;
+}
+
 /** Phase 6d/6e-c/6g/6i-a: allow go('home') orchestration delegate + notification/reconcile hooks in index.html. */
 function assertIndexHtmlChangesAllowed(html) {
   if (!html.includes(GO_HOME_ORCHESTRATE_MARKER)) {
@@ -689,7 +704,7 @@ function assertIndexHtmlChangesAllowed(html) {
       }
     }
     if (!removedAllowed) {
-      if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line) || isRehearsalCueDeriveDiffLine(line) || isRehearsalCueOrchestrationDiffLine(line)) {
+      if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line) || isRehearsalCueDeriveDiffLine(line) || isRehearsalCueOrchestrationDiffLine(line) || isRehearsalCueTargetCollectionDiffLine(line)) {
         continue;
       }
       fail(`index.html diff removes disallowed line in Phase 6d: ${line}`);
@@ -1313,7 +1328,7 @@ function assertIndexHtmlChangesAllowed(html) {
     if (line.trim() === '}') {
       continue;
     }
-    if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line) || isRehearsalCueDeriveDiffLine(line) || isRehearsalCueOrchestrationDiffLine(line)) {
+    if (isPendingProposalCueRoutingDiffLine(line) || isSongVoteCueDeriveDiffLine(line) || isRehearsalCueDeriveDiffLine(line) || isRehearsalCueOrchestrationDiffLine(line) || isRehearsalCueTargetCollectionDiffLine(line)) {
       continue;
     }
     var matched = false;

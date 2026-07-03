@@ -2763,7 +2763,7 @@ function assertPhase6uBSongVoteTargetCollection(html) {
   }
 
   const collectStart = cueRendererJs.indexOf('function collectSongVoteCueTargets');
-  const collectEnd = cueRendererJs.indexOf('function renderPendingProposalCueSurface', collectStart);
+  const collectEnd = cueRendererJs.indexOf('function collectRehearsalCueTargets', collectStart);
   if (collectStart === -1 || collectEnd === -1) {
     fail('Could not locate collectSongVoteCueTargets body in oot_home_cue_renderer.js');
   }
@@ -3399,6 +3399,139 @@ function assertPhase6xBRehearsalRenderOrchestration(html) {
   }
 }
 
+function assertPhase6yBRehearsalTargetCollection(html) {
+  const cueRendererJs = read('oot_home_cue_renderer.js');
+
+  if (!cueRendererJs.includes('function collectRehearsalCueTargets')) {
+    fail('oot_home_cue_renderer.js must define collectRehearsalCueTargets for Phase 6y-b');
+  }
+  if (!cueRendererJs.includes('collectRehearsalCueTargets: collectRehearsalCueTargets')) {
+    fail('collectRehearsalCueTargets must be exported on cueRenderer API');
+  }
+  if (!cueRendererJs.includes('function deriveRehearsalCueInput')) {
+    fail('Phase 6y-b must preserve Phase 6w-b deriveRehearsalCueInput seam');
+  }
+  if (!cueRendererJs.includes('function renderRehearsalCueSurface')) {
+    fail('Phase 6y-b must preserve Phase 6x-b renderRehearsalCueSurface seam');
+  }
+  if (!cueRendererJs.includes("rehearsal: 'home-rehearsal-cue'")) {
+    fail('Phase 6y-b must preserve CUE_IDS.rehearsal selector id');
+  }
+
+  const collectStart = cueRendererJs.indexOf('function collectRehearsalCueTargets');
+  const collectEnd = cueRendererJs.indexOf('function renderPendingProposalCueSurface', collectStart);
+  if (collectStart === -1 || collectEnd === -1) {
+    fail('Could not locate collectRehearsalCueTargets body in oot_home_cue_renderer.js');
+  }
+  const collectBody = cueRendererJs.slice(collectStart, collectEnd);
+
+  for (const call of CUE_RENDERER_FORBIDDEN_CALLS) {
+    if (collectBody.includes(call)) {
+      fail(`collectRehearsalCueTargets must not reference forbidden behavior: ${call}`);
+    }
+  }
+  if (collectBody.includes('localStorage') || collectBody.includes('setProperty')) {
+    fail('collectRehearsalCueTargets must not write localStorage or CSS vars');
+  }
+  if (/\brHome\s*\(/.test(collectBody)) {
+    fail('collectRehearsalCueTargets must not call rHome');
+  }
+  if (!collectBody.includes('CUE_IDS.rehearsal')) {
+    fail('collectRehearsalCueTargets must resolve rehearsalEl via CUE_IDS.rehearsal');
+  }
+  if (!collectBody.includes('rehearsalEl')) {
+    fail('collectRehearsalCueTargets must return rehearsalEl target key');
+  }
+
+  const cr = loadCueRendererApi();
+  if (typeof cr.collectRehearsalCueTargets !== 'function') {
+    fail('collectRehearsalCueTargets must be exported on OOT.home.cueRenderer');
+  }
+  const collect = cr.collectRehearsalCueTargets.bind(cr);
+
+  const missingDoc = collect({});
+  if (!('rehearsalEl' in missingDoc)) {
+    fail('collectRehearsalCueTargets must return rehearsalEl even when document is missing');
+  }
+  if (missingDoc.rehearsalEl !== null) {
+    fail('collectRehearsalCueTargets must return null rehearsalEl when document is missing');
+  }
+
+  const mockDoc = {
+    getElementById: function (id) {
+      return { mockId: id };
+    }
+  };
+  const collected = collect({ document: mockDoc });
+  if (!collected.rehearsalEl || collected.rehearsalEl.mockId !== 'home-rehearsal-cue') {
+    fail('collectRehearsalCueTargets must resolve rehearsalEl from document.getElementById(CUE_IDS.rehearsal)');
+  }
+
+  if (!html.includes('function _legacyRehearsalCueTargets')) {
+    fail('index.html must retain _legacyRehearsalCueTargets fallback helper');
+  }
+  if (!html.includes('function _rehearsalCueTargets')) {
+    fail('index.html must retain _rehearsalCueTargets resolver wrapper');
+  }
+
+  const targetsStart = html.indexOf('function _rehearsalCueTargets');
+  const targetsEnd = html.indexOf('function renderHomeRehearsalCue', targetsStart);
+  if (targetsStart === -1 || targetsEnd === -1) {
+    fail('Could not locate _rehearsalCueTargets for Phase 6y-b delegation checks');
+  }
+  const targetsBody = html.slice(targetsStart, targetsEnd);
+  if (!targetsBody.includes('collectRehearsalCueTargets')) {
+    fail('_rehearsalCueTargets must delegate to cueRenderer.collectRehearsalCueTargets on normal path');
+  }
+  if (!targetsBody.includes('_legacyRehearsalCueTargets()')) {
+    fail('_rehearsalCueTargets must fall back to _legacyRehearsalCueTargets when module collection fails');
+  }
+
+  const rehearsalStart = html.indexOf('function renderHomeRehearsalCue');
+  const rehearsalEnd = html.indexOf('function _legacyBuildHomeRehearsalCueView', rehearsalStart);
+  if (rehearsalStart === -1 || rehearsalEnd === -1) {
+    fail('Could not locate renderHomeRehearsalCue for Phase 6y-b target collection checks');
+  }
+  const rehearsalBody = html.slice(rehearsalStart, rehearsalEnd);
+  if (!rehearsalBody.includes('_rehearsalCueTargets()')) {
+    fail('renderHomeRehearsalCue must use _rehearsalCueTargets() for target collection seam');
+  }
+  if (!rehearsalBody.includes('_rTargets.rehearsalEl')) {
+    fail('renderHomeRehearsalCue must resolve target element via _rTargets.rehearsalEl');
+  }
+  if (!rehearsalBody.includes('if(!el) return')) {
+    fail('renderHomeRehearsalCue must preserve early return when rehearsal target is missing');
+  }
+  if (!rehearsalBody.includes('_deriveRehearsalCueInput()')) {
+    fail('Phase 6y-b must preserve Phase 6w-b derivation in renderHomeRehearsalCue');
+  }
+  if (!rehearsalBody.includes('renderRehearsalCueSurface')) {
+    fail('renderHomeRehearsalCue must preserve renderRehearsalCueSurface orchestration');
+  }
+  if (!rehearsalBody.includes('_legacyRenderHomeRehearsalCueSurface(el, _rhInput)')) {
+    fail('renderHomeRehearsalCue must preserve legacy orchestration fallback with same target element');
+  }
+  if (!rehearsalBody.includes('notifyImageRefresh(_rhView.imageRefreshReason)')) {
+    fail('renderHomeRehearsalCue must preserve notifyImageRefresh tail side effects');
+  }
+
+  const pilotCount = (rehearsalBody.match(/requestHomeReconcile\('cue:rehearsal'\)/g) || []).length;
+  if (pilotCount !== 2) {
+    fail(`Phase 6y-b must preserve exactly two cue:rehearsal reconcile hooks in renderHomeRehearsalCue (found ${pilotCount})`);
+  }
+
+  if (!html.includes('function renderHomeSongVoteCue')) {
+    fail('Phase 6y-b must preserve renderHomeSongVoteCue owner');
+  }
+  if (!html.includes('function renderPendingProposalCue')) {
+    fail('Phase 6y-b must preserve renderPendingProposalCue owner');
+  }
+
+  if (html.includes('data-home-layout-mode="modular-inflow"')) {
+    fail('index.html must not default static Home markup to modular-inflow');
+  }
+}
+
 function report() {
   if (warnings.length) {
     console.warn('Warnings:');
@@ -3410,7 +3543,7 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6q-a + Phase 6s-a + Phase 6t-a + Phase 6u-b + Phase 6v-b + Phase 6w-b + Phase 6x-b Home cue integrity checks.');
+  console.log('PASS: Phase 6q-a + Phase 6s-a + Phase 6t-a + Phase 6u-b + Phase 6v-b + Phase 6w-b + Phase 6x-b + Phase 6y-b Home cue integrity checks.');
 }
 
 function main() {
@@ -3468,6 +3601,7 @@ function main() {
   assertPhase6vBSongVoteNotifyReconcile(html, controllerJs);
   assertPhase6wBRehearsalDeriveSeam(html);
   assertPhase6xBRehearsalRenderOrchestration(html);
+  assertPhase6yBRehearsalTargetCollection(html);
 
   report();
 }
