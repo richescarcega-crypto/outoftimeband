@@ -438,6 +438,13 @@ function isSongVoteCueDeriveDiffLine(line) {
   if (/_svModuleApplied = _svLegacy\.moduleApplied/.test(line)) return true;
   if (/^\s+html:$/.test(line)) return true;
   if (/_svView = \{$/.test(line)) return true;
+  if (/collectSongVoteCueTargets/.test(line)) return true;
+  if (/function _legacySongVoteCueTargets/.test(line)) return true;
+  if (/function _songVoteCueTargets/.test(line)) return true;
+  if (/songVoteEl: document\.getElementById\('home-song-vote-cue'\)/.test(line)) return true;
+  if (/var _svTargets = _songVoteCueTargets\(\)/.test(line)) return true;
+  if (/var el = _svTargets\.songVoteEl/.test(line)) return true;
+  if (/_legacySongVoteCueTargets\(\)/.test(line)) return true;
   return false;
 }
 

@@ -2096,7 +2096,7 @@ function assertPhase6pAPendingProposalTargetCollection(html) {
   }
 
   const collectStart = cueRendererJs.indexOf('function collectPendingProposalCueTargets');
-  const collectEnd = cueRendererJs.indexOf('function renderPendingProposalCueSurface', collectStart);
+  const collectEnd = cueRendererJs.indexOf('function collectSongVoteCueTargets', collectStart);
   if (collectStart === -1 || collectEnd === -1) {
     fail('Could not locate collectPendingProposalCueTargets body in oot_home_cue_renderer.js');
   }
@@ -2737,6 +2737,139 @@ function assertPhase6tASongVoteRenderOrchestration(html) {
   }
 }
 
+function assertPhase6uBSongVoteTargetCollection(html) {
+  const cueRendererJs = read('oot_home_cue_renderer.js');
+
+  if (!cueRendererJs.includes('function collectSongVoteCueTargets')) {
+    fail('oot_home_cue_renderer.js must define collectSongVoteCueTargets for Phase 6u-b');
+  }
+  if (!cueRendererJs.includes('collectSongVoteCueTargets: collectSongVoteCueTargets')) {
+    fail('collectSongVoteCueTargets must be exported on cueRenderer API');
+  }
+  if (!cueRendererJs.includes('function deriveSongVoteCueState')) {
+    fail('Phase 6u-b must preserve Phase 6s-a deriveSongVoteCueState seam');
+  }
+  if (!cueRendererJs.includes('function renderSongVoteCueSurface')) {
+    fail('Phase 6u-b must preserve Phase 6t-a renderSongVoteCueSurface seam');
+  }
+  if (!cueRendererJs.includes("songVote: 'home-song-vote-cue'")) {
+    fail('Phase 6u-b must preserve CUE_IDS.songVote selector id');
+  }
+
+  const collectStart = cueRendererJs.indexOf('function collectSongVoteCueTargets');
+  const collectEnd = cueRendererJs.indexOf('function renderPendingProposalCueSurface', collectStart);
+  if (collectStart === -1 || collectEnd === -1) {
+    fail('Could not locate collectSongVoteCueTargets body in oot_home_cue_renderer.js');
+  }
+  const collectBody = cueRendererJs.slice(collectStart, collectEnd);
+
+  for (const call of CUE_RENDERER_FORBIDDEN_CALLS) {
+    if (collectBody.includes(call)) {
+      fail(`collectSongVoteCueTargets must not reference forbidden behavior: ${call}`);
+    }
+  }
+  if (collectBody.includes('localStorage') || collectBody.includes('setProperty')) {
+    fail('collectSongVoteCueTargets must not write localStorage or CSS vars');
+  }
+  if (/\brHome\s*\(/.test(collectBody)) {
+    fail('collectSongVoteCueTargets must not call rHome');
+  }
+  if (!collectBody.includes('CUE_IDS.songVote')) {
+    fail('collectSongVoteCueTargets must resolve songVoteEl via CUE_IDS.songVote');
+  }
+  if (!collectBody.includes('songVoteEl')) {
+    fail('collectSongVoteCueTargets must return songVoteEl target key');
+  }
+
+  const cr = loadCueRendererApi();
+  if (typeof cr.collectSongVoteCueTargets !== 'function') {
+    fail('collectSongVoteCueTargets must be exported on OOT.home.cueRenderer');
+  }
+  const collect = cr.collectSongVoteCueTargets.bind(cr);
+
+  const missingDoc = collect({});
+  if (!('songVoteEl' in missingDoc)) {
+    fail('collectSongVoteCueTargets must return songVoteEl even when document is missing');
+  }
+  if (missingDoc.songVoteEl !== null) {
+    fail('collectSongVoteCueTargets must return null songVoteEl when document is missing');
+  }
+
+  const mockDoc = {
+    getElementById: function (id) {
+      return { mockId: id };
+    }
+  };
+  const collected = collect({ document: mockDoc });
+  if (!collected.songVoteEl || collected.songVoteEl.mockId !== 'home-song-vote-cue') {
+    fail('collectSongVoteCueTargets must resolve songVoteEl from document.getElementById(CUE_IDS.songVote)');
+  }
+
+  if (!html.includes('function _legacySongVoteCueTargets')) {
+    fail('index.html must retain _legacySongVoteCueTargets fallback helper');
+  }
+  if (!html.includes('function _songVoteCueTargets')) {
+    fail('index.html must retain _songVoteCueTargets resolver wrapper');
+  }
+
+  const targetsStart = html.indexOf('function _songVoteCueTargets');
+  const targetsEnd = html.indexOf('function renderHomeSongVoteCue', targetsStart);
+  if (targetsStart === -1 || targetsEnd === -1) {
+    fail('Could not locate _songVoteCueTargets for Phase 6u-b delegation checks');
+  }
+  const targetsBody = html.slice(targetsStart, targetsEnd);
+  if (!targetsBody.includes('collectSongVoteCueTargets')) {
+    fail('_songVoteCueTargets must delegate to cueRenderer.collectSongVoteCueTargets on normal path');
+  }
+  if (!targetsBody.includes('_legacySongVoteCueTargets()')) {
+    fail('_songVoteCueTargets must fall back to _legacySongVoteCueTargets when module collection fails');
+  }
+
+  const songStart = html.indexOf('function renderHomeSongVoteCue');
+  const songEnd = html.indexOf('// r810:', songStart);
+  if (songStart === -1 || songEnd === -1) {
+    fail('Could not locate renderHomeSongVoteCue for Phase 6u-b target collection checks');
+  }
+  const songBody = html.slice(songStart, songEnd);
+  if (!songBody.includes('_songVoteCueTargets()')) {
+    fail('renderHomeSongVoteCue must use _songVoteCueTargets() for target collection seam');
+  }
+  if (!songBody.includes('_svTargets.songVoteEl')) {
+    fail('renderHomeSongVoteCue must resolve target element via _svTargets.songVoteEl');
+  }
+  if (!songBody.includes('if(!el) return')) {
+    fail('renderHomeSongVoteCue must preserve early return when song vote target is missing');
+  }
+  if (!songBody.includes('renderSongVoteCueSurface')) {
+    fail('renderHomeSongVoteCue must preserve renderSongVoteCueSurface orchestration');
+  }
+  if (!songBody.includes('_legacyRenderHomeSongVoteCueSurface(el, _svInput)')) {
+    fail('renderHomeSongVoteCue must preserve legacy orchestration fallback with same target element');
+  }
+  if (!songBody.includes('_deriveSongVoteCueState()')) {
+    fail('Phase 6u-b must preserve Phase 6s-a derivation in renderHomeSongVoteCue');
+  }
+
+  const songVoteCount = countOccurrences(html, "requestHomeReconcile('cue:song-vote')");
+  if (songVoteCount !== 2) {
+    fail(`Phase 6u-b must preserve exactly two cue:song-vote reconcile hooks (found ${songVoteCount})`);
+  }
+
+  if (!html.includes('function renderPendingProposalCue')) {
+    fail('Phase 6u-b must preserve renderPendingProposalCue owner');
+  }
+  const proposalStart = html.indexOf('function renderPendingProposalCue');
+  const proposalEnd = html.indexOf('function _resetCalendarScrollToTop', proposalStart);
+  const proposalBody = html.slice(proposalStart, proposalEnd);
+  if (!proposalBody.includes('_pendingProposalCueTargets()')) {
+    fail('Phase 6u-b must preserve pending proposal target collection seam');
+  }
+
+  if (html.includes('data-home-layout-mode="modular-inflow"')) {
+    fail('index.html must not default static Home markup to modular-inflow');
+  }
+}
+
 function report() {
   if (warnings.length) {
     console.warn('Warnings:');
@@ -2748,7 +2881,7 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6q-a + Phase 6s-a + Phase 6t-a Home cue integrity checks.');
+  console.log('PASS: Phase 6q-a + Phase 6s-a + Phase 6t-a + Phase 6u-b Home cue integrity checks.');
 }
 
 function main() {
@@ -2802,6 +2935,7 @@ function main() {
   assertPhase6qAPendingProposalReconcileNotify(html, controllerJs);
   assertPhase6sASongVoteDeriveSeam(html);
   assertPhase6tASongVoteRenderOrchestration(html);
+  assertPhase6uBSongVoteTargetCollection(html);
 
   report();
 }

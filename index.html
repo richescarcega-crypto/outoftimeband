@@ -22922,8 +22922,26 @@ function renderHomeRehearsalCue(){
   try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:rehearsal'); } catch(e){}
 }
 
+function _legacySongVoteCueTargets(){
+  return {
+    songVoteEl: document.getElementById('home-song-vote-cue')
+  };
+}
+
+function _songVoteCueTargets(){
+  try{
+    var _svCr = window.OOT && window.OOT.home && window.OOT.home.cueRenderer;
+    if (_svCr && typeof _svCr.collectSongVoteCueTargets === 'function') {
+      var _targets = _svCr.collectSongVoteCueTargets({ document: document });
+      if (_targets && typeof _targets === 'object') return _targets;
+    }
+  }catch(e){}
+  return _legacySongVoteCueTargets();
+}
+
 function renderHomeSongVoteCue(){
-  var el = document.getElementById('home-song-vote-cue');
+  var _svTargets = _songVoteCueTargets();
+  var el = _svTargets.songVoteEl;
   if(!el) return;
   var _svDerived = _deriveSongVoteCueState();
   var cueItems = _svDerived.cueItems;
