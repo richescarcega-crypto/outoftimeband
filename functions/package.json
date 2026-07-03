@@ -1,0 +1,16 @@
+{
+  "name": "oot-functions",
+  "description": "Out of Time Firebase Functions — proposal reminder backend (Phase 2a scaffold, dry-run only)",
+  "private": true,
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "test": "node test/reminderLogic.test.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^5.1.1"
+  }
+}
