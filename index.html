@@ -29026,7 +29026,7 @@ function _flyerTemplateRecordForKey(key){
       height: FLYER_DIMS && FLYER_DIMS[format] ? FLYER_DIMS[format].h : (format === 'story' ? 1920 : 1080),
       backgroundSrc: String(FLYER_TEMPLATES[key]),
       active: true,
-      layers: {},
+      layers: { logo: { enabled: false, src: '', x_frac: 0.5, y_frac: 0.10, w_frac: 0.24 } },
       textZones: (typeof FLYER_ZONES !== 'undefined' && FLYER_ZONES[key]) ? FLYER_ZONES[key] : null,
       assetVersion: (typeof FLYER_FORCE_REFRESH_TEMPLATES !== 'undefined' && FLYER_FORCE_REFRESH_TEMPLATES[key]) ? FLYER_FORCE_REFRESH_TEMPLATES[key] : String(FLYER_TEMPLATES[key])
     };
@@ -29440,6 +29440,48 @@ function _flyerLoadImage(key, cb){
   };
   img.onerror = function(){ cb(null); };
   img.src = src;
+
+function _flyerLayerConfigForKey(key, layerName){
+  var rec = _flyerTemplateRecordForKey(key);
+  if(!rec || !rec.layers) return null;
+  return rec.layers[layerName] || null;
+}
+function _flyerLayerImageCache(){
+  if(!_flyerCtx.layerImages) _flyerCtx.layerImages = {};
+  return _flyerCtx.layerImages;
+}
+function _flyerDrawImageLayer(ctx, dims, layer, cacheKey){
+  try {
+    if(!layer || layer.enabled !== true || !layer.src) return;
+    var cache = _flyerLayerImageCache();
+    var img = cache[cacheKey];
+    if(!img){
+      img = new Image();
+      img.onload = function(){
+        cache[cacheKey] = img;
+        try { _flyerRender(); } catch(e){}
+      };
+      img.onerror = function(){ cache[cacheKey] = null; };
+      cache[cacheKey] = img;
+      img.src = layer.src;
+      return;
+    }
+    if(!img.complete || !img.naturalWidth) return;
+    var w = dims.w * (layer.w_frac || 0.24);
+    var h = w * (img.naturalHeight / img.naturalWidth);
+    if(layer.h_frac){ h = dims.h * layer.h_frac; }
+    var x = dims.w * (layer.x_frac != null ? layer.x_frac : 0.5) - w / 2;
+    var y = dims.h * (layer.y_frac != null ? layer.y_frac : 0.10) - h / 2;
+    var oldAlpha = ctx.globalAlpha;
+    ctx.globalAlpha = layer.opacity != null ? layer.opacity : 1;
+    ctx.drawImage(img, x, y, w, h);
+    ctx.globalAlpha = oldAlpha;
+  } catch(e){}
+}
+function _flyerDrawConfiguredLayers(ctx, dims, key){
+  var logo = _flyerLayerConfigForKey(key, 'logo');
+  _flyerDrawImageLayer(ctx, dims, logo, key + ':logo');
+}
 }
 
 function _flyerRender(){
@@ -29461,6 +29503,7 @@ function _flyerRender(){
     }
     // Draw template
     ctx.drawImage(img, 0, 0, dims.w, dims.h);
+    _flyerDrawConfiguredLayers(ctx, dims, key);
     // Overlay text fields
     var zones = _flyerTemplateZonesForKey(key);
     if(zones && zones.panelExtend){
@@ -40496,7 +40539,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-07-08-r946-flyer-manifest-adapter';
+var WHATS_NEW_VERSION = '2026-07-08-r947-flyer-optional-logo-layer';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40798,6 +40841,7 @@ function _verifyPendingUpdate(){
       }).catch(function(){
         // Network failure on re-poll: fall back to original behavior so we
         // don't accidentally suppress a real stuck-update.
+  { version:'2026-07-08-r947-flyer-optional-logo-layer', date:'July 8, 2026', importance:'fix', emoji:'🎨', title:'Flyer optional logo layer scaffold', body:'Adds disabled-by-default flyer logo-layer plumbing so future templates can support logo on/off, Out of Time branding, or white-label customer logos without changing current flyer visuals.', items:['Confirm Build Version reports r947.','Open Make Flyer and confirm current flyer templates still look unchanged.','Confirm Square and Story selectors still load.','Future logo assets remain optional and disabled until configured.'] },
         setTimeout(function(){ _showStuckUpdateBanner(pending); }, 2000);
       });
     } else {
