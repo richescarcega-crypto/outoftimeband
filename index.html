@@ -29440,6 +29440,7 @@ function _flyerLoadImage(key, cb){
   };
   img.onerror = function(){ cb(null); };
   img.src = src;
+}
 
 function _flyerLayerConfigForKey(key, layerName){
   var rec = _flyerTemplateRecordForKey(key);
@@ -29481,7 +29482,6 @@ function _flyerDrawImageLayer(ctx, dims, layer, cacheKey){
 function _flyerDrawConfiguredLayers(ctx, dims, key){
   var logo = _flyerLayerConfigForKey(key, 'logo');
   _flyerDrawImageLayer(ctx, dims, logo, key + ':logo');
-}
 }
 
 function _flyerRender(){
@@ -40539,7 +40539,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-07-08-r947-flyer-optional-logo-layer';
+var WHATS_NEW_VERSION = '2026-07-08-r948-flyer-syntax-scope-repair';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40841,7 +40841,6 @@ function _verifyPendingUpdate(){
       }).catch(function(){
         // Network failure on re-poll: fall back to original behavior so we
         // don't accidentally suppress a real stuck-update.
-  { version:'2026-07-08-r947-flyer-optional-logo-layer', date:'July 8, 2026', importance:'fix', emoji:'🎨', title:'Flyer optional logo layer scaffold', body:'Adds disabled-by-default flyer logo-layer plumbing so future templates can support logo on/off, Out of Time branding, or white-label customer logos without changing current flyer visuals.', items:['Confirm Build Version reports r947.','Open Make Flyer and confirm current flyer templates still look unchanged.','Confirm Square and Story selectors still load.','Future logo assets remain optional and disabled until configured.'] },
         setTimeout(function(){ _showStuckUpdateBanner(pending); }, 2000);
       });
     } else {
@@ -40885,6 +40884,8 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-07-08-r948-flyer-syntax-scope-repair', date:'July 8, 2026', importance:'fix', emoji:'\uD83D\uDEE0\uFE0F', title:'Flyer syntax and update scope repair', body:'Repairs flyer helper function scope and places the r947 flyer logo-layer changelog entry inside the What\'s New log. No flyer visuals were intentionally changed.', items:['Confirm Build Version reports r948.','Confirm Make Flyer opens without script errors.','Confirm Square and Story templates still render unchanged.','Confirm r947 and r948 entries appear in What\'s New.'] },
+  { version:'2026-07-08-r947-flyer-optional-logo-layer', date:'July 8, 2026', importance:'fix', emoji:'🎨', title:'Flyer optional logo layer scaffold', body:'Adds disabled-by-default flyer logo-layer plumbing so future templates can support logo on/off, Out of Time branding, or white-label customer logos without changing current flyer visuals.', items:['Confirm Build Version reports r947.','Open Make Flyer and confirm current flyer templates still look unchanged.','Confirm Square and Story selectors still load.','Future logo assets remain optional and disabled until configured.'] },
   { version:'2026-07-08-r946-flyer-manifest-adapter', date:'July 8, 2026', importance:'fix', emoji:'🎨', title:'Flyer manifest adapter', body:'Flyer templates now route through a compatibility adapter so future flyer assets, optional logos, and white-label configuration can be added without changing current flyer behavior.', items:['Confirm Build Version reports r946.','Open Make Flyer and confirm Square templates still appear.','Switch to Story and confirm Story templates still appear.','Open an existing saved flyer and confirm it still renders.'] },
   { version:'2026-07-08-r945-reminder-backend-prep', date:'July 8, 2026', importance:'fix', emoji:'🔔', title:'Reminder backend prep', body:'Pending response reminder backend foundation is merged. Live scheduler remains off; Firebase/GCP/Cloudflare setup is still required. No visible app behavior change is expected.', items:['Confirm Build Version reports r945.','Reminder scheduler is not live yet.','No visible app behavior change is expected.'] },
   { version:'2026-07-03-r944-home-modularization-merge', date:'July 3, 2026', importance:'fix', emoji:'🏠', title:'Home reliability update', body:'Home reliability update: internal Home code was reorganized to make future updates safer. No visual changes expected.', items:['Confirm Build Version reports r944.','If prompted, tap the update banner or Home → Build Version → Update Now.','Confirm Home loads and alert cues behave as before.'] },
