@@ -29012,8 +29012,48 @@ var FLYER_FORCE_REFRESH_TEMPLATES = {
   'oot14-story': '2026-05-12-story14-clean-centered-r507',
   'oot15-story': '2026-05-12-story15-clean-centered-r507'
 };
+function _flyerTemplateRecordForKey(key){
+  try {
+    if(!key || !FLYER_TEMPLATES || !FLYER_TEMPLATES[key]) return null;
+    var format = String(key).endsWith('-story') ? 'story' : 'square';
+    return {
+      id: key,
+      key: key,
+      familyId: String(key).replace(/-(square|story)$/, ''),
+      name: (typeof FLYER_NAMES !== 'undefined' && FLYER_NAMES[key]) ? FLYER_NAMES[key] : key,
+      format: format,
+      width: FLYER_DIMS && FLYER_DIMS[format] ? FLYER_DIMS[format].w : 1080,
+      height: FLYER_DIMS && FLYER_DIMS[format] ? FLYER_DIMS[format].h : (format === 'story' ? 1920 : 1080),
+      backgroundSrc: String(FLYER_TEMPLATES[key]),
+      active: true,
+      layers: {},
+      textZones: (typeof FLYER_ZONES !== 'undefined' && FLYER_ZONES[key]) ? FLYER_ZONES[key] : null,
+      assetVersion: (typeof FLYER_FORCE_REFRESH_TEMPLATES !== 'undefined' && FLYER_FORCE_REFRESH_TEMPLATES[key]) ? FLYER_FORCE_REFRESH_TEMPLATES[key] : String(FLYER_TEMPLATES[key])
+    };
+  } catch(e){ return null; }
+}
+function _flyerTemplateExists(key){
+  return !!_flyerTemplateRecordForKey(key);
+}
+function _flyerTemplateKeysForFormat(fmt){
+  try {
+    return Object.keys(FLYER_TEMPLATES).filter(function(k){
+      var rec = _flyerTemplateRecordForKey(k);
+      return rec && rec.active !== false && rec.format === fmt;
+    });
+  } catch(e){ return []; }
+}
+function _flyerTemplateNameForKey(key){
+  var rec = _flyerTemplateRecordForKey(key);
+  return rec ? rec.name : 'Flyer';
+}
+function _flyerTemplateZonesForKey(key){
+  var rec = _flyerTemplateRecordForKey(key);
+  return rec ? rec.textZones : null;
+}
 function _flyerTemplateSrcForKey(key){
-  try { return (key && FLYER_TEMPLATES && FLYER_TEMPLATES[key]) ? String(FLYER_TEMPLATES[key]) : ''; } catch(e){ return ''; }
+  var rec = _flyerTemplateRecordForKey(key);
+  return rec ? rec.backgroundSrc : '';
 }
 function _flyerSavedRenderIsStale(det){
   if(!det || !det.flyerData || !det.flyerTemplateKey) return false;
@@ -29030,7 +29070,8 @@ function _flyerPreviewSrcForDetails(det){
   return det.flyerData || '';
 }
 function _flyerCurrentAssetVersion(key){
-  return FLYER_FORCE_REFRESH_TEMPLATES[key] || _flyerTemplateSrcForKey(key) || '';
+  var rec = _flyerTemplateRecordForKey(key);
+  return rec ? rec.assetVersion : '';
 }
 
 // r380: return-path context when the flyer editor is launched from Gig Details.
@@ -29295,9 +29336,7 @@ function _flyerSetFormat(fmt){
   // Pick first available template only if no template is set OR the saved template isn't compatible with this format.
   // r465: do not assign the fallback before calling _flyerSelectTemplate; doing so made
   // the selector think nothing changed, so format/template changes could skip feedback.
-  var availableKeys = Object.keys(FLYER_TEMPLATES).filter(function(k){
-    return k.endsWith('-' + fmt);
-  });
+  var availableKeys = _flyerTemplateKeysForFormat(fmt);
   var templateChanged = false;
   var nextTemplate = _flyerCtx.template;
   if(!nextTemplate || availableKeys.indexOf(nextTemplate) < 0){
@@ -29324,20 +29363,18 @@ function _flyerBuildTemplateGrid(){
   grid.innerHTML = '';
   var fmt = _flyerCtx.format;
   // Filter templates matching current format
-  var keys = Object.keys(FLYER_TEMPLATES).filter(function(k){
-    return k.endsWith('-' + fmt);
-  });
+  var keys = _flyerTemplateKeysForFormat(fmt);
   keys.forEach(function(key){
     var btn = document.createElement('button');
     var active = (key === _flyerCtx.template);
     btn.style.cssText = 'background:'+(active?'rgba(245,197,24,.15)':'rgba(74,158,255,.08)')+';border:2px solid '+(active?'#f5c518':'#1a3a8a')+';border-radius:8px;padding:0;cursor:pointer;overflow:hidden;touch-action:manipulation;position:relative;';
     var thumb = document.createElement('img');
-    thumb.src = FLYER_TEMPLATES[key];
+    thumb.src = _flyerTemplateSrcForKey(key);
     thumb.style.cssText = 'width:100%;display:block;' + (fmt==='story'?'aspect-ratio:9/16;':'aspect-ratio:1;') + 'object-fit:cover;';
     btn.appendChild(thumb);
     var label = document.createElement('div');
     label.style.cssText = 'position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);color:#fff;font-family:Russo One,sans-serif;font-size:10px;letter-spacing:1px;padding:14px 6px 5px;text-align:center;';
-    label.textContent = (FLYER_NAMES[key] || key).toUpperCase();
+    label.textContent = _flyerTemplateNameForKey(key).toUpperCase();
     btn.appendChild(label);
     btn.onclick = (function(k){ return function(){
       _flyerSelectTemplate(k, {userInitiated:true});
@@ -29349,7 +29386,7 @@ function _flyerBuildTemplateGrid(){
         var fmtSection = document.getElementById('flyer-step-format');
         var tplSection = document.getElementById('flyer-step-template');
         if(sumBar){
-          var styleName = (typeof FLYER_NAMES !== 'undefined' && FLYER_NAMES[_flyerCtx.template]) || 'Flyer';
+          var styleName = _flyerTemplateNameForKey(_flyerCtx.template);
           var fmtLabel = (_flyerCtx.format === 'story') ? 'Story · 1080×1920' : 'Square · 1080×1080';
           var sumText = document.getElementById('flyer-summary-text');
           if(sumText) sumText.textContent = styleName + ' · ' + fmtLabel;
@@ -29366,7 +29403,7 @@ function _flyerBuildTemplateGrid(){
 
 function _flyerSelectTemplate(key, opts){
   opts = opts || {};
-  if(!FLYER_TEMPLATES[key]) return;
+  if(!_flyerTemplateExists(key)) return;
   var prev = _flyerCtx.template;
   _flyerCtx.template = key;
   _flyerRender();
@@ -29375,7 +29412,7 @@ function _flyerSelectTemplate(key, opts){
   var userInitiated = !!opts.userInitiated;
   var changed = !!(prev && prev !== key);
   if(changed || userInitiated){
-    var name = (typeof FLYER_NAMES !== 'undefined' && FLYER_NAMES[key]) || 'Flyer';
+    var name = _flyerTemplateNameForKey(key);
     var detail = opts.detail || (changed ? ('Template: ' + name) : ('Template selected: ' + name));
     // r466: give immediate visible confirmation for template taps, then let
     // the Firestore save complete and refresh the inline status to Saved.
@@ -29425,7 +29462,7 @@ function _flyerRender(){
     // Draw template
     ctx.drawImage(img, 0, 0, dims.w, dims.h);
     // Overlay text fields
-    var zones = FLYER_ZONES[key];
+    var zones = _flyerTemplateZonesForKey(key);
     if(zones && zones.panelExtend){
       _flyerApplyPanelExtension(ctx, img, dims, zones.panelExtend);
     }
@@ -40459,7 +40496,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-07-08-r945-reminder-backend-prep';
+var WHATS_NEW_VERSION = '2026-07-08-r946-flyer-manifest-adapter';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40804,6 +40841,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-07-08-r946-flyer-manifest-adapter', date:'July 8, 2026', importance:'fix', emoji:'🎨', title:'Flyer manifest adapter', body:'Flyer templates now route through a compatibility adapter so future flyer assets, optional logos, and white-label configuration can be added without changing current flyer behavior.', items:['Confirm Build Version reports r946.','Open Make Flyer and confirm Square templates still appear.','Switch to Story and confirm Story templates still appear.','Open an existing saved flyer and confirm it still renders.'] },
   { version:'2026-07-08-r945-reminder-backend-prep', date:'July 8, 2026', importance:'fix', emoji:'🔔', title:'Reminder backend prep', body:'Pending response reminder backend foundation is merged. Live scheduler remains off; Firebase/GCP/Cloudflare setup is still required. No visible app behavior change is expected.', items:['Confirm Build Version reports r945.','Reminder scheduler is not live yet.','No visible app behavior change is expected.'] },
   { version:'2026-07-03-r944-home-modularization-merge', date:'July 3, 2026', importance:'fix', emoji:'🏠', title:'Home reliability update', body:'Home reliability update: internal Home code was reorganized to make future updates safer. No visual changes expected.', items:['Confirm Build Version reports r944.','If prompted, tap the update banner or Home → Build Version → Update Now.','Confirm Home loads and alert cues behave as before.'] },
   { version:'2026-05-30-chat-notification-idempotency-uuid-r912', date:'May 30, 2026', importance:'fix', emoji:'🔔', title:'Chat notification send fixed', body:'Fixes the r911 OneSignal FAILED 400 error by sending a valid UUID-format idempotency key while preserving the chat TTL, web-push topic, freshness data, and notification log metadata. Scope is Band Chat/DM notification payload formatting only; chat messages, UI, reminders, Home, Calendar, Songs, Setlists, Mates, Pay, flyer rendering, and assets are unchanged.', items:['Upload index_r912.html as index.html.','Confirm Build Version reports r912.','Send one Band Chat test message.','Open Notification Log and confirm the newest Chat entry says SENT 200 instead of FAILED 400.','If it sends successfully, then restart Desktop Chrome later to confirm old chat notifications do not replay.'] },
