@@ -1,4 +1,5 @@
-﻿<!-- r950: Flyer template manifest extraction. Moves FLYER_* config globals to js/flyer-template-manifest.js; no flyer visual, zone, or saved-flyer behavior changes. Upload index.html plus js/flyer-template-manifest.js after phone test. -->
+﻿<!-- r951: Flyer template adapter extraction. Moves flyer adapter/helper functions to js/flyer-template-adapter.js; no flyer visual, zone, render, or saved-flyer behavior changes. Upload index.html plus js/flyer-template-manifest.js and js/flyer-template-adapter.js after phone test. -->
+<!-- r950: Flyer template manifest extraction. Moves FLYER_* config globals to js/flyer-template-manifest.js; no flyer visual, zone, or saved-flyer behavior changes. Upload index.html plus js/flyer-template-manifest.js after phone test. -->
 <!-- r943: Custom Event / Important Date save button visibility follow-up. Builds from r942/r941 production branch and keeps the scoped Calendar-only CSS fix that makes the Important Date save control a clear 44px green circular check button above the bottom tab/dead zone. No JS, markup, asset, Home, Chat, Songs, Setlists, Flyers, Notifications, Firebase, Pay, Display Mode, or modularization changes. Upload index_r943.html as index.html after phone test. -->
 <!-- r941: Rollback Display Mode extraction after r940 phone test failure. Current build uses passing r939 structure: Build Version remains externalized with compatibility guard; Display Mode is restored inline exactly as in r939. No Calendar, Chat, Songs, Setlists, Flyers, CSS, assets, Home menu structure, or data logic changes. Upload index_r941.html as index.html plus oot_version_r941.js and oot_compat_r941.js. -->
 <!-- r912: Chat notification idempotency UUID fix. Fixes r911 OneSignal FAILED 400 by sending a valid UUID-format idempotency_key while keeping the app's readable chat notificationId in custom data. Preserves r911 TTL/topic/data stale-replay guard and all UI/data behavior. Upload index_r912.html as index.html after test. -->
@@ -19366,6 +19367,7 @@ body.light #whats-new-skip-pill{
 </div>
 
 <script src="js/flyer-template-manifest.js"></script>
+<script src="js/flyer-template-adapter.js"></script>
 <script>
 "use strict";
 // ── KNOWN DEAD CODE (future cleanup) ──────────────────────────────────
@@ -28734,6 +28736,7 @@ function cancelProposal(propId){
 
 // ── FLYER GENERATOR ─────────────────────────────────────────────────────────
 // Template config: js/flyer-template-manifest.js (FLYER_* globals + OOT_FLYER_MANIFEST).
+// Adapter helpers: js/flyer-template-adapter.js (OOT_FLYER_ADAPTER + _flyer* aliases).
 // State
 var _flyerCtx = {
   format: 'square',     // 'square' | 'story'
@@ -28747,69 +28750,6 @@ var _flyerCtx = {
   loadedImageSrc: {},  // r505: template key -> asset URL used for cached image
   staleSavedRender: false
 };
-
-
-function _flyerTemplateRecordForKey(key){
-  try {
-    if(!key || !FLYER_TEMPLATES || !FLYER_TEMPLATES[key]) return null;
-    var format = String(key).endsWith('-story') ? 'story' : 'square';
-    return {
-      id: key,
-      key: key,
-      familyId: String(key).replace(/-(square|story)$/, ''),
-      name: (typeof FLYER_NAMES !== 'undefined' && FLYER_NAMES[key]) ? FLYER_NAMES[key] : key,
-      format: format,
-      width: FLYER_DIMS && FLYER_DIMS[format] ? FLYER_DIMS[format].w : 1080,
-      height: FLYER_DIMS && FLYER_DIMS[format] ? FLYER_DIMS[format].h : (format === 'story' ? 1920 : 1080),
-      backgroundSrc: String(FLYER_TEMPLATES[key]),
-      active: true,
-      layers: { logo: { enabled: false, src: '', x_frac: 0.5, y_frac: 0.10, w_frac: 0.24 } },
-      textZones: (typeof FLYER_ZONES !== 'undefined' && FLYER_ZONES[key]) ? FLYER_ZONES[key] : null,
-      assetVersion: (typeof FLYER_FORCE_REFRESH_TEMPLATES !== 'undefined' && FLYER_FORCE_REFRESH_TEMPLATES[key]) ? FLYER_FORCE_REFRESH_TEMPLATES[key] : String(FLYER_TEMPLATES[key])
-    };
-  } catch(e){ return null; }
-}
-function _flyerTemplateExists(key){
-  return !!_flyerTemplateRecordForKey(key);
-}
-function _flyerTemplateKeysForFormat(fmt){
-  try {
-    return Object.keys(FLYER_TEMPLATES).filter(function(k){
-      var rec = _flyerTemplateRecordForKey(k);
-      return rec && rec.active !== false && rec.format === fmt;
-    });
-  } catch(e){ return []; }
-}
-function _flyerTemplateNameForKey(key){
-  var rec = _flyerTemplateRecordForKey(key);
-  return rec ? rec.name : 'Flyer';
-}
-function _flyerTemplateZonesForKey(key){
-  var rec = _flyerTemplateRecordForKey(key);
-  return rec ? rec.textZones : null;
-}
-function _flyerTemplateSrcForKey(key){
-  var rec = _flyerTemplateRecordForKey(key);
-  return rec ? rec.backgroundSrc : '';
-}
-function _flyerSavedRenderIsStale(det){
-  if(!det || !det.flyerData || !det.flyerTemplateKey) return false;
-  var currentSrc = _flyerTemplateSrcForKey(det.flyerTemplateKey);
-  if(!currentSrc) return false;
-  if(det.flyerTemplateSrc && String(det.flyerTemplateSrc) !== currentSrc) return true;
-  if(!det.flyerTemplateSrc && FLYER_FORCE_REFRESH_TEMPLATES[det.flyerTemplateKey]) return true;
-  if(FLYER_FORCE_REFRESH_TEMPLATES[det.flyerTemplateKey] && String(det.flyerTemplateAssetVersion || '') !== String(FLYER_FORCE_REFRESH_TEMPLATES[det.flyerTemplateKey])) return true;
-  return false;
-}
-function _flyerPreviewSrcForDetails(det){
-  if(!det) return '';
-  if(_flyerSavedRenderIsStale(det)) return _flyerTemplateSrcForKey(det.flyerTemplateKey) || '';
-  return det.flyerData || '';
-}
-function _flyerCurrentAssetVersion(key){
-  var rec = _flyerTemplateRecordForKey(key);
-  return rec ? rec.assetVersion : '';
-}
 
 // r380: return-path context when the flyer editor is launched from Gig Details.
 // Calendar drawer launches leave this null so they keep returning to the drawer.
@@ -28976,7 +28916,7 @@ function openFlyerForGig(ev){
   var fmtSection = document.getElementById('flyer-step-format');
   var tplSection = document.getElementById('flyer-step-template');
   if(hasSaved && sumBar){
-    var styleName = (typeof FLYER_NAMES !== 'undefined' && FLYER_NAMES[_flyerCtx.template]) || 'Flyer';
+    var styleName = _flyerTemplateNameForKey(_flyerCtx.template);
     var fmtLabel = (_flyerCtx.format === 'story') ? 'Story · 1080×1920' : 'Square · 1080×1080';
     var sumText = document.getElementById('flyer-summary-text');
     if(sumText) sumText.textContent = styleName + ' · ' + fmtLabel;
@@ -40283,7 +40223,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-07-09-r950-flyer-template-manifest-extraction';
+var WHATS_NEW_VERSION = '2026-07-09-r951-flyer-template-adapter-extraction';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40628,6 +40568,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-07-09-r951-flyer-template-adapter-extraction', date:'July 9, 2026', importance:'fix', emoji:'\uD83C\uDFA8', title:'Flyer template adapter extraction', body:'Moves flyer template adapter helpers into js/flyer-template-adapter.js. Current flyer visuals, saved flyer compatibility, render behavior, and Make/Edit Flyer behavior are unchanged.', items:['Confirm Build Version reports r951.','Open Make Flyer and confirm Square and Story templates still load.','Confirm template selection and preview render unchanged.','Open a saved flyer and confirm it still restores correctly.'] },
   { version:'2026-07-09-r950-flyer-template-manifest-extraction', date:'July 9, 2026', importance:'fix', emoji:'\uD83C\uDFA8', title:'Flyer template manifest extraction', body:'Moves flyer template configuration (templates, zones, names, dimensions, and asset refresh keys) into js/flyer-template-manifest.js. Current flyer visuals, saved flyer compatibility, and Make/Edit Flyer behavior are unchanged.', items:['Confirm Build Version reports r950.','Open Make Flyer and confirm Square and Story templates still load.','Confirm template selection and preview render unchanged.','Open a saved flyer and confirm it still restores correctly.'] },
   { version:'2026-07-09-r949-flyer-save-to-gig-menu', date:'July 9, 2026', importance:'fix', emoji:'\uD83D\uDCBE', title:'Flyer Save to Gig action added', body:'Adds a clear Save to Gig action to the Make/Edit Flyer kebab menu. Existing autosave and close-save behavior remain unchanged.', items:['Confirm Build Version reports r949.','Open a gig and tap Make Flyer.','Open the flyer kebab menu and confirm Save to Gig appears above Share Flyer.','Tap Save to Gig and confirm the flyer remains attached to the gig.'] },
   { version:'2026-07-08-r948-flyer-syntax-scope-repair', date:'July 8, 2026', importance:'fix', emoji:'\uD83D\uDEE0\uFE0F', title:'Flyer syntax and update scope repair', body:'Repairs flyer helper function scope and places the r947 flyer logo-layer changelog entry inside the What\'s New log. No flyer visuals were intentionally changed.', items:['Confirm Build Version reports r948.','Confirm Make Flyer opens without script errors.','Confirm Square and Story templates still render unchanged.','Confirm r947 and r948 entries appear in What\'s New.'] },
