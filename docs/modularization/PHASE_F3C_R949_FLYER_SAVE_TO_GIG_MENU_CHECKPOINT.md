@@ -93,3 +93,14 @@ Goal:
 - Preserve current flyer visuals and behavior.
 - Do not add new templates yet.
 - Do not change Home band image behavior.
+
+## Agent tooling decision rule
+
+Permanent governance: [AGENT_TOOLING_DECISION_RULE.md](./AGENT_TOOLING_DECISION_RULE.md)
+
+Summary for future agents:
+
+- Use **PowerShell** for compact repo checks, exact patches, validation, syntax checks, and commit/push.
+- Use **Cursor Agent** for architecture inspection, modularization planning, multi-file analysis, and larger refactor planning.
+- Do not force architecture work through long PowerShell inspection output when Cursor Agent is the better tool.
+- **F4** (next slice) should use Cursor Agent **read-only** for flyer template/config modularization inspection.
