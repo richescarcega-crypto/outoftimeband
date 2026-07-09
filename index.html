@@ -30192,6 +30192,13 @@ function _flyerRenderMoreOptions(){
   // Each option: {label, sub, icon, color, action, danger}
   var options = [
     {
+      label: 'Save to Gig',
+      sub: 'Attach or update this flyer on the gig',
+      iconSvg: '<path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zM12 19a3 3 0 1 1 0-6 3 3 0 0 1 0 6zM6 5h9v4H6V5z" fill="currentColor"/>',
+      color: '#06d6a0',
+      action: function(){ _flyerCloseMore(); setTimeout(_flyerSaveToGig, 220); }
+    },
+    {
       label: 'Share flyer',
       sub: 'Open the phone share sheet',
       iconSvg: '<path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11C16.5 7.69 17.21 8 18 8c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z" fill="currentColor"/>',
@@ -40539,7 +40546,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-07-08-r948-flyer-syntax-scope-repair';
+var WHATS_NEW_VERSION = '2026-07-09-r949-flyer-save-to-gig-menu';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40884,6 +40891,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-07-09-r949-flyer-save-to-gig-menu', date:'July 9, 2026', importance:'fix', emoji:'\uD83D\uDCBE', title:'Flyer Save to Gig action added', body:'Adds a clear Save to Gig action to the Make/Edit Flyer kebab menu. Existing autosave and close-save behavior remain unchanged.', items:['Confirm Build Version reports r949.','Open a gig and tap Make Flyer.','Open the flyer kebab menu and confirm Save to Gig appears above Share Flyer.','Tap Save to Gig and confirm the flyer remains attached to the gig.'] },
   { version:'2026-07-08-r948-flyer-syntax-scope-repair', date:'July 8, 2026', importance:'fix', emoji:'\uD83D\uDEE0\uFE0F', title:'Flyer syntax and update scope repair', body:'Repairs flyer helper function scope and places the r947 flyer logo-layer changelog entry inside the What\'s New log. No flyer visuals were intentionally changed.', items:['Confirm Build Version reports r948.','Confirm Make Flyer opens without script errors.','Confirm Square and Story templates still render unchanged.','Confirm r947 and r948 entries appear in What\'s New.'] },
   { version:'2026-07-08-r947-flyer-optional-logo-layer', date:'July 8, 2026', importance:'fix', emoji:'🎨', title:'Flyer optional logo layer scaffold', body:'Adds disabled-by-default flyer logo-layer plumbing so future templates can support logo on/off, Out of Time branding, or white-label customer logos without changing current flyer visuals.', items:['Confirm Build Version reports r947.','Open Make Flyer and confirm current flyer templates still look unchanged.','Confirm Square and Story selectors still load.','Future logo assets remain optional and disabled until configured.'] },
   { version:'2026-07-08-r946-flyer-manifest-adapter', date:'July 8, 2026', importance:'fix', emoji:'🎨', title:'Flyer manifest adapter', body:'Flyer templates now route through a compatibility adapter so future flyer assets, optional logos, and white-label configuration can be added without changing current flyer behavior.', items:['Confirm Build Version reports r946.','Open Make Flyer and confirm Square templates still appear.','Switch to Story and confirm Story templates still appear.','Open an existing saved flyer and confirm it still renders.'] },
