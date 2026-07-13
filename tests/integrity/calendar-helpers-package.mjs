@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954).
+ * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955).
  */
 
 import fs from 'node:fs';
@@ -64,7 +64,10 @@ function checkIndexWiring(html) {
     'function _calCompactDateLabel',
     'function _calTodayDate',
     'function _calTodayKey',
-    'function _isPastGig'
+    'function _isPastGig',
+    'function _blackoutNameFromTitle',
+    'function _blackoutConflictLine',
+    'function _blackoutConflictMessage'
   ];
   mustNotDefine.forEach(function (sig) {
     const re = new RegExp(sig.replace(/ /g, '\\s+') + '\\s*\\(');
@@ -83,7 +86,10 @@ function checkAliases(sandbox) {
     '_calCompactDateLabel',
     '_calTodayDate',
     '_calTodayKey',
-    '_isPastGig'
+    '_isPastGig',
+    '_blackoutNameFromTitle',
+    '_blackoutConflictLine',
+    '_blackoutConflictMessage'
   ];
   aliasNames.forEach(function (name) {
     if (typeof sandbox.window[name] !== 'function') fail('missing window.' + name);
@@ -96,7 +102,10 @@ function checkAliases(sandbox) {
     'compactDateLabel',
     'todayDate',
     'todayKey',
-    'isPastGig'
+    'isPastGig',
+    'blackoutNameFromTitle',
+    'blackoutConflictLine',
+    'blackoutConflictMessage'
   ];
   apiNames.forEach(function (name) {
     if (!helpers || typeof helpers[name] !== 'function') {
@@ -113,6 +122,12 @@ function checkAliases(sandbox) {
   if (helpers && sandbox.window._isPastGig !== helpers.isPastGig) {
     fail('window._isPastGig must alias OOT_CALENDAR_HELPERS.isPastGig');
   }
+  if (helpers && sandbox.window._blackoutNameFromTitle !== helpers.blackoutNameFromTitle) {
+    fail('window._blackoutNameFromTitle must alias OOT_CALENDAR_HELPERS.blackoutNameFromTitle');
+  }
+  if (helpers && sandbox.window._blackoutConflictMessage !== helpers.blackoutConflictMessage) {
+    fail('window._blackoutConflictMessage must alias OOT_CALENDAR_HELPERS.blackoutConflictMessage');
+  }
 }
 
 function checkBehavior(sandbox) {
@@ -123,6 +138,9 @@ function checkBehavior(sandbox) {
   const todayDate = sandbox.window._calTodayDate;
   const todayKey = sandbox.window._calTodayKey;
   const isPastGig = sandbox.window._isPastGig;
+  const blackoutName = sandbox.window._blackoutNameFromTitle;
+  const conflictLine = sandbox.window._blackoutConflictLine;
+  const conflictMessage = sandbox.window._blackoutConflictMessage;
 
   if (safe('<b>"x"&y') !== '&lt;b&gt;&quot;x&quot;&amp;y') {
     fail('_calSafe escape mismatch');
@@ -159,6 +177,40 @@ function checkBehavior(sandbox) {
   if (isPastGig({ date: key }) !== false) fail('_isPastGig(same-day) should be false');
   if (isPastGig({ date: '2099-01-01' }) !== false) fail('_isPastGig(future) should be false');
   if (isPastGig({ date: '2000-01-01' }) !== true) fail('_isPastGig(past) should be true');
+
+  if (blackoutName('Alex Unavailable') !== 'Alex') {
+    fail('_blackoutNameFromTitle should strip trailing Unavailable');
+  }
+  if (blackoutName('') !== 'Unavailable') {
+    fail('_blackoutNameFromTitle empty fallback mismatch');
+  }
+  if (conflictLine([{ person: 'Alex' }]) !== 'Alex is unavailable') {
+    fail('_blackoutConflictLine singular mismatch');
+  }
+  if (conflictLine([{ person: 'Alex' }, { person: 'Pat' }]) !== 'Alex, Pat are unavailable') {
+    fail('_blackoutConflictLine plural mismatch');
+  }
+  const many = [];
+  for (let i = 0; i < 8; i++) many.push({ person: 'P' + i });
+  const manyLine = conflictLine(many);
+  if (manyLine.indexOf('+2 more') < 0 || manyLine.indexOf('are unavailable') < 0) {
+    fail('_blackoutConflictLine truncation mismatch: ' + manyLine);
+  }
+
+  const openMsg = conflictMessage('gig', '2026-07-13', [{ person: 'Alex' }], 'open');
+  if (openMsg.indexOf('Blackout conflict found for 2026-07-13.') !== 0) {
+    fail('_blackoutConflictMessage open header mismatch');
+  }
+  if (openMsg.indexOf('Alex is unavailable') < 0) {
+    fail('_blackoutConflictMessage open line mismatch');
+  }
+  if (openMsg.indexOf('continue anyway') < 0) {
+    fail('_blackoutConflictMessage open action mismatch');
+  }
+  const saveMsg = conflictMessage('gig', '2026-07-13', [{ person: 'Alex' }], 'save');
+  if (saveMsg.indexOf('save anyway') < 0) {
+    fail('_blackoutConflictMessage save action mismatch');
+  }
 }
 
 function main() {

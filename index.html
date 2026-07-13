@@ -1,4 +1,5 @@
-﻿<!-- r954: Calendar today/status helpers extraction. Moves _calTodayDate, _calTodayKey, and _isPastGig into js/calendar-date-helpers.js; no Calendar visual, drawer, Firestore, Flyer, or Home behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
+﻿<!-- r955: Calendar blackout text helpers extraction. Moves _blackoutNameFromTitle, _blackoutConflictLine, and _blackoutConflictMessage into js/calendar-date-helpers.js; blackout confirm UI remains inline; no Calendar visual, drawer, Firestore, Flyer, or Home behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
+<!-- r954: Calendar today/status helpers extraction. Moves _calTodayDate, _calTodayKey, and _isPastGig into js/calendar-date-helpers.js; no Calendar visual, drawer, Firestore, Flyer, or Home behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
 <!-- r953: Calendar date/display helpers extraction. Moves pure Calendar helpers (_calSafe, _calTypeIcon, _calColor, _calCompactDateLabel) to js/calendar-date-helpers.js; no Calendar visual, drawer, Firestore, Flyer, or Home behavior changes. Upload index.html plus js/calendar-date-helpers.js (and existing flyer JS) after phone test. -->
 <!-- r952: Flyer layer helpers extraction. Moves r947 flyer layer helpers to js/flyer-layer-helpers.js; no flyer visual, zone, render, save, or saved-flyer behavior changes. Upload index.html plus js/flyer-template-manifest.js, js/flyer-template-adapter.js, and js/flyer-layer-helpers.js after phone test. -->
 <!-- r951: Flyer template adapter extraction. Moves flyer adapter/helper functions to js/flyer-template-adapter.js; no flyer visual, zone, render, or saved-flyer behavior changes. Upload index.html plus js/flyer-template-manifest.js and js/flyer-template-adapter.js after phone test. -->
@@ -32978,10 +32979,7 @@ function openGigSheet(ev){
 // r170/r171: Blackout conflict warning for schedule saves.
 // r171 adds structured blackout ownership: memberId/memberName are preferred;
 // legacy title parsing remains as a fallback for older blackout records.
-function _blackoutNameFromTitle(title){
-  var t = String(title || 'Unavailable').trim();
-  return t.replace(/\s+unavailable\s*$/i,'').trim() || t || 'Unavailable';
-}
+// Text helpers (_blackoutNameFromTitle / Line / Message): js/calendar-date-helpers.js
 function _normMemberName(v){
   return String(v || '').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
 }
@@ -33089,22 +33087,6 @@ var _blackoutConflictAck = {};
 function _blackoutConflictAckKey(kind, dateStr){ return String(kind || '') + '|' + String(dateStr || ''); }
 function _blackoutConflictWasAcked(kind, dateStr){ return !!_blackoutConflictAck[_blackoutConflictAckKey(kind, dateStr)]; }
 function _ackBlackoutConflict(kind, dateStr){ _blackoutConflictAck[_blackoutConflictAckKey(kind, dateStr)] = true; }
-function _blackoutConflictLine(conflicts){
-  var names = conflicts.map(function(c){ return c.person; }).filter(Boolean);
-  var unique = [];
-  var seen = {};
-  names.forEach(function(n){ if(!seen[n]){ seen[n]=true; unique.push(n); } });
-  var shown = unique.slice(0,6).join(', ');
-  if(unique.length > 6) shown += ' +' + (unique.length - 6) + ' more';
-  return unique.length === 1 ? (shown + ' is unavailable') : (shown + ' are unavailable');
-}
-function _blackoutConflictMessage(kind, dateStr, conflicts, mode){
-  var noun = String(kind || 'event');
-  var action = mode === 'open'
-    ? 'This is a scheduling conflict. Choose a different date unless you intentionally want to continue anyway.'
-    : 'This is a scheduling conflict. Choose a different date unless you intentionally want to save anyway.';
-  return 'Blackout conflict found for ' + dateStr + '.\n\n' + _blackoutConflictLine(conflicts) + '.\n\n' + action;
-}
 function _confirmBlackoutConflictBeforeOpen(kind, dateStr, onProceed){
   var conflicts = _blackoutConflictsForDate(dateStr);
   if(!conflicts.length){ onProceed(); return; }
@@ -40142,7 +40124,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-07-13-r954-calendar-today-status-helpers';
+var WHATS_NEW_VERSION = '2026-07-13-r955-calendar-blackout-text-helpers';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40487,6 +40469,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-07-13-r955-calendar-blackout-text-helpers', date:'July 13, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar blackout text helpers extraction', body:'Moves blackout conflict text helpers into js/calendar-date-helpers.js. Blackout confirm UI, Calendar grid, drawers, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r955.','Open Calendar and confirm the month grid still renders.','Open or save a gig/rehearsal on a blackout date and confirm conflict copy still looks correct.','Confirm Gig Detail and Home cues still behave normally.'] },
   { version:'2026-07-13-r954-calendar-today-status-helpers', date:'July 13, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar today status helpers extraction', body:'Moves Calendar today-date and past-gig helpers into js/calendar-date-helpers.js. Calendar grid, day drawer, Gig Detail, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r954.','Open Calendar and confirm the month grid still renders.','Open a gig day and confirm Gig Detail still opens.','Confirm past-gig / same-day status behavior feels unchanged.'] },
   { version:'2026-07-13-r953-calendar-date-helpers-extraction', date:'July 13, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar date helpers extraction', body:'Moves pure Calendar date/display helpers into js/calendar-date-helpers.js. Calendar grid, day drawer, Gig Detail, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r953.','Open Calendar and confirm the month grid still renders.','Confirm event type colors/icons look unchanged.','Open a gig day and confirm Make Flyer / Gig Detail still work.'] },
   { version:'2026-07-09-r952-flyer-layer-helpers-extraction', date:'July 9, 2026', importance:'fix', emoji:'\uD83C\uDFA8', title:'Flyer layer helpers extraction', body:'Moves r947 flyer layer helpers into js/flyer-layer-helpers.js. Current flyer visuals, saved flyer compatibility, render behavior, and Make/Edit Flyer behavior are unchanged. Optional logo layer remains disabled by default.', items:['Confirm Build Version reports r952.','Open Make Flyer and confirm Square and Story templates still load.','Confirm template selection and preview render unchanged.','Open a saved flyer and confirm it still restores correctly.'] },
