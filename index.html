@@ -1,4 +1,5 @@
-﻿<!-- r952: Flyer layer helpers extraction. Moves r947 flyer layer helpers to js/flyer-layer-helpers.js; no flyer visual, zone, render, save, or saved-flyer behavior changes. Upload index.html plus js/flyer-template-manifest.js, js/flyer-template-adapter.js, and js/flyer-layer-helpers.js after phone test. -->
+﻿<!-- r953: Calendar date/display helpers extraction. Moves pure Calendar helpers (_calSafe, _calTypeIcon, _calColor, _calCompactDateLabel) to js/calendar-date-helpers.js; no Calendar visual, drawer, Firestore, Flyer, or Home behavior changes. Upload index.html plus js/calendar-date-helpers.js (and existing flyer JS) after phone test. -->
+<!-- r952: Flyer layer helpers extraction. Moves r947 flyer layer helpers to js/flyer-layer-helpers.js; no flyer visual, zone, render, save, or saved-flyer behavior changes. Upload index.html plus js/flyer-template-manifest.js, js/flyer-template-adapter.js, and js/flyer-layer-helpers.js after phone test. -->
 <!-- r951: Flyer template adapter extraction. Moves flyer adapter/helper functions to js/flyer-template-adapter.js; no flyer visual, zone, render, or saved-flyer behavior changes. Upload index.html plus js/flyer-template-manifest.js and js/flyer-template-adapter.js after phone test. -->
 <!-- r950: Flyer template manifest extraction. Moves FLYER_* config globals to js/flyer-template-manifest.js; no flyer visual, zone, or saved-flyer behavior changes. Upload index.html plus js/flyer-template-manifest.js after phone test. -->
 <!-- r943: Custom Event / Important Date save button visibility follow-up. Builds from r942/r941 production branch and keeps the scoped Calendar-only CSS fix that makes the Important Date save control a clear 44px green circular check button above the bottom tab/dead zone. No JS, markup, asset, Home, Chat, Songs, Setlists, Flyers, Notifications, Firebase, Pay, Display Mode, or modularization changes. Upload index_r943.html as index.html after phone test. -->
@@ -19370,6 +19371,7 @@ body.light #whats-new-skip-pill{
 <script src="js/flyer-template-manifest.js"></script>
 <script src="js/flyer-template-adapter.js"></script>
 <script src="js/flyer-layer-helpers.js"></script>
+<script src="js/calendar-date-helpers.js"></script>
 <script>
 "use strict";
 // ── KNOWN DEAD CODE (future cleanup) ──────────────────────────────────
@@ -31179,20 +31181,6 @@ function toggleMems() {
 // CALENDAR
 
 
-function _calTypeIcon(type){
-  if(type === 'gig') return '&#127928;';
-  if(type === 'rehearsal') return '&#129345;';
-  if(type === 'blackout') return '&#128683;';
-  if(type === 'custom') return '&#9733;';
-  if(type === 'birthday') return '<span class="icon-cake" aria-hidden="true" style="width:1.1em;height:1.1em;vertical-align:-.25em;"></span>';
-  if(type === 'holiday') return '<span class="icon-usflag" aria-hidden="true" style="width:1.1em;height:1.1em;vertical-align:-.25em;"></span>';
-  return '&#8226;';
-}
-
-function _calSafe(s){
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
 function _calDisplayRows(){
   return events.slice().concat(_customEntriesAsRows());
 }
@@ -31223,13 +31211,6 @@ function _calUpcomingRows(daysAhead){
 
   out.sort(function(a,b){ return a.date.localeCompare(b.date); });
   return out;
-}
-
-function _calColor(type, row){
-  if(type === 'custom') return (row && row._customColor) || '#06d6a0';
-  if(type === 'birthday') return '#f5c518';
-  if(type === 'holiday') return '#4a9eff';
-  return _eventColor(type);
 }
 
 function _calOpenDate(dateStr){
@@ -31267,14 +31248,6 @@ function _calOpenNextUp(type, id, dateStr){
 
 function _calNextUpCalendarIcon(){
   return '<span class="cal-next-up-icon" aria-hidden="true"><img src="Calendaricon.png?v=r250" class="cal-next-up-img" alt=""></span>';
-}
-
-function _calCompactDateLabel(dateStr){
-  var parts = String(dateStr||'').split('-');
-  if(parts.length !== 3) return String(dateStr||'');
-  var dt = new Date(Number(parts[0]), Number(parts[1])-1, Number(parts[2]));
-  try { return dt.toLocaleDateString([], {weekday:'short', day:'numeric'}); }
-  catch(e){ return String(dateStr||''); }
 }
 
 function _calNextUpLine(row){
@@ -40184,7 +40157,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-07-09-r952-flyer-layer-helpers-extraction';
+var WHATS_NEW_VERSION = '2026-07-13-r953-calendar-date-helpers-extraction';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40529,6 +40502,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-07-13-r953-calendar-date-helpers-extraction', date:'July 13, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar date helpers extraction', body:'Moves pure Calendar date/display helpers into js/calendar-date-helpers.js. Calendar grid, day drawer, Gig Detail, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r953.','Open Calendar and confirm the month grid still renders.','Confirm event type colors/icons look unchanged.','Open a gig day and confirm Make Flyer / Gig Detail still work.'] },
   { version:'2026-07-09-r952-flyer-layer-helpers-extraction', date:'July 9, 2026', importance:'fix', emoji:'\uD83C\uDFA8', title:'Flyer layer helpers extraction', body:'Moves r947 flyer layer helpers into js/flyer-layer-helpers.js. Current flyer visuals, saved flyer compatibility, render behavior, and Make/Edit Flyer behavior are unchanged. Optional logo layer remains disabled by default.', items:['Confirm Build Version reports r952.','Open Make Flyer and confirm Square and Story templates still load.','Confirm template selection and preview render unchanged.','Open a saved flyer and confirm it still restores correctly.'] },
   { version:'2026-07-09-r951-flyer-template-adapter-extraction', date:'July 9, 2026', importance:'fix', emoji:'\uD83C\uDFA8', title:'Flyer template adapter extraction', body:'Moves flyer template adapter helpers into js/flyer-template-adapter.js. Current flyer visuals, saved flyer compatibility, render behavior, and Make/Edit Flyer behavior are unchanged.', items:['Confirm Build Version reports r951.','Open Make Flyer and confirm Square and Story templates still load.','Confirm template selection and preview render unchanged.','Open a saved flyer and confirm it still restores correctly.'] },
   { version:'2026-07-09-r950-flyer-template-manifest-extraction', date:'July 9, 2026', importance:'fix', emoji:'\uD83C\uDFA8', title:'Flyer template manifest extraction', body:'Moves flyer template configuration (templates, zones, names, dimensions, and asset refresh keys) into js/flyer-template-manifest.js. Current flyer visuals, saved flyer compatibility, and Make/Edit Flyer behavior are unchanged.', items:['Confirm Build Version reports r950.','Open Make Flyer and confirm Square and Story templates still load.','Confirm template selection and preview render unchanged.','Open a saved flyer and confirm it still restores correctly.'] },
