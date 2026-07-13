@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Calendar date/display helpers integrity gate (C1a — r953).
+ * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954).
  */
 
 import fs from 'node:fs';
@@ -27,6 +27,7 @@ function loadCalendarSandbox() {
   const sandbox = {
     window: {},
     EC: EC,
+    Date: Date,
     _eventColor: function (type) { return EC[type] || '#06d6a0'; }
   };
   sandbox.window._eventColor = sandbox._eventColor;
@@ -60,7 +61,10 @@ function checkIndexWiring(html) {
     'function _calTypeIcon',
     'function _calSafe',
     'function _calColor',
-    'function _calCompactDateLabel'
+    'function _calCompactDateLabel',
+    'function _calTodayDate',
+    'function _calTodayKey',
+    'function _isPastGig'
   ];
   mustNotDefine.forEach(function (sig) {
     const re = new RegExp(sig.replace(/ /g, '\\s+') + '\\s*\\(');
@@ -72,12 +76,28 @@ function checkAliases(sandbox) {
   const helpers = sandbox.window.OOT_CALENDAR_HELPERS;
   if (!helpers) fail('window.OOT_CALENDAR_HELPERS not set');
 
-  const aliasNames = ['_calTypeIcon', '_calSafe', '_calColor', '_calCompactDateLabel'];
+  const aliasNames = [
+    '_calTypeIcon',
+    '_calSafe',
+    '_calColor',
+    '_calCompactDateLabel',
+    '_calTodayDate',
+    '_calTodayKey',
+    '_isPastGig'
+  ];
   aliasNames.forEach(function (name) {
     if (typeof sandbox.window[name] !== 'function') fail('missing window.' + name);
   });
 
-  const apiNames = ['typeIcon', 'safe', 'color', 'compactDateLabel'];
+  const apiNames = [
+    'typeIcon',
+    'safe',
+    'color',
+    'compactDateLabel',
+    'todayDate',
+    'todayKey',
+    'isPastGig'
+  ];
   apiNames.forEach(function (name) {
     if (!helpers || typeof helpers[name] !== 'function') {
       fail('OOT_CALENDAR_HELPERS.' + name + ' missing');
@@ -87,6 +107,12 @@ function checkAliases(sandbox) {
   if (helpers && sandbox.window._calSafe !== helpers.safe) {
     fail('window._calSafe must alias OOT_CALENDAR_HELPERS.safe');
   }
+  if (helpers && sandbox.window._calTodayKey !== helpers.todayKey) {
+    fail('window._calTodayKey must alias OOT_CALENDAR_HELPERS.todayKey');
+  }
+  if (helpers && sandbox.window._isPastGig !== helpers.isPastGig) {
+    fail('window._isPastGig must alias OOT_CALENDAR_HELPERS.isPastGig');
+  }
 }
 
 function checkBehavior(sandbox) {
@@ -94,6 +120,9 @@ function checkBehavior(sandbox) {
   const typeIcon = sandbox.window._calTypeIcon;
   const color = sandbox.window._calColor;
   const compact = sandbox.window._calCompactDateLabel;
+  const todayDate = sandbox.window._calTodayDate;
+  const todayKey = sandbox.window._calTodayKey;
+  const isPastGig = sandbox.window._isPastGig;
 
   if (safe('<b>"x"&y') !== '&lt;b&gt;&quot;x&quot;&amp;y') {
     fail('_calSafe escape mismatch');
@@ -112,6 +141,24 @@ function checkBehavior(sandbox) {
     fail('_calCompactDateLabel should format YYYY-MM-DD');
   }
   if (compact('bad') !== 'bad') fail('_calCompactDateLabel should passthrough invalid input');
+
+  const now = todayDate();
+  if (!(now instanceof Date) || Number.isNaN(now.getTime())) {
+    fail('_calTodayDate must return a valid Date');
+  }
+
+  const key = todayKey();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) {
+    fail('_calTodayKey must return YYYY-MM-DD');
+  }
+  const fixed = todayKey(new Date(2026, 6, 13)); // month is 0-based
+  if (fixed !== '2026-07-13') fail('_calTodayKey(fixed date) mismatch: ' + fixed);
+
+  if (isPastGig(null) !== false) fail('_isPastGig(null) should be false');
+  if (isPastGig({}) !== false) fail('_isPastGig(missing date) should be false');
+  if (isPastGig({ date: key }) !== false) fail('_isPastGig(same-day) should be false');
+  if (isPastGig({ date: '2099-01-01' }) !== false) fail('_isPastGig(future) should be false');
+  if (isPastGig({ date: '2000-01-01' }) !== true) fail('_isPastGig(past) should be true');
 }
 
 function main() {

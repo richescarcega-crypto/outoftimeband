@@ -1,7 +1,7 @@
 /**
- * Out of Time calendar date/display helpers (C1a — r953).
+ * Out of Time calendar date/status helpers (C1a — r953, C2a — r954).
  * Loaded after flyer helpers and before the main inline script.
- * Preserves legacy _cal* global names for Calendar render compatibility.
+ * Preserves legacy _cal* / _isPastGig global names for Calendar compatibility.
  * _calColor defers gig/rehearsal/blackout colors to inline _eventColor(EC).
  */
 function _calTypeIcon(type){
@@ -39,14 +39,35 @@ function _calCompactDateLabel(dateStr){
   catch(e){ return String(dateStr||''); }
 }
 
+function _calTodayDate(){ return new Date(); }
+
+function _calTodayKey(d){
+  d = d || _calTodayDate();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+// True if the gig date has already passed (debrief makes sense).
+function _isPastGig(ev){
+  if(!ev || !ev.date) return false;
+  // Compare YYYY-MM-DD strings — robust against timezones.
+  // Strictly before today; same-day = not yet.
+  return ev.date < _calTodayKey();
+}
+
 window.OOT_CALENDAR_HELPERS = {
   typeIcon: _calTypeIcon,
   safe: _calSafe,
   color: _calColor,
-  compactDateLabel: _calCompactDateLabel
+  compactDateLabel: _calCompactDateLabel,
+  todayDate: _calTodayDate,
+  todayKey: _calTodayKey,
+  isPastGig: _isPastGig
 };
 
 window._calTypeIcon = window.OOT_CALENDAR_HELPERS.typeIcon;
 window._calSafe = window.OOT_CALENDAR_HELPERS.safe;
 window._calColor = window.OOT_CALENDAR_HELPERS.color;
 window._calCompactDateLabel = window.OOT_CALENDAR_HELPERS.compactDateLabel;
+window._calTodayDate = window.OOT_CALENDAR_HELPERS.todayDate;
+window._calTodayKey = window.OOT_CALENDAR_HELPERS.todayKey;
+window._isPastGig = window.OOT_CALENDAR_HELPERS.isPastGig;
