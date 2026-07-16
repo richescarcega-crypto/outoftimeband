@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960, C8a — r961, C9a — r962).
+ * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960, C8a — r961, C9a — r962, C10a — r963).
  */
 
 import fs from 'node:fs';
@@ -80,7 +80,8 @@ function checkIndexWiring(html) {
     'function _calNextUpCalendarIcon',
     'function _calNextUpLine',
     'function _calCustomEntryRows',
-    'function _customEntriesAsRows'
+    'function _customEntriesAsRows',
+    'function _calRowsInMonth'
   ];
   mustNotDefine.forEach(function (sig) {
     const re = new RegExp(sig.replace(/ /g, '\\s+') + '\\s*\\(');
@@ -94,6 +95,13 @@ function checkIndexWiring(html) {
   // C9a: collector moved; call sites must remain zero-arg via legacy alias.
   if (!/_customEntriesAsRows\s*\(\s*\)/.test(html)) {
     fail('index.html must keep zero-arg _customEntriesAsRows() call sites');
+  }
+  // C10a: display/upcoming collectors remain inline; month filter moved.
+  if (!/function\s+_calDisplayRows\s*\(/.test(html)) {
+    fail('index.html must keep inline _calDisplayRows');
+  }
+  if (!/function\s+_calUpcomingRows\s*\(/.test(html)) {
+    fail('index.html must keep inline _calUpcomingRows');
   }
 }
 
@@ -121,7 +129,8 @@ function checkAliases(sandbox) {
     '_calNextUpCalendarIcon',
     '_calNextUpLine',
     '_calCustomEntryRows',
-    '_customEntriesAsRows'
+    '_customEntriesAsRows',
+    '_calRowsInMonth'
   ];
   aliasNames.forEach(function (name) {
     if (typeof sandbox.window[name] !== 'function') fail('missing window.' + name);
@@ -153,7 +162,8 @@ function checkAliases(sandbox) {
     'nextUpCalendarIcon',
     'nextUpLine',
     'customEntryRows',
-    'customEntriesAsRows'
+    'customEntriesAsRows',
+    'rowsInMonth'
   ];
   apiNames.forEach(function (name) {
     if (!helpers || typeof helpers[name] !== 'function') {
@@ -675,6 +685,75 @@ function checkCustomEntriesAsRowsBehavior(sandbox) {
   }
 }
 
+function checkRowsInMonthBehavior(sandbox) {
+  const helpers = sandbox.window.OOT_CALENDAR_HELPERS;
+  const inMonth = helpers.rowsInMonth;
+  const legacyInMonth = sandbox.window._calRowsInMonth;
+
+  const rows = [
+    { id: 'jun30', date: '2026-06-30' },
+    { id: 'jul1', date: '2026-07-01' },
+    { id: 'jul15', date: '2026-07-15' },
+    { id: 'jul31', date: '2026-07-31' },
+    { id: 'aug1', date: '2026-08-01' }
+  ];
+  const snapshot = JSON.stringify(rows);
+
+  const july = inMonth(rows, 2026, 6); // month0 = July
+  if (!Array.isArray(july) || july.length !== 3) {
+    fail('_calRowsInMonth July 2026 should return 3 rows');
+  } else if (july[0].id !== 'jul1' || july[1].id !== 'jul15' || july[2].id !== 'jul31') {
+    fail('_calRowsInMonth should preserve order and include only July dates: ' + july.map(function (r) { return r.id; }).join(','));
+  }
+
+  inMonth(rows, 2026, 6);
+  if (JSON.stringify(rows) !== snapshot) {
+    fail('_calRowsInMonth must not mutate supplied displayRows');
+  }
+
+  if (JSON.stringify(inMonth(null, 2026, 6)) !== '[]') {
+    fail('_calRowsInMonth(null rows) should return []');
+  }
+  if (JSON.stringify(inMonth(undefined, 2026, 6)) !== '[]') {
+    fail('_calRowsInMonth(undefined rows) should return []');
+  }
+
+  // February leap-year end date via injected year/month
+  const feb = [
+    { id: 'f27', date: '2024-02-27' },
+    { id: 'f28', date: '2024-02-28' },
+    { id: 'f29', date: '2024-02-29' },
+    { id: 'm1', date: '2024-03-01' }
+  ];
+  const febRows = inMonth(feb, 2024, 1);
+  if (febRows.length !== 3 || febRows[2].id !== 'f29') {
+    fail('_calRowsInMonth leap-year February should include 2024-02-29');
+  }
+
+  // Non-leap February excludes Feb 29-shaped dates outside month end
+  const feb2025 = inMonth([
+    { id: 'a', date: '2025-02-28' },
+    { id: 'b', date: '2025-03-01' }
+  ], 2025, 1);
+  if (feb2025.length !== 1 || feb2025[0].id !== 'a') {
+    fail('_calRowsInMonth non-leap February mismatch');
+  }
+
+  // Legacy zero-arg alias uses window._calDisplayRows / CY / CM
+  sandbox.window.CY = 2026;
+  sandbox.window.CM = 6;
+  sandbox.window._calDisplayRows = function () { return rows; };
+  const legacy = legacyInMonth();
+  if (!Array.isArray(legacy) || legacy.length !== 3 || legacy[0].id !== 'jul1') {
+    fail('legacy window._calRowsInMonth() should use window._calDisplayRows / CY / CM');
+  }
+  sandbox.window._calDisplayRows = undefined;
+  const legacyEmpty = legacyInMonth();
+  if (!Array.isArray(legacyEmpty) || legacyEmpty.length !== 0) {
+    fail('legacy _calRowsInMonth with missing _calDisplayRows should return []');
+  }
+}
+
 function checkBehavior(sandbox) {
   const safe = sandbox.window._calSafe;
   const typeIcon = sandbox.window._calTypeIcon;
@@ -763,6 +842,7 @@ function checkBehavior(sandbox) {
   checkNextUpBehavior(sandbox);
   checkCustomEntryRowsBehavior(sandbox);
   checkCustomEntriesAsRowsBehavior(sandbox);
+  checkRowsInMonthBehavior(sandbox);
 }
 
 function main() {

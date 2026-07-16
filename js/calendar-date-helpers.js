@@ -1,5 +1,5 @@
 /**
- * Out of Time calendar date/status helpers (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960, C8a — r961, C9a — r962).
+ * Out of Time calendar date/status helpers (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960, C8a — r961, C9a — r962, C10a — r963).
  * Loaded after flyer helpers and before the main inline script.
  * Preserves legacy _cal* / _isPastGig / _blackout* / getHoliday* / birthday / important-date / Next Up global names for Calendar compatibility.
  * _calColor defers gig/rehearsal/blackout colors to inline _eventColor(EC).
@@ -10,6 +10,7 @@
  * Next Up formatters: _calNextUpLine accepts an explicit gigDetails map (legacy one-arg alias uses window.gigDetails).
  * _calCustomEntryRows materializes one Important Date with explicit year/color inputs.
  * _customEntriesAsRows collects Important Date rows with explicit list/year/color inputs (legacy zero-arg alias uses window globals).
+ * _calRowsInMonth filters display rows for a month with explicit rows/year/month inputs (legacy zero-arg alias uses window._calDisplayRows / CY / CM).
  * Inline function _pad remains in index.html for Important Date modal use.
  */
 function _calTypeIcon(type){
@@ -242,6 +243,17 @@ function _customEntriesAsRows(importantDatesList, currentYear, defaultColor){
   return out;
 }
 
+// Month row filter (C10a — r963). Accepts display rows + year/month0 explicitly.
+function _calRowsInMonth(displayRows, year, month0){
+  var rows = displayRows || [];
+  function fmt(y, m, d){
+    return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+  }
+  var start = fmt(year, month0, 1);
+  var end = fmt(year, month0, new Date(year, month0 + 1, 0).getDate());
+  return rows.filter(function(e){ return e.date >= start && e.date <= end; });
+}
+
 window.OOT_CALENDAR_HELPERS = {
   typeIcon: _calTypeIcon,
   safe: _calSafe,
@@ -268,7 +280,8 @@ window.OOT_CALENDAR_HELPERS = {
   nextUpCalendarIcon: _calNextUpCalendarIcon,
   nextUpLine: _calNextUpLine,
   customEntryRows: _calCustomEntryRows,
-  customEntriesAsRows: _customEntriesAsRows
+  customEntriesAsRows: _customEntriesAsRows,
+  rowsInMonth: _calRowsInMonth
 };
 
 window._calTypeIcon = window.OOT_CALENDAR_HELPERS.typeIcon;
@@ -302,4 +315,8 @@ window._customEntriesAsRows = function(){
     new Date().getFullYear(),
     window.IDATE_DEFAULT_COLOR
   );
+};
+window._calRowsInMonth = function(){
+  var rows = (typeof window._calDisplayRows === 'function') ? window._calDisplayRows() : [];
+  return window.OOT_CALENDAR_HELPERS.rowsInMonth(rows, window.CY, window.CM);
 };

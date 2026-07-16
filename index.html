@@ -1,4 +1,5 @@
-﻿<!-- r962: Calendar Important Date collector extraction. Moves _customEntriesAsRows into js/calendar-date-helpers.js with explicit list/year/color injection (legacy zero-arg alias uses window.importantDates / current year / IDATE_DEFAULT_COLOR); keeps row collectors and rendering inline; no Calendar grid, drawers, Important Date lookup, birthday, holiday, Next Up, Home, Firestore, or Flyer behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
+﻿<!-- r963: Calendar month row filter extraction. Moves _calRowsInMonth into js/calendar-date-helpers.js with explicit displayRows/year/month injection (legacy zero-arg alias uses window._calDisplayRows / CY / CM); keeps _calDisplayRows / _calUpcomingRows and rendering inline; no Calendar grid, drawers, Important Date, birthday, holiday, Next Up, Home, Firestore, or Flyer behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
+<!-- r962: Calendar Important Date collector extraction. Moves _customEntriesAsRows into js/calendar-date-helpers.js with explicit list/year/color injection (legacy zero-arg alias uses window.importantDates / current year / IDATE_DEFAULT_COLOR); keeps row collectors and rendering inline; no Calendar grid, drawers, Important Date lookup, birthday, holiday, Next Up, Home, Firestore, or Flyer behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
 <!-- r961: Calendar Important Date row materializer extraction. Moves the single-entry _calCustomEntryRows transformation into js/calendar-date-helpers.js with explicit entry/year/color inputs; keeps _customEntriesAsRows collection and all rendering inline; no Calendar grid, drawers, Important Date behavior, birthday, holiday, Next Up, Home, Firestore, or Flyer behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
 <!-- r960: Calendar Next Up display helpers extraction. Moves _calNextUpCalendarIcon / _calNextUpLine into js/calendar-date-helpers.js; _calNextUpLine accepts gigDetails map via injection (legacy one-arg alias uses window.gigDetails); keeps inline Next Up render / open handlers; no Calendar grid, drawers, Important Date, birthday, holiday, Home, Firestore, or Flyer behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
 <!-- r959: Calendar Important Date helper extraction. Moves getImportantDatesOn into js/calendar-date-helpers.js; getImportantDatesOn accepts Important Date list via injection (legacy one-arg alias uses window.importantDates); keeps inline _pad / listenImportantDates / collectors; no Important Date UI, Calendar marker, Home, Firestore, Flyer, birthday, or holiday-helper behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
@@ -31118,11 +31119,7 @@ function _calDisplayRows(){
   return events.slice().concat(_customEntriesAsRows());
 }
 
-function _calRowsInMonth(){
-  var start = fD(CY,CM,1);
-  var end = fD(CY,CM,new Date(CY,CM+1,0).getDate());
-  return _calDisplayRows().filter(function(e){ return e.date >= start && e.date <= end; });
-}
+// Month row filter — _calRowsInMonth lives in js/calendar-date-helpers.js (C10a / r963).
 
 function _calUpcomingRows(daysAhead){
   daysAhead = daysAhead || 14;
@@ -40012,7 +40009,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-07-16-r962-calendar-important-date-collector';
+var WHATS_NEW_VERSION = '2026-07-16-r963-calendar-month-rows-helper';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40357,6 +40354,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-07-16-r963-calendar-month-rows-helper', date:'July 16, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar month rows helper extraction', body:'Moves the Calendar month row filter into js/calendar-date-helpers.js. Month filtering stays the same. Calendar rendering, drawers, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r963.','Open Calendar and confirm the month grid still renders.','Navigate months and confirm events still appear on the correct days.','Confirm Next Up, Important Dates, birthdays, and holidays still look correct.'] },
   { version:'2026-07-16-r962-calendar-important-date-collector', date:'July 16, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar Important Date collector extraction', body:'Moves the Important Date row collector into js/calendar-date-helpers.js. One-time and recurring Important Date rows stay the same. Calendar rendering, drawers, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r962.','Open Calendar and confirm the month grid still renders.','Confirm one-time and recurring Important Dates still display correctly.','Confirm All Events and day details still show Important Dates normally.'] },
   { version:'2026-07-16-r961-calendar-important-date-row-helper', date:'July 16, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar Important Date row helper extraction', body:'Moves the single-entry Important Date row transformation into js/calendar-date-helpers.js. Important Date rows and recurring occurrences stay the same. Calendar rendering, drawers, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r961.','Open Calendar and confirm the month grid still renders.','Confirm one-time and recurring Important Dates still display correctly.','Confirm All Events and day details still show Important Dates normally.'] },
   { version:'2026-07-16-r960-calendar-next-up-helpers', date:'July 16, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar Next Up helpers extraction', body:'Moves Next Up display formatters into js/calendar-date-helpers.js. Next Up copy and icon stay the same. Calendar grid, drawers, Important Date create, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r960.','Open Calendar and confirm the month grid still renders.','Confirm the Next Up card still shows the next item with date/title/time.','Confirm tapping Next Up still opens the expected gig or date.'] },
