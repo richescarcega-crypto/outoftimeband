@@ -1,10 +1,11 @@
 /**
- * Out of Time calendar date/status helpers (C1a — r953, C2a — r954, C3a — r955, C4a — r957).
+ * Out of Time calendar date/status helpers (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958).
  * Loaded after flyer helpers and before the main inline script.
- * Preserves legacy _cal* / _isPastGig / _blackout* / getHoliday* global names for Calendar compatibility.
+ * Preserves legacy _cal* / _isPastGig / _blackout* / getHoliday* / birthday global names for Calendar compatibility.
  * _calColor defers gig/rehearsal/blackout colors to inline _eventColor(EC).
  * Blackout confirm UI / conflict discovery remain inline.
  * Holiday helpers are exact-date only (no weekend-observed substitution).
+ * Birthday helpers match MM-DD only; getMembersBornOn accepts an explicit members list (no owned members array).
  * Inline function _pad remains in index.html for Important Date modal use.
  */
 function _calTypeIcon(type){
@@ -123,6 +124,29 @@ function getHolidayOn(ds){
   return null;
 }
 
+// Birthday MM-DD helpers (C5a — r958). getMembersBornOn takes membersList explicitly.
+function isBirthdayToday(bday){
+  if(!bday) return false;
+  // Accept YYYY-MM-DD; compare MM-DD only so year doesn't matter
+  var parts = String(bday).split('-');
+  if(parts.length<3) return false;
+  var t = new Date();
+  var todayMonth = t.getMonth()+1;
+  var todayDay = t.getDate();
+  return parseInt(parts[1],10)===todayMonth && parseInt(parts[2],10)===todayDay;
+}
+function isBirthdayOnDate(bday, ds){
+  if(!bday || !ds) return false;
+  var b = String(bday).split('-');
+  var d = String(ds).split('-');
+  if(b.length<3 || d.length<3) return false;
+  return parseInt(b[1],10)===parseInt(d[1],10) && parseInt(b[2],10)===parseInt(d[2],10);
+}
+function getMembersBornOn(dateString, membersList){
+  var list = membersList || [];
+  return list.filter(function(m){ return isBirthdayOnDate(m.bday, dateString); });
+}
+
 window.OOT_CALENDAR_HELPERS = {
   typeIcon: _calTypeIcon,
   safe: _calSafe,
@@ -137,7 +161,13 @@ window.OOT_CALENDAR_HELPERS = {
   usFederalHolidays: getUSFederalHolidays,
   getUSFederalHolidays: getUSFederalHolidays,
   holidayOn: getHolidayOn,
-  getHolidayOn: getHolidayOn
+  getHolidayOn: getHolidayOn,
+  birthdayToday: isBirthdayToday,
+  isBirthdayToday: isBirthdayToday,
+  birthdayOnDate: isBirthdayOnDate,
+  isBirthdayOnDate: isBirthdayOnDate,
+  membersBornOn: getMembersBornOn,
+  getMembersBornOn: getMembersBornOn
 };
 
 window._calTypeIcon = window.OOT_CALENDAR_HELPERS.typeIcon;
@@ -152,3 +182,8 @@ window._blackoutConflictLine = window.OOT_CALENDAR_HELPERS.blackoutConflictLine;
 window._blackoutConflictMessage = window.OOT_CALENDAR_HELPERS.blackoutConflictMessage;
 window.getUSFederalHolidays = window.OOT_CALENDAR_HELPERS.usFederalHolidays;
 window.getHolidayOn = window.OOT_CALENDAR_HELPERS.holidayOn;
+window.isBirthdayToday = window.OOT_CALENDAR_HELPERS.isBirthdayToday;
+window.isBirthdayOnDate = window.OOT_CALENDAR_HELPERS.isBirthdayOnDate;
+window.getMembersBornOn = function(ds){
+  return window.OOT_CALENDAR_HELPERS.getMembersBornOn(ds, window.members);
+};

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955, C4a — r957).
+ * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958).
  */
 
 import fs from 'node:fs';
@@ -72,7 +72,10 @@ function checkIndexWiring(html) {
     'function getHolidayOn',
     'function _nthDayOfMonth',
     'function _lastDayOfMonth',
-    'function _fmt'
+    'function _fmt',
+    'function isBirthdayToday',
+    'function isBirthdayOnDate',
+    'function getMembersBornOn'
   ];
   mustNotDefine.forEach(function (sig) {
     const re = new RegExp(sig.replace(/ /g, '\\s+') + '\\s*\\(');
@@ -101,7 +104,10 @@ function checkAliases(sandbox) {
     '_blackoutConflictLine',
     '_blackoutConflictMessage',
     'getUSFederalHolidays',
-    'getHolidayOn'
+    'getHolidayOn',
+    'isBirthdayToday',
+    'isBirthdayOnDate',
+    'getMembersBornOn'
   ];
   aliasNames.forEach(function (name) {
     if (typeof sandbox.window[name] !== 'function') fail('missing window.' + name);
@@ -121,7 +127,13 @@ function checkAliases(sandbox) {
     'usFederalHolidays',
     'getUSFederalHolidays',
     'holidayOn',
-    'getHolidayOn'
+    'getHolidayOn',
+    'birthdayToday',
+    'isBirthdayToday',
+    'birthdayOnDate',
+    'isBirthdayOnDate',
+    'membersBornOn',
+    'getMembersBornOn'
   ];
   apiNames.forEach(function (name) {
     if (!helpers || typeof helpers[name] !== 'function') {
@@ -155,6 +167,21 @@ function checkAliases(sandbox) {
   }
   if (helpers && helpers.holidayOn !== helpers.getHolidayOn) {
     fail('OOT_CALENDAR_HELPERS.holidayOn must equal getHolidayOn');
+  }
+  if (helpers && helpers.birthdayToday !== helpers.isBirthdayToday) {
+    fail('OOT_CALENDAR_HELPERS.birthdayToday must equal isBirthdayToday');
+  }
+  if (helpers && helpers.birthdayOnDate !== helpers.isBirthdayOnDate) {
+    fail('OOT_CALENDAR_HELPERS.birthdayOnDate must equal isBirthdayOnDate');
+  }
+  if (helpers && helpers.membersBornOn !== helpers.getMembersBornOn) {
+    fail('OOT_CALENDAR_HELPERS.membersBornOn must equal getMembersBornOn');
+  }
+  if (helpers && sandbox.window.isBirthdayToday !== helpers.isBirthdayToday) {
+    fail('window.isBirthdayToday must alias OOT_CALENDAR_HELPERS.isBirthdayToday');
+  }
+  if (helpers && sandbox.window.isBirthdayOnDate !== helpers.isBirthdayOnDate) {
+    fail('window.isBirthdayOnDate must alias OOT_CALENDAR_HELPERS.isBirthdayOnDate');
   }
   // Must not export window._pad from the holiday module.
   if (typeof sandbox.window._pad === 'function') {
@@ -240,6 +267,98 @@ function checkHolidayBehavior(sandbox) {
   if (holidayOn('bad') !== null) fail('getHolidayOn(invalid) should be null');
 }
 
+function checkBirthdayBehavior(sandbox) {
+  const helpers = sandbox.window.OOT_CALENDAR_HELPERS;
+  const onDate = sandbox.window.isBirthdayOnDate;
+  const bornOn = helpers.getMembersBornOn;
+  const legacyBornOn = sandbox.window.getMembersBornOn;
+
+  // MM-DD matching preserved; year ignored
+  if (onDate('1990-07-15', '2026-07-15') !== true) {
+    fail('isBirthdayOnDate should match same MM-DD across years');
+  }
+  if (onDate('2001-07-15', '1999-07-15') !== true) {
+    fail('isBirthdayOnDate should match same month/day different years');
+  }
+  if (onDate('1990-07-15', '2026-07-16') !== false) {
+    fail('isBirthdayOnDate nonmatching day should be false');
+  }
+  if (onDate('1990-08-15', '2026-07-15') !== false) {
+    fail('isBirthdayOnDate nonmatching month should be false');
+  }
+
+  // Missing / empty / malformed
+  if (onDate(null, '2026-07-15') !== false) fail('isBirthdayOnDate(null) should be false');
+  if (onDate('', '2026-07-15') !== false) fail('isBirthdayOnDate("") should be false');
+  if (onDate('07-15', '2026-07-15') !== false) fail('isBirthdayOnDate(malformed) should be false');
+  if (onDate('1990-07-15', null) !== false) fail('isBirthdayOnDate(null ds) should be false');
+  if (onDate('1990-07-15', '') !== false) fail('isBirthdayOnDate(empty ds) should be false');
+
+  const members = [
+    { name: 'Alex', bday: '1990-07-15' },
+    { name: 'Pat', bday: '1988-01-01' },
+    { name: 'Sam', bday: '2000-07-15' },
+    { name: 'NoBday' },
+    { name: 'Empty', bday: '' },
+    { name: 'Bad', bday: '07-15' }
+  ];
+  const snapshot = JSON.stringify(members);
+
+  const matched = bornOn('2026-07-15', members);
+  if (!Array.isArray(matched) || matched.length !== 2) {
+    fail('getMembersBornOn explicit list should return 2 matches');
+  } else if (matched[0].name !== 'Alex' || matched[1].name !== 'Sam') {
+    fail('getMembersBornOn should preserve member order: ' + matched.map(function (m) { return m.name; }).join(','));
+  }
+
+  const none = bornOn('2026-12-25', members);
+  if (!Array.isArray(none) || none.length !== 0) {
+    fail('getMembersBornOn nonmatching date should be empty list');
+  }
+
+  if (JSON.stringify(bornOn('2026-07-15', null)) !== '[]') {
+    fail('getMembersBornOn(null membersList) should treat as []');
+  }
+  if (JSON.stringify(bornOn('2026-07-15', undefined)) !== '[]') {
+    fail('getMembersBornOn(undefined membersList) should treat as []');
+  }
+  if (JSON.stringify(bornOn('2026-07-15', '')) !== '[]') {
+    fail('getMembersBornOn(falsy membersList) should treat as []');
+  }
+
+  bornOn('2026-07-15', members);
+  if (JSON.stringify(members) !== snapshot) {
+    fail('getMembersBornOn must not mutate supplied members array');
+  }
+
+  // Legacy one-arg alias falls back to window.members
+  sandbox.window.members = members;
+  const legacy = legacyBornOn('2026-07-15');
+  if (!Array.isArray(legacy) || legacy.length !== 2 || legacy[0].name !== 'Alex' || legacy[1].name !== 'Sam') {
+    fail('legacy window.getMembersBornOn(ds) should use window.members');
+  }
+  sandbox.window.members = undefined;
+  const legacyEmpty = legacyBornOn('2026-07-15');
+  if (!Array.isArray(legacyEmpty) || legacyEmpty.length !== 0) {
+    fail('legacy getMembersBornOn with missing window.members should return []');
+  }
+
+  // isBirthdayToday uses local Date — smoke check for missing/empty
+  if (sandbox.window.isBirthdayToday(null) !== false) fail('isBirthdayToday(null) should be false');
+  if (sandbox.window.isBirthdayToday('') !== false) fail('isBirthdayToday("") should be false');
+  if (sandbox.window.isBirthdayToday('07-15') !== false) fail('isBirthdayToday(malformed) should be false');
+
+  const now = new Date();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  if (sandbox.window.isBirthdayToday('1990-' + mm + '-' + dd) !== true) {
+    fail('isBirthdayToday should match today MM-DD');
+  }
+  if (sandbox.window.isBirthdayToday('1990-01-01') === true && !(now.getMonth() === 0 && now.getDate() === 1)) {
+    fail('isBirthdayToday should be false for non-today MM-DD');
+  }
+}
+
 function checkBehavior(sandbox) {
   const safe = sandbox.window._calSafe;
   const typeIcon = sandbox.window._calTypeIcon;
@@ -323,6 +442,7 @@ function checkBehavior(sandbox) {
   }
 
   checkHolidayBehavior(sandbox);
+  checkBirthdayBehavior(sandbox);
 }
 
 function main() {
