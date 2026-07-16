@@ -137,6 +137,9 @@ const PHASE_6E_C_SONG_VOTE_RECONCILE_HOOK =
 const PHASE_6G_REHEARSAL_RECONCILE_HOOK =
   "try { var _hs=document.getElementById('sc-home'); if(_hs&&_hs.classList.contains('on')&&typeof requestHomeReconcile==='function')requestHomeReconcile('cue:rehearsal'); } catch(e){}";
 
+const PHASE_6I_GIG_RECONCILE_CALL =
+  /try \{ _maybeRequestHomeGigReconcile\('(pending|no-gigs|countdown)'(?:, [^)]+)?\); \} catch\(e\)\{\}/;
+
 const failures = [];
 const warnings = [];
 
@@ -446,6 +449,106 @@ function assertPhase6gRehearsalPilot(html) {
   }
 }
 
+function assertPhase6iGigPilot(html) {
+  if (!html.includes('function _maybeRequestHomeGigReconcile')) {
+    fail('index.html missing Phase 6i _maybeRequestHomeGigReconcile helper');
+  }
+
+  const gigReconcileCount = countOccurrences(html, "requestHomeReconcile('gig:");
+  if (gigReconcileCount !== 1) {
+    fail(`requestHomeReconcile('gig:...') must appear exactly once in _maybeRequestHomeGigReconcile helper (found ${gigReconcileCount})`);
+  }
+
+  const helperStart = html.indexOf('function _maybeRequestHomeGigReconcile');
+  const helperEnd = html.indexOf('\nfunction ', helperStart + 1);
+  if (helperStart === -1 || helperEnd === -1) {
+    fail('Could not locate _maybeRequestHomeGigReconcile helper body in index.html');
+  }
+  const helperBody = html.slice(helperStart, helperEnd);
+  if (!helperBody.includes("getElementById('sc-home')") || !helperBody.includes("classList.contains('on')")) {
+    fail('_maybeRequestHomeGigReconcile must use Home-active gate before requestHomeReconcile');
+  }
+  if (!helperBody.includes('_homeGigSlotReconcileSig')) {
+    fail('_maybeRequestHomeGigReconcile must dedupe via _homeGigSlotReconcileSig state-change signature');
+  }
+  const sigAssignPos = helperBody.indexOf('_homeGigSlotReconcileSig = sig');
+  const gatePos = helperBody.indexOf("classList.contains('on')");
+  if (sigAssignPos === -1 || gatePos === -1 || sigAssignPos < gatePos) {
+    fail('_maybeRequestHomeGigReconcile must not update _homeGigSlotReconcileSig before Home-active gate');
+  }
+
+  const fnStart = html.indexOf('function updateCountdown');
+  const fnEnd = html.indexOf('// ── NO GIGS CARD');
+  if (fnStart === -1 || fnEnd === -1) {
+    fail('Could not locate updateCountdown function body in index.html');
+  }
+  const fnBody = html.slice(fnStart, fnEnd);
+
+  if (fnBody.includes('reconcileHomeLayout')) {
+    fail('updateCountdown must not call reconcileHomeLayout directly');
+  }
+
+  const pilotCount = countOccurrences(fnBody, '_maybeRequestHomeGigReconcile(');
+  if (pilotCount !== 3) {
+    fail(`updateCountdown must contain exactly three _maybeRequestHomeGigReconcile call sites (found ${pilotCount})`);
+  }
+
+  for (const line of fnBody.split('\n')) {
+    if (PHASE_6I_GIG_RECONCILE_CALL.test(line.trim())) {
+      continue;
+    }
+    if (line.includes('requestHomeReconcile')) {
+      fail('updateCountdown must not call requestHomeReconcile directly (use _maybeRequestHomeGigReconcile helper)');
+    }
+  }
+
+  const tickMatch = fnBody.match(/function tick\(\)\{([\s\S]*?)\}\s*\n\s*tick\(\)/);
+  if (!tickMatch) {
+    fail('Could not locate updateCountdown inner tick() timer callback');
+  }
+  const tickBody = tickMatch[1];
+  if (tickBody.includes('requestHomeReconcile') || tickBody.includes('_maybeRequestHomeGigReconcile')) {
+    fail('updateCountdown tick() must not call requestHomeReconcile or _maybeRequestHomeGigReconcile');
+  }
+  if (/setInterval\([^,]+,\s*\d+\)/.test(tickBody)) {
+    fail('updateCountdown tick() must not register nested timer intervals');
+  }
+
+  if (!/setInterval\(tick,\s*30000\)/.test(fnBody)) {
+    fail('updateCountdown must retain 30s tick interval (timer-safe boundary)');
+  }
+
+  const pendingBranch = fnBody.slice(fnBody.indexOf('if(!_eventsHasInit && (!events || !events.length)'));
+  const pendingReservePos = pendingBranch.indexOf('reserveGigSlotPending()');
+  const pendingPilotPos = pendingBranch.indexOf("_maybeRequestHomeGigReconcile('pending'");
+  if (pendingReservePos === -1 || pendingPilotPos === -1 || pendingReservePos > pendingPilotPos) {
+    fail('updateCountdown pending branch must call reserveGigSlotPending before _maybeRequestHomeGigReconcile');
+  }
+
+  const noGigsBranch = fnBody.slice(fnBody.indexOf('if(!upcoming.length)'));
+  const noGigsSyncPos = noGigsBranch.indexOf("syncGigSlotState('updateCountdown:no-gigs')");
+  const noGigsPilotPos = noGigsBranch.indexOf("_maybeRequestHomeGigReconcile('no-gigs'");
+  if (noGigsSyncPos === -1 || noGigsPilotPos === -1 || noGigsSyncPos > noGigsPilotPos) {
+    fail('updateCountdown no-gigs branch must call syncGigSlotState before _maybeRequestHomeGigReconcile');
+  }
+
+  const countdownBranch = fnBody.slice(fnBody.indexOf("syncGigSlotState('updateCountdown:countdown')"));
+  const countdownSyncPos = countdownBranch.indexOf("syncGigSlotState('updateCountdown:countdown')");
+  const countdownPilotPos = countdownBranch.indexOf("_maybeRequestHomeGigReconcile('countdown'");
+  if (countdownSyncPos === -1 || countdownPilotPos === -1 || countdownSyncPos > countdownPilotPos) {
+    fail('updateCountdown countdown branch must call syncGigSlotState before _maybeRequestHomeGigReconcile');
+  }
+
+  const songVoteCount = countOccurrences(html, "requestHomeReconcile('cue:song-vote')");
+  if (songVoteCount !== 2) {
+    fail(`Phase 6i must preserve exactly two requestHomeReconcile('cue:song-vote') hooks (found ${songVoteCount})`);
+  }
+  const rehearsalCount = countOccurrences(html, "requestHomeReconcile('cue:rehearsal')");
+  if (rehearsalCount !== 3) {
+    fail(`Phase 6i must preserve exactly three requestHomeReconcile('cue:rehearsal') hooks (found ${rehearsalCount})`);
+  }
+}
+
 function report() {
   if (warnings.length) {
     console.warn('Warnings:');
@@ -457,7 +560,7 @@ function report() {
     failures.forEach(function (f) { console.error('  - ' + f); });
     process.exit(1);
   }
-  console.log('PASS: Phase 6g Home controller listener reconcile rollout checks.');
+  console.log('PASS: Phase 6i Home controller gig timer-safe reconcile pilot checks.');
 }
 
 function main() {
@@ -490,6 +593,7 @@ function main() {
   assertIndexHtmlWiring(html);
   assertPhase6eCSongVotePilot(html);
   assertPhase6gRehearsalPilot(html);
+  assertPhase6iGigPilot(html);
 
   report();
 }

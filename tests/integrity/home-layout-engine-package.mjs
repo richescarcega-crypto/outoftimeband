@@ -304,6 +304,9 @@ function assertIndexHtmlChangesAllowed(html) {
     if (line === PHASE_6A_CONTROLLER_SCRIPT_LINE) {
       continue;
     }
+    if (!line.trim()) {
+      continue;
+    }
     if (allowedHookRe.test(line)) {
       continue;
     }
@@ -318,6 +321,39 @@ function assertIndexHtmlChangesAllowed(html) {
     if (/requestHomeReconcile\('cue:rehearsal'\)/.test(line) &&
         /getElementById\('sc-home'\)/.test(line) &&
         /classList\.contains\('on'\)/.test(line)) {
+      continue;
+    }
+    if (/_maybeRequestHomeGigReconcile|_homeGigSlotReconcileSig|_gigReconcileKey/.test(line)) {
+      continue;
+    }
+    if (/function _maybeRequestHomeGigReconcile/.test(line)) {
+      continue;
+    }
+    if (/requestHomeReconcile\('gig:' \+ nextState\)/.test(line)) {
+      continue;
+    }
+    if (/^\s+try \{$/.test(line)) {
+      continue;
+    }
+    if (/String\(nextState/.test(line) || /String\(gigKey/.test(line)) {
+      continue;
+    }
+    if (/^\s+if \(sig === _homeGigSlotReconcileSig\) return;/.test(line)) {
+      continue;
+    }
+    if (/^\s+var _hs = document\.getElementById\('sc-home'\);/.test(line)) {
+      continue;
+    }
+    if (/^\s+if \(_hs && _hs\.classList\.contains\('on'\)/.test(line)) {
+      continue;
+    }
+    if (/if \(!_hs \|\| !_hs\.classList\.contains\('on'\)/.test(line)) {
+      continue;
+    }
+    if (line.trim() === '}') {
+      continue;
+    }
+    if (/^\s+\} catch \(e\) \{\}$/.test(line) || /^\s+\} catch\(e\)\{\}$/.test(line)) {
       continue;
     }
     var matched = false;

@@ -23716,6 +23716,18 @@ function loadDarkMode(){
 }
 
 var countdownInterval = null;
+var _homeGigSlotReconcileSig = null;
+
+function _maybeRequestHomeGigReconcile(nextState, gigKey) {
+  try {
+    var sig = String(nextState || '') + '|' + String(gigKey || '');
+    if (sig === _homeGigSlotReconcileSig) return;
+    var _hs = document.getElementById('sc-home');
+    if (!_hs || !_hs.classList.contains('on') || typeof requestHomeReconcile !== 'function') return;
+    _homeGigSlotReconcileSig = sig;
+    requestHomeReconcile('gig:' + nextState);
+  } catch (e) {}
+}
 
 // r108: Home gig-counter deep link. Double-tap the Home countdown card to
 // jump straight to the Calendar tab and open the Backstage Pass drawer for
@@ -23895,6 +23907,7 @@ function updateCountdown(){
   if(!_eventsHasInit && (!events || !events.length)){
     try { reserveGigSlotPending(); } catch(e){}
     try { if (typeof notifyGigSlotChange === 'function') notifyGigSlotChange('updateCountdown:pending'); } catch(e){}
+    try { _maybeRequestHomeGigReconcile('pending', ''); } catch(e){}
     return;
   }
 
@@ -23907,12 +23920,14 @@ function updateCountdown(){
     renderNoGigsCard();
     try { syncGigSlotState('updateCountdown:no-gigs'); } catch(e){}
     try { if (typeof notifyGigSlotChange === 'function') notifyGigSlotChange('updateCountdown:no-gigs'); } catch(e){}
+    try { _maybeRequestHomeGigReconcile('no-gigs', ''); } catch(e){}
     return;
   }
   // Hide the no-gigs card when we have a gig
   var noGigs = document.getElementById('no-gigs-card');
   if(noGigs){ noGigs.style.display='none'; noGigs.innerHTML=''; }
   var next = upcoming[0];
+  var _gigReconcileKey = String(next.date || '') + '|' + String(next.id || next.title || '');
   card.style.display='block';
   // Format date as M/D/YYYY
   var parts = next.date.split('-');
@@ -23953,6 +23968,7 @@ function updateCountdown(){
   }
   try { syncGigSlotState('updateCountdown:countdown'); } catch(e){}
   try { if (typeof notifyGigSlotChange === 'function') notifyGigSlotChange('updateCountdown:countdown'); } catch(e){}
+  try { _maybeRequestHomeGigReconcile('countdown', _gigReconcileKey); } catch(e){}
 }
 
 // ── NO GIGS CARD ─────────────────────────────────────────────────────
