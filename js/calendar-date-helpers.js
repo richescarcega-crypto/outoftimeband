@@ -1,5 +1,5 @@
 /**
- * Out of Time calendar date/status helpers (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960).
+ * Out of Time calendar date/status helpers (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960, C8a — r961).
  * Loaded after flyer helpers and before the main inline script.
  * Preserves legacy _cal* / _isPastGig / _blackout* / getHoliday* / birthday / important-date / Next Up global names for Calendar compatibility.
  * _calColor defers gig/rehearsal/blackout colors to inline _eventColor(EC).
@@ -8,6 +8,7 @@
  * Birthday helpers match MM-DD only; getMembersBornOn accepts an explicit members list (no owned members array).
  * getImportantDatesOn accepts an explicit Important Date list (legacy one-arg alias uses window.importantDates).
  * Next Up formatters: _calNextUpLine accepts an explicit gigDetails map (legacy one-arg alias uses window.gigDetails).
+ * _calCustomEntryRows materializes one Important Date with explicit year/color inputs; collection remains inline.
  * Inline function _pad remains in index.html for Important Date modal use.
  */
 function _calTypeIcon(type){
@@ -186,6 +187,50 @@ function _calNextUpLine(row, gigDetailsMap){
   return bits.join('<span class="next-up-dot">•</span>');
 }
 
+// Important Date single-entry row materializer (C8a — r961).
+// The caller owns list collection, current-year lookup, and default-color selection.
+function _calCustomEntryRows(entry, currentYear, defaultColor){
+  if(!entry || !entry.date) return [];
+  var rows = [];
+  if(entry.recurring){
+    var p = String(entry.date).split('-');
+    var mm, dd;
+    if(p.length === 2){ mm = p[0]; dd = p[1]; }
+    else if(p.length === 3){ mm = p[1]; dd = p[2]; }
+    else return rows;
+    [currentYear, currentYear+1].forEach(function(yr){
+      rows.push({
+        id: 'idate-' + entry.id + '-' + yr,
+        date: yr + '-' + mm + '-' + dd,
+        type: 'custom',
+        title: entry.title || 'Untitled',
+        note: entry.note || entry.notes || '',
+        startTime: entry.startTime || '',
+        endTime: entry.endTime || '',
+        allDay: !!entry.allDay,
+        _customColor: defaultColor,
+        _customSourceId: entry.id,
+        _customRecurring: true
+      });
+    });
+  } else {
+    rows.push({
+      id: 'idate-' + entry.id,
+      date: entry.date,
+      type: 'custom',
+      title: entry.title || 'Untitled',
+      note: entry.note || entry.notes || '',
+      startTime: entry.startTime || '',
+      endTime: entry.endTime || '',
+      allDay: !!entry.allDay,
+      _customColor: defaultColor,
+      _customSourceId: entry.id,
+      _customRecurring: false
+    });
+  }
+  return rows;
+}
+
 window.OOT_CALENDAR_HELPERS = {
   typeIcon: _calTypeIcon,
   safe: _calSafe,
@@ -210,7 +255,8 @@ window.OOT_CALENDAR_HELPERS = {
   importantDatesOn: getImportantDatesOn,
   getImportantDatesOn: getImportantDatesOn,
   nextUpCalendarIcon: _calNextUpCalendarIcon,
-  nextUpLine: _calNextUpLine
+  nextUpLine: _calNextUpLine,
+  customEntryRows: _calCustomEntryRows
 };
 
 window._calTypeIcon = window.OOT_CALENDAR_HELPERS.typeIcon;
@@ -237,3 +283,4 @@ window._calNextUpCalendarIcon = window.OOT_CALENDAR_HELPERS.nextUpCalendarIcon;
 window._calNextUpLine = function(row){
   return window.OOT_CALENDAR_HELPERS.nextUpLine(row, window.gigDetails);
 };
+window._calCustomEntryRows = window.OOT_CALENDAR_HELPERS.customEntryRows;

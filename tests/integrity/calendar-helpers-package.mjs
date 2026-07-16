@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960).
+ * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960, C8a — r961).
  */
 
 import fs from 'node:fs';
@@ -78,7 +78,8 @@ function checkIndexWiring(html) {
     'function getMembersBornOn',
     'function getImportantDatesOn',
     'function _calNextUpCalendarIcon',
-    'function _calNextUpLine'
+    'function _calNextUpLine',
+    'function _calCustomEntryRows'
   ];
   mustNotDefine.forEach(function (sig) {
     const re = new RegExp(sig.replace(/ /g, '\\s+') + '\\s*\\(');
@@ -88,6 +89,12 @@ function checkIndexWiring(html) {
   // C4a: Important Date modal still needs inline _pad — do not forbid it.
   if (!/function\s+_pad\s*\(/.test(html)) {
     fail('index.html must keep inline function _pad for Important Date modal');
+  }
+  if (!/function\s+_customEntriesAsRows\s*\(/.test(html)) {
+    fail('index.html must keep inline _customEntriesAsRows collector');
+  }
+  if (!/_calCustomEntryRows\s*\(\s*x\s*,\s*todayY\s*,\s*IDATE_DEFAULT_COLOR\s*\)/.test(html)) {
+    fail('inline _customEntriesAsRows must inject entry, year, and default color');
   }
 }
 
@@ -113,7 +120,8 @@ function checkAliases(sandbox) {
     'getMembersBornOn',
     'getImportantDatesOn',
     '_calNextUpCalendarIcon',
-    '_calNextUpLine'
+    '_calNextUpLine',
+    '_calCustomEntryRows'
   ];
   aliasNames.forEach(function (name) {
     if (typeof sandbox.window[name] !== 'function') fail('missing window.' + name);
@@ -143,7 +151,8 @@ function checkAliases(sandbox) {
     'importantDatesOn',
     'getImportantDatesOn',
     'nextUpCalendarIcon',
-    'nextUpLine'
+    'nextUpLine',
+    'customEntryRows'
   ];
   apiNames.forEach(function (name) {
     if (!helpers || typeof helpers[name] !== 'function') {
@@ -198,6 +207,9 @@ function checkAliases(sandbox) {
   }
   if (helpers && sandbox.window._calNextUpCalendarIcon !== helpers.nextUpCalendarIcon) {
     fail('window._calNextUpCalendarIcon must alias OOT_CALENDAR_HELPERS.nextUpCalendarIcon');
+  }
+  if (helpers && sandbox.window._calCustomEntryRows !== helpers.customEntryRows) {
+    fail('window._calCustomEntryRows must alias OOT_CALENDAR_HELPERS.customEntryRows');
   }
   // Must not export window._pad from the holiday module.
   if (typeof sandbox.window._pad === 'function') {
@@ -502,6 +514,98 @@ function checkNextUpBehavior(sandbox) {
   }
 }
 
+function checkCustomEntryRowsBehavior(sandbox) {
+  const rowsFor = sandbox.window.OOT_CALENDAR_HELPERS.customEntryRows;
+  const legacyRowsFor = sandbox.window._calCustomEntryRows;
+  const color = '#f5c518';
+
+  if (JSON.stringify(rowsFor(null, 2026, color)) !== '[]') {
+    fail('_calCustomEntryRows(null) should return []');
+  }
+  if (JSON.stringify(rowsFor({}, 2026, color)) !== '[]') {
+    fail('_calCustomEntryRows(missing date) should return []');
+  }
+
+  const single = {
+    id: 'one',
+    date: '2026-09-12',
+    title: 'One-time date',
+    note: 'Primary note',
+    notes: 'Fallback note',
+    startTime: '18:00',
+    endTime: '20:00',
+    allDay: 1
+  };
+  const singleSnapshot = JSON.stringify(single);
+  const singleRows = rowsFor(single, 2026, color);
+  const expectedSingle = [{
+    id: 'idate-one',
+    date: '2026-09-12',
+    type: 'custom',
+    title: 'One-time date',
+    note: 'Primary note',
+    startTime: '18:00',
+    endTime: '20:00',
+    allDay: true,
+    _customColor: color,
+    _customSourceId: 'one',
+    _customRecurring: false
+  }];
+  if (JSON.stringify(singleRows) !== JSON.stringify(expectedSingle)) {
+    fail('_calCustomEntryRows one-time row mismatch: ' + JSON.stringify(singleRows));
+  }
+  if (JSON.stringify(single) !== singleSnapshot) {
+    fail('_calCustomEntryRows must not mutate a one-time entry');
+  }
+
+  const recurring = {
+    id: 'annual',
+    date: '07-16',
+    recurring: true,
+    notes: 'Annual note'
+  };
+  const recurringSnapshot = JSON.stringify(recurring);
+  const recurringRows = rowsFor(recurring, 2026, '#112233');
+  if (!Array.isArray(recurringRows) || recurringRows.length !== 2) {
+    fail('_calCustomEntryRows recurring MM-DD should return two rows');
+  } else {
+    if (recurringRows[0].id !== 'idate-annual-2026' || recurringRows[0].date !== '2026-07-16') {
+      fail('_calCustomEntryRows current-year recurring row mismatch');
+    }
+    if (recurringRows[1].id !== 'idate-annual-2027' || recurringRows[1].date !== '2027-07-16') {
+      fail('_calCustomEntryRows next-year recurring row mismatch');
+    }
+    recurringRows.forEach(function (row) {
+      if (row.type !== 'custom' || row.title !== 'Untitled' || row.note !== 'Annual note' ||
+          row.startTime !== '' || row.endTime !== '' || row.allDay !== false ||
+          row._customColor !== '#112233' || row._customSourceId !== 'annual' ||
+          row._customRecurring !== true) {
+        fail('_calCustomEntryRows recurring defaults/metadata mismatch: ' + JSON.stringify(row));
+      }
+    });
+  }
+  if (JSON.stringify(recurring) !== recurringSnapshot) {
+    fail('_calCustomEntryRows must not mutate a recurring entry');
+  }
+
+  const fullDateRows = rowsFor({ id: 'full', date: '2001-12-25', recurring: true }, 2026, color);
+  if (fullDateRows.length !== 2 || fullDateRows[0].date !== '2026-12-25' || fullDateRows[1].date !== '2027-12-25') {
+    fail('_calCustomEntryRows recurring YYYY-MM-DD mismatch');
+  }
+
+  if (JSON.stringify(rowsFor({ id: 'bad', date: '7', recurring: true }, 2026, color)) !== '[]') {
+    fail('_calCustomEntryRows malformed recurring date should return []');
+  }
+  if (JSON.stringify(rowsFor({ id: 'bad', date: 'a-b-c-d', recurring: true }, 2026, color)) !== '[]') {
+    fail('_calCustomEntryRows overlong recurring date should return []');
+  }
+
+  const legacy = legacyRowsFor({ id: 'legacy', date: '2026-01-01' }, 2026, color);
+  if (legacy.length !== 1 || legacy[0].id !== 'idate-legacy' || legacy[0]._customColor !== color) {
+    fail('legacy window._calCustomEntryRows should preserve explicit inputs');
+  }
+}
+
 function checkBehavior(sandbox) {
   const safe = sandbox.window._calSafe;
   const typeIcon = sandbox.window._calTypeIcon;
@@ -588,6 +692,7 @@ function checkBehavior(sandbox) {
   checkBirthdayBehavior(sandbox);
   checkImportantDatesBehavior(sandbox);
   checkNextUpBehavior(sandbox);
+  checkCustomEntryRowsBehavior(sandbox);
 }
 
 function main() {
