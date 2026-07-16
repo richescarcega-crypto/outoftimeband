@@ -4,19 +4,20 @@ Date: 2026-07-16
 
 ## Status
 
-**C10a / r963 runtime complete on modularization branch. Production merge and phone/PWA verification still pending.**
+**C10a / r963 complete.** Fast-forwarded and pushed to production `main` at `e8b4bdc`. Local validation and phone/PWA verification passed. User confirmed: **"r963 passed"**.
 
 | Item | Value |
 |------|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `cb9fbfe` |
-| `origin/modularization-home-layout-engine-pilot` | `cb9fbfe` |
-| `origin/main` | `cdc92a2` |
+| Branch | `main` |
+| HEAD | `e8b4bdc` |
+| `origin/main` | `e8b4bdc` |
+| `origin/modularization-home-layout-engine-pilot` | `e8b4bdc` |
 | Build Version | `2026-07-16-r963-calendar-month-rows-helper` |
 | Runtime commit | `cb9fbfe` — `Extract Calendar month rows helper` |
+| Production tip (post-FF) | `e8b4bdc` |
 | Safe rollback tip (pre-C10a) | `cdc92a2` |
-| Production merge | **PENDING** |
-| Phone / PWA verification | **PENDING** |
+| Production merge | **PASS** |
+| Phone / PWA verification | **PASS** |
 
 ---
 
@@ -40,14 +41,11 @@ Extract only `_calRowsInMonth` from `index.html` into the existing Calendar help
 
 ## Production Merge
 
-**PENDING.** r963 has not been merged to production `main`.
+**PASS.** r963 was **fast-forwarded and pushed** to production `main` at `e8b4bdc`.
 
-| Ref | Value |
-|-----|--------|
-| `origin/main` (pre-merge) | `cdc92a2` |
-| Safe rollback tip | `cdc92a2` |
+After deployment, `main`, `origin/main`, and `origin/modularization-home-layout-engine-pilot` were aligned at `e8b4bdc`.
 
-Phone/PWA verification is still pending after merge.
+Safe rollback tip (pre-C10a production): `cdc92a2`.
 
 ---
 
@@ -156,9 +154,26 @@ Public Calendar render ownership (`rCal`, drawers, All Events, day details, Next
 | Inline script syntax check | PASS — 8 scripts, 0 failures |
 | `git diff --check` | PASS |
 
-### Phone / PWA — PENDING
+### Phone / PWA — PASS
 
-Production merge and phone/PWA verification still pending.
+User confirmed phone verification passed (`"r963 passed"`).
+
+| Check | Result |
+|-------|--------|
+| Build Version r963 | PASS |
+| Calendar opened | PASS |
+| Month navigation worked | PASS |
+| Current-month dates looked correct | PASS |
+| Month-boundary dates behaved correctly | PASS |
+| February and leap-year behavior remained normal | PASS |
+| Upcoming rows remained correct | PASS |
+| Important Dates remained correct | PASS |
+| Next Up remained correct | PASS |
+| Birthdays remained correct | PASS |
+| Holidays remained correct | PASS |
+| Home rehearsal cue worked | PASS |
+| Home band image unchanged | PASS |
+| Flyer creation opened | PASS |
 
 ---
 
@@ -184,18 +199,18 @@ Production merge and phone/PWA verification still pending.
 
 | Ref | Value |
 |-----|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `cb9fbfe` |
-| `origin/modularization-home-layout-engine-pilot` | `cb9fbfe` |
-| `origin/main` | `cdc92a2` |
+| Branch | `main` |
+| HEAD | `e8b4bdc` |
+| `origin/main` | `e8b4bdc` |
+| `origin/modularization-home-layout-engine-pilot` | `e8b4bdc` |
 | Safe rollback tip (pre-C10a) | `cdc92a2` |
-| Runtime commit | `cb9fbfe` |
+
+`main`, `origin/main`, and the modularization branch are aligned at `e8b4bdc` after the approved fast-forward deploy.
 
 ---
 
 ## Next Recommended Step
 
-1. Create the C10a / r963 merge-to-main plan (documentation only).
-2. After approved fast-forward deploy + phone/PWA PASS, update this checkpoint status to production verified.
-3. Keep protected Home / Flyer / proposal / birthday / holiday / Important Date / Next Up / display-upcoming collector / render boundaries untouched unless a later approved plan says otherwise.
-4. If r963 must be reverted before or after merge: restore to safe rollback tip `cdc92a2` (separate, auditable procedure; Rich approval required).
+1. Continue Calendar modularization planning for the next safe helpers seam (post-C10a).
+2. Keep protected Home / Flyer / proposal / birthday / holiday / Important Date / Next Up / display-upcoming collector / render boundaries untouched unless a later approved plan says otherwise.
+3. If r963 must be reverted: restore production `main` to safe rollback tip `cdc92a2` (separate, auditable procedure; Rich approval required).
