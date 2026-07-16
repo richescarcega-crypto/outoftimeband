@@ -4,18 +4,20 @@ Date: 2026-07-15
 
 ## Status
 
-**C4a runtime complete on modularization branch.** Local integrity/syntax validation passed. Phone/PWA verification is **PENDING** — do not claim production verification.
+**C4a / r957 complete.** Fast-forwarded and pushed to production `main` at `d1702f1`. Local validation and phone/PWA verification passed. User confirmed: **"r957 passed"**.
 
 | Item | Value |
 |------|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `ce84ade` |
-| `origin/modularization-home-layout-engine-pilot` | `ce84ade` |
-| `origin/main` | `189cf29` |
-| Working tree (before this checkpoint doc) | Clean |
+| Branch | `main` |
+| HEAD | `d1702f1` |
+| `origin/main` | `d1702f1` |
+| `origin/modularization-home-layout-engine-pilot` | `d1702f1` |
+| Working tree (before this verification update) | Clean |
 | Build Version | `2026-07-15-r957-calendar-holiday-helpers` |
 | Planning commit | `24751c4` |
 | Runtime commit | `ce84ade` |
+| Production tip (post-FF) | `d1702f1` |
+| Safe rollback tip (pre-C4a) | `189cf29` |
 | Planning doc | `docs/modularization/PHASE_C4_CALENDAR_HOLIDAY_HELPER_SEAM_PLAN.md` |
 
 ---
@@ -43,6 +45,16 @@ Extract pure US federal holiday date helpers from `index.html` into the existing
 |------|--------|
 | Runtime commit | `ce84ade` |
 | Build Version | `2026-07-15-r957-calendar-holiday-helpers` |
+
+---
+
+## Production Merge
+
+r957 was **fast-forwarded and pushed** to production `main` at `d1702f1`.
+
+After deployment, `main`, `origin/main`, and `origin/modularization-home-layout-engine-pilot` were aligned at `d1702f1`.
+
+Safe rollback tip (pre-C4a production): `189cf29`.
 
 ---
 
@@ -131,13 +143,20 @@ Preserved so existing `index.html` call sites continue to work:
 | `tests/integrity/flyer-manifest-package.mjs` | PASS |
 | Inline script syntax check | PASS — 8 scripts, 0 failures |
 
-### Phone / PWA
+### Phone / PWA — PASS
+
+User confirmed phone verification passed (`"r957 passed"`).
 
 | Check | Result |
 |-------|--------|
-| Phone / PWA verification | **PENDING** |
-
-Do **not** claim production verification from this checkpoint.
+| Build Version r957 | PASS |
+| Calendar loaded | PASS |
+| Month navigation worked | PASS |
+| Holiday display worked | PASS |
+| Normal non-holiday behavior worked | PASS |
+| Home rehearsal cue remained functional | PASS |
+| Home band image remained unchanged | PASS |
+| Flyer creation loaded | PASS |
 
 ---
 
@@ -162,18 +181,18 @@ Do **not** claim production verification from this checkpoint.
 
 | Ref | Value |
 |-----|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `ce84ade` |
-| `origin/modularization-home-layout-engine-pilot` | `ce84ade` |
-| `origin/main` | `189cf29` |
+| Branch | `main` |
+| HEAD | `d1702f1` |
+| `origin/main` | `d1702f1` |
+| `origin/modularization-home-layout-engine-pilot` | `d1702f1` |
+| Safe rollback tip (pre-C4a) | `189cf29` |
 
-Working tree was clean before creating this untracked checkpoint document.
+Working tree was clean before this verification documentation update. `main`, `origin/main`, and the modularization branch are aligned at `d1702f1` after the approved fast-forward deploy.
 
 ---
 
 ## Next Recommended Step
 
-1. Review this checkpoint.
-2. Commit/push this checkpoint doc on `modularization-home-layout-engine-pilot` when approved.
-3. Prepare a bounded merge-to-main plan.
-4. **Do not** merge or push production `main` without Rich’s approval.
+1. Continue Calendar modularization planning for the next safe helpers seam (post-C4a).
+2. Keep protected Home / Flyer / proposal / render boundaries untouched unless a later approved plan says otherwise.
+3. If r957 must be reverted: restore production `main` to safe rollback tip `189cf29` (separate, auditable procedure; Rich approval required).
