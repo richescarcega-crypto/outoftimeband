@@ -1,9 +1,11 @@
 /**
- * Out of Time calendar date/status helpers (C1a — r953, C2a — r954, C3a — r955).
+ * Out of Time calendar date/status helpers (C1a — r953, C2a — r954, C3a — r955, C4a — r957).
  * Loaded after flyer helpers and before the main inline script.
- * Preserves legacy _cal* / _isPastGig / _blackout* global names for Calendar compatibility.
+ * Preserves legacy _cal* / _isPastGig / _blackout* / getHoliday* global names for Calendar compatibility.
  * _calColor defers gig/rehearsal/blackout colors to inline _eventColor(EC).
  * Blackout confirm UI / conflict discovery remain inline.
+ * Holiday helpers are exact-date only (no weekend-observed substitution).
+ * Inline function _pad remains in index.html for Important Date modal use.
  */
 function _calTypeIcon(type){
   if(type === 'gig') return '&#127928;';
@@ -78,6 +80,49 @@ function _blackoutConflictMessage(kind, dateStr, conflicts, mode){
   return 'Blackout conflict found for ' + dateStr + '.\n\n' + _blackoutConflictLine(conflicts) + '.\n\n' + action;
 }
 
+// US Federal Holidays (C4a — r957). Module-private pad/fmt; do not export window._pad.
+function _holidayPad(n){ return n<10 ? '0'+n : ''+n; }
+function _holidayFmt(year, month0, day){ return year + '-' + _holidayPad(month0+1) + '-' + _holidayPad(day); }
+
+function _nthDayOfMonth(year, month0, dayOfWeek, n){
+  // n-th occurrence of dayOfWeek (0=Sun..6=Sat) in month0 (0..11) of year
+  var first = new Date(year, month0, 1);
+  var offset = (dayOfWeek - first.getDay() + 7) % 7;
+  return 1 + offset + (n-1)*7;
+}
+function _lastDayOfMonth(year, month0, dayOfWeek){
+  var lastDate = new Date(year, month0+1, 0);
+  var diff = (lastDate.getDay() - dayOfWeek + 7) % 7;
+  return lastDate.getDate() - diff;
+}
+
+function getUSFederalHolidays(year){
+  // Returns array of {date:'YYYY-MM-DD', name:'...'}
+  return [
+    {date: _holidayFmt(year, 0, 1),  name: "New Year's Day"},
+    {date: _holidayFmt(year, 0, _nthDayOfMonth(year, 0, 1, 3)),  name: 'Martin Luther King Jr. Day'},
+    {date: _holidayFmt(year, 1, _nthDayOfMonth(year, 1, 1, 3)),  name: "Presidents' Day"},
+    {date: _holidayFmt(year, 4, _lastDayOfMonth(year, 4, 1)),    name: 'Memorial Day'},
+    {date: _holidayFmt(year, 5, 19), name: 'Juneteenth'},
+    {date: _holidayFmt(year, 6, 4),  name: 'Independence Day'},
+    {date: _holidayFmt(year, 8, _nthDayOfMonth(year, 8, 1, 1)),  name: 'Labor Day'},
+    {date: _holidayFmt(year, 9, _nthDayOfMonth(year, 9, 1, 2)),  name: 'Columbus Day'},
+    {date: _holidayFmt(year, 10, 11),name: 'Veterans Day'},
+    {date: _holidayFmt(year, 10, _nthDayOfMonth(year, 10, 4, 4)),name: 'Thanksgiving'},
+    {date: _holidayFmt(year, 11, 25),name: 'Christmas Day'}
+  ];
+}
+function getHolidayOn(ds){
+  if(!ds) return null;
+  var y = parseInt(ds.split('-')[0], 10);
+  if(isNaN(y)) return null;
+  var list = getUSFederalHolidays(y);
+  for(var i=0;i<list.length;i++){
+    if(list[i].date === ds) return list[i];
+  }
+  return null;
+}
+
 window.OOT_CALENDAR_HELPERS = {
   typeIcon: _calTypeIcon,
   safe: _calSafe,
@@ -88,7 +133,11 @@ window.OOT_CALENDAR_HELPERS = {
   isPastGig: _isPastGig,
   blackoutNameFromTitle: _blackoutNameFromTitle,
   blackoutConflictLine: _blackoutConflictLine,
-  blackoutConflictMessage: _blackoutConflictMessage
+  blackoutConflictMessage: _blackoutConflictMessage,
+  usFederalHolidays: getUSFederalHolidays,
+  getUSFederalHolidays: getUSFederalHolidays,
+  holidayOn: getHolidayOn,
+  getHolidayOn: getHolidayOn
 };
 
 window._calTypeIcon = window.OOT_CALENDAR_HELPERS.typeIcon;
@@ -101,3 +150,5 @@ window._isPastGig = window.OOT_CALENDAR_HELPERS.isPastGig;
 window._blackoutNameFromTitle = window.OOT_CALENDAR_HELPERS.blackoutNameFromTitle;
 window._blackoutConflictLine = window.OOT_CALENDAR_HELPERS.blackoutConflictLine;
 window._blackoutConflictMessage = window.OOT_CALENDAR_HELPERS.blackoutConflictMessage;
+window.getUSFederalHolidays = window.OOT_CALENDAR_HELPERS.usFederalHolidays;
+window.getHolidayOn = window.OOT_CALENDAR_HELPERS.holidayOn;

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955).
+ * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955, C4a — r957).
  */
 
 import fs from 'node:fs';
@@ -67,12 +67,22 @@ function checkIndexWiring(html) {
     'function _isPastGig',
     'function _blackoutNameFromTitle',
     'function _blackoutConflictLine',
-    'function _blackoutConflictMessage'
+    'function _blackoutConflictMessage',
+    'function getUSFederalHolidays',
+    'function getHolidayOn',
+    'function _nthDayOfMonth',
+    'function _lastDayOfMonth',
+    'function _fmt'
   ];
   mustNotDefine.forEach(function (sig) {
     const re = new RegExp(sig.replace(/ /g, '\\s+') + '\\s*\\(');
     if (re.test(html)) fail('index.html still defines inline ' + sig.replace('function ', ''));
   });
+
+  // C4a: Important Date modal still needs inline _pad — do not forbid it.
+  if (!/function\s+_pad\s*\(/.test(html)) {
+    fail('index.html must keep inline function _pad for Important Date modal');
+  }
 }
 
 function checkAliases(sandbox) {
@@ -89,7 +99,9 @@ function checkAliases(sandbox) {
     '_isPastGig',
     '_blackoutNameFromTitle',
     '_blackoutConflictLine',
-    '_blackoutConflictMessage'
+    '_blackoutConflictMessage',
+    'getUSFederalHolidays',
+    'getHolidayOn'
   ];
   aliasNames.forEach(function (name) {
     if (typeof sandbox.window[name] !== 'function') fail('missing window.' + name);
@@ -105,7 +117,11 @@ function checkAliases(sandbox) {
     'isPastGig',
     'blackoutNameFromTitle',
     'blackoutConflictLine',
-    'blackoutConflictMessage'
+    'blackoutConflictMessage',
+    'usFederalHolidays',
+    'getUSFederalHolidays',
+    'holidayOn',
+    'getHolidayOn'
   ];
   apiNames.forEach(function (name) {
     if (!helpers || typeof helpers[name] !== 'function') {
@@ -128,6 +144,100 @@ function checkAliases(sandbox) {
   if (helpers && sandbox.window._blackoutConflictMessage !== helpers.blackoutConflictMessage) {
     fail('window._blackoutConflictMessage must alias OOT_CALENDAR_HELPERS.blackoutConflictMessage');
   }
+  if (helpers && sandbox.window.getUSFederalHolidays !== helpers.usFederalHolidays) {
+    fail('window.getUSFederalHolidays must alias OOT_CALENDAR_HELPERS.usFederalHolidays');
+  }
+  if (helpers && sandbox.window.getHolidayOn !== helpers.holidayOn) {
+    fail('window.getHolidayOn must alias OOT_CALENDAR_HELPERS.holidayOn');
+  }
+  if (helpers && helpers.usFederalHolidays !== helpers.getUSFederalHolidays) {
+    fail('OOT_CALENDAR_HELPERS.usFederalHolidays must equal getUSFederalHolidays');
+  }
+  if (helpers && helpers.holidayOn !== helpers.getHolidayOn) {
+    fail('OOT_CALENDAR_HELPERS.holidayOn must equal getHolidayOn');
+  }
+  // Must not export window._pad from the holiday module.
+  if (typeof sandbox.window._pad === 'function') {
+    fail('calendar helpers must not export window._pad');
+  }
+}
+
+function holidayByName(list, name) {
+  for (let i = 0; i < list.length; i++) {
+    if (list[i].name === name) return list[i];
+  }
+  return null;
+}
+
+function checkHolidayBehavior(sandbox) {
+  const getHolidays = sandbox.window.getUSFederalHolidays;
+  const holidayOn = sandbox.window.getHolidayOn;
+  const year = 2026;
+  const list = getHolidays(year);
+
+  if (!Array.isArray(list) || list.length !== 11) {
+    fail('getUSFederalHolidays(2026) should return 11 holidays');
+    return;
+  }
+
+  const fixed = [
+    ["New Year's Day", '2026-01-01'],
+    ['Juneteenth', '2026-06-19'],
+    ['Independence Day', '2026-07-04'],
+    ['Veterans Day', '2026-11-11'],
+    ['Christmas Day', '2026-12-25']
+  ];
+  fixed.forEach(function (pair) {
+    const h = holidayByName(list, pair[0]);
+    if (!h || h.date !== pair[1]) {
+      fail('fixed holiday mismatch for ' + pair[0] + ': ' + (h && h.date));
+    }
+    const looked = holidayOn(pair[1]);
+    if (!looked || looked.name !== pair[0] || looked.date !== pair[1]) {
+      fail('getHolidayOn exact-date mismatch for ' + pair[1]);
+    }
+  });
+
+  // nth-weekday: MLK = 3rd Monday in January 2026 = Jan 19
+  const mlk = holidayByName(list, 'Martin Luther King Jr. Day');
+  if (!mlk || mlk.date !== '2026-01-19') {
+    fail('MLK nth-weekday mismatch: ' + (mlk && mlk.date));
+  }
+  if (!holidayOn('2026-01-19') || holidayOn('2026-01-19').name !== 'Martin Luther King Jr. Day') {
+    fail('getHolidayOn(MLK) mismatch');
+  }
+
+  // last-weekday: Memorial Day = last Monday in May 2026 = May 25
+  const memorial = holidayByName(list, 'Memorial Day');
+  if (!memorial || memorial.date !== '2026-05-25') {
+    fail('Memorial Day last-weekday mismatch: ' + (memorial && memorial.date));
+  }
+
+  // Thanksgiving = 4th Thursday in November 2026 = Nov 26
+  const thanksgiving = holidayByName(list, 'Thanksgiving');
+  if (!thanksgiving || thanksgiving.date !== '2026-11-26') {
+    fail('Thanksgiving fourth-Thursday mismatch: ' + (thanksgiving && thanksgiving.date));
+  }
+  if (!holidayOn('2026-11-26') || holidayOn('2026-11-26').name !== 'Thanksgiving') {
+    fail('getHolidayOn(Thanksgiving) mismatch');
+  }
+
+  // Exact-date only: Independence Day 2026 falls on Saturday — no Fri/Mon observed substitution.
+  if (holidayOn('2026-07-04')?.name !== 'Independence Day') {
+    fail('Independence Day exact Saturday date should still match');
+  }
+  if (holidayOn('2026-07-03') !== null) {
+    fail('no weekend-observed: Friday before Independence Day must be null');
+  }
+  if (holidayOn('2026-07-05') !== null) {
+    fail('no weekend-observed: Monday after Independence Day must be null');
+  }
+
+  // Non-holiday / invalid
+  if (holidayOn(null) !== null) fail('getHolidayOn(null) should be null');
+  if (holidayOn('') !== null) fail('getHolidayOn("") should be null');
+  if (holidayOn('2026-07-15') !== null) fail('getHolidayOn(non-holiday) should be null');
+  if (holidayOn('bad') !== null) fail('getHolidayOn(invalid) should be null');
 }
 
 function checkBehavior(sandbox) {
@@ -211,6 +321,8 @@ function checkBehavior(sandbox) {
   if (saveMsg.indexOf('save anyway') < 0) {
     fail('_blackoutConflictMessage save action mismatch');
   }
+
+  checkHolidayBehavior(sandbox);
 }
 
 function main() {
