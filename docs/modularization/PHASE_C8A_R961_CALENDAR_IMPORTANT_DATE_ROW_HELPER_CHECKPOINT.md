@@ -4,19 +4,20 @@ Date: 2026-07-16
 
 ## Status
 
-**C8a / r961 runtime extraction complete on the modularization branch.** Local validation passed. **Production merge and phone/PWA verification are still pending.**
+**C8a / r961 complete.** Fast-forwarded and pushed to production `main` at `66df507`. Local validation and phone/PWA verification passed. User confirmed: **"r961 passed"**.
 
 | Item | Value |
 |------|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `fb4d6fb` |
-| `origin/modularization-home-layout-engine-pilot` | `fb4d6fb` |
-| `origin/main` | `d6b6f57` |
+| Branch | `main` |
+| HEAD | `66df507` |
+| `origin/main` | `66df507` |
+| `origin/modularization-home-layout-engine-pilot` | `66df507` |
 | Build Version | `2026-07-16-r961-calendar-important-date-row-helper` |
 | Runtime commit | `fb4d6fb` — `Extract Calendar important date row helper` |
+| Production tip (post-FF) | `66df507` |
 | Safe rollback tip (pre-C8a) | `d6b6f57` |
-| Production merge | **Pending** |
-| Phone / PWA verification | **Pending** |
+| Production merge | **PASS** |
+| Phone / PWA verification | **PASS** |
 
 ---
 
@@ -40,11 +41,11 @@ Extract only the single-entry Important Date → row transformation from `_custo
 
 ## Production Merge
 
-**Not merged.** Production `origin/main` remains at `d6b6f57` (pre-C8a / r960 tip).
+**PASS.** r961 was **fast-forwarded and pushed** to production `main` at `66df507`.
 
-Do not merge, rebase, or push to `main` until Rich explicitly approves a separate merge plan and phone/PWA verification passes.
+After deployment, `main`, `origin/main`, and `origin/modularization-home-layout-engine-pilot` were aligned at `66df507`.
 
-Safe rollback tip (pre-C8a): `d6b6f57`.
+Safe rollback tip (pre-C8a production): `d6b6f57`.
 
 ---
 
@@ -158,9 +159,27 @@ Preserved for Calendar compatibility:
 | Inline script syntax check | PASS — 8 scripts, 0 failures |
 | `git diff --check` | PASS |
 
-### Phone / PWA — Pending
+### Phone / PWA — PASS
 
-Phone/PWA verification has **not** been completed for r961.
+User confirmed phone verification passed (`"r961 passed"`).
+
+| Check | Result |
+|-------|--------|
+| Build Version r961 | PASS |
+| Calendar opened | PASS |
+| Month navigation worked | PASS |
+| One-time Important Dates displayed correctly | PASS |
+| Recurring Important Dates displayed correctly | PASS |
+| MM-DD recurring entries displayed correctly | PASS |
+| YYYY-MM-DD recurring entries displayed correctly | PASS |
+| Titles, notes, and colors remained correct | PASS |
+| Normal dates remained normal | PASS |
+| Next Up remained correct | PASS |
+| Birthdays remained correct | PASS |
+| Holidays remained correct | PASS |
+| Home rehearsal cue worked | PASS |
+| Home band image unchanged | PASS |
+| Flyer creation opened | PASS |
 
 ---
 
@@ -187,19 +206,18 @@ Phone/PWA verification has **not** been completed for r961.
 
 | Ref | Value |
 |-----|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `fb4d6fb` |
-| `origin/modularization-home-layout-engine-pilot` | `fb4d6fb` |
-| `origin/main` | `d6b6f57` |
+| Branch | `main` |
+| HEAD | `66df507` |
+| `origin/main` | `66df507` |
+| `origin/modularization-home-layout-engine-pilot` | `66df507` |
 | Safe rollback tip (pre-C8a) | `d6b6f57` |
 
-Runtime extraction is on the modularization branch only. Production `main` remains at the pre-C8a tip until an approved merge and phone verification.
+`main`, `origin/main`, and the modularization branch are aligned at `66df507` after the approved fast-forward deploy.
 
 ---
 
 ## Next Recommended Step
 
-1. Phone/PWA verify r961 (Build Version, Calendar grid, one-time and recurring Important Dates, All Events / day details).
-2. Only after phone PASS: draft/approve a C8a merge-to-main plan.
-3. Keep protected Home / Flyer / proposal / birthday / holiday / Next Up / collector / render boundaries untouched unless a later approved plan says otherwise.
-4. If r961 must be reverted before merge: restore the modularization branch to safe rollback tip `d6b6f57` (separate, auditable procedure; Rich approval required).
+1. Continue Calendar modularization planning for the next safe helpers seam (post-C8a).
+2. Keep protected Home / Flyer / proposal / birthday / holiday / Next Up / collector / render boundaries untouched unless a later approved plan says otherwise.
+3. If r961 must be reverted: restore production `main` to safe rollback tip `d6b6f57` (separate, auditable procedure; Rich approval required).
