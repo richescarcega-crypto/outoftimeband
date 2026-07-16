@@ -8,6 +8,8 @@ Date: 2026-07-15
 
 This plan covers merging **only** the bounded C4a / r957 Calendar US Federal Holiday Helpers stack into production `main`, after Rich’s explicit approval.
 
+**Documentation tip correction (this edit):** The merge-plan document was previously committed as `ab60fac` while still describing a three-commit stack ending at `ae21a2a`. That metadata was stale. This edit corrects documentation only. Runtime scope is unchanged. Rich’s approval gate applies to the production merge, not this documentation repair.
+
 ---
 
 ## 1. Current Verified Branch State
@@ -16,57 +18,100 @@ This plan covers merging **only** the bounded C4a / r957 Calendar US Federal Hol
 |------|--------|
 | Repo | `C:\Users\riche\Documents\outoftimeband` |
 | Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `ae21a2a` |
-| `origin/modularization-home-layout-engine-pilot` | `ae21a2a` |
+| HEAD | `ab60fac` (before this documentation-correction edit) |
+| `origin/modularization-home-layout-engine-pilot` | `ab60fac` |
 | `origin/main` | `189cf29` |
-| Working tree (before this untracked merge-plan doc) | Clean |
+| Working tree (before this documentation-correction edit) | Clean |
 | Build Version | `2026-07-15-r957-calendar-holiday-helpers` |
+
+Once this tip-correction edit is committed, HEAD will move to **the documentation-correction commit created after this edit**. That new tip becomes the fast-forward target. `origin/main` must remain **`189cf29`**.
 
 ---
 
-## 2. Exact Three-Commit Stack (C4a / r957 only)
+## 2. Exact C4a / r957 Commit Stack
 
-Merge **only** these three commits, in order:
+### 2a. Four existing commits (already on the pilot branch)
 
 | SHA | Message |
 |-----|---------|
 | `24751c4` | Plan Calendar holiday helper extraction |
 | `ce84ade` | Extract Calendar holiday helpers |
 | `ae21a2a` | Document r957 Calendar holiday helpers |
+| `ab60fac` | Plan r957 merge to main |
 
 | Role | SHA |
 |------|-----|
 | Planning | `24751c4` |
 | Runtime | `ce84ade` |
-| Checkpoint | `ae21a2a` (HEAD) |
+| Checkpoint | `ae21a2a` |
+| Merge plan (prior tip) | `ab60fac` |
+
+### 2b. Pending documentation-correction commit (this edit)
+
+After Rich commits this tip-correction edit, the stack gains a fifth commit:
+
+| SHA | Message (expected) |
+|-----|---------------------|
+| *(documentation-correction commit created after this edit)* | Correct merge-plan tip / stack metadata |
+
+| Role | Ref |
+|------|-----|
+| Merge-plan tip correction | **HEAD after the merge-plan tip correction is committed** |
+
+### 2c. Final fast-forward set
+
+Merge **only** these five commits onto `main` (fast-forward), in order:
+
+1. `24751c4` — Plan Calendar holiday helper extraction  
+2. `ce84ade` — Extract Calendar holiday helpers  
+3. `ae21a2a` — Document r957 Calendar holiday helpers  
+4. `ab60fac` — Plan r957 merge to main  
+5. **the documentation-correction commit created after this edit**
+
+**Fast-forward target:** HEAD after the merge-plan tip correction is committed (not `ab60fac`, and not `ae21a2a`).
+
+Do **not** invent a SHA for the pending correction commit. Resolve it with `git rev-parse HEAD` (or the pilot tip) after the correction is committed.
 
 Do **not** include any other modularization WIP, backup branches, or unrelated commits.
+
+Runtime scope remains unchanged; only documentation metadata is being corrected by this edit.
 
 ---
 
 ## 3. Ancestry Confirmation
 
-The modularization branch tip `ae21a2a` is based **directly** on `origin/main` at `189cf29`.
+The modularization branch (after the documentation-correction commit) is based **directly** on `origin/main` at `189cf29`.
 
-Expected ancestry:
+Expected ancestry (after the tip correction is committed):
 
 ```
-189cf29 (origin/main) → 24751c4 → ce84ade → ae21a2a (HEAD / origin pilot)
+189cf29 (origin/main)
+  → 24751c4
+  → ce84ade
+  → ae21a2a
+  → ab60fac
+  → <documentation-correction commit created after this edit>  (FF target / post-correction HEAD)
 ```
 
-Pre-merge check (must pass before any fast-forward):
+Pre-merge check (must pass before any fast-forward). Run **after** the documentation-correction commit exists:
 
 ```powershell
 git fetch origin
 git rev-parse origin/main
 # must print: 189cf29...
 
-git merge-base --is-ancestor 189cf29 ae21a2a
+$ffTip = git rev-parse HEAD   # or the pilot tip after tip correction is committed
+# $ffTip must be the documentation-correction commit created after this edit
+
+git merge-base --is-ancestor 189cf29 $ffTip
 # exit code 0 required
 
-git log --oneline 189cf29..ae21a2a
-# must show exactly the three commits above
+git log --oneline 189cf29..$ffTip
+# must show exactly the four existing C4a commits plus the documentation-correction commit:
+#   24751c4, ce84ade, ae21a2a, ab60fac, and the post-correction tip
 ```
+
+Equivalent range description: `189cf29..<post-correction HEAD>` (i.e. `189cf29..<documentation-correction commit created after this edit>`).
 
 ---
 
@@ -77,9 +122,11 @@ git log --oneline 189cf29..ae21a2a
 - Do **not** merge to `main`.
 - Do **not** push `main`.
 - Do **not** force-push anything.
-- Do **not** rebase or rewrite the three-commit stack without a new approved plan.
+- Do **not** rebase or rewrite the C4a / r957 stack without a new approved plan.
 
 This document does **not** authorize merge or push.
+
+Rich’s approval gate applies to the **production merge**, not this documentation repair.
 
 ---
 
@@ -107,7 +154,7 @@ Expected: all four integrity packages **PASS**, and inline script syntax **PASS*
 
 ## 6. Expected Files Introduced or Changed on Main
 
-After a clean fast-forward of the three-commit stack, `main` should introduce or change **only**:
+After a clean fast-forward of the full C4a / r957 stack (four existing commits plus the documentation-correction commit), `main` should introduce or change **only**:
 
 | File | Role |
 |------|------|
@@ -116,7 +163,7 @@ After a clean fast-forward of the three-commit stack, `main` should introduce or
 | `tests/integrity/calendar-helpers-package.mjs` | Holiday export / no-inline-def integrity |
 | `docs/modularization/PHASE_C4_CALENDAR_HOLIDAY_HELPER_SEAM_PLAN.md` | Planning doc |
 | `docs/modularization/PHASE_C4A_R957_CALENDAR_HOLIDAY_HELPERS_CHECKPOINT.md` | Checkpoint doc |
-| `docs/modularization/PHASE_C4A_R957_MERGE_TO_MAIN_PLAN.md` | This merge plan |
+| `docs/modularization/PHASE_C4A_R957_MERGE_TO_MAIN_PLAN.md` | This merge plan (including tip-correction metadata) |
 
 No other runtime, asset, or test files should appear in the merge diff vs `189cf29`.
 
@@ -153,12 +200,14 @@ C4a is helpers-only: exact-date US federal holiday lookup preserved; no weekend 
 
 1. **Inspect ancestry first** (Section 3).
 2. Confirm `origin/main` is still **`189cf29`**.
-3. Confirm `ae21a2a` is a **direct descendant** of `189cf29` with exactly the three C4a commits.
+3. Confirm post-correction HEAD (the documentation-correction commit created after this edit) is a **direct descendant** of `189cf29` with exactly the four existing C4a commits plus that documentation-correction commit.
 4. **Fast-forward only** if both checks pass:
 
 ```powershell
 git checkout main
-git merge --ff-only ae21a2a
+$ffTip = git rev-parse modularization-home-layout-engine-pilot
+# $ffTip must be HEAD after the merge-plan tip correction is committed
+git merge --ff-only $ffTip
 ```
 
 5. **Stop** if:
@@ -173,12 +222,12 @@ Do **not** create a merge commit, rebase onto a moved `main`, or cherry-pick unl
 
 ## 10. Post-Merge Validation Requirements
 
-On `main` at the new tip (expected `ae21a2a`):
+On `main` at the new tip (expected: **the documentation-correction commit created after this edit** / post-correction HEAD):
 
 1. Re-run the four integrity packages (Section 5).
 2. Re-run all inline scripts syntax check.
 3. Confirm Build Version string is `2026-07-15-r957-calendar-holiday-helpers`.
-4. Confirm `git log --oneline 189cf29..HEAD` shows exactly the three C4a commits.
+4. Confirm `git log --oneline 189cf29..HEAD` shows exactly the four existing C4a commits plus the documentation-correction commit (`24751c4`, `ce84ade`, `ae21a2a`, `ab60fac`, and the post-correction tip).
 5. Confirm `git diff --name-only 189cf29..HEAD` matches the expected file list (Section 6).
 
 Any failure → **do not push**; diagnose and stop for Rich.
@@ -197,8 +246,8 @@ After push:
 
 | Check | Expected |
 |-------|----------|
-| Local `main` HEAD | `ae21a2a` |
-| `origin/main` | `ae21a2a` |
+| Local `main` HEAD | the documentation-correction commit created after this edit (post-correction HEAD) |
+| `origin/main` | same post-correction tip (was `189cf29` before the approved FF) |
 | Build Version on deployed/served app | `2026-07-15-r957-calendar-holiday-helpers` |
 | Unexpected files on `main` | None beyond Section 6 |
 
@@ -231,7 +280,7 @@ If r957 must be reverted after merge/push:
 | Ref | Value |
 |-----|--------|
 | Safe rollback tip | `origin/main` @ **`189cf29`** (pre-C4a production) |
-| Meaning | State before the three-commit C4a / r957 stack |
+| Meaning | State before the C4a / r957 stack (four existing commits + documentation-correction commit) |
 
 Rollback requires Rich’s explicit approval and a separate, auditable procedure. Prefer restoring `main` to `189cf29` over ad-hoc file surgery.
 
@@ -244,13 +293,16 @@ Rollback requires Rich’s explicit approval and a separate, auditable procedure
 | Action | Authorized by this doc? |
 |--------|-------------------------|
 | Create / edit this plan | Yes (docs only) |
+| Commit this documentation tip correction | Yes (docs metadata only; not a production-merge approval) |
 | Re-run local validation | Yes (read-only / test) |
 | Merge to `main` | **No — Rich approval required** |
 | Push `origin/main` | **No — Rich approval required** |
 | Force-push / rewrite history | **No** |
 
+Rich’s approval gate applies to the **production merge**, not this documentation repair.
+
 ---
 
 ## Summary
 
-Bounded fast-forward of three commits (`24751c4` → `ce84ade` → `ae21a2a`) from `modularization-home-layout-engine-pilot` onto `main` at `189cf29`, after integrity/syntax gates pass and Rich approves. Helpers-only holiday extraction; protected Home/Flyer/Calendar/proposal boundaries untouched; rollback tip `189cf29`.
+Bounded fast-forward onto `main` at `189cf29` of the four existing C4a commits (`24751c4` → `ce84ade` → `ae21a2a` → `ab60fac`) **plus** the documentation-correction commit created after this edit. Fast-forward target is that post-correction HEAD — not `ab60fac` and not `ae21a2a`. `origin/main` must still be `189cf29` until Rich approves. Runtime scope unchanged; only documentation metadata is corrected here. After integrity/syntax gates pass and Rich approves the production merge: helpers-only holiday extraction; protected Home/Flyer/Calendar/proposal boundaries untouched; rollback tip `189cf29`.
