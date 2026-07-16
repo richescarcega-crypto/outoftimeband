@@ -4,19 +4,20 @@ Date: 2026-07-16
 
 ## Status
 
-**C6a / r959 runtime extraction complete on the modularization branch.** Local validation passed. **Production merge and phone/PWA verification are still pending.**
+**C6a / r959 complete.** Fast-forwarded and pushed to production `main` at `33b21a7`. Local validation and phone/PWA verification passed. User confirmed: **"r959 passed"**.
 
 | Item | Value |
 |------|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `9e6bd75` |
-| `origin/modularization-home-layout-engine-pilot` | `9e6bd75` |
-| `origin/main` | `3d2b462` |
+| Branch | `main` |
+| HEAD | `33b21a7` |
+| `origin/main` | `33b21a7` |
+| `origin/modularization-home-layout-engine-pilot` | `33b21a7` |
 | Build Version | `2026-07-15-r959-calendar-important-date-helpers` |
 | Runtime commit | `9e6bd75` — `Extract Calendar important date helper` |
+| Production tip (post-FF) | `33b21a7` |
 | Safe rollback tip (pre-C6a) | `3d2b462` |
-| Production merge | **Pending** |
-| Phone / PWA verification | **Pending** |
+| Production merge | **PASS** |
+| Phone / PWA verification | **PASS** |
 
 ---
 
@@ -40,11 +41,11 @@ Extract only `getImportantDatesOn` from `index.html` into the existing Calendar 
 
 ## Production Merge
 
-**Not merged.** Production `origin/main` remains at `3d2b462` (pre-C6a / r958 tip).
+**PASS.** r959 was **fast-forwarded and pushed** to production `main` at `33b21a7`.
 
-Do not merge, rebase, or push to `main` until Rich explicitly approves a separate merge plan and phone/PWA verification passes.
+After deployment, `main`, `origin/main`, and `origin/modularization-home-layout-engine-pilot` were aligned at `33b21a7`.
 
-Safe rollback tip (pre-C6a): `3d2b462`.
+Safe rollback tip (pre-C6a production): `3d2b462`.
 
 ---
 
@@ -137,9 +138,23 @@ Preserved so existing `index.html` call sites continue to work:
 | `tests/integrity/flyer-manifest-package.mjs` | PASS |
 | Inline script syntax check | PASS — 8 scripts, 0 failures |
 
-### Phone / PWA — Pending
+### Phone / PWA — PASS
 
-Phone/PWA verification has **not** been completed for r959.
+User confirmed phone verification passed (`"r959 passed"`).
+
+| Check | Result |
+|-------|--------|
+| Build Version r959 | PASS |
+| Calendar opened | PASS |
+| Month navigation worked | PASS |
+| Important Dates displayed | PASS |
+| Recurring Important Dates displayed | PASS |
+| Birthday markers remained correct | PASS |
+| Holiday markers remained correct | PASS |
+| Normal dates behaved normally | PASS |
+| Home rehearsal cue worked | PASS |
+| Home band image unchanged | PASS |
+| Flyer creation opened | PASS |
 
 ---
 
@@ -164,19 +179,18 @@ Phone/PWA verification has **not** been completed for r959.
 
 | Ref | Value |
 |-----|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `9e6bd75` |
-| `origin/modularization-home-layout-engine-pilot` | `9e6bd75` |
-| `origin/main` | `3d2b462` |
+| Branch | `main` |
+| HEAD | `33b21a7` |
+| `origin/main` | `33b21a7` |
+| `origin/modularization-home-layout-engine-pilot` | `33b21a7` |
 | Safe rollback tip (pre-C6a) | `3d2b462` |
 
-Runtime extraction is on the modularization branch only. Production `main` remains at the pre-C6a tip until an approved merge and phone verification.
+`main`, `origin/main`, and the modularization branch are aligned at `33b21a7` after the approved fast-forward deploy.
 
 ---
 
 ## Next Recommended Step
 
-1. Phone/PWA verify r959 (Build Version, Calendar grid, Important Date markers, create/edit).
-2. Only after phone PASS: draft/approve a C6a merge-to-main plan.
-3. Keep protected Home / Flyer / proposal / birthday / holiday / render boundaries untouched unless a later approved plan says otherwise.
-4. If r959 must be reverted before merge: restore the modularization branch to safe rollback tip `3d2b462` (separate, auditable procedure; Rich approval required).
+1. Continue Calendar modularization planning for the next safe helpers seam (post-C6a).
+2. Keep protected Home / Flyer / proposal / birthday / holiday / render boundaries untouched unless a later approved plan says otherwise.
+3. If r959 must be reverted: restore production `main` to safe rollback tip `3d2b462` (separate, auditable procedure; Rich approval required).
