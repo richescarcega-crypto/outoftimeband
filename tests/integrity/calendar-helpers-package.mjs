@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960, C8a — r961).
+ * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960, C8a — r961, C9a — r962).
  */
 
 import fs from 'node:fs';
@@ -79,7 +79,8 @@ function checkIndexWiring(html) {
     'function getImportantDatesOn',
     'function _calNextUpCalendarIcon',
     'function _calNextUpLine',
-    'function _calCustomEntryRows'
+    'function _calCustomEntryRows',
+    'function _customEntriesAsRows'
   ];
   mustNotDefine.forEach(function (sig) {
     const re = new RegExp(sig.replace(/ /g, '\\s+') + '\\s*\\(');
@@ -90,11 +91,9 @@ function checkIndexWiring(html) {
   if (!/function\s+_pad\s*\(/.test(html)) {
     fail('index.html must keep inline function _pad for Important Date modal');
   }
-  if (!/function\s+_customEntriesAsRows\s*\(/.test(html)) {
-    fail('index.html must keep inline _customEntriesAsRows collector');
-  }
-  if (!/_calCustomEntryRows\s*\(\s*x\s*,\s*todayY\s*,\s*IDATE_DEFAULT_COLOR\s*\)/.test(html)) {
-    fail('inline _customEntriesAsRows must inject entry, year, and default color');
+  // C9a: collector moved; call sites must remain zero-arg via legacy alias.
+  if (!/_customEntriesAsRows\s*\(\s*\)/.test(html)) {
+    fail('index.html must keep zero-arg _customEntriesAsRows() call sites');
   }
 }
 
@@ -121,7 +120,8 @@ function checkAliases(sandbox) {
     'getImportantDatesOn',
     '_calNextUpCalendarIcon',
     '_calNextUpLine',
-    '_calCustomEntryRows'
+    '_calCustomEntryRows',
+    '_customEntriesAsRows'
   ];
   aliasNames.forEach(function (name) {
     if (typeof sandbox.window[name] !== 'function') fail('missing window.' + name);
@@ -152,7 +152,8 @@ function checkAliases(sandbox) {
     'getImportantDatesOn',
     'nextUpCalendarIcon',
     'nextUpLine',
-    'customEntryRows'
+    'customEntryRows',
+    'customEntriesAsRows'
   ];
   apiNames.forEach(function (name) {
     if (!helpers || typeof helpers[name] !== 'function') {
@@ -606,6 +607,74 @@ function checkCustomEntryRowsBehavior(sandbox) {
   }
 }
 
+function checkCustomEntriesAsRowsBehavior(sandbox) {
+  const helpers = sandbox.window.OOT_CALENDAR_HELPERS;
+  const collect = helpers.customEntriesAsRows;
+  const legacyCollect = sandbox.window._customEntriesAsRows;
+  const color = '#f5c518';
+
+  if (JSON.stringify(collect(null, 2026, color)) !== '[]') {
+    fail('_customEntriesAsRows(null list) should return []');
+  }
+  if (JSON.stringify(collect(undefined, 2026, color)) !== '[]') {
+    fail('_customEntriesAsRows(undefined list) should return []');
+  }
+  if (JSON.stringify(collect('', 2026, color)) !== '[]') {
+    fail('_customEntriesAsRows(falsy list) should return []');
+  }
+
+  const dates = [
+    { id: 'a', date: '2026-09-12', title: 'One-time' },
+    { id: 'b', date: '07-16', recurring: true, title: 'Annual' },
+    { id: 'c' },
+    { id: 'd', date: 'bad', recurring: true }
+  ];
+  const snapshot = JSON.stringify(dates);
+
+  const rows = collect(dates, 2026, color);
+  if (!Array.isArray(rows) || rows.length !== 3) {
+    fail('_customEntriesAsRows explicit list should return 3 rows (1 one-time + 2 recurring)');
+  } else if (rows[0].id !== 'idate-a' || rows[1].id !== 'idate-b-2026' || rows[2].id !== 'idate-b-2027') {
+    fail('_customEntriesAsRows should preserve source order and recurring year order: ' + rows.map(function (r) { return r.id; }).join(','));
+  }
+  if (rows[0]._customColor !== color || rows[1]._customColor !== color) {
+    fail('_customEntriesAsRows should apply injected defaultColor');
+  }
+
+  collect(dates, 2026, color);
+  if (JSON.stringify(dates) !== snapshot) {
+    fail('_customEntriesAsRows must not mutate supplied importantDates array');
+  }
+
+  // Year injection must control recurring materialization
+  const y2025 = collect([{ id: 'y', date: '01-01', recurring: true }], 2025, color);
+  if (y2025.length !== 2 || y2025[0].date !== '2025-01-01' || y2025[1].date !== '2026-01-01') {
+    fail('_customEntriesAsRows should honor injected currentYear');
+  }
+
+  // Legacy zero-arg alias uses window.importantDates / year / IDATE_DEFAULT_COLOR
+  sandbox.window.importantDates = dates;
+  sandbox.window.IDATE_DEFAULT_COLOR = '#abcdef';
+  const legacy = legacyCollect();
+  if (!Array.isArray(legacy) || legacy.length !== 3 || legacy[0].id !== 'idate-a') {
+    fail('legacy window._customEntriesAsRows() should use window.importantDates');
+  }
+  if (legacy[0]._customColor !== '#abcdef') {
+    fail('legacy _customEntriesAsRows should use window.IDATE_DEFAULT_COLOR');
+  }
+  const yearNow = new Date().getFullYear();
+  if (legacy[1].date !== (yearNow + '-07-16') || legacy[2].date !== ((yearNow + 1) + '-07-16')) {
+    fail('legacy _customEntriesAsRows should use current calendar year for recurring rows');
+  }
+
+  sandbox.window.importantDates = undefined;
+  sandbox.window.IDATE_DEFAULT_COLOR = color;
+  const legacyEmpty = legacyCollect();
+  if (!Array.isArray(legacyEmpty) || legacyEmpty.length !== 0) {
+    fail('legacy _customEntriesAsRows with missing window.importantDates should return []');
+  }
+}
+
 function checkBehavior(sandbox) {
   const safe = sandbox.window._calSafe;
   const typeIcon = sandbox.window._calTypeIcon;
@@ -693,6 +762,7 @@ function checkBehavior(sandbox) {
   checkImportantDatesBehavior(sandbox);
   checkNextUpBehavior(sandbox);
   checkCustomEntryRowsBehavior(sandbox);
+  checkCustomEntriesAsRowsBehavior(sandbox);
 }
 
 function main() {
