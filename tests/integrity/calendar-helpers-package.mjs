@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958).
+ * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959).
  */
 
 import fs from 'node:fs';
@@ -75,7 +75,8 @@ function checkIndexWiring(html) {
     'function _fmt',
     'function isBirthdayToday',
     'function isBirthdayOnDate',
-    'function getMembersBornOn'
+    'function getMembersBornOn',
+    'function getImportantDatesOn'
   ];
   mustNotDefine.forEach(function (sig) {
     const re = new RegExp(sig.replace(/ /g, '\\s+') + '\\s*\\(');
@@ -107,7 +108,8 @@ function checkAliases(sandbox) {
     'getHolidayOn',
     'isBirthdayToday',
     'isBirthdayOnDate',
-    'getMembersBornOn'
+    'getMembersBornOn',
+    'getImportantDatesOn'
   ];
   aliasNames.forEach(function (name) {
     if (typeof sandbox.window[name] !== 'function') fail('missing window.' + name);
@@ -133,7 +135,9 @@ function checkAliases(sandbox) {
     'birthdayOnDate',
     'isBirthdayOnDate',
     'membersBornOn',
-    'getMembersBornOn'
+    'getMembersBornOn',
+    'importantDatesOn',
+    'getImportantDatesOn'
   ];
   apiNames.forEach(function (name) {
     if (!helpers || typeof helpers[name] !== 'function') {
@@ -176,6 +180,9 @@ function checkAliases(sandbox) {
   }
   if (helpers && helpers.membersBornOn !== helpers.getMembersBornOn) {
     fail('OOT_CALENDAR_HELPERS.membersBornOn must equal getMembersBornOn');
+  }
+  if (helpers && helpers.importantDatesOn !== helpers.getImportantDatesOn) {
+    fail('OOT_CALENDAR_HELPERS.importantDatesOn must equal getImportantDatesOn');
   }
   if (helpers && sandbox.window.isBirthdayToday !== helpers.isBirthdayToday) {
     fail('window.isBirthdayToday must alias OOT_CALENDAR_HELPERS.isBirthdayToday');
@@ -359,6 +366,68 @@ function checkBirthdayBehavior(sandbox) {
   }
 }
 
+function checkImportantDatesBehavior(sandbox) {
+  const helpers = sandbox.window.OOT_CALENDAR_HELPERS;
+  const onDate = helpers.getImportantDatesOn;
+  const legacyOnDate = sandbox.window.getImportantDatesOn;
+
+  const dates = [
+    { id: 'a', title: 'Exact', date: '2026-07-15', recurring: false },
+    { id: 'b', title: 'RecurMMDD', date: '07-15', recurring: true },
+    { id: 'c', title: 'RecurFull', date: '2001-07-15', recurring: true },
+    { id: 'd', title: 'OtherDay', date: '2026-07-16', recurring: false },
+    { id: 'e', title: 'RecurOther', date: '08-15', recurring: true },
+    { id: 'f', title: 'NoDate' },
+    { id: 'g', title: 'Empty', date: '' },
+    { id: 'h', title: 'WrongExact', date: '2025-07-15', recurring: false }
+  ];
+  const snapshot = JSON.stringify(dates);
+
+  const matched = onDate('2026-07-15', dates);
+  if (!Array.isArray(matched) || matched.length !== 3) {
+    fail('getImportantDatesOn explicit list should return 3 matches');
+  } else if (matched[0].id !== 'a' || matched[1].id !== 'b' || matched[2].id !== 'c') {
+    fail('getImportantDatesOn should preserve original order: ' + matched.map(function (x) { return x.id; }).join(','));
+  }
+
+  const none = onDate('2026-12-25', dates);
+  if (!Array.isArray(none) || none.length !== 0) {
+    fail('getImportantDatesOn nonmatching date should be empty list');
+  }
+
+  // Missing / empty / malformed ds
+  if (JSON.stringify(onDate(null, dates)) !== '[]') fail('getImportantDatesOn(null ds) should be []');
+  if (JSON.stringify(onDate('', dates)) !== '[]') fail('getImportantDatesOn(empty ds) should be []');
+  if (JSON.stringify(onDate('07-15', dates)) !== '[]') fail('getImportantDatesOn(malformed ds) should be []');
+
+  if (JSON.stringify(onDate('2026-07-15', null)) !== '[]') {
+    fail('getImportantDatesOn(null list) should treat as []');
+  }
+  if (JSON.stringify(onDate('2026-07-15', undefined)) !== '[]') {
+    fail('getImportantDatesOn(undefined list) should treat as []');
+  }
+  if (JSON.stringify(onDate('2026-07-15', '')) !== '[]') {
+    fail('getImportantDatesOn(falsy list) should treat as []');
+  }
+
+  onDate('2026-07-15', dates);
+  if (JSON.stringify(dates) !== snapshot) {
+    fail('getImportantDatesOn must not mutate supplied importantDates array');
+  }
+
+  // Legacy one-arg alias falls back to window.importantDates
+  sandbox.window.importantDates = dates;
+  const legacy = legacyOnDate('2026-07-15');
+  if (!Array.isArray(legacy) || legacy.length !== 3 || legacy[0].id !== 'a' || legacy[1].id !== 'b' || legacy[2].id !== 'c') {
+    fail('legacy window.getImportantDatesOn(ds) should use window.importantDates');
+  }
+  sandbox.window.importantDates = undefined;
+  const legacyEmpty = legacyOnDate('2026-07-15');
+  if (!Array.isArray(legacyEmpty) || legacyEmpty.length !== 0) {
+    fail('legacy getImportantDatesOn with missing window.importantDates should return []');
+  }
+}
+
 function checkBehavior(sandbox) {
   const safe = sandbox.window._calSafe;
   const typeIcon = sandbox.window._calTypeIcon;
@@ -443,6 +512,7 @@ function checkBehavior(sandbox) {
 
   checkHolidayBehavior(sandbox);
   checkBirthdayBehavior(sandbox);
+  checkImportantDatesBehavior(sandbox);
 }
 
 function main() {

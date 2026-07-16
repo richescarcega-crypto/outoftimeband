@@ -1,4 +1,5 @@
-﻿<!-- r958: Calendar birthday MM-DD helpers extraction. Moves isBirthdayToday / isBirthdayOnDate / getMembersBornOn into js/calendar-date-helpers.js; getMembersBornOn accepts members list via injection (legacy one-arg alias uses window.members); keeps inline _pad; no Birthday UI, Calendar marker, Home, Firestore, Flyer, or holiday-helper behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
+﻿<!-- r959: Calendar Important Date helper extraction. Moves getImportantDatesOn into js/calendar-date-helpers.js; getImportantDatesOn accepts Important Date list via injection (legacy one-arg alias uses window.importantDates); keeps inline _pad / listenImportantDates / collectors; no Important Date UI, Calendar marker, Home, Firestore, Flyer, birthday, or holiday-helper behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
+<!-- r958: Calendar birthday MM-DD helpers extraction. Moves isBirthdayToday / isBirthdayOnDate / getMembersBornOn into js/calendar-date-helpers.js; getMembersBornOn accepts members list via injection (legacy one-arg alias uses window.members); keeps inline _pad; no Birthday UI, Calendar marker, Home, Firestore, Flyer, or holiday-helper behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
 <!-- r957: Calendar US federal holiday helpers extraction. Moves getUSFederalHolidays / getHolidayOn (and private nth/last/_fmt helpers) into js/calendar-date-helpers.js; keeps inline _pad for Important Date modal; exact-date holidays only (no weekend-observed); no Calendar visual, drawer, Firestore, Flyer, or Home behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
 <!-- r956: Home Rehearsal on Deck proposal-open fix. When the Home cue binds an open rehearsal proposal id (r809 fallback), tapping it opens the Calendar Rehearsal Proposals deep-link instead of toasting "Rehearsal not found". Confirmed rehearsal event open path unchanged. No Calendar grid markers, blackout, vote/confirm, Flyer, or modularization changes. Upload index.html after phone test. -->
 <!-- r955: Calendar blackout text helpers extraction. Moves _blackoutNameFromTitle, _blackoutConflictLine, and _blackoutConflictMessage into js/calendar-date-helpers.js; blackout confirm UI remains inline; no Calendar visual, drawer, Firestore, Flyer, or Home behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
@@ -25649,24 +25650,7 @@ function listenImportantDates(){
     if(document.getElementById('important-dates-list')) rImportantDatesList();
   });
 }
-function getImportantDatesOn(ds){
-  if(!ds) return [];
-  var d = ds.split('-');
-  if(d.length<3) return [];
-  var mm = d[1], dd = d[2];
-  return importantDates.filter(function(x){
-    if(!x.date) return false;
-    if(x.recurring){
-      // Stored as 'MM-DD' (recurring annually) or 'YYYY-MM-DD' (we still match MM-DD)
-      var p = String(x.date).split('-');
-      var xMM = p.length===2 ? p[0] : p[1];
-      var xDD = p.length===2 ? p[1] : p[2];
-      return xMM===mm && xDD===dd;
-    } else {
-      return x.date === ds;
-    }
-  });
-}
+// Important Date day filter — getImportantDatesOn lives in js/calendar-date-helpers.js (C6a / r959).
 
 // Important Date editor state
 var _editingIDateId = null;
@@ -40084,7 +40068,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-07-15-r958-calendar-birthday-helpers';
+var WHATS_NEW_VERSION = '2026-07-15-r959-calendar-important-date-helpers';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40429,6 +40413,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-07-15-r959-calendar-important-date-helpers', date:'July 15, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar important date helpers extraction', body:'Moves getImportantDatesOn into js/calendar-date-helpers.js. Important Date exact-date and recurring MM-DD matching stay the same. Calendar grid, drawers, Important Date create, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r959.','Open Calendar and confirm the month grid still renders.','Confirm Important Date markers still appear on matching days.','Open New Important Date and confirm create/edit still works.'] },
   { version:'2026-07-15-r958-calendar-birthday-helpers', date:'July 15, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar birthday helpers extraction', body:'Moves birthday MM-DD helpers into js/calendar-date-helpers.js. Birthday markers and member matching stay the same. Calendar grid, drawers, Important Date create, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r958.','Open Calendar and confirm the month grid still renders.','Confirm birthday markers / special-day notes still appear on matching days.','Open Band and confirm birthday indicators still look correct.'] },
   { version:'2026-07-15-r957-calendar-holiday-helpers', date:'July 15, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar holiday helpers extraction', body:'Moves US federal holiday helpers into js/calendar-date-helpers.js. Holiday markers stay exact-date only. Calendar grid, drawers, Important Date create, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r957.','Open Calendar and confirm the month grid still renders.','Confirm a known federal holiday still shows its marker / special-day note.','Open New Important Date with an empty date and confirm today still fills in.'] },
   { version:'2026-07-13-r956-home-rehearsal-proposal-open-fix', date:'July 13, 2026', importance:'fix', emoji:'🎤', title:'Home Rehearsal on Deck opens proposals', body:'Fixes the Home Rehearsal on Deck pill when it points at an open rehearsal proposal: tapping it now opens Calendar → Rehearsal Proposals instead of showing “Rehearsal not found.” Confirmed rehearsal opens, voting, confirm, blackout markers, and Calendar grid icons are unchanged.', items:['Confirm Build Version reports r956.','With an open rehearsal proposal (no confirmed event yet), confirm Home shows Rehearsal on Deck.','Tap the Home pill and confirm Calendar Rehearsal Proposals opens for that proposal (no “Rehearsal not found” toast).','With a confirmed rehearsal event, tap Home Rehearsal on Deck and confirm Event Details still opens.'] },

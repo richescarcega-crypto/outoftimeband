@@ -1,11 +1,12 @@
 /**
- * Out of Time calendar date/status helpers (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958).
+ * Out of Time calendar date/status helpers (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959).
  * Loaded after flyer helpers and before the main inline script.
- * Preserves legacy _cal* / _isPastGig / _blackout* / getHoliday* / birthday global names for Calendar compatibility.
+ * Preserves legacy _cal* / _isPastGig / _blackout* / getHoliday* / birthday / important-date global names for Calendar compatibility.
  * _calColor defers gig/rehearsal/blackout colors to inline _eventColor(EC).
  * Blackout confirm UI / conflict discovery remain inline.
  * Holiday helpers are exact-date only (no weekend-observed substitution).
  * Birthday helpers match MM-DD only; getMembersBornOn accepts an explicit members list (no owned members array).
+ * getImportantDatesOn accepts an explicit Important Date list (legacy one-arg alias uses window.importantDates).
  * Inline function _pad remains in index.html for Important Date modal use.
  */
 function _calTypeIcon(type){
@@ -147,6 +148,27 @@ function getMembersBornOn(dateString, membersList){
   return list.filter(function(m){ return isBirthdayOnDate(m.bday, dateString); });
 }
 
+// Important Date day filter (C6a — r959). getImportantDatesOn takes importantDatesList explicitly.
+function getImportantDatesOn(ds, importantDatesList){
+  if(!ds) return [];
+  var d = ds.split('-');
+  if(d.length<3) return [];
+  var mm = d[1], dd = d[2];
+  var list = importantDatesList || [];
+  return list.filter(function(x){
+    if(!x.date) return false;
+    if(x.recurring){
+      // Stored as 'MM-DD' (recurring annually) or 'YYYY-MM-DD' (we still match MM-DD)
+      var p = String(x.date).split('-');
+      var xMM = p.length===2 ? p[0] : p[1];
+      var xDD = p.length===2 ? p[1] : p[2];
+      return xMM===mm && xDD===dd;
+    } else {
+      return x.date === ds;
+    }
+  });
+}
+
 window.OOT_CALENDAR_HELPERS = {
   typeIcon: _calTypeIcon,
   safe: _calSafe,
@@ -167,7 +189,9 @@ window.OOT_CALENDAR_HELPERS = {
   birthdayOnDate: isBirthdayOnDate,
   isBirthdayOnDate: isBirthdayOnDate,
   membersBornOn: getMembersBornOn,
-  getMembersBornOn: getMembersBornOn
+  getMembersBornOn: getMembersBornOn,
+  importantDatesOn: getImportantDatesOn,
+  getImportantDatesOn: getImportantDatesOn
 };
 
 window._calTypeIcon = window.OOT_CALENDAR_HELPERS.typeIcon;
@@ -186,4 +210,7 @@ window.isBirthdayToday = window.OOT_CALENDAR_HELPERS.isBirthdayToday;
 window.isBirthdayOnDate = window.OOT_CALENDAR_HELPERS.isBirthdayOnDate;
 window.getMembersBornOn = function(ds){
   return window.OOT_CALENDAR_HELPERS.getMembersBornOn(ds, window.members);
+};
+window.getImportantDatesOn = function(ds){
+  return window.OOT_CALENDAR_HELPERS.getImportantDatesOn(ds, window.importantDates);
 };
