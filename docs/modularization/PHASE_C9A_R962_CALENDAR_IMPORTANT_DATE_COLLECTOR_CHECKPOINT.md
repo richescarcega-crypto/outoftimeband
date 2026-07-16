@@ -4,19 +4,20 @@ Date: 2026-07-16
 
 ## Status
 
-**C9a / r962 runtime extraction complete on the modularization branch.** Local validation passed. **Production merge and phone/PWA verification are still pending.**
+**C9a / r962 complete.** Fast-forwarded and pushed to production `main` at `c66e2d2`. Local validation and phone/PWA verification passed. User confirmed: **"r962 passed"**.
 
 | Item | Value |
 |------|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `26c43e6` |
-| `origin/modularization-home-layout-engine-pilot` | `26c43e6` |
-| `origin/main` | `3904769` |
+| Branch | `main` |
+| HEAD | `c66e2d2` |
+| `origin/main` | `c66e2d2` |
+| `origin/modularization-home-layout-engine-pilot` | `c66e2d2` |
 | Build Version | `2026-07-16-r962-calendar-important-date-collector` |
 | Runtime commit | `26c43e6` — `Extract Calendar important date collector` |
+| Production tip (post-FF) | `c66e2d2` |
 | Safe rollback tip (pre-C9a) | `3904769` |
-| Production merge | **Pending** |
-| Phone / PWA verification | **Pending** |
+| Production merge | **PASS** |
+| Phone / PWA verification | **PASS** |
 
 ---
 
@@ -40,11 +41,11 @@ Extract only `_customEntriesAsRows` from `index.html` into the existing Calendar
 
 ## Production Merge
 
-**Not merged.** Production `origin/main` remains at `3904769` (pre-C9a / r961 tip).
+**PASS.** r962 was **fast-forwarded and pushed** to production `main` at `c66e2d2`.
 
-Do not merge, rebase, or push to `main` until Rich explicitly approves a separate merge plan and phone/PWA verification passes.
+After deployment, `main`, `origin/main`, and `origin/modularization-home-layout-engine-pilot` were aligned at `c66e2d2`.
 
-Safe rollback tip (pre-C9a): `3904769`.
+Safe rollback tip (pre-C9a production): `3904769`.
 
 ---
 
@@ -163,9 +164,25 @@ The alias injects:
 | Inline script syntax check | PASS — 8 scripts, 0 failures |
 | `git diff --check` | PASS |
 
-### Phone / PWA — Pending
+### Phone / PWA — PASS
 
-Phone/PWA verification has **not** been completed for r962.
+User confirmed phone verification passed (`"r962 passed"`).
+
+| Check | Result |
+|-------|--------|
+| Build Version r962 | PASS |
+| Calendar opened | PASS |
+| Month navigation worked | PASS |
+| One-time Important Dates displayed correctly | PASS |
+| Recurring Important Dates displayed correctly | PASS |
+| Ordering remained correct | PASS |
+| Normal dates remained normal | PASS |
+| Next Up remained correct | PASS |
+| Birthdays remained correct | PASS |
+| Holidays remained correct | PASS |
+| Home rehearsal cue worked | PASS |
+| Home band image unchanged | PASS |
+| Flyer creation opened | PASS |
 
 ---
 
@@ -192,19 +209,18 @@ Phone/PWA verification has **not** been completed for r962.
 
 | Ref | Value |
 |-----|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `26c43e6` |
-| `origin/modularization-home-layout-engine-pilot` | `26c43e6` |
-| `origin/main` | `3904769` |
+| Branch | `main` |
+| HEAD | `c66e2d2` |
+| `origin/main` | `c66e2d2` |
+| `origin/modularization-home-layout-engine-pilot` | `c66e2d2` |
 | Safe rollback tip (pre-C9a) | `3904769` |
 
-Runtime extraction is on the modularization branch only. Production `main` remains at the pre-C9a tip until an approved merge and phone verification.
+`main`, `origin/main`, and the modularization branch are aligned at `c66e2d2` after the approved fast-forward deploy.
 
 ---
 
 ## Next Recommended Step
 
-1. Phone/PWA verify r962 (Build Version, Calendar grid, one-time / recurring Important Dates, All Events / day details).
-2. Only after phone PASS: draft/approve a C9a merge-to-main plan.
-3. Keep protected Home / Flyer / proposal / birthday / holiday / Important Date / Next Up / row-collector / render boundaries untouched unless a later approved plan says otherwise.
-4. If r962 must be reverted before merge: restore the modularization branch to safe rollback tip `3904769` (separate, auditable procedure; Rich approval required).
+1. Continue Calendar modularization planning for the next safe helpers seam (post-C9a).
+2. Keep protected Home / Flyer / proposal / birthday / holiday / Important Date / Next Up / row-collector / render boundaries untouched unless a later approved plan says otherwise.
+3. If r962 must be reverted: restore production `main` to safe rollback tip `3904769` (separate, auditable procedure; Rich approval required).
