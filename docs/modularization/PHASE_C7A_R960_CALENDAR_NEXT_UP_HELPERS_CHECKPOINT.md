@@ -4,19 +4,20 @@ Date: 2026-07-16
 
 ## Status
 
-**C7a / r960 runtime extraction complete on the modularization branch.** Local validation passed. **Production merge and phone/PWA verification are still pending.**
+**C7a / r960 complete.** Fast-forwarded and pushed to production `main` at `65ab088`. Local validation and phone/PWA verification passed. User confirmed: **"r960 passed"**.
 
 | Item | Value |
 |------|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `9bc4069` |
-| `origin/modularization-home-layout-engine-pilot` | `9bc4069` |
-| `origin/main` | `5636d74` |
+| Branch | `main` |
+| HEAD | `65ab088` |
+| `origin/main` | `65ab088` |
+| `origin/modularization-home-layout-engine-pilot` | `65ab088` |
 | Build Version | `2026-07-16-r960-calendar-next-up-helpers` |
 | Runtime commit | `9bc4069` — `Extract Calendar Next Up helpers` |
+| Production tip (post-FF) | `65ab088` |
 | Safe rollback tip (pre-C7a) | `5636d74` |
-| Production merge | **Pending** |
-| Phone / PWA verification | **Pending** |
+| Production merge | **PASS** |
+| Phone / PWA verification | **PASS** |
 
 ---
 
@@ -40,11 +41,11 @@ Extract only the Next Up display formatters `_calNextUpCalendarIcon` and `_calNe
 
 ## Production Merge
 
-**Not merged.** Production `origin/main` remains at `5636d74` (pre-C7a / r959 tip).
+**PASS.** r960 was **fast-forwarded and pushed** to production `main` at `65ab088`.
 
-Do not merge, rebase, or push to `main` until Rich explicitly approves a separate merge plan and phone/PWA verification passes.
+After deployment, `main`, `origin/main`, and `origin/modularization-home-layout-engine-pilot` were aligned at `65ab088`.
 
-Safe rollback tip (pre-C7a): `5636d74`.
+Safe rollback tip (pre-C7a production): `5636d74`.
 
 ---
 
@@ -141,9 +142,25 @@ Preserved so existing `index.html` call sites continue to work:
 | `tests/integrity/flyer-manifest-package.mjs` | PASS |
 | Inline script syntax check | PASS — 8 scripts, 0 failures |
 
-### Phone / PWA — Pending
+### Phone / PWA — PASS
 
-Phone/PWA verification has **not** been completed for r960.
+User confirmed phone verification passed (`"r960 passed"`).
+
+| Check | Result |
+|-------|--------|
+| Build Version r960 | PASS |
+| Calendar opened | PASS |
+| Month navigation worked | PASS |
+| Empty Next Up card displayed correctly | PASS |
+| Populated Next Up card displayed correctly | PASS |
+| Gig set time appeared correctly | PASS |
+| Non-gig Next Up detail behaved correctly | PASS |
+| Important Dates remained correct | PASS |
+| Birthdays remained correct | PASS |
+| Holidays remained correct | PASS |
+| Home rehearsal cue worked | PASS |
+| Home band image unchanged | PASS |
+| Flyer creation opened | PASS |
 
 ---
 
@@ -168,19 +185,18 @@ Phone/PWA verification has **not** been completed for r960.
 
 | Ref | Value |
 |-----|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `9bc4069` |
-| `origin/modularization-home-layout-engine-pilot` | `9bc4069` |
-| `origin/main` | `5636d74` |
+| Branch | `main` |
+| HEAD | `65ab088` |
+| `origin/main` | `65ab088` |
+| `origin/modularization-home-layout-engine-pilot` | `65ab088` |
 | Safe rollback tip (pre-C7a) | `5636d74` |
 
-Runtime extraction is on the modularization branch only. Production `main` remains at the pre-C7a tip until an approved merge and phone verification.
+`main`, `origin/main`, and the modularization branch are aligned at `65ab088` after the approved fast-forward deploy.
 
 ---
 
 ## Next Recommended Step
 
-1. Phone/PWA verify r960 (Build Version, Calendar grid, Next Up card copy/icon, Next Up tap open).
-2. Only after phone PASS: draft/approve a C7a merge-to-main plan.
-3. Keep protected Home / Flyer / proposal / birthday / holiday / Important Date / render boundaries untouched unless a later approved plan says otherwise.
-4. If r960 must be reverted before merge: restore the modularization branch to safe rollback tip `5636d74` (separate, auditable procedure; Rich approval required).
+1. Continue Calendar modularization planning for the next safe helpers seam (post-C7a).
+2. Keep protected Home / Flyer / proposal / birthday / holiday / Important Date / render boundaries untouched unless a later approved plan says otherwise.
+3. If r960 must be reverted: restore production `main` to safe rollback tip `5636d74` (separate, auditable procedure; Rich approval required).
