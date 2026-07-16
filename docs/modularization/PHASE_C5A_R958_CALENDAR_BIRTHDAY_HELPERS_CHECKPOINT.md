@@ -4,17 +4,19 @@ Date: 2026-07-15
 
 ## Status
 
-**C5a / r958 runtime complete on modularization branch.** Local integrity validation PASS. Phone/PWA verification **PENDING**. Not merged to production `main`.
+**C5a / r958 complete.** Fast-forwarded and pushed to production `main` at `264f8dc`. Local validation and phone/PWA verification passed. User confirmed: **"r958 passed"**.
 
 | Item | Value |
 |------|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `138cf62` |
-| `origin/modularization-home-layout-engine-pilot` | `138cf62` |
-| `origin/main` | `d88fd60` |
-| Working tree (before this untracked doc) | Clean |
+| Branch | `main` |
+| HEAD | `264f8dc` |
+| `origin/main` | `264f8dc` |
+| `origin/modularization-home-layout-engine-pilot` | `264f8dc` |
+| Working tree (before this verification update) | Clean |
 | Build Version | `2026-07-15-r958-calendar-birthday-helpers` |
 | Runtime commit | `138cf62` |
+| Production tip (post-FF) | `264f8dc` |
+| Safe rollback tip (pre-C5a) | `d88fd60` |
 
 ---
 
@@ -32,6 +34,16 @@ Extract pure birthday MM-DD helpers from `index.html` into the existing Calendar
 |------|--------|
 | Runtime commit | `138cf62` |
 | Build Version | `2026-07-15-r958-calendar-birthday-helpers` |
+
+---
+
+## Production Merge
+
+r958 was **fast-forwarded and pushed** to production `main` at `264f8dc`.
+
+After deployment, `main`, `origin/main`, and `origin/modularization-home-layout-engine-pilot` were aligned at `264f8dc`.
+
+Safe rollback tip (pre-C5a production): `d88fd60`.
 
 ---
 
@@ -123,9 +135,20 @@ Preserved so existing `index.html` call sites continue to work:
 | `tests/integrity/flyer-manifest-package.mjs` | PASS |
 | Inline script syntax check | PASS — 8 scripts, 0 failures |
 
-### Phone / PWA — PENDING
+### Phone / PWA — PASS
 
-Do **not** claim production verification. Phone/PWA checks remain outstanding before any production merge approval.
+User confirmed phone verification passed (`"r958 passed"`).
+
+| Check | Result |
+|-------|--------|
+| Build Version r958 | PASS |
+| Calendar opened | PASS |
+| Month navigation worked | PASS |
+| Birthday display/marker worked | PASS |
+| Normal non-birthday behavior worked | PASS |
+| Home rehearsal cue remained functional | PASS |
+| Home band image remained unchanged | PASS |
+| Flyer creation loaded | PASS |
 
 ---
 
@@ -151,17 +174,18 @@ Do **not** claim production verification. Phone/PWA checks remain outstanding be
 
 | Ref | Value |
 |-----|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `138cf62` |
-| `origin/modularization-home-layout-engine-pilot` | `138cf62` |
-| `origin/main` | `d88fd60` |
+| Branch | `main` |
+| HEAD | `264f8dc` |
+| `origin/main` | `264f8dc` |
+| `origin/modularization-home-layout-engine-pilot` | `264f8dc` |
+| Safe rollback tip (pre-C5a) | `d88fd60` |
 
-Working tree was clean before this untracked checkpoint document. Modularization branch and its origin tip are aligned at `138cf62`. Production `origin/main` remains at `d88fd60` (r958 not merged).
+Working tree was clean before this verification documentation update. `main`, `origin/main`, and the modularization branch are aligned at `264f8dc` after the approved fast-forward deploy.
 
 ---
 
 ## Next Recommended Step
 
-1. Commit and push this checkpoint document on `modularization-home-layout-engine-pilot`.
-2. Plan a bounded fast-forward merge only after phone/PWA verification and Rich approval.
-3. Do **not** merge or push production `main` without Rich approval.
+1. Continue Calendar modularization planning for the next safe helpers seam (post-C5a).
+2. Keep protected Home / Flyer / proposal / render boundaries untouched unless a later approved plan says otherwise.
+3. If r958 must be reverted: restore production `main` to safe rollback tip `d88fd60` (separate, auditable procedure; Rich approval required).
