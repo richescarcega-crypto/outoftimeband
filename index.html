@@ -1,4 +1,5 @@
-﻿<!-- r959: Calendar Important Date helper extraction. Moves getImportantDatesOn into js/calendar-date-helpers.js; getImportantDatesOn accepts Important Date list via injection (legacy one-arg alias uses window.importantDates); keeps inline _pad / listenImportantDates / collectors; no Important Date UI, Calendar marker, Home, Firestore, Flyer, birthday, or holiday-helper behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
+﻿<!-- r960: Calendar Next Up display helpers extraction. Moves _calNextUpCalendarIcon / _calNextUpLine into js/calendar-date-helpers.js; _calNextUpLine accepts gigDetails map via injection (legacy one-arg alias uses window.gigDetails); keeps inline Next Up render / open handlers; no Calendar grid, drawers, Important Date, birthday, holiday, Home, Firestore, or Flyer behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
+<!-- r959: Calendar Important Date helper extraction. Moves getImportantDatesOn into js/calendar-date-helpers.js; getImportantDatesOn accepts Important Date list via injection (legacy one-arg alias uses window.importantDates); keeps inline _pad / listenImportantDates / collectors; no Important Date UI, Calendar marker, Home, Firestore, Flyer, birthday, or holiday-helper behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
 <!-- r958: Calendar birthday MM-DD helpers extraction. Moves isBirthdayToday / isBirthdayOnDate / getMembersBornOn into js/calendar-date-helpers.js; getMembersBornOn accepts members list via injection (legacy one-arg alias uses window.members); keeps inline _pad; no Birthday UI, Calendar marker, Home, Firestore, Flyer, or holiday-helper behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
 <!-- r957: Calendar US federal holiday helpers extraction. Moves getUSFederalHolidays / getHolidayOn (and private nth/last/_fmt helpers) into js/calendar-date-helpers.js; keeps inline _pad for Important Date modal; exact-date holidays only (no weekend-observed); no Calendar visual, drawer, Firestore, Flyer, or Home behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
 <!-- r956: Home Rehearsal on Deck proposal-open fix. When the Home cue binds an open rehearsal proposal id (r809 fallback), tapping it opens the Calendar Rehearsal Proposals deep-link instead of toasting "Rehearsal not found". Confirmed rehearsal event open path unchanged. No Calendar grid markers, blackout, vote/confirm, Flyer, or modularization changes. Upload index.html after phone test. -->
@@ -31176,19 +31177,7 @@ function _calOpenNextUp(type, id, dateStr){
   _calOpenDate(dateStr);
 }
 
-function _calNextUpCalendarIcon(){
-  return '<span class="cal-next-up-icon" aria-hidden="true"><img src="Calendaricon.png?v=r250" class="cal-next-up-img" alt=""></span>';
-}
-
-function _calNextUpLine(row){
-  if(!row) return 'No upcoming calendar items';
-  var bits = [_calCompactDateLabel(row.date)];
-  if(row.title) bits.push(_calSafe(row.title));
-  var det = (row.type === 'gig' && row.id && gigDetails && gigDetails[row.id]) ? gigDetails[row.id] : null;
-  var time = (det && det.settime) || row.settime || row.time || '';
-  if(time) bits.push(_calSafe(String(time).toUpperCase()));
-  return bits.join('<span class="next-up-dot">•</span>');
-}
+// Next Up display formatters — _calNextUpCalendarIcon / _calNextUpLine live in js/calendar-date-helpers.js (C7a / r960).
 
 function _calRenderStageSummary(){
   var host = document.getElementById('cal-stage-summary');
@@ -40068,7 +40057,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-07-15-r959-calendar-important-date-helpers';
+var WHATS_NEW_VERSION = '2026-07-16-r960-calendar-next-up-helpers';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40413,6 +40402,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-07-16-r960-calendar-next-up-helpers', date:'July 16, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar Next Up helpers extraction', body:'Moves Next Up display formatters into js/calendar-date-helpers.js. Next Up copy and icon stay the same. Calendar grid, drawers, Important Date create, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r960.','Open Calendar and confirm the month grid still renders.','Confirm the Next Up card still shows the next item with date/title/time.','Confirm tapping Next Up still opens the expected gig or date.'] },
   { version:'2026-07-15-r959-calendar-important-date-helpers', date:'July 15, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar important date helpers extraction', body:'Moves getImportantDatesOn into js/calendar-date-helpers.js. Important Date exact-date and recurring MM-DD matching stay the same. Calendar grid, drawers, Important Date create, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r959.','Open Calendar and confirm the month grid still renders.','Confirm Important Date markers still appear on matching days.','Open New Important Date and confirm create/edit still works.'] },
   { version:'2026-07-15-r958-calendar-birthday-helpers', date:'July 15, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar birthday helpers extraction', body:'Moves birthday MM-DD helpers into js/calendar-date-helpers.js. Birthday markers and member matching stay the same. Calendar grid, drawers, Important Date create, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r958.','Open Calendar and confirm the month grid still renders.','Confirm birthday markers / special-day notes still appear on matching days.','Open Band and confirm birthday indicators still look correct.'] },
   { version:'2026-07-15-r957-calendar-holiday-helpers', date:'July 15, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar holiday helpers extraction', body:'Moves US federal holiday helpers into js/calendar-date-helpers.js. Holiday markers stay exact-date only. Calendar grid, drawers, Important Date create, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r957.','Open Calendar and confirm the month grid still renders.','Confirm a known federal holiday still shows its marker / special-day note.','Open New Important Date with an empty date and confirm today still fills in.'] },

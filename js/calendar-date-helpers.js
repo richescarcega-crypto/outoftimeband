@@ -1,12 +1,13 @@
 /**
- * Out of Time calendar date/status helpers (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959).
+ * Out of Time calendar date/status helpers (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960).
  * Loaded after flyer helpers and before the main inline script.
- * Preserves legacy _cal* / _isPastGig / _blackout* / getHoliday* / birthday / important-date global names for Calendar compatibility.
+ * Preserves legacy _cal* / _isPastGig / _blackout* / getHoliday* / birthday / important-date / Next Up global names for Calendar compatibility.
  * _calColor defers gig/rehearsal/blackout colors to inline _eventColor(EC).
  * Blackout confirm UI / conflict discovery remain inline.
  * Holiday helpers are exact-date only (no weekend-observed substitution).
  * Birthday helpers match MM-DD only; getMembersBornOn accepts an explicit members list (no owned members array).
  * getImportantDatesOn accepts an explicit Important Date list (legacy one-arg alias uses window.importantDates).
+ * Next Up formatters: _calNextUpLine accepts an explicit gigDetails map (legacy one-arg alias uses window.gigDetails).
  * Inline function _pad remains in index.html for Important Date modal use.
  */
 function _calTypeIcon(type){
@@ -169,6 +170,22 @@ function getImportantDatesOn(ds, importantDatesList){
   });
 }
 
+// Next Up display formatters (C7a — r960). _calNextUpLine takes gigDetailsMap explicitly.
+function _calNextUpCalendarIcon(){
+  return '<span class="cal-next-up-icon" aria-hidden="true"><img src="Calendaricon.png?v=r250" class="cal-next-up-img" alt=""></span>';
+}
+
+function _calNextUpLine(row, gigDetailsMap){
+  if(!row) return 'No upcoming calendar items';
+  var bits = [_calCompactDateLabel(row.date)];
+  if(row.title) bits.push(_calSafe(row.title));
+  var details = gigDetailsMap || {};
+  var det = (row.type === 'gig' && row.id && details[row.id]) ? details[row.id] : null;
+  var time = (det && det.settime) || row.settime || row.time || '';
+  if(time) bits.push(_calSafe(String(time).toUpperCase()));
+  return bits.join('<span class="next-up-dot">•</span>');
+}
+
 window.OOT_CALENDAR_HELPERS = {
   typeIcon: _calTypeIcon,
   safe: _calSafe,
@@ -191,7 +208,9 @@ window.OOT_CALENDAR_HELPERS = {
   membersBornOn: getMembersBornOn,
   getMembersBornOn: getMembersBornOn,
   importantDatesOn: getImportantDatesOn,
-  getImportantDatesOn: getImportantDatesOn
+  getImportantDatesOn: getImportantDatesOn,
+  nextUpCalendarIcon: _calNextUpCalendarIcon,
+  nextUpLine: _calNextUpLine
 };
 
 window._calTypeIcon = window.OOT_CALENDAR_HELPERS.typeIcon;
@@ -213,4 +232,8 @@ window.getMembersBornOn = function(ds){
 };
 window.getImportantDatesOn = function(ds){
   return window.OOT_CALENDAR_HELPERS.getImportantDatesOn(ds, window.importantDates);
+};
+window._calNextUpCalendarIcon = window.OOT_CALENDAR_HELPERS.nextUpCalendarIcon;
+window._calNextUpLine = function(row){
+  return window.OOT_CALENDAR_HELPERS.nextUpLine(row, window.gigDetails);
 };

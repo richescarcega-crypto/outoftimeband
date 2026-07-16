@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959).
+ * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960).
  */
 
 import fs from 'node:fs';
@@ -76,7 +76,9 @@ function checkIndexWiring(html) {
     'function isBirthdayToday',
     'function isBirthdayOnDate',
     'function getMembersBornOn',
-    'function getImportantDatesOn'
+    'function getImportantDatesOn',
+    'function _calNextUpCalendarIcon',
+    'function _calNextUpLine'
   ];
   mustNotDefine.forEach(function (sig) {
     const re = new RegExp(sig.replace(/ /g, '\\s+') + '\\s*\\(');
@@ -109,7 +111,9 @@ function checkAliases(sandbox) {
     'isBirthdayToday',
     'isBirthdayOnDate',
     'getMembersBornOn',
-    'getImportantDatesOn'
+    'getImportantDatesOn',
+    '_calNextUpCalendarIcon',
+    '_calNextUpLine'
   ];
   aliasNames.forEach(function (name) {
     if (typeof sandbox.window[name] !== 'function') fail('missing window.' + name);
@@ -137,7 +141,9 @@ function checkAliases(sandbox) {
     'membersBornOn',
     'getMembersBornOn',
     'importantDatesOn',
-    'getImportantDatesOn'
+    'getImportantDatesOn',
+    'nextUpCalendarIcon',
+    'nextUpLine'
   ];
   apiNames.forEach(function (name) {
     if (!helpers || typeof helpers[name] !== 'function') {
@@ -189,6 +195,9 @@ function checkAliases(sandbox) {
   }
   if (helpers && sandbox.window.isBirthdayOnDate !== helpers.isBirthdayOnDate) {
     fail('window.isBirthdayOnDate must alias OOT_CALENDAR_HELPERS.isBirthdayOnDate');
+  }
+  if (helpers && sandbox.window._calNextUpCalendarIcon !== helpers.nextUpCalendarIcon) {
+    fail('window._calNextUpCalendarIcon must alias OOT_CALENDAR_HELPERS.nextUpCalendarIcon');
   }
   // Must not export window._pad from the holiday module.
   if (typeof sandbox.window._pad === 'function') {
@@ -428,6 +437,71 @@ function checkImportantDatesBehavior(sandbox) {
   }
 }
 
+function checkNextUpBehavior(sandbox) {
+  const helpers = sandbox.window.OOT_CALENDAR_HELPERS;
+  const icon = sandbox.window._calNextUpCalendarIcon;
+  const line = helpers.nextUpLine;
+  const legacyLine = sandbox.window._calNextUpLine;
+  const DOT = '<span class="next-up-dot">•</span>';
+
+  const iconHtml = icon();
+  if (iconHtml.indexOf('cal-next-up-icon') < 0 || iconHtml.indexOf('Calendaricon.png?v=r250') < 0) {
+    fail('_calNextUpCalendarIcon markup mismatch');
+  }
+
+  if (line(null) !== 'No upcoming calendar items') {
+    fail('_calNextUpLine(null) should return empty-state copy');
+  }
+  if (line(undefined) !== 'No upcoming calendar items') {
+    fail('_calNextUpLine(undefined) should return empty-state copy');
+  }
+
+  const dateLabel = sandbox.window._calCompactDateLabel('2026-07-16');
+  const titleOnly = line({ date: '2026-07-16', title: 'Rehearsal', type: 'rehearsal' }, {});
+  if (titleOnly !== dateLabel + DOT + 'Rehearsal') {
+    fail('_calNextUpLine title-only mismatch: ' + titleOnly);
+  }
+
+  // Escape title/time via _calSafe
+  const escaped = line({ date: '2026-07-16', title: '<b>Gig</b>', type: 'gig', id: 'g1', settime: '8pm' }, {});
+  if (escaped.indexOf('&lt;b&gt;Gig&lt;/b&gt;') < 0 || escaped.indexOf('8PM') < 0) {
+    fail('_calNextUpLine should escape title and uppercase row.settime: ' + escaped);
+  }
+
+  // Gig details map injection prefers det.settime over row time
+  const details = { g1: { settime: '7:30pm' } };
+  const fromDetails = line({ date: '2026-07-16', title: 'Show', type: 'gig', id: 'g1', time: '9pm' }, details);
+  if (fromDetails.indexOf('7:30PM') < 0 || fromDetails.indexOf('9PM') >= 0) {
+    fail('_calNextUpLine should prefer gigDetails.settime: ' + fromDetails);
+  }
+
+  // Non-gig ignores gigDetails even if id matches
+  const rehearse = line({ date: '2026-07-16', title: 'Practice', type: 'rehearsal', id: 'g1' }, details);
+  if (rehearse.indexOf('7:30PM') >= 0) {
+    fail('_calNextUpLine should ignore gigDetails for non-gig rows');
+  }
+
+  // Missing / empty gigDetails map
+  if (line({ date: '2026-07-16', title: 'Show', type: 'gig', id: 'g1' }, null).indexOf('Show') < 0) {
+    fail('_calNextUpLine(null gigDetailsMap) should still render title');
+  }
+  if (line({ date: '2026-07-16', title: 'Show', type: 'gig', id: 'g1' }, undefined).indexOf('Show') < 0) {
+    fail('_calNextUpLine(undefined gigDetailsMap) should still render title');
+  }
+
+  // Legacy one-arg alias uses window.gigDetails
+  sandbox.window.gigDetails = { g1: { settime: '6pm' } };
+  const legacy = legacyLine({ date: '2026-07-16', title: 'Show', type: 'gig', id: 'g1' });
+  if (legacy.indexOf('6PM') < 0) {
+    fail('legacy window._calNextUpLine(row) should use window.gigDetails');
+  }
+  sandbox.window.gigDetails = undefined;
+  const legacyNoMap = legacyLine({ date: '2026-07-16', title: 'Show', type: 'gig', id: 'g1', settime: '5pm' });
+  if (legacyNoMap.indexOf('5PM') < 0) {
+    fail('legacy _calNextUpLine with missing window.gigDetails should fall back to row.settime');
+  }
+}
+
 function checkBehavior(sandbox) {
   const safe = sandbox.window._calSafe;
   const typeIcon = sandbox.window._calTypeIcon;
@@ -513,6 +587,7 @@ function checkBehavior(sandbox) {
   checkHolidayBehavior(sandbox);
   checkBirthdayBehavior(sandbox);
   checkImportantDatesBehavior(sandbox);
+  checkNextUpBehavior(sandbox);
 }
 
 function main() {
