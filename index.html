@@ -1,4 +1,5 @@
-﻿<!-- r955: Calendar blackout text helpers extraction. Moves _blackoutNameFromTitle, _blackoutConflictLine, and _blackoutConflictMessage into js/calendar-date-helpers.js; blackout confirm UI remains inline; no Calendar visual, drawer, Firestore, Flyer, or Home behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
+﻿<!-- r956: Home Rehearsal on Deck proposal-open fix. When the Home cue binds an open rehearsal proposal id (r809 fallback), tapping it opens the Calendar Rehearsal Proposals deep-link instead of toasting "Rehearsal not found". Confirmed rehearsal event open path unchanged. No Calendar grid markers, blackout, vote/confirm, Flyer, or modularization changes. Upload index.html after phone test. -->
+<!-- r955: Calendar blackout text helpers extraction. Moves _blackoutNameFromTitle, _blackoutConflictLine, and _blackoutConflictMessage into js/calendar-date-helpers.js; blackout confirm UI remains inline; no Calendar visual, drawer, Firestore, Flyer, or Home behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
 <!-- r954: Calendar today/status helpers extraction. Moves _calTodayDate, _calTodayKey, and _isPastGig into js/calendar-date-helpers.js; no Calendar visual, drawer, Firestore, Flyer, or Home behavior changes. Upload index.html plus js/calendar-date-helpers.js after phone test. -->
 <!-- r953: Calendar date/display helpers extraction. Moves pure Calendar helpers (_calSafe, _calTypeIcon, _calColor, _calCompactDateLabel) to js/calendar-date-helpers.js; no Calendar visual, drawer, Firestore, Flyer, or Home behavior changes. Upload index.html plus js/calendar-date-helpers.js (and existing flyer JS) after phone test. -->
 <!-- r952: Flyer layer helpers extraction. Moves r947 flyer layer helpers to js/flyer-layer-helpers.js; no flyer visual, zone, render, save, or saved-flyer behavior changes. Upload index.html plus js/flyer-template-manifest.js, js/flyer-template-adapter.js, and js/flyer-layer-helpers.js after phone test. -->
@@ -22697,23 +22698,38 @@ function _r535PrettyRehearsalDate(ev){
 function _r535OpenHomeRehearsal(eid){
   try{
     var ev = (events || []).find(function(x){ return String(x.id) === String(eid); });
-    if(!ev || !ev.date){ toast('Rehearsal not found', {tone:'error'}); return; }
-    var parts = String(ev.date).split('-');
-    if(parts.length !== 3) throw new Error('Bad rehearsal date');
-    CY = parseInt(parts[0], 10);
-    CM = parseInt(parts[1], 10) - 1;
-    var day = parseInt(parts[2], 10);
-    var calBtn = document.getElementById('tb-cal');
-    _calendarSkipTopResetOnce = true;
-    if(typeof go === 'function') go('cal', calBtn);
-    if(typeof rCal === 'function') rCal();
-    if(typeof openDayDrawer === 'function') openDayDrawer(day, [ev], {skipScroll:true, standaloneEventDetail:true});
-    setTimeout(function(){
-      try{
-        var drawer = document.getElementById('cal-drawer');
-        if(drawer && drawer.scrollIntoView) drawer.scrollIntoView({block:'nearest', behavior:'smooth'});
-      }catch(_e){}
-    }, 70);
+    if(ev && ev.date){
+      var parts = String(ev.date).split('-');
+      if(parts.length !== 3) throw new Error('Bad rehearsal date');
+      CY = parseInt(parts[0], 10);
+      CM = parseInt(parts[1], 10) - 1;
+      var day = parseInt(parts[2], 10);
+      var calBtn = document.getElementById('tb-cal');
+      _calendarSkipTopResetOnce = true;
+      if(typeof go === 'function') go('cal', calBtn);
+      if(typeof rCal === 'function') rCal();
+      if(typeof openDayDrawer === 'function') openDayDrawer(day, [ev], {skipScroll:true, standaloneEventDetail:true});
+      setTimeout(function(){
+        try{
+          var drawer = document.getElementById('cal-drawer');
+          if(drawer && drawer.scrollIntoView) drawer.scrollIntoView({block:'nearest', behavior:'smooth'});
+        }catch(_e){}
+      }, 70);
+      return;
+    }
+    // r956: Home cue may bind an open rehearsal proposal id (r809 fallback).
+    // Open via the working Calendar proposal deep-link instead of toasting.
+    var prop = (proposals || []).find(function(x){ return String(x.id) === String(eid); });
+    if(prop){
+      var status = String(prop.status || 'open').toLowerCase();
+      if(status !== 'closed' && status !== 'cancelled' && status !== 'canceled' &&
+         status !== 'confirmed' && status !== 'deleted' && status !== 'archived' &&
+         status !== 'superseded' && typeof _gotoProposalFromMemberActivity === 'function'){
+        _gotoProposalFromMemberActivity(eid);
+        return;
+      }
+    }
+    toast('Rehearsal not found', {tone:'error'});
   }catch(e){
     try { console.warn('[r535 home rehearsal] open failed', e); } catch(_e){}
     toast('Could not open rehearsal details', {tone:'error'});
@@ -40124,7 +40140,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-07-13-r955-calendar-blackout-text-helpers';
+var WHATS_NEW_VERSION = '2026-07-13-r956-home-rehearsal-proposal-open-fix';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40469,6 +40485,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-07-13-r956-home-rehearsal-proposal-open-fix', date:'July 13, 2026', importance:'fix', emoji:'🎤', title:'Home Rehearsal on Deck opens proposals', body:'Fixes the Home Rehearsal on Deck pill when it points at an open rehearsal proposal: tapping it now opens Calendar → Rehearsal Proposals instead of showing “Rehearsal not found.” Confirmed rehearsal opens, voting, confirm, blackout markers, and Calendar grid icons are unchanged.', items:['Confirm Build Version reports r956.','With an open rehearsal proposal (no confirmed event yet), confirm Home shows Rehearsal on Deck.','Tap the Home pill and confirm Calendar Rehearsal Proposals opens for that proposal (no “Rehearsal not found” toast).','With a confirmed rehearsal event, tap Home Rehearsal on Deck and confirm Event Details still opens.'] },
   { version:'2026-07-13-r955-calendar-blackout-text-helpers', date:'July 13, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar blackout text helpers extraction', body:'Moves blackout conflict text helpers into js/calendar-date-helpers.js. Blackout confirm UI, Calendar grid, drawers, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r955.','Open Calendar and confirm the month grid still renders.','Open or save a gig/rehearsal on a blackout date and confirm conflict copy still looks correct.','Confirm Gig Detail and Home cues still behave normally.'] },
   { version:'2026-07-13-r954-calendar-today-status-helpers', date:'July 13, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar today status helpers extraction', body:'Moves Calendar today-date and past-gig helpers into js/calendar-date-helpers.js. Calendar grid, day drawer, Gig Detail, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r954.','Open Calendar and confirm the month grid still renders.','Open a gig day and confirm Gig Detail still opens.','Confirm past-gig / same-day status behavior feels unchanged.'] },
   { version:'2026-07-13-r953-calendar-date-helpers-extraction', date:'July 13, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar date helpers extraction', body:'Moves pure Calendar date/display helpers into js/calendar-date-helpers.js. Calendar grid, day drawer, Gig Detail, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r953.','Open Calendar and confirm the month grid still renders.','Confirm event type colors/icons look unchanged.','Open a gig day and confirm Make Flyer / Gig Detail still work.'] },
