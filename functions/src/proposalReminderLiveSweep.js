@@ -14,10 +14,50 @@ const { buildProposalReminderNotifLogEntry, writeNotifLogEntry } = require('./no
  * - live-blocked: LIVE=1 but missing required env → clear preflight errors
  * - live-ready: gates pass but Firestore and/or network disabled → no side effects
  * - live-claim-executed: Firestore claim loop ran; push blocked by network gates
- * - live-executed: claim → push → notiflog (fetchImpl required in tests)
+ * - live-executed: claim → push → notiflog (requires fetchImpl from schedule or test harness)
+ *
+ * Scheduled entry: runScheduledProposalReminderSweep wires runtime fetch (Node 18+ / Functions).
+ * LIVE env gates remain off by default — wiring fetch does not enable production sends.
  *
  * Never initializes firebase-admin unless config.canUseAdmin is true.
  */
+
+/** Resolve a fetch implementation for the scheduled path (or an explicit override). */
+function resolveRuntimeFetchImpl(explicitFetch) {
+  if (typeof explicitFetch === 'function') return explicitFetch;
+  if (typeof globalThis !== 'undefined' && typeof globalThis.fetch === 'function') {
+    return globalThis.fetch.bind(globalThis);
+  }
+  if (typeof fetch === 'function') return fetch;
+  return undefined;
+}
+
+/**
+ * Options the Cloud Scheduler handler should pass into the orchestrator.
+ * Always includes a runtime fetchImpl when available; does not enable LIVE gates.
+ */
+function buildScheduledSweepOptions(env) {
+  return {
+    env: env || process.env,
+    fetchImpl: resolveRuntimeFetchImpl(),
+  };
+}
+
+/**
+ * Scheduled-function entry wrapper: injects runtime fetch, then runs the orchestrator.
+ * Tests may override fetchImpl (including undefined) via options.fetchImpl.
+ */
+async function runScheduledProposalReminderSweep(options) {
+  options = options || {};
+  const base = buildScheduledSweepOptions(options.env);
+  const opts = Object.assign({}, options, {
+    env: options.env || base.env,
+    fetchImpl: Object.prototype.hasOwnProperty.call(options, 'fetchImpl')
+      ? options.fetchImpl
+      : base.fetchImpl,
+  });
+  return runProposalReminderOrchestrator(opts);
+}
 
 function getAdminFirestore(options) {
   if (!options || !options.config || !options.config.canUseAdmin) return null;
@@ -282,7 +322,7 @@ async function runProposalReminderOrchestrator(options) {
     results: results,
     message: config.canSendPush
       ? (options.fetchImpl
-        ? 'Live sweep executed with injected fetch (test harness only)'
+        ? 'Live sweep executed with injected fetch'
         : 'Push suppressed — fetchImpl not provided')
       : 'Firestore claim executed; push/network disabled by gates',
   };
@@ -290,6 +330,9 @@ async function runProposalReminderOrchestrator(options) {
 
 module.exports = {
   runProposalReminderOrchestrator,
+  runScheduledProposalReminderSweep,
+  buildScheduledSweepOptions,
+  resolveRuntimeFetchImpl,
   processReminderCandidates,
   getAdminFirestore,
   loadOpenProposals,

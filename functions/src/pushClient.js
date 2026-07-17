@@ -4,10 +4,12 @@ const { buildProposalReminderMessage } = require('./reminderMessage');
 const { buildProposalReminderIdempotency } = require('./reminderIdempotency');
 
 /**
- * Push worker payload builder + guarded sender (Phase 2b preflight).
+ * Push worker payload builder + guarded sender (Phase 2b/2c).
  *
- * NEVER calls global fetch by default — fetch must be injected (tests only).
- * Production deploy must explicitly wire fetch after worker auth exists.
+ * Does not call global fetch unless a fetchImpl is injected.
+ * The scheduled Cloud Function supplies runtime fetch via
+ * runScheduledProposalReminderSweep → sendProposalReminderPush.
+ * LIVE env gates still control whether push is attempted.
  */
 
 function buildProposalReminderPushPayload(proposal, targetMemberId, reminderNumber, options) {

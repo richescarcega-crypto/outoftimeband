@@ -2,7 +2,12 @@
 
 const assert = require('assert');
 const { evaluateLiveEnablement } = require('../src/liveConfig');
-const { runProposalReminderOrchestrator } = require('../src/proposalReminderLiveSweep');
+const {
+  runProposalReminderOrchestrator,
+  runScheduledProposalReminderSweep,
+  buildScheduledSweepOptions,
+  resolveRuntimeFetchImpl,
+} = require('../src/proposalReminderLiveSweep');
 const {
   buildProposalReminderNotificationId,
   buildDeterministicIdempotencyUuid,
@@ -15,8 +20,65 @@ const PROPOSED_AT = Date.parse('2026-07-01T12:00:00.000Z');
 const TODAY = '2026-07-03';
 const ROSTER = ['alice', 'bob'];
 
-function baseEnv(overrides) {
-  return Object.assign({}, overrides || {});
+function liveEnvAllGates() {
+  return {
+    OOT_PROPOSAL_REMINDER_LIVE: '1',
+    OOT_PUSH_WORKER_SECRET: 'test-secret-not-real',
+    OOT_PROPOSAL_REMINDER_ALLOW_SEND: '1',
+    OOT_PROPOSAL_REMINDER_ALLOW_FIRESTORE: '1',
+    OOT_PROPOSAL_REMINDER_ALLOW_NETWORK: '1',
+  };
+}
+
+function makeDueProposal() {
+  return {
+    id: 'prop-1',
+    status: 'open',
+    date: '2026-07-10',
+    proposedAt: PROPOSED_AT,
+    expectedResponderIds: ROSTER.slice(),
+    responses: { alice: 'yes' },
+    reminderState: {},
+  };
+}
+
+function makeClaimMockDb(proposal) {
+  return {
+    collection: function (name) {
+      return {
+        doc: function (id) {
+          return { collection: name, id: id };
+        },
+        where: function () {
+          return {
+            get: async function () {
+              return {
+                forEach: function (fn) {
+                  fn({ id: 'prop-1', data: function () { return proposal; } });
+                },
+              };
+            },
+          };
+        },
+        get: async function () {
+          return { forEach: function () {} };
+        },
+      };
+    },
+    runTransaction: async function (fn) {
+      const tx = {
+        get: async function () {
+          return {
+            exists: true,
+            id: 'prop-1',
+            data: function () { return proposal; },
+          };
+        },
+        update: function () {},
+      };
+      return fn(tx);
+    },
+  };
 }
 
 function testDryRunIsDefault() {
@@ -30,6 +92,13 @@ async function testOrchestratorDryRunDefault() {
   const result = await runProposalReminderOrchestrator({ env: {} });
   assert.strictEqual(result.mode, 'dry-run');
   assert.strictEqual(result.live, false);
+}
+
+async function testScheduledSweepDryRunUnchanged() {
+  const result = await runScheduledProposalReminderSweep({ env: {} });
+  assert.strictEqual(result.mode, 'dry-run');
+  assert.strictEqual(result.live, false);
+  assert.strictEqual(result.executed, undefined);
 }
 
 function testLiveBlockedWithoutSecrets() {
@@ -53,13 +122,7 @@ function testLiveBlockedWithoutFirestoreAndNetwork() {
 }
 
 function testLiveReadyWhenAllGatesSet() {
-  const cfg = evaluateLiveEnablement({
-    OOT_PROPOSAL_REMINDER_LIVE: '1',
-    OOT_PUSH_WORKER_SECRET: 'test-secret-not-real',
-    OOT_PROPOSAL_REMINDER_ALLOW_SEND: '1',
-    OOT_PROPOSAL_REMINDER_ALLOW_FIRESTORE: '1',
-    OOT_PROPOSAL_REMINDER_ALLOW_NETWORK: '1',
-  });
+  const cfg = evaluateLiveEnablement(liveEnvAllGates());
   assert.strictEqual(cfg.mode, 'live-ready');
   assert.strictEqual(cfg.canUseAdmin, true);
   assert.strictEqual(cfg.canSendPush, true);
@@ -79,6 +142,14 @@ function testLiveReadyClaimWithoutNetworkGate() {
   assert.strictEqual(cfg.canSendPush, false);
   assert.strictEqual(cfg.errors.length, 0);
   assert.ok(cfg.warnings.some(function (w) { return w.indexOf('ALLOW_NETWORK') >= 0; }));
+}
+
+function testScheduledOptionsSupplyFetchImpl() {
+  const opts = buildScheduledSweepOptions({});
+  assert.strictEqual(typeof opts.fetchImpl, 'function');
+  assert.strictEqual(typeof resolveRuntimeFetchImpl(), 'function');
+  const custom = async function () { return null; };
+  assert.strictEqual(resolveRuntimeFetchImpl(custom), custom);
 }
 
 function testDeterministicIdempotency() {
@@ -108,13 +179,7 @@ async function testPushBlockedWithoutCanSendPush() {
 }
 
 async function testPushBlockedWithoutFetchImplEvenWhenLive() {
-  const cfg = evaluateLiveEnablement({
-    OOT_PROPOSAL_REMINDER_LIVE: '1',
-    OOT_PUSH_WORKER_SECRET: 'test-secret-not-real',
-    OOT_PROPOSAL_REMINDER_ALLOW_SEND: '1',
-    OOT_PROPOSAL_REMINDER_ALLOW_FIRESTORE: '1',
-    OOT_PROPOSAL_REMINDER_ALLOW_NETWORK: '1',
-  });
+  const cfg = evaluateLiveEnablement(liveEnvAllGates());
   const result = await sendProposalReminderPush({
     config: cfg,
     proposal: { id: 'p1', date: '2026-07-10' },
@@ -127,13 +192,7 @@ async function testPushBlockedWithoutFetchImplEvenWhenLive() {
 }
 
 async function testPushUsesInjectedFetchOnlyInTestHarness() {
-  const cfg = evaluateLiveEnablement({
-    OOT_PROPOSAL_REMINDER_LIVE: '1',
-    OOT_PUSH_WORKER_SECRET: 'test-secret-not-real',
-    OOT_PROPOSAL_REMINDER_ALLOW_SEND: '1',
-    OOT_PROPOSAL_REMINDER_ALLOW_FIRESTORE: '1',
-    OOT_PROPOSAL_REMINDER_ALLOW_NETWORK: '1',
-  });
+  const cfg = evaluateLiveEnablement(liveEnvAllGates());
   let called = false;
   const result = await sendProposalReminderPush({
     config: cfg,
@@ -179,74 +238,29 @@ async function testOrchestratorLiveReadyWithoutSideEffectsWhenFirestoreGateOff()
 }
 
 async function testOrchestratorClaimBeforePush() {
-  const PROPOSED_AT = Date.parse('2026-07-01T12:00:00.000Z');
   const now = PROPOSED_AT + PROPOSAL_REMINDER_FIRST_MS;
-  const proposal = {
-    id: 'prop-1',
-    status: 'open',
-    date: '2026-07-10',
-    proposedAt: PROPOSED_AT,
-    expectedResponderIds: ROSTER.slice(),
-    responses: { alice: 'yes' },
-    reminderState: {},
-  };
+  const proposal = makeDueProposal();
   let pushCalled = false;
   let claimUpdateCount = 0;
-  const mockDb = {
-    collection: function (name) {
-      return {
-        doc: function (id) {
-          return { collection: name, id: id };
-        },
-        where: function () {
-          return {
-            get: async function () {
-              return {
-                forEach: function (fn) {
-                  fn({ id: 'prop-1', data: function () { return proposal; } });
-                },
-              };
-            },
-          };
-        },
-        get: async function () {
-          return { forEach: function () {} };
-        },
-      };
-    },
-    runTransaction: async function (fn) {
-      const tx = {
-        get: async function () {
-          return {
-            exists: true,
-            id: 'prop-1',
-            data: function () { return proposal; },
-          };
-        },
-        update: function () {
-          claimUpdateCount += 1;
-        },
-      };
-      return fn(tx);
-    },
+  const mockDb = makeClaimMockDb(proposal);
+  mockDb.runTransaction = async function (fn) {
+    const tx = {
+      get: async function () {
+        return {
+          exists: true,
+          id: 'prop-1',
+          data: function () { return proposal; },
+        };
+      },
+      update: function () {
+        claimUpdateCount += 1;
+      },
+    };
+    return fn(tx);
   };
 
-  const cfg = evaluateLiveEnablement({
-    OOT_PROPOSAL_REMINDER_LIVE: '1',
-    OOT_PUSH_WORKER_SECRET: 'test-secret-not-real',
-    OOT_PROPOSAL_REMINDER_ALLOW_SEND: '1',
-    OOT_PROPOSAL_REMINDER_ALLOW_FIRESTORE: '1',
-    OOT_PROPOSAL_REMINDER_ALLOW_NETWORK: '1',
-  });
-
   const result = await runProposalReminderOrchestrator({
-    env: {
-      OOT_PROPOSAL_REMINDER_LIVE: '1',
-      OOT_PUSH_WORKER_SECRET: 'test-secret-not-real',
-      OOT_PROPOSAL_REMINDER_ALLOW_SEND: '1',
-      OOT_PROPOSAL_REMINDER_ALLOW_FIRESTORE: '1',
-      OOT_PROPOSAL_REMINDER_ALLOW_NETWORK: '1',
-    },
+    env: liveEnvAllGates(),
     firestore: mockDb,
     proposals: [proposal],
     rosterMemberIds: ROSTER,
@@ -269,56 +283,96 @@ async function testOrchestratorClaimBeforePush() {
   assert.strictEqual(result.results[0].claim.send, true);
   assert.strictEqual(result.results[0].reminderNumber, 1);
   assert.strictEqual(result.results[0].push.sent, true);
-  assert.strictEqual(cfg.canSendPush, true);
+}
+
+async function testScheduledSweepAttemptsPushWithMockedFetch() {
+  const now = PROPOSED_AT + PROPOSAL_REMINDER_FIRST_MS;
+  const proposal = makeDueProposal();
+  let pushCalled = false;
+  let claimUpdates = 0;
+  const mockDb = makeClaimMockDb(proposal);
+  mockDb.runTransaction = async function (fn) {
+    return fn({
+      get: async function () {
+        return { exists: true, id: 'prop-1', data: function () { return proposal; } };
+      },
+      update: function () { claimUpdates += 1; },
+    });
+  };
+
+  const result = await runScheduledProposalReminderSweep({
+    env: liveEnvAllGates(),
+    firestore: mockDb,
+    proposals: [proposal],
+    rosterMemberIds: ROSTER,
+    memberNamesById: { bob: 'Bob' },
+    notifPrefsByMemberName: {},
+    nowMs: now,
+    todayStr: TODAY,
+    writeNotifLog: false,
+    fetchImpl: async function () {
+      pushCalled = true;
+      return { status: 200, text: async function () { return 'ok'; } };
+    },
+  });
+
+  assert.strictEqual(result.mode, 'live-executed');
+  assert.strictEqual(claimUpdates, 1);
+  assert.strictEqual(pushCalled, true);
+  assert.strictEqual(result.results[0].push.sent, true);
+}
+
+async function testScheduledSweepWithoutFetchKeepsFetchNotInjected() {
+  const now = PROPOSED_AT + PROPOSAL_REMINDER_FIRST_MS;
+  const proposal = makeDueProposal();
+  let claimUpdates = 0;
+  const mockDb = makeClaimMockDb(proposal);
+  mockDb.runTransaction = async function (fn) {
+    return fn({
+      get: async function () {
+        return { exists: true, id: 'prop-1', data: function () { return proposal; } };
+      },
+      update: function () { claimUpdates += 1; },
+    });
+  };
+
+  const result = await runScheduledProposalReminderSweep({
+    env: liveEnvAllGates(),
+    firestore: mockDb,
+    proposals: [proposal],
+    rosterMemberIds: ROSTER,
+    memberNamesById: { bob: 'Bob' },
+    notifPrefsByMemberName: {},
+    nowMs: now,
+    todayStr: TODAY,
+    writeNotifLog: false,
+    fetchImpl: undefined,
+  });
+
+  assert.strictEqual(result.mode, 'live-executed');
+  assert.strictEqual(result.executed, true);
+  assert.strictEqual(claimUpdates, 1);
+  assert.strictEqual(result.results[0].claim.send, true);
+  assert.strictEqual(result.results[0].push.sent, false);
+  assert.strictEqual(result.results[0].push.reason, 'fetch-not-injected');
+  assert.ok(String(result.message).indexOf('fetchImpl not provided') >= 0);
 }
 
 async function testOrchestratorSkipsPushWhenClaimNotDue() {
-  const proposal = {
-    id: 'prop-1',
-    status: 'open',
-    date: '2026-07-10',
-    proposedAt: PROPOSED_AT,
-    expectedResponderIds: ROSTER.slice(),
-    responses: { alice: 'yes' },
-    reminderState: {},
-  };
+  const proposal = makeDueProposal();
   let pushCalled = false;
-  const mockDb = {
-    collection: function () {
-      return {
-        doc: function (id) { return { id: id }; },
-        where: function () {
-          return {
-            get: async function () {
-              return {
-                forEach: function (fn) {
-                  fn({ id: 'prop-1', data: function () { return proposal; } });
-                },
-              };
-            },
-          };
-        },
-        get: async function () { return { forEach: function () {} }; },
-      };
-    },
-    runTransaction: async function (fn) {
-      return fn({
-        get: async function () {
-          return { exists: true, id: 'prop-1', data: function () { return proposal; } };
-        },
-        update: function () { throw new Error('should not update when not due'); },
-      });
-    },
+  const mockDb = makeClaimMockDb(proposal);
+  mockDb.runTransaction = async function (fn) {
+    return fn({
+      get: async function () {
+        return { exists: true, id: 'prop-1', data: function () { return proposal; } };
+      },
+      update: function () { throw new Error('should not update when not due'); },
+    });
   };
 
   const result = await runProposalReminderOrchestrator({
-    env: {
-      OOT_PROPOSAL_REMINDER_LIVE: '1',
-      OOT_PUSH_WORKER_SECRET: 'test-secret-not-real',
-      OOT_PROPOSAL_REMINDER_ALLOW_SEND: '1',
-      OOT_PROPOSAL_REMINDER_ALLOW_FIRESTORE: '1',
-      OOT_PROPOSAL_REMINDER_ALLOW_NETWORK: '1',
-    },
+    env: liveEnvAllGates(),
     firestore: mockDb,
     proposals: [proposal],
     rosterMemberIds: ROSTER,
@@ -347,42 +401,16 @@ async function testOrchestratorSkipsPushWhenClaimNotDue() {
 
 async function testClaimOnlyWhenNetworkGateOff() {
   const now = PROPOSED_AT + PROPOSAL_REMINDER_FIRST_MS;
-  const proposal = {
-    id: 'prop-1',
-    status: 'open',
-    date: '2026-07-10',
-    proposedAt: PROPOSED_AT,
-    expectedResponderIds: ROSTER.slice(),
-    responses: { alice: 'yes' },
-    reminderState: {},
-  };
+  const proposal = makeDueProposal();
   let claimUpdates = 0;
-  const mockDb = {
-    collection: function () {
-      return {
-        doc: function (id) { return { id: id }; },
-        where: function () {
-          return {
-            get: async function () {
-              return {
-                forEach: function (fn) {
-                  fn({ id: 'prop-1', data: function () { return proposal; } });
-                },
-              };
-            },
-          };
-        },
-        get: async function () { return { forEach: function () {} }; },
-      };
-    },
-    runTransaction: async function (fn) {
-      return fn({
-        get: async function () {
-          return { exists: true, id: 'prop-1', data: function () { return proposal; } };
-        },
-        update: function () { claimUpdates += 1; },
-      });
-    },
+  const mockDb = makeClaimMockDb(proposal);
+  mockDb.runTransaction = async function (fn) {
+    return fn({
+      get: async function () {
+        return { exists: true, id: 'prop-1', data: function () { return proposal; } };
+      },
+      update: function () { claimUpdates += 1; },
+    });
   };
 
   const result = await runProposalReminderOrchestrator({
@@ -410,10 +438,12 @@ async function testClaimOnlyWhenNetworkGateOff() {
 async function run() {
   testDryRunIsDefault();
   await testOrchestratorDryRunDefault();
+  await testScheduledSweepDryRunUnchanged();
   testLiveBlockedWithoutSecrets();
   testLiveBlockedWithoutFirestoreAndNetwork();
   testLiveReadyWhenAllGatesSet();
   testLiveReadyClaimWithoutNetworkGate();
+  testScheduledOptionsSupplyFetchImpl();
   testDeterministicIdempotency();
   await testPushBlockedWithoutCanSendPush();
   await testPushBlockedWithoutFetchImplEvenWhenLive();
@@ -421,9 +451,11 @@ async function run() {
   testPushPayloadShape();
   await testOrchestratorLiveReadyWithoutSideEffectsWhenFirestoreGateOff();
   await testOrchestratorClaimBeforePush();
+  await testScheduledSweepAttemptsPushWithMockedFetch();
+  await testScheduledSweepWithoutFetchKeepsFetchNotInjected();
   await testOrchestratorSkipsPushWhenClaimNotDue();
   await testClaimOnlyWhenNetworkGateOff();
-  console.log('PASS: live preflight tests (15 cases)');
+  console.log('PASS: live preflight tests (19 cases)');
 }
 
 run().catch(function (err) {

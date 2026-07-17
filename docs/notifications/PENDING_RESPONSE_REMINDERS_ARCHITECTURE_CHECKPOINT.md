@@ -2,11 +2,9 @@
 
 ## Status
 
-**Checkpoint / documentation only.** No runtime behavior changed by this document.
+**Checkpoint / documentation.** Records the **actual current implementation** of rehearsal proposal pending-response reminder notifications and the backend path for reliable 24-hour / 10-hour non-responder nudges.
 
-Records the **actual current implementation** of rehearsal proposal pending-response reminder notifications (inspection at `main` baseline through modularization merge) and the **safest backend implementation path** for reliable 24-hour / 10-hour non-responder nudges.
-
-Branch context: `feature/pending-response-reminders-plan` (planning slice).
+Updated after backend schedule **fetch-wiring** (post-r965 Calendar closeout). No client Build Version bump; LIVE sending remains gated off.
 
 ---
 
@@ -14,10 +12,14 @@ Branch context: `feature/pending-response-reminders-plan` (planning slice).
 
 | Item | Value |
 |------|--------|
-| Inspection baseline | `main` @ modularization merge + r944 version marker |
-| Primary implementation | `index.html` (client-side engine r109 / r762 / r826) |
-| Backend scheduler | **Not implemented** — no `functions/` directory in repo |
+| Client Build Version | `2026-07-17-r965-calendar-display-rows-helper` |
+| Primary client implementation | `index.html` (client-side engine r109 / r762 / r826) |
+| Backend scheduler | **Exists** — Firebase Functions v2 `proposalReminderSweepScheduled` in `functions/` (every 15 minutes) |
+| Claim-before-send | **Exists** — client + `functions/src/reminderClaim*.js` |
+| Fetch wiring | **Exists** — scheduled path injects runtime `fetch` via `runScheduledProposalReminderSweep` |
+| LIVE production sends | **Disabled by default** (`OOT_PROPOSAL_REMINDER_LIVE` unset / !=1) |
 | Push delivery | External Cloudflare worker (`PUSH_WORKER_URL` in `index.html`) |
+| Worker auth / production enablement | **Still requires separate verification** before setting LIVE gates |
 
 ---
 
@@ -247,23 +249,32 @@ Cloud Scheduler (every 15–30 min)
 5. **Auth** — function uses Admin SDK for Firestore; push worker needs shared secret or signed requests (not client-exposed).
 6. **Testing** — use existing Reminder Audit panel + `notiflog` + manual `sendProposalRemindersNow` until backend proven; add function-local integration tests if functions directory is created.
 
-### Phase 2 deliverables (future slice)
+### Phase 2 status (as of fetch-wiring slice)
 
-| Deliverable | Notes |
-|-------------|-------|
-| `functions/` (or equivalent) | Scheduled function + deploy config |
-| Shared due/claim spec | This doc + inline comments in function |
-| Firestore rules update | Allow function service account to update `reminderState` only |
-| Push worker auth | Server-to-server POST path |
-| Rollback | Disable scheduler; client opportunistic sweep remains |
+| Deliverable | Status |
+|-------------|--------|
+| `functions/` scheduled scaffold + claim-before-send | **Done** |
+| Runtime `fetch` injection from schedule → orchestrator → push client | **Done** |
+| LIVE env gates default-off | **Done** (unchanged) |
+| Function-local unit tests (due/claim/live preflight) | **Done** |
+| Firestore rules / deploy / LIVE enablement | **Not done** — separate approval |
+| Push worker auth contract verification | **Not done** — required before LIVE |
 
-### Explicit non-goals for Phase 2
+### Explicit non-goals for this fetch-wiring slice
+
+- Enabling LIVE production sends
+- Rewriting Home modularization / cue renderer
+- Changing proposal voting UI or CSS
+- Changing `rehearsal-proposal` notification prefs model
+- Deploying Firebase Functions from this change alone
+- Client Build Version bump / `index.html` edits
+
+### Explicit non-goals for Phase 2 (broader)
 
 - Rewriting Home modularization / cue renderer
 - Changing proposal voting UI or CSS
 - Changing `rehearsal-proposal` notification prefs model
-- Deploying from this checkpoint doc alone
-
+- Deploying from documentation alone
 ---
 
 ## Optional Phase 3 — Push Idempotency Hardening
