@@ -4,19 +4,21 @@ Date: 2026-07-17
 
 ## Status
 
-**C11a / r964 runtime complete on modularization branch. Production merge and phone/PWA verification still pending.**
+**C11a / r964 complete.** Fast-forwarded and pushed to production `main` at `7c38283`. Local validation and phone/PWA verification passed. User confirmed: **"r964 passed"**. No regression observed.
 
 | Item | Value |
 |------|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `a4fb1a4` |
-| `origin/modularization-home-layout-engine-pilot` | `a4fb1a4` |
+| Branch | `main` |
+| HEAD | `7c38283` |
+| `origin/main` | `7c38283` |
+| `origin/modularization-home-layout-engine-pilot` | `7c38283` |
 | Baseline (pre-C11a) | `c11b9c2` |
 | Build Version | `2026-07-17-r964-calendar-upcoming-rows-helper` |
 | Runtime commit | `a4fb1a4` — `Extract Calendar upcoming rows helper` |
+| Production tip (post-FF) | `7c38283` |
 | Safe rollback tip (pre-C11a) | `c11b9c2` |
-| Production merge | **PENDING** |
-| Phone / PWA verification | **PENDING** |
+| Production merge | **PASS** |
+| Phone / PWA verification | **PASS** |
 
 ---
 
@@ -43,13 +45,11 @@ Extract only `_calUpcomingRows` from `index.html` into the existing Calendar hel
 
 ## Production Merge
 
-**PENDING.** r964 has not been merged to production `main`.
+**PASS.** r964 was **fast-forwarded and pushed** to production `main` at `7c38283`.
 
-| Ref | Value |
-|-----|--------|
-| Safe rollback tip | `c11b9c2` |
+After deployment, `main`, `origin/main`, and `origin/modularization-home-layout-engine-pilot` were aligned at `7c38283`.
 
-Phone/PWA verification is still pending after merge.
+Safe rollback tip (pre-C11a production): `c11b9c2`.
 
 ---
 
@@ -167,30 +167,28 @@ The alias injects:
 | Inline script syntax check | PASS — 8 scripts, 0 failures |
 | `git diff --check` | PASS |
 
-### Phone / PWA — PENDING
+### Phone / PWA — PASS
 
-Production merge and phone/PWA verification still pending.
+User confirmed phone verification passed (`"r964 passed"`). No regression observed.
 
----
+| Check | Result |
+|-------|--------|
+| Build Version r964 | PASS |
+| Calendar load | PASS |
+| Month navigation | PASS |
+| Next Up | PASS |
+| Calendar rows and markers | PASS |
+| All Events | PASS |
+| Rehearsal Proposals | PASS |
+| Home rehearsal cue | PASS |
+| Home band image unchanged | PASS |
+| Flyer creation opened | PASS |
+| No regression observed | PASS |
 
-## Phone / PWA Verification Checklist
+Local-only untracked files remained untouched:
 
-After deploy / hard refresh:
-
-- [ ] Build Version shows **r964**
-- [ ] Calendar opens
-- [ ] Month navigation works
-- [ ] Next Up card still shows the next upcoming item
-- [ ] Upcoming filtering remains correct (including 60-day Next Up path)
-- [ ] Birthday injection in upcoming / Next Up remains correct
-- [ ] Holiday injection in upcoming / Next Up remains correct
-- [ ] Month-boundary and normal dates remain correct
-- [ ] Important Dates remain correct
-- [ ] Home rehearsal cue works
-- [ ] Home band image is unchanged
-- [ ] Flyer creation opens
-
-Do not claim production verification until every applicable check passes.
+- `docs/modularization/PHASE_6W_A_REHEARSAL_CUE_PARITY_PLAN.md`
+- `oot-local-server.ps1`
 
 ---
 
@@ -213,17 +211,20 @@ Do not claim production verification until every applicable check passes.
 
 | Ref | Value |
 |-----|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `a4fb1a4` |
-| `origin/modularization-home-layout-engine-pilot` | `a4fb1a4` |
+| Branch | `main` |
+| HEAD | `7c38283` |
+| `origin/main` | `7c38283` |
+| `origin/modularization-home-layout-engine-pilot` | `7c38283` |
 | Baseline / safe rollback tip (pre-C11a) | `c11b9c2` |
 | Runtime commit | `a4fb1a4` |
+| Production tip (post-FF) | `7c38283` |
+
+`main`, `origin/main`, and the modularization branch are aligned at `7c38283` after the approved fast-forward deploy.
 
 ---
 
 ## Next Recommended Step
 
-1. Create the C11a / r964 merge-to-main plan (documentation only).
-2. After approved fast-forward deploy + phone/PWA PASS, update this checkpoint status to production verified.
-3. Keep protected Home / Flyer / proposal / Important Date / birthday / holiday / display-row / render boundaries untouched unless a later approved plan says otherwise.
-4. If r964 must be reverted: restore to safe rollback tip `c11b9c2` (separate, auditable procedure; Rich approval required).
+1. Continue Calendar modularization planning for the next safe helpers seam (post-C11a).
+2. Keep protected Home / Flyer / proposal / Important Date / birthday / holiday / display-row / render boundaries untouched unless a later approved plan says otherwise.
+3. If r964 must be reverted: restore production `main` to safe rollback tip `c11b9c2` (separate, auditable procedure; Rich approval required).
