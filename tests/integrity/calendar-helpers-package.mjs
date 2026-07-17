@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960, C8a — r961, C9a — r962, C10a — r963).
+ * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960, C8a — r961, C9a — r962, C10a — r963, C11a — r964).
  */
 
 import fs from 'node:fs';
@@ -81,7 +81,8 @@ function checkIndexWiring(html) {
     'function _calNextUpLine',
     'function _calCustomEntryRows',
     'function _customEntriesAsRows',
-    'function _calRowsInMonth'
+    'function _calRowsInMonth',
+    'function _calUpcomingRows'
   ];
   mustNotDefine.forEach(function (sig) {
     const re = new RegExp(sig.replace(/ /g, '\\s+') + '\\s*\\(');
@@ -96,12 +97,12 @@ function checkIndexWiring(html) {
   if (!/_customEntriesAsRows\s*\(\s*\)/.test(html)) {
     fail('index.html must keep zero-arg _customEntriesAsRows() call sites');
   }
-  // C10a: display/upcoming collectors remain inline; month filter moved.
+  // C10a/C11a: display rows remain inline; month + upcoming collectors moved.
   if (!/function\s+_calDisplayRows\s*\(/.test(html)) {
     fail('index.html must keep inline _calDisplayRows');
   }
-  if (!/function\s+_calUpcomingRows\s*\(/.test(html)) {
-    fail('index.html must keep inline _calUpcomingRows');
+  if (!/_calUpcomingRows\s*\(\s*60\s*\)/.test(html)) {
+    fail('index.html must keep _calRenderStageSummary calling _calUpcomingRows(60)');
   }
 }
 
@@ -130,7 +131,8 @@ function checkAliases(sandbox) {
     '_calNextUpLine',
     '_calCustomEntryRows',
     '_customEntriesAsRows',
-    '_calRowsInMonth'
+    '_calRowsInMonth',
+    '_calUpcomingRows'
   ];
   aliasNames.forEach(function (name) {
     if (typeof sandbox.window[name] !== 'function') fail('missing window.' + name);
@@ -163,7 +165,8 @@ function checkAliases(sandbox) {
     'nextUpLine',
     'customEntryRows',
     'customEntriesAsRows',
-    'rowsInMonth'
+    'rowsInMonth',
+    'upcomingRows'
   ];
   apiNames.forEach(function (name) {
     if (!helpers || typeof helpers[name] !== 'function') {
@@ -754,6 +757,131 @@ function checkRowsInMonthBehavior(sandbox) {
   }
 }
 
+function checkUpcomingRowsBehavior(sandbox) {
+  const helpers = sandbox.window.OOT_CALENDAR_HELPERS;
+  const upcoming = helpers.upcomingRows;
+  const legacyUpcoming = sandbox.window._calUpcomingRows;
+
+  const now = new Date(2026, 6, 1); // July 1, 2026 local
+  const rows = [
+    { id: 'jun30', date: '2026-06-30', type: 'gig' },
+    { id: 'jul1', date: '2026-07-01', type: 'gig' },
+    { id: 'jul10', date: '2026-07-10', type: 'rehearsal' },
+    { id: 'jul15', date: '2026-07-15', type: 'gig' },
+    { id: 'jul20', date: '2026-07-20', type: 'gig' },
+    { id: 'sep1', date: '2026-09-01', type: 'gig' }
+  ];
+  const members = [
+    { name: 'Alex Rivera', bday: '1990-07-05' },
+    { name: 'Jordan Lee', bday: '1988-07-20' }
+  ];
+  const rowsSnap = JSON.stringify(rows);
+  const membersSnap = JSON.stringify(members);
+
+  // Default 14-day window: Jul 1..Jul 15 inclusive
+  const def14 = upcoming(rows, now, undefined, members);
+  const defIds = def14.filter(function (r) { return r.id; }).map(function (r) { return r.id; });
+  if (defIds.join(',') !== 'jul1,jul10,jul15') {
+    fail('_calUpcomingRows default 14-day window mismatch: ' + defIds.join(','));
+  }
+  if (!def14.some(function (r) { return r.type === 'holiday' && r.date === '2026-07-04'; })) {
+    fail('_calUpcomingRows default window should include Independence Day 2026-07-04');
+  }
+  if (!def14.some(function (r) {
+    return r.type === 'birthday' && r.date === '2026-07-05' && r.title === "Alex's Birthday";
+  })) {
+    fail('_calUpcomingRows should inject first-name birthday title for Alex');
+  }
+  if (def14.some(function (r) { return r.id === 'jul20' || r.id === 'jun30' || r.id === 'sep1'; })) {
+    fail('_calUpcomingRows default window should exclude dates outside Jul 1-15');
+  }
+
+  // Explicit 60-day window includes Jul 20 and Jordan birthday; still excludes Sep 1
+  const win60 = upcoming(rows, now, 60, members);
+  if (!win60.some(function (r) { return r.id === 'jul20'; })) {
+    fail('_calUpcomingRows(60) should include Jul 20 display row');
+  }
+  if (!win60.some(function (r) {
+    return r.type === 'birthday' && r.date === '2026-07-20' && r.title === "Jordan's Birthday";
+  })) {
+    fail('_calUpcomingRows(60) should include Jordan birthday');
+  }
+  if (win60.some(function (r) { return r.id === 'sep1'; })) {
+    fail('_calUpcomingRows(60) should still exclude Sep 1');
+  }
+
+  // Inclusive bounds: start and end dates included
+  const bounds = upcoming(
+    [{ id: 's', date: '2026-07-01' }, { id: 'e', date: '2026-07-15' }],
+    now,
+    14,
+    []
+  );
+  if (!bounds.some(function (r) { return r.id === 's'; }) || !bounds.some(function (r) { return r.id === 'e'; })) {
+    fail('_calUpcomingRows must include inclusive start and end dates');
+  }
+
+  // Null/empty display rows still allow synthetic birthday/holiday rows
+  const synthNull = upcoming(null, now, 14, members);
+  if (!synthNull.some(function (r) { return r.type === 'holiday' && r.date === '2026-07-04'; })) {
+    fail('_calUpcomingRows(null rows) should still inject holidays');
+  }
+  if (!synthNull.some(function (r) { return r.type === 'birthday' && r.date === '2026-07-05'; })) {
+    fail('_calUpcomingRows(null rows) should still inject birthdays');
+  }
+  const synthEmpty = upcoming([], now, 14, members);
+  if (!synthEmpty.some(function (r) { return r.type === 'holiday' && r.date === '2026-07-04'; })) {
+    fail('_calUpcomingRows([] rows) should still inject holidays');
+  }
+
+  upcoming(rows, now, 14, members);
+  if (JSON.stringify(rows) !== rowsSnap) {
+    fail('_calUpcomingRows must not mutate supplied displayRows');
+  }
+  if (JSON.stringify(members) !== membersSnap) {
+    fail('_calUpcomingRows must not mutate supplied membersList');
+  }
+
+  // Sorted by date only
+  for (var i = 1; i < def14.length; i++) {
+    if (def14[i - 1].date.localeCompare(def14[i].date) > 0) {
+      fail('_calUpcomingRows must sort by date ascending');
+      break;
+    }
+  }
+
+  // Legacy one-arg alias uses _calDisplayRows / new Date() / window.members
+  const clock = new Date();
+  const startLocal = new Date(clock.getFullYear(), clock.getMonth(), clock.getDate());
+  function dsLive(dt){
+    return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+  }
+  const dIn = dsLive(startLocal);
+  const dBday = dsLive(new Date(startLocal.getTime() + 3 * 86400000));
+  const dOut = dsLive(new Date(startLocal.getTime() + 30 * 86400000));
+  const liveRows = [
+    { id: 'in', date: dIn, type: 'gig' },
+    { id: 'out', date: dOut, type: 'gig' }
+  ];
+  const liveMembers = [
+    { name: 'Sam Test', bday: '2000-' + dBday.slice(5) }
+  ];
+  sandbox.window.members = liveMembers;
+  sandbox.window._calDisplayRows = function () { return liveRows; };
+  const legacy = legacyUpcoming(14);
+  if (!Array.isArray(legacy) || !legacy.some(function (r) { return r.id === 'in'; })) {
+    fail('legacy window._calUpcomingRows(14) should include in-window display row');
+  }
+  if (legacy.some(function (r) { return r.id === 'out'; })) {
+    fail('legacy _calUpcomingRows(14) should exclude out-of-window display row');
+  }
+  if (!legacy.some(function (r) {
+    return r.type === 'birthday' && r.date === dBday && r.title === "Sam's Birthday";
+  })) {
+    fail('legacy _calUpcomingRows should inject birthdays from window.members');
+  }
+}
+
 function checkBehavior(sandbox) {
   const safe = sandbox.window._calSafe;
   const typeIcon = sandbox.window._calTypeIcon;
@@ -843,6 +971,7 @@ function checkBehavior(sandbox) {
   checkCustomEntryRowsBehavior(sandbox);
   checkCustomEntriesAsRowsBehavior(sandbox);
   checkRowsInMonthBehavior(sandbox);
+  checkUpcomingRowsBehavior(sandbox);
 }
 
 function main() {

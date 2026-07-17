@@ -1,5 +1,5 @@
 /**
- * Out of Time calendar date/status helpers (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960, C8a — r961, C9a — r962, C10a — r963).
+ * Out of Time calendar date/status helpers (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960, C8a — r961, C9a — r962, C10a — r963, C11a — r964).
  * Loaded after flyer helpers and before the main inline script.
  * Preserves legacy _cal* / _isPastGig / _blackout* / getHoliday* / birthday / important-date / Next Up global names for Calendar compatibility.
  * _calColor defers gig/rehearsal/blackout colors to inline _eventColor(EC).
@@ -11,6 +11,7 @@
  * _calCustomEntryRows materializes one Important Date with explicit year/color inputs.
  * _customEntriesAsRows collects Important Date rows with explicit list/year/color inputs (legacy zero-arg alias uses window globals).
  * _calRowsInMonth filters display rows for a month with explicit rows/year/month inputs (legacy zero-arg alias uses window._calDisplayRows / CY / CM).
+ * _calUpcomingRows builds upcoming rows with explicit displayRows / nowDate / daysAhead / membersList (legacy one-arg alias uses window._calDisplayRows / new Date() / window.members).
  * Inline function _pad remains in index.html for Important Date modal use.
  */
 function _calTypeIcon(type){
@@ -254,6 +255,33 @@ function _calRowsInMonth(displayRows, year, month0){
   return rows.filter(function(e){ return e.date >= start && e.date <= end; });
 }
 
+// Upcoming rows collector (C11a — r964). Accepts display rows + now + daysAhead + members explicitly.
+function _calUpcomingRows(displayRows, nowDate, daysAhead, membersList){
+  daysAhead = daysAhead || 14;
+  var today = nowDate || new Date();
+  var start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  var end = new Date(start.getTime() + daysAhead * 86400000);
+  function ds(dt){
+    return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+  }
+  var rows = displayRows || [];
+  var out = rows.filter(function(e){ return e.date >= ds(start) && e.date <= ds(end); });
+  var members = membersList || [];
+
+  for(var t = new Date(start.getTime()); t <= end; t = new Date(t.getTime() + 86400000)){
+    var dateStr = ds(t);
+    var bdays = getMembersBornOn(dateStr, members);
+    bdays.forEach(function(mm){
+      out.push({date: dateStr, type: 'birthday', title: mm.name.split(' ')[0] + "'s Birthday", note: 'Band birthday'});
+    });
+    var h = getHolidayOn(dateStr);
+    if(h){ out.push({date: dateStr, type: 'holiday', title: h.name, note: 'US Holiday'}); }
+  }
+
+  out.sort(function(a, b){ return a.date.localeCompare(b.date); });
+  return out;
+}
+
 window.OOT_CALENDAR_HELPERS = {
   typeIcon: _calTypeIcon,
   safe: _calSafe,
@@ -281,7 +309,8 @@ window.OOT_CALENDAR_HELPERS = {
   nextUpLine: _calNextUpLine,
   customEntryRows: _calCustomEntryRows,
   customEntriesAsRows: _customEntriesAsRows,
-  rowsInMonth: _calRowsInMonth
+  rowsInMonth: _calRowsInMonth,
+  upcomingRows: _calUpcomingRows
 };
 
 window._calTypeIcon = window.OOT_CALENDAR_HELPERS.typeIcon;
@@ -319,4 +348,8 @@ window._customEntriesAsRows = function(){
 window._calRowsInMonth = function(){
   var rows = (typeof window._calDisplayRows === 'function') ? window._calDisplayRows() : [];
   return window.OOT_CALENDAR_HELPERS.rowsInMonth(rows, window.CY, window.CM);
+};
+window._calUpcomingRows = function(daysAhead){
+  var rows = (typeof window._calDisplayRows === 'function') ? window._calDisplayRows() : [];
+  return window.OOT_CALENDAR_HELPERS.upcomingRows(rows, new Date(), daysAhead, window.members);
 };
