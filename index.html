@@ -39987,7 +39987,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-07-17-r965-calendar-display-rows-helper';
+var WHATS_NEW_VERSION = '2026-07-17-r966-proposal-reminder-backend-safety';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40332,6 +40332,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-07-17-r966-proposal-reminder-backend-safety', date:'July 17, 2026', importance:'fix', emoji:'\uD83D\uDD14', title:'Proposal reminder backend delivery safety', body:'Completes proposal-reminder backend delivery wiring and adds reservation/finalization safety so a failed push no longer consumes the 10-hour reminder window. Automated LIVE sending remains disabled and has not been deployed. App reminder UX is unchanged.', items:['Confirm Build Version reports r966.','Confirm reminders still do not send automatically.','Confirm no client reminder behavior changed.'] },
   { version:'2026-07-17-r965-calendar-display-rows-helper', date:'July 17, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar display rows helper extraction', body:'Moves the Calendar display-rows composer into js/calendar-date-helpers.js. Events and Important Date custom rows still combine the same way. Calendar rendering, drawers, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r965.','Open Calendar and confirm the month grid still renders.','Confirm Next Up still shows the next upcoming item.','Confirm All Events still lists gigs and Important Dates together.'] },
   { version:'2026-07-17-r964-calendar-upcoming-rows-helper', date:'July 17, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar upcoming rows helper extraction', body:'Moves the Calendar upcoming-rows collector into js/calendar-date-helpers.js. Upcoming filtering, birthday and holiday injection, and Next Up selection stay the same. Calendar rendering, drawers, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r964.','Open Calendar and confirm the month grid still renders.','Confirm the Next Up card still shows the next upcoming item.','Confirm birthdays and holidays still appear in upcoming/Next Up correctly.'] },
   { version:'2026-07-16-r963-calendar-month-rows-helper', date:'July 16, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar month rows helper extraction', body:'Moves the Calendar month row filter into js/calendar-date-helpers.js. Month filtering stays the same. Calendar rendering, drawers, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r963.','Open Calendar and confirm the month grid still renders.','Navigate months and confirm events still appear on the correct days.','Confirm Next Up, Important Dates, birthdays, and holidays still look correct.'] },
