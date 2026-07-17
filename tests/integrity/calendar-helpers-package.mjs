@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960, C8a — r961, C9a — r962, C10a — r963, C11a — r964).
+ * Calendar date/status helpers integrity gate (C1a — r953, C2a — r954, C3a — r955, C4a — r957, C5a — r958, C6a — r959, C7a — r960, C8a — r961, C9a — r962, C10a — r963, C11a — r964, C12a — r965).
  */
 
 import fs from 'node:fs';
@@ -82,7 +82,8 @@ function checkIndexWiring(html) {
     'function _calCustomEntryRows',
     'function _customEntriesAsRows',
     'function _calRowsInMonth',
-    'function _calUpcomingRows'
+    'function _calUpcomingRows',
+    'function _calDisplayRows'
   ];
   mustNotDefine.forEach(function (sig) {
     const re = new RegExp(sig.replace(/ /g, '\\s+') + '\\s*\\(');
@@ -97,12 +98,13 @@ function checkIndexWiring(html) {
   if (!/_customEntriesAsRows\s*\(\s*\)/.test(html)) {
     fail('index.html must keep zero-arg _customEntriesAsRows() call sites');
   }
-  // C10a/C11a: display rows remain inline; month + upcoming collectors moved.
-  if (!/function\s+_calDisplayRows\s*\(/.test(html)) {
-    fail('index.html must keep inline _calDisplayRows');
-  }
+  // C11a: Next Up stage summary still calls legacy upcoming alias.
   if (!/_calUpcomingRows\s*\(\s*60\s*\)/.test(html)) {
     fail('index.html must keep _calRenderStageSummary calling _calUpcomingRows(60)');
+  }
+  // C12a: All Events keeps its parallel inline composition (not via _calDisplayRows).
+  if (!/events\.slice\(\)\s*\.concat\(\s*_customEntriesAsRows\s*\(\s*\)\s*\)/.test(html)) {
+    fail('index.html must keep All Events inline events.slice().concat(_customEntriesAsRows()) composition');
   }
 }
 
@@ -132,7 +134,8 @@ function checkAliases(sandbox) {
     '_calCustomEntryRows',
     '_customEntriesAsRows',
     '_calRowsInMonth',
-    '_calUpcomingRows'
+    '_calUpcomingRows',
+    '_calDisplayRows'
   ];
   aliasNames.forEach(function (name) {
     if (typeof sandbox.window[name] !== 'function') fail('missing window.' + name);
@@ -166,7 +169,8 @@ function checkAliases(sandbox) {
     'customEntryRows',
     'customEntriesAsRows',
     'rowsInMonth',
-    'upcomingRows'
+    'upcomingRows',
+    'displayRows'
   ];
   apiNames.forEach(function (name) {
     if (!helpers || typeof helpers[name] !== 'function') {
@@ -882,6 +886,90 @@ function checkUpcomingRowsBehavior(sandbox) {
   }
 }
 
+function checkDisplayRowsBehavior(sandbox) {
+  const helpers = sandbox.window.OOT_CALENDAR_HELPERS;
+  const displayRows = helpers.displayRows;
+
+  // Prior checks may stub window._calDisplayRows; reinstall production legacy alias.
+  sandbox.window._calDisplayRows = function () {
+    return helpers.displayRows(
+      sandbox.window.events,
+      sandbox.window._customEntriesAsRows()
+    );
+  };
+  const legacyDisplay = sandbox.window._calDisplayRows;
+
+  const evA = { id: 'e1', date: '2026-07-01', type: 'gig' };
+  const evB = { id: 'e2', date: '2026-07-02', type: 'rehearsal' };
+  const customA = { id: 'c1', date: '2026-07-01', type: 'custom' };
+  const customB = { id: 'c2', date: '2026-07-03', type: 'custom' };
+  const eventsList = [evA, evB];
+  const customRows = [customA, customB];
+  const eventsSnap = JSON.stringify(eventsList);
+  const customSnap = JSON.stringify(customRows);
+
+  const out = displayRows(eventsList, customRows);
+  if (!Array.isArray(out) || out.length !== 4) {
+    fail('_calDisplayRows should return events then custom rows (length 4)');
+  } else if (out[0] !== evA || out[1] !== evB || out[2] !== customA || out[3] !== customB) {
+    fail('_calDisplayRows must preserve event-before-custom order and object identity');
+  }
+  if (out === eventsList || out === customRows) {
+    fail('_calDisplayRows must return a new array');
+  }
+
+  // Duplicates preserved
+  const dup = displayRows([evA, evA], [customA, customA]);
+  if (dup.length !== 4 || dup[0] !== evA || dup[1] !== evA || dup[2] !== customA || dup[3] !== customA) {
+    fail('_calDisplayRows must preserve duplicates without dedupe');
+  }
+
+  // Null/empty inputs
+  if (JSON.stringify(displayRows(null, null)) !== '[]') {
+    fail('_calDisplayRows(null, null) should return []');
+  }
+  if (JSON.stringify(displayRows(undefined, undefined)) !== '[]') {
+    fail('_calDisplayRows(undefined, undefined) should return []');
+  }
+  const onlyEvents = displayRows(eventsList, null);
+  if (onlyEvents.length !== 2 || onlyEvents[0] !== evA || onlyEvents[1] !== evB) {
+    fail('_calDisplayRows with null customRows should return events slice only');
+  }
+  const onlyCustom = displayRows(null, customRows);
+  if (onlyCustom.length !== 2 || onlyCustom[0] !== customA || onlyCustom[1] !== customB) {
+    fail('_calDisplayRows with null eventsList should return custom rows only');
+  }
+  const emptyBoth = displayRows([], []);
+  if (!Array.isArray(emptyBoth) || emptyBoth.length !== 0) {
+    fail('_calDisplayRows([], []) should return []');
+  }
+
+  displayRows(eventsList, customRows);
+  if (JSON.stringify(eventsList) !== eventsSnap) {
+    fail('_calDisplayRows must not mutate supplied eventsList');
+  }
+  if (JSON.stringify(customRows) !== customSnap) {
+    fail('_calDisplayRows must not mutate supplied customRows');
+  }
+
+  // Legacy zero-arg alias uses window.events and window._customEntriesAsRows()
+  let customCalls = 0;
+  sandbox.window.events = eventsList;
+  const origCustom = sandbox.window._customEntriesAsRows;
+  sandbox.window._customEntriesAsRows = function () {
+    customCalls += 1;
+    return customRows;
+  };
+  const legacy = legacyDisplay();
+  if (customCalls !== 1) {
+    fail('legacy window._calDisplayRows() must call window._customEntriesAsRows()');
+  }
+  if (!Array.isArray(legacy) || legacy.length !== 4 || legacy[0] !== evA || legacy[3] !== customB) {
+    fail('legacy window._calDisplayRows() should use window.events and custom rows');
+  }
+  sandbox.window._customEntriesAsRows = origCustom;
+}
+
 function checkBehavior(sandbox) {
   const safe = sandbox.window._calSafe;
   const typeIcon = sandbox.window._calTypeIcon;
@@ -972,6 +1060,7 @@ function checkBehavior(sandbox) {
   checkCustomEntriesAsRowsBehavior(sandbox);
   checkRowsInMonthBehavior(sandbox);
   checkUpcomingRowsBehavior(sandbox);
+  checkDisplayRowsBehavior(sandbox);
 }
 
 function main() {
