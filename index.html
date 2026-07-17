@@ -4413,8 +4413,47 @@ body.light .home-summary-card [style*="color:rgba(255,255,255"]{color:#5a6a85 !i
   font-size:9px !important;
   padding:5px 8px !important;
 }
+/* r967: pinned DONE completion bar — auto-save status + primary finish action */
 #flyer-modal #flyer-action-row{
-  display:none !important;
+  display:flex !important;
+  flex-shrink:0 !important;
+  align-items:center !important;
+  gap:10px !important;
+  margin-top:6px !important;
+  padding-top:10px !important;
+  border-top:1px solid rgba(26,58,138,.55) !important;
+}
+#flyer-modal #flyer-persist-status{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  font-family:'Exo 2',sans-serif !important;
+  font-size:11px !important;
+  font-weight:600 !important;
+  letter-spacing:.2px !important;
+  color:#06d6a0 !important;
+  line-height:1.25 !important;
+}
+#flyer-modal #flyer-done-btn{
+  flex:0 0 auto !important;
+  min-width:108px !important;
+  background:linear-gradient(135deg,#f5c518,#ffd84a) !important;
+  border:1px solid #b8860b !important;
+  border-radius:10px !important;
+  padding:12px 18px !important;
+  color:#060e1c !important;
+  font-family:Russo One,sans-serif !important;
+  font-size:12px !important;
+  letter-spacing:1.6px !important;
+  cursor:pointer !important;
+  touch-action:manipulation !important;
+  box-shadow:0 4px 14px rgba(245,197,24,.28) !important;
+}
+#flyer-modal.flyer-saved-static #flyer-action-row{
+  margin-top:4px !important;
+  padding-top:8px !important;
+}
+#flyer-modal.flyer-saved-static #flyer-done-btn{
+  padding:10px 16px !important;
 }
 #flyer-more-btn{
   flex-shrink:0;
@@ -4593,10 +4632,17 @@ body.light #flyer-share-btn{
   background:#ffffff !important;
   box-shadow:0 3px 10px rgba(20,40,80,.10) !important;
 }
-body.light #flyer-save-btn{
+body.light #flyer-save-btn,
+body.light #flyer-done-btn{
   background:linear-gradient(135deg,#f5c518,#ffd84a) !important;
   color:#060e1c !important;
   border-color:#b8860b !important;
+}
+body.light #flyer-persist-status{
+  color:#0a7a5c !important;
+}
+body.light #flyer-action-row{
+  border-top-color:#d8e0ee !important;
 }
 body.light #flyer-more-menu{
   background:#ffffff !important;
@@ -19346,8 +19392,11 @@ body.light #whats-new-skip-pill{
       </div>
     </div>
 
-    <!-- r448: Flyer actions moved to the top-right header kebab. Bottom action row retained as a hidden structural placeholder. -->
-    <div id="flyer-action-row" style="display:none;"></div>
+    <!-- r967: Pinned completion bar — persistent auto-save status + DONE (flush + close). X remains a secondary close path. -->
+    <div id="flyer-action-row">
+      <span id="flyer-persist-status" aria-live="polite">Auto-saves to gig</span>
+      <button id="flyer-done-btn" type="button" onclick="_flyerCloseModal()" aria-label="Done — save and close flyer editor">DONE</button>
+    </div>
   </div>
 </div>
 
@@ -28845,6 +28894,8 @@ function openFlyerForGig(ev){
   // Reflect saved-state in title. The ⋮ button stays in the standard app kebab style.
   var titleEl = document.querySelector('#flyer-modal .mot');
   if(titleEl) titleEl.textContent = hasSaved ? 'Edit Saved Flyer' : 'Make Flyer';
+  // r967: pinned status makes auto-save / already-attached state obvious next to DONE.
+  _flyerSetPersistStatus(hasSaved ? 'Saved to gig \u2713' : 'Auto-saves to gig');
   var moreBtn = document.getElementById('flyer-more-btn');
   if(moreBtn){
     moreBtn.style.background = 'rgba(3,14,33,.62)';
@@ -29887,6 +29938,14 @@ function _flyerSetInlineSaveState(text, tone){
   }
 }
 
+function _flyerSetPersistStatus(text){
+  // r967: concise pinned status next to DONE. Complements (does not replace)
+  // the green slide-down banner — no extra toast/banner stack.
+  var el = document.getElementById('flyer-persist-status');
+  if(!el) return;
+  el.textContent = text || 'Auto-saves to gig';
+}
+
 function _flyerPlaySaveSound(){
   // Synthesize a brief 2-note success chime via Web Audio. No asset file needed.
   // First call lazily creates the AudioContext (must follow a user gesture per
@@ -30009,6 +30068,8 @@ function _flyerAutoSaveCheap(opts){
     }
     // r57: banner replaces old pill — single source of truth for save confirmations
     _flyerShowSaveBanner(bannerDetail);
+    // r967: keep pinned status explicit that work is already on the gig
+    _flyerSetPersistStatus('Saved to gig \u2713');
     return true;
   }).catch(function(err){
     _flyerAutoSaveInFlight = false;
@@ -30097,12 +30158,14 @@ function _flyerFlushPendingSaves(callback){
 function _flyerCloseModal(){
   _flyerCloseMore();
   // Drain pending saves, then capture JPEG, then close the modal.
+  // r967: DONE and X both use this path so pending debounced field saves flush first.
   _flyerFlushPendingSaves(function(){
     _flyerCommitFlyerData();
     // r57/r466: reset banner and inline state so they do not flash visible on next open
     if(_flyerBannerTimer){ clearTimeout(_flyerBannerTimer); _flyerBannerTimer = null; }
     if(_flyerInlineStateTimer){ clearTimeout(_flyerInlineStateTimer); _flyerInlineStateTimer = null; }
     _flyerSetInlineSaveState('', 'idle');
+    _flyerSetPersistStatus('Auto-saves to gig');
     var banner = document.getElementById('flyer-save-banner');
     if(banner){ banner.style.transform = 'translateY(-110%)'; }
     if(typeof clM === 'function') clM('flyer-modal');
@@ -30152,6 +30215,7 @@ function _flyerSaveToGig(){
         gigDetails[gigId] = updated;
         // r57: banner replaces toast — consistent save UX
         _flyerShowSaveBanner('Flyer saved to gig');
+        _flyerSetPersistStatus('Saved to gig \u2713');
         // Refresh drawer if showing
         if(typeof _refreshDrawerForCurrentDay === 'function' && _flyerCtx.gig){
           try {
@@ -39987,7 +40051,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-07-17-r966-proposal-reminder-backend-safety';
+var WHATS_NEW_VERSION = '2026-07-17-r967-flyer-done-auto-save-ux';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40332,6 +40396,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-07-17-r967-flyer-done-auto-save-ux', date:'July 17, 2026', importance:'fix', emoji:'\uD83C\uDFA8', title:'Flyer Done and auto-save status', body:'Adds a pinned DONE button that flushes pending flyer auto-saves and closes the editor, plus a persistent Saved to gig status. Autosave, Share, kebab actions, rendering, and Calendar flyer attachment behavior are unchanged.', items:['Confirm Build Version reports r967.','Open Make Flyer or Edit Saved Flyer and confirm DONE appears at the bottom.','Confirm the status shows Auto-saves to gig or Saved to gig.','Edit a field, tap DONE, and confirm you return to the gig with the flyer still attached.'] },
   { version:'2026-07-17-r966-proposal-reminder-backend-safety', date:'July 17, 2026', importance:'fix', emoji:'\uD83D\uDD14', title:'Proposal reminder backend delivery safety', body:'Completes proposal-reminder backend delivery wiring and adds reservation/finalization safety so a failed push no longer consumes the 10-hour reminder window. Automated LIVE sending remains disabled and has not been deployed. App reminder UX is unchanged.', items:['Confirm Build Version reports r966.','Confirm reminders still do not send automatically.','Confirm no client reminder behavior changed.'] },
   { version:'2026-07-17-r965-calendar-display-rows-helper', date:'July 17, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar display rows helper extraction', body:'Moves the Calendar display-rows composer into js/calendar-date-helpers.js. Events and Important Date custom rows still combine the same way. Calendar rendering, drawers, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r965.','Open Calendar and confirm the month grid still renders.','Confirm Next Up still shows the next upcoming item.','Confirm All Events still lists gigs and Important Dates together.'] },
   { version:'2026-07-17-r964-calendar-upcoming-rows-helper', date:'July 17, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar upcoming rows helper extraction', body:'Moves the Calendar upcoming-rows collector into js/calendar-date-helpers.js. Upcoming filtering, birthday and holiday injection, and Next Up selection stay the same. Calendar rendering, drawers, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r964.','Open Calendar and confirm the month grid still renders.','Confirm the Next Up card still shows the next upcoming item.','Confirm birthdays and holidays still appear in upcoming/Next Up correctly.'] },
