@@ -4,20 +4,21 @@ Date: 2026-07-17
 
 ## Status
 
-**C12a / r965 runtime complete on modularization branch. Production merge and phone/PWA verification still pending.**
+**C12a / r965 complete.** Fast-forwarded and pushed to production `main` at `44845ee`. Local validation and phone/PWA verification passed. User confirmed: **"r965 passed"**. No regression observed.
 
 | Item | Value |
 |------|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `93f326c` |
-| `origin/modularization-home-layout-engine-pilot` | `93f326c` |
-| `origin/main` | `53a5438` |
+| Branch | `main` |
+| HEAD | `44845ee` |
+| `origin/main` | `44845ee` |
+| `origin/modularization-home-layout-engine-pilot` | `44845ee` |
 | Baseline (pre-C12a) | `53a5438` |
 | Build Version | `2026-07-17-r965-calendar-display-rows-helper` |
 | Runtime commit | `93f326c` — `Extract Calendar display rows helper` |
+| Production tip (post-FF) | `44845ee` |
 | Safe rollback tip (pre-C12a) | `53a5438` |
-| Production merge | **PENDING** |
-| Phone / PWA verification | **PENDING** |
+| Production merge | **PASS** |
+| Phone / PWA verification | **PASS** |
 
 ---
 
@@ -44,14 +45,11 @@ Extract only `_calDisplayRows` from `index.html` into the existing Calendar help
 
 ## Production Merge
 
-**PENDING.** r965 has not been merged to production `main`.
+**PASS.** r965 was **fast-forwarded and pushed** to production `main` at `44845ee`.
 
-| Ref | Value |
-|-----|--------|
-| `origin/main` (pre-merge) | `53a5438` |
-| Safe rollback tip | `53a5438` |
+After deployment, `main`, `origin/main`, and `origin/modularization-home-layout-engine-pilot` were aligned at `44845ee`.
 
-Phone/PWA verification is still pending after merge.
+Safe rollback tip (pre-C12a production): `53a5438`.
 
 ---
 
@@ -165,30 +163,28 @@ The alias injects:
 | Inline script syntax check | PASS — 8 scripts, 0 failures |
 | `git diff --check` | PASS |
 
-### Phone / PWA — PENDING
+### Phone / PWA — PASS
 
-Production merge and phone/PWA verification still pending.
+User confirmed phone verification passed (`"r965 passed"`). No regression observed.
 
----
+| Check | Result |
+|-------|--------|
+| Build Version r965 | PASS |
+| Calendar load | PASS |
+| Month navigation | PASS |
+| Next Up | PASS |
+| Calendar rows and markers | PASS |
+| All Events | PASS |
+| Rehearsal Proposals | PASS |
+| Home rehearsal cue | PASS |
+| Home band image unchanged | PASS |
+| Flyer creation opened | PASS |
+| No regression observed | PASS |
 
-## Phone / PWA Verification Checklist
+Local-only untracked files remained untouched:
 
-After deploy / hard refresh:
-
-- [ ] Build Version shows **r965**
-- [ ] Calendar opens
-- [ ] Month navigation works
-- [ ] Next Up card still shows the next upcoming item
-- [ ] Calendar rows and markers remain correct
-- [ ] All Events still lists gigs and Important Dates together
-- [ ] Important Dates remain correct
-- [ ] Birthdays / holidays in upcoming remain correct
-- [ ] Home rehearsal cue works
-- [ ] Home band image is unchanged
-- [ ] Flyer creation opens
-- [ ] Rehearsal Proposals still work
-
-Do not claim production verification until every applicable check passes.
+- `docs/modularization/PHASE_6W_A_REHEARSAL_CUE_PARITY_PLAN.md`
+- `oot-local-server.ps1`
 
 ---
 
@@ -212,18 +208,20 @@ Do not claim production verification until every applicable check passes.
 
 | Ref | Value |
 |-----|--------|
-| Branch | `modularization-home-layout-engine-pilot` |
-| HEAD | `93f326c` |
-| `origin/modularization-home-layout-engine-pilot` | `93f326c` |
-| `origin/main` | `53a5438` |
+| Branch | `main` |
+| HEAD | `44845ee` |
+| `origin/main` | `44845ee` |
+| `origin/modularization-home-layout-engine-pilot` | `44845ee` |
 | Baseline / safe rollback tip (pre-C12a) | `53a5438` |
 | Runtime commit | `93f326c` |
+| Production tip (post-FF) | `44845ee` |
+
+`main`, `origin/main`, and the modularization branch are aligned at `44845ee` after the approved fast-forward deploy.
 
 ---
 
 ## Next Recommended Step
 
-1. Create the C12a / r965 merge-to-main plan (documentation only).
-2. After approved fast-forward deploy + phone/PWA PASS, update this checkpoint status to production verified.
-3. Keep protected Home / Flyer / proposal / Important Date / birthday / holiday / All Events / render boundaries untouched unless a later approved plan says otherwise.
-4. If r965 must be reverted: restore to safe rollback tip `53a5438` (separate, auditable procedure; Rich approval required).
+1. Continue Calendar modularization planning for the next safe helpers seam (post-C12a).
+2. Keep protected Home / Flyer / proposal / Important Date / birthday / holiday / All Events / render boundaries untouched unless a later approved plan says otherwise.
+3. If r965 must be reverted: restore production `main` to safe rollback tip `53a5438` (separate, auditable procedure; Rich approval required).
