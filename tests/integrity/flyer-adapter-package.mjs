@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Flyer template adapter integrity gate (F7 — r951).
+ * Flyer template adapter integrity gate (r968).
+ * Validates canonical-record preference, pack-contract access, and saved-flyer staleness.
  */
 
 import fs from 'node:fs';
@@ -19,32 +20,6 @@ const failures = [];
 
 function fail(message) {
   failures.push(message);
-}
-
-function buildTemplateRecord(key, sandbox) {
-  const FLYER_TEMPLATES = sandbox.FLYER_TEMPLATES;
-  const FLYER_NAMES = sandbox.FLYER_NAMES;
-  const FLYER_ZONES = sandbox.FLYER_ZONES;
-  const FLYER_DIMS = sandbox.FLYER_DIMS;
-  const FLYER_FORCE_REFRESH_TEMPLATES = sandbox.FLYER_FORCE_REFRESH_TEMPLATES;
-  if (!key || !FLYER_TEMPLATES || !FLYER_TEMPLATES[key]) return null;
-  const format = String(key).endsWith('-story') ? 'story' : 'square';
-  return {
-    id: key,
-    key: key,
-    familyId: String(key).replace(/-(square|story)$/, ''),
-    name: FLYER_NAMES[key] ? FLYER_NAMES[key] : key,
-    format: format,
-    width: FLYER_DIMS[format] ? FLYER_DIMS[format].w : 1080,
-    height: FLYER_DIMS[format] ? FLYER_DIMS[format].h : (format === 'story' ? 1920 : 1080),
-    backgroundSrc: String(FLYER_TEMPLATES[key]),
-    active: true,
-    layers: { logo: { enabled: false, src: '', x_frac: 0.5, y_frac: 0.10, w_frac: 0.24 } },
-    textZones: FLYER_ZONES[key] ? FLYER_ZONES[key] : null,
-    assetVersion: FLYER_FORCE_REFRESH_TEMPLATES[key]
-      ? FLYER_FORCE_REFRESH_TEMPLATES[key]
-      : String(FLYER_TEMPLATES[key]),
-  };
 }
 
 function loadAdapterSandbox() {
@@ -73,16 +48,17 @@ function checkIndexWiring(html) {
   const inlineIdx = normalized.indexOf('<script>\n"use strict";');
   if (manifestIdx < 0 || adapterIdx < 0 || inlineIdx < 0) {
     fail('index.html script tag positions could not be resolved');
-  } else {
-    if (!(manifestIdx < adapterIdx && adapterIdx < inlineIdx)) {
-      fail('script load order must be manifest → adapter → inline');
-    }
+  } else if (!(manifestIdx < adapterIdx && adapterIdx < inlineIdx)) {
+    fail('script load order must be manifest → adapter → inline');
   }
   if (/function\s+_flyerTemplateRecordForKey\s*\(/.test(html)) {
     fail('index.html still defines inline _flyerTemplateRecordForKey');
   }
   if (/function\s+_flyerSavedRenderIsStale\s*\(/.test(html)) {
     fail('index.html still defines inline _flyerSavedRenderIsStale');
+  }
+  if (/FLYER_DIMS\s*\[\s*_flyerCtx\.format\s*\]/.test(html)) {
+    fail('index.html still reads FLYER_DIMS[_flyerCtx.format] directly in renderer');
   }
 }
 
@@ -103,9 +79,6 @@ function checkAdapterApi(sandbox) {
   ];
   aliasNames.forEach(function (name) {
     if (typeof sandbox.window[name] !== 'function') fail('missing window.' + name);
-    if (adapter && typeof sandbox[name] === 'function' && sandbox.window[name] !== sandbox[name]) {
-      // function declarations may also exist on sandbox root; aliases must be on window
-    }
   });
 
   const apiNames = [
@@ -128,46 +101,102 @@ function checkAdapterApi(sandbox) {
   }
 }
 
-function deepEqual(a, b) {
-  return JSON.stringify(a) === JSON.stringify(b);
-}
-
-function checkRecordParity(sandbox) {
-  const keys = Object.keys(sandbox.FLYER_TEMPLATES || {});
+function checkCanonicalAccess(sandbox) {
+  const records = sandbox.OOT_FLYER_TEMPLATE_RECORDS || [];
   const recordForKey = sandbox.window._flyerTemplateRecordForKey;
-  keys.forEach(function (key) {
-    const expected = buildTemplateRecord(key, sandbox);
-    const actual = recordForKey(key);
-    if (!deepEqual(actual, expected)) fail('record parity mismatch for ' + key);
+  const keysForFormat = sandbox.window._flyerTemplateKeysForFormat;
+  const exists = sandbox.window._flyerTemplateExists;
+
+  if (!Array.isArray(records) || !records.length) {
+    fail('canonical records unavailable in adapter sandbox');
+    return;
+  }
+
+  if (recordForKey('__missing-template-id__') !== null) {
+    fail('unknown template lookup must return null');
+  }
+  if (exists('__missing-template-id__')) {
+    fail('unknown template must not exist');
+  }
+
+  const square = keysForFormat('square');
+  const story = keysForFormat('story');
+  if (!Array.isArray(square) || !square.length) fail('format filter returned no square templates');
+  if (!Array.isArray(story) || !story.length) fail('format filter returned no story templates');
+
+  const expectedSquare = records.filter(function (r) { return r && r.active !== false && r.format === 'square'; }).map(function (r) { return r.id; });
+  const expectedStory = records.filter(function (r) { return r && r.active !== false && r.format === 'story'; }).map(function (r) { return r.id; });
+  if (JSON.stringify(square) !== JSON.stringify(expectedSquare)) fail('square format filter mismatch vs canonical records');
+  if (JSON.stringify(story) !== JSON.stringify(expectedStory)) fail('story format filter mismatch vs canonical records');
+
+  records.forEach(function (raw) {
+    if (!raw || raw.active === false) return;
+    const rec = recordForKey(raw.id);
+    if (!rec) {
+      fail('saved template key failed to resolve: ' + raw.id);
+      return;
+    }
+    if (rec.id !== raw.id) fail('record id mismatch for ' + raw.id);
+    if (rec.backgroundSrc !== raw.backgroundSrc) fail('backgroundSrc mismatch for ' + raw.id);
+    if (rec.assetVersion !== String(raw.assetVersion)) fail('assetVersion mismatch for ' + raw.id);
+    if (rec.width !== raw.width || rec.height !== raw.height) fail('dimensions mismatch for ' + raw.id);
+    if (rec.format !== raw.format) fail('format mismatch for ' + raw.id);
+    if (!rec.layers || !rec.layers.logo || rec.layers.logo.enabled !== false) {
+      fail('normalized logo must remain disabled by default for ' + raw.id);
+    }
+    if (sandbox.FLYER_TEMPLATES[raw.id] !== raw.backgroundSrc) {
+      fail('legacy shim backgroundSrc mismatch for ' + raw.id);
+    }
   });
 }
 
-function checkKeysForFormat(sandbox) {
-  const keysForFormat = sandbox.window._flyerTemplateKeysForFormat;
-  const square = keysForFormat('square');
-  const story = keysForFormat('story');
-  if (square.length !== 15) fail('expected 15 square template keys, got ' + square.length);
-  if (story.length !== 15) fail('expected 15 story template keys, got ' + story.length);
+function checkLegacyFallback() {
+  const adapterCode = fs.readFileSync(ADAPTER_PATH, 'utf8');
+  const sandbox = {
+    window: {},
+    FLYER_TEMPLATES: { 'legacy-square': 'legacy.png' },
+    FLYER_NAMES: { 'legacy-square': 'Legacy' },
+    FLYER_ZONES: {
+      'legacy-square': {
+        venue: { y_frac: 0.8, x_frac: 0.5, size: 40, color: '#fff' },
+        address: { y_frac: 0.85, x_frac: 0.5, size: 20, color: '#fff' },
+        date: { y_frac: 0.9, x_frac: 0.5, size: 30, color: '#fff' },
+      },
+    },
+    FLYER_DIMS: { square: { w: 1080, h: 1080 }, story: { w: 1080, h: 1920 } },
+    FLYER_FORCE_REFRESH_TEMPLATES: {},
+  };
+  vm.runInNewContext(adapterCode, sandbox);
+  const rec = sandbox.window._flyerTemplateRecordForKey('legacy-square');
+  if (!rec || rec.backgroundSrc !== 'legacy.png' || rec.name !== 'Legacy') {
+    fail('adapter legacy-map fallback failed for legacy-square');
+  }
+  if (sandbox.window._flyerTemplateRecordForKey('nope') !== null) {
+    fail('legacy fallback unknown id must return null');
+  }
 }
 
 function checkStaleness(sandbox) {
   const isStale = sandbox.window._flyerSavedRenderIsStale;
   const srcForKey = sandbox.window._flyerTemplateSrcForKey;
   const currentSrc = srcForKey('hollywood-square');
+  const currentVersion = sandbox.window._flyerCurrentAssetVersion('hollywood-square');
+
+  if (!currentSrc) fail('expected hollywood-square backgroundSrc for staleness checks');
 
   if (isStale({
     flyerData: 'data:image/jpeg;base64,abc',
     flyerTemplateKey: 'hollywood-square',
     flyerTemplateSrc: currentSrc,
-    flyerTemplateAssetVersion: sandbox.FLYER_FORCE_REFRESH_TEMPLATES['hollywood-square'] || currentSrc,
+    flyerTemplateAssetVersion: currentVersion,
   })) {
-    fail('matching flyerTemplateSrc should not be stale');
+    fail('matching flyerTemplateSrc/assetVersion should not be stale');
   }
 
   if (!isStale({
     flyerData: 'data:image/jpeg;base64,abc',
     flyerTemplateKey: 'hollywood-square',
-    flyerTemplateSrc: 'oot_flyer_square_01_r999.png',
+    flyerTemplateSrc: 'changed-src.png',
   })) {
     fail('mismatched flyerTemplateSrc should be stale');
   }
@@ -177,17 +206,16 @@ function checkStaleness(sandbox) {
     flyerTemplateKey: 'hollywood-story',
     flyerTemplateSrc: '',
   })) {
-    fail('missing flyerTemplateSrc on force-refresh key should be stale');
+    fail('missing flyerTemplateSrc on force-version key should be stale');
   }
 
-  const forceVersion = sandbox.FLYER_FORCE_REFRESH_TEMPLATES['hollywood-story'];
   if (!isStale({
     flyerData: 'data:image/jpeg;base64,abc',
     flyerTemplateKey: 'hollywood-story',
     flyerTemplateSrc: srcForKey('hollywood-story'),
     flyerTemplateAssetVersion: 'stale-version-token',
   })) {
-    fail('force-refresh version mismatch should be stale (expected ' + forceVersion + ')');
+    fail('assetVersion mismatch should be stale');
   }
 }
 
@@ -205,7 +233,7 @@ function checkPreviewSrc(sandbox) {
   const stale = {
     flyerData: 'data:image/jpeg;base64,stale',
     flyerTemplateKey: 'neon-square',
-    flyerTemplateSrc: 'oot_flyer_square_02_r999.png',
+    flyerTemplateSrc: 'changed-neon.png',
   };
   if (preview(stale) !== srcForKey('neon-square')) fail('stale saved flyer should use template src');
 }
@@ -216,8 +244,8 @@ function main() {
   checkIndexWiring(html);
   const sandbox = loadAdapterSandbox();
   checkAdapterApi(sandbox);
-  checkRecordParity(sandbox);
-  checkKeysForFormat(sandbox);
+  checkCanonicalAccess(sandbox);
+  checkLegacyFallback();
   checkStaleness(sandbox);
   checkPreviewSrc(sandbox);
 

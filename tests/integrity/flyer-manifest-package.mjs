@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Flyer template manifest integrity gate (F5 — r950).
+ * Flyer template pack integrity gate (r968).
+ * Validates the replaceable template-pack contract — not a fixed temporary inventory.
  */
 
 import fs from 'node:fs';
@@ -14,24 +15,6 @@ const ROOT = path.resolve(__dirname, '../..');
 const MANIFEST_PATH = path.join(ROOT, 'js/flyer-template-manifest.js');
 const INDEX_PATH = path.join(ROOT, 'index.html');
 
-const EXPECTED_FORCE_REFRESH_KEYS = [
-  'hollywood-square',
-  'hollywood-story',
-  'neon-story',
-  'skyline-story',
-  'deco-story',
-  'disco-story',
-  'comic-story',
-  'metropolis-story',
-  'boardwalk-story',
-  'oot09-story',
-  'oot13-story',
-  'oot14-story',
-  'oot15-story',
-];
-
-const PNG_RE = /^oot_flyer_(square|story)_\d+_r\d+\.png$/;
-
 const failures = [];
 
 function fail(message) {
@@ -43,32 +26,6 @@ function loadManifestSandbox() {
   const sandbox = { window: {} };
   vm.runInNewContext(code, sandbox);
   return sandbox;
-}
-
-function buildTemplateRecord(key, sandbox) {
-  const FLYER_TEMPLATES = sandbox.FLYER_TEMPLATES;
-  const FLYER_NAMES = sandbox.FLYER_NAMES;
-  const FLYER_ZONES = sandbox.FLYER_ZONES;
-  const FLYER_DIMS = sandbox.FLYER_DIMS;
-  const FLYER_FORCE_REFRESH_TEMPLATES = sandbox.FLYER_FORCE_REFRESH_TEMPLATES;
-  if (!key || !FLYER_TEMPLATES || !FLYER_TEMPLATES[key]) return null;
-  const format = String(key).endsWith('-story') ? 'story' : 'square';
-  return {
-    id: key,
-    key: key,
-    familyId: String(key).replace(/-(square|story)$/, ''),
-    name: FLYER_NAMES[key] ? FLYER_NAMES[key] : key,
-    format: format,
-    width: FLYER_DIMS[format] ? FLYER_DIMS[format].w : 1080,
-    height: FLYER_DIMS[format] ? FLYER_DIMS[format].h : (format === 'story' ? 1920 : 1080),
-    backgroundSrc: String(FLYER_TEMPLATES[key]),
-    active: true,
-    layers: { logo: { enabled: false, src: '', x_frac: 0.5, y_frac: 0.10, w_frac: 0.24 } },
-    textZones: FLYER_ZONES[key] ? FLYER_ZONES[key] : null,
-    assetVersion: FLYER_FORCE_REFRESH_TEMPLATES[key]
-      ? FLYER_FORCE_REFRESH_TEMPLATES[key]
-      : String(FLYER_TEMPLATES[key]),
-  };
 }
 
 function checkFilesExist() {
@@ -89,9 +46,28 @@ function checkIndexWiring(html) {
   if (/var\s+FLYER_FORCE_REFRESH_TEMPLATES\s*=/.test(html)) {
     fail('index.html still defines inline FLYER_FORCE_REFRESH_TEMPLATES');
   }
+  if (/var\s+OOT_FLYER_TEMPLATE_RECORDS\s*=/.test(html)) {
+    fail('index.html must not author OOT_FLYER_TEMPLATE_RECORDS inline');
+  }
+  if (/FLYER_DIMS\s*\[\s*_flyerCtx\.format\s*\]/.test(html)) {
+    fail('index.html still reads FLYER_DIMS[_flyerCtx.format] directly in renderer');
+  }
+}
+
+function hasRequiredZoneShape(zones) {
+  if (!zones || typeof zones !== 'object') return false;
+  const required = ['venue', 'address', 'date'];
+  for (let i = 0; i < required.length; i++) {
+    const z = zones[required[i]];
+    if (!z || typeof z !== 'object') return false;
+    if (typeof z.y_frac !== 'number' || typeof z.x_frac !== 'number') return false;
+    if (typeof z.size !== 'number' || typeof z.color !== 'string') return false;
+  }
+  return true;
 }
 
 function checkManifestStructure(sandbox) {
+  const records = sandbox.OOT_FLYER_TEMPLATE_RECORDS;
   const templates = sandbox.FLYER_TEMPLATES;
   const zones = sandbox.FLYER_ZONES;
   const names = sandbox.FLYER_NAMES;
@@ -99,52 +75,74 @@ function checkManifestStructure(sandbox) {
   const force = sandbox.FLYER_FORCE_REFRESH_TEMPLATES;
   const manifest = sandbox.window.OOT_FLYER_MANIFEST;
 
-  if (!templates || typeof templates !== 'object') fail('FLYER_TEMPLATES missing');
-  if (!zones || typeof zones !== 'object') fail('FLYER_ZONES missing');
-  if (!names || typeof names !== 'object') fail('FLYER_NAMES missing');
+  if (!Array.isArray(records) || !records.length) fail('OOT_FLYER_TEMPLATE_RECORDS must be a non-empty array');
+  if (!templates || typeof templates !== 'object') fail('FLYER_TEMPLATES shim missing');
+  if (!zones || typeof zones !== 'object') fail('FLYER_ZONES shim missing');
+  if (!names || typeof names !== 'object') fail('FLYER_NAMES shim missing');
   if (!dims || typeof dims !== 'object') fail('FLYER_DIMS missing');
-  if (!force || typeof force !== 'object') fail('FLYER_FORCE_REFRESH_TEMPLATES missing');
+  if (!force || typeof force !== 'object') fail('FLYER_FORCE_REFRESH_TEMPLATES shim missing');
   if (!manifest) fail('window.OOT_FLYER_MANIFEST not set');
-  if (manifest.schemaVersion !== 1) fail('OOT_FLYER_MANIFEST.schemaVersion must be 1');
-
-  const keys = Object.keys(templates);
-  if (keys.length !== 30) fail('expected 30 template keys, got ' + keys.length);
-
-  const square = keys.filter(function (k) { return !String(k).endsWith('-story'); });
-  const story = keys.filter(function (k) { return String(k).endsWith('-story'); });
-  if (square.length !== 15) fail('expected 15 square templates, got ' + square.length);
-  if (story.length !== 15) fail('expected 15 story templates, got ' + story.length);
-
-  if (dims.square?.w !== 1080 || dims.square?.h !== 1080) fail('FLYER_DIMS.square must be 1080x1080');
-  if (dims.story?.w !== 1080 || dims.story?.h !== 1920) fail('FLYER_DIMS.story must be 1080x1920');
-
-  keys.forEach(function (key) {
-    if (!names[key]) fail('missing FLYER_NAMES for ' + key);
-    if (!zones[key]) fail('missing FLYER_ZONES for ' + key);
-    const src = templates[key];
-    if (!src || !PNG_RE.test(String(src))) fail('invalid backgroundSrc for ' + key + ': ' + src);
-    const isStory = String(key).endsWith('-story');
-    if (!isStory && String(key).indexOf('-story') >= 0) fail('square key must not contain -story suffix wrongly: ' + key);
-
-    const rec = buildTemplateRecord(key, sandbox);
-    if (!rec) fail('adapter record null for ' + key);
-    if (!rec.backgroundSrc) fail('record missing backgroundSrc for ' + key);
-    if (!rec.textZones) fail('record missing textZones for ' + key);
-    if (rec.format !== (isStory ? 'story' : 'square')) fail('record format mismatch for ' + key);
-    if (rec.layers.logo.enabled !== false) fail('logo layer must be disabled for ' + key);
-  });
-
-  EXPECTED_FORCE_REFRESH_KEYS.forEach(function (key) {
-    if (!force[key]) fail('missing FLYER_FORCE_REFRESH_TEMPLATES[' + key + ']');
-    if (!templates[key]) fail('force-refresh key missing from templates: ' + key);
-    if (!String(force[key]).trim()) fail('empty force-refresh version for ' + key);
-  });
-
+  if (manifest.schemaVersion !== 2) fail('OOT_FLYER_MANIFEST.schemaVersion must be 2');
+  if (manifest.records !== records) fail('OOT_FLYER_MANIFEST.records must point at canonical records');
   if (manifest.templates !== templates) fail('OOT_FLYER_MANIFEST.templates mismatch');
   if (manifest.zones !== zones) fail('OOT_FLYER_MANIFEST.zones mismatch');
   if (manifest.names !== names) fail('OOT_FLYER_MANIFEST.names mismatch');
   if (manifest.dims !== dims) fail('OOT_FLYER_MANIFEST.dims mismatch');
   if (manifest.forceRefresh !== force) fail('OOT_FLYER_MANIFEST.forceRefresh mismatch');
+
+  if (dims.square?.w !== 1080 || dims.square?.h !== 1080) fail('FLYER_DIMS.square must be 1080x1080');
+  if (dims.story?.w !== 1080 || dims.story?.h !== 1920) fail('FLYER_DIMS.story must be 1080x1920');
+
+  const seen = new Set();
+  let activeCount = 0;
+
+  records.forEach(function (rec, idx) {
+    if (!rec || typeof rec !== 'object') {
+      fail('record at index ' + idx + ' is not an object');
+      return;
+    }
+    const id = rec.id;
+    if (!id || typeof id !== 'string') {
+      fail('record at index ' + idx + ' missing string id');
+      return;
+    }
+    if (seen.has(id)) fail('duplicate template id: ' + id);
+    seen.add(id);
+
+    const active = rec.active !== false;
+    if (!active) return;
+    activeCount++;
+
+    if (!rec.name || typeof rec.name !== 'string') fail('active record missing name: ' + id);
+    if (rec.format !== 'square' && rec.format !== 'story') fail('active record format must be square|story: ' + id);
+    if (!(Number(rec.width) > 0) || !(Number(rec.height) > 0)) fail('active record needs positive width/height: ' + id);
+    if (!rec.backgroundSrc || typeof rec.backgroundSrc !== 'string' || !String(rec.backgroundSrc).trim()) {
+      fail('active record needs non-empty backgroundSrc: ' + id);
+    }
+    if (!hasRequiredZoneShape(rec.textZones)) fail('active record textZones missing venue/address/date shape: ' + id);
+    if (rec.assetVersion == null || !String(rec.assetVersion).trim()) fail('active record missing assetVersion: ' + id);
+
+    const logo = rec.layers && rec.layers.logo;
+    if (!logo || typeof logo !== 'object') fail('active record missing layers.logo: ' + id);
+    else if (logo.enabled !== false) fail('logo layer must be disabled by default for ' + id);
+
+    if (templates[id] !== rec.backgroundSrc) fail('legacy FLYER_TEMPLATES mismatch for ' + id);
+    if (names[id] !== rec.name) fail('legacy FLYER_NAMES mismatch for ' + id);
+    if (zones[id] !== rec.textZones) fail('legacy FLYER_ZONES mismatch for ' + id);
+
+    const expectForce = String(rec.assetVersion) !== String(rec.backgroundSrc);
+    if (expectForce) {
+      if (force[id] !== rec.assetVersion) fail('legacy force-refresh mismatch for ' + id);
+    } else if (Object.prototype.hasOwnProperty.call(force, id)) {
+      fail('legacy force-refresh should omit non-force id: ' + id);
+    }
+  });
+
+  if (activeCount < 1) fail('expected at least one active template record');
+
+  Object.keys(templates).forEach(function (id) {
+    if (!seen.has(id)) fail('legacy FLYER_TEMPLATES has id missing from records: ' + id);
+  });
 }
 
 function main() {

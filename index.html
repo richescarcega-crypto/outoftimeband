@@ -29115,7 +29115,11 @@ function _flyerRender(){
   var canvas = document.getElementById('flyer-canvas');
   if(!canvas || !_flyerCtx.template) return;
   var key = _flyerCtx.template;
-  var dims = FLYER_DIMS[_flyerCtx.format];
+  // r968: dimensions come from the normalized template-pack record (not a direct FLYER_DIMS read).
+  var rec = (typeof _flyerTemplateRecordForKey === 'function') ? _flyerTemplateRecordForKey(key) : null;
+  var dims = (rec && rec.width > 0 && rec.height > 0)
+    ? { w: rec.width, h: rec.height }
+    : { w: 1080, h: (_flyerCtx.format === 'story' ? 1920 : 1080) };
   canvas.width = dims.w;
   canvas.height = dims.h;
   var ctx = canvas.getContext('2d');
@@ -40051,7 +40055,7 @@ function toggleHomeMenu(ev){
 //   date       — display date (e.g., 'Apr 28, 2026')
 //   importance — 'major' (banner fires) | 'minor' | 'fix'
 //   emoji, title, body — display content
-var WHATS_NEW_VERSION = '2026-07-17-r967-flyer-done-auto-save-ux';
+var WHATS_NEW_VERSION = '2026-07-17-r968-flyer-template-pack-seam';
 
 // ──────────────────────────────────────────────────────────────────────
 // r47: Auto-update version check
@@ -40396,6 +40400,7 @@ function _showStuckUpdateBanner(expectedVer){
   document.getElementById('stuck-dismiss').onclick = function(){ b.remove(); };
 }
 var WHATS_NEW_LOG = [
+  { version:'2026-07-17-r968-flyer-template-pack-seam', date:'July 17, 2026', importance:'fix', emoji:'\uD83C\uDFA8', title:'Flyer template-pack contract', body:'Flyer templates now use a replaceable template-pack contract. Current flyer appearance and saved flyers remain unchanged. This prepares future replacement artwork and branded template packs.', items:['Confirm Build Version reports r968.','Open Make Flyer and confirm Square and Story templates still load.','Open a saved flyer and confirm it still restores correctly.','Confirm autosave and DONE still work.'] },
   { version:'2026-07-17-r967-flyer-done-auto-save-ux', date:'July 17, 2026', importance:'fix', emoji:'\uD83C\uDFA8', title:'Flyer Done and auto-save status', body:'Adds a pinned DONE button that flushes pending flyer auto-saves and closes the editor, plus a persistent Saved to gig status. Autosave, Share, kebab actions, rendering, and Calendar flyer attachment behavior are unchanged.', items:['Confirm Build Version reports r967.','Open Make Flyer or Edit Saved Flyer and confirm DONE appears at the bottom.','Confirm the status shows Auto-saves to gig or Saved to gig.','Edit a field, tap DONE, and confirm you return to the gig with the flyer still attached.'] },
   { version:'2026-07-17-r966-proposal-reminder-backend-safety', date:'July 17, 2026', importance:'fix', emoji:'\uD83D\uDD14', title:'Proposal reminder backend delivery safety', body:'Completes proposal-reminder backend delivery wiring and adds reservation/finalization safety so a failed push no longer consumes the 10-hour reminder window. Automated LIVE sending remains disabled and has not been deployed. App reminder UX is unchanged.', items:['Confirm Build Version reports r966.','Confirm reminders still do not send automatically.','Confirm no client reminder behavior changed.'] },
   { version:'2026-07-17-r965-calendar-display-rows-helper', date:'July 17, 2026', importance:'fix', emoji:'\uD83D\uDCC5', title:'Calendar display rows helper extraction', body:'Moves the Calendar display-rows composer into js/calendar-date-helpers.js. Events and Important Date custom rows still combine the same way. Calendar rendering, drawers, Flyer, and Home behavior are unchanged.', items:['Confirm Build Version reports r965.','Open Calendar and confirm the month grid still renders.','Confirm Next Up still shows the next upcoming item.','Confirm All Events still lists gigs and Important Dates together.'] },
