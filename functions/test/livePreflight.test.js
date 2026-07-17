@@ -74,7 +74,11 @@ function makeClaimMockDb(proposal) {
             data: function () { return proposal; },
           };
         },
-        update: function () {},
+        update: function (ref, data) {
+          if (data && data.reminderState) {
+            proposal.reminderState = data.reminderState;
+          }
+        },
       };
       return fn(tx);
     },
@@ -237,27 +241,11 @@ async function testOrchestratorLiveReadyWithoutSideEffectsWhenFirestoreGateOff()
   assert.strictEqual(result.executed, false);
 }
 
-async function testOrchestratorClaimBeforePush() {
+async function testOrchestratorReserveFinalizeOnSuccess() {
   const now = PROPOSED_AT + PROPOSAL_REMINDER_FIRST_MS;
   const proposal = makeDueProposal();
   let pushCalled = false;
-  let claimUpdateCount = 0;
   const mockDb = makeClaimMockDb(proposal);
-  mockDb.runTransaction = async function (fn) {
-    const tx = {
-      get: async function () {
-        return {
-          exists: true,
-          id: 'prop-1',
-          data: function () { return proposal; },
-        };
-      },
-      update: function () {
-        claimUpdateCount += 1;
-      },
-    };
-    return fn(tx);
-  };
 
   const result = await runProposalReminderOrchestrator({
     env: liveEnvAllGates(),
@@ -277,28 +265,20 @@ async function testOrchestratorClaimBeforePush() {
 
   assert.strictEqual(result.mode, 'live-executed');
   assert.strictEqual(result.executed, true);
-  assert.strictEqual(claimUpdateCount, 1);
   assert.strictEqual(pushCalled, true);
   assert.strictEqual(result.results.length, 1);
-  assert.strictEqual(result.results[0].claim.send, true);
-  assert.strictEqual(result.results[0].reminderNumber, 1);
+  assert.strictEqual(result.results[0].reserve.send, true);
+  assert.strictEqual(result.results[0].finalize.ok, true);
   assert.strictEqual(result.results[0].push.sent, true);
+  assert.strictEqual(proposal.reminderState.bob.count, 1);
+  assert.strictEqual(proposal.reminderState.bob.reservation, undefined);
 }
 
 async function testScheduledSweepAttemptsPushWithMockedFetch() {
   const now = PROPOSED_AT + PROPOSAL_REMINDER_FIRST_MS;
   const proposal = makeDueProposal();
   let pushCalled = false;
-  let claimUpdates = 0;
   const mockDb = makeClaimMockDb(proposal);
-  mockDb.runTransaction = async function (fn) {
-    return fn({
-      get: async function () {
-        return { exists: true, id: 'prop-1', data: function () { return proposal; } };
-      },
-      update: function () { claimUpdates += 1; },
-    });
-  };
 
   const result = await runScheduledProposalReminderSweep({
     env: liveEnvAllGates(),
@@ -317,24 +297,15 @@ async function testScheduledSweepAttemptsPushWithMockedFetch() {
   });
 
   assert.strictEqual(result.mode, 'live-executed');
-  assert.strictEqual(claimUpdates, 1);
   assert.strictEqual(pushCalled, true);
   assert.strictEqual(result.results[0].push.sent, true);
+  assert.strictEqual(proposal.reminderState.bob.count, 1);
 }
 
-async function testScheduledSweepWithoutFetchKeepsFetchNotInjected() {
+async function testScheduledSweepWithoutFetchReleasesReservation() {
   const now = PROPOSED_AT + PROPOSAL_REMINDER_FIRST_MS;
   const proposal = makeDueProposal();
-  let claimUpdates = 0;
   const mockDb = makeClaimMockDb(proposal);
-  mockDb.runTransaction = async function (fn) {
-    return fn({
-      get: async function () {
-        return { exists: true, id: 'prop-1', data: function () { return proposal; } };
-      },
-      update: function () { claimUpdates += 1; },
-    });
-  };
 
   const result = await runScheduledProposalReminderSweep({
     env: liveEnvAllGates(),
@@ -351,25 +322,20 @@ async function testScheduledSweepWithoutFetchKeepsFetchNotInjected() {
 
   assert.strictEqual(result.mode, 'live-executed');
   assert.strictEqual(result.executed, true);
-  assert.strictEqual(claimUpdates, 1);
-  assert.strictEqual(result.results[0].claim.send, true);
+  assert.strictEqual(result.results[0].reserve.send, true);
   assert.strictEqual(result.results[0].push.sent, false);
   assert.strictEqual(result.results[0].push.reason, 'fetch-not-injected');
-  assert.ok(String(result.message).indexOf('fetchImpl not provided') >= 0);
+  assert.strictEqual(result.results[0].release.ok, true);
+  assert.strictEqual(proposal.reminderState.bob.count, 0);
+  assert.strictEqual(proposal.reminderState.bob.lastSentAt, undefined);
+  assert.strictEqual(proposal.reminderState.bob.reservation, undefined);
+  assert.strictEqual(proposal.reminderState.bob.lastAttempt.outcome, 'fetch-not-injected');
 }
 
-async function testOrchestratorSkipsPushWhenClaimNotDue() {
+async function testOrchestratorSkipsWhenNotDue() {
   const proposal = makeDueProposal();
   let pushCalled = false;
   const mockDb = makeClaimMockDb(proposal);
-  mockDb.runTransaction = async function (fn) {
-    return fn({
-      get: async function () {
-        return { exists: true, id: 'prop-1', data: function () { return proposal; } };
-      },
-      update: function () { throw new Error('should not update when not due'); },
-    });
-  };
 
   const result = await runProposalReminderOrchestrator({
     env: liveEnvAllGates(),
@@ -395,23 +361,14 @@ async function testOrchestratorSkipsPushWhenClaimNotDue() {
 
   assert.strictEqual(result.executed, true);
   assert.strictEqual(pushCalled, false);
-  assert.strictEqual(result.results[0].claim.send, false);
-  assert.strictEqual(result.results[0].claim.reason, 'not-due');
+  assert.strictEqual(result.results[0].reserve.send, false);
+  assert.strictEqual(result.results[0].reserve.reason, 'not-due');
 }
 
-async function testClaimOnlyWhenNetworkGateOff() {
+async function testNetworkGateOffReleasesWithoutBurningWindow() {
   const now = PROPOSED_AT + PROPOSAL_REMINDER_FIRST_MS;
   const proposal = makeDueProposal();
-  let claimUpdates = 0;
   const mockDb = makeClaimMockDb(proposal);
-  mockDb.runTransaction = async function (fn) {
-    return fn({
-      get: async function () {
-        return { exists: true, id: 'prop-1', data: function () { return proposal; } };
-      },
-      update: function () { claimUpdates += 1; },
-    });
-  };
 
   const result = await runProposalReminderOrchestrator({
     env: {
@@ -431,8 +388,68 @@ async function testClaimOnlyWhenNetworkGateOff() {
 
   assert.strictEqual(result.mode, 'live-claim-executed');
   assert.strictEqual(result.executed, true);
-  assert.strictEqual(claimUpdates, 1);
+  assert.strictEqual(result.results[0].reserve.send, true);
   assert.strictEqual(result.results[0].push.reason, 'push-blocked-preflight');
+  assert.strictEqual(result.results[0].release.ok, true);
+  assert.strictEqual(proposal.reminderState.bob.count, 0);
+  assert.strictEqual(proposal.reminderState.bob.lastSentAt, undefined);
+  assert.strictEqual(proposal.reminderState.bob.reservation, undefined);
+}
+
+async function testOptOutReleasesWithoutBurningWindow() {
+  const now = PROPOSED_AT + PROPOSAL_REMINDER_FIRST_MS;
+  const proposal = makeDueProposal();
+  const mockDb = makeClaimMockDb(proposal);
+  let pushCalled = false;
+
+  const result = await runProposalReminderOrchestrator({
+    env: liveEnvAllGates(),
+    firestore: mockDb,
+    proposals: [proposal],
+    rosterMemberIds: ROSTER,
+    memberNamesById: { bob: 'Bob' },
+    notifPrefsByMemberName: { Bob: { 'rehearsal-proposal': false } },
+    nowMs: now,
+    todayStr: TODAY,
+    writeNotifLog: false,
+    fetchImpl: async function () {
+      pushCalled = true;
+      return { status: 200, text: async function () { return 'ok'; } };
+    },
+  });
+
+  assert.strictEqual(pushCalled, false);
+  assert.strictEqual(result.results[0].push.reason, 'recipient-opted-out');
+  assert.strictEqual(result.results[0].release.ok, true);
+  assert.strictEqual(proposal.reminderState.bob.count, 0);
+  assert.strictEqual(proposal.reminderState.bob.lastAttempt.outcome, 'opted-out');
+}
+
+async function testHttpFailureReleasesReservation() {
+  const now = PROPOSED_AT + PROPOSAL_REMINDER_FIRST_MS;
+  const proposal = makeDueProposal();
+  const mockDb = makeClaimMockDb(proposal);
+
+  const result = await runProposalReminderOrchestrator({
+    env: liveEnvAllGates(),
+    firestore: mockDb,
+    proposals: [proposal],
+    rosterMemberIds: ROSTER,
+    memberNamesById: { bob: 'Bob' },
+    notifPrefsByMemberName: {},
+    nowMs: now,
+    todayStr: TODAY,
+    writeNotifLog: false,
+    fetchImpl: async function () {
+      return { status: 500, text: async function () { return 'fail'; } };
+    },
+  });
+
+  assert.strictEqual(result.results[0].push.sent, false);
+  assert.strictEqual(result.results[0].push.reason, 'push-failed');
+  assert.strictEqual(result.results[0].release.ok, true);
+  assert.strictEqual(proposal.reminderState.bob.count, 0);
+  assert.strictEqual(proposal.reminderState.bob.lastSentAt, undefined);
 }
 
 async function run() {
@@ -450,12 +467,14 @@ async function run() {
   await testPushUsesInjectedFetchOnlyInTestHarness();
   testPushPayloadShape();
   await testOrchestratorLiveReadyWithoutSideEffectsWhenFirestoreGateOff();
-  await testOrchestratorClaimBeforePush();
+  await testOrchestratorReserveFinalizeOnSuccess();
   await testScheduledSweepAttemptsPushWithMockedFetch();
-  await testScheduledSweepWithoutFetchKeepsFetchNotInjected();
-  await testOrchestratorSkipsPushWhenClaimNotDue();
-  await testClaimOnlyWhenNetworkGateOff();
-  console.log('PASS: live preflight tests (19 cases)');
+  await testScheduledSweepWithoutFetchReleasesReservation();
+  await testOrchestratorSkipsWhenNotDue();
+  await testNetworkGateOffReleasesWithoutBurningWindow();
+  await testOptOutReleasesWithoutBurningWindow();
+  await testHttpFailureReleasesReservation();
+  console.log('PASS: live preflight tests (21 cases)');
 }
 
 run().catch(function (err) {

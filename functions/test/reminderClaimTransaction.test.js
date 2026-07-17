@@ -1,7 +1,12 @@
 'use strict';
 
 const assert = require('assert');
-const { executeProposalReminderClaim } = require('../src/reminderClaimTransaction');
+const {
+  executeProposalReminderReserve,
+  executeProposalReminderFinalize,
+  executeProposalReminderRelease,
+  executeProposalReminderClaim,
+} = require('../src/reminderClaimTransaction');
 const { PROPOSAL_REMINDER_FIRST_MS } = require('../src/proposalReminderLogic');
 
 const ROSTER = ['alice', 'bob'];
@@ -45,6 +50,9 @@ function buildMockDb(proposalData, hooks) {
           };
         },
         update: function (ref, data) {
+          if (data && data.reminderState) {
+            proposalData.reminderState = data.reminderState;
+          }
           updates.push({ ref: ref, data: data });
         },
       };
@@ -55,26 +63,105 @@ function buildMockDb(proposalData, hooks) {
   return db;
 }
 
-async function testClaimSuccessUpdatesReminderState() {
-  const db = buildMockDb(baseProposalData());
+async function testReserveSuccessDoesNotFinalize() {
+  const data = baseProposalData();
+  const db = buildMockDb(data);
   const now = PROPOSED_AT + PROPOSAL_REMINDER_FIRST_MS;
-  const result = await executeProposalReminderClaim(db, 'prop-1', 'bob', {
+  const result = await executeProposalReminderReserve(db, 'prop-1', 'bob', {
     nowMs: now,
     rosterMemberIds: ROSTER,
     todayStr: TODAY,
     targetName: 'Bob',
   });
   assert.strictEqual(result.send, true);
-  assert.strictEqual(result.reason, 'claimed');
+  assert.strictEqual(result.reason, 'reserved');
   assert.strictEqual(result.reminderNumber, 1);
   assert.strictEqual(db.updates.length, 1);
-  assert.strictEqual(db.updates[0].data.reminderState.bob.count, 1);
-  assert.strictEqual(db.updates[0].data.reminderState.bob.lastSentTo, 'Bob');
+  assert.strictEqual(data.reminderState.bob.count, 0);
+  assert.strictEqual(data.reminderState.bob.reservation.status, 'reserved');
 }
 
-async function testClaimAbortMissing() {
-  const db = buildMockDb(baseProposalData(), { missing: true });
+async function testConcurrentReserveBlocked() {
+  const data = baseProposalData();
+  const db = buildMockDb(data);
+  const now = PROPOSED_AT + PROPOSAL_REMINDER_FIRST_MS;
+  const first = await executeProposalReminderReserve(db, 'prop-1', 'bob', {
+    nowMs: now,
+    rosterMemberIds: ROSTER,
+    todayStr: TODAY,
+  });
+  assert.strictEqual(first.send, true);
+  const second = await executeProposalReminderReserve(db, 'prop-1', 'bob', {
+    nowMs: now + 10,
+    rosterMemberIds: ROSTER,
+    todayStr: TODAY,
+  });
+  assert.strictEqual(second.send, false);
+  assert.strictEqual(second.reason, 'reserved');
+  assert.strictEqual(data.reminderState.bob.count, 0);
+}
+
+async function testFinalizeAfterReserve() {
+  const data = baseProposalData();
+  const db = buildMockDb(data);
+  const now = PROPOSED_AT + PROPOSAL_REMINDER_FIRST_MS;
+  const reserved = await executeProposalReminderReserve(db, 'prop-1', 'bob', {
+    nowMs: now,
+    rosterMemberIds: ROSTER,
+    todayStr: TODAY,
+    targetName: 'Bob',
+  });
+  const finalized = await executeProposalReminderFinalize(db, 'prop-1', 'bob', {
+    nowMs: now + 5,
+    reminderNumber: reserved.reminderNumber,
+    targetName: 'Bob',
+  });
+  assert.strictEqual(finalized.ok, true);
+  assert.strictEqual(finalized.reason, 'finalized');
+  assert.strictEqual(data.reminderState.bob.count, 1);
+  assert.strictEqual(data.reminderState.bob.lastSentAt, now + 5);
+  assert.strictEqual(data.reminderState.bob.reservation, undefined);
+}
+
+async function testReleaseAfterReserve() {
+  const data = baseProposalData();
+  const db = buildMockDb(data);
+  const now = PROPOSED_AT + PROPOSAL_REMINDER_FIRST_MS;
+  await executeProposalReminderReserve(db, 'prop-1', 'bob', {
+    nowMs: now,
+    rosterMemberIds: ROSTER,
+    todayStr: TODAY,
+  });
+  const released = await executeProposalReminderRelease(db, 'prop-1', 'bob', {
+    nowMs: now + 5,
+    reminderNumber: 1,
+    outcome: 'fetch-not-injected',
+    reason: 'fetch-not-injected',
+  });
+  assert.strictEqual(released.ok, true);
+  assert.strictEqual(data.reminderState.bob.count, 0);
+  assert.strictEqual(data.reminderState.bob.lastSentAt, undefined);
+  assert.strictEqual(data.reminderState.bob.reservation, undefined);
+  assert.strictEqual(data.reminderState.bob.lastAttempt.outcome, 'fetch-not-injected');
+}
+
+async function testClaimAliasReservesOnly() {
+  const data = baseProposalData();
+  const db = buildMockDb(data);
+  const now = PROPOSED_AT + PROPOSAL_REMINDER_FIRST_MS;
   const result = await executeProposalReminderClaim(db, 'prop-1', 'bob', {
+    nowMs: now,
+    rosterMemberIds: ROSTER,
+    todayStr: TODAY,
+  });
+  assert.strictEqual(result.send, true);
+  assert.strictEqual(data.reminderState.bob.count, 0);
+  assert.ok(data.reminderState.bob.reservation);
+}
+
+async function testReserveAbortMissing() {
+  const db = buildMockDb(baseProposalData(), { missing: true });
+  const result = await executeProposalReminderReserve(db, 'prop-1', 'bob', {
     nowMs: PROPOSED_AT + PROPOSAL_REMINDER_FIRST_MS,
     rosterMemberIds: ROSTER,
     todayStr: TODAY,
@@ -84,9 +171,9 @@ async function testClaimAbortMissing() {
   assert.strictEqual(db.updates.length, 0);
 }
 
-async function testClaimAbortNotDueInsideTransaction() {
+async function testReserveAbortNotDueInsideTransaction() {
   const db = buildMockDb(baseProposalData());
-  const result = await executeProposalReminderClaim(db, 'prop-1', 'bob', {
+  const result = await executeProposalReminderReserve(db, 'prop-1', 'bob', {
     nowMs: PROPOSED_AT,
     rosterMemberIds: ROSTER,
     todayStr: TODAY,
@@ -96,7 +183,7 @@ async function testClaimAbortNotDueInsideTransaction() {
   assert.strictEqual(db.updates.length, 0);
 }
 
-async function testClaimTransactionError() {
+async function testReserveTransactionError() {
   const db = {
     collection: function () {
       return { doc: function () { return {}; } };
@@ -105,7 +192,7 @@ async function testClaimTransactionError() {
       throw new Error('contention');
     },
   };
-  const result = await executeProposalReminderClaim(db, 'prop-1', 'bob', {
+  const result = await executeProposalReminderReserve(db, 'prop-1', 'bob', {
     nowMs: PROPOSED_AT + PROPOSAL_REMINDER_FIRST_MS,
     rosterMemberIds: ROSTER,
     todayStr: TODAY,
@@ -116,11 +203,15 @@ async function testClaimTransactionError() {
 }
 
 async function run() {
-  await testClaimSuccessUpdatesReminderState();
-  await testClaimAbortMissing();
-  await testClaimAbortNotDueInsideTransaction();
-  await testClaimTransactionError();
-  console.log('PASS: reminder claim transaction tests (4 cases)');
+  await testReserveSuccessDoesNotFinalize();
+  await testConcurrentReserveBlocked();
+  await testFinalizeAfterReserve();
+  await testReleaseAfterReserve();
+  await testClaimAliasReservesOnly();
+  await testReserveAbortMissing();
+  await testReserveAbortNotDueInsideTransaction();
+  await testReserveTransactionError();
+  console.log('PASS: reminder claim transaction tests (8 cases)');
 }
 
 run().catch(function (err) {

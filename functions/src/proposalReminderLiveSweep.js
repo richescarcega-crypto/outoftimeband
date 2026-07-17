@@ -3,7 +3,11 @@
 const { evaluateLiveEnablement } = require('./liveConfig');
 const { formatTodayLocal } = require('./proposalReminderLogic');
 const { collectDryRunCandidates, summarizeDryRunCandidates } = require('./proposalReminderSweepDryRun');
-const { executeProposalReminderClaim } = require('./reminderClaimTransaction');
+const {
+  executeProposalReminderReserve,
+  executeProposalReminderFinalize,
+  executeProposalReminderRelease,
+} = require('./reminderClaimTransaction');
 const { sendProposalReminderPush } = require('./pushClient');
 const { buildProposalReminderNotifLogEntry, writeNotifLogEntry } = require('./notifLog');
 
@@ -141,7 +145,9 @@ async function processReminderCandidates(options) {
   for (let i = 0; i < candidates.length; i++) {
     const c = candidates[i];
     const targetName = memberNames[c.memberId] || String(c.memberId);
-    const claimResult = await executeProposalReminderClaim(db, c.propId, c.memberId, {
+    const proposal = proposals.find(function (p) { return String(p.id) === String(c.propId); });
+
+    const reserveResult = await executeProposalReminderReserve(db, c.propId, c.memberId, {
       nowMs: nowMs,
       rosterMemberIds: rosterMemberIds,
       todayStr: todayStr,
@@ -153,17 +159,36 @@ async function processReminderCandidates(options) {
       propId: c.propId,
       memberId: c.memberId,
       candidateReminderNumber: c.reminderNumber,
-      claim: claimResult,
+      reserve: reserveResult,
     };
 
-    if (!claimResult.send) {
+    if (!reserveResult.send) {
       results.push(entry);
       continue;
     }
 
-    entry.reminderNumber = claimResult.reminderNumber;
+    entry.reminderNumber = reserveResult.reminderNumber;
+    if (proposal && reserveResult.reminderState) {
+      proposal.reminderState = reserveResult.reminderState;
+    }
+
+    async function releaseReservation(outcome, reason) {
+      const releaseResult = await executeProposalReminderRelease(db, c.propId, c.memberId, {
+        nowMs: nowMs,
+        reminderNumber: reserveResult.reminderNumber,
+        outcome: outcome,
+        reason: reason,
+        runTransaction: options.runTransaction,
+      });
+      entry.release = releaseResult;
+      if (proposal && releaseResult.reminderState) {
+        proposal.reminderState = releaseResult.reminderState;
+      }
+      return releaseResult;
+    }
 
     if (isRecipientOptedOut(prefsByMemberName, targetName, 'rehearsal-proposal')) {
+      await releaseReservation('opted-out', 'recipient-opted-out');
       const optOutResult = { sent: false, reason: 'recipient-opted-out' };
       entry.prefs = { pushAllowed: false, reason: 'recipient-opted-out' };
       entry.push = optOutResult;
@@ -171,7 +196,7 @@ async function processReminderCandidates(options) {
         entry.notiflog = await writeNotifLogEntry(db, buildProposalReminderNotifLogEntry(optOutResult, {
           targetMemberId: c.memberId,
           targetName: targetName,
-          note: 'backend claim succeeded; recipient opted out',
+          note: 'backend reserve released; recipient opted out (no durable send)',
         }));
       }
       results.push(entry);
@@ -179,36 +204,60 @@ async function processReminderCandidates(options) {
     }
 
     if (!config.canSendPush) {
+      await releaseReservation('push-blocked-preflight', 'push-blocked-preflight');
       const blockedResult = { sent: false, reason: 'push-blocked-preflight' };
       entry.push = blockedResult;
       if (writeNotifLog && db) {
         entry.notiflog = await writeNotifLogEntry(db, buildProposalReminderNotifLogEntry(blockedResult, {
           targetMemberId: c.memberId,
           targetName: targetName,
-          note: 'backend claim succeeded; push blocked by gates',
+          note: 'backend reserve released; push blocked by gates (no durable send)',
         }));
       }
       results.push(entry);
       continue;
     }
 
-    const proposal = proposals.find(function (p) { return String(p.id) === String(c.propId); });
     const pushResult = await sendProposalReminderPush({
       config: config,
       proposal: proposal,
       targetMemberId: c.memberId,
-      reminderNumber: claimResult.reminderNumber,
+      reminderNumber: reserveResult.reminderNumber,
       pushSecret: pushSecret,
       fetchImpl: fetchImpl,
     });
     entry.push = pushResult;
-    if (writeNotifLog && db) {
-      entry.notiflog = await writeNotifLogEntry(db, buildProposalReminderNotifLogEntry(pushResult, {
-        targetMemberId: c.memberId,
+
+    if (pushResult && pushResult.sent) {
+      const finalizeResult = await executeProposalReminderFinalize(db, c.propId, c.memberId, {
+        nowMs: nowMs,
+        reminderNumber: reserveResult.reminderNumber,
         targetName: targetName,
-        note: 'backend live sweep (claim-before-send)',
-      }));
+        runTransaction: options.runTransaction,
+      });
+      entry.finalize = finalizeResult;
+      if (proposal && finalizeResult.reminderState) {
+        proposal.reminderState = finalizeResult.reminderState;
+      }
+      if (writeNotifLog && db) {
+        entry.notiflog = await writeNotifLogEntry(db, buildProposalReminderNotifLogEntry(pushResult, {
+          targetMemberId: c.memberId,
+          targetName: targetName,
+          note: 'backend live sweep (reserve then finalize on 2xx)',
+        }));
+      }
+    } else {
+      const failReason = (pushResult && pushResult.reason) || 'push-failed';
+      await releaseReservation(failReason, failReason);
+      if (writeNotifLog && db) {
+        entry.notiflog = await writeNotifLogEntry(db, buildProposalReminderNotifLogEntry(pushResult || { sent: false, reason: failReason }, {
+          targetMemberId: c.memberId,
+          targetName: targetName,
+          note: 'backend reserve released after non-delivery (no durable send)',
+        }));
+      }
     }
+
     results.push(entry);
   }
 

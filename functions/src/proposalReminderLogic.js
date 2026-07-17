@@ -3,12 +3,24 @@
 const {
   PROPOSAL_REMINDER_FIRST_MS,
   PROPOSAL_REMINDER_REPEAT_MS,
+  PROPOSAL_REMINDER_RESERVATION_LEASE_MS,
 } = require('./reminderPolicy');
 
 /**
  * Pure proposal reminder planning logic ported from index.html (~27286–27328).
  * No Firebase, no push worker, no secrets. Safe for local unit tests.
+ *
+ * Active backend reservations (optional reminderState[member].reservation) block
+ * duplicate candidate selection until the lease expires.
  */
+
+function hasActiveReminderReservation(memberState, nowMs) {
+  const r = memberState && memberState.reservation;
+  if (!r || r.status !== 'reserved') return false;
+  const expiresAt = Number(r.expiresAt || 0);
+  if (!expiresAt) return false;
+  return Number(nowMs) < expiresAt;
+}
 
 function formatTodayLocal(date) {
   const d = date instanceof Date ? date : new Date(date);
@@ -62,6 +74,7 @@ function getReminderDueInfo(proposal, targetMemberId, nowMs, rosterMemberIds, to
   if (!proposedAt) return null;
   const stateRoot = proposal.reminderState || {};
   const state = stateRoot[String(targetMemberId)] || {};
+  if (hasActiveReminderReservation(state, now)) return null;
   const count = Number(state.count || 0);
   const lastSentAt = Number(state.lastSentAt || 0);
   const dueAt = count > 0
@@ -87,8 +100,10 @@ module.exports = {
   getNonResponderIds,
   isProposalDateStale,
   isProposalOpen,
+  hasActiveReminderReservation,
   getReminderDueInfo,
   getNextReminderNumber,
   PROPOSAL_REMINDER_FIRST_MS,
   PROPOSAL_REMINDER_REPEAT_MS,
+  PROPOSAL_REMINDER_RESERVATION_LEASE_MS,
 };

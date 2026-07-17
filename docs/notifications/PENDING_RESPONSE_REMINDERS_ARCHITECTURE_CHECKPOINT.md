@@ -15,11 +15,25 @@ Updated after backend schedule **fetch-wiring** (post-r965 Calendar closeout). N
 | Client Build Version | `2026-07-17-r965-calendar-display-rows-helper` |
 | Primary client implementation | `index.html` (client-side engine r109 / r762 / r826) |
 | Backend scheduler | **Exists** — Firebase Functions v2 `proposalReminderSweepScheduled` in `functions/` (every 15 minutes) |
-| Claim-before-send | **Exists** — client + `functions/src/reminderClaim*.js` |
+| Claim-before-send | **Superseded by reserve → finalize** — see below |
+| Reservation / finalization | **Exists** — reserve slot before push; finalize durable `count`/`lastSentAt` only after HTTP 2xx; release on failure/opt-out/blocked without burning the 10h window |
 | Fetch wiring | **Exists** — scheduled path injects runtime `fetch` via `runScheduledProposalReminderSweep` |
 | LIVE production sends | **Disabled by default** (`OOT_PROPOSAL_REMINDER_LIVE` unset / !=1) |
 | Push delivery | External Cloudflare worker (`PUSH_WORKER_URL` in `index.html`) |
 | Worker auth / production enablement | **Still requires separate verification** before setting LIVE gates |
+
+### Backend reminderState model (backward compatible)
+
+Durable fields (unchanged semantics when present): `count`, `lastSentAt`, `lastSentAtIso`, `history[]`, `policy`, …
+
+Optional reservation fields (absent = legacy / idle):
+
+| Field | Role |
+|-------|------|
+| `reservation` | In-flight lease: `{ reminderNumber, reservedAt, expiresAt, reservedBy, status:'reserved', mode }` |
+| `lastAttempt` | Diagnostic after release: `{ reminderNumber, attemptedAt, outcome, reason }` |
+
+Lease default: **15 minutes** (`PROPOSAL_REMINDER_RESERVATION_LEASE_MS`). Expired reservations are reclaimable; active ones block concurrent duplicate sends.
 
 ---
 
